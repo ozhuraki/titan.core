@@ -434,6 +434,58 @@ testcase decode_ae_emb() runs on AE
   CHECK_DECODE(exer_dec_ae, str_ae_emb, AEProduct, aep_emb);
 }
 
+// testing 'anyElement' in a record of record (bug 539956)
+type record Main
+{
+	record of AnyElem anyElem_list
+}
+with {
+  variant "name as uncapitalized";
+  variant (anyElem_list) "untagged";
+};
+
+type record AnyElem
+{
+	universal charstring elem
+}
+with {
+  variant "untagged";
+  variant (elem) "anyElement";
+};
+
+DECLARE_XER_ENCODERS(Main, main);
+DECLARE_EXER_ENCODERS(Main, main);
+
+const Main ae_rorec := {
+  anyElem_list := { { elem := "<something/>" } }
+};
+
+const universal charstring str_ae_rorec_b := 
+"<Main>\n" &
+"\t<anyElem_list>\n" &
+"\t\t<AnyElem>\n" &
+"\t\t\t<elem>&lt;something/&gt;</elem>\n" &
+"\t\t</AnyElem>\n" &
+"\t</anyElem_list>\n" &
+"</Main>\n\n";
+
+const universal charstring str_ae_rorec_e :=
+"<main>\n" &
+"\t<something/>\n" &
+"</main>\n\n";
+
+testcase encode_ae_rorec() runs on AE
+{
+  CHECK_METHOD(bxer_enc_main, ae_rorec, str_ae_rorec_b);
+  CHECK_METHOD(exer_enc_main, ae_rorec, str_ae_rorec_e);
+}
+
+testcase decode_ae_rorec() runs on AE
+{
+  CHECK_DECODE(bxer_dec_main, str_ae_rorec_b, Main, ae_rorec);
+  CHECK_DECODE(exer_dec_main, str_ae_rorec_e, Main, ae_rorec);
+}
+
 
 control
 {
@@ -457,6 +509,9 @@ control
   
   execute(encode_ae_emb())
   execute(decode_ae_emb())
+  
+  execute(encode_ae_rorec())
+  execute(decode_ae_rorec())
 }
 
 }
