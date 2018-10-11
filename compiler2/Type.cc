@@ -3013,6 +3013,34 @@ namespace Common {
       if (NULL != jsonattrib->tag_list) {
         chk_json_tag_list();
       }
+      
+      if (jsonattrib->as_map) {
+        Type* last = get_type_refd_last();
+        if (T_SEQOF != last->typetype && T_SETOF != last->typetype) {
+          error("Invalid attribute, 'as map' requires record of or set of");
+        }
+        else {
+          Type* of_type = last->get_ofType();
+          Type* of_type_last = of_type->get_type_refd_last();
+          if ((T_SEQ_T != of_type_last->typetype &&
+               T_SET_T != of_type_last->typetype) ||
+              of_type_last->get_nof_comps() != 2) {
+            error("Invalid attribute, 'as map' requires the element type to be "
+              "a record or set with 2 fields");
+          }
+          else {
+            Type* key_type = of_type_last->get_comp_byIndex(0)->get_type();
+            if (key_type->get_type_refd_last()->get_typetype() != T_USTR) {
+              error("Invalid attribute, 'as map' requires the element type's "
+                "first field to be a universal charstring");
+            }
+            if (key_type->is_optional_field()) {
+              error("Invalid attribute, 'as map' requires the element type's "
+                "first field to be mandatory");
+            }
+          }
+        }
+      }
     }
   }
   

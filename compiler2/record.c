@@ -3226,7 +3226,8 @@ char* generate_json_decoder(char* src, const struct_def* sdef)
   src = mputprintf(src,
     "int %s::JSON_decode(const TTCN_Typedescriptor_t&%s, JSON_Tokenizer& p_tok, "
     "boolean p_silent, int)\n"
-    "{\n", sdef->name, (sdef->nElements == 1 && !sdef->jsonAsValue) ? " p_td" : "");
+    "{\n", sdef->name,
+    ((sdef->nElements == 1 && !sdef->jsonAsValue) || sdef->jsonAsMapPossible) ? " p_td" : "");
 
   if (sdef->nElements == 1) {
     if (!sdef->jsonAsValue) {
@@ -3239,8 +3240,30 @@ char* generate_json_decoder(char* src, const struct_def* sdef)
     }
   }
   if (!sdef->jsonAsValue) {
+    src = mputstr(src, "  json_token_t j_token = JSON_TOKEN_NONE;\n");
+  }
+  if (sdef->jsonAsMapPossible) {
+    src = mputprintf(src,
+      "  if (p_td.json->as_map) {\n"
+      "    char* fld_name = NULL;\n"
+      "    size_t name_len = 0;\n"
+      "    size_t buf_pos = p_tok.get_buf_pos();\n"
+      "    size_t dec_len = p_tok.get_next_token(&j_token, &fld_name, &name_len);\n"
+      "    if (JSON_TOKEN_ERROR == j_token) {\n"
+      "      JSON_ERROR(TTCN_EncDec::ET_INVAL_MSG, JSON_DEC_BAD_TOKEN_ERROR, \"\");\n"
+      "      return JSON_ERROR_FATAL;\n"
+      "    }\n"
+      "    else if (JSON_TOKEN_NAME != j_token) {\n"
+      "      p_tok.set_buf_pos(buf_pos);\n"
+      "      return JSON_ERROR_INVALID_TOKEN;\n"
+      "    }\n"
+      "    field_%s.decode_utf8(name_len, (unsigned char*) fld_name);\n"
+      "    return field_%s.JSON_decode(%s_descr_, p_tok, p_silent) + dec_len;\n"
+      "  }\n", sdef->elements[0].name,
+      sdef->elements[1].name, sdef->elements[1].typedescrname);
+  }
+  if (!sdef->jsonAsValue) {
     src = mputstr(src,
-      "  json_token_t j_token = JSON_TOKEN_NONE;\n"
       "  size_t dec_len = p_tok.get_next_token(&j_token, NULL, NULL);\n"
       "  if (JSON_TOKEN_ERROR == j_token) {\n"
       "    JSON_ERROR(TTCN_EncDec::ET_INVAL_MSG, JSON_DEC_BAD_TOKEN_ERROR, \"\");\n"
@@ -4738,7 +4761,8 @@ void defRecordClass1(const struct_def *sdef, output_struct *output)
       "    TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_UNBOUND,\n"
       "      \"Encoding an unbound value of type %s.\");\n"
       "    return -1;\n"
-      "  }\n\n", name, (sdef->nElements == 1 && !sdef->jsonAsValue) ? " p_td" : "", dispname);
+      "  }\n\n", name, 
+      ((sdef->nElements == 1 && !sdef->jsonAsValue) || sdef->jsonAsMapPossible) ? " p_td" : "", dispname);
     if (sdef->nElements == 1) {
       if (!sdef->jsonAsValue) {
         src = mputstr(src, "  if (NULL != p_td.json && p_td.json->as_value) {\n");
@@ -4748,6 +4772,18 @@ void defRecordClass1(const struct_def *sdef, output_struct *output)
       if (!sdef->jsonAsValue) {
         src = mputstr(src, "  }\n");
       }
+    }
+    if (sdef->jsonAsMapPossible) {
+      src = mputprintf(src,
+        "  if (p_td.json->as_map) {\n"
+        "    TTCN_Buffer key_buf;\n"
+        "    field_%s.encode_utf8(key_buf);\n"
+        "    CHARSTRING key_str;\n"
+        "    key_buf.get_string(key_str);\n"
+        "    return p_tok.put_next_token(JSON_TOKEN_NAME, (const char*) key_str) + \n"
+        "      field_%s.JSON_encode(%s_descr_, p_tok);\n"
+        "  }\n", sdef->elements[0].name,
+        sdef->elements[1].name, sdef->elements[1].typedescrname);
     }
     if (!sdef->jsonAsValue) {
       src = mputstr(src, "  int enc_len = p_tok.put_next_token(JSON_TOKEN_OBJECT_START, NULL);\n\n");

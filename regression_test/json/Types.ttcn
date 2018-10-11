@@ -362,6 +362,14 @@ with {
   variant (protocolId2) "default (0)";
 }
 
+type record MapItem {
+  universal charstring key,
+  integer value_
+}
+
+type set of MapItem Map
+with { variant "as map" }
+
 } with {
   encode "JSON";
   extension "anytype integer, charstring, R, RoI, Thing";

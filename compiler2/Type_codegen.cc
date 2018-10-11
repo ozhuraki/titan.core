@@ -1091,23 +1091,30 @@ void Type::generate_code_jsondescriptor(output_struct *target)
   target->header.global_vars = mputprintf(target->header.global_vars,
     "extern const TTCN_JSONdescriptor_t %s_json_;\n", get_genname_own().c_str());
   
+  boolean as_map = (jsonattrib != NULL && jsonattrib->as_map) || 
+    (ownertype == OT_RECORD_OF && parent_type->jsonattrib != NULL && 
+     parent_type->jsonattrib->as_map);
+  
   if (NULL == jsonattrib) {
     target->source.global_vars = mputprintf(target->source.global_vars,
-      "const TTCN_JSONdescriptor_t %s_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE };\n"
-      , get_genname_own().c_str());
+      "const TTCN_JSONdescriptor_t %s_json_ = { FALSE, NULL, FALSE, NULL, "
+      "FALSE, FALSE, %s };\n"
+      , get_genname_own().c_str(), as_map ? "TRUE" : "FALSE");
   } else {
     char* alias = jsonattrib->alias ? mputprintf(NULL, "\"%s\"", jsonattrib->alias) : NULL;
     char* def_val = jsonattrib->default_value ?
       mputprintf(NULL, "\"%s\"", jsonattrib->default_value) : NULL;
+    
     target->source.global_vars = mputprintf(target->source.global_vars,
-      "const TTCN_JSONdescriptor_t %s_json_ = { %s, %s, %s, %s, %s, %s };\n"
+      "const TTCN_JSONdescriptor_t %s_json_ = { %s, %s, %s, %s, %s, %s, %s };\n"
       , get_genname_own().c_str() 
       , jsonattrib->omit_as_null ? "TRUE" : "FALSE"
       , alias ? alias : "NULL"
       , (jsonattrib->as_value || jsonattrib->tag_list != NULL) ? "TRUE" : "FALSE"
       , def_val ? def_val : "NULL"
       , jsonattrib->metainfo_unbound ? "TRUE" : "FALSE"
-      , jsonattrib->as_number ? "TRUE" : "FALSE");
+      , jsonattrib->as_number ? "TRUE" : "FALSE"
+      , as_map ? "TRUE" : "FALSE");
     Free(alias);
     Free(def_val);
   }
@@ -1737,6 +1744,18 @@ void Type::generate_code_Se(output_struct *target)
       FATAL_ERROR("Type::generate_code_Se()"); // union only, not for record
     }
   }
+  if (jsonattrib != NULL) {
+    sdef.jsonAsValue = jsonattrib->as_value;
+  }
+  if (sdef.nElements == 2) {
+    Type* first_field_type = get_comp_byIndex(0)->get_type();
+    sdef.jsonAsMapPossible = !first_field_type->is_optional_field() &&
+      first_field_type->get_type_refd_last()->typetype == T_USTR;
+  }
+  else {
+    sdef.jsonAsMapPossible = FALSE;
+  }
+  
   sdef.elements = (struct_field*)
     Malloc(sdef.totalElements*sizeof(*sdef.elements));
   memset(sdef.elements, 0, sdef.totalElements * sizeof(*sdef.elements));

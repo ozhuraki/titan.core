@@ -121,6 +121,7 @@ typedef struct {
   boolean xerHasNamespaces; /* from the module */
   boolean xerEmbedValuesPossible; /* for sequence */
   boolean jsonAsValue; /* for both */
+  boolean jsonAsMapPossible; /* for sequence */
   /** The index of the last field which can generate empty XML, or -1 */
   int exerMaybeEmptyIndex; /* for union */
   const char * control_ns_prefix;

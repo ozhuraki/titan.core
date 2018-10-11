@@ -298,6 +298,7 @@ static void yyprint(FILE *file, int type, const YYSTYPE& value);
 %token XAsValueKeyword    "asValue"
 %token XChosenKeyword     "chosen"
 %token XJsonOtherwise     "otherwise"
+%token XJsonMap           "map"
 
 
 %type <enumval>
@@ -1840,6 +1841,7 @@ JSONattribute:
 | JMetainfoForUnbound
 | JAsNumber
 | JChosen
+| JAsMap
 ;
 
 JOmitAsNull:
@@ -1878,6 +1880,10 @@ JChosen:
     }
     link_rawAST_tag_list(jsonstruct->tag_list, &$3);
   }
+;
+
+JAsMap:
+  XKWas XJsonMap { jsonstruct->as_map = true; }
 ;
 
 %%

@@ -36,6 +36,7 @@ void JsonAST::init_JsonAST()
   metainfo_unbound = false;
   as_number = false;
   tag_list = NULL;
+  as_map = false;
 }
 
 JsonAST::JsonAST(const JsonAST *other_val)
@@ -51,6 +52,7 @@ JsonAST::JsonAST(const JsonAST *other_val)
       schema_extensions.add(new JsonSchemaExtension(*other_val->schema_extensions[i]));
     }
     metainfo_unbound = other_val->metainfo_unbound;
+    as_map = other_val->as_map;
   }
 }
 
@@ -118,5 +120,8 @@ void JsonAST::print_JsonAST() const
         printf("\n\r");
       }
     }
+  }
+  if (as_map) {
+    printf("Encoding elements into a map of key-value pairs.\n\r");
   }
 }

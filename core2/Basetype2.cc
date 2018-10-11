@@ -1476,7 +1476,8 @@ int Record_Of_Type::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenize
     return -1;
   }
   
-  int enc_len = p_tok.put_next_token(JSON_TOKEN_ARRAY_START, NULL);
+  int enc_len = p_tok.put_next_token(p_td.json->as_map ? JSON_TOKEN_OBJECT_START :
+    JSON_TOKEN_ARRAY_START, NULL);
   
   for (int i = 0; i < get_nof_elements(); ++i) {
     if (NULL != p_td.json && p_td.json->metainfo_unbound && !get_at(i)->is_bound()) {
@@ -1493,7 +1494,8 @@ int Record_Of_Type::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenize
     }
   }
   
-  enc_len += p_tok.put_next_token(JSON_TOKEN_ARRAY_END, NULL);
+  enc_len += p_tok.put_next_token(p_td.json->as_map ? JSON_TOKEN_OBJECT_END :
+    JSON_TOKEN_ARRAY_END, NULL);
   return enc_len;
 }
 
@@ -1507,7 +1509,8 @@ int Record_Of_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_desc
     return -1;
   }
   
-  int enc_len = p_tok.put_next_token(JSON_TOKEN_ARRAY_START, NULL);
+  int enc_len = p_tok.put_next_token(p_td.json->as_map ? JSON_TOKEN_OBJECT_START :
+    JSON_TOKEN_ARRAY_START, NULL);
   
   int values_idx = 0;
   int edescr_idx = 0;
@@ -1583,7 +1586,8 @@ int Record_Of_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_desc
     }
   }
   
-  enc_len += p_tok.put_next_token(JSON_TOKEN_ARRAY_END, NULL);
+  enc_len += p_tok.put_next_token(p_td.json->as_map ? JSON_TOKEN_OBJECT_END :
+    JSON_TOKEN_ARRAY_END, NULL);
   return enc_len;
 }
 
@@ -1601,7 +1605,8 @@ int Record_Of_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenize
     JSON_ERROR(TTCN_EncDec::ET_INVAL_MSG, JSON_DEC_BAD_TOKEN_ERROR, "");
     return JSON_ERROR_FATAL;
   }
-  else if (JSON_TOKEN_ARRAY_START != token) {
+  else if ((!p_td.json->as_map && JSON_TOKEN_ARRAY_START != token) ||
+           (p_td.json->as_map && JSON_TOKEN_OBJECT_START != token)) {
     return JSON_ERROR_INVALID_TOKEN;
   } 
   
@@ -1661,7 +1666,8 @@ int Record_Of_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenize
   }
   
   dec_len += p_tok.get_next_token(&token, NULL, NULL);
-  if (JSON_TOKEN_ARRAY_END != token) {
+  if ((!p_td.json->as_map && JSON_TOKEN_ARRAY_END != token) ||
+      (p_td.json->as_map && JSON_TOKEN_OBJECT_END != token)) {
     JSON_ERROR(TTCN_EncDec::ET_INVAL_MSG, JSON_DEC_REC_OF_END_TOKEN_ERROR, "");
     if (p_silent) {
       clean_up();
@@ -5951,6 +5957,21 @@ int Record_Type::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& 
     return get_at(0)->JSON_encode(*fld_descr(0), p_tok);
   }
   
+  if (p_td.json->as_map) { // TODO: implement negtest
+    const UNIVERSAL_CHARSTRING* key_ustr = dynamic_cast<
+      const UNIVERSAL_CHARSTRING*>(get_at(0));
+    if (NULL == key_ustr) {
+      TTCN_error("Internal error: attribute 'as map' is set, but the first "
+        "field is not a universal charstring");
+    }
+    TTCN_Buffer key_buf;
+    key_ustr->encode_utf8(key_buf);
+    CHARSTRING key_str;
+    key_buf.get_string(key_str);
+    return p_tok.put_next_token(JSON_TOKEN_NAME, (const char*) key_str) +
+      get_at(1)->JSON_encode(*fld_descr(1), p_tok);
+  }
+  
   int enc_len = p_tok.put_next_token(JSON_TOKEN_OBJECT_START, NULL);
   
   int field_count = get_count();
@@ -6093,7 +6114,33 @@ int Record_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& 
     // decode that without the need of any brackets or field names 
     return get_at(0)->JSON_decode(*fld_descr(0), p_tok, p_silent);
   }
+  
   json_token_t token = JSON_TOKEN_NONE;
+  
+  if (p_td.json->as_map) {
+    UNIVERSAL_CHARSTRING* key_ustr = dynamic_cast<
+      UNIVERSAL_CHARSTRING*>(get_at(0));
+    if (NULL == key_ustr) {
+      TTCN_error("Internal error: attribute 'as map' is set, but the first "
+        "field is not a universal charstring");
+    }
+    char* name = NULL;
+    size_t name_len = 0;
+    size_t buf_pos = p_tok.get_buf_pos();
+    size_t dec_len = p_tok.get_next_token(&token, &name, &name_len);
+    if (JSON_TOKEN_ERROR == token) {
+      JSON_ERROR(TTCN_EncDec::ET_INVAL_MSG, JSON_DEC_BAD_TOKEN_ERROR, "");
+      return JSON_ERROR_FATAL;
+    }
+    else if (JSON_TOKEN_NAME != token) {
+      p_tok.set_buf_pos(buf_pos);
+      return JSON_ERROR_INVALID_TOKEN;
+    }
+    key_ustr->decode_utf8(name_len, (unsigned char*) name);
+    
+    return get_at(1)->JSON_decode(*fld_descr(1), p_tok, p_silent) + dec_len;
+  }
+  
   size_t dec_len = p_tok.get_next_token(&token, NULL, NULL);
   if (JSON_TOKEN_ERROR == token) {
     JSON_ERROR(TTCN_EncDec::ET_INVAL_MSG, JSON_DEC_BAD_TOKEN_ERROR, "");

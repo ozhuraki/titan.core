@@ -66,6 +66,13 @@ struct TTCN_JSONdescriptor_t
     * number, instead of its name form as a JSON string (affects both encoding
     * and decoding). */
   boolean as_number;
+  
+  /** If set, encodes the value into a map of key-value pairs (i.e. a fully 
+    * customizable JSON object). The encoded type has to be a record of/set of
+    * with a record/set element type, which has 2 fields, the first of which is
+    * a non-optional universal charstring.
+    * Example: { "key1" : value1, "key2" : value2 } */
+  boolean as_map;
 };
 
 /** This macro makes sure that coding errors will only be displayed if the silent

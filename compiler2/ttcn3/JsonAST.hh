@@ -43,6 +43,7 @@ class JsonAST {
     boolean metainfo_unbound;
     boolean as_number;
     rawAST_tag_list* tag_list;
+    boolean as_map;
   
     JsonAST() { init_JsonAST(); }
     JsonAST(const JsonAST *other_val);

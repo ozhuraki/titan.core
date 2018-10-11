@@ -675,6 +675,20 @@ testcase tc_attribute_chosen_default() runs on MTC {
   setverdict(pass);
 }
 
+testcase tc_attribute_map() runs on MTC {
+  var Map x := { { "one", 1 }, { "two", 2 }, { "three", 3 } };
+  var octetstring enc_exp := char2oct("{\"one\":1,\"two\":2,\"three\":3}");
+  var octetstring enc := f_enc_map(x);
+  if (enc != enc_exp) {
+    setverdict(fail, "Encoding failed. Expected: ", enc_exp, ", got: ", enc);
+  }
+  var Map dec := f_dec_map(enc_exp);
+  if (dec != x) {
+    setverdict(fail, "Decoding failed. Expected: ", x, ", got: ", dec);
+  }
+  setverdict(pass);
+}
+
 
 control {
   execute(tc_NoAttributeOnUpperLevel())
@@ -704,5 +718,6 @@ control {
   execute(tc_attribute_chosen());
   execute(tc_attribute_chosen_negtest());
   execute(tc_attribute_chosen_default());
+  execute(tc_attribute_map());
 }
 }

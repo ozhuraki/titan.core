@@ -500,6 +500,7 @@ for           RETURN(XKWfor);
 unbound       RETURN(XKWunbound);
 chosen        RETURN(XChosenKeyword);
 otherwise     RETURN(XJsonOtherwise);
+map           RETURN(XJsonMap);
 }
 
 <INITIAL>{
