@@ -271,9 +271,6 @@ public:
   CHARSTRING get_stringRepr_for_pattern() const;
   
   void dump() const;
-
-  static boolean can_start(const char *name, const char *uri,
-    XERdescriptor_t const& xd, unsigned int flavor, unsigned int flavor2);
   
 private:
   // convert this string to character string for pattern matching: ([A-P]{8})*

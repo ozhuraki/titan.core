@@ -166,5 +166,5 @@ RUN :=
 endif
 
 run: $(TARGET) run.cfg
-	if $(RUN) ./$^; then ./indent.pl neg.log; else ./indent.pl neg.log; exit 1; fi 
+	$(RUN) ./$^
 

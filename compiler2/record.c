@@ -1961,6 +1961,17 @@ void gen_xer(const struct_def *sdef, char **pdef, char **psrc)
     /* The last component with which it can begin is the first non-optional.
      * Does that sentence makes sense to you ? */
   }
+  for (i = 0; i < sdef->nElements; i++) {
+    if (strcmp(sdef->elements[i].type, "UNIVERSAL_CHARSTRING") == 0 &&
+        !sdef->elements[i].xerAttribute) {
+      src = mputprintf(src,
+        "  else if (%s_xer_.xer_bits & ANY_ELEMENT) return TRUE;\n"
+        , sdef->elements[i].typegen);
+    }
+    if (!sdef->elements[i].isOptional && !sdef->elements[i].xerAttribute) {
+      break;
+    }
+  }
   src = mputstr(src, "  return FALSE;\n}\n\n");
 
   /* * * * * * * * * * XER_encode * * * * * * * * * * * * * * */
@@ -7731,6 +7742,20 @@ check_generate_end:
         src = mputprintf(src,
           "  else if (%s::can_start(p_name, p_uri, %s_xer_, p_flavor, p_flavor2)) return TRUE;\n"
           , sdef->elements[i].type, sdef->elements[i].typegen);
+        if (!sdef->elements[i].isOptional) {
+          break;
+        }
+      }
+      for (i = 0; i < sdef->nElements; i++) {
+        if (strcmp(sdef->elements[i].type, "UNIVERSAL_CHARSTRING") == 0 &&
+            !sdef->elements[i].xerAttribute) {
+          src = mputprintf(src,
+            "  else if (%s_xer_.xer_bits & ANY_ELEMENT) return TRUE;\n"
+            , sdef->elements[i].typegen);
+        }
+        if (!sdef->elements[i].isOptional && !sdef->elements[i].xerAttribute) {
+          break;
+        }
       }
       src = mputstr(src,
         "  return FALSE;\n"

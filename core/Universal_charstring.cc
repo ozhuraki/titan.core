@@ -891,15 +891,6 @@ void UNIVERSAL_CHARSTRING::dump() const
   }
 }
 
-boolean UNIVERSAL_CHARSTRING::can_start(const char *name, const char *uri,
-  XERdescriptor_t const& xd, unsigned int flavor, unsigned int flavor2)
-{
-  if (is_exer(flavor) && (xd.xer_bits & ANY_ELEMENT)) {
-    return TRUE;
-  }
-  return Base_Type::can_start(name, uri, xd, flavor, flavor2);
-}
-
 void UNIVERSAL_CHARSTRING::log() const
 {
   if (charstring) {

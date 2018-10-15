@@ -5820,15 +5820,21 @@ int Record_Type::XER_decode(const XERdescriptor_t& p_td, XmlReaderWrap& reader,
           else {
             // In case the field is an optional anyElement -> check if it should be omitted
             boolean optional_any_elem_check = TRUE;
-            if (get_at(i)->is_optional() && (xer_descr(i)->xer_bits & ANY_ELEMENT)) {
-              // The "anyElement" coding instruction can only be applied to a universal charstring field
-              OPTIONAL<UNIVERSAL_CHARSTRING>* opt_field = dynamic_cast<OPTIONAL<UNIVERSAL_CHARSTRING>*>(get_at(i));
-              if (opt_field) {
-                const char* next_field_name = NULL;
-                if (i < field_cnt - 1) {
-                  next_field_name = fld_name(i + 1);
+            if (xer_descr(i)->xer_bits & ANY_ELEMENT) {
+              if (get_at(i)->is_optional()) {
+                // The "anyElement" coding instruction can only be applied to a universal charstring field
+                OPTIONAL<UNIVERSAL_CHARSTRING>* opt_field = dynamic_cast<OPTIONAL<UNIVERSAL_CHARSTRING>*>(get_at(i));
+                if (opt_field) {
+                  const char* next_field_name = NULL;
+                  if (i < field_cnt - 1) {
+                    next_field_name = fld_name(i + 1);
+                  }
+                  optional_any_elem_check = opt_field->XER_check_any_elem(reader, next_field_name, tag_closed);
                 }
-                optional_any_elem_check = opt_field->XER_check_any_elem(reader, next_field_name, tag_closed);
+              }
+              else if (tag_closed) {
+                // If the record is emptyElement, there's no way it will have an anyElement field
+                reader.Read();
               }
             }
             if (optional_any_elem_check && !already_processed) {
