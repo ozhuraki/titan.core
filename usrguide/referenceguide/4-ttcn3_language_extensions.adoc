@@ -5678,6 +5678,56 @@ type union Choices {
 
 ----
 
+*As map*
+
+Attribute syntax: as map
+
+Applicable to (TTCN-3): Record of/set of with a record/set element type, that has 2 fields, the first of which is a non-optional universal charstring
+
+Description: If set, the mentioned structure is encoded as a JSON object containing key-value pairs. The universal charstrings in the element records/sets are the keys, and the second field in each record/set contains the value. This allows the creation of heterogenous objects in the JSON document (i.e. JSON objects with any combination of field names and values).
+
+Affects both encoding and decoding.
+
+Example:
+[source]
+----
+type record MapItem {
+  universal charstring key,
+  integer value_ optional
+}
+
+type set of MapItem Map
+with { variant "as map" }
+
+const Map c_map := { { "one", 1 }, { "two", 2 }, { "three", 3 }, { "zero", omit } };
+// is encoded into: { "one" : 1, "two" : 2, "three" : 3, "zero" : null }
+----
+
+*Text ... as ...*
+
+Attribute syntax: text '<enum text>' as '<new text>'
+
+Applicable to (TTCN-3): Enumerated types
+
+Description: This attribute can be used to change the encoding of certain enumerated values. Each attribute changes the encoding of one enumerated option.
+
+Affects both encoding and decoding.
+
+Example:
+[source]
+----
+type enumerated EnumNumber { One, Two, Three }
+with {
+  variant "text 'One' as '1'";
+  variant "text 'Two' as '2'";
+  variant "text 'Three' as '3'";
+}
+type record of EnumNumber EnumNumberList;
+
+const EnumNumberList c_numbers := { One, Two, Three };
+// is encoded into: [ "1", "2", "3" ]
+----
+
 [[external-functions-0]]
 === External functions
 

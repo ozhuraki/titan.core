@@ -364,11 +364,36 @@ with {
 
 type record MapItem {
   universal charstring key,
-  integer value_
+  integer value_ optional
 }
 
 type set of MapItem Map
 with { variant "as map" }
+
+type union JsonValue {
+  integer JsonInteger,
+  float JsonNumber,
+  boolean JsonBool,
+  universal charstring JsonString,
+  record of JsonValue JsonArray,
+  set of record {
+    universal charstring   key,
+    JsonValue               val
+  } JsonObject
+}
+with {
+  variant "JSON: as value"
+  variant (JsonObject) "as map";
+}
+
+type enumerated EnumNumber { One, Two, Three }
+with {
+  variant "text 'One' as '1'";
+  variant "text 'Two' as '2'";
+  variant "text 'Three' as '3'";
+}
+
+type record of EnumNumber EnumNumberList;
 
 } with {
   encode "JSON";

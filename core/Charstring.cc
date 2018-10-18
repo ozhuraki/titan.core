@@ -1405,7 +1405,8 @@ int CHARSTRING::XER_decode(const XERdescriptor_t& p_td, XmlReaderWrap& reader,
         depth = reader.Depth();
       }
       else if ((depth != -1 || omit_tag)
-        && (XML_READER_TYPE_TEXT == type || XML_READER_TYPE_CDATA == type || (omit_tag && XML_READER_TYPE_ATTRIBUTE)))
+        && (XML_READER_TYPE_TEXT == type || XML_READER_TYPE_CDATA == type ||
+            (omit_tag && XML_READER_TYPE_ATTRIBUTE == type)))
         // Process #text node if we already processed the element node, or
         // there is no element node because UNTAGGED is in effect.
       {

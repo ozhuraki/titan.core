@@ -21,6 +21,12 @@ class JSON_Tokenizer;
 class CHARSTRING;
 class INTEGER;
 
+/** Enumerated text change structure */
+struct JsonEnumText {
+  int index;
+  const char* text;
+};
+
 /** Descriptor for JSON encoding/decoding during runtime */
 struct TTCN_JSONdescriptor_t 
 {
@@ -73,6 +79,12 @@ struct TTCN_JSONdescriptor_t
     * a non-optional universal charstring.
     * Example: { "key1" : value1, "key2" : value2 } */
   boolean as_map;
+  
+  /** Number of enumerated values whose texts are changed. */
+  size_t nof_enum_texts;
+  
+  /** List of enumerated values whose texts are changed. */
+  const JsonEnumText* enum_texts;
 };
 
 /** This macro makes sure that coding errors will only be displayed if the silent

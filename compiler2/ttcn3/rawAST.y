@@ -1505,9 +1505,49 @@ XERattribute:
       }
     | text
       {
-        xerstruct->text_ = (NamespaceSpecification *)Realloc(xerstruct->text_,
-          ++xerstruct->num_text_ * sizeof(NamespaceSpecification));
-        xerstruct->text_[xerstruct->num_text_-1] = $1;
+        if (selected_codec == Common::Type::CT_XER || legacy_codec_handling) {
+          xerstruct->text_ = (NamespaceSpecification *)Realloc(xerstruct->text_,
+            ++xerstruct->num_text_ * sizeof(NamespaceSpecification));
+          xerstruct->text_[xerstruct->num_text_-1] = $1;
+        }
+        if (selected_codec != Common::Type::CT_XER) {
+          XerAttributes::NameChange special;
+          special.nn_ = $1.prefix;
+          switch (special.kw_) {
+          case NamespaceSpecification::NO_MANGLING:
+          case NamespaceSpecification::CAPITALIZED:
+          case NamespaceSpecification::UNCAPITALIZED:
+          case NamespaceSpecification::UPPERCASED:
+          case NamespaceSpecification::LOWERCASED:
+          case NamespaceSpecification::ALL:
+            if (!legacy_codec_handling &&
+                selected_codec == Common::Type::CT_JSON) {
+              Common::Location loc(infile, @$);
+              loc.error("This format is not supported for the JSON codec");
+            }
+            break;
+          default: // it's a real string
+            if (selected_codec == Common::Type::CT_JSON ||
+                legacy_codec_handling) {
+              if (legacy_codec_handling) {
+                // in this case the strings are saved in both the XML and JSON
+                // structs, so we can't use the same strings
+                jsonstruct->enum_texts.add(
+                  new JsonEnumText(mcopystr($1.prefix), mcopystr($1.uri)));
+              }
+              else {
+                jsonstruct->enum_texts.add(
+                  new JsonEnumText($1.prefix, $1.uri));
+              }
+              json_f = true;
+            }
+            else {
+              Free($1.prefix);
+              Free($1.uri);
+            }
+            break;
+          }
+        }
       }
     | XKWuntagged  { xerstruct->untagged_  = true; }
     | XKWuseNil    { xerstruct->useNil_    = true; }
