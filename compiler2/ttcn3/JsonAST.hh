@@ -29,6 +29,14 @@ public:
   ~JsonSchemaExtension();
 };
 
+struct JsonEnumText {
+  char* from;
+  char* to;
+  int index; // set during semantic analysis
+  JsonEnumText(char* p_from, char* p_to): from(p_from), to(p_to) {}
+  ~JsonEnumText();
+};
+
 class JsonAST {
   private:
     void init_JsonAST();
@@ -44,10 +52,13 @@ class JsonAST {
     boolean as_number;
     rawAST_tag_list* tag_list;
     boolean as_map;
+    vector<JsonEnumText> enum_texts;
   
     JsonAST() { init_JsonAST(); }
     JsonAST(const JsonAST *other_val);
     ~JsonAST();
+    
+    boolean empty() const;
     
     void print_JsonAST() const;
 };

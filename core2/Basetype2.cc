@@ -5963,7 +5963,7 @@ int Record_Type::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& 
     return get_at(0)->JSON_encode(*fld_descr(0), p_tok);
   }
   
-  if (p_td.json->as_map) { // TODO: implement negtest
+  if (p_td.json->as_map) {
     const UNIVERSAL_CHARSTRING* key_ustr = dynamic_cast<
       const UNIVERSAL_CHARSTRING*>(get_at(0));
     if (NULL == key_ustr) {
@@ -6016,8 +6016,9 @@ int Record_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
   }
   
   boolean as_value = NULL != p_td.json && p_td.json->as_value;
+  boolean as_map = NULL != p_td.json && p_td.json->as_map;
   
-  int enc_len = as_value ? 0 : p_tok.put_next_token(JSON_TOKEN_OBJECT_START, NULL);
+  int enc_len = (as_value || as_map) ? 0 : p_tok.put_next_token(JSON_TOKEN_OBJECT_START, NULL);
   
   int values_idx = 0;
   int edescr_idx = 0;
@@ -6031,7 +6032,7 @@ int Record_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
     const Erroneous_values_t* err_vals = p_err_descr->next_field_err_values(i, values_idx);
     const Erroneous_descriptor_t* emb_descr = p_err_descr->next_field_emb_descr(i, edescr_idx);
     
-    if (!as_value && NULL != err_vals && NULL != err_vals->before) {
+    if (!as_value && !as_map && NULL != err_vals && NULL != err_vals->before) {
       if (NULL == err_vals->before->errval) {
         TTCN_error("internal error: erroneous before value missing");
       }
@@ -6057,26 +6058,55 @@ int Record_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
           if (NULL == err_vals->value->type_descr) {
             TTCN_error("internal error: erroneous before typedescriptor missing");
           }
-          // only replace the field's value, keep the field name
-          if (!as_value) {
-            enc_len += p_tok.put_next_token(JSON_TOKEN_NAME, field_name);
+          if (as_map && 0 == i) {
+            const UNIVERSAL_CHARSTRING* key_ustr = dynamic_cast<
+              const UNIVERSAL_CHARSTRING*>(err_vals->value->errval);
+            if (NULL == key_ustr) {
+              TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_UNBOUND,
+                "Erroneous value for the first field of the 'as map' element type "
+                "is not a universal charstring");
+            }
+            TTCN_Buffer key_buf;
+            key_ustr->encode_utf8(key_buf);
+            CHARSTRING key_str;
+            key_buf.get_string(key_str);
+            enc_len += p_tok.put_next_token(JSON_TOKEN_NAME, (const char*) key_str);
           }
-          enc_len += err_vals->value->errval->JSON_encode(*(err_vals->value->type_descr), p_tok);
+          else {
+            // only replace the field's value, keep the field name
+            if (!as_value && !as_map) {
+              enc_len += p_tok.put_next_token(JSON_TOKEN_NAME, field_name);
+            }
+            enc_len += err_vals->value->errval->JSON_encode(*(err_vals->value->type_descr), p_tok);
+          }
         }
       }
     } else {
       boolean metainfo_unbound = NULL != fld_descr(i)->json && fld_descr(i)->json->metainfo_unbound;
       if ((NULL != fld_descr(i)->json && fld_descr(i)->json->omit_as_null) || 
           get_at(i)->is_present() || metainfo_unbound || as_value) {
-        if (!as_value) {
+        if (!as_value && !as_map) {
           enc_len += p_tok.put_next_token(JSON_TOKEN_NAME, field_name);
         }
-        if (!as_value && metainfo_unbound && !get_at(i)->is_bound()) {
+        if (!as_value && !as_map && metainfo_unbound && !get_at(i)->is_bound()) {
           enc_len += p_tok.put_next_token(JSON_TOKEN_LITERAL_NULL);
           char* metainfo_str = mprintf("metainfo %s", field_name);
           enc_len += p_tok.put_next_token(JSON_TOKEN_NAME, metainfo_str);
           Free(metainfo_str);
           enc_len += p_tok.put_next_token(JSON_TOKEN_STRING, "\"unbound\"");
+        }
+        else if (as_map && 0 == i) {
+          const UNIVERSAL_CHARSTRING* key_ustr = dynamic_cast<
+            const UNIVERSAL_CHARSTRING*>(get_at(0));
+          if (NULL == key_ustr) {
+            TTCN_error("Internal error: attribute 'as map' is set, but the first "
+              "field is not a universal charstring");
+          }
+          TTCN_Buffer key_buf;
+          key_ustr->encode_utf8(key_buf);
+          CHARSTRING key_str;
+          key_buf.get_string(key_str);
+          enc_len += p_tok.put_next_token(JSON_TOKEN_NAME, (const char*) key_str);
         }
         else if (NULL != emb_descr) {
           enc_len += get_at(i)->JSON_encode_negtest(emb_descr, *fld_descr(i), p_tok);
@@ -6086,7 +6116,7 @@ int Record_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
       }
     }
     
-    if (!as_value && NULL != err_vals && NULL != err_vals->after) {
+    if (!as_value && !as_map && NULL != err_vals && NULL != err_vals->after) {
       if (NULL == err_vals->after->errval) {
         TTCN_error("internal error: erroneous after value missing");
       }
@@ -6107,7 +6137,7 @@ int Record_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
     }
   }
   
-  if (!as_value) {
+  if (!as_value && !as_map) {
     enc_len += p_tok.put_next_token(JSON_TOKEN_OBJECT_END, NULL);
   }
   return enc_len;

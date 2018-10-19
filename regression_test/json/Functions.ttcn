@@ -206,6 +206,12 @@ external function f_enc_multi_list(in MultiLevelList x) return octetstring
 external function f_enc_map(in Map x) return octetstring
   with { extension "prototype(convert) encode(JSON)" }
 
+external function f_enc_json_val(in JsonValue x) return octetstring
+  with { extension "prototype(convert) encode(JSON)" }
+
+external function f_enc_enum_list(in EnumNumberList x) return octetstring
+  with { extension "prototype(convert) encode(JSON)" }
+
 // for ASN.1 types
 external function f_enc_seqofint(in SeqOfInt x) return octetstring
   with { extension "prototype(convert) encode(JSON)" }
@@ -409,6 +415,12 @@ external function f_dec_multi_list(in octetstring x) return MultiLevelList
   with { extension "prototype(convert) decode(JSON)" }
 
 external function f_dec_map(in octetstring x) return Map
+  with { extension "prototype(convert) decode(JSON)" }
+
+external function f_dec_json_val(in octetstring x) return JsonValue
+  with { extension "prototype(convert) decode(JSON)" }
+
+external function f_dec_enum_list(in octetstring x) return EnumNumberList
   with { extension "prototype(convert) decode(JSON)" }
 
 // for ASN.1 types

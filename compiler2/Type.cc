@@ -3004,10 +3004,15 @@ namespace Common {
             "record of, set of, array or field of a record or set");
         }
       }
-      if (jsonattrib->as_number &&
-          get_type_refd_last()->get_typetype_ttcn3() != T_ENUM_T) {
-        error("Invalid attribute, 'as number' is only allowed for enumerated "
-          "types");
+      if (jsonattrib->as_number) {
+        if (get_type_refd_last()->get_typetype_ttcn3() != T_ENUM_T) {
+          error("Invalid attribute, 'as number' is only allowed for enumerated "
+            "types");
+        }
+        else if (0 != jsonattrib->enum_texts.size()) {
+          warning("Attribute 'text ... as ...' will be ignored, because the "
+            "enumerated values are encoded as numbers");
+        }
       }
       
       if (NULL != jsonattrib->tag_list) {
@@ -3037,6 +3042,35 @@ namespace Common {
             if (key_type->is_optional_field()) {
               error("Invalid attribute, 'as map' requires the element type's "
                 "first field to be mandatory");
+            }
+          }
+        }
+      }
+      
+      if (0 != jsonattrib->enum_texts.size()) {
+        Type* last = get_type_refd_last();
+        if (T_ENUM_T != last->get_typetype_ttcn3()) {
+          error("Invalid attribute, 'text ... as ...' requires an enumerated "
+            "type");
+        }
+        else {
+          for (size_t i = 0; i < jsonattrib->enum_texts.size(); ++i) {
+            Identifier id(Identifier::ID_TTCN,
+              string(jsonattrib->enum_texts[i]->from), true);
+            if (!last->has_ei_withName(id)) {
+              error("Attribute 'text ... as ...' refers to invalid enumerated "
+                "value '%s'", jsonattrib->enum_texts[i]->from);
+            }
+            else {
+              jsonattrib->enum_texts[i]->index = static_cast<int>(
+                last->get_eis_index_byName(id));
+              for (size_t j = 0; j < i; ++j) {
+                if (jsonattrib->enum_texts[j]->index ==
+                    jsonattrib->enum_texts[i]->index) {
+                  error("Duplicate attribute 'text ... as ...' for enumerated "
+                    "value '%s'", jsonattrib->enum_texts[i]->from);
+                }
+              }
             }
           }
         }
@@ -7631,7 +7665,11 @@ namespace Common {
   {
     Type *t = this;
     while (true) {
-      if (t->has_encoding(CT_JSON)) return t->get_genname_own(my_scope);
+      if ((t->jsonattrib != NULL && !t->jsonattrib->empty()) ||
+          (t->ownertype == OT_RECORD_OF && t->parent_type->jsonattrib != NULL && 
+           t->parent_type->jsonattrib->as_map)) {
+        return t->get_genname_own(my_scope);
+      }
       else if (t->is_ref()) t = t->get_type_refd();
       else break;
     }

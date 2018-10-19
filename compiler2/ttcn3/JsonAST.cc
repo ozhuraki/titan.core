@@ -27,6 +27,12 @@ JsonSchemaExtension::~JsonSchemaExtension()
   Free(value);
 }
 
+JsonEnumText::~JsonEnumText()
+{
+  Free(from);
+  Free(to);
+}
+
 void JsonAST::init_JsonAST()
 {
   omit_as_null = false;
@@ -53,6 +59,10 @@ JsonAST::JsonAST(const JsonAST *other_val)
     }
     metainfo_unbound = other_val->metainfo_unbound;
     as_map = other_val->as_map;
+    for (size_t i = 0; i < other_val->enum_texts.size(); ++i) {
+      enum_texts.add(new JsonEnumText(mcopystr(other_val->enum_texts[i]->from),
+        mcopystr(other_val->enum_texts[i]->to)));
+    }
   }
 }
 
@@ -68,6 +78,17 @@ JsonAST::~JsonAST()
     free_rawAST_tag_list(tag_list);
     delete tag_list;
   }
+  for (size_t i = 0; i < enum_texts.size(); ++i) {
+    delete enum_texts[i];
+  }
+  enum_texts.clear();
+}
+
+boolean JsonAST::empty() const
+{
+  return omit_as_null == false && alias == NULL && as_value == false &&
+    default_value == NULL && metainfo_unbound == false && as_number == false &&
+    tag_list == NULL && as_map == false && enum_texts.size() == 0;
 }
 
 void JsonAST::print_JsonAST() const
@@ -123,5 +144,12 @@ void JsonAST::print_JsonAST() const
   }
   if (as_map) {
     printf("Encoding elements into a map of key-value pairs.\n\r");
+  }
+  if (0 != enum_texts.size()) {
+    printf("Enum texts:");
+    for (size_t i = 0; i < enum_texts.size(); ++i) {
+      printf(" '%s' -> '%s'", enum_texts[i]->from, enum_texts[i]->to);
+    }
+    printf("\n\r");
   }
 }

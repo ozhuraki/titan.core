@@ -1098,15 +1098,33 @@ void Type::generate_code_jsondescriptor(output_struct *target)
   if (NULL == jsonattrib) {
     target->source.global_vars = mputprintf(target->source.global_vars,
       "const TTCN_JSONdescriptor_t %s_json_ = { FALSE, NULL, FALSE, NULL, "
-      "FALSE, FALSE, %s };\n"
+      "FALSE, FALSE, %s, 0, NULL };\n"
       , get_genname_own().c_str(), as_map ? "TRUE" : "FALSE");
   } else {
     char* alias = jsonattrib->alias ? mputprintf(NULL, "\"%s\"", jsonattrib->alias) : NULL;
     char* def_val = jsonattrib->default_value ?
       mputprintf(NULL, "\"%s\"", jsonattrib->default_value) : NULL;
     
+    char* enum_texts_name;
+    if (0 != jsonattrib->enum_texts.size()) {
+      enum_texts_name = mprintf("%s_json_enum_texts", get_genname_own().c_str());
+      target->source.global_vars = mputprintf(target->source.global_vars,
+        "const JsonEnumText %s[] = { ", enum_texts_name);
+      for (size_t i = 0; i < jsonattrib->enum_texts.size(); ++i) {
+        target->source.global_vars = mputprintf(target->source.global_vars,
+          "%s{ %d, \"%s\" }", i == 0 ? "" : ", ",
+          jsonattrib->enum_texts[i]->index, jsonattrib->enum_texts[i]->to);
+      }
+      target->source.global_vars = mputstr(target->source.global_vars,
+        " };\n");
+    }
+    else {
+      enum_texts_name = mcopystr("NULL");
+    }
+    
     target->source.global_vars = mputprintf(target->source.global_vars,
-      "const TTCN_JSONdescriptor_t %s_json_ = { %s, %s, %s, %s, %s, %s, %s };\n"
+      "const TTCN_JSONdescriptor_t %s_json_ = { %s, %s, %s, %s, %s, %s, %s, "
+      "%d, %s };\n"
       , get_genname_own().c_str() 
       , jsonattrib->omit_as_null ? "TRUE" : "FALSE"
       , alias ? alias : "NULL"
@@ -1114,9 +1132,12 @@ void Type::generate_code_jsondescriptor(output_struct *target)
       , def_val ? def_val : "NULL"
       , jsonattrib->metainfo_unbound ? "TRUE" : "FALSE"
       , jsonattrib->as_number ? "TRUE" : "FALSE"
-      , as_map ? "TRUE" : "FALSE");
+      , as_map ? "TRUE" : "FALSE"
+      , static_cast<int>(jsonattrib->enum_texts.size())
+      , enum_texts_name);
     Free(alias);
     Free(def_val);
+    Free(enum_texts_name);
   }
   
 }
@@ -1418,7 +1439,7 @@ void Type::generate_code_Choice(output_struct *target)
       case T_SEQOF:
       case T_SETOF:
       case T_ARRAY:
-        sdef.elements[i].jsonValueType = JSON_ARRAY;
+        sdef.elements[i].jsonValueType = JSON_ARRAY | JSON_OBJECT;
         break;
       default:
         FATAL_ERROR("Type::generate_code_Choice - invalid field type %d", tt);
