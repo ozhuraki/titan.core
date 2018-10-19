@@ -1,14 +1,1 @@
-*.aux
-*.dvi
-*.idx
-*.ilg
-*.ind
-*.lof
-*.log
-*.lot
-*.out
-*.ps
-*.toc
-*.labels
-~$*.doc
-~*.tmp
+*.pdf

@@ -32,11 +32,13 @@
 TOP  := ..
 include ../Makefile.cfg
 
-.SUFFIXES: .tex .labels .dvi .ps .pdf
+.SUFFIXES: .adoc .pdf
 
 PDF_GEN_CALL := asciidoctor-pdf --attribute skip-front-matter
 
-TITAN_PDFS := apiguide/Apiguide.pdf userguide/UserGuide.pdf installationguide/installationguide.pdf referenceguide/ReferenceGuide.pdf releasenotes/releasenotes.pdf
+TITAN_PDFS := apiguide/Apiguide.pdf userguide/UserGuide.pdf installationguide/installationguide.pdf \
+referenceguide/ReferenceGuide.pdf releasenotes/releasenotes.pdf PRI/PRI.pdf SoC_TITAN/SoC_TITAN.pdf \
+SoC_XML_TITAN/SoC_XML_TITAN.pdf
 
 ifeq ($(GEN_PDF), yes)
 
@@ -54,20 +56,29 @@ endif
 clean:
 	rm -f $(TITAN_PDFS)
 
-apiguide/Apiguide.pdf:
+apiguide/Apiguide.pdf: apiguide/*.adoc apiguide/images/*
 	$(PDF_GEN_CALL) -o $@ apiguide/README.adoc
 
-userguide/UserGuide.pdf:
+userguide/UserGuide.pdf: userguide/*.adoc userguide/images/*
 	$(PDF_GEN_CALL) userguide/UserGuide.adoc
 
-installationguide/installationguide.pdf:
+installationguide/installationguide.pdf: installationguide/*.adoc installationguide/images/*
 	$(PDF_GEN_CALL) installationguide/installationguide.adoc
 
-referenceguide/ReferenceGuide.pdf:
+referenceguide/ReferenceGuide.pdf: referenceguide/*.adoc referenceguide/images/*
 	$(PDF_GEN_CALL) referenceguide/ReferenceGuide.adoc
 
-releasenotes/releasenotes.pdf:
+releasenotes/releasenotes.pdf: releasenotes/*.adoc releasenotes/images/*
 	$(PDF_GEN_CALL) releasenotes/releasenotes.adoc
+
+PRI/PRI.pdf: PRI/*.adoc
+	$(PDF_GEN_CALL) PRI/PRI.adoc
+
+SoC_TITAN/SoC_TITAN.pdf: SoC_TITAN/*.adoc SoC_TITAN/images/*
+	$(PDF_GEN_CALL) SoC_TITAN/SoC_TITAN.adoc
+
+SoC_XML_TITAN/SoC_XML_TITAN.pdf: SoC_XML_TITAN/*.adoc SoC_XML_TITAN/images/*
+	$(PDF_GEN_CALL) SoC_XML_TITAN/SoC_XML_TITAN.adoc
 
 else
 # GEN_PDF == no
