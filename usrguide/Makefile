@@ -57,7 +57,7 @@ clean:
 	rm -f $(TITAN_PDFS)
 
 apiguide/Apiguide.pdf: apiguide/*.adoc apiguide/images/*
-	$(PDF_GEN_CALL) -o $@ apiguide/README.adoc
+	$(PDF_GEN_CALL) apiguide/Apiguide.adoc
 
 userguide/UserGuide.pdf: userguide/*.adoc userguide/images/*
 	$(PDF_GEN_CALL) userguide/UserGuide.adoc
