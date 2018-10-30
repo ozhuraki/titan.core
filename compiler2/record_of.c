@@ -1404,7 +1404,7 @@ void defRecordOfClass1(const struct_of_def *sdef, output_struct *output)
        * then use that to decode the value. */
       "    for(char * str = strtok(x_val, \" \\t\\x0A\\x0D\"); str != 0; str = strtok(x_val + x_pos, \" \\t\\x0A\\x0D\")) {\n"
       // Calling strtok with NULL won't work here, since the decoded element can have strtok calls aswell
-      "      x_pos += strlen(str) + 1;\n"
+      "      x_pos = (str - x_val) + strlen(str) + 1;\n"
       "      TTCN_Buffer buf_2;\n"
       "      buf_2.put_c('<');\n"
       "      write_ns_prefix(*p_td.oftype_descr, buf_2);\n"

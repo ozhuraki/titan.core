@@ -7,6 +7,7 @@
  *
  * Contributors:
  *   Balasko, Jeno
+ *   Baranyi, Botond
  *   Raduly, Csaba
  *
  ******************************************************************************/
@@ -92,11 +93,38 @@ testcase decode_floats() runs on L
 
 /* * * * * * * * * * * * * * * * * * * * */
 
+// decoding a list with leading whitespaces (bug 540607)
+type record of universal charstring Strings
+with {
+  variant "list"
+}
+
+DECLARE_EXER_ENCODERS(Strings, strings);
+
+const Strings str := { "first", "second", "third", "fourth" }
+
+const universal charstring str_dec :=
+"<Strings> 
+   first
+     second
+       third
+         fourth
+ </Strings>";
+
+
+testcase decode_strings() runs on L
+{
+  CHECK_DECODE(exer_dec_strings, str_dec, Strings, str);
+}
+
+/* * * * * * * * * * * * * * * * * * * * */
+
 control {
   execute(encode_ints());
   execute(decode_ints());
   execute(encode_floats());
   execute(decode_floats());
+  execute(decode_strings());
 }
 
 }

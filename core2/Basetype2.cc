@@ -2480,7 +2480,7 @@ int Record_Of_Type::XER_decode(const XERdescriptor_t& p_td,
      * to decode the value. */
     for(char * str = strtok(val, " \t\x0A\x0D"); str != 0; str = strtok(val + pos, " \t\x0A\x0D")) {
       // Calling strtok with NULL won't work here, since the decoded element can have strtok calls aswell
-      pos += strlen(str) + 1;
+      pos = (str - val) + strlen(str) + 1;
       // Construct a new XML Reader with the current token.
       TTCN_Buffer buf2;
       const XERdescriptor_t& sub_xer = *p_td.oftype_descr;
