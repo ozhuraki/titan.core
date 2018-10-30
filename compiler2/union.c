@@ -400,11 +400,12 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
      "  if (m_p->get_type()!=Module_Param::MP_Assignment_List) {\n"
      "    param.error(\"union value with field name was expected\");\n"
      "  }\n"
-     "  Module_Param* mp_last = m_p->get_elem(m_p->get_size()-1);\n");
+     "  Module_Param* mp_last = m_p->get_elem(m_p->get_size()-1);\n"
+     "  char* last_name = mp_last->get_id()->get_name();\n");
 
   for (i = 0; i < sdef->nElements; i++) {
     src = mputprintf(src, 
-      "  if (!strcmp(mp_last->get_id()->get_name(), \"%s\")) {\n"
+      "  if (!strcmp(last_name, \"%s\")) {\n"
       "    %s%s().set_param(*mp_last);\n"
       "    if (!%s%s().is_bound()) "
       , sdef->elements[i].dispname, at_field, sdef->elements[i].name
@@ -424,7 +425,7 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
       "  }\n");
   }
   src = mputprintf(src,
-    "  mp_last->error(\"Field %%s does not exist in type %s.\", mp_last->get_id()->get_name());\n"
+    "  mp_last->error(\"Field %%s does not exist in type %s.\", last_name);\n"
     "}\n\n", dispname);
   
   /* get param function, RT2 only */
@@ -3420,17 +3421,18 @@ void defUnionTemplate(const struct_def *sdef, output_struct *output)
     "    param.type_error(\"union template\", \"%s\");\n"
     "    break;\n"
     "  case Module_Param::MP_Assignment_List: {\n"
-    "    Module_Param* mp_last = m_p->get_elem(m_p->get_size()-1);\n",
+    "    Module_Param* mp_last = m_p->get_elem(m_p->get_size()-1);\n"
+    "    char* last_name = mp_last->get_id()->get_name();\n",
     name, dispname);
   for (i = 0; i < sdef->nElements; i++) {
     src = mputprintf(src, 
-    "    if (!strcmp(mp_last->get_id()->get_name(), \"%s\")) {\n"
+    "    if (!strcmp(last_name, \"%s\")) {\n"
     "      %s%s().set_param(*mp_last);\n"
     "      break;\n"
     "    }\n", sdef->elements[i].dispname, at_field, sdef->elements[i].name);
   }
   src = mputprintf(src,
-    "    mp_last->error(\"Field %%s does not exist in type %s.\", mp_last->get_id()->get_name());\n"
+    "    mp_last->error(\"Field %%s does not exist in type %s.\", last_name);\n"
     "  } break;\n"
     "  default:\n"
     "    param.type_error(\"union template\", \"%s\");\n"
