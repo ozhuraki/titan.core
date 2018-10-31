@@ -3871,7 +3871,8 @@ void defRecordClass1(const struct_def *sdef, output_struct *output)
   }
   src = mputprintf(src,
       "    for (size_t val_idx=0; val_idx<param.get_size(); val_idx++) if (!value_used[val_idx]) {\n"
-      "      param.get_elem(val_idx)->error(\"Non existent field name in type %s: %%s\", param.get_elem(val_idx)->get_id()->get_name());\n"
+      "      Module_Param* const curr_param = param.get_elem(val_idx);\n"
+      "      curr_param->error(\"Non existent field name in type %s: %%s\", curr_param->get_id()->get_name());\n"
       "      break;\n"
       "    }\n"
       "  } break;\n"
@@ -6410,7 +6411,8 @@ void defRecordTemplate1(const struct_def *sdef, output_struct *output)
   }
   src = mputprintf(src,
     "    for (size_t val_idx=0; val_idx<param.get_size(); val_idx++) if (!value_used[val_idx]) {\n"
-    "      param.get_elem(val_idx)->error(\"Non existent field name in type %s: %%s\", param.get_elem(val_idx)->get_id()->get_name());\n"
+    "      Module_Param* const curr_param = param.get_elem(val_idx);\n"
+    "      curr_param->error(\"Non existent field name in type %s: %%s\", curr_param->get_id()->get_name());\n"
     "      break;\n"
     "    }\n"
     "  } break;\n"
