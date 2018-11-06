@@ -1034,7 +1034,8 @@ namespace Ttcn {
 
   PortTypeBody::PortTypeBody(PortOperationMode_t p_operation_mode,
     Types *p_in_list, Types *p_out_list, Types *p_inout_list,
-    bool p_in_all, bool p_out_all, bool p_inout_all, Definitions *defs)
+    bool p_in_all, bool p_out_all, bool p_inout_all, Definitions *defs,
+    bool p_realtime)
     : Node(), Location(), my_type(0), operation_mode(p_operation_mode),
     in_list(p_in_list), out_list(p_out_list), inout_list(p_inout_list),
     in_all(p_in_all), out_all(p_out_all), inout_all(p_inout_all),
@@ -1042,7 +1043,7 @@ namespace Ttcn {
     in_msgs(0), out_msgs(0), in_sigs(0), out_sigs(0),
     testport_type(TP_REGULAR), port_type(PT_REGULAR),
     provider_refs(), provider_types(), mapper_types(),
-    in_mappings(0), out_mappings(0), vardefs(defs)
+    in_mappings(0), out_mappings(0), vardefs(defs), realtime(p_realtime)
   {
   }
 
@@ -2121,6 +2122,7 @@ namespace Ttcn {
     port_def pdef;
     memset(&pdef, 0, sizeof(pdef));
     pdef.legacy = legacy;
+    pdef.realtime = realtime;
     const string& t_genname = my_type->get_genname_own();
     pdef.name = t_genname.c_str();
     pdef.dispname = my_type->get_fullname().c_str();

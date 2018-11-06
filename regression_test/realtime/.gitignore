@@ -2,4 +2,7 @@ realtime
 realtime.exe
 realtimeNow*.cc
 realtimeNow*.hh
+realtimeTimestamp*.cc
+realtimeTimestamp*.hh
+compile
 realtime*.log

@@ -264,8 +264,8 @@ boolean LegacyLogger::log_file(const TitanLoggerApi::TitanLogEvent& event,
 
   if (this->is_disk_full_) {
     if (this->disk_full_action_.type == TTCN_Logger::DISKFULL_RETRY) {
-      struct timeval event_timestamp = { (time_t)event.timestamp().seconds(),
-        (suseconds_t)event.timestamp().microSeconds() };
+      struct timeval event_timestamp = { (time_t)event.timestamp__().seconds(),
+        (suseconds_t)event.timestamp__().microSeconds() };
       struct timeval diff;
       // If the specified time period has elapsed retry logging to file.
       if (event_timestamp.tv_usec < this->disk_full_time_.tv_usec) {
@@ -333,7 +333,7 @@ boolean LegacyLogger::log_file(const TitanLoggerApi::TitanLogEvent& event,
         expstring_t switched = mprintf("Switching to log file `%s'",
                                        new_filename);
         TitanLoggerApi::TitanLogEvent switched_event;
-        switched_event.timestamp() = event.timestamp();
+        switched_event.timestamp__() = event.timestamp__();
         switched_event.sourceInfo__list() = event.sourceInfo__list();
         switched_event.severity() = (int)TTCN_Logger::EXECUTOR_RUNTIME;
         switched_event.logEvent().choice().unhandledEvent() =
@@ -361,8 +361,8 @@ boolean LegacyLogger::log_file(const TitanLoggerApi::TitanLogEvent& event,
     case TTCN_Logger::DISKFULL_RETRY:
       this->is_disk_full_ = TRUE;
       // Time of failure.  TODO: Find a better way to transfer the timestamp.
-      this->disk_full_time_.tv_sec = event.timestamp().seconds();
-      this->disk_full_time_.tv_usec = event.timestamp().microSeconds();
+      this->disk_full_time_.tv_sec = event.timestamp__().seconds();
+      this->disk_full_time_.tv_usec = event.timestamp__().microSeconds();
       break;
     case TTCN_Logger::DISKFULL_DELETE:
       // Try to delete older logfiles while writing fails, must leave at least
@@ -405,8 +405,8 @@ boolean LegacyLogger::log_console(const TitanLoggerApi::TitanLogEvent& event,
     return FALSE;
   }
   size_t event_str_len = mstrlen(event_str);
-  if (!TTCN_Communication::send_log((time_t)event.timestamp().seconds(),
-      (suseconds_t)event.timestamp().microSeconds(), severity,
+  if (!TTCN_Communication::send_log((time_t)event.timestamp__().seconds(),
+      (suseconds_t)event.timestamp__().microSeconds(), severity,
       event_str_len, event_str)) {
     // The event text shall be printed to stderr when there is no control
     // connection towards MC (e.g. in single mode or in case of network
@@ -1774,8 +1774,8 @@ char *event_to_str(const TitanLoggerApi::TitanLogEvent& event,
 {
   char *ret_val = NULL;
   if (!without_header) {
-    struct timeval timestamp = { (time_t)event.timestamp().seconds(),
-      (suseconds_t)event.timestamp().microSeconds() };
+    struct timeval timestamp = { (time_t)event.timestamp__().seconds(),
+      (suseconds_t)event.timestamp__().microSeconds() };
     char *sourceinfo = NULL;
     if (event.sourceInfo__list().is_bound()) {
       TTCN_Logger::source_info_format_t source_info_format =

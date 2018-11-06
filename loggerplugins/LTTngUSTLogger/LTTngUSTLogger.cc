@@ -93,7 +93,7 @@ void LTTngUSTLogger::log(const TitanLoggerApi::TitanLogEvent& event,
   }
 
   /* Read timestamp and severity (common arguments). */
-  const TimestampType& timestamp = event.timestamp();
+  const TimestampType& timestamp = event.timestamp__();
   int severity = (int) event.severity();
 
   /* Log source infos of this event. */

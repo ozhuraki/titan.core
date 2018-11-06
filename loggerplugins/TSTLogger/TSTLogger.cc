@@ -458,12 +458,12 @@ void TSTLogger::log(const TitanLoggerApi::TitanLogEvent& event,
     switch (tec.get_selection()) {
     case TitanLoggerApi::TestcaseEvent_choice::ALT_testcaseStarted:
       if (is_main_proc()) {
-        log_testcase_start(tec.testcaseStarted(), event.timestamp());
+        log_testcase_start(tec.testcaseStarted(), event.timestamp__());
       }
       break;
     case TitanLoggerApi::TestcaseEvent_choice::ALT_testcaseFinished:
       if (is_main_proc()) {
-        log_testcase_stop(tec.testcaseFinished(), event.timestamp());
+        log_testcase_stop(tec.testcaseFinished(), event.timestamp__());
       }
       break;
     default:

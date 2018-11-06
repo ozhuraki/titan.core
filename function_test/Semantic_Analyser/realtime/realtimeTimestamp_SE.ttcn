@@ -1,0 +1,102 @@
+/******************************************************************************
+ * Copyright (c) 2000-2018 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+
+module realtimeTimestamp_SE { //^In TTCN-3 module//
+
+signature Sig(inout integer p) return charstring exception(boolean);
+
+type port BadPortMsg message {
+  inout integer
+}
+
+type port BadPortProc procedure {
+  inout Sig
+}
+
+type port PortRtMsg message realtime {
+  inout integer
+}
+
+type port PortRtProc procedure realtime {
+  inout Sig
+}
+
+type component CT {
+  port BadPortMsg badPortMsg;
+  port BadPortProc badPortProc;
+  port PortRtMsg portRtMsg;
+  port PortRtProc portRtProc;
+}
+
+function f() runs on CT { //^In function definition//
+  var float x;
+  var hexstring y;
+  
+  alt {
+    [] portRtMsg.receive(integer: ?) -> timestamp x {}
+    [] portRtMsg.trigger(integer: ?) -> timestamp x {}
+    [] portRtProc.getcall(Sig: { ? }) -> timestamp x {}
+    [] portRtProc.getreply(Sig: { ? } value charstring: ?) -> timestamp x {}
+    [] portRtProc.catch(Sig, boolean: ?) -> timestamp x {}
+    [] portRtMsg.check(receive(integer: ?) -> timestamp x) {}
+    [] portRtProc.check(getcall(Sig: { ? }) -> timestamp x) {}
+    [] portRtProc.check(getreply(Sig: { ? } value charstring: ?) -> timestamp x) {}
+    [] portRtProc.check(catch(Sig, boolean: ?) -> timestamp x) {}
+    [] portRtMsg.check(-> timestamp x) {}
+  }
+  
+  alt { //^In alt construct//
+    [] badPortMsg.receive(integer: ?) -> timestamp x {} //^In guard operation// //^In receive statement// //The timestamp cannot be redirected, because port type `@realtimeTimestamp_SE.BadPortMsg' does not have the 'realtime' clause//
+    [] badPortMsg.trigger(integer: ?) -> timestamp x {} //^In guard operation// //^In trigger statement// //The timestamp cannot be redirected, because port type `@realtimeTimestamp_SE.BadPortMsg' does not have the 'realtime' clause//
+    [] badPortProc.getcall(Sig: { ? }) -> timestamp x {} //^In guard operation// //^In getcall statement// //The timestamp cannot be redirected, because port type `@realtimeTimestamp_SE.BadPortProc' does not have the 'realtime' clause//
+    [] badPortProc.getreply(Sig: { ? } value charstring: ?) -> timestamp x {} //^In guard operation// //^In getreply statement// //The timestamp cannot be redirected, because port type `@realtimeTimestamp_SE.BadPortProc' does not have the 'realtime' clause//
+    [] badPortProc.catch(Sig, boolean: ?) -> timestamp x {} //^In guard operation// //^In catch statement// //The timestamp cannot be redirected, because port type `@realtimeTimestamp_SE.BadPortProc' does not have the 'realtime' clause//
+    [] badPortMsg.check(receive(integer: ?) -> timestamp x) {} //^In guard operation// //^In check-receive statement// //The timestamp cannot be redirected, because port type `@realtimeTimestamp_SE.BadPortMsg' does not have the 'realtime' clause//
+    [] badPortProc.check(getcall(Sig: { ? }) -> timestamp x) {} //^In guard operation// //^In check-getcall statement// //The timestamp cannot be redirected, because port type `@realtimeTimestamp_SE.BadPortProc' does not have the 'realtime' clause//
+    [] badPortProc.check(getreply(Sig: { ? } value charstring: ?) -> timestamp x) {} //^In guard operation// //^In check-getreply statement// //The timestamp cannot be redirected, because port type `@realtimeTimestamp_SE.BadPortProc' does not have the 'realtime' clause//
+    [] badPortProc.check(catch(Sig, boolean: ?) -> timestamp x) {} //^In guard operation// //^In check-catch statement// //The timestamp cannot be redirected, because port type `@realtimeTimestamp_SE.BadPortProc' does not have the 'realtime' clause//
+    [] badPortMsg.check(-> timestamp x) {} //^In guard operation// //^In check statement// //The timestamp cannot be redirected, because port type `@realtimeTimestamp_SE.BadPortMsg' does not have the 'realtime' clause//
+  }
+  
+  alt {
+    [] any port.receive -> timestamp x {}
+    [] any port.trigger -> timestamp x {}
+    [] any port.getcall -> timestamp x {}
+    [] any port.getreply -> timestamp x {}
+    [] any port.catch -> timestamp x {}
+    [] any port.check(receive -> timestamp x) {}
+    [] any port.check(getcall -> timestamp x) {}
+    [] any port.check(getreply -> timestamp x) {}
+    [] any port.check(catch -> timestamp x) {}
+    [] any port.check(-> timestamp x) {}
+  }
+  
+  alt { //^In alt construct//
+    [] portRtMsg.receive(integer: ?) -> timestamp y {} //^In guard operation// //^In receive statement// //The type of the variable should be float instead of `hexstring'//
+    [] portRtMsg.trigger(integer: ?) -> timestamp y {} //^In guard operation// //^In trigger statement// //The type of the variable should be float instead of `hexstring'//
+    [] portRtProc.getcall(Sig: { ? }) -> timestamp y {} //^In guard operation// //^In getcall statement// //The type of the variable should be float instead of `hexstring'//
+    [] portRtProc.getreply(Sig: { ? } value charstring: ?) -> timestamp y {} //^In guard operation// //^In getreply statement// //The type of the variable should be float instead of `hexstring'//
+    [] portRtProc.catch(Sig, boolean: ?) -> timestamp y {} //^In guard operation// //^In catch statement// //The type of the variable should be float instead of `hexstring'//
+    [] portRtMsg.check(receive(integer: ?) -> timestamp y) {} //^In guard operation// //^In check-receive statement// //The type of the variable should be float instead of `hexstring'//
+    [] portRtProc.check(getcall(Sig: { ? }) -> timestamp y) {} //^In guard operation// //^In check-getcall statement// //The type of the variable should be float instead of `hexstring'//
+    [] portRtProc.check(getreply(Sig: { ? } value charstring: ?) -> timestamp y) {} //^In guard operation// //^In check-getreply statement// //The type of the variable should be float instead of `hexstring'//
+    [] portRtProc.check(catch(Sig, boolean: ?) -> timestamp y) {} //^In guard operation// //^In check-catch statement// //The type of the variable should be float instead of `hexstring'//
+    [] portRtMsg.check(-> timestamp y) {} //^In guard operation// //^In check statement// //The type of the variable should be float instead of `hexstring'//
+  }
+  
+  portRtProc.call(Sig: { 0 }, 0.5) { //^In call statement// //In response and exception handling part//
+    [] portRtProc.catch(timeout) -> timestamp x {}
+    [] portRtProc.catch(timeout) -> timestamp y {} //^In guard operation// //^In catch statement// //The type of the variable should be float instead of//
+  }
+}
+
+}

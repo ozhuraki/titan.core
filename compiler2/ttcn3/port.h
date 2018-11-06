@@ -124,6 +124,7 @@ typedef struct port_def_tag {
   char *var_defs;
   char *mapping_func_decls;
   char *mapping_func_defs;
+  boolean realtime;
 } port_def;
 
 #ifdef __cplusplus

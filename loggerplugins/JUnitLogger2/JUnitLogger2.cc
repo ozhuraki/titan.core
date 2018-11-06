@@ -146,7 +146,7 @@ void JUnitLogger2::log(const TitanLoggerApi::TitanLogEvent& event,
         case TitanLoggerApi::TestcaseEvent_choice::ALT_testcaseStarted: {
           testcase.tc_name = tcev.testcaseStarted().testcase__name();
           // remember the start time
-          testcase.tc_start = 1000000LL * (long long)event.timestamp().seconds() + (long long)event.timestamp().microSeconds();
+          testcase.tc_start = 1000000LL * (long long)event.timestamp__().seconds() + (long long)event.timestamp__().microSeconds();
           break; }
 
         case TitanLoggerApi::TestcaseEvent_choice::ALT_testcaseFinished: {
@@ -154,7 +154,7 @@ void JUnitLogger2::log(const TitanLoggerApi::TitanLogEvent& event,
           testcase.reason = escape_xml_element(tct.reason());
           testcase.module_name = tct.name().module__name();
           
-          const TitanLoggerApi::TimestampType& ts = event.timestamp();
+          const TitanLoggerApi::TimestampType& ts = event.timestamp__();
           long long tc_end = 1000000LL * (long long)ts.seconds() + (long long)ts.microSeconds();
           testcase.time = (tc_end - testcase.tc_start) / 1000000.0;
 

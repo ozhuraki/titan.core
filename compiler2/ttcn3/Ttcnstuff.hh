@@ -406,6 +406,7 @@ private:
                                      ///< only for PT_USER && !legacy
   TypeMappings *in_mappings, *out_mappings; ///< mappings for PT_USER
   Definitions *vardefs; ///< variable definitions inside the port
+  bool realtime;
   /** Copy constructor not implemented */
   PortTypeBody(const PortTypeBody& p);
   /** Assignment disabled */
@@ -413,7 +414,8 @@ private:
 public:
   PortTypeBody(PortOperationMode_t p_operation_mode,
     Types *p_in_list, Types *p_out_list, Types *p_inout_list,
-    bool p_in_all, bool p_out_all, bool p_inout_all, Definitions *defs);
+    bool p_in_all, bool p_out_all, bool p_inout_all, Definitions *defs,
+    bool p_realtime);
   ~PortTypeBody();
   virtual PortTypeBody *clone() const;
   virtual void set_fullname(const string& p_fullname);
@@ -425,6 +427,7 @@ public:
   TypeSet *get_in_sigs() const;
   TypeSet *get_out_sigs() const;
   Definitions *get_vardefs() const;
+  bool is_realtime() const { return realtime; }
   bool has_queue() const;
   bool getreply_allowed() const;
   bool catch_allowed() const;

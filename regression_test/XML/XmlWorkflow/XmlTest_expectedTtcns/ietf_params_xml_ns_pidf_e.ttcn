@@ -88,7 +88,7 @@ type record Tuple
 	record of XSD.String elem_list,
 	Contact contact optional,
 	record of Note note_list,
-	XSD.DateTime timestamp optional
+	XSD.DateTime timestamp_ optional
 }
 with {
   variant "name as uncapitalized";
@@ -97,6 +97,7 @@ with {
   variant (elem_list[-]) "anyElement except unqualified, 'urn:ietf:params:xml:ns:pidf'";
   variant (note_list) "untagged";
   variant (note_list[-]) "name as 'note'";
+  variant (timestamp_) "name as 'timestamp'";
 };
 
 

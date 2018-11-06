@@ -162,7 +162,7 @@ void JUnitLogger::log(const TitanLoggerApi::TitanLogEvent& event,
     case TitanLoggerApi::TestcaseEvent_choice::ALT_testcaseStarted: {
       fprintf(file_stream_, "<!-- Testcase %s started -->\n",
         (const char*)tcev.testcaseStarted().testcase__name());
-      const TitanLoggerApi::TimestampType& ts = event.timestamp();
+      const TitanLoggerApi::TimestampType& ts = event.timestamp__();
       // remember the start time
       seconds      = ts.seconds();
       microseconds = ts.microSeconds();
@@ -170,7 +170,7 @@ void JUnitLogger::log(const TitanLoggerApi::TitanLogEvent& event,
 
     case TitanLoggerApi::TestcaseEvent_choice::ALT_testcaseFinished: {
       const TitanLoggerApi::TestcaseType& tct = tcev.testcaseFinished();
-      const TitanLoggerApi::TimestampType& ts = event.timestamp();
+      const TitanLoggerApi::TimestampType& ts = event.timestamp__();
       long long now = 1000000LL * (long long)ts.seconds() + (long long)ts.microSeconds();
       long long then= 1000000LL * (long long)   seconds   + (long long)   microseconds  ;
       fprintf(file_stream_, "<!-- Testcase %s finished in %f, verdict: %s%s%s -->\n",

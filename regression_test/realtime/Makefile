@@ -17,7 +17,9 @@ include $(TOPDIR)/Makefile.regression
 
 TTCN3_LIB = ttcn3$(RT2_SUFFIX)-parallel$(DYNAMIC_SUFFIX)
 
-TTCN3_MODULES = realtimeNow.ttcn
+TTCN3_MODULES = realtimeNow.ttcn realtimeTimestamp.ttcn
+
+USER_SOURCES = PortMsg.cc PortProc.cc
 
 GENERATED_SOURCES = $(TTCN3_MODULES:.ttcn=.cc)
 GENERATED_HEADERS = $(GENERATED_SOURCES:.cc=.hh)
@@ -30,7 +32,7 @@ GENERATED_SOURCES2 := $(foreach file, $(GENERATED_SOURCES:.cc=), $(addprefix $(f
 GENERATED_SOURCES += $(GENERATED_SOURCES2)
 endif
 
-OBJECTS = $(GENERATED_SOURCES:.cc=.o)
+OBJECTS = $(GENERATED_SOURCES:.cc=.o) $(USER_SOURCES:.cc:.o)
 
 TARGET = realtime$(EXESUFFIX)
 
@@ -39,12 +41,16 @@ all: $(TARGET)
 $(TARGET): $(GENERATED_SOURCES) $(USER_SOURCES)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ -L$(TTCN3_DIR)/lib -l$(TTCN3_LIB) -L$(OPENSSL_DIR)/lib -lcrypto $($(PLATFORM)_LIBS)
 
-.ttcn.cc .ttcn.hh:
-	$(TTCN3_COMPILER) $<
+$(GENERATED_SOURCES) $(GENERATED_HEADERS): compile
+	@if [ ! -f $@ ]; then $(RM) compile; $(MAKE) compile; fi
+
+compile: $(TTCN3_MODULES)
+	$(filter-out -Nold -E, $(TTCN3_COMPILER)) $(COMPILER_FLAGS) $^ 
+	touch compile
 
 clean distclean:
 	-rm -f $(TARGET) $(OBJECTS) $(GENERATED_HEADERS) \
-	$(GENERATED_SOURCES) *.log Makefile.bak
+	$(GENERATED_SOURCES) *.log Makefile.bak compile
 
 dep: $(GENERATED_SOURCES)
 	makedepend $(CPPFLAGS) $(GENERATED_SOURCES)

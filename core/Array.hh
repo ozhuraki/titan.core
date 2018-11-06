@@ -29,6 +29,7 @@
 #include "Optional.hh"
 #include "Parameters.h"
 #include "Integer.hh"
+#include "Float.hh"
 #include "Struct_of.hh"
 #include "memory.h"
 #include "Component.hh"
@@ -225,7 +226,8 @@ public:
   
   // alt-status priority: ALT_YES (return immediately) > ALT_REPEAT > ALT_MAYBE > ALT_NO
   alt_status receive(const COMPONENT_template& sender_template,
-                     COMPONENT *sender_ptr, Index_Redirect* index_redirect)
+                     COMPONENT *sender_ptr, FLOAT* timestamp_redirect,
+                     Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -233,7 +235,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].receive(sender_template,
-        sender_ptr, index_redirect);
+        sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -261,7 +263,8 @@ public:
   // if it's NULL, so a separate function is needed for this case in RT1
   alt_status receive(const T_template& value_template, int /* NULL */,
                      const COMPONENT_template& sender_template,
-                     COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                     COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                     Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -269,7 +272,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].receive(value_template, NULL,
-        sender_template, sender_ptr, index_redirect);
+        sender_template, sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -293,7 +296,8 @@ public:
                      T_value_redirect* value_redirect,
 #endif
                      const COMPONENT_template& sender_template,
-                     COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                     COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                     Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -301,7 +305,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].receive(value_template,
-        value_redirect, sender_template, sender_ptr, index_redirect);
+        value_redirect, sender_template, sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -321,7 +325,8 @@ public:
   }
   
   alt_status check_receive(const COMPONENT_template& sender_template,
-                           COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                           COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                           Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -329,7 +334,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].check_receive(sender_template,
-        sender_ptr, index_redirect);
+        sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -355,7 +360,8 @@ public:
 #else
   alt_status check_receive(const T_template& value_template, int /* NULL */,
                            const COMPONENT_template& sender_template,
-                           COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                           COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                           Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -363,7 +369,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].check_receive(value_template, NULL,
-        sender_template, sender_ptr, index_redirect);
+        sender_template, sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -387,7 +393,8 @@ public:
                            T_value_redirect* value_redirect,
 #endif
                            const COMPONENT_template& sender_template,
-                           COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                           COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                           Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -395,7 +402,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].check_receive(value_template,
-        value_redirect, sender_template, sender_ptr, index_redirect);
+        value_redirect, sender_template, sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -415,7 +422,8 @@ public:
   }
   
   alt_status trigger(const COMPONENT_template& sender_template,
-                     COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                     COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                     Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -423,7 +431,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].trigger(sender_template,
-        sender_ptr, index_redirect);
+        sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -449,7 +457,8 @@ public:
 #else
   alt_status trigger(const T_template& value_template, int /* NULL */,
                      const COMPONENT_template& sender_template,
-                     COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                     COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                     Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -457,7 +466,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].trigger(value_template, NULL,
-        sender_template, sender_ptr, index_redirect);
+        sender_template, sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -481,7 +490,8 @@ public:
                      T_value_redirect* value_redirect,
 #endif
                      const COMPONENT_template& sender_template,
-                     COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                     COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                     Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -489,7 +499,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].trigger(value_template,
-        value_redirect, sender_template, sender_ptr, index_redirect);
+        value_redirect, sender_template, sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -509,7 +519,8 @@ public:
   }
   
   alt_status getcall(const COMPONENT_template& sender_template,
-                     COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                     COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                     Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -517,7 +528,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].getcall(sender_template,
-        sender_ptr, index_redirect);
+        sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -540,7 +551,8 @@ public:
   alt_status getcall(const T_template& getcall_template,
                      const COMPONENT_template& sender_template,
                      const T_parameter_redirect& param_ref,
-                     COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                     COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                     Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -548,7 +560,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].getcall(getcall_template,
-        sender_template, param_ref, sender_ptr, index_redirect);
+        sender_template, param_ref, sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -568,7 +580,8 @@ public:
   }
   
   alt_status check_getcall(const COMPONENT_template& sender_template,
-                           COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                           COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                           Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -576,7 +589,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].check_getcall(sender_template,
-        sender_ptr, index_redirect);
+        sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -599,7 +612,8 @@ public:
   alt_status check_getcall(const T_template& getcall_template,
                            const COMPONENT_template& sender_template,
                            const T_parameter_redirect& param_ref,
-                           COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                           COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                           Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -607,7 +621,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].check_getcall(getcall_template,
-        sender_template, param_ref, sender_ptr, index_redirect);
+        sender_template, param_ref, sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -627,7 +641,8 @@ public:
   }
   
   alt_status getreply(const COMPONENT_template& sender_template,
-                      COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                      COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                      Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -635,7 +650,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].getreply(sender_template,
-        sender_ptr, index_redirect);
+        sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -658,7 +673,8 @@ public:
   alt_status getreply(const T_template& getreply_template,
                       const COMPONENT_template& sender_template,
                       const T_parameter_redirect& param_ref,
-                      COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                      COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                      Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -666,7 +682,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].getreply(getreply_template,
-        sender_template, param_ref, sender_ptr, index_redirect);
+        sender_template, param_ref, sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -686,7 +702,8 @@ public:
   }
   
   alt_status check_getreply(const COMPONENT_template& sender_template,
-                            COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                            COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                            Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -694,7 +711,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].check_getreply(sender_template,
-        sender_ptr, index_redirect);
+        sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -717,7 +734,8 @@ public:
   alt_status check_getreply(const T_template& getreply_template,
                             const COMPONENT_template& sender_template,
                             const T_parameter_redirect& param_ref,
-                            COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                            COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                            Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -725,7 +743,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].check_getreply(getreply_template,
-        sender_template, param_ref, sender_ptr, index_redirect);
+        sender_template, param_ref, sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -745,7 +763,8 @@ public:
   }
   
   alt_status get_exception(const COMPONENT_template& sender_template,
-                           COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                           COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                           Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -753,7 +772,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].get_exception(sender_template,
-        sender_ptr, index_redirect);
+        sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -775,7 +794,8 @@ public:
   template <typename T_template>
   alt_status get_exception(const T_template& catch_template,
                            const COMPONENT_template& sender_template,
-                           COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                           COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                           Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -783,7 +803,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].get_exception(catch_template,
-        sender_template, sender_ptr, index_redirect);
+        sender_template, sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -803,7 +823,8 @@ public:
   }
   
   alt_status check_catch(const COMPONENT_template& sender_template,
-                         COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                         COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                         Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -811,7 +832,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].check_catch(sender_template,
-        sender_ptr, index_redirect);
+        sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -833,7 +854,8 @@ public:
   template <typename T_template>
   alt_status check_catch(const T_template& catch_template,
                          const COMPONENT_template& sender_template,
-                         COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                         COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                         Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -841,7 +863,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].check_catch(catch_template,
-        sender_template, sender_ptr, index_redirect);
+        sender_template, sender_ptr, timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
@@ -861,7 +883,8 @@ public:
   }
   
   alt_status check(const COMPONENT_template& sender_template,
-                   COMPONENT* sender_ptr, Index_Redirect* index_redirect)
+                   COMPONENT* sender_ptr, FLOAT* timestamp_redirect,
+                   Index_Redirect* index_redirect)
   {
     if (index_redirect != NULL) {
       index_redirect->incr_pos();
@@ -869,7 +892,7 @@ public:
     alt_status result = ALT_NO;
     for (unsigned int i = 0; i < array_size; ++i) {
       alt_status ret_val = array_elements[i].check(sender_template, sender_ptr,
-        index_redirect);
+        timestamp_redirect, index_redirect);
       if (ret_val == ALT_YES) {
         if (index_redirect != NULL) {
           index_redirect->add_index((int)i + index_offset);
