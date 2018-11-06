@@ -10,6 +10,7 @@
 *   Lelik, Elemer
 *   Pilisi, Gergely
 *   Szabados, Kristof
+*   Fekete, Tamas
 ******************************************************************************
 
 Build and install Titan on Linux
@@ -103,10 +104,11 @@ Create ~/titan.core/Makefile.personal to override settings in Makefile.cfg with 
 
 TTCN3_DIR := /home/<user id>/titan.core/Install
 OPENSSL_DIR := /usr
-JDKDIR := /usr/lib/jvm/java-7-openjdk-amd64
+JDKDIR := /home/<user id>/jdk
 XMLDIR := /usr
 JNI := yes
 GEN_PDF := no
+COMPILERFLAGS += -Wall -Wlogical-op -I/home/<user id>/jdk/include -I/usr/include
 
 d) For Alpine Linux, an appropriate flag has to be set:
 
