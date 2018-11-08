@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# Script parameters are coming from ../Makefile.
+../Tools/SAtester $* ./ISOIEC-8825-7-2015-AnnexA-PersonnelRecord.script
+rm Temp.ttcn
+rm TempA.asn

@@ -1,0 +1,233 @@
+.******************************************************************************
+.* Copyright (c) 2000-2018 Ericsson Telecom AB
+.* All rights reserved. This program and the accompanying materials
+.* are made available under the terms of the Eclipse Public License v2.0
+.* which accompanies this distribution, and is available at
+.* https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+.*
+.* Contributors:
+.*   Balasko, Jeno
+.*   Beres, Szabolcs
+.*   Delic, Adam
+.*   Kovacs, Ferenc
+.*   Szabados, Kristof
+.*   Tarasov, Victor
+.*
+.******************************************************************************/
+:text.
+:lang eng.
+.*
+:docname.Test Description
+:docno.8/152 91-CRL 113 200/5 Uen
+:rev.C
+:date.2015-04-27
+.*
+:prep.ETH/XZR Kristof Szabados (+36 1 437 7256)
+:appr.ETH/XZ (Roland Gecse)
+:checked.ETHBAAT
+.*
+:title.Test Description - OER coder
+:contents level=3.
+.*---------------------------------------------------------------------*
+:h1.PREREQUISITES AND PREPARATIONS
+.*---------------------------------------------------------------------*
+.*---------------------------------------------------------------------*
+:h2.Scope of the Test Object
+.*---------------------------------------------------------------------*
+:xmp tab=1 nokeep.
+
+This TD contains unified test case related to TTCN3 Executor's OER coder function.
+Test case implement the OER codings example from specification ISO/IEC 8825-7:2015 
+(https://www.itu.int/rec/T-REC-X.696-201508-I)
+:exmp.
+
+:p.:us.Revision Information:eus.
+
+:xmp nokeep.
+:us.History:eus.
+
+REV   DATE         PREPARED   CHANGE
+===   ==========   ========   ======
+A     2003-10-31   ETHEKR     New document
+B     2007-03-06   EDMDELI    Implicit message encoding
+C     2007-03-21   EJNOSZA    Bugfix in a testcase for implicit msg. enc.
+D     2008-10-01   EFERKOV    Big integers
+E     2010-01-18   EKRISZA    Updated for TITAN R8C
+F     2011-06-18   EKRISZA    Added tests for errors
+A     2011-12-12   EKRISZA     Updated for release
+PB1   2011-01-30   ETHBAAT    Editorial changes
+A
+
+:exmp.
+
+
+.*---------------------------------------------------------------------*
+:h2.Test Tools
+.*---------------------------------------------------------------------*
+:p.:us.Software Tools:eus.
+:xmp tab=2 nokeep.
+
+	SAtester
+
+:exmp.
+:np.
+.*---------------------------------------------------------------------*
+:h1.REQUIREMENT-BASED TESTS
+.*---------------------------------------------------------------------*
+.*---------------------------------------------------------------------*
+:h2.Testing OER encodings
+.*---------------------------------------------------------------------*
+.*---------------------------------------------------------------------*
+:h3. Example of OER encodings from ISO/IEC 8825-7:2015 Annex A
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - ISO/IEC 8825-7:2015 Annex A – Example of OER encodings>
+
+<STATIC:ASN>
+
+TempA
+
+DEFINITIONS ::=
+
+BEGIN
+
+  IMPORTS;
+
+  Date ::= [APPLICATION 3] IMPLICIT VisibleString -- YYYYMMDD
+  EmployeeNumber ::= [APPLICATION 2] IMPLICIT INTEGER
+  Name ::= [APPLICATION 1] IMPLICIT SEQUENCE   {
+	givenName VisibleString,
+	initial VisibleString,
+	familyName VisibleString }
+  ChildInformation ::= SET {
+	name Name,
+	dateOfBirth [0] Date}
+  Record ::= [APPLICATION 0] IMPLICIT SET {
+	name Name,
+	title [0] VisibleString,
+	number EmployeeNumber,
+	dateOfHire [1] Date,
+	nameOfSpouse [2] Name,
+	children [3] IMPLICIT SEQUENCE OF ChildInformation DEFAULT {} }
+END
+
+<STATIC>
+
+
+type component Test_CT {}
+
+<TTCN_TC:PURE_EXEC>
+
+import from TempA all;
+
+external function enc_OER_Date(in Date pdu) return octetstring with { extension "prototype(convert) encode(OER)" }
+external function dec_OER_Date(in octetstring stream) return Date with { extension "prototype(convert) decode(OER)" }
+
+external function enc_OER_EmployeeNumber(in EmployeeNumber pdu) return octetstring with { extension "prototype(convert) encode(OER)" }
+external function dec_OER_EmployeeNumber(in octetstring stream) return EmployeeNumber with { extension "prototype(convert) decode(OER)" }
+
+external function enc_OER_Name(in Name pdu) return octetstring with { extension "prototype(convert) encode(OER)" }
+external function dec_OER_Name(in octetstring stream) return Name with { extension "prototype(convert) decode(OER)" }
+
+external function enc_OER_ChildInformation(in ChildInformation pdu) return octetstring with { extension "prototype(convert) encode(OER)" }
+external function dec_OER_ChildInformation(in octetstring stream) return ChildInformation with { extension "prototype(convert) decode(OER)" }
+
+external function enc_OER_Record(in Record pdu) return octetstring with { extension "prototype(convert) encode(OER)" }
+external function dec_OER_Record(in octetstring stream) return Record with { extension "prototype(convert) decode(OER)" }
+
+//*********************************************
+// TESTCASES
+//*********************************************
+
+testcase tc_OER_encoding_of_Date() runs on Test_CT {
+  const Date date :=  "19710917"
+  const octetstring raw_encoded := '083139373130393137'O; 
+
+  if (enc_OER_Date(date) == raw_encoded) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_OER_Date(raw_encoded) == date) {setverdict(pass);} else {setverdict(fail);}
+}
+
+testcase tc_OER_encoding_of_EmployeeNumber() runs on Test_CT {
+  const EmployeeNumber empl_num :=  51
+  if (enc_OER_EmployeeNumber(empl_num) == '0133'O) {setverdict(pass);} else {setverdict(fail);}
+}
+
+testcase tc_OER_encoding_of_Name() runs on Test_CT {
+  const Name name :=  {
+	givenName := "John",
+	initial := "P",
+	familyName := "Smith"
+  }
+  const octetstring raw_encoded := '044A6F686E015005536D697468'O; 
+
+  if (enc_OER_Name(name) == raw_encoded) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_OER_Name(raw_encoded) == name) {setverdict(pass);} else {setverdict(fail);}
+}
+
+testcase tc_OER_ChildInformation() runs on Test_CT {
+  const ChildInformation child := {
+	name := {
+		givenName := "Ralph",
+		initial := "T",
+		familyName := "Smith"
+	},
+	dateOfBirth := "19571111"
+  }
+  const octetstring raw_encoded := '0552616C7068015405536D697468083139353731313131'O;
+
+  if (enc_OER_ChildInformation(child) == raw_encoded) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_OER_ChildInformation(raw_encoded) == child) {setverdict(pass);} else {setverdict(fail);}
+}
+
+testcase tc_OER_Record() runs on Test_CT {
+  const octetstring raw_encoded := 
+	'80044A6F686E015005536D6974680133084469726563746F72083139373130393137044D617279015405536D69746801020552616C7068015405536D69746808313935373131313105537573616E0142054A6F6E6573083139353930373137'O;
+  const Record rec := {
+	name := {
+		givenName := "John",
+		initial := "P",
+		familyName := "Smith"},
+	title := "Director",
+	number := 51,
+	dateOfHire := "19710917",
+	nameOfSpouse := {
+		givenName := "Mary",
+		initial := "T",
+		familyName := "Smith"},
+	children := {
+		{ name := {
+			givenName := "Ralph",
+			initial := "T",
+			familyName := "Smith"},
+		dateOfBirth := "19571111" },
+		{ name := {
+			givenName := "Susan",
+			initial := "B",
+			familyName := "Jones"},
+		dateOfBirth := "19590717"}
+	}
+  }
+
+  if (enc_OER_Record(rec) == raw_encoded) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_OER_Record(raw_encoded) == rec) {setverdict(pass);} else {setverdict(fail);}
+}
+
+//*********************************************
+// CONTROL PART
+//*********************************************
+
+control {
+  execute(tc_OER_encoding_of_Date());
+  execute(tc_OER_encoding_of_EmployeeNumber());
+  execute(tc_OER_encoding_of_Name());
+  execute(tc_OER_ChildInformation());
+  execute(tc_OER_Record());
+}
+
+<RESULT>
+
+Overall verdict: pass
+
+<END_TC>
+

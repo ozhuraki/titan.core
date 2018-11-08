@@ -1836,6 +1836,7 @@ int INTEGER::OER_encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf) c
     unsigned char* bn_as_bin = (unsigned char*) Malloc(num_bytes);
     BN_bn2bin(D, bn_as_bin);
 
+    boolean pad = FALSE;
     if (BN_is_negative(D)) {
       for(size_t i = 0; i < num_bytes; ++i){
         bn_as_bin[i] = ~bn_as_bin[i];
@@ -1854,15 +1855,25 @@ int INTEGER::OER_encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf) c
           }
         }
       }
+
+      pad = p_td.oer->signed_ && (!(bn_as_bin[0] & 0x80));
+    } else {
+      pad = p_td.oer->signed_ && (bn_as_bin[0] & 0x80);
     }
     
     if (p_td.oer->bytes == -1) {
-      encode_oer_length(num_bytes, p_buf, FALSE);
+      if (pad)   {
+          char pad_ch = BN_is_negative(D) ? 0xFF : 0;
+          encode_oer_length(num_bytes + 1, p_buf, FALSE);
+          p_buf.put_c(pad_ch);
+      } else  {
+          encode_oer_length(num_bytes, p_buf, FALSE);
+      }
     } else {
       int rem_bytes = p_td.oer->bytes - num_bytes;
-      char pad = BN_is_negative(D) ? 0xFF : 0;
+      char pad_ch = BN_is_negative(D) ? 0xFF : 0;
       for (int i = 0; i < rem_bytes; i++) {
-        p_buf.put_c(pad);
+        p_buf.put_c(pad_ch);
       }
     }
     p_buf.put_s(num_bytes, bn_as_bin);
@@ -1884,7 +1895,7 @@ int INTEGER::OER_decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, O
   }
   const unsigned char* const ucstr = p_buf.get_read_data();
   if ((num_bytes > sizeof(RInt)) || (num_bytes >= 4 && p_td.oer->signed_ == FALSE)) { // Bignum
-    const boolean negative = ucstr[0] & 0x80 && (p_td.oer->signed_ == TRUE || p_td.oer->bytes == -1);
+    const boolean negative = ucstr[0] & 0x80 && p_td.oer->signed_ == TRUE;
     BIGNUM *D = BN_new();
     if (negative) {
       unsigned char* const tmp = (unsigned char*) Malloc(num_bytes);
