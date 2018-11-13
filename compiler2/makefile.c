@@ -2073,12 +2073,14 @@ static void print_makefile(struct makefile_struct *makefile)
       }
     }
 
-    fprintf(fp, "#\n"
+    if(titan_dir){
+      fprintf(fp, "#\n"
           "# Set these variables...\n"
           "#\n\n"
           "# The path of your TTCN-3 Test Executor installation:\n"
           "# Uncomment this line to override the environment variable.\n"
           "%s"
+          "TTCN3_SUBDIR = \n"
           "ifndef TTCN3_DIR\n"
           "TTCN3_DIR = %s\n"
           "endif\n"
@@ -2086,7 +2088,22 @@ static void print_makefile(struct makefile_struct *makefile)
         "# The value below points to the location of the TITAN version\n"
         "# that generated this makefile.\n" : ""
       , titan_dir ? titan_dir : "");
-    if (titan_dir) Free(titan_dir);
+      Free(titan_dir);
+    } else {
+      fprintf(fp, "#\n"
+          "# Set these variables...\n"
+          "#\n\n"
+          "ifndef TTCN3_DIR\n"
+          "ifneq (,$(wildcard /usr/include/titan/))\n"
+          "TTCN3_DIR = /usr\n"
+          "TTCN3_SUBDIR = /titan\n"
+          "else\n"
+          "TTCN3_DIR = \n"
+          "TTCN3_SUBDIR = \n"
+          "endif\n"
+          "endif\n"
+      );
+    }
 
     boolean cxx_free = FALSE;
     if (makefile->cxxcompiler) {
@@ -2123,7 +2140,7 @@ static void print_makefile(struct makefile_struct *makefile)
     }
 
     fputs("# Flags for the C++ preprocessor (and makedepend as well):\n"
-          "CPPFLAGS = -D$(PLATFORM) -I$(TTCN3_DIR)/include", fp);
+          "CPPFLAGS = -D$(PLATFORM) -I$(TTCN3_DIR)/include$(TTCN3_SUBDIR)", fp);
 
 #ifdef MEMORY_DEBUG
     // enable debug mode for the generated code, too
@@ -3800,7 +3817,7 @@ static void print_makefile(struct makefile_struct *makefile)
     }
 
     fprintf(fp, " \\\n"
-        "\t-L$(TTCN3_DIR)/lib -l$(TTCN3_LIB)"
+        "\t-L$(TTCN3_DIR)/lib$(TTCN3_SUBDIR) -l$(TTCN3_LIB)"
         " \\\n"
         "\t-L$(OPENSSL_DIR)/lib -lcrypto");
     if (!makefile->linkingStrategy) {
