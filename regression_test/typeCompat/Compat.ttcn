@@ -572,6 +572,34 @@ testcase tc_Templates() runs on Empty {
   if (match({ vm1, vm1 }, tp_rec9)) { setverdict(pass) } else { setverdict(fail) }
 }
 
+
+// Bug 541100 - Compiler crash during code generation for type conversion
+type record Rec1 {
+  integer x
+}
+
+type record Rec2 {
+  integer y
+}
+
+type record Main541100 {
+  Rec2 field
+}
+
+template (value) Main541100 t_541100(template(value) Rec2 p) := { p };
+
+const Rec1 c_541100 := { 1 };
+
+testcase tc_541100() runs on Empty {
+  template (value) Main541100 t_res := t_541100(c_541100); // parameter needs type conversion
+  if (not isvalue(t_res) or valueof(t_res) != { { 1 } }) {
+    setverdict(fail, t_res);
+  }
+  else {
+    setverdict(pass);
+  }
+}
+
 control {
   var myrec1 rec1 := { 66, 77 }
   var myrec2 rec2 := { 88, 99 }
@@ -593,6 +621,7 @@ control {
   execute(Std.tc_Unions())
   execute(Std.tc_Anytypes())
   execute(Std.tc_Substruct())
+  execute(tc_541100());
 }
 
 } with { extension "anytype myrec1, myrec2" }

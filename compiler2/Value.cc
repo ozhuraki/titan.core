@@ -12723,7 +12723,8 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         if (!get_needs_conversion()) {
           u.ref.ref->generate_code_const_ref(expr);
         } else {
-          Type *my_gov = get_expr_governor_last();
+          Type *my_gov = my_governor != NULL ? my_governor->get_type_refd_last() : 
+            get_expr_governor_last();
           Type *refd_gov = u.ref.ref->get_refd_assignment()->get_Type()
             ->get_field_type(u.ref.ref->get_subrefs(),
             Type::EXPECTED_DYNAMIC_VALUE)->get_type_refd_last();
