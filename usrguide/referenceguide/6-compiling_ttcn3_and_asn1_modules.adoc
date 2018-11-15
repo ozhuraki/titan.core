@@ -28,7 +28,7 @@ compiler -v
 or
 
 [source]
-orcompiler –-ttcn2json [ -jf ] … [ -T ] module.ttcn [ -A ] module.asn … [ - schema.json ]
+compiler –-ttcn2json [ -jf ] … [ -T ] module.ttcn [ -A ] module.asn … [ - schema.json ]
 
 The compiler takes the name of files containing TTCN–3 and ASN.1 modules as arguments. The usual and recommended suffix is `.ttcn` for TTCN–3 and `.asn` for ASN.1 source files, but it is not stringentfootnote:[Other tool vendors may use .mp, .3mp or .asn1 suffixes as well.]. For TTCN–3 and ASN.1 modules, the names of the output files are the same as the name of the modules, except for the suffixes which are `.hh` and `.cc`.
 
