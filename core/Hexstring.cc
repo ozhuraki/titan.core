@@ -2071,7 +2071,7 @@ void HEXSTRING_template::set_param(Module_Param& param) {
       *this = operand1 + operand2;
     }
     else {
-      param.expr_type_error("a bitstring");
+      param.expr_type_error("a hexstring");
     }
     break;
   default:
