@@ -39,6 +39,7 @@
 #include "Ttcnstuff.hh" // at least for PortTypeBody::PortOperationMode_t
 #include "Statement.hh" // for Statement::statementtype_t
 #include "Attributes.hh"
+#include "../main.hh"
 
 #include <string.h>
 #include <ctype.h>
@@ -451,7 +452,6 @@ none		RETURN(NoneKeyword);
 not		RETURN(NotKeyword);
 not_a_number  RETURN(NaNKeyword);
 not4b		RETURN(Not4bKeyword);
-now		RETURN(NowKeyword);
 nowait		RETURN(NowaitKeyword);
 null		RETURN(NullKeyword);
 objid		RETURN(ObjectIdentifierKeyword);
@@ -475,7 +475,6 @@ procedure	RETURN(ProcedureKeyword);
 public		RETURN(PublicKeyword);
 raise		RETURN_DOT(RaiseKeyword);
 read		RETURN_DOT(ReadKeyword);
-realtime	RETURN(RealtimeKeyword);
 receive		RETURN_DOT(ReceiveOpKeyword);
 record		RETURN(RecordKeyword);
 recursive	RETURN(RecursiveKeyword);
@@ -502,7 +501,6 @@ system		RETURN(SystemKeyword);
 template	RETURN(TemplateKeyword);
 testcase	RETURN(TestcaseKeyword);
 timeout		RETURN_DOT(TimeoutKeyword);
-timestamp	RETURN(TimestampKeyword);
 timer		RETURN(TimerKeyword);
 to		RETURN(ToKeyword);
 trigger		RETURN_DOT(TriggerOpKeyword);
@@ -520,6 +518,46 @@ while		RETURN(WhileKeyword);
 with		RETURN(WithKeyword);
 xor		RETURN(XorKeyword);
 xor4b		RETURN(Xor4bKeyword);
+
+  /* condition-based keywords
+   * (can be switched to identifiers with a command line option) */
+
+now {
+  if (realtime_features) {
+    RETURN(NowKeyword);
+  }
+  else {
+    Location loc(infile, yylloc);
+    loc.warning("Keyword 'now' is treated as an identifier. Activate compiler "
+      "option '-I' to use real-time testing features.");
+    yylval.id = new Identifier(Identifier::ID_TTCN, string(yyleng, yytext));
+    RETURN_LVAL(IDentifier);
+  }
+}
+realtime {
+  if (realtime_features) {
+    RETURN(RealtimeKeyword);
+  }
+  else {
+    Location loc(infile, yylloc);
+    loc.warning("Keyword 'realtime' is treated as an identifier. Activate "
+      "compiler option '-I' to use real-time testing features.");
+    yylval.id = new Identifier(Identifier::ID_TTCN, string(yyleng, yytext));
+    RETURN_LVAL(IDentifier);
+  }
+}
+timestamp {
+  if (realtime_features) {
+    RETURN(TimestampKeyword);
+  }
+  else {
+    Location loc(infile, yylloc);
+    loc.warning("Keyword 'timestamp' is treated as an identifier. Activate "
+      "compiler option '-I' to use real-time testing features.");
+    yylval.id = new Identifier(Identifier::ID_TTCN, string(yyleng, yytext));
+    RETURN_LVAL(IDentifier);
+  }
+}
 
   /* modifier keywords */
 

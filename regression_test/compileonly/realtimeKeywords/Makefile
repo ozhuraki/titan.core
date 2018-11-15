@@ -6,22 +6,17 @@
 # https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
 #
 # Contributors:
-#   Botond, Baranyi – initial implementation
+#   Baranyi, Botond
 #
 ##############################################################################
-TOPDIR := ..
+TOPDIR := ../..
 include $(TOPDIR)/Makefile.regression
 
-.SUFFIXES: .ttcn .hh
-.PHONY: all clean dep run
+.PHONY: all clean dep
 
-COMPILER_FLAGS += -I
+TTCN3_LIB = ttcn3$(RT2_SUFFIX)$(DYNAMIC_SUFFIX)
 
-TTCN3_LIB = ttcn3$(RT2_SUFFIX)-parallel$(DYNAMIC_SUFFIX)
-
-TTCN3_MODULES = realtimeNow.ttcn realtimeTimestamp.ttcn
-
-USER_SOURCES = PortMsg.cc PortProc.cc
+TTCN3_MODULES = realtimeKeywords.ttcn
 
 GENERATED_SOURCES = $(TTCN3_MODULES:.ttcn=.cc)
 GENERATED_HEADERS = $(GENERATED_SOURCES:.cc=.hh)
@@ -34,29 +29,22 @@ GENERATED_SOURCES2 := $(foreach file, $(GENERATED_SOURCES:.cc=), $(addprefix $(f
 GENERATED_SOURCES += $(GENERATED_SOURCES2)
 endif
 
-OBJECTS = $(GENERATED_SOURCES:.cc=.o) $(USER_SOURCES:.cc:.o)
+OBJECTS = $(GENERATED_SOURCES:.cc=.o)
 
-TARGET = realtime$(EXESUFFIX)
+TARGET = realtimeKeywords$(EXESUFFIX)
 
 all: $(TARGET)
 
 $(TARGET): $(GENERATED_SOURCES) $(USER_SOURCES)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ -L$(TTCN3_DIR)/lib -l$(TTCN3_LIB) -L$(OPENSSL_DIR)/lib -lcrypto $($(PLATFORM)_LIBS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ -L$(TTCN3_DIR)/lib -l$(TTCN3_LIB) \
+	-L$(OPENSSL_DIR)/lib -lcrypto $($(PLATFORM)_LIBS)
 
-$(GENERATED_SOURCES) $(GENERATED_HEADERS): compile
-	@if [ ! -f $@ ]; then $(RM) compile; $(MAKE) compile; fi
-
-compile: $(TTCN3_MODULES)
-	$(filter-out -Nold -E, $(TTCN3_COMPILER)) $(COMPILER_FLAGS) $^ 
-	touch compile
+$(GENERATED_SOURCES) $(GENERATED_HEADERS): $(TTCN3_MODULES)
+	$(TTCN3_COMPILER) $(COMPILER_FLAGS) $^
 
 clean distclean:
-	-rm -f $(TARGET) $(OBJECTS) $(GENERATED_HEADERS) \
-	$(GENERATED_SOURCES) *.log Makefile.bak compile
+	$(RM) $(TARGET) $(OBJECTS) $(GENERATED_HEADERS) \
+	$(GENERATED_SOURCES) compile *.log
 
 dep: $(GENERATED_SOURCES)
 	makedepend $(CPPFLAGS) $(GENERATED_SOURCES)
-
-run: $(TARGET) config.cfg
-	$(TTCN3_DIR)/bin/ttcn3_start $^
-

@@ -3,7 +3,7 @@
 compiler \- TTCN-3 and ASN.1 to C++ translator
 .SH SYNOPSIS
 .B compiler
-.RB "[\| " \-abcdDeEfgijlLMnNpqrRsStuwxXyY " \|]"
+.RB "[\| " \-abcdDeEfgiIjlLMnNpqrRsStuwxXyY " \|]"
 .RB "[\| " \-V
 .IR " verb_level" " \|]"
 .RB "[\| " \-J
@@ -118,6 +118,9 @@ will contain only the
 .I line numbers,
 the column numbers will remain hidden. This option provides backward
 compatibility with the error message format of earlier versions.
+.TP
+.B \-I
+Enables real-time testing features.
 .TP
 .B \-j
 Disables JSON encoder/decoder functions.

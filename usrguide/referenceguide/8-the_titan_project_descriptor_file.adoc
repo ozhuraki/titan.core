@@ -228,6 +228,7 @@ Useful information can be found in TITAN Designer documentation <<13-references.
 |`disablePredefinedExternalFolder (OPENSSL_DIR and XMLDIR)` |- |- |false |O
 |`enableLegacyEncoding` |-G |-e |false |O
 |`disableUserInformation` |- |-D |false |O
+|`enableRealtimeTesting` |-i |-I |false |O
 |`buildLevel (only in Eclipse, see below and in 6.1.6 The actual building in [17])`|- |- |"Level 5 - Creating Executable Test Suite with dependency update" |O
 |`ProjectSpecificRulesGenerator` |- |- |Used to place custom rules and new targets into the generated Makefile |O
 |`profiledFileList (enables profiling and code coverage in the specified modules)` |-z |-z |empty |O

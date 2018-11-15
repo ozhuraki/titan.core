@@ -77,3 +77,4 @@ x := { i1 := x.i2 }; // assignment notation with self-reference (not OK)
 x.i3 := x.i1; // individual field assignment with self-reference (OK)
 // result: x := { i1 := 3, i2 := <unbound>, i3 := 3 }
 ----
+* Declaring multiple user ports (i.e. non-internal ports) with the same name is not fully supported. The generated headers of two modules containing user ports with the same name will cause C++ compilation errors, if one of the modules imports the other, or if it imports a module that imports the other, etc. It is advised to give all user ports unique names.

@@ -99,8 +99,8 @@ boolean generate_skeleton = FALSE, force_overwrite = FALSE,
   force_gen_seof = FALSE, omit_in_value_list = FALSE,
   warnings_for_bad_variants = FALSE, debugger_active = FALSE,
   legacy_unbound_union_fields = FALSE, split_to_slices = FALSE,
-  legacy_untagged_union, disable_user_info, legacy_codec_handling = FALSE;
-  // use legacy codec handling until the implementation of the new one is finished
+  legacy_untagged_union, disable_user_info, legacy_codec_handling = FALSE,
+  realtime_features = FALSE;
 
 // Default code splitting mode is set to 'no splitting'.
 CodeGenHelper::split_type code_splitting_mode = CodeGenHelper::SPLIT_NONE;
@@ -395,7 +395,7 @@ static boolean is_valid_asn1_filename(const char* file_name)
 static void usage()
 {
   fprintf(stderr, "\n"
-    "usage: %s [-abcdDeEfgijlLMnNOpqrRsStuwxXyY] [-J file] [-K file] [-z file] [-V verb_level]\n"
+    "usage: %s [-abcdDeEfgiIjlLMnNOpqrRsStuwxXyY] [-J file] [-K file] [-z file] [-V verb_level]\n"
     "	[-o dir] [-U none|type|'number'] [-P modulename.top_level_pdu_name] [-Q number] ...\n"
     "	[-T] module.ttcn [-A] module.asn ...\n"
     "	or  %s -v\n"
@@ -413,6 +413,7 @@ static void usage()
     "	-f:		force overwriting of output files\n"
     "	-g:		emulate GCC error/warning message format\n"
     "	-i:		use only line numbers in error/warning messages\n"
+    "	-I:		enable real-time testing features\n"
     "	-j:		disable JSON encoder/decoder functions\n"
     "	-J file:	read input files from file\n"
     "	-K file:	enable selective code coverage\n"
@@ -500,7 +501,7 @@ int main(int argc, char *argv[])
     Sflag = false, Kflag = false, jflag = false, zflag = false, Fflag = false,
     Mflag = false, Eflag = false, nflag = false, Bflag = false, errflag = false,
     print_usage = false, ttcn2json = false, Nflag = false, Dflag = false,
-    eflag = false, Oflag = false;
+    eflag = false, Oflag = false, Iflag = false;
 
   CodeGenHelper cgh;
 
@@ -596,7 +597,7 @@ int main(int argc, char *argv[])
 
   if (!ttcn2json) {
     for ( ; ; ) {
-      int c = getopt(argc, argv, "aA:bBcC:dDeEfFgijJ:K:lLMnNo:OpP:qQ:rRsStT:uU:vV:wxXyYz:0-");
+      int c = getopt(argc, argv, "aA:bBcC:dDeEfFgiIjJ:K:lLMnNo:OpP:qQ:rRsStT:uU:vV:wxXyYz:0-");
       if (c == -1) break;
       switch (c) {
       case 'a':
@@ -669,6 +670,10 @@ int main(int argc, char *argv[])
       case 'i':
         SET_FLAG(i);
         output_only_linenum = TRUE;
+        break;
+      case 'I':
+        SET_FLAG(I);
+        realtime_features = TRUE;
         break;
       case 'J':
         file_list_file_name = optarg;
@@ -839,7 +844,7 @@ int main(int argc, char *argv[])
         bflag || fflag || iflag || lflag || oflag || pflag || qflag ||
         rflag || sflag || tflag || uflag || wflag || xflag || Xflag || Rflag ||
         Uflag || yflag || Kflag || jflag || zflag || Fflag || Mflag || Eflag ||
-        nflag || Bflag || Dflag || eflag || Oflag) {
+        nflag || Bflag || Dflag || eflag || Oflag || Iflag) {
         errflag = true;
         print_usage = true;
       }
