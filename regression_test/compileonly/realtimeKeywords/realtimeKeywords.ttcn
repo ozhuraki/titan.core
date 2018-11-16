@@ -14,12 +14,15 @@
 // feature is disabled (for backward compatibility).
 module realtimeKeywords {
 
+import from RealtimeKeywordsAsn all;
+
 type record realtime {}
 
 template boolean now := true;
 
-function timestamp() return float {
-  return -1.0;
+function timestamp() return Seq {
+  var integer x := RealtimeKeywordsAsn.timestamp;
+  return { now := -1.0, realtime := false };
 }
 
 }

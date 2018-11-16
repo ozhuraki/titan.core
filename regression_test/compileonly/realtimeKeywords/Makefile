@@ -18,7 +18,9 @@ TTCN3_LIB = ttcn3$(RT2_SUFFIX)$(DYNAMIC_SUFFIX)
 
 TTCN3_MODULES = realtimeKeywords.ttcn
 
-GENERATED_SOURCES = $(TTCN3_MODULES:.ttcn=.cc)
+ASN1_MODULES = RealtimeKeywordsAsn.asn
+
+GENERATED_SOURCES = $(TTCN3_MODULES:.ttcn=.cc) $(ASN1_MODULES:.asn=.cc) 
 GENERATED_HEADERS = $(GENERATED_SOURCES:.cc=.hh)
 ifdef CODE_SPLIT
 GENERATED_SOURCES := $(foreach file, $(GENERATED_SOURCES:.cc=), $(addprefix $(file), .cc _seq.cc _set.cc  _seqof.cc _setof.cc _union.cc))
@@ -39,7 +41,7 @@ $(TARGET): $(GENERATED_SOURCES) $(USER_SOURCES)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ -L$(TTCN3_DIR)/lib -l$(TTCN3_LIB) \
 	-L$(OPENSSL_DIR)/lib -lcrypto $($(PLATFORM)_LIBS)
 
-$(GENERATED_SOURCES) $(GENERATED_HEADERS): $(TTCN3_MODULES)
+$(GENERATED_SOURCES) $(GENERATED_HEADERS): $(TTCN3_MODULES) $(ASN1_MODULES)
 	$(TTCN3_COMPILER) $(COMPILER_FLAGS) $^
 
 clean distclean:
