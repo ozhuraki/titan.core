@@ -324,8 +324,8 @@ void defRecordOfClass1(const struct_of_def *sdef, output_struct *output)
     "if (index_value >= val_ptr->n_elements) TTCN_error(\"Index overflow in "
     "a value of type %s: The index is %%d, but the value has only %%d "
     "elements.\", index_value, val_ptr->n_elements);\n"
-    "return (val_ptr->value_elements[index_value] != NULL) ?\n"
-    "*val_ptr->value_elements[index_value] : UNBOUND_ELEM;\n"
+    "return (val_ptr->value_elements[index_value] == NULL) ?\n"
+    "UNBOUND_ELEM : *val_ptr->value_elements[index_value];\n"
     "}\n\n", type, name, dispname, dispname, dispname);
 
   def = mputprintf(def, "const %s& operator[](const INTEGER& index_value) "
