@@ -583,6 +583,7 @@ namespace Ttcn {
       delete port_op.portref;
       delete port_op.s.sendpar;
       delete port_op.s.toclause;
+      delete port_op.s.timestampredirect;
       break;
     case S_CALL:
       delete port_op.portref;
@@ -590,18 +591,21 @@ namespace Ttcn {
       delete port_op.s.call.timer;
       delete port_op.s.toclause;
       delete port_op.s.call.body;
+      delete port_op.s.timestampredirect;
       break;
     case S_REPLY:
       delete port_op.portref;
       delete port_op.s.sendpar;
       delete port_op.s.replyval;
       delete port_op.s.toclause;
+      delete port_op.s.timestampredirect;
       break;
     case S_RAISE:
       delete port_op.portref;
       delete port_op.s.raise.signature_ref;
       delete port_op.s.sendpar;
       delete port_op.s.toclause;
+      delete port_op.s.timestampredirect;
       break;
     case S_RECEIVE:
     case S_CHECK_RECEIVE:
@@ -1094,7 +1098,8 @@ namespace Ttcn {
   }
 
   Statement::Statement(statementtype_t p_st, Reference *p_ref,
-                       TemplateInstance *p_templinst, Value *p_val, bool p_translate)
+                       TemplateInstance *p_templinst, Value *p_val,
+                       Reference* p_timestampredirect, bool p_translate)
     : statementtype(p_st), my_sb(0)
   {
     switch(statementtype) {
@@ -1105,6 +1110,7 @@ namespace Ttcn {
       port_op.translate = p_translate;
       port_op.s.sendpar=p_templinst;
       port_op.s.toclause=p_val;
+      port_op.s.timestampredirect = p_timestampredirect;
       break;
     default:
       FATAL_ERROR("Statement::Statement()");
@@ -1113,7 +1119,8 @@ namespace Ttcn {
 
   Statement::Statement(statementtype_t p_st, Reference *p_ref,
               TemplateInstance *p_templinst, Value *p_timerval,
-              bool p_nowait, Value *p_toclause, AltGuards *p_callbody)
+              bool p_nowait, Value *p_toclause, Reference* p_timestampredirect,
+              AltGuards *p_callbody)
     : statementtype(p_st), my_sb(0)
   {
     switch(statementtype) {
@@ -1126,6 +1133,7 @@ namespace Ttcn {
       port_op.s.call.nowait=p_nowait;
       port_op.s.toclause=p_toclause;
       port_op.s.call.body=p_callbody;
+      port_op.s.timestampredirect = p_timestampredirect;
       break;
     default:
       FATAL_ERROR("Statement::Statement()");
@@ -1134,7 +1142,7 @@ namespace Ttcn {
 
   Statement::Statement(statementtype_t p_st, Reference *p_ref,
                        TemplateInstance *p_templinst, Value *p_replyval,
-                       Value *p_toclause)
+                       Value *p_toclause, Reference* p_timestampredirect)
     : statementtype(p_st), my_sb(0)
   {
     switch(statementtype) {
@@ -1145,6 +1153,7 @@ namespace Ttcn {
       port_op.s.sendpar=p_templinst;
       port_op.s.replyval=p_replyval;
       port_op.s.toclause=p_toclause;
+      port_op.s.timestampredirect = p_timestampredirect;
       break;
     default:
       FATAL_ERROR("Statement::Statement()");
@@ -1153,7 +1162,7 @@ namespace Ttcn {
 
   Statement::Statement(statementtype_t p_st, Reference *p_ref,
                        Reference *p_sig, TemplateInstance *p_templinst,
-                       Value *p_toclause)
+                       Value *p_toclause, Reference* p_timestampredirect)
     : statementtype(p_st), my_sb(0)
   {
     switch(statementtype) {
@@ -1165,6 +1174,7 @@ namespace Ttcn {
       port_op.s.raise.signature=0;
       port_op.s.sendpar=p_templinst;
       port_op.s.toclause=p_toclause;
+      port_op.s.timestampredirect = p_timestampredirect;
       break;
     default:
       FATAL_ERROR("Statement::Statement()");
@@ -1819,6 +1829,9 @@ namespace Ttcn {
       if (!port_op.translate) port_op.portref->set_my_scope(p_scope);
       port_op.s.sendpar->set_my_scope(p_scope);
       if(port_op.s.toclause) port_op.s.toclause->set_my_scope(p_scope);
+      if (port_op.s.timestampredirect != NULL) {
+        port_op.s.timestampredirect->set_my_scope(p_scope);
+      }
       break;
     case S_CALL:
       port_op.portref->set_my_scope(p_scope);
@@ -1826,18 +1839,27 @@ namespace Ttcn {
       if(port_op.s.toclause) port_op.s.toclause->set_my_scope(p_scope);
       if(port_op.s.call.timer) port_op.s.call.timer->set_my_scope(p_scope);
       if(port_op.s.call.body) port_op.s.call.body->set_my_scope(p_scope);
+      if (port_op.s.timestampredirect != NULL) {
+        port_op.s.timestampredirect->set_my_scope(p_scope);
+      }
       break;
     case S_REPLY:
       port_op.portref->set_my_scope(p_scope);
       port_op.s.sendpar->set_my_scope(p_scope);
       if(port_op.s.replyval) port_op.s.replyval->set_my_scope(p_scope);
       if(port_op.s.toclause) port_op.s.toclause->set_my_scope(p_scope);
+      if (port_op.s.timestampredirect != NULL) {
+        port_op.s.timestampredirect->set_my_scope(p_scope);
+      }
       break;
     case S_RAISE:
       port_op.portref->set_my_scope(p_scope);
       port_op.s.raise.signature_ref->set_my_scope(p_scope);
       port_op.s.sendpar->set_my_scope(p_scope);
       if(port_op.s.toclause) port_op.s.toclause->set_my_scope(p_scope);
+      if (port_op.s.timestampredirect != NULL) {
+        port_op.s.timestampredirect->set_my_scope(p_scope);
+      }
       break;
     case S_RECEIVE:
     case S_CHECK_RECEIVE:
@@ -2110,6 +2132,9 @@ namespace Ttcn {
       port_op.s.sendpar->set_fullname(p_fullname+".sendpar");
       if(port_op.s.toclause)
         port_op.s.toclause->set_fullname(p_fullname+".to");
+      if (port_op.s.timestampredirect != NULL) {
+        port_op.s.timestampredirect->set_fullname(p_fullname + ".redirtimestamp");
+      }
       break;
     case S_CALL:
       port_op.portref->set_fullname(p_fullname+".portref");
@@ -2120,6 +2145,9 @@ namespace Ttcn {
         port_op.s.call.timer->set_fullname(p_fullname+".timer");
       if(port_op.s.call.body)
         port_op.s.call.body->set_fullname(p_fullname+".body");
+      if (port_op.s.timestampredirect != NULL) {
+        port_op.s.timestampredirect->set_fullname(p_fullname + ".redirtimestamp");
+      }
       break;
     case S_REPLY:
       port_op.portref->set_fullname(p_fullname+".portref");
@@ -2128,6 +2156,9 @@ namespace Ttcn {
         port_op.s.replyval->set_fullname(p_fullname+".replyval");
       if(port_op.s.toclause)
         port_op.s.toclause->set_fullname(p_fullname+".to");
+      if (port_op.s.timestampredirect != NULL) {
+        port_op.s.timestampredirect->set_fullname(p_fullname + ".redirtimestamp");
+      }
       break;
     case S_RAISE:
       port_op.portref->set_fullname(p_fullname+".portref");
@@ -2135,6 +2166,9 @@ namespace Ttcn {
       port_op.s.sendpar->set_fullname(p_fullname+".sendpar");
       if(port_op.s.toclause)
         port_op.s.toclause->set_fullname(p_fullname+".to");
+      if (port_op.s.timestampredirect != NULL) {
+        port_op.s.timestampredirect->set_fullname(p_fullname + ".redirtimestamp");
+      }
       break;
     case S_RECEIVE:
     case S_CHECK_RECEIVE:
@@ -3705,6 +3739,8 @@ error:
     port_op.s.sendpar->get_Template()->chk_specific_value(false);
     // checking to clause
     chk_to_clause(port_type);
+    // checking timestamp redirect
+    chk_timestamp_redirect(port_type, true);
   }
 
   void Statement::chk_call()
@@ -3811,6 +3847,8 @@ error:
     }
     // checking to clause
     chk_to_clause(port_type);
+    // checking timestamp redirect
+    chk_timestamp_redirect(port_type, true);
     // checking response and exception handling part
     if (port_op.s.call.body) chk_call_body(port_type, signature);
   }
@@ -3900,6 +3938,8 @@ error:
     }
     // checking to clause
     chk_to_clause(port_type);
+    // checking timestamp redirect
+    chk_timestamp_redirect(port_type, true);
   }
 
   void Statement::chk_raise()
@@ -4009,6 +4049,8 @@ error:
     port_op.s.sendpar->get_Template()->chk_specific_value(false);
     // checking to clause
     chk_to_clause(port_type);
+    // checking timestamp redirect
+    chk_timestamp_redirect(port_type, true);
   }
 
   void Statement::chk_receive()
@@ -4133,7 +4175,8 @@ error:
       chk_index_redirect(port_op.r.redirect.index,
         t_ass != NULL ? t_ass->get_Dimensions() : NULL, port_op.anyfrom, "port");
     }
-    chk_timestamp_redirect(port_type);
+    // checking timestamp redirect
+    chk_timestamp_redirect(port_type, false);
 
     // checking deterministic
     if (port_op.r.rcvpar) {
@@ -4248,7 +4291,8 @@ error:
       chk_index_redirect(port_op.r.redirect.index,
         t_ass != NULL ? t_ass->get_Dimensions() : NULL, port_op.anyfrom, "port");
     }
-    chk_timestamp_redirect(port_type);
+    // checking timestamp redirect
+    chk_timestamp_redirect(port_type, false);
   }
 
   void Statement::chk_getreply()
@@ -4405,7 +4449,8 @@ error:
       chk_index_redirect(port_op.r.redirect.index,
         t_ass != NULL ? t_ass->get_Dimensions() : NULL, port_op.anyfrom, "port");
     }
-    chk_timestamp_redirect(port_type);
+    // checking timestamp redirect
+    chk_timestamp_redirect(port_type, false);
   }
 
   void Statement::chk_catch()
@@ -4602,7 +4647,8 @@ error:
       chk_index_redirect(port_op.r.redirect.index,
         t_ass != NULL ? t_ass->get_Dimensions() : NULL, port_op.anyfrom, "port");
     }
-    chk_timestamp_redirect(port_type);
+    // checking timestamp redirect
+    chk_timestamp_redirect(port_type, false);
   }
 
   void Statement::chk_check()
@@ -4622,7 +4668,8 @@ error:
       chk_index_redirect(port_op.r.redirect.index,
         t_ass != NULL ? t_ass->get_Dimensions() : NULL, port_op.anyfrom, "port");
     }
-    chk_timestamp_redirect(port_type);
+    // checking timestamp redirect
+    chk_timestamp_redirect(port_type, false);
   }
 
   void Statement::chk_clear()
@@ -5623,23 +5670,24 @@ error:
     return t_var_type;
   }
   
-  void Statement::chk_timestamp_redirect(Type* port_type)
+  void Statement::chk_timestamp_redirect(Type* port_type, bool outgoing)
   {
-    if (port_op.r.redirect.timestamp == NULL) {
+    Reference* tr = outgoing ? port_op.s.timestampredirect :
+      port_op.r.redirect.timestamp;
+    if (tr == NULL) {
       return;
     }
     
     if (port_type != NULL && !port_type->get_PortBody()->is_realtime()) {
-      port_op.r.redirect.timestamp->error("The timestamp cannot be redirected, "
-        "because port type `%s' does not have the 'realtime' clause",
-        port_type->get_typename().c_str());
+      tr->error("The timestamp cannot be redirected, because port type `%s' "
+        "does not have the 'realtime' clause", port_type->get_typename().c_str());
     }
     
-    Type* t_var_type = port_op.r.redirect.timestamp->chk_variable_ref();
+    Type* t_var_type = tr->chk_variable_ref();
     if (t_var_type != NULL &&
         t_var_type->get_type_refd_last()->get_typetype() != Type::T_REAL) {
-      port_op.r.redirect.timestamp->error("The type of the variable should be "
-        "float instead of `%s'", t_var_type->get_typename().c_str());
+      tr->error("The type of the variable should be float instead of `%s'",
+        t_var_type->get_typename().c_str());
     }
   }
 
@@ -6031,6 +6079,9 @@ error:
       port_op.s.sendpar->set_code_section(p_code_section);
       if (port_op.s.toclause)
         port_op.s.toclause->set_code_section(p_code_section);
+      if (port_op.s.timestampredirect != NULL) {
+        port_op.s.timestampredirect->set_code_section(p_code_section);
+      }
       break;
     case S_CALL:
       port_op.portref->set_code_section(p_code_section);
@@ -6041,6 +6092,9 @@ error:
         port_op.s.call.timer->set_code_section(p_code_section);
       if (port_op.s.call.body)
         port_op.s.call.body->set_code_section(p_code_section);
+      if (port_op.s.timestampredirect != NULL) {
+        port_op.s.timestampredirect->set_code_section(p_code_section);
+      }
       break;
     case S_REPLY:
       port_op.portref->set_code_section(p_code_section);
@@ -6049,12 +6103,18 @@ error:
         port_op.s.replyval->set_code_section(p_code_section);
       if (port_op.s.toclause)
         port_op.s.toclause->set_code_section(p_code_section);
+      if (port_op.s.timestampredirect != NULL) {
+        port_op.s.timestampredirect->set_code_section(p_code_section);
+      }
       break;
     case S_RAISE:
       port_op.portref->set_code_section(p_code_section);
       port_op.s.sendpar->set_code_section(p_code_section);
       if (port_op.s.toclause)
         port_op.s.toclause->set_code_section(p_code_section);
+      if (port_op.s.timestampredirect != NULL) {
+        port_op.s.timestampredirect->set_code_section(p_code_section);
+      }
       break;
     case S_RECEIVE:
     case S_CHECK_RECEIVE:
@@ -7546,6 +7606,8 @@ error:
       expr.expr = mputstr(expr.expr, ", ");
       port_op.s.toclause->generate_code_expr(&expr);
     }
+    expr.expr = mputstr(expr.expr, ", ");
+    generate_code_expr_timestamp_redirect(&expr, true);
     expr.expr = mputc(expr.expr, ')');
     return Code::merge_free_expr(str, &expr);
   }
@@ -7561,6 +7623,8 @@ error:
       expr.expr = mputstr(expr.expr, ", ");
       port_op.s.toclause->generate_code_expr(&expr);
     }
+    expr.expr = mputstr(expr.expr, ", ");
+    generate_code_expr_timestamp_redirect(&expr, true);
     expr.expr = mputc(expr.expr, ')');
     str = Code::merge_free_expr(str, &expr);
     if (port_op.s.call.body) {
@@ -7599,6 +7663,8 @@ error:
       expr.expr=mputstr(expr.expr, ", ");
       port_op.s.toclause->generate_code_expr(&expr);
     }
+    expr.expr = mputstr(expr.expr, ", ");
+    generate_code_expr_timestamp_redirect(&expr, true);
     expr.expr=mputc(expr.expr, ')');
     return Code::merge_free_expr(str, &expr);
   }
@@ -7617,6 +7683,8 @@ error:
       expr.expr=mputstr(expr.expr, ", ");
       port_op.s.toclause->generate_code_expr(&expr);
     }
+    expr.expr = mputstr(expr.expr, ", ");
+    generate_code_expr_timestamp_redirect(&expr, true);
     expr.expr=mputc(expr.expr, ')');
     return Code::merge_free_expr(str, &expr);
   }
@@ -7996,7 +8064,7 @@ error:
     expr->expr = mputstr(expr->expr, ", ");
     generate_code_expr_senderredirect(expr);
     expr->expr = mputstr(expr->expr, ", ");
-    generate_code_expr_timestamp_redirect(expr);
+    generate_code_expr_timestamp_redirect(expr, false);
     if (port_op.portref || port_op.translate) {
       expr->expr = mputstr(expr->expr, ", ");
       if (port_op.r.redirect.index != NULL) {
@@ -8050,7 +8118,7 @@ error:
 	generate_code_expr_senderredirect(expr);
       }
       expr->expr = mputstr(expr->expr, ", ");
-      generate_code_expr_timestamp_redirect(expr);
+      generate_code_expr_timestamp_redirect(expr, false);
       expr->expr = mputstr(expr->expr, ", ");
       if (port_op.r.redirect.index != NULL) {
         generate_code_index_redirect(expr, port_op.r.redirect.index, my_sb);
@@ -8065,7 +8133,7 @@ error:
       expr->expr = mputstr(expr->expr, ", ");
       generate_code_expr_senderredirect(expr);
       expr->expr = mputstr(expr->expr, ", ");
-      generate_code_expr_timestamp_redirect(expr);
+      generate_code_expr_timestamp_redirect(expr, false);
     }
     expr->expr=mputc(expr->expr, ')');
   }
@@ -8137,7 +8205,7 @@ error:
 	generate_code_expr_senderredirect(expr);
       }
       expr->expr = mputstr(expr->expr, ", ");
-      generate_code_expr_timestamp_redirect(expr);
+      generate_code_expr_timestamp_redirect(expr, false);
       expr->expr = mputstr(expr->expr, ", ");
       if (port_op.r.redirect.index != NULL) {
         generate_code_index_redirect(expr, port_op.r.redirect.index, my_sb);
@@ -8152,7 +8220,7 @@ error:
       expr->expr = mputstr(expr->expr, ", ");
       generate_code_expr_senderredirect(expr);
       expr->expr = mputstr(expr->expr, ", ");
-      generate_code_expr_timestamp_redirect(expr);
+      generate_code_expr_timestamp_redirect(expr, false);
     }
     expr->expr = mputc(expr->expr, ')');
   }
@@ -8192,7 +8260,7 @@ error:
     expr->expr = mputstr(expr->expr, ", ");
     generate_code_expr_senderredirect(expr);
     expr->expr = mputstr(expr->expr, ", ");
-    generate_code_expr_timestamp_redirect(expr);
+    generate_code_expr_timestamp_redirect(expr, false);
     if (port_op.portref) {
       expr->expr = mputstr(expr->expr, ", ");
       if (port_op.r.redirect.index != NULL) {
@@ -8220,7 +8288,7 @@ error:
     expr->expr = mputstr(expr->expr, ", ");
     generate_code_expr_senderredirect(expr);
     expr->expr = mputstr(expr->expr, ", ");
-    generate_code_expr_timestamp_redirect(expr);
+    generate_code_expr_timestamp_redirect(expr, false);
     if (port_op.portref) {
       expr->expr = mputstr(expr->expr, ", ");
       if (port_op.r.redirect.index != NULL) {
@@ -8385,11 +8453,14 @@ error:
     } else expr->expr = mputstr(expr->expr, "NULL");
   }
   
-  void Statement::generate_code_expr_timestamp_redirect(expression_struct* expr)
+  void Statement::generate_code_expr_timestamp_redirect(expression_struct* expr,
+                                                        bool outgoing)
   {
-    if (port_op.r.redirect.timestamp != NULL) {
+    Reference* tr = outgoing ? port_op.s.timestampredirect :
+      port_op.r.redirect.timestamp;
+    if (tr != NULL) {
       expr->expr = mputstr(expr->expr, "&(");
-      port_op.r.redirect.timestamp->generate_code(expr);
+      tr->generate_code(expr);
       expr->expr = mputstr(expr->expr, ")");
     }
     else {

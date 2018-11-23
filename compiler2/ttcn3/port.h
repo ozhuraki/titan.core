@@ -94,6 +94,7 @@ typedef struct port_msg_provider {
   const char *name; // provider type's name
   size_t n_out_msg_type_names;
   const char **out_msg_type_names; // provider's out message list
+  boolean realtime;
 } port_msg_prov;
 
 typedef struct port_msg_provider_list {
@@ -116,6 +117,7 @@ typedef struct port_def_tag {
   port_type_t port_type;
   port_msg_prov_list provider_msg_outlist;
   const char **mapper_name;
+  boolean* mapper_realtime;
   size_t n_mapper_name;
   port_msg_mapped_type_list provider_msg_in;
   boolean has_sliding;

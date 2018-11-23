@@ -1048,7 +1048,7 @@ static const string anyname("anytype");
 %type <reference> PortType optDerivedDef DerivedDef IndexSpec Signature
   VariableRef TimerRef Port PortOrAll ValueStoreSpec
   SenderSpec ComponentType optRunsOnSpec RunsOnSpec optSystemSpec optPortSpec
-  optMtcSpec TimestampSpec
+  optMtcSpec TimestampSpec optPortRedirectOutgoing
 %type <reference_or_any> PortOrAny TimerRefOrAny
 %type <valuerange> Range
 %type <type> NestedEnumDef NestedRecordDef NestedRecordOfDef NestedSetDef
@@ -1475,6 +1475,7 @@ optFunctionFormalParList
 optMtcSpec
 optParDefaultValue
 optPortCallBody
+optPortRedirectOutgoing
 optReceiveParameter
 optReplyValue
 optRunsOnSpec
@@ -6364,14 +6365,14 @@ CommunicationStatements: // 353
 ;
 
 SendStatement: // 354
-  Port DotSendOpKeyword PortSendOp
+  Port DotSendOpKeyword PortSendOp optPortRedirectOutgoing
   {
-    $$ = new Statement(Statement::S_SEND, $1, $3.templ_inst, $3.val, false);
+    $$ = new Statement(Statement::S_SEND, $1, $3.templ_inst, $3.val, $4, false);
     $$->set_location(infile, @$);
   }
-| PortKeyword DotSendOpKeyword PortSendOp
+| PortKeyword DotSendOpKeyword PortSendOp optPortRedirectOutgoing
   {
-    $$ = new Statement(Statement::S_SEND, NULL, $3.templ_inst, $3.val, true);
+    $$ = new Statement(Statement::S_SEND, NULL, $3.templ_inst, $3.val, $4, true);
     $$->set_location(infile, @$);
   }
 ;
@@ -6390,6 +6391,11 @@ PortSendOp: // 355
     $$.templ_inst->set_location(infile, @2);
     $$.val = $4;
   }
+;
+
+optPortRedirectOutgoing:
+  /* empty */  { $$ = NULL; }
+| PortRedirectSymbol TimestampSpec { $$ = $2; }
 ;
 
 SendParameter: // 357
@@ -6437,10 +6443,10 @@ AddressRef: // 361
 ;
 
 CallStatement: // 362
-  Port DotCallOpKeyword PortCallOp optPortCallBody
+  Port DotCallOpKeyword PortCallOp optPortRedirectOutgoing optPortCallBody
   {
     $$ = new Statement(Statement::S_CALL, $1, $3.templ_inst,
-                       $3.calltimerval, $3.nowait, $3.val, $4);
+                       $3.calltimerval, $3.nowait, $3.val, $4, $5);
     $$->set_location(infile, @$);
   }
 ;
@@ -6531,10 +6537,10 @@ CallBodyOps: // 372
 ;
 
 ReplyStatement: // 373
-  Port DotReplyKeyword PortReplyOp
+  Port DotReplyKeyword PortReplyOp optPortRedirectOutgoing
   {
     $$ = new Statement(Statement::S_REPLY, $1, $3.templ_inst,
-                       $3.replyval, $3.toclause);
+                       $3.replyval, $3.toclause, $4);
     $$->set_location(infile, @$);
   }
 ;
@@ -6564,10 +6570,10 @@ optReplyValue: // [376]
 ;
 
 RaiseStatement: // 377
-  Port DotRaiseKeyword PortRaiseOp
+  Port DotRaiseKeyword PortRaiseOp optPortRedirectOutgoing
   {
     if ($3.signature) $$ = new Statement(Statement::S_RAISE, $1,
-      $3.signature, $3.templ_inst, $3.toclause);
+      $3.signature, $3.templ_inst, $3.toclause, $4);
     else {
       $$ = new Statement(Statement::S_ERROR);
       delete $1;

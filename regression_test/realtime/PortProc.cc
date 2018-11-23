@@ -103,19 +103,25 @@ void PortProc::user_stop()
 
 }
 
-void PortProc::outgoing_call(const Sig_call& /*call_par*/)
+void PortProc::outgoing_call(const Sig_call& /*call_par*/, FLOAT* timestamp_redirect)
 {
-
+  if (CT_component_set__timestamp && timestamp_redirect != NULL) {
+    *timestamp_redirect = TTCN_Runtime::now();
+  }
 }
 
-void PortProc::outgoing_reply(const Sig_reply& /*reply_par*/)
+void PortProc::outgoing_reply(const Sig_reply& /*reply_par*/, FLOAT* timestamp_redirect)
 {
-
+  if (CT_component_set__timestamp && timestamp_redirect != NULL) {
+    *timestamp_redirect = TTCN_Runtime::now();
+  }
 }
 
-void PortProc::outgoing_raise(const Sig_exception& /*raise_exception*/)
+void PortProc::outgoing_raise(const Sig_exception& /*raise_exception*/, FLOAT* timestamp_redirect)
 {
-
+  if (CT_component_set__timestamp && timestamp_redirect != NULL) {
+    *timestamp_redirect = TTCN_Runtime::now();
+  }
 }
 
 } /* end of namespace */

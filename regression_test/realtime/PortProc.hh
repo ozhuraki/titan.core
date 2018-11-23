@@ -39,9 +39,9 @@ protected:
 	void user_start();
 	void user_stop();
 
-	void outgoing_call(const Sig_call& call_par);
-	void outgoing_reply(const Sig_reply& reply_par);
-	void outgoing_raise(const Sig_exception& raise_exception);
+	void outgoing_call(const Sig_call& call_par, FLOAT* timestamp_redirect);
+	void outgoing_reply(const Sig_reply& reply_par, FLOAT* timestamp_redirect);
+	void outgoing_raise(const Sig_exception& raise_exception, FLOAT* timestamp_redirect);
 };
 
 } /* end of namespace */

@@ -78,9 +78,11 @@ void PortMsg::user_stop()
 
 }
 
-void PortMsg::outgoing_send(const INTEGER& /*send_par*/)
+void PortMsg::outgoing_send(const INTEGER& /*send_par*/, FLOAT* timestamp_redirect)
 {
-
+  if (CT_component_set__timestamp && timestamp_redirect != NULL) {
+    *timestamp_redirect = TTCN_Runtime::now();
+  }
 }
 
 } /* end of namespace */

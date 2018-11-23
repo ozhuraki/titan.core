@@ -2260,6 +2260,7 @@ namespace Ttcn {
         pdef.provider_msg_outlist.elements[0].n_out_msg_type_names = 0;
         pdef.provider_msg_outlist.elements[0].out_msg_type_names = NULL;
         PortTypeBody *provider_body = provider_types[0]->get_PortBody();
+        pdef.provider_msg_outlist.elements[0].realtime = provider_body->realtime;
         if (provider_body->in_msgs) {
           if (!in_mappings) // !this->in_msgs OK for an all-discard mapping
             FATAL_ERROR("PortTypeBody::generate_code()");
@@ -2309,6 +2310,7 @@ namespace Ttcn {
           port_msg_prov * msg_prov = pdef.provider_msg_outlist.elements + i;
           msg_prov->name = pool.add(provider_types[i]->get_genname_value(my_scope));
           PortTypeBody * ptb = provider_types[i]->get_PortBody();
+          msg_prov->realtime = ptb->realtime;
           if (ptb->out_msgs) {
             // Collect out message list type names
             msg_prov->n_out_msg_type_names = ptb->out_msgs->get_nof_types();
@@ -2492,9 +2494,11 @@ namespace Ttcn {
     
     if (port_type == PT_PROVIDER) {
       pdef.mapper_name = (const char**)Malloc(mapper_types.size() * sizeof(const char*));
+      pdef.mapper_realtime = (boolean*)Malloc(mapper_types.size() * sizeof(boolean));
       pdef.n_mapper_name = mapper_types.size();
       for (size_t i = 0; i < mapper_types.size(); i++) {
         pdef.mapper_name[i] = pool.add(mapper_types[i]->get_genname_value(my_scope));
+        pdef.mapper_realtime[i] = mapper_types[i]->get_PortBody()->is_realtime();
       }
     }
     
@@ -2533,6 +2537,7 @@ namespace Ttcn {
       Free(pdef.provider_msg_outlist.elements[i].out_msg_type_names);
     Free(pdef.provider_msg_outlist.elements);
     Free(pdef.mapper_name);
+    Free(pdef.mapper_realtime);
     Free(pdef.var_decls);
     Free(pdef.var_defs);
     Free(pdef.mapping_func_decls);

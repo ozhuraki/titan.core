@@ -37,7 +37,7 @@ type component CT {
   port PortRtProc portRtProc;
 }
 
-function f() runs on CT { //^In function definition//
+function f_incoming() runs on CT { //^In function definition//
   var float x;
   var hexstring y;
   
@@ -97,6 +97,32 @@ function f() runs on CT { //^In function definition//
     [] portRtProc.catch(timeout) -> timestamp x {}
     [] portRtProc.catch(timeout) -> timestamp y {} //^In guard operation// //^In catch statement// //The type of the variable should be float instead of//
   }
+}
+
+function f_outgoing() runs on CT { //^In function definition//
+  var float x;
+  var hexstring y;
+  
+  portRtMsg.send(1) -> timestamp x;
+  portRtProc.call(Sig: { 0 }, 0.5) -> timestamp x {
+    [] portRtProc.catch(timeout) {}
+  }
+  portRtProc.reply(Sig: { 0 } value "x") -> timestamp x;
+  portRtProc.raise(Sig, true) -> timestamp x;
+  
+  badPortMsg.send(1) -> timestamp x; //^In send statement// //The timestamp cannot be redirected, because port type `@realtimeTimestamp_SE.BadPortMsg' does not have the 'realtime' clause//
+  badPortProc.call(Sig: { 0 }, 0.5) -> timestamp x { //^In call statement// //The timestamp cannot be redirected, because port type `@realtimeTimestamp_SE.BadPortProc' does not have the 'realtime' clause//
+    [] badPortProc.catch(timeout) {}
+  }
+  badPortProc.reply(Sig: { 0 } value "x") -> timestamp x; //^In reply statement// //The timestamp cannot be redirected, because port type `@realtimeTimestamp_SE.BadPortProc' does not have the 'realtime' clause//
+  badPortProc.raise(Sig, true) -> timestamp x; //^In raise statement// //The timestamp cannot be redirected, because port type `@realtimeTimestamp_SE.BadPortProc' does not have the 'realtime' clause//
+  
+  portRtMsg.send(1) -> timestamp y; //^In send statement// //The type of the variable should be float instead of `hexstring'//
+  portRtProc.call(Sig: { 0 }, 0.5) -> timestamp y { //^In call statement// //The type of the variable should be float instead of `hexstring'//
+    [] portRtProc.catch(timeout) {}
+  }
+  portRtProc.reply(Sig: { 0 } value "x") -> timestamp y; //^In reply statement// //The type of the variable should be float instead of `hexstring'//
+  portRtProc.raise(Sig, true) -> timestamp y; //^In raise statement// //The type of the variable should be float instead of `hexstring'//
 }
 
 }

@@ -37,7 +37,7 @@ protected:
 	void user_start();
 	void user_stop();
 
-	void outgoing_send(const INTEGER& send_par);
+	void outgoing_send(const INTEGER& send_par, FLOAT* timestamp_redirect);
 };
 
 } /* end of namespace */
