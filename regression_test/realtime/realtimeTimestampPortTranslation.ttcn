@@ -1,0 +1,248 @@
+/******************************************************************************
+ * Copyright (c) 2000-2018 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+
+// This module tests timestamp redirects for real-time port operations on translation ports
+module realtimeTimestampPortTranslation {
+
+/////////////////////////////////////////////////////////////////////////
+//////////////////// Port translation functions /////////////////////////
+/////////////////////////////////////////////////////////////////////////
+
+function int_2_char(in integer x, out charstring y) port PortTransRT {
+  y := int2str(x);
+  port.setstate(0);
+}
+with {
+  extension "prototype(fast)";
+}
+
+const octetstring SPECIAL_WITH_TIMESTAMP := 'DEADBEEF'O;
+const octetstring SPECIAL_WITH_NO_TIMESTAMP := '0123ABCD'O;
+
+function oct_2_int(in octetstring x, out integer y) port PortTransRT {
+  if (x == SPECIAL_WITH_TIMESTAMP or x == SPECIAL_WITH_NO_TIMESTAMP) {
+    // special case:
+    // test timestamp redirects in a translation function
+    var float time_before := now, time_send, time_receive, time_after;
+    
+    // the port's output is redirected to its input (so this will trigger an incoming message)
+    port.send('AB'O) -> timestamp time_send;
+    
+    alt {
+      [] port.receive(charstring: ?) -> timestamp time_receive { }
+    }
+    
+    // check results
+    time_after := now;
+    if (x == SPECIAL_WITH_TIMESTAMP) {
+      if (time_before > time_send or time_send > time_receive or time_receive > time_after) {
+        setverdict(fail, "Incorrect times measured. Before: ", time_before, ", send: ", time_send, ", receive: ", time_receive, ", after: ", time_after, ".");
+      }
+    }
+    else if (isbound(time_send) or isbound(time_receive)) {
+      setverdict(fail, "Timestamps were supposed to be unset.");
+    }
+    setverdict(pass);
+    y := 0;
+  }
+  else {
+    y := oct2int(x);
+  }
+  port.setstate(0);
+}
+with {
+  extension "prototype(fast)";
+}
+
+function int_2_char_dummy(in integer x, out charstring y) port PortTransBasic {
+  port.setstate(0);
+}
+with {
+  extension "prototype(fast)";
+}
+
+function oct_2_int_dummy(in octetstring x, out integer y) port PortTransBasic {
+  port.setstate(0);
+}
+with {
+  extension "prototype(fast)";
+}
+
+/////////////////////////////////////////////////////////////////////////
+////////////////////// Port and component types /////////////////////////
+/////////////////////////////////////////////////////////////////////////
+
+type port PortProvRT message realtime {
+  inout integer
+}
+with {
+  extension "provider";
+}
+
+type port PortProvBasic message {
+  inout integer
+}
+with {
+  extension "provider";
+}
+
+type port PortTransRT message realtime map to PortProvRT, PortProvBasic {
+  in charstring from integer with int_2_char()
+  out octetstring to integer with oct_2_int()
+}
+
+type port PortTransBasic message map to PortProvRT, PortProvBasic {
+  in charstring from integer with int_2_char_dummy()
+  out octetstring to integer with oct_2_int_dummy()
+}
+
+type component CT_Provider {
+  port PortProvRT ptProvRT;
+  port PortProvBasic ptProvB;
+}
+
+type component CT_User {
+  port PortTransRT ptTransRT;
+  port PortTransBasic ptTransB;
+}
+
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////// Test functions //////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+
+function f_test_timestamp_port_trans(in boolean p_set_timestamp) runs on CT_User {
+  var float time_before := now, time_send, time_receive, time_after;
+  
+  // the port's output is redirected to its input (so this will trigger an incoming message)
+  ptTransRT.send('03'O) -> timestamp time_send;
+  
+  alt {
+    [] ptTransRT.receive(charstring: ?) -> timestamp time_receive { }
+  }
+  
+  // check results
+  time_after := now;
+  if (p_set_timestamp) {
+    if (time_before > time_send or time_send > time_receive or time_receive > time_after) {
+      setverdict(fail, "Incorrect times measured. Before: ", time_before, ", send: ", time_send, ", receive: ", time_receive, ", after: ", time_after, ".");
+    }
+  }
+  else if (isbound(time_send) or isbound(time_receive)) {
+    setverdict(fail, "Timestamps were supposed to be unset.");
+  }
+  setverdict(pass);
+}
+
+function f_test_timestamp_in_trans_func(in boolean p_set_timestamp) runs on CT_User {
+  if (p_set_timestamp) {
+    ptTransRT.send(SPECIAL_WITH_TIMESTAMP);
+  }
+  else {
+    ptTransRT.send(SPECIAL_WITH_NO_TIMESTAMP);
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////
+////////////////////////////// Testcases ////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+
+testcase tc_timestamp_port_trans_RT_provider_mtc() runs on CT_User system CT_Provider {
+  // mapped with runtime provider port => timestamps should be set
+  map(mtc:ptTransRT, system:ptProvRT);
+  f_test_timestamp_port_trans(true);
+}
+
+testcase tc_timestamp_port_trans_RT_provider_ptc() runs on CT_User system CT_Provider {
+  var CT_User ct := CT_User.create;
+  // mapped with runtime provider port => timestamps should be set
+  map(ct:ptTransRT, system:ptProvRT);
+  ct.start(f_test_timestamp_port_trans(true));
+  ct.done;
+}
+
+testcase tc_timestamp_port_trans_nonRT_provider_mtc() runs on CT_User system CT_Provider {
+  // mapped with non-runtime provider port => timestamps shouldn't be set
+  map(mtc:ptTransRT, system:ptProvB);
+  f_test_timestamp_port_trans(false);
+}
+
+testcase tc_timestamp_port_trans_nonRT_provider_ptc() runs on CT_User system CT_Provider {
+  var CT_User ct := CT_User.create;
+  // mapped with non-runtime provider port => timestamps shouldn't be set
+  map(ct:ptTransRT, system:ptProvB);
+  ct.start(f_test_timestamp_port_trans(false));
+  ct.done;
+}
+
+testcase tc_timestamp_port_trans_no_provider_mtc() runs on CT_User system CT_User {
+  // not mapped in translation mode => timestamps should be set
+  map(mtc:ptTransRT, system:ptTransRT);
+  f_test_timestamp_port_trans(true);
+}
+
+testcase tc_timestamp_port_trans_no_provider_ptc() runs on CT_User system CT_User {
+  var CT_User ct := CT_User.create;
+  // not mapped in translation mode => timestamps should be set
+  map(ct:ptTransRT, system:ptTransRT);
+  ct.start(f_test_timestamp_port_trans(true));
+  ct.done;
+}
+
+testcase tc_cross_map() runs on CT_User system CT_Provider {
+  // testing whether a non-realtime translation port can be mapped to a realtime provider port
+  map(mtc:ptTransB, system:ptProvRT);
+  setverdict(pass);
+}
+
+testcase tc_timestamp_in_port_trans_func_RT_provider_mtc() runs on CT_User system CT_Provider {
+  // mapped with runtime provider port => timestamps should be set
+  map(mtc:ptTransRT, system:ptProvRT);
+  f_test_timestamp_in_trans_func(true);
+}
+
+testcase tc_timestamp_in_port_trans_func_RT_provider_ptc() runs on CT_User system CT_Provider {
+  var CT_User ct := CT_User.create;
+  // mapped with runtime provider port => timestamps should be set
+  map(ct:ptTransRT, system:ptProvRT);
+  ct.start(f_test_timestamp_in_trans_func(true));
+  ct.done;
+}
+
+testcase tc_timestamp_in_port_trans_func_nonRT_provider_mtc() runs on CT_User system CT_Provider {
+  // mapped with non-runtime provider port => timestamps shouldn't be set
+  map(mtc:ptTransRT, system:ptProvB);
+  f_test_timestamp_in_trans_func(false);
+}
+
+testcase tc_timestamp_in_port_trans_func_nonRT_provider_ptc() runs on CT_User system CT_Provider {
+  var CT_User ct := CT_User.create;
+  // mapped with non-runtime provider port => timestamps shouldn't be set
+  map(ct:ptTransRT, system:ptProvB);
+  ct.start(f_test_timestamp_in_trans_func(false));
+  ct.done;
+}
+
+control {
+  execute(tc_timestamp_port_trans_RT_provider_mtc());
+  execute(tc_timestamp_port_trans_RT_provider_ptc());
+  execute(tc_timestamp_port_trans_nonRT_provider_mtc());
+  execute(tc_timestamp_port_trans_nonRT_provider_ptc());
+  execute(tc_timestamp_port_trans_no_provider_mtc());
+  execute(tc_timestamp_port_trans_no_provider_ptc());
+  execute(tc_cross_map());
+  execute(tc_timestamp_in_port_trans_func_RT_provider_mtc());
+  execute(tc_timestamp_in_port_trans_func_RT_provider_ptc());
+  execute(tc_timestamp_in_port_trans_func_nonRT_provider_mtc());
+  execute(tc_timestamp_in_port_trans_func_nonRT_provider_ptc());
+}
+
+}

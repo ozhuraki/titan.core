@@ -1,0 +1,337 @@
+/******************************************************************************
+ * Copyright (c) 2000-2018 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+
+// This module tests timestamp redirects for real-time port operations in the 'any from' clause
+module realtimeTimestampAnyFrom {
+
+import from realtimeTimestamp all;
+
+type component CT2 {
+  port PortMsg ptaMsg[2][3];
+  port PortProc ptaProc[3];
+}
+
+function f_map_ports() runs on CT2 {
+  for (var integer i := 0; i < sizeof(ptaMsg); i := i + 1) {
+    for (var integer j := 0; j < sizeof(ptaMsg[i]); j := j + 1) {
+      map(self:ptaMsg[i][j], system:ptaMsg[i][j]);
+    }
+  }
+  for (var integer k := 0; k < sizeof(ptaProc); k := k + 1) {
+    map(self:ptaProc[k], system:ptaProc[k]);
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////
+///////////// Test function for all incoming operations /////////////////
+/////////////////////////////////////////////////////////////////////////
+
+function f_test_timestamp_any_from(in IncomingOperation p_operation, in boolean p_set_timestamp) runs on CT2 {
+  f_map_ports();
+  var float time_before := now, time_operation, time_after;
+  
+  // initiate the specified operation through an external function
+  // (these simulate the arrival of a message/call/reply/exception from the system component,
+  // and either set or don't set the timestamp)
+  select (p_operation) {
+    case (Receive, CheckReceive, Trigger, Check) {
+      ef_incoming_message(ptaMsg[0][2], 5, p_set_timestamp);
+    }
+    case (Getcall, CheckGetcall) {
+      ef_incoming_call(ptaProc[1], 5, p_set_timestamp);
+    }
+    case (Getreply, CheckGetreply) {
+      ef_incoming_reply(ptaProc[1], 5, "x", p_set_timestamp);
+    }
+    case (Catch, CheckCatch) {
+      ef_incoming_exception(ptaProc[1], true, p_set_timestamp);
+    }
+  }
+  
+  // start a timer (just in case)
+  timer t := 0.5;
+  t.start;
+  alt {
+    [p_operation == Receive      ] any from ptaMsg.receive(integer: ?) -> timestamp time_operation { }
+    [p_operation == CheckReceive ] any from ptaMsg.check(receive(integer: ?) -> timestamp time_operation) { }
+    [p_operation == Trigger      ] any from ptaMsg.trigger(integer: ?) -> timestamp time_operation { }
+    [p_operation == Getcall      ] any from ptaProc.getcall(Sig: { ? }) -> timestamp time_operation { }
+    [p_operation == CheckGetcall ] any from ptaProc.check(getcall(Sig: { ? }) -> timestamp time_operation) { }
+    [p_operation == Getreply     ] any from ptaProc.getreply(Sig: { ? } value charstring: ?) -> timestamp time_operation { }
+    [p_operation == CheckGetreply] any from ptaProc.check(getreply(Sig: { ? } value charstring: ?) -> timestamp time_operation) { }
+    [p_operation == Catch        ] any from ptaProc.catch(Sig, boolean: ?) -> timestamp time_operation { }
+    [p_operation == CheckCatch   ] any from ptaProc.check(catch(Sig, boolean: ?) -> timestamp time_operation) { }
+    [p_operation == Check        ] any from ptaMsg.check(-> timestamp time_operation) { }
+    [] t.timeout { setverdict(fail, "Operation timed out."); }
+  }
+  
+  // check results
+  time_after := now;
+  if (p_set_timestamp) {
+    if (time_before > time_operation or time_operation > time_after) {
+      setverdict(fail, "Incorrect times measured. Before: ", time_before, ", operation: ", time_operation, ", after: ", time_after, ".");
+    }
+  }
+  else if (isbound(time_operation)) {
+    setverdict(fail, "Timestamp was supposed to be unset.");
+  }
+  setverdict(pass);
+}
+
+/////////////////////////////////////////////////////////////////////////
+////////////////////////// Test cases ///////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+
+testcase tc_timestamp_any_from_receive_mtc() runs on CT2 {
+  f_test_timestamp_any_from(Receive, true);
+}
+
+testcase tc_timestamp_any_from_receive_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(Receive, true));
+  ct.done;
+}
+
+testcase tc_timestamp_any_from_check_receive_mtc() runs on CT2 {
+  f_test_timestamp_any_from(CheckReceive, true);
+}
+
+testcase tc_timestamp_any_from_check_receive_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(CheckReceive, true));
+  ct.done;
+}
+
+testcase tc_timestamp_any_from_trigger_mtc() runs on CT2 {
+  f_test_timestamp_any_from(Trigger, true);
+}
+
+testcase tc_timestamp_any_from_trigger_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(Trigger, true));
+  ct.done;
+}
+
+testcase tc_timestamp_any_from_getcall_mtc() runs on CT2 {
+  f_test_timestamp_any_from(Getcall, true);
+}
+
+testcase tc_timestamp_any_from_getcall_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(Getcall, true));
+  ct.done;
+}
+
+testcase tc_timestamp_any_from_check_getcall_mtc() runs on CT2 {
+  f_test_timestamp_any_from(CheckGetcall, true);
+}
+
+testcase tc_timestamp_any_from_check_getcall_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(CheckGetcall, true));
+  ct.done;
+}
+
+testcase tc_timestamp_any_from_getreply_mtc() runs on CT2 {
+  f_test_timestamp_any_from(Getreply, true);
+}
+
+testcase tc_timestamp_any_from_getreply_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(Getreply, true));
+  ct.done;
+}
+
+testcase tc_timestamp_any_from_check_getreply_mtc() runs on CT2 {
+  f_test_timestamp_any_from(CheckGetreply, true);
+}
+
+testcase tc_timestamp_any_from_check_getreply_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(CheckGetreply, true));
+  ct.done;
+}
+
+testcase tc_timestamp_any_from_catch_mtc() runs on CT2 {
+  f_test_timestamp_any_from(Catch, true);
+}
+
+testcase tc_timestamp_any_from_catch_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(Catch, true));
+  ct.done;
+}
+
+testcase tc_timestamp_any_from_check_catch_mtc() runs on CT2 {
+  f_test_timestamp_any_from(CheckCatch, true);
+}
+
+testcase tc_timestamp_any_from_check_catch_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(CheckCatch, true));
+  ct.done;
+}
+
+testcase tc_timestamp_any_from_check_mtc() runs on CT2 {
+  f_test_timestamp_any_from(Check, true);
+}
+
+testcase tc_timestamp_any_from_check_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(Check, true));
+  ct.done;
+}
+
+testcase tc_no_timestamp_any_from_receive_mtc() runs on CT2 {
+  f_test_timestamp_any_from(Receive, false);
+}
+
+testcase tc_no_timestamp_any_from_receive_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(Receive, false));
+  ct.done;
+}
+
+testcase tc_no_timestamp_any_from_check_receive_mtc() runs on CT2 {
+  f_test_timestamp_any_from(CheckReceive, false);
+}
+
+testcase tc_no_timestamp_any_from_check_receive_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(CheckReceive, false));
+  ct.done;
+}
+
+testcase tc_no_timestamp_any_from_trigger_mtc() runs on CT2 {
+  f_test_timestamp_any_from(Trigger, false);
+}
+
+testcase tc_no_timestamp_any_from_trigger_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(Trigger, false));
+  ct.done;
+}
+
+testcase tc_no_timestamp_any_from_getcall_mtc() runs on CT2 {
+  f_test_timestamp_any_from(Getcall, false);
+}
+
+testcase tc_no_timestamp_any_from_getcall_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(Getcall, false));
+  ct.done;
+}
+
+testcase tc_no_timestamp_any_from_check_getcall_mtc() runs on CT2 {
+  f_test_timestamp_any_from(CheckGetcall, false);
+}
+
+testcase tc_no_timestamp_any_from_check_getcall_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(CheckGetcall, false));
+  ct.done;
+}
+
+testcase tc_no_timestamp_any_from_getreply_mtc() runs on CT2 {
+  f_test_timestamp_any_from(Getreply, false);
+}
+
+testcase tc_no_timestamp_any_from_getreply_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(Getreply, false));
+  ct.done;
+}
+
+testcase tc_no_timestamp_any_from_check_getreply_mtc() runs on CT2 {
+  f_test_timestamp_any_from(CheckGetreply, false);
+}
+
+testcase tc_no_timestamp_any_from_check_getreply_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(CheckGetreply, false));
+  ct.done;
+}
+
+testcase tc_no_timestamp_any_from_catch_mtc() runs on CT2 {
+  f_test_timestamp_any_from(Catch, false);
+}
+
+testcase tc_no_timestamp_any_from_catch_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(Catch, false));
+  ct.done;
+}
+
+testcase tc_no_timestamp_any_from_check_catch_mtc() runs on CT2 {
+  f_test_timestamp_any_from(CheckCatch, false);
+}
+
+testcase tc_no_timestamp_any_from_check_catch_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(CheckCatch, false));
+  ct.done;
+}
+
+testcase tc_no_timestamp_any_from_check_mtc() runs on CT2 {
+  f_test_timestamp_any_from(Check, false);
+}
+
+testcase tc_no_timestamp_any_from_check_ptc() runs on CT2 {
+  var CT2 ct := CT2.create;
+  ct.start(f_test_timestamp_any_from(Check, false));
+  ct.done;
+}
+
+control {
+  execute(tc_timestamp_any_from_receive_mtc());
+  execute(tc_timestamp_any_from_receive_ptc());
+  execute(tc_timestamp_any_from_check_receive_mtc());
+  execute(tc_timestamp_any_from_check_receive_ptc());
+  execute(tc_timestamp_any_from_trigger_mtc());
+  execute(tc_timestamp_any_from_trigger_ptc());
+  execute(tc_timestamp_any_from_getcall_mtc());
+  execute(tc_timestamp_any_from_getcall_ptc());
+  execute(tc_timestamp_any_from_check_getcall_mtc());
+  execute(tc_timestamp_any_from_check_getcall_ptc());
+  execute(tc_timestamp_any_from_getreply_mtc());
+  execute(tc_timestamp_any_from_getreply_ptc());
+  execute(tc_timestamp_any_from_check_getreply_mtc());
+  execute(tc_timestamp_any_from_check_getreply_ptc());
+  execute(tc_timestamp_any_from_catch_mtc());
+  execute(tc_timestamp_any_from_catch_ptc());
+  execute(tc_timestamp_any_from_check_catch_mtc());
+  execute(tc_timestamp_any_from_check_catch_ptc());
+  execute(tc_timestamp_any_from_check_mtc());
+  execute(tc_timestamp_any_from_check_ptc());
+  execute(tc_no_timestamp_any_from_receive_mtc());
+  execute(tc_no_timestamp_any_from_receive_ptc());
+  execute(tc_no_timestamp_any_from_check_receive_mtc());
+  execute(tc_no_timestamp_any_from_check_receive_ptc());
+  execute(tc_no_timestamp_any_from_trigger_mtc());
+  execute(tc_no_timestamp_any_from_trigger_ptc());
+  execute(tc_no_timestamp_any_from_getcall_mtc());
+  execute(tc_no_timestamp_any_from_getcall_ptc());
+  execute(tc_no_timestamp_any_from_check_getcall_mtc());
+  execute(tc_no_timestamp_any_from_check_getcall_ptc());
+  execute(tc_no_timestamp_any_from_getreply_mtc());
+  execute(tc_no_timestamp_any_from_getreply_ptc());
+  execute(tc_no_timestamp_any_from_check_getreply_mtc());
+  execute(tc_no_timestamp_any_from_check_getreply_ptc());
+  execute(tc_no_timestamp_any_from_catch_mtc());
+  execute(tc_no_timestamp_any_from_catch_ptc());
+  execute(tc_no_timestamp_any_from_check_catch_mtc());
+  execute(tc_no_timestamp_any_from_check_catch_ptc());
+  execute(tc_no_timestamp_any_from_check_mtc());
+  execute(tc_no_timestamp_any_from_check_ptc());
+}
+
+}

@@ -15,13 +15,14 @@ include $(TOPDIR)/Makefile.regression
 .SUFFIXES: .ttcn .hh
 .PHONY: all clean dep run
 
+# activate real-time testing features
 COMPILER_FLAGS += -I
 
 TTCN3_LIB = ttcn3$(RT2_SUFFIX)-parallel$(DYNAMIC_SUFFIX)
 
-TTCN3_MODULES = realtimeNow.ttcn realtimeTimestamp.ttcn
+TTCN3_MODULES = realtimeNow.ttcn realtimeTimestamp.ttcn realtimeTimestampPortTranslation.ttcn realtimeTimestampAnyFrom.ttcn
 
-USER_SOURCES = PortMsg.cc PortProc.cc
+USER_SOURCES = PortMsg.cc PortProc.cc PortProvBasic.cc PortProvRT.cc PortTransBasic.cc PortTransRT.cc
 
 GENERATED_SOURCES = $(TTCN3_MODULES:.ttcn=.cc)
 GENERATED_HEADERS = $(GENERATED_SOURCES:.cc=.hh)
@@ -52,7 +53,7 @@ compile: $(TTCN3_MODULES)
 
 clean distclean:
 	-rm -f $(TARGET) $(OBJECTS) $(GENERATED_HEADERS) \
-	$(GENERATED_SOURCES) *.log Makefile.bak compile
+	$(GENERATED_SOURCES) logs/*.log Makefile.bak compile
 
 dep: $(GENERATED_SOURCES)
 	makedepend $(CPPFLAGS) $(GENERATED_SOURCES)

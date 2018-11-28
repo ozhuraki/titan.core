@@ -11,38 +11,38 @@
 
 namespace realtimeTimestamp {
 
-void ef__incoming__call(const INTEGER& p__par, const BOOLEAN& p__set__timestamp)
+void ef__incoming__call(PortProc& p__pt, const INTEGER& p__par, const BOOLEAN& p__set__timestamp)
 {
   Sig_call x;
   x.p() = p__par;
   if (p__set__timestamp) {
-    CT_component_ptProc.incoming_call(x, TTCN_Runtime::now());
+    p__pt.incoming_call(x, TTCN_Runtime::now());
   }
   else {
-    CT_component_ptProc.incoming_call(x);
+    p__pt.incoming_call(x);
   }
 }
 
-void ef__incoming__reply(const INTEGER& p__par, const CHARSTRING& p__ret, const BOOLEAN& p__set__timestamp)
+void ef__incoming__reply(PortProc& p__pt, const INTEGER& p__par, const CHARSTRING& p__ret, const BOOLEAN& p__set__timestamp)
 {
   Sig_reply x;
   x.p() = p__par;
   x.return_value() = p__ret;
   if (p__set__timestamp) {
-    CT_component_ptProc.incoming_reply(x, TTCN_Runtime::now());
+    p__pt.incoming_reply(x, TTCN_Runtime::now());
   }
   else {
-    CT_component_ptProc.incoming_reply(x);
+    p__pt.incoming_reply(x);
   }
 }
 
-void ef__incoming__exception(const BOOLEAN& p__ex, const BOOLEAN& p__set__timestamp)
+void ef__incoming__exception(PortProc& p__pt, const BOOLEAN& p__ex, const BOOLEAN& p__set__timestamp)
 {
   if (p__set__timestamp) {
-    CT_component_ptProc.incoming_exception(Sig_exception(p__ex), TTCN_Runtime::now());
+    p__pt.incoming_exception(Sig_exception(p__ex), TTCN_Runtime::now());
   }
   else {
-    CT_component_ptProc.incoming_exception(Sig_exception(p__ex));
+    p__pt.incoming_exception(Sig_exception(p__ex));
   }
 }
 

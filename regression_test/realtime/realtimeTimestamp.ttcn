@@ -37,10 +37,10 @@ type enumerated IncomingOperation {
 type enumerated OutgoingOperation {
   Send, Call, Reply, Raise }
 
-external function ef_incoming_message(in integer p_msg, in boolean p_set_timestamp);
-external function ef_incoming_call(in integer p_par, in boolean p_set_timestamp);
-external function ef_incoming_reply(in integer p_par, in charstring p_ret, in boolean p_set_timestamp);
-external function ef_incoming_exception(in boolean p_ex, in boolean p_set_timestamp);
+external function ef_incoming_message(PortMsg p_pt, in integer p_msg, in boolean p_set_timestamp);
+external function ef_incoming_call(PortProc p_pt, in integer p_par, in boolean p_set_timestamp);
+external function ef_incoming_reply(PortProc p_pt, in integer p_par, in charstring p_ret, in boolean p_set_timestamp);
+external function ef_incoming_exception(PortProc p_pt, in boolean p_ex, in boolean p_set_timestamp);
 
 /////////////////////////////////////////////////////////////////////////
 ///////////// Test function for all incoming operations /////////////////
@@ -54,16 +54,16 @@ function f_test_timestamp_inc_op(in IncomingOperation p_operation, in boolean p_
   // and either set or don't set the timestamp)
   select (p_operation) {
     case (Receive, CheckReceive, Trigger, Check) {
-      ef_incoming_message(5, p_set_timestamp);
+      ef_incoming_message(ptMsg, 5, p_set_timestamp);
     }
     case (Getcall, CheckGetcall) {
-      ef_incoming_call(5, p_set_timestamp);
+      ef_incoming_call(ptProc, 5, p_set_timestamp);
     }
     case (Getreply, CheckGetreply) {
-      ef_incoming_reply(5, "x", p_set_timestamp);
+      ef_incoming_reply(ptProc, 5, "x", p_set_timestamp);
     }
     case (Catch, CheckCatch) {
-      ef_incoming_exception(true, p_set_timestamp);
+      ef_incoming_exception(ptProc, true, p_set_timestamp);
     }
   }
   
@@ -106,7 +106,7 @@ function f_test_timestamp_inc_op(in IncomingOperation p_operation, in boolean p_
   time_after := now;
   if (p_set_timestamp) {
     if (time_before > time_operation or time_operation > time_after) {
-      setverdict(fail, "Incorrect times measured. Before: ", time_before, ", check-catch: ", time_operation, ", after: ", time_after, ".");
+      setverdict(fail, "Incorrect times measured. Before: ", time_before, ", operation: ", time_operation, ", after: ", time_after, ".");
     }
   }
   else if (isbound(time_operation)) {
@@ -147,7 +147,7 @@ function f_test_timestamp_outg_op(in OutgoingOperation p_operation, in boolean p
   time_after := now;
   if (p_set_timestamp) {
     if (time_before > time_operation or time_operation > time_after) {
-      setverdict(fail, "Incorrect times measured. Before: ", time_before, ", check-catch: ", time_operation, ", after: ", time_after, ".");
+      setverdict(fail, "Incorrect times measured. Before: ", time_before, ", operation: ", time_operation, ", after: ", time_after, ".");
     }
   }
   else if (isbound(time_operation)) {

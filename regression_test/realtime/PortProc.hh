@@ -15,9 +15,9 @@
 namespace realtimeTimestamp {
 
 class PortProc : public PortProc_BASE {
-  friend void ef__incoming__call(const INTEGER& p__par, const BOOLEAN& p__set__timestamp);
-  friend void ef__incoming__reply(const INTEGER& p__par, const CHARSTRING& p__ret, const BOOLEAN& p__set__timestamp);
-  friend void ef__incoming__exception(const BOOLEAN& p__ex, const BOOLEAN& p__set__timestamp);
+  friend void ef__incoming__call(PortProc& p__pt, const INTEGER& p__par, const BOOLEAN& p__set__timestamp);
+  friend void ef__incoming__reply(PortProc& p__pt, const INTEGER& p__par, const CHARSTRING& p__ret, const BOOLEAN& p__set__timestamp);
+  friend void ef__incoming__exception(PortProc& p__pt, const BOOLEAN& p__ex, const BOOLEAN& p__set__timestamp);
 public:
 	PortProc(const char *par_port_name = NULL);
 	~PortProc();

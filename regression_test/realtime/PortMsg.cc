@@ -11,13 +11,13 @@
 
 namespace realtimeTimestamp {
 
-void ef__incoming__message(const INTEGER& p__msg, const BOOLEAN& p__set__timestamp)
+void ef__incoming__message(PortMsg& p__pt, const INTEGER& p__msg, const BOOLEAN& p__set__timestamp)
 {
   if (p__set__timestamp) {
-    CT_component_ptMsg.incoming_message(p__msg, TTCN_Runtime::now());
+    p__pt.incoming_message(p__msg, TTCN_Runtime::now());
   }
   else {
-    CT_component_ptMsg.incoming_message(p__msg);
+    p__pt.incoming_message(p__msg);
   }
 }
 
