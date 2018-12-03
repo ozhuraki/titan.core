@@ -43,14 +43,14 @@ hex2bit hex2int hex2oct hex2str hexstring if ifpresent import in       \
 inconc infinity inout int2bit int2char int2enum int2float int2hex int2oct       \
 int2str int2unichar integer interleave isbound ischosen ispresent isvalue kill killed \
 label language length lengthof log log2str map match message mixed mod         \
-modifies module modulepar mtc noblock none not not4b nowait null objid \
+modifies module modulepar mtc noblock none not not4b now nowait null objid \
 oct2bit oct2char oct2hex oct2int oct2str oct2unichar octetstring of omit on        \
 operators optional or or4b out override param pass pattern permutation \
-port public private procedure raise read receive record recursive refers regexp rem remove_bom repeat \
+port public private procedure raise read realtime receive record recursive refers regexp rem remove_bom repeat \
 replace reply return rnd running runs select self send sender set setencode setstate setverdict   \
 signature sizeof start stop str2bit str2float str2hex \
 str2int str2oct subset substr superset system template testcase testcasename \
-timeout timer to trigger true type unichar2char unichar2int unichar2oct union universal unmap   \
+timeout timer timestamp to trigger true type unichar2char unichar2int unichar2oct union universal unmap   \
 value valueof var variant verdicttype while with xor xor4b profiler))
 
 IMAGE_FILES := $(addprefix images/, $(addsuffix .jpg, ao left right up)) images/titan_transparent.gif

@@ -925,7 +925,7 @@ The member functions `incoming_message`, `incoming_call`, `incoming_reply` and `
 
 The value given to this parameter will be the one stored in the variable referenced in the timestamp redirect, if the operation has a timestamp redirect (otherwise the value is ignored).
 
-It is recommended that this parameter be set to the current test system time, which can be querried with `TTCN_Runtime::now()`, or to a float variable that was set to the current test system time earier in the function.
+It is recommended that this parameter be set to the current test system time, which can be queried with `TTCN_Runtime::now()`, or to a float variable that was set to the current test system time earier in the function.
 
 Examples:
 [source]
@@ -952,7 +952,7 @@ The value pointed to by this parameter will be the one stored in the variable re
 
 If it does not have a timestamp redirect, then this pointer parameter will be `NULL`. Because of this, the parameter must always have a null pointer check before it is assigned a value.
 
-It is recommended that the value pointed to by the parameter be set to the current test system time, which can be querried with `TTCN_Runtime::now()`.
+It is recommended that the value pointed to by the parameter be set to the current test system time, which can be queried with `TTCN_Runtime::now()`.
 
 Example:
 [source]
