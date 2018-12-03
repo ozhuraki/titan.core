@@ -22,7 +22,7 @@ TOP := $(shell cd .. && pwd)
 
 include ../Makefile.cfg
 
-DEMOFILES := MyExample.ttcn PCOType.hh PCOType.cc hello_world.ttcn MyExample.cfg
+DEMOFILES := MyExample.ttcn PCOType.hh PCOType.cc hello_world.ttcn MyExample.cfg MyExample2.cfg
 
 MAKEFILEGENFLAGS := -g
 ifeq ($(COVERAGE), yes)
