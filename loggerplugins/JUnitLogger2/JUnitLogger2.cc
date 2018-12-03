@@ -236,6 +236,13 @@ void TestCase::writeTestCase(FILE* file_stream_) const{
       fprintf(file_stream_, "    <error type='DTE'>%s</error>\n", dte_reason.data());
       fprintf(file_stream_, "  </testcase>\n");
       break; }
+    case Inconc:  {
+      fprintf(file_stream_, "  <testcase classname='%s' name='%s' time='%f'>\n", module_name.data(), tc_name.data(), time);
+      fprintf(file_stream_, "    <failure type='inconclusive-verdict'>%s\n", reason.data());
+      fprintf(file_stream_, "%s\n", stack_trace.data());
+      fprintf(file_stream_, "    </failure>\n");
+      fprintf(file_stream_, "  </testcase>\n");
+      break; }
     default: 
       fprintf(file_stream_, "  <testcase classname='%s' name='%s' time='%f'/>\n", module_name.data(), tc_name.data(), time);
       break;
