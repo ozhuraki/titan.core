@@ -29,3 +29,5 @@
 14. link:http://tldp.org/HOWTO/Program-Library-HOWTO/index.html[David A. Wheeler, Program Library HOWTO]
 
 15. link:https://www.etsi.org/deliver/etsi_es/202700_202799/202781/01.04.01_60/es_202781v010401p.pdf[ETSI ES 202 781 V1.4.1. (2015-06 Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: Configuration and Deployment Support)]
+[[_16]]
+16. link:https://www.etsi.org/deliver/etsi_es/202700_202799/202782/01.03.01_60/es_202782v010301p.pdf[ETSI ES 202 782 V1.3.1. (2015-06 Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: TTCN-3 Performance and Real Time Testing)]
