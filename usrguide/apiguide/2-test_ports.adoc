@@ -175,7 +175,7 @@ void MyMessagePort::outgoing_send(const CHARSTRING& send_par)
 } /* end of namespace */
 ----
 
-=== Procedure-based Example
+== Procedure-based Example
 
 The definition of `MyProcedurePort` in module `MyModule`:
 [source]
@@ -912,3 +912,55 @@ There is another function for denoting warnings (that is, events that are not so
 void TTCN_warning(const char *warning_msg, …);
 
 This function puts an entry in the executor’s log with severity `TTCN_WARNING`. In contrast to `TTCN_error`, after logging the given message `TTCN_warning` returns and your test port can continue running.
+
+== Setting timestamps
+
+In order to use the timestamp redirects (`-> timestamp`) described in chapter 5 of the TTCN-3 standard extension `TTCN-3 Performance and Real Time Testing` (ETSI ES 202 782 V1.3.1, <<7-references.adoc#_16, [16]>>) the test port writer needs to add extra code to set the timestamps for the incoming and outgoing port operations of each port with the `realtime` clause.
+
+=== Incoming operations
+
+The timestamps of incoming port operations (`receive`, `trigger`, `getcall`, `getreply`, `catch` and `check`) need to be set when the incoming message or procedure is added to the queue.
+
+The member functions `incoming_message`, `incoming_call`, `incoming_reply` and `incoming_exception` (which add the message/procedure to the queue) have an optional `float` parameter called `timestamp`, if the test port was declared with the `realtime` clause.
+
+The value given to this parameter will be the one stored in the variable referenced in the timestamp redirect, if the operation has a timestamp redirect (otherwise the value is ignored).
+
+It is recommended that this parameter be set to the current test system time, which can be querried with `TTCN_Runtime::now()`, or to a float variable that was set to the current test system time earier in the function.
+
+Examples:
+[source]
+----
+incoming_message(my_message, TTCN_Runtime::now());
+----
+
+[source]
+----
+FLOAT reply_time = TTCN_Runtime::now();
+
+...
+
+incoming_reply(my_reply, reply_time);
+----
+
+=== Outgoing operations
+
+The timestamps of outgoing port operations (`send`, `call`, `reply`, `raise`) need to be set in the member functions `outgoing_send`, `outgoing_call`, `outgoing_reply` and `outgoing_raise`.
+
+These functions have a `float` pointer parameter called `timestamp_redirect`, if the test port was declared with the `realtime` clause.
+
+The value pointed to by this parameter will be the one stored in the variable referenced in the timestamp redirect, if the operation has a timestamp redirect.
+
+If it does not have a timestamp redirect, then this pointer parameter will be `NULL`. Because of this, the parameter must always have a null pointer check before it is assigned a value.
+
+It is recommended that the value pointed to by the parameter be set to the current test system time, which can be querried with `TTCN_Runtime::now()`.
+
+Example:
+[source]
+----
+if (timestamp_redirect != NULL) {
+  *timestamp_redirect = TTCN_Runtime::now();
+}
+----
+
+Note: Because of this extra parameter, adding or removing the `realtime` clause from a port will cause already-written C++ code for the port to no longer compile. In these cases the new parameters must be manually added or removed from the mentioned functions, or the user-written code copied to newly-generated test port skeletons.
+

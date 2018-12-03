@@ -74,3 +74,6 @@
 
 [[_25]]
 * [25] link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187311/04.07.01_60/es_20187311v040701p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 11: Using JSON with TTCN–3 European Telecommunications Standards Institute. ES 201 873-11 Version 4.7.1, June 2017]
+
+[[_26]]
+* [26] link:https://www.etsi.org/deliver/etsi_es/202700_202799/202782/01.03.01_60/es_202782v010301p.pdf[ETSI ES 202 782 V1.3.1. (2015-06 Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: TTCN-3 Performance and Real Time Testing)]

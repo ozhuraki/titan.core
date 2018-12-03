@@ -8757,3 +8757,92 @@ The translation logic of receiving is analogous to the translation logic of send
 The testing of some protocols requires the necessity to be able to send and receive during the execution of a translation function. This can be achieved using the `port.send()` and `port.receive()` statements in a translation function. This is only possible if the translation function has a port clause. The statements will be executed on the port instance which the execution of the translation function belongs to. The send and receive statements in a translation function should be used with caution as they can easily create an infinite loop.
 
 For example when a `port.send()` statement is executed in a translation function, the same translation function could be called automatically because the same translation procedure will be executed on the parameter of the send statement. The handling of these situations can be resolved using module parameters or port parameters.
+
+
+== Real-time testing features
+
+TITAN supports the real-time testing features described in chapter 5 of the TTCN-3 standard extension `TTCN-3 Performance and Real Time Testing` (ETSI ES 202 782 V1.3.1, <<13-references.adoc#_26, [26]>>) with the differences and limitations described in this section.
+
+* The real-time testing features are disabled by default. They can be activated with the compiler command line option `-I`.
+* The `stepsize` setting is not supported. The symbol `now` always returns the current test system time with microsecond precision (i.e. 6 decimal precision).
+* While the compiler allows timestamp redirects (`-> timestamp`) to be used in all situations indicated by the standard, they only store a valid timestamp if one was stored in the user-defined port's C++ code (as specified in the API guide, <<13-references.adoc#_16, [16]>>). Timestamp redirects on connected (internal) ports don't do anything, and the referenced variable remains unchanged (see example below).
+* Timestamp redirects also work on ports in translation mode, as long as both the translation port type and the provider port type have the `realtime` clause. Timestamp redirects can also be used inside translation functions (i.e. the `port.send` and `port.receive` statements can also have timestamp redirects).
+* The `wait` statement is not supported.
+
+Example:
+[source]
+----
+type port PT message realtime {
+  inout integer
+}
+
+type port PT_Internal message realtime {
+  inout integer
+}
+with {
+  extension "internal"
+}
+
+type component CT {
+  port PT pt;
+  port PT_Internal pt_int;
+}
+
+// timestamp redirects on a mapped user-defined port
+testcase tc() runs on CT {
+  map(self:pt, system:pt);
+  
+  var float time_start := now, time_send, time_receive;
+  
+  pt.send(1) -> timestamp time_send;
+  // time_send is set in the user-defined code of port type PT
+  if (time_send - time_start > 1.0) {
+    setverdict(fail);
+  }
+  
+  alt {
+    [] pt.receive(integer: ?) -> timestamp time_receive {
+      // time_receive is set in the user-defined code of port type PT
+      if (time_receive - time_send > 10.0) {
+        setverdict(fail);
+      }
+    }
+  }
+}
+
+// timestamp redirects on a connected internal port
+testcase tc2() runs on CT {
+  connect(self:pt, self:pt);
+  
+  var float time_start := now, time_send, time_receive;
+  
+  pt_int.send(1) -> timestamp time_send;
+  // time_send is unbound
+  
+  alt {
+    [] pt.receive(integer: ?) -> timestamp time_receive {
+      // time_receive is unbound
+    }
+  }
+}
+----
+
+In order for the timestamp redirects to work on port type `PT`, the following need to be set in the port type's C++ code:
+
+* The value pointed to by parameter `timestamp_redirect` in function `PT::outgoing_send` needs to be set to the current test system time (this sets the timestamps for `send` operations on the port).
+* The optional `timestamp` parameter of function `PT_BASE::incoming_message` needs to be set to the current test system time, when it is called (this sets the timestamps for `receive`, `trigger` and `check` operations on the port).
+
+For example:
+[source]
+----
+void PT::outgoing_send(const INTEGER& send_par, FLOAT* timestamp_redirect)
+{
+  if (timestamp_redirect != NULL) {
+    *timestamp_redirect = TTCN_Runtime::now();
+  }
+  
+  // the message is redirected to the port's input
+  incoming_message(send_par, TTCN_Runtime::now());
+}
+----
+
