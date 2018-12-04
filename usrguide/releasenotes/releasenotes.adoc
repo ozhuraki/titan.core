@@ -622,6 +622,24 @@ Version 1.1 has the following new features:
 [[version-history]]
 = Version history
 
+
+[[version-crl-113-200-6-r5a]]
+== Version CRL 113 200/6 R5A
+
+Release date: 7th of December 2018
+
+*New features:*
+
+* License upgrade to EPL 2.0
+* Documentation migrated to asciidoc
+* Bugfixes for core, ASN.1, XML, RAW, OER  codecs, XSD2TTCN 
+* New RAW coding instruction 'FORCEOMIT'
+* New JSON attribute 'as map'
+* Attribute 'text ... as ...' for JSON
+* Adopt Makefilegen for the Debian packaging
+* Support for real-time testing in TITAN
+* New flag for xsd2ttcn
+
 [[version-crl-113-200-6-r4a]]
 == Version CRL 113 200/6 R4A
 
