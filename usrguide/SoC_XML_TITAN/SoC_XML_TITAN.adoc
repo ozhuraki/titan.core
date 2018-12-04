@@ -1,13 +1,13 @@
 ---
 Author: Adrien Kirjak
-Version: 2/174 02- CRL 113 200/6, Rev. PE1
-Date: 2018-06-18
+Version: 2/174 02- CRL 113 200/6, Rev. E
+Date: 2018-12-03
 
 ---
 = Statement of Compliance for use of XML Schema in Eclipse Titan
 :author: Adrien Kirjak
-:revnumber: 2/174 02- CRL 113 200/6, Rev. PE1
-:revdate: 2018-06-18
+:revnumber: 2/174 02- CRL 113 200/6, Rev. E
+:revdate: 2018-12-03
 :title-logo-image: images/titan_logo.png
 :sectnums:
 :doctype: book
