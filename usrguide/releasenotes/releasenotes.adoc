@@ -7,7 +7,7 @@ Date: 2018-12-04
 = Release Notes for TITAN TTCN-3 Test Executor
 :author: Elemér Lelik
 :revnumber: 109 47-CRL 113 200/6 Uen, Rev. E
-:revdate: 2018-05-24
+:revdate: 2018-12-03
 :title-logo-image: images/titan_logo.png
 :sectnums:
 :doctype: book
