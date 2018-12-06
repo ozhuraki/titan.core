@@ -1,0 +1,28 @@
+/******************************************************************************
+ * Copyright (c) 2000-2018 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+module JsonText_SE { //^In TTCN-3 module//
+
+type enumerated Enum { Val } //^In type definition//
+with {
+  encode "JSON";
+  variant "text 'Val' as capitalized"; //This format is not supported for the JSON codec//
+  variant "text 'Val' as uncapitalized"; //This format is not supported for the JSON codec//
+  variant "text 'Val' as lowercased"; //This format is not supported for the JSON codec//
+  variant "text 'Val' as uppercased"; //This format is not supported for the JSON codec//
+  variant "text all as capitalized"; //This format is not supported for the JSON codec//
+  variant "text all as uncapitalized"; //This format is not supported for the JSON codec//
+  variant "text all as lowercased"; //This format is not supported for the JSON codec//
+  variant "text all as uppercased"; //This format is not supported for the JSON codec//
+  variant "text all as 'abc'"; //This format is not supported for the JSON codec//
+}
+
+}

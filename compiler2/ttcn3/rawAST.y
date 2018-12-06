@@ -1511,22 +1511,33 @@ XERattribute:
           xerstruct->text_[xerstruct->num_text_-1] = $1;
         }
         if (selected_codec != Common::Type::CT_XER) {
+          boolean error = $1.prefix == (const char*)NamespaceSpecification::ALL;
           XerAttributes::NameChange special;
-          special.nn_ = $1.prefix;
+          special.nn_ = $1.uri;
           switch (special.kw_) {
           case NamespaceSpecification::NO_MANGLING:
           case NamespaceSpecification::CAPITALIZED:
           case NamespaceSpecification::UNCAPITALIZED:
           case NamespaceSpecification::UPPERCASED:
           case NamespaceSpecification::LOWERCASED:
-          case NamespaceSpecification::ALL:
-            if (!legacy_codec_handling &&
-                selected_codec == Common::Type::CT_JSON) {
-              Common::Location loc(infile, @$);
-              loc.error("This format is not supported for the JSON codec");
+            if (!error && !legacy_codec_handling) {
+              // prefix is a real string, uri is a special value
+              Free($1.prefix);
             }
+            error = true;
             break;
           default: // it's a real string
+            if (error && !legacy_codec_handling) {
+              // prefix is a special value, uri is a real string
+              Free($1.uri);
+            }
+          }
+          if (error && !legacy_codec_handling) {
+            Common::Location loc(infile, @$);
+            loc.error("This format is not supported for the JSON codec");
+            json_f = true;
+          }
+          if (!error) {
             if (selected_codec == Common::Type::CT_JSON ||
                 legacy_codec_handling) {
               if (legacy_codec_handling) {
