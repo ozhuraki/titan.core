@@ -8678,7 +8678,7 @@ Limitations of implementation in TITAN:
 Restrictions:
 
 * It is not possible to chain ports using the `map to` clause.
-* The ports that are referenced in the` map to` clause shall have the `provider` extension. A port with `provider` extension cannot have a `map to` clause.
+* The ports that are referenced in the `map to` clause shall have the `provider` extension. A port with `provider` extension cannot have a `map to` clause.
 * Port variables can only be constants, variables, templates and var templates.
 * When a port is working in translation mode the `to address` clause is not supported in send operations.
 * Translation functions shall have the `prototype(fast)` extension.
@@ -8688,6 +8688,8 @@ Restrictions:
 Known issues:
 
 * `user_map` and `user_unmap` will be called for both endpoints of the map and `unmap` operation.
+* If a port is added to the `map to` clause of another port, then its module must also be re-compiled (because its generated C++ code changes in this case). Generated Makefiles won't re-compile it if there were no actual changes in the first (provider) port's module. The same is true if a port is removed from another port's `map to` clause.
+* When using central storage, or multiple Eclipse projects that reference each other, all of the port declarations in a translation port's `map to` clause must be in the same project as the translation port.
 
 Additions:
 
