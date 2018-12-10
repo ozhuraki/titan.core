@@ -265,7 +265,8 @@ void XSDName2TTCN3Name(const Mstring& in_str, const Mstring& in_namespace,
       }
 
       for (QualifiedNames::iterator used = used_names.begin(); used; used = used->Next) {
-        if (qual_name == used->Data) {
+        if ((!o_flag_used && qual_name == used->Data) ||
+            (o_flag_used && qual_name.name == used->Data.name)) {
           postfixing = true;
           break;
         }

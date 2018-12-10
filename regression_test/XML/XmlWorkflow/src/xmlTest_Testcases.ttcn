@@ -2625,6 +2625,17 @@ group Elements{
         "XSD_Definitions.ttcn", c_numOfDiff);
     }
   }
+  
+  testcase tc_name_clashes_and_references_merged() runs on xmlTest_CT { // bug 541748
+    f_shellCommandWithVerdict(xsd2ttcn_command & " -o name_clashes_and_references_A.xsd name_clashes_and_references_B.xsd",
+      "", c_shell_successWithoutWarningAndError);
+
+    if(getverdict == pass) {
+      f_compareFiles(
+        "XSD_Definitions_e2.ttcn",
+        "XSD_Definitions.ttcn", c_numOfDiff);
+    }
+  }
 
 }//Element
 
@@ -2901,6 +2912,7 @@ control {
   execute(tc_element_nillable_RemarkNillable_nilTrue_encDec());
 
   execute(tc_substitution_group_merged());
+  execute(tc_name_clashes_and_references_merged());
 }
 
 } with {

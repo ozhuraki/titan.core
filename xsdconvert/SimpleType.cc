@@ -933,8 +933,9 @@ void SimpleType::printToFile(FILE * file) {
 
     int multiplicity = multi(module, outside_reference, this);
     const RootType *type_ref = outside_reference.get_ref();
-    if ((multiplicity > 1 && type_ref && type_ref->getModule() != module)
-       || name.convertedValue == type.convertedValue) {
+    if (!o_flag_used &&
+        ((multiplicity > 1 && type_ref && type_ref->getModule() != module)
+        || name.convertedValue == type.convertedValue)) {
       fprintf(file, "%s.", type_ref->getModule()->getModulename().c_str());
     }
 

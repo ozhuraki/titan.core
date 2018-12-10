@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ Copyright (c) 2000-2018 Ericsson Telecom AB
+ All rights reserved. This program and the accompanying materials
+ are made available under the terms of the Eclipse Public License v2.0
+ which accompanies this distribution, and is available at
+ https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+
+ Contributors:
+  Baranyi, Botond
+-->
+
+<xsd:schema xmlns:xsd = "http://www.w3.org/2001/XMLSchema" xmlns:a = "http://somewhere.com/A" xmlns = "http://somewhere.com/B" targetNamespace = "http://somewhere.com/B" elementFormDefault = "qualified" version = "1.0">
+
+  <xsd:import namespace="http://somewhere.com/A" schemaLocation="name_clashes_and_references_A.xsd"/>
+  
+  <xsd:element name = "ComplexType" type = "a:ComplexType"/>
+  
+  <xsd:simpleType name = "SimpleType">
+    <xsd:restriction base = "xsd:integer"/>
+  </xsd:simpleType>
+  
+  <xsd:complexType name = "ComplexType">
+    <xsd:complexContent>
+      <xsd:restriction base="a:ComplexType">
+        <xsd:sequence>
+          <xsd:element name = "Field" type = "xsd:string" minOccurs="1" maxOccurs="unbounded" fixed="abc"/>
+        </xsd:sequence>
+      </xsd:restriction>
+    </xsd:complexContent>
+  </xsd:complexType>
+  
+  <xsd:complexType name = "Other">
+    <xsd:sequence>
+      <xsd:element name = "Field" type = "a:ComplexType"/>
+    </xsd:sequence>
+    <xsd:attribute name = "Attrib" type = "a:SimpleType"/>
+  </xsd:complexType>
+
+</xsd:schema>

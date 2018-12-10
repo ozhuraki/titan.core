@@ -1,0 +1,143 @@
+/*******************************************************************************
+* Copyright (c) 2000-2018 Ericsson Telecom AB
+*
+* XSD to TTCN-3 Translator version: CRL 113 200/6 R5A                       
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v2.0
+* which accompanies this distribution, and is available at
+* https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+*******************************************************************************/
+//
+//  File:          XSD_Definitions.ttcn
+//  Description:
+//  References:
+//  Rev:
+//  Prodnr:
+//  Updated:       Mon Dec 10 16:18:41 2018
+//  Contact:       http://ttcn.ericsson.se
+//
+////////////////////////////////////////////////////////////////////////////////
+//     Modification header(s):
+//-----------------------------------------------------------------------------
+//  Modified by:
+//  Modification date:
+//  Description:
+//  Modification contact:
+//------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+
+
+module XSD_Definitions {
+
+
+import from XSD all;
+
+
+////////////////////////////////////////////////////////////////////////////////
+//	Generated from file(s):
+//	- name_clashes_and_references_A.xsd
+//			/* xml version = "1.0" encoding = "UTF-8" */
+//			/* targetnamespace = "http://somewhere.com/A" */
+////////////////////////////////////////////////////////////////////////////////
+group http_somewhere_com_A {
+
+
+import from XSD all;
+
+
+const XSD.String c_defaultForEmpty_1 := "1.0.0";
+
+
+type record ComplexType
+{
+	XSD.String version (c_defaultForEmpty_1) optional,
+	record of XSD.String field_list
+}
+with {
+  variant (version) "defaultForEmpty as c_defaultForEmpty_1";
+  variant (version) "name as capitalized";
+  variant (version) "attribute";
+  variant (field_list) "untagged";
+  variant (field_list[-]) "name as 'Field'";
+};
+
+
+type XSD.String SimpleType;
+
+
+}
+with {
+  encode "XML";
+  variant "namespace as 'http://somewhere.com/A'";
+  variant "controlNamespace 'http://www.w3.org/2001/XMLSchema-instance' prefix 'xsi'";
+  variant "elementFormQualified";
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//	Generated from file(s):
+//	- name_clashes_and_references_B.xsd
+//			/* xml version = "1.0" encoding = "UTF-8" */
+//			/* targetnamespace = "http://somewhere.com/B" */
+////////////////////////////////////////////////////////////////////////////////
+group http_somewhere_com_B {
+
+
+import from XSD all;
+
+
+const XSD.String c_defaultForEmpty_2 := "abc";
+
+
+type ComplexType ComplexType_1
+with {
+  variant "name as 'ComplexType'";
+  variant "element";
+};
+
+
+type XSD.Integer SimpleType_1
+with {
+  variant "name as 'SimpleType'";
+};
+
+
+type record ComplexType_2
+{
+	XSD.String version (c_defaultForEmpty_1) optional,
+	record length(1 .. infinity) of XSD.String field_list (c_defaultForEmpty_2)
+}
+with {
+  variant "name as 'ComplexType'";
+  variant (version) "defaultForEmpty as c_defaultForEmpty_1";
+  variant (version) "name as capitalized";
+  variant (version) "attribute";
+  variant (field_list[-]) "defaultForEmpty as c_defaultForEmpty_2";
+  variant (field_list) "untagged";
+  variant (field_list[-]) "name as 'Field'";
+};
+
+
+type record Other
+{
+	SimpleType attrib optional,
+	ComplexType field
+}
+with {
+  variant (attrib) "name as capitalized";
+  variant (attrib) "attribute";
+  variant (field) "name as capitalized";
+};
+
+
+}
+with {
+  encode "XML";
+  variant "namespace as 'http://somewhere.com/B'";
+  variant "controlNamespace 'http://www.w3.org/2001/XMLSchema-instance' prefix 'xsi'";
+  variant "elementFormQualified";
+}
+
+
+}

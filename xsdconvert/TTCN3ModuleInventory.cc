@@ -213,7 +213,9 @@ void TTCN3ModuleInventory::nameConversion() {
     for (List<RootType*>::iterator type = definedGroups_inABC.begin(); type; type = type->Next) {
       type->Data->nameConversion(nameMode, module->Data->getDeclaredNamespaces());
     }
-    typenames.clear();
+    if (!o_flag_used) {
+      typenames.clear();
+    }
   }
   /********************************************************
    * Conversion of the type of types

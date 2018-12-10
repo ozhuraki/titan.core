@@ -1258,7 +1258,7 @@ void ComplexType::printToFile(FILE * file, const unsigned level, const bool is_u
         }
       } else {
         int multiplicity = multi(module, getReference(), this);
-        if ((multiplicity > 1) && getReference().get_ref()) {
+        if (!o_flag_used && (multiplicity > 1) && getReference().get_ref()) {
           fprintf(file, "%s.", getReference().get_ref()->getModule()->getModulename().c_str());
         }
         if (field_is_record || field_is_union || listPrint) {

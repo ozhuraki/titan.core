@@ -237,7 +237,7 @@ void AttributeType::printToFile(FILE* file, unsigned level) {
   }else { 
     printMinOccursMaxOccurs(file, false);
     int multiplicity = multi(module, getReference(), this);
-    if ((multiplicity > 1) && getReference().get_ref()) {
+    if (!o_flag_used && (multiplicity > 1) && getReference().get_ref()) {
       fprintf(file, "%s.", getReference().get_ref()->getModule()->getModulename().c_str());
     }
     fprintf(file, "%s %s", type.convertedValue.c_str(), name.convertedValue.c_str());

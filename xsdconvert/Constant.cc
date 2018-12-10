@@ -205,7 +205,7 @@ Mstring Constant::getConstantName(const TTCN3Module* other_mod) const {
   } else {
     qname = getName().convertedValue;  
   }
-  if (other_mod->getModulename() != getModule()->getModulename()) {
+  if (!o_flag_used && other_mod->getModulename() != getModule()->getModulename()) {
     qname = getModule()->getModulename() + "." + qname;
   }
   return qname;

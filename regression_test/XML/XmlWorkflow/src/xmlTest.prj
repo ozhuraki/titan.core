@@ -8,6 +8,7 @@
 
  Contributors:
   Balasko, Jeno
+  Baranyi, Botond
   Ormandi, Matyas
   Raduly, Csaba
   Szabo, Bence Janos
@@ -146,6 +147,8 @@
                 <File path="../xsd/substitutiongroup_ref.xsd" />
                 <File path="../xsd/substitution_group_one.xsd" />
                 <File path="../xsd/substitution_group_two.xsd" />
+                <File path="../xsd/name_clashes_and_references_A.xsd" />
+                <File path="../xsd/name_clashes_and_references_B.xsd" />
 		<File path="../xsd/simpletype_base.xsd" />
 		<File path="../xsd/type_substitution.xsd" />
 		<File path="../xsd/type_substitution_chain.xsd" />
@@ -392,6 +395,7 @@
 		<File path="../XmlTest_expectedTtcns/www_example_org_substitutiongroup_ref_e.ttcn" />
 		<File path="../XmlTest_expectedTtcns/www_example_org_substitutiongroup_main_e.ttcn" />
 		<File path="../XmlTest_expectedTtcns/XSD_Definitions_e.ttcn" />
+		<File path="../XmlTest_expectedTtcns/XSD_Definitions_e2.ttcn" />
 	        <File path="../XmlTest_expectedTtcns/www_example_org_simpletype_base_e.ttcn" />
 	        <File path="../XmlTest_expectedTtcns/www_example_org_type_substitution_e.ttcn" />
 	        <File path="../XmlTest_expectedTtcns/www_example_org_type_substitution_chain_e.ttcn" />

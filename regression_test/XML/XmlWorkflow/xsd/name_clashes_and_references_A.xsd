@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ Copyright (c) 2000-2018 Ericsson Telecom AB
+ All rights reserved. This program and the accompanying materials
+ are made available under the terms of the Eclipse Public License v2.0
+ which accompanies this distribution, and is available at
+ https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+
+ Contributors:
+  Baranyi, Botond
+-->
+
+<xsd:schema xmlns:xsd = "http://www.w3.org/2001/XMLSchema" xmlns = "http://somewhere.com/A" targetNamespace = "http://somewhere.com/A" elementFormDefault = "qualified" version = "1.0">
+
+  <xsd:complexType name = "ComplexType">
+    <xsd:sequence>
+      <xsd:element name = "Field" type = "xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name = "Version" type = "xsd:string" fixed="1.0.0"/>
+  </xsd:complexType>
+  
+  <xsd:simpleType name = "SimpleType">
+    <xsd:restriction base = "xsd:string"/>
+  </xsd:simpleType>
+
+</xsd:schema>
