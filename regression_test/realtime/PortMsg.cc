@@ -21,6 +21,12 @@ void ef__incoming__message(PortMsg& p__pt, const INTEGER& p__msg, const BOOLEAN&
   }
 }
 
+void ef__test__send(const INTEGER& p__msg)
+{
+  // test, whether 'send' can be called with one parameter
+  CT_component_ptMsg.send(p__msg);
+}
+
 PortMsg::PortMsg(const char *par_port_name)
 	: PortMsg_BASE(par_port_name)
 {

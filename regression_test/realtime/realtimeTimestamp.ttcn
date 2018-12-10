@@ -42,6 +42,11 @@ external function ef_incoming_call(PortProc p_pt, in integer p_par, in boolean p
 external function ef_incoming_reply(PortProc p_pt, in integer p_par, in charstring p_ret, in boolean p_set_timestamp);
 external function ef_incoming_exception(PortProc p_pt, in boolean p_ex, in boolean p_set_timestamp);
 
+external function ef_test_send(in integer p_msg);
+external function ef_test_call(in template Sig p_sig);
+external function ef_test_reply(in template Sig p_sig, in charstring p_ret);
+external function ef_test_raise(in boolean p_ex);
+
 /////////////////////////////////////////////////////////////////////////
 ///////////// Test function for all incoming operations /////////////////
 /////////////////////////////////////////////////////////////////////////
@@ -738,6 +743,38 @@ testcase tc_no_timestamp_raise_ptc() runs on CT {
   ct.done;
 }
 
+testcase tc_send_in_ext_func_backward_compat() runs on CT {
+  // testing backward compatibility for calling 'send' from an external function (compile only test)
+  map(self:ptMsg, system:ptMsg);
+  set_timestamp := true; // so it doesn't remain unbound
+  ef_test_send(1);
+  setverdict(pass);
+}
+
+testcase tc_call_in_ext_func_backward_compat() runs on CT {
+  // testing backward compatibility for calling 'call' from an external function (compile only test)
+  map(self:ptProc, system:ptProc);
+  set_timestamp := true; // so it doesn't remain unbound
+  ef_test_call(Sig: { 2 });
+  setverdict(pass);
+}
+
+testcase tc_reply_in_ext_func_backward_compat() runs on CT {
+  // testing backward compatibility for calling 'reply' from an external function (compile only test)
+  map(self:ptProc, system:ptProc);
+  set_timestamp := true; // so it doesn't remain unbound
+  ef_test_reply(Sig: { 2 }, "a");
+  setverdict(pass);
+}
+
+testcase tc_raise_in_ext_func_backward_compat() runs on CT {
+  // testing backward compatibility for calling 'raise' from an external function (compile only test)
+  map(self:ptProc, system:ptProc);
+  set_timestamp := true; // so it doesn't remain unbound
+  ef_test_raise(false);
+  setverdict(pass);
+}
+
 control {
   execute(tc_timestamp_receive_mtc());
   execute(tc_timestamp_receive_ptc());
@@ -835,6 +872,10 @@ control {
   execute(tc_no_timestamp_reply_ptc());
   execute(tc_no_timestamp_raise_mtc());
   execute(tc_no_timestamp_raise_ptc());
+  execute(tc_send_in_ext_func_backward_compat());
+  execute(tc_call_in_ext_func_backward_compat());
+  execute(tc_reply_in_ext_func_backward_compat());
+  execute(tc_raise_in_ext_func_backward_compat());
 }
 
 }

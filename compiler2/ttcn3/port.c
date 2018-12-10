@@ -1810,7 +1810,7 @@ void defPortClass(const port_def* pdef, output_struct* output)
     const port_msg_mapped_type *msg = pdef->msg_out.elements + i;
 
     def = mputprintf(def, "void send(const %s& send_par, "
-      "const COMPONENT& destination_component, FLOAT* timestamp_redirect);\n",
+      "const COMPONENT& destination_component, FLOAT* timestamp_redirect = NULL);\n",
       msg->name);
 
     src = mputprintf(src, "void %s::send(const %s& send_par, "
@@ -1875,7 +1875,7 @@ void defPortClass(const port_def* pdef, output_struct* output)
 
     if (pdef->testport_type == ADDRESS) {
       def = mputprintf(def, "void send(const %s& send_par, "
-        "const %s& destination_address, FLOAT* timestamp_redirect);\n",
+        "const %s& destination_address, FLOAT* timestamp_redirect = NULL);\n",
         msg->name, pdef->address_name);
 
       src = mputprintf(src, "void %s::send(const %s& send_par, "
@@ -1905,7 +1905,7 @@ void defPortClass(const port_def* pdef, output_struct* output)
     }
 
     def = mputprintf(def, "void send(const %s& send_par, "
-      "FLOAT* timestamp_redirect);\n", msg->name);
+      "FLOAT* timestamp_redirect = NULL);\n", msg->name);
     src = mputprintf(src, "void %s::send(const %s& send_par, "
       "FLOAT* timestamp_redirect)\n"
       "{\n"
@@ -1913,7 +1913,7 @@ void defPortClass(const port_def* pdef, output_struct* output)
       "}\n\n", class_name, msg->name);
 
     def = mputprintf(def, "void send(const %s_template& send_par, "
-      "const COMPONENT& destination_component, FLOAT* timestamp_redirect);\n",
+      "const COMPONENT& destination_component, FLOAT* timestamp_redirect = NULL);\n",
       msg->name);
     src = mputprintf(src, "void %s::send(const %s_template& send_par, "
       "const COMPONENT& destination_component, FLOAT* timestamp_redirect)\n"
@@ -1924,7 +1924,7 @@ void defPortClass(const port_def* pdef, output_struct* output)
 
     if (pdef->testport_type == ADDRESS) {
       def = mputprintf(def, "void send(const %s_template& send_par, "
-        "const %s& destination_address, FLOAT* timestamp_redirect);\n", msg->name,
+        "const %s& destination_address, FLOAT* timestamp_redirect = NULL);\n", msg->name,
         pdef->address_name);
       src = mputprintf(src, "void %s::send(const %s_template& send_par, "
         "const %s& destination_address, FLOAT* timestamp_redirect)\n"
@@ -1935,7 +1935,7 @@ void defPortClass(const port_def* pdef, output_struct* output)
     }
 
     def = mputprintf(def, "void send(const %s_template& send_par, "
-      "FLOAT* timestamp_redirect);\n", msg->name);
+      "FLOAT* timestamp_redirect = NULL);\n", msg->name);
     src = mputprintf(src, "void %s::send(const %s_template& send_par, "
       "FLOAT* timestamp_redirect)\n"
       "{\n"
@@ -1949,7 +1949,7 @@ void defPortClass(const port_def* pdef, output_struct* output)
   for (i = 0; i < pdef->proc_out.nElements; i++) {
     const port_proc_signature *sig = pdef->proc_out.elements + i;
     def = mputprintf(def, "void call(const %s_template& call_template, "
-      "const COMPONENT& destination_component, FLOAT* timestamp_redirect);\n",
+      "const COMPONENT& destination_component, FLOAT* timestamp_redirect = NULL);\n",
       sig->name);
     src = mputprintf(src, "void %s::call(const %s_template& "
       "call_template, const COMPONENT& destination_component, "
@@ -1993,7 +1993,7 @@ void defPortClass(const port_def* pdef, output_struct* output)
     if (pdef->testport_type == ADDRESS) {
       def = mputprintf(def, "void call(const %s_template& "
         "call_template, const %s& destination_address, "
-        "FLOAT* timestamp_redirect);\n",
+        "FLOAT* timestamp_redirect = NULL);\n",
         sig->name, pdef->address_name);
       src = mputprintf(src, "void %s::call(const %s_template& "
         "call_template, const %s& destination_address, "
@@ -2020,7 +2020,7 @@ void defPortClass(const port_def* pdef, output_struct* output)
     }
 
     def = mputprintf(def, "void call(const %s_template& "
-      "call_template, FLOAT* timestamp_redirect);\n", sig->name);
+      "call_template, FLOAT* timestamp_redirect = NULL);\n", sig->name);
     src = mputprintf(src, "void %s::call(const %s_template& "
       "call_template, FLOAT* timestamp_redirect)\n"
       "{\n"
@@ -2035,7 +2035,7 @@ void defPortClass(const port_def* pdef, output_struct* output)
     if (sig->is_noblock) continue;
     def = mputprintf(def,"void reply(const %s_template& "
       "reply_template, const COMPONENT& destination_component, "
-      "FLOAT* timestamp_redirect);\n",
+      "FLOAT* timestamp_redirect = NULL);\n",
       sig->name);
     src = mputprintf(src, "void %s::reply(const %s_template& "
       "reply_template, const COMPONENT& destination_component, "
@@ -2078,7 +2078,7 @@ void defPortClass(const port_def* pdef, output_struct* output)
     if (pdef->testport_type == ADDRESS) {
       def = mputprintf(def, "void reply(const %s_template& "
         "reply_template, const %s& destination_address, "
-        "FLOAT* timestamp_redirect);\n",
+        "FLOAT* timestamp_redirect = NULL);\n",
         sig->name, pdef->address_name);
       src = mputprintf(src, "void %s::reply(const %s_template& "
         "reply_template, const %s& destination_address, "
@@ -2105,7 +2105,7 @@ void defPortClass(const port_def* pdef, output_struct* output)
     }
 
     def = mputprintf(def, "void reply(const %s_template& "
-      "reply_template, FLOAT* timestamp_redirect);\n", sig->name);
+      "reply_template, FLOAT* timestamp_redirect = NULL);\n", sig->name);
     src = mputprintf(src, "void %s::reply(const %s_template& "
       "reply_template, FLOAT* timestamp_redirect)\n"
       "{\n"
@@ -2120,7 +2120,7 @@ void defPortClass(const port_def* pdef, output_struct* output)
     if (!sig->has_exceptions) continue;
     def = mputprintf(def, "void raise(const %s_exception& "
       "raise_exception, const COMPONENT& destination_component, "
-      "FLOAT* timestamp_redirect);\n",
+      "FLOAT* timestamp_redirect = NULL);\n",
       sig->name);
     src = mputprintf(src, "void %s::raise(const %s_exception& "
       "raise_exception, const COMPONENT& destination_component, "
@@ -2162,7 +2162,7 @@ void defPortClass(const port_def* pdef, output_struct* output)
     if (pdef->testport_type == ADDRESS) {
       def = mputprintf(def, "void raise(const %s_exception& "
         "raise_exception, const %s& destination_address, "
-        "FLOAT* timestamp_redirect);\n",
+        "FLOAT* timestamp_redirect = NULL);\n",
         sig->name, pdef->address_name);
       src = mputprintf(src, "void %s::raise(const %s_exception& "
         "raise_exception, const %s& destination_address, "
@@ -2188,7 +2188,7 @@ void defPortClass(const port_def* pdef, output_struct* output)
     }
 
     def = mputprintf(def, "void raise(const %s_exception& "
-      "raise_exception, FLOAT* timestamp_redirect);\n", sig->name);
+      "raise_exception, FLOAT* timestamp_redirect = NULL);\n", sig->name);
     src = mputprintf(src, "void %s::raise(const %s_exception& "
       "raise_exception, FLOAT* timestamp_redirect)\n"
       "{\n"

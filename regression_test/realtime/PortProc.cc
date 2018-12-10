@@ -46,6 +46,24 @@ void ef__incoming__exception(PortProc& p__pt, const BOOLEAN& p__ex, const BOOLEA
   }
 }
 
+void ef__test__call(const Sig_template& p__sig)
+{
+  // test, whether 'call' can be called with one parameter
+  CT_component_ptProc.call(p__sig);
+}
+
+void ef__test__reply(const Sig_template& p__sig, const CHARSTRING& p__ret)
+{
+  // test, whether 'reply' can be called with one parameter
+  CT_component_ptProc.reply(p__sig.set_value_template(p__ret));
+}
+
+void ef__test__raise(const BOOLEAN& p__ex)
+{
+  // test, whether 'raise' can be called with one parameter
+  CT_component_ptProc.raise(Sig_exception(p__ex));
+}
+
 PortProc::PortProc(const char *par_port_name)
 	: PortProc_BASE(par_port_name)
 {
