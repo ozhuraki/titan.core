@@ -818,10 +818,16 @@ boolean MainController::check_version(unknown_connection *conn)
     }
     for (int i = 0; i < n_modules; i++) {
       char *module_name = text_buf.pull_string();
-      if (strcmp(module_name, modules[i].module_name)) {
+      int found_index = -1;
+      for (int j = 0; j < n_modules && found_index == -1; j++) {
+        if(!strcmp(module_name, modules[j].module_name)) {
+          found_index = j;
+        }
+      }
+      if (found_index == -1) {
         send_error(conn->fd, "The module number %d in this ETS (%s) "
-          "has different name than in the firstly connected ETS (%s).",
-          i, module_name, modules[i].module_name);
+          "has different name than any other module in the firstly connected ETS.",
+          i, module_name);
         delete [] module_name;
         return TRUE;
       }
@@ -832,15 +838,31 @@ boolean MainController::check_version(unknown_connection *conn)
         module_checksum = new unsigned char[checksum_length];
         text_buf.pull_raw(checksum_length, module_checksum);
       } else module_checksum = NULL;
-      if (checksum_length != modules[i].checksum_length ||
-        memcmp(module_checksum, modules[i].module_checksum,
-          checksum_length)) checksum_differs = TRUE;
-      delete [] module_checksum;
-      if (checksum_differs) {
+      if (checksum_length != modules[found_index].checksum_length) {
         send_error(conn->fd, "The checksum of module %s in this ETS "
-          "is different than that of the firstly connected ETS.",
-          module_name);
+          "hass different length (%d) than that of the firstly connected ETS (%d).",
+          module_name, checksum_length, modules[found_index].checksum_length);
+        delete [] module_checksum;
+        delete [] module_name;
+        return TRUE;
       }
+      if (memcmp(module_checksum, modules[found_index].module_checksum,
+          checksum_length)) {
+          for (unsigned int j = 0; j < checksum_length; j++) {
+            if (module_checksum[j] != modules[found_index].module_checksum[j]) {
+              send_error(conn->fd, "At index %d the checksum of module %s in this ETS "
+                "is different (%d) than that of the firstly connected ETS (%d).",
+                j, module_name, module_checksum[j], modules[found_index].module_checksum[j]);
+                checksum_differs = TRUE;
+            }
+          }
+          if (checksum_differs) {
+            send_error(conn->fd, "The checksum of module %s in this ETS "
+              "is different than that of the firstly connected ETS.",
+              module_name);
+          }
+      }
+      delete [] module_checksum;
       delete [] module_name;
       if (checksum_differs) return TRUE;
     }
