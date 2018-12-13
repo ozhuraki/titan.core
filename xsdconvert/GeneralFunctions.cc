@@ -281,7 +281,8 @@ void XSDName2TTCN3Name(const Mstring& in_str, const Mstring& in_namespace,
           Free(tmpname);
           tmpname = mprintf("%s_%d", qual_name.name.c_str(), counter);
           for (QualifiedNames::iterator used = used_names.begin(); used; used = used->Next) {
-            if (QualifiedName(/* empty_string ? */ ns_uri, Mstring(tmpname)) == used->Data) {
+            if ((!o_flag_used && QualifiedName(/* empty_string ? */ ns_uri, Mstring(tmpname)) == used->Data) ||
+                (o_flag_used && Mstring(tmpname) == used->Data.name)) {
               found = true;
               break;
             }

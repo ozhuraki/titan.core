@@ -140,4 +140,31 @@ with {
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
+//	Generated from file(s):
+//	- name_clashes_and_references_C.xsd
+//			/* xml version = "1.0" encoding = "UTF-8" */
+//			/* targetnamespace = "http://somewhere.com/C" */
+////////////////////////////////////////////////////////////////////////////////
+group http_somewhere_com_C {
+
+
+import from XSD all;
+
+
+type XSD.String SimpleType_2
+with {
+  variant "name as 'SimpleType'";
+};
+
+
+}
+with {
+  encode "XML";
+  variant "namespace as 'http://somewhere.com/C'";
+  variant "controlNamespace 'http://www.w3.org/2001/XMLSchema-instance' prefix 'xsi'";
+  variant "elementFormQualified";
+}
+
+
 }

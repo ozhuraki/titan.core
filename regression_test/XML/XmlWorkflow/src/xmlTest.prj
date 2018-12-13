@@ -149,6 +149,7 @@
                 <File path="../xsd/substitution_group_two.xsd" />
                 <File path="../xsd/name_clashes_and_references_A.xsd" />
                 <File path="../xsd/name_clashes_and_references_B.xsd" />
+                <File path="../xsd/name_clashes_and_references_C.xsd" />
 		<File path="../xsd/simpletype_base.xsd" />
 		<File path="../xsd/type_substitution.xsd" />
 		<File path="../xsd/type_substitution_chain.xsd" />

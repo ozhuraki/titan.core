@@ -2627,7 +2627,7 @@ group Elements{
   }
   
   testcase tc_name_clashes_and_references_merged() runs on xmlTest_CT { // bug 541748
-    f_shellCommandWithVerdict(xsd2ttcn_command & " -o name_clashes_and_references_A.xsd name_clashes_and_references_B.xsd",
+    f_shellCommandWithVerdict(xsd2ttcn_command & " -o name_clashes_and_references_A.xsd name_clashes_and_references_B.xsd name_clashes_and_references_C.xsd",
       "", c_shell_successWithoutWarningAndError);
 
     if(getverdict == pass) {
