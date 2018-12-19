@@ -1222,8 +1222,7 @@ boolean TTCN_Communication::send_log(time_t timestamp_sec, long timestamp_usec,
     /* If an ERROR message (indicating a version mismatch) arrives from MC
 	   in state HC_IDLE (i.e. before CONFIGURE) it shall be
 	   printed to the console as well. */
-    if (TTCN_Runtime::get_state() == TTCN_Runtime::HC_IDLE) return FALSE;
-    else return TRUE;
+    return TTCN_Runtime::get_state() != TTCN_Runtime::HC_IDLE;
   } else {
     switch (TTCN_Runtime::get_state()) {
     case TTCN_Runtime::HC_EXIT:
