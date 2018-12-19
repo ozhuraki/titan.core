@@ -3723,20 +3723,24 @@ void defRecordClass1(const struct_def *sdef, output_struct *output)
       "  boolean is_bound() const;\n\n");
   src = mputprintf(src,
       "boolean %s::is_bound() const\n"
-      "{\n", name);
+      "{\n"
+      "return ", name);
       for(i=0; i < sdef->nElements; i++) {
+        if (i != 0 ) {
+          src = mputstr(src, "\n  || ");
+        }
         if(sdef->elements[i].isOptional) {
           src = mputprintf(src,
-            "if(OPTIONAL_OMIT == field_%s.get_selection() || field_%s.is_bound()) return TRUE;\n",
+            "(OPTIONAL_OMIT == field_%s.get_selection() || field_%s.is_bound())",
             sdef->elements[i].name, sdef->elements[i].name);
         } else {
           src = mputprintf(src,
-            "if(field_%s.is_bound()) return TRUE;\n",
+            "(field_%s.is_bound())",
             sdef->elements[i].name);
         }
       }
   src = mputprintf(src,
-      "return FALSE;\n"
+      ";\n"
       "}\n");
 
   /* is_present */
@@ -3748,20 +3752,24 @@ void defRecordClass1(const struct_def *sdef, output_struct *output)
       "  boolean is_value() const;\n\n");
   src = mputprintf(src,
       "boolean %s::is_value() const\n"
-      "{\n", name);
+      "{\n"
+      "return ", name);
       for(i=0; i < sdef->nElements; i++) {
+        if (i != 0 ) {
+          src = mputstr(src, "\n  && ");
+        }
         if(sdef->elements[i].isOptional) {
           src = mputprintf(src,
-            "if(OPTIONAL_OMIT != field_%s.get_selection() && !field_%s.is_value()) return FALSE;\n",
+            "(OPTIONAL_OMIT == field_%s.get_selection() || field_%s.is_value())",
             sdef->elements[i].name, sdef->elements[i].name);
         } else {
           src = mputprintf(src,
-            "if(!field_%s.is_value()) return FALSE;\n",
+            "field_%s.is_value()",
             sdef->elements[i].name);
         }
       }
   src = mputprintf(src,
-      "return TRUE;\n}\n");
+      ";\n}\n");
 
   /* field accessor methods */
   for (i = 0; i < sdef->nElements; i++) {
@@ -5959,19 +5967,23 @@ void defRecordTemplate1(const struct_def *sdef, output_struct *output)
         "if (template_selection == UNINITIALIZED_TEMPLATE && !is_ifpresent) "
         "return FALSE;\n", name);
     src = mputstr(src, "if (template_selection != SPECIFIC_VALUE) return TRUE;\n");
+    src = mputstr(src, "return ");
     for (i = 0; i < sdef->nElements; i++) {
+      if (i != 0) {
+        src = mputstr(src, "\n ||");
+      }
         if (sdef->elements[i].isOptional) {
             src = mputprintf(src,
-                "if (single_value->field_%s.is_omit() ||"
-                    " single_value->field_%s.is_bound()) return TRUE;\n",
+                "(single_value->field_%s.is_omit() ||"
+                    " single_value->field_%s.is_bound())\n",
                 sdef->elements[i].name, sdef->elements[i].name);
         } else {
             src = mputprintf(src,
-                "if (single_value->field_%s.is_bound()) return TRUE;\n",
+                "single_value->field_%s.is_bound()\n",
                 sdef->elements[i].name);
         }
     }
-    src = mputstr(src, "return FALSE;\n"
+    src = mputstr(src, ";\n"
         "}\n\n");
 
     /* is_value */
@@ -5981,19 +5993,23 @@ void defRecordTemplate1(const struct_def *sdef, output_struct *output)
         "{\n"
         "if (template_selection != SPECIFIC_VALUE || is_ifpresent) "
         "return FALSE;\n", name);
+        src = mputstr(src, "return ");
     for (i = 0; i < sdef->nElements; i++) {
+      if (i != 0) {
+        src = mputstr(src, "\n &&");
+      }
         if (sdef->elements[i].isOptional) {
             src = mputprintf(src,
-                "if (!single_value->field_%s.is_omit() &&"
-                    " !single_value->field_%s.is_value()) return FALSE;\n",
+                "(single_value->field_%s.is_omit() ||"
+                    " single_value->field_%s.is_value())",
                 sdef->elements[i].name, sdef->elements[i].name);
         } else {
             src = mputprintf(src,
-                "if (!single_value->field_%s.is_value()) return FALSE;\n",
+                "single_value->field_%s.is_value()",
                 sdef->elements[i].name);
         }
     }
-    src = mputstr(src, "return TRUE;\n"
+    src = mputstr(src, ";\n"
         "}\n\n");
 
     /* clean_up function */
