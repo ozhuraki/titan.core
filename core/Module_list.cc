@@ -425,11 +425,7 @@ void Module_List::push_version(Text_Buf& text_buf)
   text_buf.push_int(n_modules);
   for (TTCN_Module *list_iter = list_head; list_iter != NULL;
     list_iter = list_iter->list_next) {
-    text_buf.push_string(list_iter->module_name);
-    if (list_iter->md5_checksum != NULL) {
-      text_buf.push_int(16);
-      text_buf.push_raw(16, list_iter->md5_checksum);
-    } else text_buf.push_int((RInt)0);
+    list_iter->push_version(text_buf);
   }
 }
 
@@ -1229,6 +1225,17 @@ void TTCN_Module::list_testcases()
     list_iter = list_iter->next_testcase)
     if(!list_iter->is_pard)
       printf("%s.%s\n", module_name, list_iter->testcase_name);
+}
+
+void TTCN_Module::push_version(Text_Buf& text_buf)
+{
+  text_buf.push_string(module_name);
+  if (md5_checksum != NULL) {
+    text_buf.push_int(16);
+    text_buf.push_raw(16, md5_checksum);
+  } else {
+    text_buf.push_int((RInt)0);
+  }
 }
 
 const namespace_t *TTCN_Module::get_ns(size_t p_index) const

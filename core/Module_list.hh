@@ -232,6 +232,7 @@ public:
   void print_version();
   ModuleVersion* get_version() const;
   void list_testcases();
+  void push_version(Text_Buf& text_buf);
   size_t get_num_ns() const { return num_namespaces; }
   const namespace_t *get_ns(size_t p_index) const;
   const namespace_t *get_controlns() const;
