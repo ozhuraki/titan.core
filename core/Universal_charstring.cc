@@ -1613,10 +1613,9 @@ void UNIVERSAL_CHARSTRING::encode_utf16(TTCN_Buffer& buf,
         buf.put_c(isbig ? c : r);
       }
       else if (g || p) { // greater than 0xFFFF it needs surrogates
-        uint32_t univc = 0, temp = 0;
-        univc = g;
+        uint32_t univc = g;
         univc <<= 24;
-        temp = p;
+        uint32_t temp = p;
         temp <<= 16;
         univc |= temp;
         temp = r;
