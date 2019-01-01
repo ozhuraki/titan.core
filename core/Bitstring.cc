@@ -443,7 +443,7 @@ BITSTRING BITSTRING::operator>>(const INTEGER& shift_count) const
 
 BITSTRING BITSTRING::operator<<=(int rotate_count) const
 {
-  must_bound("Unbound bistring operand of rotate left operator.");
+  must_bound("Unbound bitstring operand of rotate left operator.");
   int n_bits = val_ptr->n_bits;
   if (n_bits == 0) return *this;
   if (rotate_count >= 0) {
@@ -463,7 +463,7 @@ BITSTRING BITSTRING::operator<<=(const INTEGER& rotate_count) const
 
 BITSTRING BITSTRING::operator>>=(int rotate_count) const
 {
-  must_bound("Unbound bistring operand of rotate right operator.");
+  must_bound("Unbound bitstring operand of rotate right operator.");
   int n_bits = val_ptr->n_bits;
   if (n_bits == 0) return *this;
   if (rotate_count >= 0) {
