@@ -7447,28 +7447,19 @@ namespace Ttcn {
       // checking for remaining data in the buffer if decoding was successful
       str = mputprintf(str, "if (TTCN_EncDec::get_last_error_type() == "
           "TTCN_EncDec::ET_NONE) {\n"
-        "if (ttcn_buffer.get_pos() < ttcn_buffer.get_len() && "
-          "TTCN_Logger::log_this_event(TTCN_WARNING)) {\n"
+        "if (ttcn_buffer.get_pos() < ttcn_buffer.get_len()) {\n"
         "ttcn_buffer.cut();\n"
-        "%s remaining_stream;\n",
-        input_type->get_genname_value(my_scope).c_str());
-      if (input_type->get_type_refd_last()->get_typetype_ttcn3() ==
-          Common::Type::T_BSTR) {
-        str = mputstr(str,
-          "OCTETSTRING tmp_os;\n"
-          "ttcn_buffer.get_string(tmp_os);\n"
-          "remaining_stream = oct2bit(tmp_os);\n");
-      }
-      else {
-        str = mputstr(str, "ttcn_buffer.get_string(remaining_stream);\n");
-      }
-      str = mputprintf(str,
-        "TTCN_Logger::begin_event(TTCN_WARNING);\n"
-        "TTCN_Logger::log_event_str(\"%s(): Warning: Data remained at the end "
-          "of the stream after successful decoding: \");\n"
-        "remaining_stream.log();\n"
-        "TTCN_Logger::end_event();\n"
-        "}\n", function_name);
+        "OCTETSTRING tmp_os;\n"
+        "ttcn_buffer.get_string(tmp_os);\n"
+        "TTCN_Logger::begin_event_log2str();\n"
+        "%s.log();\n"
+        "CHARSTRING remaining_stream = TTCN_Logger::end_event_log2str();\n"
+        "TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_EXTRA_DATA, "
+        "\"%s(): Data remained at the end of the stream after successful "
+        "decoding: %%s\", (const char*) remaining_stream);\n"
+        "}\n",
+        (input_type->get_type_refd_last()->get_typetype_ttcn3() ==
+        Common::Type::T_BSTR) ? "oct2bit(tmp_os)" : "tmp_os", function_name);
       // closing the block and returning the appropriate result or status code
       if (prototype == PROTOTYPE_BACKTRACK) {
         if (debugger_active) {

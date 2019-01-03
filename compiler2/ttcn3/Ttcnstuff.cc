@@ -132,7 +132,8 @@ namespace Ttcn {
           "INVAL_MSG", "REPR", "CONSTRAINT", "TAG", "SUPERFL", "EXTENSION",
           "DEC_ENUM", "DEC_DUPFLD", "DEC_MISSFLD", "DEC_OPENTYPE", "DEC_UCSTR",
           "LEN_ERR", "SIGN_ERR", "INCOMP_ORDER", "TOKEN_ERR", "LOG_MATCHING",
-          "FLOAT_TR", "FLOAT_NAN", "OMITTED_TAG", "NEGTEST_CONFL", NULL };
+          "FLOAT_TR", "FLOAT_NAN", "OMITTED_TAG", "NEGTEST_CONFL", "EXTRA_DATA",
+          NULL };
         bool type_found = false;
         for (const char * const *str = valid_types; *str; str++) {
           if (error_type == *str) {
