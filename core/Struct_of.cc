@@ -690,7 +690,7 @@ boolean match_set_of_internal(const Base_Type *value_ptr,
             int temp_value_index;
             int actual_node;
             boolean at_end = FALSE;
-            for( ; !at_end; )
+            while(!at_end)
             {
               at_end = tree.is_head();
               actual_node = tree.actual_data();
