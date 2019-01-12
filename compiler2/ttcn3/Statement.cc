@@ -10485,7 +10485,8 @@ error:
     value_type = p_type->get_type_refd_last();
     Error_Context cntxt(this, "In value redirect");
     for (size_t i = 0; i < v.size(); ++i) {
-      Type* var_type = v[i]->get_var_ref()->chk_variable_ref();
+      Reference* var_ref = v[i]->get_var_ref();
+      Type* var_type = var_ref->chk_variable_ref();
       FieldOrArrayRefs* subrefs = v[i]->get_subrefs();
       Error_Context cntxt2(v[i], "In redirect #%d", static_cast<int>(i + 1));
       Type* exp_type = NULL;
@@ -10524,7 +10525,7 @@ error:
               Type* dec_type = var_type->get_type_refd();
               v[i]->set_dec_type(dec_type);
               dec_type->chk_coding(false,
-                v[i]->get_var_ref()->get_my_scope()->get_scope_mod());
+                var_ref->get_my_scope()->get_scope_mod());
             }
           }
           else {
@@ -10541,7 +10542,7 @@ error:
           // check for type compatibility in RT2
           TypeCompatInfo info(v[i]->get_var_ref()->get_my_scope()->get_scope_mod(),
             exp_type, var_type, true, false);
-          FieldOrArrayRefs* var_subrefs = v[i]->get_var_ref()->get_subrefs();
+          FieldOrArrayRefs* var_subrefs = var_ref->get_subrefs();
           if (var_subrefs != NULL) {
             info.set_str2_elem(var_subrefs->refers_to_string_element());
           }
