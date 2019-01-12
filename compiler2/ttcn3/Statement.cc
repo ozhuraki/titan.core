@@ -10521,8 +10521,9 @@ error:
             if (!erroneous && var_type != NULL) {
               // store the variable type in case it's decoded (since this cannot
               // be extracted from the value type with the sub-references)
-              v[i]->set_dec_type(var_type->get_type_refd());
-              v[i]->get_dec_type()->chk_coding(false,
+              Type* dec_type = var_type->get_type_refd();
+              v[i]->set_dec_type(dec_type);
+              dec_type->chk_coding(false,
                 v[i]->get_var_ref()->get_my_scope()->get_scope_mod());
             }
           }
