@@ -1,0 +1,8 @@
+ProjA
+ProjA.exe
+A*.cc
+A*.hh
+*.o
+*.d
+compile
+*.log

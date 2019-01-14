@@ -1,0 +1,9 @@
+ProjB
+ProjB.exe
+B*.cc
+B*.hh
+*.o
+*.d
+compile
+compile-all
+*.log

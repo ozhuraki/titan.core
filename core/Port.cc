@@ -525,6 +525,12 @@ PORT* PORT::get_provider_port() {
   return NULL;
 }
 
+boolean PORT::incoming_message_handler(const void* message_ptr, const char* message_type,
+                                       component sender_component, const FLOAT& timestamp)
+{
+  return FALSE;
+}
+
 alt_status PORT::receive(const COMPONENT_template&, COMPONENT *, FLOAT*, Index_Redirect*)
 {
   TTCN_Logger::log_matching_problem(

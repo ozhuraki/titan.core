@@ -1,0 +1,187 @@
+/******************************************************************************
+ * Copyright (c) 2000-2018 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+
+// This module tests translation ports when using central storage (or project
+// references in the Eclipse Designer plug-in)
+
+// The user ports declared here must work in translation mode with the provider
+// ports declared in another project
+module B {
+
+import from A all;
+
+type port PortA2 message {
+  inout integer
+}
+with {
+  extension "provider"
+}
+
+type port PortB message map to PortA, PortA2, PortA_RT {
+  in charstring from integer with int_to_char()
+  out octetstring to integer with oct_to_int()
+}
+
+type port PortB_RT message realtime map to PortA, PortA2, PortA_RT {
+  in charstring from integer with int_to_char2()
+  out octetstring to integer with oct_to_int2()
+}
+
+function int_to_char(in integer x, out charstring y) port PortB {
+  y := int2str(x);
+  port.setstate(0);
+}
+with {
+  extension "prototype(fast)"
+}
+
+function oct_to_int(in octetstring x, out integer y) port PortB {
+  y := oct2int(x);
+  port.setstate(0);
+}
+with {
+  extension "prototype(fast)"
+}
+
+function int_to_char2(in integer x, out charstring y) port PortB_RT {
+  y := int2str(x);
+  port.setstate(0);
+}
+with {
+  extension "prototype(fast)"
+}
+
+function oct_to_int2(in octetstring x, out integer y) port PortB_RT {
+  y := oct2int(x);
+  port.setstate(0);
+}
+with {
+  extension "prototype(fast)"
+}
+
+type component CT {
+  port PortB pb;
+  port PortB_RT pb_rt;
+}
+
+type component Sys {
+  port PortA pa;
+  port PortA2 pa2;
+  port PortA_RT pa_rt;
+}
+
+testcase tc_cross_project() runs on CT system Sys {
+  map(mtc:pb, system:pa);
+  pb.send('AB'O); // 171 in decimal
+  var charstring x;
+  timer t;
+  t.start(0.5);
+  alt {
+    [] pb.receive("1716") /* PortA adds a 6 to the end */ { setverdict(pass); }
+    [] pb.receive(charstring: ?) -> value x { setverdict(fail, "Received: ", x); }
+    [] t.timeout { setverdict(fail, "Timed out."); }
+  }
+}
+
+testcase tc_same_project() runs on CT system Sys {
+  map(mtc:pb, system:pa2);
+  pb.send('AB'O);
+  var charstring x;
+  timer t;
+  t.start(0.5);
+  alt {
+    [] pb.receive("1713") /* PortA2 adds a 3 to the end */ { setverdict(pass); }
+    [] pb.receive(charstring: ?) -> value x { setverdict(fail, "Received: ", x); }
+    [] t.timeout { setverdict(fail, "Timed out."); }
+  }
+}
+
+testcase tc_self() runs on CT {
+  map(mtc:pb, system:pb); // not in translation mode
+  pb.send('AB'O);
+  var charstring x;
+  timer t;
+  t.start(0.5);
+  alt {
+    [] pb.receive("AB") { setverdict(pass); }
+    [] pb.receive(charstring: ?) -> value x { setverdict(fail, "Received: ", x); }
+    [] t.timeout { setverdict(fail, "Timed out."); }
+  }
+}
+
+testcase tc_cross_project_realtime_provider() runs on CT system Sys {
+  map(mtc:pb, system:pa_rt);
+  pb.send('AB'O);
+  var charstring x;
+  timer t;
+  t.start(0.5);
+  alt {
+    [] pb.receive("1719") /* PortA_RT adds a 9 to the end */ { setverdict(pass); }
+    [] pb.receive(charstring: ?) -> value x { setverdict(fail, "Received: ", x); }
+    [] t.timeout { setverdict(fail, "Timed out."); }
+  }
+}
+
+testcase tc_cross_project_realtime_user() runs on CT system Sys {
+  map(mtc:pb_rt, system:pa);
+  var float y1, y2;
+  pb_rt.send('AB'O) -> timestamp y1;
+  if (isbound(y1)) {
+    setverdict(fail, "Send timestamp set.");
+  }
+  var charstring x;
+  timer t;
+  t.start(0.5);
+  alt {
+    [] pb_rt.receive("1716") -> timestamp y2 /* PortA adds a 6 to the end */ {
+      if (isbound(y2)) {
+        setverdict(fail, "Receive timestamp set.");
+      }
+      setverdict(pass);
+    }
+    [] pb_rt.receive(charstring: ?) -> value x { setverdict(fail, "Received: ", x); }
+    [] t.timeout { setverdict(fail, "Timed out."); }
+  }
+}
+
+testcase tc_cross_project_realtime_both() runs on CT system Sys {
+  map(mtc:pb_rt, system:pa_rt);
+  var float y1, y2;
+  pb_rt.send('AB'O) -> timestamp y1;
+  if (not isbound(y1)) {
+    setverdict(fail, "Send timestamp not set.");
+  }
+  var charstring x;
+  timer t;
+  t.start(0.5);
+  alt {
+    [] pb_rt.receive("1719") -> timestamp y2 /* PortA_RT adds a 9 to the end */ {
+      if (not isbound(y2)) {
+        setverdict(fail, "Receive timestamp not set.");
+      }
+      setverdict(pass);
+    }
+    [] pb_rt.receive(charstring: ?) -> value x { setverdict(fail, "Received: ", x); }
+    [] t.timeout { setverdict(fail, "Timed out."); }
+  }
+}
+
+control {
+  execute(tc_cross_project());
+  execute(tc_same_project());
+  execute(tc_self());
+  execute(tc_cross_project_realtime_provider());
+  execute(tc_cross_project_realtime_user());
+  execute(tc_cross_project_realtime_both());
+}
+
+}

@@ -2493,16 +2493,6 @@ namespace Ttcn {
       pdef.provider_msg_in.elements = NULL;
     }
     
-    if (port_type == PT_PROVIDER) {
-      pdef.mapper_name = (const char**)Malloc(mapper_types.size() * sizeof(const char*));
-      pdef.mapper_realtime = (boolean*)Malloc(mapper_types.size() * sizeof(boolean));
-      pdef.n_mapper_name = mapper_types.size();
-      for (size_t i = 0; i < mapper_types.size(); i++) {
-        pdef.mapper_name[i] = pool.add(mapper_types[i]->get_genname_value(my_scope));
-        pdef.mapper_realtime[i] = mapper_types[i]->get_PortBody()->is_realtime();
-      }
-    }
-    
     defPortClass(&pdef, target);
     if (generate_skeleton && testport_type != TP_INTERNAL &&
         (port_type != PT_USER || !legacy)) generateTestPortSkeleton(&pdef);
@@ -2537,8 +2527,6 @@ namespace Ttcn {
     for (size_t i = 0; i < pdef.provider_msg_outlist.nElements; i++)
       Free(pdef.provider_msg_outlist.elements[i].out_msg_type_names);
     Free(pdef.provider_msg_outlist.elements);
-    Free(pdef.mapper_name);
-    Free(pdef.mapper_realtime);
     Free(pdef.var_decls);
     Free(pdef.var_defs);
     Free(pdef.mapping_func_decls);

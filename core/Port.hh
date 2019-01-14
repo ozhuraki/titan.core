@@ -157,6 +157,9 @@ public:
   // capability and dual faced ports.
   virtual PORT* get_provider_port();
   
+  virtual boolean incoming_message_handler(const void* message_ptr, const char* message_type,
+    component sender_component, const FLOAT& timestamp);
+  
   boolean check_port_state(const CHARSTRING& type) const;
   static boolean any_check_port_state(const CHARSTRING& type);
   static boolean all_check_port_state(const CHARSTRING& type);
