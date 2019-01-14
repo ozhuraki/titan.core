@@ -1043,7 +1043,7 @@ namespace Ttcn {
     checked(false), attributes_checked(false), legacy(true),
     in_msgs(0), out_msgs(0), in_sigs(0), out_sigs(0),
     testport_type(TP_REGULAR), port_type(PT_REGULAR),
-    provider_refs(), provider_types(), mapper_types(),
+    provider_refs(), provider_types(),
     in_mappings(0), out_mappings(0), vardefs(defs), realtime(p_realtime)
   {
   }
@@ -1062,7 +1062,6 @@ namespace Ttcn {
     }
     provider_refs.clear();
     provider_types.clear();
-    mapper_types.clear();
     delete in_mappings;
     delete out_mappings;
     delete vardefs;
@@ -1504,9 +1503,6 @@ namespace Ttcn {
               provider_types.add(t);
               n_prov_t++;
               provider_body = t->get_PortBody();
-              if (!legacy) {
-                provider_body->add_mapper_type(my_type);
-              }
             }
           } else {
             provider_refs[p]->error("Type reference `%s' does not refer to a port "
@@ -2496,24 +2492,6 @@ namespace Ttcn {
     defPortClass(&pdef, target);
     if (generate_skeleton && testport_type != TP_INTERNAL &&
         (port_type != PT_USER || !legacy)) generateTestPortSkeleton(&pdef);
-    
-    
-    // Add includes for the mapped types if necessary
-    if (port_type == PT_PROVIDER) {
-      for (size_t i = 0; i < mapper_types.size(); i++) {
-        const Identifier& port_mod_name = mapper_types[i]->get_my_scope()->get_scope_mod()->get_modid();
-        const string& my_mod_name = my_type->get_my_scope()->get_scope_mod()->get_modid().get_ttcnname();
-        if (my_mod_name == port_mod_name.get_ttcnname()) {
-          continue;
-        }
-        char * incl = mprintf("#include \"%s.hh\"\n",
-          duplicate_underscores ? port_mod_name.get_name().c_str() : port_mod_name.get_ttcnname().c_str());
-        if (strstr(target->header.includes, incl) == NULL) {
-          target->header.includes = mputstr(target->header.includes, incl);
-        }
-        Free(incl);
-      }
-    }
 
     Free(pdef.msg_in.elements);
     for (size_t i = 0; i < pdef.msg_out.nElements; i++)
