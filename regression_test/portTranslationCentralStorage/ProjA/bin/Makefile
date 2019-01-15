@@ -130,7 +130,7 @@ $(GENERATED_SOURCES) $(GENERATED_HEADERS): compile
 	@if [ ! -f $@ ]; then $(RM) compile; $(MAKE) compile; fi
 
 compile: $(TTCN3_MODULES) $(ASN1_MODULES)
-	$(TTCN3_DIR)/bin/compiler $(COMPILER_FLAGS) $^ - $?
+	$(TTCN3_COMPILER) $(COMPILER_FLAGS) $^ - $?
 	touch $@
 
 clean distclean:

@@ -181,14 +181,14 @@ $(GENERATED_SOURCES) $(GENERATED_HEADERS): compile-all compile ./compile ../../P
 	@if [ ! -f $@ ]; then $(RM) compile-all; $(MAKE) compile-all; fi
 
 compile: $(TTCN3_MODULES) $(ASN1_MODULES)
-	$(TTCN3_DIR)/bin/compiler $(COMPILER_FLAGS) \
+	$(TTCN3_COMPILER) $(COMPILER_FLAGS) \
 	$(TTCN3_MODULES) $(BASE_TTCN3_MODULES) \
 	$(ASN1_MODULES) $(BASE_ASN1_MODULES) \
 	- $?
 	touch $@
 
 compile-all: $(BASE_TTCN3_MODULES) $(BASE_ASN1_MODULES)
-	$(TTCN3_DIR)/bin/compiler $(COMPILER_FLAGS) \
+	$(TTCN3_COMPILER) $(COMPILER_FLAGS) \
 	$(TTCN3_MODULES) $(BASE_TTCN3_MODULES) \
 	$(ASN1_MODULES) $(BASE_ASN1_MODULES) \
 	- $(TTCN3_MODULES) $(ASN1_MODULES)
