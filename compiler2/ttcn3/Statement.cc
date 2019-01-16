@@ -10231,7 +10231,7 @@ error:
     string qualified_sig_name_ = sig_type->get_genname_value(scope);
     const char* qualified_sig_name = qualified_sig_name_.c_str();
     string unqualified_sig_name_ = sig_type->get_genname_value(
-      sig_type->get_type_refd_last()->get_my_scope());
+      sig_type->get_my_scope());
     const char* unqualified_sig_name = unqualified_sig_name_.c_str();
     const char* op_name = is_out ? "reply" : "call";
     str = mputprintf(str,
