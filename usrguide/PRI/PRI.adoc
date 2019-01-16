@@ -32,12 +32,13 @@ Legend: R = Revised, N = New, C = Cancelled, E = Equal
 [cols=",,,,",options="header",]
 |===
 |Name |Product |Old R-State |New R-State |Status
-|*Titan* |*CRL 113 200/6* |*R4C* |*R5A* |N
+|*Titan* |*CRL 113 200/6* |*R4C* |*R5A* |R
 |Editline Library (libedit) |2/CAX 105 4373 | |R1A |E
-|GNU C Library (glibc) |7/CAX 105 3195 | |R1A |E
+|GNU C Library (glibc) |22/CAX 105 3195 | |R1A |R
 |LibXML2 |8/CAX 105 3282 | |R1A |E
-|OpenSSL |4/CAX 105 3048 | |R1A |E
-|Cygwin |1/CAX 105 3757 | |2.11.1 |
+|OpenSSL |4/CAX 105 3048 | |R1A |C
+|Cygwin |1/CAX 105 3757 | | R1A |E
+|Latest OpenSSL |CNL 113 897 | | R1A |E
 |===
 
 == Affected documents
