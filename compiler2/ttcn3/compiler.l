@@ -619,7 +619,7 @@ oct2str		RETURN(oct2strKeyword);
 regexp		RETURN(regexpKeyword);
 replace		RETURN(replaceKeyword);
 rnd			RETURN(rndKeyword);
-setencode RETURN(setencodeKeyword);
+setencode RETURN_DOT(SetencodeKeyword);
 sizeof		RETURN(sizeofKeyword);
 str2bit		RETURN(str2bitKeyword);
 str2float	RETURN(str2floatKeyword);

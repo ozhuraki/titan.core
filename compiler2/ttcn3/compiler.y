@@ -846,6 +846,7 @@ static const string anyname("anytype");
 %token DotStopKeyword
 %token DotTimeoutKeyword
 %token DotTriggerOpKeyword
+%token DotSetencodeKeyword
 
 /* Predefined function identifiers */
 
@@ -889,7 +890,7 @@ static const string anyname("anytype");
 %token replaceKeyword
 %token rndKeyword
 %token testcasenameKeyword
-%token setencodeKeyword
+%token SetencodeKeyword
 %token sizeofKeyword
 %token str2floatKeyword
 %token str2intKeyword
@@ -8992,32 +8993,37 @@ SetstateStatement:
   }
 
 SetencodeStatement:
-  IDentifier '.' setencodeKeyword '(' Type ',' SingleExpression ')'
+  Reference DotSetencodeKeyword '(' Type ',' SingleExpression ')'
   {
-    delete $1;
-    delete $5;
-    delete $7;
+    if ($1.is_ref) {
+      delete $1.ref;
+    }
+    else {
+      delete $1.id;
+    }
+    delete $4;
+    delete $6;
     Location loc(infile, @$);
-    loc.error("'Port.setencode' is not currently supported.");
+    loc.error("'<port>.setencode' is not currently supported.");
     $$ = new Statement(Statement::S_ERROR);
     $$->set_location(infile, @$);
   }
-| AllKeyword PortKeyword '.' setencodeKeyword '(' Type ',' SingleExpression ')'
+| AllKeyword PortKeyword DotSetencodeKeyword '(' Type ',' SingleExpression ')'
   {
-    delete $6;
-    delete $8;
+    delete $5;
+    delete $7;
     Location loc(infile, @$);
     loc.error("'all port.setencode' is not currently supported.");
     $$ = new Statement(Statement::S_ERROR);
     $$->set_location(infile, @$);
   }
-| SelfKeyword '.' setencodeKeyword '(' Type ',' SingleExpression ')'
+| SelfKeyword DotSetencodeKeyword '(' Type ',' SingleExpression ')'
   {
     if (legacy_codec_handling) {
       Location loc(infile, @$);
       loc.error("'setencode' is not allowed when using legacy codec handling");
     }
-    $$ = new Statement(Statement::S_SETENCODE, $5, $7);
+    $$ = new Statement(Statement::S_SETENCODE, $4, $6);
     $$->set_location(infile, @$);
   }
 ;
