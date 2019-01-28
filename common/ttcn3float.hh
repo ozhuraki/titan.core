@@ -23,7 +23,7 @@
    are displayed in exponential notation. */
 #define MAX_DECIMAL_FLOAT		1.0E+10
 
-#if __clpusplus < 201103L // signbit is a function in C++11, not a macro
+#if __cplusplus < 201103L // signbit is a function in C++11, not a macro
 
 #ifndef signbit
 // Probably Solaris.
