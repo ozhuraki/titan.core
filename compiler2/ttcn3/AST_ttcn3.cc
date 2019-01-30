@@ -8237,26 +8237,43 @@ namespace Ttcn {
         for (size_t i = 0; i < fp_list->get_nof_fps(); ++i) {
           FormalPar *fp = fp_list->get_fp_byIndex(i);
           ActualPar *ap = fp->get_defval();
+          param_eval_t param_eval = fp != NULL ? fp->get_eval_type() : NORMAL_EVAL;
           switch (ap->get_selection()) {
           case ActualPar::AP_VALUE:
-            expr.expr = mputstr(expr.expr,
-              ap->get_Value()->get_genname_own(my_scope).c_str());
-            break;
-          case ActualPar::AP_TEMPLATE:
-            if (use_runtime_2) {
-              string tmp_id = my_scope->get_scope_mod_gen()->get_temporary_id();
-              expr.preamble = mputprintf(expr.preamble, "%s %s;\n",
-                fp->get_Type()->get_genname_template(my_scope).c_str(), tmp_id.c_str());
-              // use the actual parameter's scope, not the formal parameter's, when
-              // generating the template's initialization code
-              ap->get_TemplateInstance()->set_my_scope(my_scope);
-              expr.preamble = FormalPar::generate_code_defval_template(expr.preamble,
-                ap->get_TemplateInstance(), tmp_id, ap->get_gen_restriction_check());
-              expr.expr = mputstr(expr.expr, tmp_id.c_str());
+            if (param_eval != NORMAL_EVAL) {
+              LazyFuzzyParamData::init(false);
+              LazyFuzzyParamData::generate_code(&expr, ap->get_Value(), my_scope,
+                param_eval == LAZY_EVAL);
+              LazyFuzzyParamData::clean();
             }
             else {
               expr.expr = mputstr(expr.expr,
-                ap->get_TemplateInstance()->get_Template()->get_genname_own(my_scope).c_str());
+                ap->get_Value()->get_genname_own(my_scope).c_str());
+            }
+            break;
+          case ActualPar::AP_TEMPLATE:
+            if (param_eval != NORMAL_EVAL) {
+              LazyFuzzyParamData::init(false);
+              LazyFuzzyParamData::generate_code(&expr, ap->get_TemplateInstance(),
+                 ap->get_gen_restriction_check(), my_scope, param_eval == LAZY_EVAL);
+              LazyFuzzyParamData::clean();
+            }
+            else {
+              if (use_runtime_2) {
+                string tmp_id = my_scope->get_scope_mod_gen()->get_temporary_id();
+                expr.preamble = mputprintf(expr.preamble, "%s %s;\n",
+                  fp->get_Type()->get_genname_template(my_scope).c_str(), tmp_id.c_str());
+                // use the actual parameter's scope, not the formal parameter's, when
+                // generating the template's initialization code
+                ap->get_TemplateInstance()->set_my_scope(my_scope);
+                expr.preamble = FormalPar::generate_code_defval_template(expr.preamble,
+                  ap->get_TemplateInstance(), tmp_id, ap->get_gen_restriction_check());
+                expr.expr = mputstr(expr.expr, tmp_id.c_str());
+              }
+              else {
+                expr.expr = mputstr(expr.expr,
+                  ap->get_TemplateInstance()->get_Template()->get_genname_own(my_scope).c_str());
+              }
             }
             break;
           case ActualPar::AP_REF:
