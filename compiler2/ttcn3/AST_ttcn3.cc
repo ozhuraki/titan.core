@@ -9914,8 +9914,12 @@ namespace Ttcn {
     bool ret_val = true;
     for(size_t i = 0; i < p_aplist->get_nof_pars(); i++) {
       ActualPar *t_ap = p_aplist->get_par(i);
-      if(t_ap->get_selection() != ActualPar::AP_REF) continue;
       FormalPar *t_fp = pars_v[i];
+      if (t_fp->get_eval_type() != NORMAL_EVAL) {
+        t_ap->get_location()->error("Activating a default altstep with @lazy or "
+          "@fuzzy parameters is not supported");
+      }
+      if(t_ap->get_selection() != ActualPar::AP_REF) continue;
       switch(t_fp->get_asstype()) {
       case Common::Assignment::A_PAR_VAL_OUT:
       case Common::Assignment::A_PAR_VAL_INOUT:
@@ -10630,6 +10634,22 @@ namespace Ttcn {
       break;
     default:
       DEBUG(level, "actual parameter: erroneous");
+    }
+  }
+  
+  Location* ActualPar::get_location() const
+  {
+    switch (selection) {
+    case AP_VALUE:
+      return val;
+    case AP_TEMPLATE:
+      return temp;
+    case AP_REF:
+      return ref;
+    case AP_DEFAULT:
+      return act->get_location();
+    default:
+      FATAL_ERROR("ActualPar::get_location()");
     }
   }
 

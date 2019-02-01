@@ -146,6 +146,7 @@ namespace Ttcn {
     void set_gen_post_restriction_check(
       template_restriction_t p_gen_post_restriction_check)
       { gen_post_restriction_check = p_gen_post_restriction_check; }
+    Location* get_location() const;
   };
 
   /// A collection of actual parameters (parameter list)
