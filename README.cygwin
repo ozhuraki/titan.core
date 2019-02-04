@@ -144,6 +144,7 @@ Cygwin setup
             DEBUG := no
     Compile Titan:
           cd titan
+          make dep
           make -j  
           make install 
     The compiled files will be placed into the titan.core/Install directory. 
