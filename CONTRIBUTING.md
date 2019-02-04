@@ -12,10 +12,8 @@ Step-by-step guide for contributors
 
 ## Clone the GerritHub repo and make the change
 * Clone the repo from GerritHub
-git clone ssh://<username>@review.gerrithub.io:29418/eclipse/titan.core
-git clone ssh://<username>@review.gerrithub.io:29418/eclipse/titan.EclipsePlug-ins
-...
-
+    * git clone ssh://<username>@review.gerrithub.io:29418/eclipse/titan.core
+    * git clone ssh://<username>@review.gerrithub.io:29418/eclipse/titan.EclipsePlug-ins
 
 * Modify the files and compile
 
