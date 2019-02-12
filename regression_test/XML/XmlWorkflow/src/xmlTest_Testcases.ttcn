@@ -2636,6 +2636,16 @@ group Elements{
         "XSD_Definitions.ttcn", c_numOfDiff);
     }
   }
+  
+  testcase tc_group_ref_order() runs on xmlTest_CT { // bug 537922
+    f_shellCommandWithVerdict(xsd2ttcn_command & " Bug537922.xsd", "", c_shell_successWithoutWarningAndError);
+
+    if(getverdict == pass) {
+      f_compareFiles(
+        "www_example_org_bug537922_e.ttcn",
+        "www_example_org_bug537922.ttcn", c_numOfDiff);
+    }
+  }
 
 }//Element
 
@@ -2913,6 +2923,8 @@ control {
 
   execute(tc_substitution_group_merged());
   execute(tc_name_clashes_and_references_merged());
+  
+  execute(tc_group_ref_order());
 }
 
 } with {

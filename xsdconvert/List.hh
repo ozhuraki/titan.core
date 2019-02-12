@@ -151,6 +151,8 @@ public:
    * Pushes element at the front of the list
    */
   void push_front(const T & element);
+  
+  void insert_after(const T & new_element, const T & ref_element);
 
   /**
    * Removes the final element in the list
@@ -373,6 +375,29 @@ void List<T>::push_front(const T & element) {
   }
 
   ++Size;
+}
+
+template <class T>
+void List<T>::insert_after(const T & new_element, const T & ref_element) {
+  for (Item<T>* ref_node = First; ref_node; ref_node = ref_node->Next) {
+    if (ref_node->Data == ref_element) {
+      Item<T> * new_node = new Item<T>;
+      new_node->Data = new_element;
+      new_node->Prev = ref_node;
+      
+      Item<T>* next_node = ref_node->Next;
+      ref_node->Next = new_node;
+      new_node->Next = next_node;
+      if (next_node != NULL) {
+        next_node->Prev = new_node;
+      }
+      if (Last == ref_node) {
+        Last = new_node;
+      }
+      ++Size;
+      return;
+    }
+  }
 }
 
 template <class T>

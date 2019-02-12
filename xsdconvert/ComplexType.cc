@@ -1826,23 +1826,27 @@ void ComplexType::resolveGroup() {
       addNameSpaceas = true;
     }
     if (ct->getXsdtype() == n_sequence && getMinOccurs() == 1 && getMaxOccurs() == 1 && (parent->getXsdtype() == n_complexType || parent->getXsdtype() == n_sequence)) {
+      ComplexType* insertion_point = this;
       for (List<ComplexType*>::iterator c = ct->complexfields.begin(); c; c = c->Next) {
         ComplexType * newField = new ComplexType(*c->Data);
-        parent->complexfields.push_back(newField);
+        parent->complexfields.insert_after(newField, insertion_point);
+        insertion_point = newField;
         setParent(parent, newField);
-        parent->complexfields.back()->setModule(getModule());
+        newField->setModule(getModule());
         if (addNameSpaceas) {
-          parent->complexfields.back()->addVariant(V_namespaceAs, ct->getModule()->getTargetNamespace());
+          newField->addVariant(V_namespaceAs, ct->getModule()->getTargetNamespace());
         }
       }
     } else if (ct->getXsdtype() == n_all) {
       //If the parent optional, then every field is optional
+      ComplexType* insertion_point = this;
       for (List<ComplexType*>::iterator c = ct->complexfields.begin(); c; c = c->Next) {
         ComplexType* f = new ComplexType(*c->Data);
         if (getMinOccurs() == 0 && !f->enumerated) {
           f->isOptional = true;
         }
-        ((ComplexType*) parent)->complexfields.push_back(f);
+        ((ComplexType*) parent)->complexfields.insert_after(f, insertion_point);
+        insertion_point = f;
         setParent(parent, f);
         f->setModule(getModule());
         if (addNameSpaceas) {

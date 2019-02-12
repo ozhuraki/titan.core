@@ -150,6 +150,7 @@
                 <File path="../xsd/name_clashes_and_references_A.xsd" />
                 <File path="../xsd/name_clashes_and_references_B.xsd" />
                 <File path="../xsd/name_clashes_and_references_C.xsd" />
+                <File path="../xsd/Bug537922.xsd" />
 		<File path="../xsd/simpletype_base.xsd" />
 		<File path="../xsd/type_substitution.xsd" />
 		<File path="../xsd/type_substitution_chain.xsd" />
@@ -397,6 +398,7 @@
 		<File path="../XmlTest_expectedTtcns/www_example_org_substitutiongroup_main_e.ttcn" />
 		<File path="../XmlTest_expectedTtcns/XSD_Definitions_e.ttcn" />
 		<File path="../XmlTest_expectedTtcns/XSD_Definitions_e2.ttcn" />
+		<File path="../XmlTest_expectedTtcns/www_example_org_bug537922_e.ttcn" />
 	        <File path="../XmlTest_expectedTtcns/www_example_org_simpletype_base_e.ttcn" />
 	        <File path="../XmlTest_expectedTtcns/www_example_org_type_substitution_e.ttcn" />
 	        <File path="../XmlTest_expectedTtcns/www_example_org_type_substitution_chain_e.ttcn" />
