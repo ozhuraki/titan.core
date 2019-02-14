@@ -1399,10 +1399,45 @@ Differences from the new method:
 * each codec has its own rules for defining `encode` and `variant` attributes;
 * a type can only have one `encode` attribute (if more than one is defined, then only the last one is considered), however, it can have `variant` attributes that belong to other codecs (this can make determining the default codec tricky);
 * ASN.1 types automatically have `BER`, `JSON`, `PER` (see section <<PER-encoding, PER encoding and decoding through user defined functions>>), and `XML` (if the compiler option -a is set) encoding, however the method of setting a default codec (for the predefined functions `encvalue`, `decvalue`, `encvalue_unichar`, `decvalue_unichar`, for `decmatch` templates, and for the `@decoded` modifier) is different (see section <<setting-the-default-codec-for-asn-1-types, Setting the default codec for ASN.1 types>>);
-* encoding-specific `variant` attributes are not supported(e.g.: `variant "XML"."untagged"`);
+* encoding-specific `variant` attributes are not supported (e.g.: `variant "XML"."untagged"`);
 * the parameters `encoding_info/decoding_info` and `dynamic_encoding` of predefined functions `encvalue`, `decvalue`, `encvalue_unichar` and `decvalue_unichar` are ignored;
 * the `setencode` operation is not supported;
-* the  @local` modifier is not supported.
+* the `@local` modifier is not supported.
+* the TTCN-3 language elements that automatically encode or decode (i.e. predefined functions `encvalue`, `decvalue`, `encvalue_unichar` and `decvalue_unichar`, `decmatch` templates, and value and parameter redirects with the `@decoded` modifier) ignore the `encode` and `variant` attributes in reference types and encode/decode values as if they were values of the base type (only the base type's `encode` and `variant` attributes are in effect in these cases). Encoder and decoder external functions take all of the type's attributes into account. For example:
+
+[source]
+----
+type record BaseType {
+  integer field1,
+  charstring field2
+}
+with {
+  encode "XML";
+  variant "name as uncapitalized";
+}
+
+type BaseType ReferenceType
+with {
+  encode "XML";
+  variant "name as uncapitalized";
+}
+
+external function f_enc(in ReferenceType x) return octetstring
+  with { extension "prototype(convert) encode(XER:XER_EXTENDED)" }
+
+function f() {
+  var ReferenceType val := { field1 := 3, field2 := "abc" };
+  
+  var charstring res1 := oct2char(bit2oct(encvalue(val)));
+  // "<baseType>\n\t<field>3</field>\n</baseType>\n\n"
+  // it's encoded as if it were a value of type 'BaseType',
+  // the name and attributes of type 'ReferenceType' are ignored
+  
+  var charstring res2 := oct2char(f_enc(val));
+  // "<referenceType>\n\t<field>3</field>\n</referenceType>\n\n"
+  // it's encoded correctly, as a value of type 'ReferenceType'
+}
+----
 
 The differences from the TTCN-3 standard listed in the previous section also apply to the legacy method.
 
