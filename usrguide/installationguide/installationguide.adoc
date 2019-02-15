@@ -349,7 +349,7 @@ The last line of the printout indicates the success or the problems with the lic
 If a host-limited key is needed, perform it in the same way but do it as system administrator. Copy it into a common directory, for example `$TTCN3_DIR/etc`, and set `TTCN3_LICENSE_FILE` in the common login script of all users, for example, in `/etc/profile`.
 
 = References
-
-* link:https://github.com/eclipse/titan.core/blob/master/usrguide/userguide/[User Guide for TITAN TTCN-3 Test Executor]
-
-* link:https://github.com/eclipse/titan.core/blob/master/usrguide/referenceguide/[Programmers Technical Reference for TITAN TTCN-3 Test Executor]
+[[_1]]
+* [1] link:https://github.com/eclipse/titan.core/blob/master/usrguide/userguide/UserGuide.adoc[User Guide for TITAN TTCN-3 Test Executor]
+[[_2]]
+* [2] link:https://github.com/eclipse/titan.core/blob/master/usrguide/referenceguide/ReferenceGuide.adoc[Programmers Technical Reference for TITAN TTCN-3 Test Executor]

@@ -1,8 +1,10 @@
 = References
 
-1. link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187301/04.05.01_60/es_20187301v040501p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 1: Core Language European Telecommunications Standards Institute ES 201 873-1 Version 4.5.1, April 2013]
+[[_1]]
+* [1] link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187301/04.05.01_60/es_20187301v040501p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 1: Core Language European Telecommunications Standards Institute ES 201 873-1 Version 4.5.1, April 2013]
 
-2. Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 4: TTCN–3 Operational SemanticsEuropean Telecommunications Standards Institute. ES 201 873-4 Version 4.4.1, April 2012
+[[_2]]
+* [2] link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187304/04.01.01_60/es_20187304v040101p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 4: TTCN–3 Operational SemanticsEuropean Telecommunications Standards Institute. ES 201 873-4 Version 4.1.1, June 2009]
 
 3. link:https://pdfs.semanticscholar.org/33b5/877c85f7fd4f35c7f58c39121358c3652966.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 7: Using ASN.1 with TTCN–3 European Telecommunications Standards Institute. ES 201 873-7 Version 4.5.1, April 2013]
 
@@ -18,13 +20,13 @@
 
 9. link:https://tools.ietf.org/html/rfc3629[RFC3629: UTF-8, a transformation format of ISO 10646]
 
-10. link:https://github.com/eclipse/titan.core/blob/master/usrguide/userguide/[User Guide for TITAN TTCN-3 Test Executor]
+10. link:https://github.com/eclipse/titan.core/blob/master/usrguide/userguide/UserGuide.adoc[User Guide for TITAN TTCN-3 Test Executor]
 
-11. link:https://github.com/eclipse/titan.core/blob/master/usrguide/installationguide/[Installation guide for TITAN TTCN-3 Test Executor]
+11. link:https://github.com/eclipse/titan.core/blob/master/usrguide/installationguide/installationguide.adoc/[Installation guide for TITAN TTCN-3 Test Executor]
 
-12. link:https://github.com/eclipse/titan.core/blob/master/usrguide/releasenotes/[Release Notes for TITAN TTCN-3 Test Executor]
+12. link:https://github.com/eclipse/titan.core/blob/master/usrguide/releasenotes/releasenotes.adoc[Release Notes for TITAN TTCN-3 Test Executor]
 
-13. link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[Technical Reference for TITAN TTCN-3 Test Executor]
+13. link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide/ReferenceGuide.adoc[Technical Reference for TITAN TTCN-3 Test Executor]
 
 14. link:http://tldp.org/HOWTO/Program-Library-HOWTO/index.html[David A. Wheeler, Program Library HOWTO]
 
