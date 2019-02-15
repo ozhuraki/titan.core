@@ -112,66 +112,46 @@ Action: 1
 <END_TC>
 :exmp.
 
-. // FIXME
-..*---------------------------------------------------------------------*
-.:h4. Fuzzy variable - as function formal parameter - from default parameter 1
-..*---------------------------------------------------------------------*
-.:xmp tab=0.
-.
-.<TC - Fuzzy variable - as function formal parameter - from default parameter 1>
-.<EXECUTE>
-.<VERDICT_LEAF PASS>
-.<MODULE TTCN Temp Temp.ttcn>
-.module Temp {
-.
-.    type component C { var integer CV_I := 0 } // CV_I component variable - integer
-.
-.    function F1() runs on C return integer { // for fuzzy
-.        CV_I := CV_I + 1;
-.        return CV_I;
-.    }
-.
-.    function F2(in @fuzzy integer FFP_I := F1()) runs on C { // FFP_I formal fuzzy parameter - integer
-.        action(FFP_I);  // 1
-.        action(FFP_I);  // 2
-.        action(FFP_I);  // 3
-.    }
-.
-.    testcase T() runs on C {
-.        F2();
-.        setverdict(pass);
-.    }
-.
-.control
-.{
-.  execute(T());
-.}
-.}
-.<END_MODULE>
-.<MODULE CFG Temp Temp.cfg>
-.[MODULE_PARAMETERS]
-.[LOGGING]
-.LogSourceInfo := Yes
-.Logfile := "Temp%i.log"
-.LogFileSize := 10
-.LogFileNumber := 10
-.DiskFullAction := error
-.FileMask := LOG_ALL
-.ConsoleMask := LOG_ALL | WARNING | ERROR | TESTCASE | STATISTICS
-.[EXECUTE]
-.Temp
-.<END_MODULE>
-.<RESULT IF_PASS COUNT 1>
-.Action: 1
-.<END_RESULT>
-.<RESULT IF_PASS COUNT 1>
-.Action: 2
-.<END_RESULT>
-.<RESULT IF_PASS COUNT 1>
-.Action: 3
-.<END_RESULT>
-.<END_TC>
-.:exmp.
+.*---------------------------------------------------------------------*
+:h4. Fuzzy variable - as function formal parameter - from default parameter 1
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - Fuzzy variable - as function formal parameter - from default parameter 1>
+<COMPILE>
+<VERDICT_LEAF PASS>
+<MODULE TTCN Temp Temp.ttcn>
+module Temp {
+
+    type component C { var integer CV_I := 0 } // CV_I component variable - integer
+
+    function F1() runs on C return integer { // for fuzzy
+        CV_I := CV_I + 1;
+        return CV_I;
+    }
+
+    function F2(in @fuzzy integer FFP_I := F1()) runs on C { // FFP_I formal fuzzy parameter - integer
+        action(FFP_I);  // 1
+        action(FFP_I);  // 2
+        action(FFP_I);  // 3
+    }
+
+    testcase T() runs on C {
+        F2();
+        setverdict(pass);
+    }
+
+control
+{
+  execute(T());
+}
+}
+<END_MODULE>
+<RESULT IF_PASS COUNT 1>
+Reference to a static value was expected instead of the return value of function
+<END_RESULT>
+<END_TC>
+:exmp.
 
 .*---------------------------------------------------------------------*
 :h4. Fuzzy variable - as function formal parameter - from default parameter 2
@@ -287,116 +267,82 @@ Action: 3
 <END_TC>
 :exmp.
 
-. // FIXME
-..*---------------------------------------------------------------------*
-.:h4. Fuzzy variable - as function formal parameter - override default parameter 2
-..*---------------------------------------------------------------------*
-.:xmp tab=0.
-.
-.<TC - Fuzzy variable - as function formal parameter - override default parameter 2>
-.<EXECUTE>
-.<VERDICT_LEAF PASS>
-.<MODULE TTCN Temp Temp.ttcn>
-.module Temp {
-.
-.    type component C { var integer CV_I := 0 } // CV_I component variable - integer
-.
-.    function F1() runs on C return integer { // for fuzzy
-.        CV_I := CV_I + 1;
-.        return CV_I;
-.    }
-.
-.    function F2(in @fuzzy integer FFP_I := F1()) runs on C { // FFP_I formal fuzzy parameter - integer
-.        action(FFP_I);
-.        action(FFP_I);
-.        action(FFP_I);
-.    }
-.
-.    testcase T() runs on C {
-.        F2(1);
-.        setverdict(pass);
-.    }
-.
-.control
-.{
-.  execute(T());
-.}
-.}
-.<END_MODULE>
-.<MODULE CFG Temp Temp.cfg>
-.[MODULE_PARAMETERS]
-.[LOGGING]
-.LogSourceInfo := Yes
-.Logfile := "Temp%i.log"
-.LogFileSize := 10
-.LogFileNumber := 10
-.DiskFullAction := error
-.FileMask := LOG_ALL
-.ConsoleMask := LOG_ALL | WARNING | ERROR | TESTCASE | STATISTICS
-.[EXECUTE]
-.Temp
-.<END_MODULE>
-.<RESULT IF_PASS COUNT 3>
-.Action: 1
-.<END_RESULT>
-.<END_TC>
-.:exmp.
+.*---------------------------------------------------------------------*
+:h4. Fuzzy variable - as function formal parameter - override default parameter 2
+.*---------------------------------------------------------------------*
+:xmp tab=0.
 
-. // FIXME
-..*---------------------------------------------------------------------*
-.:h4. Fuzzy variable - as testcase formal parameter - from caller 1
-..*---------------------------------------------------------------------*
-.:xmp tab=0.
-.
-.<TC - Fuzzy variable - as testcase formal parameter - from caller 1>
-.<EXECUTE>
-.<VERDICT_LEAF PASS>
-.<MODULE TTCN Temp Temp.ttcn>
-.module Temp {
-.
-.    type component C { var integer CV_I := 0 } // CV_I component variable - integer
-.
-.    function F() runs on C return integer { // for fuzzy
-.        CV_I := CV_I + 1;
-.        return CV_I;
-.    }
-.
-.    testcase T(in @fuzzy integer FFP_I) runs on C { // FFP_I formal fuzzy parameter - integer
-.        action(FFP_I);  // 1
-.        action(FFP_I);  // 2
-.        action(FFP_I);  // 3
-.    }
-.
-.control
-.{
-.  execute(T(F()));
-.}
-.}
-.<END_MODULE>
-.<MODULE CFG Temp Temp.cfg>
-.[MODULE_PARAMETERS]
-.[LOGGING]
-.LogSourceInfo := Yes
-.Logfile := "Temp%i.log"
-.LogFileSize := 10
-.LogFileNumber := 10
-.DiskFullAction := error
-.FileMask := LOG_ALL
-.ConsoleMask := LOG_ALL | WARNING | ERROR | TESTCASE | STATISTICS
-.[EXECUTE]
-.Temp
-.<END_MODULE>
-.<RESULT IF_PASS COUNT 1>
-.Action: 1
-.<END_RESULT>
-.<RESULT IF_PASS COUNT 1>
-.Action: 2
-.<END_RESULT>
-.<RESULT IF_PASS COUNT 1>
-.Action: 3
-.<END_RESULT>
-.<END_TC>
-.:exmp.
+<TC - Fuzzy variable - as function formal parameter - override default parameter 2>
+<COMPILE>
+<VERDICT_LEAF PASS>
+<MODULE TTCN Temp Temp.ttcn>
+module Temp {
+
+    type component C { var integer CV_I := 0 } // CV_I component variable - integer
+
+    function F1() runs on C return integer { // for fuzzy
+        CV_I := CV_I + 1;
+        return CV_I;
+    }
+
+    function F2(in @fuzzy integer FFP_I := F1()) runs on C { // FFP_I formal fuzzy parameter - integer
+        action(FFP_I);
+        action(FFP_I);
+        action(FFP_I);
+    }
+
+    testcase T() runs on C {
+        F2(1);
+        setverdict(pass);
+    }
+
+control
+{
+  execute(T());
+}
+}
+<END_MODULE>
+<RESULT IF_PASS COUNT 1>
+Reference to a static value was expected instead of the return value of function
+<END_RESULT>
+<END_TC>
+:exmp.
+
+.*---------------------------------------------------------------------*
+:h4. Fuzzy variable - as testcase formal parameter - from caller 1
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - Fuzzy variable - as testcase formal parameter - from caller 1>
+<COMPILE>
+<VERDICT_LEAF PASS>
+<MODULE TTCN Temp Temp.ttcn>
+module Temp {
+
+    type component C { var integer CV_I := 0 } // CV_I component variable - integer
+
+    function F() runs on C return integer { // for fuzzy
+        CV_I := CV_I + 1;
+        return CV_I;
+    }
+
+    testcase T(in @fuzzy integer FFP_I) runs on C { // FFP_I formal fuzzy parameter - integer
+        action(FFP_I);  // 1
+        action(FFP_I);  // 2
+        action(FFP_I);  // 3
+    }
+
+control
+{
+  execute(T(F()));
+}
+}
+<END_MODULE>
+<RESULT IF_PASS COUNT 1>
+A definition without `runs on' clause cannot call function .*, which runs on component type
+<END_RESULT>
+<END_TC>
+:exmp.
 
 .*---------------------------------------------------------------------*
 :h4. Fuzzy variable - as testcase formal parameter - from caller 2
@@ -447,217 +393,162 @@ Action: 1
 <END_TC>
 :exmp.
 
-. // FIXME
-..*---------------------------------------------------------------------*
-.:h4. Fuzzy variable - as testcase formal parameter - from default parameter 1
-..*---------------------------------------------------------------------*
-.:xmp tab=0.
-.
-.<TC - Fuzzy variable - as testcase formal parameter - from default parameter 1>
-.<EXECUTE>
-.<VERDICT_LEAF PASS>
-.<MODULE TTCN Temp Temp.ttcn>
-.module Temp {
-.
-.    type component C { var integer CV_I := 0 } // CV_I component variable - integer
-.
-.    function F() runs on C return integer { // for fuzzy
-.        CV_I := CV_I + 1;
-.        return CV_I;
-.    }
-.
-.    testcase T(in @fuzzy integer FFP_I := F()) runs on C { // FFP_I formal fuzzy parameter - integer
-.        action(FFP_I);  // 1
-.        action(FFP_I);  // 2
-.        action(FFP_I);  // 3
-.    }
-.
-.control
-.{
-.  execute(T());
-.}
-.}
-.<END_MODULE>
-.<MODULE CFG Temp Temp.cfg>
-.[MODULE_PARAMETERS]
-.[LOGGING]
-.LogSourceInfo := Yes
-.Logfile := "Temp%i.log"
-.LogFileSize := 10
-.LogFileNumber := 10
-.DiskFullAction := error
-.FileMask := LOG_ALL
-.ConsoleMask := LOG_ALL | WARNING | ERROR | TESTCASE | STATISTICS
-.[EXECUTE]
-.Temp
-.<END_MODULE>
-.<RESULT IF_PASS COUNT 1>
-.Action: 1
-.<END_RESULT>
-.<RESULT IF_PASS COUNT 1>
-.Action: 2
-.<END_RESULT>
-.<RESULT IF_PASS COUNT 1>
-.Action: 3
-.<END_RESULT>
-.<END_TC>
-.:exmp.
+.*---------------------------------------------------------------------*
+:h4. Fuzzy variable - as testcase formal parameter - from default parameter 1
+.*---------------------------------------------------------------------*
+:xmp tab=0.
 
-. // FIXME
-..*---------------------------------------------------------------------*
-.:h4. Fuzzy variable - as testcase formal parameter - from default parameter 2
-..*---------------------------------------------------------------------*
-.:xmp tab=0.
-.
-.<TC - Fuzzy variable - as testcase formal parameter - from default parameter 2>
-.<EXECUTE>
-.<VERDICT_LEAF PASS>
-.<MODULE TTCN Temp Temp.ttcn>
-.module Temp {
-.
-.    type component C { var integer CV_I := 0 } // CV_I component variable - integer
-.
-.    function F() runs on C return integer { // for fuzzy
-.        CV_I := CV_I + 1;
-.        return CV_I;
-.    }
-.
-.    testcase T(in @fuzzy integer FFP_I := 1) runs on C { // FFP_I formal fuzzy parameter - integer
-.        action(FFP_I);  // 1
-.        action(FFP_I);  // 1
-.        action(FFP_I);  // 1
-.    }
-.
-.control
-.{
-.  execute(T());
-.}
-.}
-.<END_MODULE>
-.<MODULE CFG Temp Temp.cfg>
-.[MODULE_PARAMETERS]
-.[LOGGING]
-.LogSourceInfo := Yes
-.Logfile := "Temp%i.log"
-.LogFileSize := 10
-.LogFileNumber := 10
-.DiskFullAction := error
-.FileMask := LOG_ALL
-.ConsoleMask := LOG_ALL | WARNING | ERROR | TESTCASE | STATISTICS
-.[EXECUTE]
-.Temp
-.<END_MODULE>
-.<RESULT IF_PASS COUNT 3>
-.Action: 1
-.<END_RESULT>
-.<END_TC>
-.:exmp.
+<TC - Fuzzy variable - as testcase formal parameter - from default parameter 1>
+<COMPILE>
+<VERDICT_LEAF PASS>
+<MODULE TTCN Temp Temp.ttcn>
+module Temp {
 
-. // FIXME
-..*---------------------------------------------------------------------*
-.:h4. Fuzzy variable - as testcase formal parameter - override default parameter 1
-..*---------------------------------------------------------------------*
-.:xmp tab=0.
-.
-.<TC - Fuzzy variable - as testcase formal parameter - override default parameter 1>
-.<EXECUTE>
-.<VERDICT_LEAF PASS>
-.<MODULE TTCN Temp Temp.ttcn>
-.module Temp {
-.
-.    type component C { var integer CV_I := 0 } // CV_I component variable - integer
-.
-.    function F() runs on C return integer { // for fuzzy
-.        CV_I := CV_I + 1;
-.        return CV_I;
-.    }
-.
-.    testcase T(in @fuzzy integer FFP_I := 1) runs on C { // FFP_I formal fuzzy parameter - integer
-.        action(FFP_I);
-.        action(FFP_I);
-.        action(FFP_I);
-.    }
-.
-.control
-.{
-.  execute(T(F()));
-.}
-.}
-.<END_MODULE>
-.<MODULE CFG Temp Temp.cfg>
-.[MODULE_PARAMETERS]
-.[LOGGING]
-.LogSourceInfo := Yes
-.Logfile := "Temp%i.log"
-.LogFileSize := 10
-.LogFileNumber := 10
-.DiskFullAction := error
-.FileMask := LOG_ALL
-.ConsoleMask := LOG_ALL | WARNING | ERROR | TESTCASE | STATISTICS
-.[EXECUTE]
-.Temp
-.<END_MODULE>
-.<RESULT IF_PASS COUNT 1>
-.Action: 1
-.<END_RESULT>
-.<RESULT IF_PASS COUNT 1>
-.Action: 2
-.<END_RESULT>
-.<RESULT IF_PASS COUNT 1>
-.Action: 3
-.<END_RESULT>
-.<END_TC>
-.:exmp.
+    type component C { var integer CV_I := 0 } // CV_I component variable - integer
 
-. // FIXME
-..*---------------------------------------------------------------------*
-.:h4. Fuzzy variable - as testcase formal parameter - override default parameter 2
-..*---------------------------------------------------------------------*
-.:xmp tab=0.
-.
-.<TC - Fuzzy variable - as testcase formal parameter - override default parameter 2>
-.<EXECUTE>
-.<VERDICT_LEAF PASS>
-.<MODULE TTCN Temp Temp.ttcn>
-.module Temp {
-.
-.    type component C { var integer CV_I := 0 } // CV_I component variable - integer
-.
-.    function F() runs on C return integer { // for fuzzy
-.        CV_I := CV_I + 1;
-.        return CV_I;
-.    }
-.
-.    testcase T(in @fuzzy integer FFP_I := F()) runs on C { // FFP_I formal fuzzy parameter - integer
-.        action(FFP_I);
-.        action(FFP_I);
-.        action(FFP_I);
-.    }
-.
-.control
-.{
-.  execute(T(1));
-.}
-.}
-.<END_MODULE>
-.<MODULE CFG Temp Temp.cfg>
-.[MODULE_PARAMETERS]
-.[LOGGING]
-.LogSourceInfo := Yes
-.Logfile := "Temp%i.log"
-.LogFileSize := 10
-.LogFileNumber := 10
-.DiskFullAction := error
-.FileMask := LOG_ALL
-.ConsoleMask := LOG_ALL | WARNING | ERROR | TESTCASE | STATISTICS
-.[EXECUTE]
-.Temp
-.<END_MODULE>
-.<RESULT IF_PASS COUNT 3>
-.Action: 1
-.<END_RESULT>
-.<END_TC>
-.:exmp.
+    function F() runs on C return integer { // for fuzzy
+        CV_I := CV_I + 1;
+        return CV_I;
+    }
+
+    testcase T(in @fuzzy integer FFP_I := F()) runs on C { // FFP_I formal fuzzy parameter - integer
+        action(FFP_I);  // 1
+        action(FFP_I);  // 2
+        action(FFP_I);  // 3
+    }
+
+control
+{
+  execute(T());
+}
+}
+<END_MODULE>
+<RESULT IF_PASS COUNT 1>
+Reference to a static value was expected instead of the return value of function
+<END_RESULT>
+<END_TC>
+:exmp.
+
+.*---------------------------------------------------------------------*
+:h4. Fuzzy variable - as testcase formal parameter - from default parameter 2
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - Fuzzy variable - as testcase formal parameter - from default parameter 2>
+<EXECUTE>
+<VERDICT_LEAF PASS>
+<MODULE TTCN Temp Temp.ttcn>
+module Temp {
+
+    type component C { var integer CV_I := 0 } // CV_I component variable - integer
+
+    function F() runs on C return integer { // for fuzzy
+        CV_I := CV_I + 1;
+        return CV_I;
+    }
+
+    testcase T(in @fuzzy integer FFP_I := 1) runs on C { // FFP_I formal fuzzy parameter - integer
+        action(FFP_I);  // 1
+        action(FFP_I);  // 1
+        action(FFP_I);  // 1
+    }
+
+control
+{
+  execute(T());
+}
+}
+<END_MODULE>
+<MODULE CFG Temp Temp.cfg>
+[MODULE_PARAMETERS]
+[LOGGING]
+LogSourceInfo := Yes
+Logfile := "Temp%i.log"
+LogFileSize := 10
+LogFileNumber := 10
+DiskFullAction := error
+FileMask := LOG_ALL
+ConsoleMask := LOG_ALL | WARNING | ERROR | TESTCASE | STATISTICS
+[EXECUTE]
+Temp
+<END_MODULE>
+<RESULT IF_PASS COUNT 3>
+Action: 1
+<END_RESULT>
+<END_TC>
+:exmp.
+
+.*---------------------------------------------------------------------*
+:h4. Fuzzy variable - as testcase formal parameter - override default parameter 1
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - Fuzzy variable - as testcase formal parameter - override default parameter 1>
+<COMPILE>
+<VERDICT_LEAF PASS>
+<MODULE TTCN Temp Temp.ttcn>
+module Temp {
+
+    type component C { var integer CV_I := 0 } // CV_I component variable - integer
+
+    function F() runs on C return integer { // for fuzzy
+        CV_I := CV_I + 1;
+        return CV_I;
+    }
+
+    testcase T(in @fuzzy integer FFP_I := 1) runs on C { // FFP_I formal fuzzy parameter - integer
+        action(FFP_I);
+        action(FFP_I);
+        action(FFP_I);
+    }
+
+control
+{
+  execute(T(F()));
+}
+}
+<END_MODULE>
+<RESULT IF_PASS COUNT 1>
+A definition without `runs on' clause cannot call function .*, which runs on component type
+<END_RESULT>
+<END_TC>
+:exmp.
+
+.*---------------------------------------------------------------------*
+:h4. Fuzzy variable - as testcase formal parameter - override default parameter 2
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - Fuzzy variable - as testcase formal parameter - override default parameter 2>
+<COMPILE>
+<VERDICT_LEAF PASS>
+<MODULE TTCN Temp Temp.ttcn>
+module Temp {
+
+    type component C { var integer CV_I := 0 } // CV_I component variable - integer
+
+    function F() runs on C return integer { // for fuzzy
+        CV_I := CV_I + 1;
+        return CV_I;
+    }
+
+    testcase T(in @fuzzy integer FFP_I := F()) runs on C { // FFP_I formal fuzzy parameter - integer
+        action(FFP_I);
+        action(FFP_I);
+        action(FFP_I);
+    }
+
+control
+{
+  execute(T(1));
+}
+}
+<END_MODULE>
+<RESULT IF_PASS COUNT 1>
+Reference to a static value was expected instead of the return value of function
+<END_RESULT>
+<END_TC>
+:exmp.
 
 .*---------------------------------------------------------------------*
 :h4. Fuzzy variable - as altstep formal parameter - from caller 1
@@ -788,73 +679,53 @@ Action: 1
 :exmp.
 
 
-. // FIXME
-..*---------------------------------------------------------------------*
-.:h4. Fuzzy variable - as altstep formal parameter - override default parameter 1
-..*---------------------------------------------------------------------*
-.:xmp tab=0.
-.
-.<TC - Fuzzy variable - as altstep formal parameter - override default parameter 1>
-.<EXECUTE>
-.<VERDICT_LEAF PASS>
-.<MODULE TTCN Temp Temp.ttcn>
-.module Temp {
-.
-.    type port P message { inout integer }
-.
-.    type component C { var integer CV_I := 0; port P p } // CV_I component variable - integer
-.
-.    function F() runs on C return integer { // for fuzzy
-.        CV_I := CV_I + 1;
-.        return CV_I;
-.    }
-.
-.    altstep A(in @fuzzy integer FFP_I := F()) runs on C { // FFP_I formal fuzzy parameter - integer
-.        [] p.receive(integer: ?) {
-.            action(FFP_I);
-.            action(FFP_I);
-.            action(FFP_I);
-.        }
-.    }
-.
-.    testcase T() runs on C {
-.        connect(self:p, self:p);
-.        p.send(1);
-.        alt {
-.            [] A(1)
-.        }
-.    }
-.
-.control
-.{
-.  execute(T());
-.}
-.}
-.<END_MODULE>
-.<MODULE CFG Temp Temp.cfg>
-.[MODULE_PARAMETERS]
-.[LOGGING]
-.LogSourceInfo := Yes
-.Logfile := "Temp%i.log"
-.LogFileSize := 10
-.LogFileNumber := 10
-.DiskFullAction := error
-.FileMask := LOG_ALL
-.ConsoleMask := LOG_ALL | WARNING | ERROR | TESTCASE | STATISTICS
-.[EXECUTE]
-.Temp
-.<END_MODULE>
-.<RESULT IF_PASS COUNT 1>
-.Action: 1
-.<END_RESULT>
-.<RESULT IF_PASS COUNT 1>
-.Action: 2
-.<END_RESULT>
-.<RESULT IF_PASS COUNT 1>
-.Action: 3
-.<END_RESULT>
-.<END_TC>
-.:exmp.
+.*---------------------------------------------------------------------*
+:h4. Fuzzy variable - as altstep formal parameter - override default parameter 1
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - Fuzzy variable - as altstep formal parameter - override default parameter 1>
+<COMPILE>
+<VERDICT_LEAF PASS>
+<MODULE TTCN Temp Temp.ttcn>
+module Temp {
+
+    type port P message { inout integer }
+
+    type component C { var integer CV_I := 0; port P p } // CV_I component variable - integer
+
+    function F() runs on C return integer { // for fuzzy
+        CV_I := CV_I + 1;
+        return CV_I;
+    }
+
+    altstep A(in @fuzzy integer FFP_I := F()) runs on C { // FFP_I formal fuzzy parameter - integer
+        [] p.receive(integer: ?) {
+            action(FFP_I);
+            action(FFP_I);
+            action(FFP_I);
+        }
+    }
+
+    testcase T() runs on C {
+        connect(self:p, self:p);
+        p.send(1);
+        alt {
+            [] A(1)
+        }
+    }
+
+control
+{
+  execute(T());
+}
+}
+<END_MODULE>
+<RESULT IF_PASS COUNT 1>
+Reference to a static value was expected instead of the return value of function
+<END_RESULT>
+<END_TC>
+:exmp.
 
 .*---------------------------------------------------------------------*
 :h4. Fuzzy variable - as altstep formal parameter - override default parameter 2
@@ -923,130 +794,96 @@ Action: 3
 <END_TC>
 :exmp.
 
-. // FIXME
-..*---------------------------------------------------------------------*
-.:h4. Fuzzy variable - as altstep formal parameter - from caller 1 - activate
-..*---------------------------------------------------------------------*
-.:xmp tab=0.
-.
-.<TC - Fuzzy variable - as altstep formal parameter - from caller 1 - activate>
-.<EXECUTE>
-.<VERDICT_LEAF PASS>
-.<MODULE TTCN Temp Temp.ttcn>
-.module Temp {
-.
-.    type port P message { inout integer }
-.
-.    type component C { var integer CV_I := 0; port P p } // CV_I component variable - integer
-.
-.    function F() runs on C return integer { // for fuzzy
-.        CV_I := CV_I + 1;
-.        return CV_I;
-.    }
-.
-.    altstep A(in @fuzzy integer FFP_I) runs on C { // FFP_I formal fuzzy parameter - integer
-.        [] p.receive(integer: ?) {
-.            action(FFP_I);
-.            action(FFP_I);
-.            action(FFP_I);
-.        }
-.    }
-.
-.    testcase T() runs on C {
-.        var default VD := activate(A(F()));
-.        connect(self:p, self:p);
-.        p.send(1);
-.        p.receive(3);
-.    }
-.
-.control
-.{
-.  execute(T());
-.}
-.}
-.<END_MODULE>
-.<MODULE CFG Temp Temp.cfg>
-.[MODULE_PARAMETERS]
-.[LOGGING]
-.LogSourceInfo := Yes
-.Logfile := "Temp%i.log"
-.LogFileSize := 10
-.LogFileNumber := 10
-.DiskFullAction := error
-.FileMask := LOG_ALL
-.ConsoleMask := LOG_ALL | WARNING | ERROR | TESTCASE | STATISTICS
-.[EXECUTE]
-.Temp
-.<END_MODULE>
-.<RESULT IF_PASS COUNT 1>
-.Action: 1
-.<END_RESULT>
-.<RESULT IF_PASS COUNT 1>
-.Action: 2
-.<END_RESULT>
-.<RESULT IF_PASS COUNT 1>
-.Action: 3
-.<END_RESULT>
-.<END_TC>
-.:exmp.
+.*---------------------------------------------------------------------*
+:h4. Fuzzy variable - as altstep formal parameter - from caller 1 - activate
+.*---------------------------------------------------------------------*
+:xmp tab=0.
 
-. // FIXME
-..*---------------------------------------------------------------------*
-.:h4. Fuzzy variable - as altstep formal parameter - from caller 2 - activate
-..*---------------------------------------------------------------------*
-.:xmp tab=0.
-.
-.<TC - Fuzzy variable - as altstep formal parameter - from caller 2 - activate>
-.<EXECUTE>
-.<VERDICT_LEAF PASS>
-.<MODULE TTCN Temp Temp.ttcn>
-.module Temp {
-.
-.    type port P message { inout integer }
-.
-.    type component C { var integer CV_I := 0; port P p } // CV_I component variable - integer
-.
-.    function F() runs on C return integer { // for fuzzy
-.        CV_I := CV_I + 1;
-.        return CV_I;
-.    }
-.
-.    altstep A(in @fuzzy integer FFP_I) runs on C { // FFP_I formal fuzzy parameter - integer
-.        [] p.receive(integer: ?) {
-.            action(FFP_I);
-.            action(FFP_I);
-.            action(FFP_I);
-.        }
-.    }
-.
-.    testcase T() runs on C {
-.        var default VD := activate(A(1));
-.        connect(self:p, self:p);
-.        p.send(1);
-.        p.receive(3);
-.    }
-.
-.control
-.{
-.  execute(T());
-.}
-.}
-.<END_MODULE>
-.<MODULE CFG Temp Temp.cfg>
-.[MODULE_PARAMETERS]
-.[LOGGING]
-.LogSourceInfo := Yes
-.Logfile := "Temp%i.log"
-.LogFileSize := 10
-.LogFileNumber := 10
-.DiskFullAction := error
-.FileMask := LOG_ALL
-.ConsoleMask := LOG_ALL | WARNING | ERROR | TESTCASE | STATISTICS
-.[EXECUTE]
-.Temp
-.<END_MODULE>
-.<RESULT IF_PASS COUNT 3>
-.Action: 1
-.<END_RESULT>
-.<END_TC>
-.:exmp.
+<TC - Fuzzy variable - as altstep formal parameter - from caller 1 - activate>
+<COMPILE>
+<VERDICT_LEAF PASS>
+<MODULE TTCN Temp Temp.ttcn>
+module Temp {
+
+    type port P message { inout integer }
+
+    type component C { var integer CV_I := 0; port P p } // CV_I component variable - integer
+
+    function F() runs on C return integer { // for fuzzy
+        CV_I := CV_I + 1;
+        return CV_I;
+    }
+
+    altstep A(in @fuzzy integer FFP_I) runs on C { // FFP_I formal fuzzy parameter - integer
+        [] p.receive(integer: ?) {
+            action(FFP_I);
+            action(FFP_I);
+            action(FFP_I);
+        }
+    }
+
+    testcase T() runs on C {
+        var default VD := activate(A(F()));
+        connect(self:p, self:p);
+        p.send(1);
+        p.receive(3);
+    }
+
+control
+{
+  execute(T());
+}
+}
+<END_MODULE>
+<RESULT IF_PASS COUNT 1>
+Activating a default altstep with @lazy or @fuzzy parameters is not supported
+<END_RESULT>
+<END_TC>
+:exmp.
+
+.*---------------------------------------------------------------------*
+:h4. Fuzzy variable - as altstep formal parameter - from caller 2 - activate
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - Fuzzy variable - as altstep formal parameter - from caller 2 - activate>
+<COMPILE>
+<VERDICT_LEAF PASS>
+<MODULE TTCN Temp Temp.ttcn>
+module Temp {
+
+    type port P message { inout integer }
+
+    type component C { var integer CV_I := 0; port P p } // CV_I component variable - integer
+
+    function F() runs on C return integer { // for fuzzy
+        CV_I := CV_I + 1;
+        return CV_I;
+    }
+
+    altstep A(in @fuzzy integer FFP_I) runs on C { // FFP_I formal fuzzy parameter - integer
+        [] p.receive(integer: ?) {
+            action(FFP_I);
+            action(FFP_I);
+            action(FFP_I);
+        }
+    }
+
+    testcase T() runs on C {
+        var default VD := activate(A(1));
+        connect(self:p, self:p);
+        p.send(1);
+        p.receive(3);
+    }
+
+control
+{
+  execute(T());
+}
+}
+<END_MODULE>
+<RESULT IF_PASS COUNT 1>
+Activating a default altstep with @lazy or @fuzzy parameters is not supported
+<END_RESULT>
+<END_TC>
+:exmp.
