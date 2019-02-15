@@ -1,7 +1,16 @@
 = References
 
-1.  link:https://github.com/eclipse/titan.core/blob/master/usrguide/installationguide/[Installation guide for TITAN TTCN-3 Test Executor]
-2.  link:https://github.com/eclipse/titan.core/blob/master/usrguide/referenceguide/[Programmers Technical Reference for TITAN TTCN-3 Test Executor]
-3.  link:https://github.com/eclipse/titan.core/blob/master/usrguide/releasenotes/[Release Notes for TITAN TTCN-3 Test Executor]
-4.  TTCN–3 Style Guide 1/0113-FCPCA 101 35
-5.  TTCN–3 Naming Convention ETH/R-04:000010
+[[_1]]
+* [1]  link:https://github.com/eclipse/titan.core/blob/master/usrguide/installationguide/[Installation guide for TITAN TTCN-3 Test Executor]
+
+[[_2]]
+* [2]  link:https://github.com/eclipse/titan.core/blob/master/usrguide/referenceguide/[Programmers Technical Reference for TITAN TTCN-3 Test Executor]
+
+[[_3]]
+* [3]  link:https://github.com/eclipse/titan.core/blob/master/usrguide/releasenotes/[Release Notes for TITAN TTCN-3 Test Executor]
+
+[[_4]]
+* [4]  TTCN–3 Style Guide 1/0113-FCPCA 101 35
+
+[[_5]]
+* [5]  TTCN–3 Naming Convention ETH/R-04:000010
