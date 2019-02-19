@@ -84,39 +84,46 @@ static void usage(const char* program_name)
   fprintf(stderr, "\n"
     "usage: %s [-s local_addr] MC_host MC_port\n"
     "   or  %s -l\n"
+    "   or  %s -p\n"
     "   or  %s -v\n"
     "\n"
     "OPTIONS:\n"
     "	-s local_addr:	use the given source IP address for control "
     "connections\n"
     "	-l:		list startable test cases and control parts\n"
+    "	-p:		list module parameters\n"
     "	-v:		show version and module information\n",
-    program_name, program_name, program_name);
+    program_name, program_name, program_name, program_name);
 }
 
 /** Returns whether the caller should exit immediately */
 static boolean process_options(int argc, char *argv[], int& ret_val,
     const char*& local_addr, const char*& MC_host, unsigned short& MC_port)
 {
-  boolean lflag = FALSE, sflag = FALSE, vflag = FALSE, errflag = FALSE;
+  boolean lflag = FALSE, sflag = FALSE, vflag = FALSE, pflag = FALSE,
+    errflag = FALSE;
   for ( ; ; ) {
-    int c = getopt(argc, argv, "ls:v");
+    int c = getopt(argc, argv, "ls:vp");
     if (c == -1) break;
     switch (c) {
     case 'l':
-      if (lflag || sflag || vflag) errflag = TRUE;
+      if (lflag || pflag || sflag || vflag) errflag = TRUE;
       else lflag = TRUE;
       break;
     case 's':
-      if (lflag || sflag || vflag) errflag = TRUE;
+      if (lflag || pflag || sflag || vflag) errflag = TRUE;
       else {
         local_addr = optarg;
         sflag = TRUE;
       }
       break;
     case 'v':
-      if (lflag || sflag || vflag) errflag = TRUE;
+      if (lflag || pflag || sflag || vflag) errflag = TRUE;
       else vflag = TRUE;
+      break;
+    case 'p':
+      if (pflag || lflag || sflag || vflag) errflag = TRUE;
+      else pflag = TRUE;
       break;
     default:
       errflag = TRUE;
@@ -124,7 +131,7 @@ static boolean process_options(int argc, char *argv[], int& ret_val,
     }
   }
 
-  if (lflag || vflag) {
+  if (lflag || vflag || pflag) {
     if (optind != argc) errflag = TRUE;
   } else {
     if (optind == argc - 2) {
@@ -145,14 +152,19 @@ static boolean process_options(int argc, char *argv[], int& ret_val,
     usage(argv[0]);
     ret_val = EXIT_FAILURE;
     return TRUE;
-  } else if (lflag) {
+  } else if (lflag || pflag) {
     // list of testcases
     try {
       // create buffer for error messages
       TTCN_Runtime::install_signal_handlers();
       TTCN_Logger::initialize_logger();
       Module_List::pre_init_modules();
-      Module_List::list_testcases();
+      if (lflag) {
+        Module_List::list_testcases();
+      }
+      else { // pflag
+        Module_List::list_modulepars();
+      }
     } catch (...) {
       ret_val = EXIT_FAILURE;
     }

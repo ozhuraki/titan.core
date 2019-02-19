@@ -417,6 +417,12 @@ void Module_List::list_testcases()
     list_iter = list_iter->list_next) list_iter->list_testcases();
 }
 
+void Module_List::list_modulepars()
+{
+  for (TTCN_Module *list_iter = list_head; list_iter != NULL;
+    list_iter = list_iter->list_next) list_iter->list_modulepars();
+}
+
 void Module_List::push_version(Text_Buf& text_buf)
 {
   int n_modules = 0;
@@ -781,6 +787,11 @@ struct TTCN_Module::testcase_list_item {
   testcase_list_item *next_testcase;
 };
 
+struct TTCN_Module::modulepar_list_item {
+  const char* name;
+  modulepar_list_item* next;
+};
+
 /** Constructor for TTCN modules */
 TTCN_Module::TTCN_Module(const char *par_module_name,
   const char *par_compilation_date,
@@ -834,6 +845,8 @@ TTCN_Module::TTCN_Module(const char *par_module_name,
 , altstep_tail(NULL)
 , testcase_head(NULL)
 , testcase_tail(NULL)
+, modulepar_head(NULL)
+, modulepar_tail(NULL)
 {
   Module_List::add_module(this);
 }
@@ -875,6 +888,8 @@ TTCN_Module::TTCN_Module(const char *par_module_name,
 , altstep_tail(NULL)
 , testcase_head(NULL)
 , testcase_tail(NULL)
+, modulepar_head(NULL)
+, modulepar_tail(NULL)
 {
   Module_List::add_module(this);
 }
@@ -914,6 +929,8 @@ TTCN_Module::TTCN_Module(const char *par_module_name,
 , altstep_tail(NULL)
 , testcase_head(NULL)
 , testcase_tail(NULL)
+, modulepar_head(NULL)
+, modulepar_tail(NULL)
 {
   Module_List::add_module(this);
  }
@@ -935,6 +952,11 @@ TTCN_Module::~TTCN_Module()
     testcase_list_item *tmp_ptr = testcase_head->next_testcase;
     delete testcase_head;
     testcase_head = tmp_ptr;
+  }
+  while (modulepar_head != NULL) {
+    modulepar_list_item *tmp_ptr = modulepar_head->next;
+    delete modulepar_head;
+    modulepar_head = tmp_ptr;
   }
 }
 
@@ -1014,6 +1036,20 @@ void TTCN_Module::add_testcase_pard(const char *testcase_name,
   if(testcase_head == NULL) testcase_head = new_item;
   else testcase_tail->next_testcase = new_item;
   testcase_tail = new_item;
+}
+
+void TTCN_Module::add_modulepar(const char* name)
+{
+  modulepar_list_item* new_item = new modulepar_list_item;
+  new_item->name = name;
+  new_item->next = NULL;
+  if (modulepar_head == NULL) {
+    modulepar_head = new_item;
+  }
+  else {
+    modulepar_tail->next = new_item;
+  }
+  modulepar_tail = new_item;
 }
 
 void TTCN_Module::execute_testcase(const char *testcase_name)
@@ -1225,6 +1261,14 @@ void TTCN_Module::list_testcases()
     list_iter = list_iter->next_testcase)
     if(!list_iter->is_pard)
       printf("%s.%s\n", module_name, list_iter->testcase_name);
+}
+
+void TTCN_Module::list_modulepars()
+{
+  for (modulepar_list_item *list_iter = modulepar_head; list_iter != NULL;
+       list_iter = list_iter->next) {
+    printf("%s.%s\n", module_name, list_iter->name);
+  }
 }
 
 void TTCN_Module::push_version(Text_Buf& text_buf)

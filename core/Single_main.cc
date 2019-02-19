@@ -82,14 +82,16 @@ static void usage(const char* program_name)
   fprintf(stderr, "\n"
     "usage: %s [-h] [-b file] configuration_file\n"
     "   or  %s -l\n"
+    "   or  %s -p\n"
     "   or  %s -v\n"
     "\n"
     "OPTIONS:\n"
     "	-b file:	run specified batch file at start (debugger must be activated)\n"
     "	-h:		automatically halt execution at start (debugger must be activated)\n"
     "	-l:		list startable test cases and control parts\n"
+    "	-p:		list module parameters\n"
     "	-v:		show version and module information\n",
-    program_name, program_name, program_name);
+    program_name, program_name, program_name, program_name);
 }
 
 int main(int argc, char *argv[])
@@ -107,32 +109,37 @@ int main(int argc, char *argv[])
 #endif
   errno = 0;
   int c, i, ret_val = EXIT_SUCCESS;
-  boolean bflag = FALSE, hflag = FALSE, lflag = FALSE, vflag = FALSE, errflag = FALSE;
+  boolean bflag = FALSE, hflag = FALSE, lflag = FALSE, vflag = FALSE, pflag = FALSE,
+    errflag = FALSE;
   const char *config_file = NULL;
   TTCN_Module *only_runnable = Module_List::single_control_part();
 
-  while ((c = getopt(argc, argv, "b:hlv")) != -1) {
+  while ((c = getopt(argc, argv, "b:hlvp")) != -1) {
     switch (c) {
     case 'b':
-      if (bflag || lflag || vflag) errflag = TRUE; // duplicate or conflicting
+      if (bflag || lflag || vflag || pflag) errflag = TRUE; // duplicate or conflicting
       else {
         bflag = TRUE;
         ttcn3_debugger.set_initial_batch_file(optarg);
       }
       break;
     case 'h':
-      if (hflag || lflag || vflag) errflag = TRUE; // duplicate or conflicting
+      if (hflag || lflag || vflag || pflag) errflag = TRUE; // duplicate or conflicting
       else {
         hflag = TRUE;
         ttcn3_debugger.set_halt_at_start();
       }
       break;
     case 'l':
-      if (lflag || vflag) errflag = TRUE; // duplicate or conflicting
+      if (lflag || vflag || pflag || bflag || hflag) errflag = TRUE; // duplicate or conflicting
       else lflag = TRUE;
       break;
+    case 'p':
+      if (pflag || lflag || vflag || bflag || hflag) errflag = TRUE; // duplicate or conflicting
+      else pflag = TRUE;
+      break;
     case 'v':
-      if (lflag || vflag) errflag = TRUE; // duplicate or conflicting
+      if (lflag || vflag || pflag || bflag || hflag) errflag = TRUE; // duplicate or conflicting
       else vflag = TRUE;
       break;
     default:
@@ -141,8 +148,8 @@ int main(int argc, char *argv[])
   }
 
   if (!errflag) {
-    if (lflag || vflag) {
-      if (optind != argc) errflag = TRUE; // -l or -v and non-option arg
+    if (lflag || vflag || pflag) {
+      if (optind != argc) errflag = TRUE; // -l, -p or -v and non-option arg
     } else {
       if (optind > argc - 1) { // no config file argument
         errflag = (only_runnable == 0);
@@ -157,12 +164,17 @@ int main(int argc, char *argv[])
     usage(argv[0]);
     TCov::close_file();
     return EXIT_FAILURE;
-  } else if (lflag) {
+  } else if (lflag || pflag) {
     try {
       // create buffer for error messages
       TTCN_Logger::initialize_logger();
       Module_List::pre_init_modules();
-      Module_List::list_testcases();
+      if (lflag) {
+        Module_List::list_testcases();
+      }
+      else { // pflag
+        Module_List::list_modulepars();
+      }
     } catch (...) {
       ret_val = EXIT_FAILURE;
     }

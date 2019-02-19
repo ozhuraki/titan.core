@@ -4099,6 +4099,9 @@ namespace Ttcn {
     }
     target->functions.log_param = mputprintf(target->functions.log_param,
       "%s.log();\n", name);
+    
+    target->functions.pre_init = mputprintf(target->functions.pre_init,
+      "module_object.add_modulepar(\"%s\");\n", dispname);
   }
 
   void Def_Modulepar::generate_code(Common::CodeGenHelper& cgh) {
@@ -4272,6 +4275,9 @@ namespace Ttcn {
     }
     target->functions.log_param = mputprintf(target->functions.log_param,
       "%s.log();\n", name);
+    
+    target->functions.pre_init = mputprintf(target->functions.pre_init,
+      "module_object.add_modulepar(\"%s\");\n", dispname);
   }
 
   void Def_Modulepar_Template::generate_code(Common::CodeGenHelper& cgh) {

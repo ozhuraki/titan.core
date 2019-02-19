@@ -78,6 +78,7 @@ public:
   static void clean_up_usage_stats(pthread_t thread, thread_data* data);
 #endif
   static void list_testcases();
+  static void list_modulepars();
   static void push_version(Text_Buf& text_buf);
 
   static void encode_function(Text_Buf& text_buf,
@@ -165,6 +166,8 @@ private:
   altstep_list_item *altstep_head, *altstep_tail;
   struct testcase_list_item;
   testcase_list_item *testcase_head, *testcase_tail;
+  struct modulepar_list_item;
+  modulepar_list_item *modulepar_head, *modulepar_tail;
 
   /// Copy constructor disabled
   TTCN_Module(const TTCN_Module&);
@@ -215,6 +218,7 @@ public:
     testcase_t testcase_function);
   void add_testcase_pard(const char *testcase_name,
     genericfunc_t testcase_address);
+  void add_modulepar(const char* name);
 
   void execute_testcase(const char *testcase_name);
   void execute_all_testcases();
@@ -232,6 +236,7 @@ public:
   void print_version();
   ModuleVersion* get_version() const;
   void list_testcases();
+  void list_modulepars();
   void push_version(Text_Buf& text_buf);
   size_t get_num_ns() const { return num_namespaces; }
   const namespace_t *get_ns(size_t p_index) const;
