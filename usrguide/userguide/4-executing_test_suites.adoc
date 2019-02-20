@@ -29,6 +29,10 @@ The ETS also accepts the command line options `-l` and `-v` with the following s
 +
 Lists the names of all control parts and individually executable test cases of the ETS to standard output. The list is suitable as the `[EXECUTE]` section of a configuration file. Refer to link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor] for more details.
 
+* `*-p*`
++
+Lists the names of all module parameters of the ETS to standard output. Each module parameter in the list is prefixed with its module's name.
+
 * `*-v*`
 +
 Prints the tool version, license information and the name, compilation time, checksum and (if available) the version info of the participating modules.
