@@ -4504,7 +4504,7 @@ namespace Ttcn {
       FormalPar *local_fp = fp_list->get_fp_byIndex(i);
       if (local_fp->has_notused_defval()) {
         FormalPar *base_fp = base_fpl->get_fp_byIndex(i);
-        if (base_fp->has_defval()) {
+        if (base_fp->has_defval_checked()) {
           local_fp->set_defval(base_fp->get_defval());
         } else {
           local_fp->error("Not used symbol (`-') doesn't have the "
@@ -8530,8 +8530,13 @@ namespace Ttcn {
 
   bool FormalPar::has_defval() const
   {
-    if (checked) return defval.ap != 0;
+    if (checked) return has_defval_checked();
     else return defval.ti != 0;
+  }
+  
+  bool FormalPar::has_defval_checked() const
+  {
+    return checked && defval.ap != 0;
   }
 
   bool FormalPar::has_notused_defval() const
@@ -9494,7 +9499,7 @@ namespace Ttcn {
       const string& par_name = par->get_id().get_name();
       if (par->get_asstype() != Definition::A_PAR_TIMER)
         par->get_Type()->set_genname(p_prefix, par_name);
-      if (par->has_defval()) {
+      if (par->has_defval_checked()) {
         string embedded_genname(p_prefix);
         embedded_genname += '_';
         embedded_genname += par_name;
@@ -9877,7 +9882,7 @@ namespace Ttcn {
         static_cast<unsigned long> (i + 1), fp->get_id().get_dispname().c_str());
       if (!ti->get_Type() && !ti->get_DerivedRef() && ti->get_Template()
           ->get_templatetype() == Template::TEMPLATE_NOTUSED) {
-        if (fp->has_defval()) {
+        if (fp->has_defval_checked()) {
           ActualPar *defval = fp->get_defval();
           p_aplist->add(new ActualPar(defval));
           if (defval->is_erroneous()) error_flag = true;
@@ -9902,7 +9907,7 @@ namespace Ttcn {
     // (which must exist).
     for (size_t i = upper_limit; i < formal_pars; i++) {
       FormalPar *fp = pars_v[i];
-      if (fp->has_defval()) {
+      if (fp->has_defval_checked()) {
         ActualPar *defval = fp->get_defval();
         p_aplist->add(new ActualPar(defval));
         if (defval->is_erroneous()) error_flag = true;

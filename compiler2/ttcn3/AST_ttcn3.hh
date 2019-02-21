@@ -1769,7 +1769,12 @@ namespace Ttcn {
     virtual bool is_local() const;
     virtual Type *get_Type();
     virtual void chk();
+    /** Returns true if the formal parameter has a default value (whether it's
+      * checked or not). Does not guarantee that usage of get_defval is safe! */
     bool has_defval() const;
+    /** Returns true if the formal parameter is checked and has a default value.
+      * Guarantees that usage of get_defval is safe. */
+    bool has_defval_checked() const;
     bool has_notused_defval() const;
     /** Get the default value.
      * \pre chk() has been called (checked==true) */

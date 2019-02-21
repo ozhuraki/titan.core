@@ -8630,4 +8630,25 @@ template MyRecF t2 := { fnum := (-infinity..0.0) };
 <END_TC>
 :exmp.
 
+*-----------------------------------------------------------*
+:h3.Adhoc:: Bug 544632: Using same name for type and template with default value parameter  
+.*-----------------------------------------------------------*
+:xmp tab=0.
+<TC - Bug 544632: Using same name for type and template with default value parameter>
+
+<COMPILE>
+<VERDICT_LEAF FAIL>
+<MODULE TTCN Temp Temp.ttcn>
+module Temp {
+
+template T T(template integer p := ?) := p;
+
+}
+<END_MODULE>
+<RESULT IF_FAIL COUNT 1>
+is not a reference to a type
+<END_RESULT>
+<END_TC>
+:exmp.
+
 :etext.
