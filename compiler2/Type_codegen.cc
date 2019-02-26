@@ -635,7 +635,8 @@ void Type::generate_code_xerdescriptor(output_struct* target)
   size_t last_len = 2 + last_s.size();    // 2 for > \n
   size_t bxer_len = 2 + bxer_name.size(); // 2 for > \n
   
-  if ((T_SEQOF == last->typetype || T_SETOF == last->typetype)) {
+  if ((T_SEQOF == last->typetype || T_SETOF == last->typetype) &&
+      last->get_ofType()->has_encoding(CT_XER)) {
     oftype_descr_name = mprintf("&%s_xer_", last->u.seof.ofType->get_genname_typedescriptor(my_scope).c_str());
   }
   
