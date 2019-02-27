@@ -272,6 +272,7 @@ static void printUsage(const char * argv0) {
 
 static void printVersion() {
   fputs("Product number: " PRODUCT_NUMBER "\n"
+    "Version: " VERSION_STRING "\n"
     "Build date: " __DATE__ " " __TIME__ "\n"
     "Compiled with: " C_COMPILER_VERSION "\n\n"
     COPYRIGHT_STRING "\n\n", stderr);
