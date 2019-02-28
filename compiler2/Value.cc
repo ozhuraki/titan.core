@@ -13067,6 +13067,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         }
         break; }
       case OPTYPE_ISCHOSEN_T:
+      case OPTYPE_ISVALUE:
         str = u.expr.t1->rearrange_init_code(str, usage_mod);
         break;
       case OPTYPE_MATCH:
@@ -13490,6 +13491,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       }
       Free(field);
       break; }
+    case OPTYPE_ISVALUE: // ti1
     case OPTYPE_ISPRESENT:
     case OPTYPE_ISBOUND: {
       Template::templatetype_t temp = u.expr.ti1->get_Template()
@@ -13520,9 +13522,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     // no break
     case OPTYPE_LENGTHOF: // ti1
       // fall through, separated later
-    case OPTYPE_SIZEOF:  // ti1
-      // fall through, separated later
-    case OPTYPE_ISVALUE: { // ti1
+    case OPTYPE_SIZEOF: { // ti1
       if (u.expr.ti1->is_only_specific_value()) {
         Value *t_val=u.expr.ti1->get_Template()->get_specific_value();
         bool cast_needed = t_val->explicit_cast_needed(
@@ -15412,6 +15412,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case OPTYPE_ISPRESENT:
     case OPTYPE_ISCHOSEN_T:
     case OPTYPE_ISCHOSEN_V: // v1 i2
+    case OPTYPE_ISVALUE: // ti1
     case OPTYPE_TTCN2STRING:
     case OPTYPE_ENCVALUE_UNICHAR:
     case OPTYPE_DECVALUE_UNICHAR:
@@ -15526,7 +15527,6 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         }
       }
       // fall through
-    case OPTYPE_ISVALUE: // ti1
     case OPTYPE_LENGTHOF: // ti1
     case OPTYPE_SIZEOF: // ti1
       return u.expr.ti1->has_single_expr();

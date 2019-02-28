@@ -888,14 +888,14 @@ testcase recofIsvalue() runs on recofOper_mycomp{
   { {-,1,-},{-,1,-},{-,1,-} }
 
   }
-  if ( isvalue(nowhere) ) { setverdict(fail); } else { setverdict(pass); };
-  if ( isvalue(nowhere[1]) ) { setverdict(fail); } else { setverdict(pass); };
-  if ( isvalue(nowhere[1][1]) ) { setverdict(fail); } else { setverdict(pass); };
-  if ( isvalue(nowhere[1][1][1]) ) { setverdict(fail); } else { setverdict(pass); };
-  if ( isvalue(d3) ) { setverdict(pass); } else { setverdict(fail); };
-  if ( isvalue(d3[0]) ) { setverdict(pass); } else { setverdict(fail); };
-  if ( isvalue(d3[0][1]) ) { setverdict(pass); } else { setverdict(fail); };
-  if ( isvalue(d3[0][1][2]) ) { setverdict(pass); } else { setverdict(fail); };
+  if ( isvalue(nowhere) ) { setverdict(fail, 1); } else { setverdict(pass); };
+  if ( isvalue(nowhere[1]) ) { setverdict(fail, 2); } else { setverdict(pass); };
+  if ( isvalue(nowhere[1][1]) ) { setverdict(fail, 3); } else { setverdict(pass); };
+  if ( isvalue(nowhere[1][1][1]) ) { setverdict(fail, 4); } else { setverdict(pass); };
+  if ( isvalue(d3) ) { setverdict(pass); } else { setverdict(fail, 5); };
+  if ( isvalue(d3[0]) ) { setverdict(pass); } else { setverdict(fail, 6); };
+  if ( isvalue(d3[0][1]) ) { setverdict(pass); } else { setverdict(fail, 7); };
+  if ( isvalue(d3[0][1][2]) ) { setverdict(pass); } else { setverdict(fail, 8); };
 }
 
 testcase recofIsvalue2() runs on recofOper_mycomp{

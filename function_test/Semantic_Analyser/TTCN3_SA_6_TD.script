@@ -16519,7 +16519,8 @@ module ModuleA {
   type component dummy_CT {}
   testcase tc_temp () runs on dummy_CT{
     var universal charstring cstr;
-    log(isvalue(cstr[0]));
+    if (isvalue(cstr[0])) { setverdict(fail); }
+    else { setverdict(pass); }
   }
   control {
     execute(tc_temp());
@@ -16540,7 +16541,7 @@ ConsoleMask := WARNING | ERROR | TESTCASE | STATISTICS
 ModuleA
 <END_MODULE>
 <RESULT IF_PASS COUNT 1>
-(?im)Dynamic test case error: Accessing an element of an unbound universal charstring value.
+(?im)Overall verdict: pass
 <END_RESULT>
 <END_TC>
 :exmp.
@@ -16562,7 +16563,8 @@ module ModuleA {
   type component dummy_CT {}
   testcase tc_temp () runs on dummy_CT{
     var tunion temp := {x1 := 1};
-    log(isvalue(temp.x2));
+    if (isvalue(temp.x2)) { setverdict(fail); }
+    else { setverdict(pass); }
   }
   control {
     execute(tc_temp());
@@ -16583,7 +16585,7 @@ ConsoleMask := WARNING | ERROR | TESTCASE | STATISTICS
 ModuleA
 <END_MODULE>
 <RESULT IF_PASS COUNT 1>
-(?im)Dynamic test case error: Using non-selected field x2 in a value of union type @ModuleA.tunion.
+(?im)Overall verdict: pass
 <END_RESULT>
 <END_TC>
 :exmp.
@@ -16602,7 +16604,8 @@ module ModuleA {
   type component dummy_CT {}
   testcase tc_temp () runs on dummy_CT{
     var t_recof temp;
-    log(isvalue(temp[0]));
+    if (isvalue(temp[0])) { setverdict(fail); }
+    else { setverdict(pass); }
   }
   control {
     execute(tc_temp());
@@ -16623,7 +16626,7 @@ ConsoleMask := WARNING | ERROR | TESTCASE | STATISTICS
 ModuleA
 <END_MODULE>
 <RESULT IF_PASS COUNT 1>
-(?im)Dynamic test case error: Accessing an element in an unbound value of type @PreGenRecordOf.PREGEN_RECORD_OF_INTEGER.
+(?im)Overall verdict: pass
 <END_RESULT>
 <END_TC>
 :exmp.
@@ -16642,7 +16645,8 @@ module ModuleA {
   type component dummy_CT {}
   testcase tc_temp () runs on dummy_CT{
     var t_recof temp := {[1] := 1};
-    log(isvalue(temp[10]));
+    if (isvalue(temp[10])) { setverdict(fail); }
+    else { setverdict(pass); }
   }
   control {
     execute(tc_temp());
@@ -16663,7 +16667,7 @@ ConsoleMask := WARNING | ERROR | TESTCASE | STATISTICS
 ModuleA
 <END_MODULE>
 <RESULT IF_PASS COUNT 1>
-(?im)Dynamic test case error: Index overflow in a value of type @PreGenRecordOf.PREGEN_RECORD_OF_INTEGER: The index is 10, but the value has only 2 elements.
+(?im)Overall verdict: pass
 <END_RESULT>
 <END_TC>
 :exmp.
@@ -16682,7 +16686,8 @@ module ModuleA {
   type component dummy_CT {}
   testcase tc_temp () runs on dummy_CT{
     var t_setof temp;
-    log(isvalue(temp[0]));
+    if (isvalue(temp[0])) { setverdict(fail); }
+    else { setverdict(pass); }
   }
   control {
     execute(tc_temp());
@@ -16703,7 +16708,7 @@ ConsoleMask := WARNING | ERROR | TESTCASE | STATISTICS
 ModuleA
 <END_MODULE>
 <RESULT IF_PASS COUNT 1>
-(?im)Dynamic test case error: Accessing an element in an unbound value of type @PreGenRecordOf.PREGEN_SET_OF_INTEGER.
+(?im)Overall verdict: pass
 <END_RESULT>
 <END_TC>
 :exmp.
@@ -16722,7 +16727,8 @@ module ModuleA {
   type component dummy_CT {}
   testcase tc_temp () runs on dummy_CT{
     var t_setof temp := {[1] := 1};
-    log(isvalue(temp[10]));
+    if (isvalue(temp[10])) { setverdict(fail); }
+    else { setverdict(pass); }
   }
   control {
     execute(tc_temp());
@@ -16743,7 +16749,7 @@ ConsoleMask := WARNING | ERROR | TESTCASE | STATISTICS
 ModuleA
 <END_MODULE>
 <RESULT IF_PASS COUNT 1>
-(?im)Dynamic test case error: Index overflow in a value of type @PreGenRecordOf.PREGEN_SET_OF_INTEGER: The index is 10, but the value has only 2 elements.
+(?im)Overall verdict: pass
 <END_RESULT>
 <END_TC>
 :exmp.

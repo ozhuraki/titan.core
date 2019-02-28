@@ -883,6 +883,8 @@ namespace Ttcn {
         p_optype = ISPRESENT;
       } else if (optype == Value::OPTYPE_ISCHOSEN_T || optype == Value::OPTYPE_ISCHOSEN_V) {
         p_optype = ISCHOSEN;
+      } else if (optype == Value::OPTYPE_ISVALUE) {
+        p_optype = ISVALUE;
       } else {
         FATAL_ERROR("AST_ttcn3.cc::generate_code_ispresentboundchosen()");
       }
@@ -907,6 +909,9 @@ namespace Ttcn {
         case Value::OPTYPE_ISCHOSEN_T:
         case Value::OPTYPE_ISCHOSEN_V:
           expr->expr = mputprintf(expr->expr, "ischosen(%s)", field);
+          break;
+        case Value::OPTYPE_ISVALUE:
+          expr->expr = mputprintf(expr->expr, "is_value()");
           break;
         default:
           FATAL_ERROR("AST_ttcn3.cc::generate_code_ispresentboundchosen()");
