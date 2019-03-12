@@ -123,7 +123,7 @@ namespace Ttcn {
     void chk_recursions(ReferenceChain& refch);
     /** Returns whether the actual parameter can be represented by an in-line
      * C++ expression. */
-    bool has_single_expr();
+    bool has_single_expr(FormalPar* formal_par);
     void set_code_section(GovernedSimple::code_section_t p_code_section);
     /** Generates the C++ equivalent of \a this into \a expr.
      * Flag \a copy_needed indicates whether to add an extra copy constructor

@@ -700,8 +700,11 @@ namespace Ttcn {
       return false;
     }
     if (parlist != NULL) {
+      Common::Assignment* ass = get_refd_assignment();
+      const FormalParList* fplist = (ass != NULL) ? ass->get_FormalParList() : NULL;
       for (size_t i = 0; i < parlist->get_nof_pars(); i++) {
-        if (!parlist->get_par(i)->has_single_expr()) {
+        if (!parlist->get_par(i)->has_single_expr(
+            fplist != NULL ? fplist->get_fp_byIndex(i) : NULL)) {
           return false;
         }
       }
@@ -1089,18 +1092,17 @@ namespace Ttcn {
   bool Ref_pard::has_single_expr()
   {
     if (!Ref_base::has_single_expr()) return false;
-    for (size_t i = 0; i < parlist.get_nof_pars(); i++)
-      if (!parlist.get_par(i)->has_single_expr()) return false;
-    // if any formal parameter has lazy or fuzzy evaluation 
     Common::Assignment *ass = get_refd_assignment();
-    if (ass) {
-      const FormalParList *fplist = ass->get_FormalParList();
-      if (fplist) {
-        size_t num_formal = fplist->get_nof_fps();
-        for (size_t i=0; i<num_formal; ++i) {
-          const FormalPar *fp = fplist->get_fp_byIndex(i);
-          if (fp->get_eval_type() != NORMAL_EVAL) return false;
-        }
+    const FormalParList *fplist = (ass != NULL) ? ass->get_FormalParList() : NULL;
+    for (size_t i = 0; i < parlist.get_nof_pars(); i++)
+      if (!parlist.get_par(i)->has_single_expr(
+          fplist != NULL ? fplist->get_fp_byIndex(i) : NULL)) return false;
+    // if any formal parameter has lazy or fuzzy evaluation 
+    if (fplist) {
+      size_t num_formal = fplist->get_nof_fps();
+      for (size_t i=0; i<num_formal; ++i) {
+        const FormalPar *fp = fplist->get_fp_byIndex(i);
+        if (fp->get_eval_type() != NORMAL_EVAL) return false;
       }
     }
     return true;
@@ -10240,7 +10242,7 @@ namespace Ttcn {
     }
   }
 
-  bool ActualPar::has_single_expr()
+  bool ActualPar::has_single_expr(FormalPar* formal_par)
   {
     switch (selection) {
     case AP_VALUE:
@@ -10258,6 +10260,25 @@ namespace Ttcn {
           if (FieldOrArrayRef::ARRAY_REF == subrefs->get_ref(i)->get_type()) {
             return false;
           }
+        }
+      }
+      // check whether type conversion is needed
+      if (use_runtime_2 && formal_par != NULL &&
+          formal_par->get_asstype() != Common::Assignment::A_PAR_TIMER &&
+          formal_par->get_asstype() != Common::Assignment::A_PAR_PORT) {
+        bool is_template_par = false;
+        if (formal_par->get_asstype() == Common::Assignment::A_PAR_TEMPL_INOUT ||
+            formal_par->get_asstype() == Common::Assignment::A_PAR_TEMPL_OUT) {
+          is_template_par = true;
+        }
+        Common::Assignment* ass = ref->get_refd_assignment();
+        Type* actual_par_type = ass->get_Type()->get_field_type(ref->get_subrefs(),
+          is_template_par ? Type::EXPECTED_TEMPLATE : Type::EXPECTED_DYNAMIC_VALUE)->
+          get_type_refd_last();
+        Type* formal_par_type = formal_par->get_Type()->get_type_refd_last();
+        if (my_scope->get_scope_mod()->needs_type_conv(
+            actual_par_type, formal_par_type)) {
+          return false;
         }
       }
       return ref->has_single_expr();

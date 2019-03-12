@@ -15566,8 +15566,12 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
   bool Value::has_single_expr_invoke(Value *v, Ttcn::ActualParList *ap_list)
   {
     if (!v->has_single_expr()) return false;
+    Value* last_v = v->get_value_refd_last();
+    const Ttcn::FormalParList* fplist = (last_v->get_valuetype() == V_FUNCTION) ?
+      last_v->get_refd_fat()->get_FormalParList() : NULL;
     for (size_t i = 0; i < ap_list->get_nof_pars(); i++)
-      if (!ap_list->get_par(i)->has_single_expr()) return false;
+      if (!ap_list->get_par(i)->has_single_expr(
+          fplist != NULL ? fplist->get_fp_byIndex(i) : NULL)) return false;
     return true;
   }
 

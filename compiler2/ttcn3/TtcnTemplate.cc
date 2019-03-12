@@ -5306,11 +5306,16 @@ compile_time:
       }
       // otherwise consider the reference itself
       return u.ref.ref->has_single_expr(); }
-    case TEMPLATE_INVOKE:
+    case TEMPLATE_INVOKE: {
       if (!u.invoke.v->has_single_expr()) return false;
+      Value* last_v = u.invoke.v->get_value_refd_last();
+      const FormalParList* fplist =
+        (last_v->get_valuetype() == Common::Value::V_FUNCTION) ?
+        last_v->get_refd_fat()->get_FormalParList() : NULL;
       for (size_t i = 0; i < u.invoke.ap_list->get_nof_pars(); i++)
-        if (!u.invoke.ap_list->get_par(i)->has_single_expr()) return false;
-      return true;
+        if (!u.invoke.ap_list->get_par(i)->has_single_expr(
+            fplist != NULL ? fplist->get_fp_byIndex(i) : NULL)) return false;
+      return true; }
     case TEMPLATE_LIST:
       return u.templates->get_nof_ts() == 0;
     case NAMED_TEMPLATE_LIST: {

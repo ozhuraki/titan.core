@@ -37,7 +37,7 @@ CODIRS +=  mfgen-xsd
 endif
 
 ifdef RT2
-CODIRS += typeCompat
+CODIRS += typeCompat Bug544978
 endif
 
 all dep clean distclean:
