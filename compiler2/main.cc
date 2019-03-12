@@ -395,7 +395,7 @@ static boolean is_valid_asn1_filename(const char* file_name)
 static void usage()
 {
   fprintf(stderr, "\n"
-    "usage: %s [-abcdDeEfgiIjlLMnNOpqrRsStuwxXyY] [-J file] [-K file] [-z file] [-V verb_level]\n"
+    "usage: %s [-abcdDeEfgiIjlLMnNOpqrRsStuwxXyY0] [-J file] [-K file] [-z file] [-V verb_level]\n"
     "	[-o dir] [-U none|type|'number'] [-P modulename.top_level_pdu_name] [-Q number] ...\n"
     "	[-T] module.ttcn [-A] module.asn ...\n"
     "	or  %s -v\n"
@@ -442,6 +442,7 @@ static void usage()
     "	-y:		disable subtype checking\n"
     "	-Y:		enforce legacy behaviour for \"out\" function parameters (see refguide)\n"
     "	-z file:	enable profiling and code coverage for the TTCN-3 files in the argument\n"
+    "	-0:		disable attribute checks for `encvalue' and `decvalue'\n"
     "	-T file:	force interpretation of file as TTCN-3 module\n"
     "	-A file:	force interpretation of file as ASN.1 module\n"
     "	-v:		show version\n"
@@ -844,7 +845,7 @@ int main(int argc, char *argv[])
         bflag || fflag || iflag || lflag || oflag || pflag || qflag ||
         rflag || sflag || tflag || uflag || wflag || xflag || Xflag || Rflag ||
         Uflag || yflag || Kflag || jflag || zflag || Fflag || Mflag || Eflag ||
-        nflag || Bflag || Dflag || eflag || Oflag || Iflag) {
+        nflag || Bflag || Dflag || eflag || Oflag || Iflag || s0flag) {
         errflag = true;
         print_usage = true;
       }
@@ -875,6 +876,10 @@ int main(int argc, char *argv[])
       if (oflag && get_path_status(output_dir) != PS_DIRECTORY) {
         ERROR("The argument of -o switch (`%s') must be a directory.",
       output_dir);
+        errflag = true;
+      }
+      if (s0flag && !sflag) {
+        ERROR("Option `-0' requires option `-s'");
         errflag = true;
       }
       

@@ -18,7 +18,7 @@ The program compiler resides in the directory `$TTCN3_DIR/bin`.
 The command line syntax of the compiler is the following:
 
 [source]
-compiler [ -abBcdDeEfgiIjlLMnNOpqrRstuwxXyY ] [ -J file ] [ -K file ] [ -z file ] [ -N old|new ][ -o dir ] [ -V n ] [ -P toplevel pdu ] [ -Qn ] [ -U none|type|"number" ] …[ -T ] module.ttcn [ -A ] module.asn … [ - module.ttcn module.asn … ]
+compiler [ -abBcdDeEfgiIjlLMnNOpqrRstuwxXyY0 ] [ -J file ] [ -K file ] [ -z file ] [ -N old|new ][ -o dir ] [ -V n ] [ -P toplevel pdu ] [ -Qn ] [ -U none|type|"number" ] …[ -T ] module.ttcn [ -A ] module.asn … [ - module.ttcn module.asn … ]
 
 or
 
@@ -283,6 +283,10 @@ Enforces legacy behaviour for "out" function parameters ("out" parameters will n
 * `-z file`
 +
 Enables code coverage and profiling in the TTCN-3 files listed in the `file` argument. The TTCN-3 files in the list must be separated by new lines and must also appear among the compiler’s arguments.
+
+* `-0`
++
+Disables attribute checks for `encvalue` and `decvalue`. Must be used together with option `-s`.
 
 * `-`
 +
