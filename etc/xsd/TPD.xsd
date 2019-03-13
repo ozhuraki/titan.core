@@ -113,6 +113,8 @@
                       </xs:complexType>
                     </xs:element>
 
+                    <xs:element name="semanticCheckOnly" minOccurs="0" maxOccurs="1" type="xs:boolean" />
+                    <xs:element name="disableAttributeValidation" minOccurs="0" maxOccurs="1" type="xs:boolean" />
                     <xs:element name="disableBER" minOccurs="0" maxOccurs="1" type="xs:boolean" />
                     <xs:element name="disableRAW" minOccurs="0" maxOccurs="1" type="xs:boolean" />
                     <xs:element name="disableTEXT" minOccurs="0" maxOccurs="1" type="xs:boolean" />
