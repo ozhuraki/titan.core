@@ -205,9 +205,9 @@ Useful information can be found in TITAN Designer documentation <<13-references.
 |`targetExecutable` |-e |- |N/A |O
 |`TTCN3preprocessor (the name of the preprocessor meaningful only in Eclipse)` |- |- |cpp |O
 |`TTCN3preprocessorIncludes` |- |- |empty |O
-|`preprocessorIncludes` |-p |- |emtpy |O
-|`semanticCheckOnly` |- |-s |emtpy |O
-|`disableAttributeValidation` |- |-0 |emtpy |O
+|`preprocessorIncludes` |-p |- |empty |O
+|`semanticCheckOnly` |- |-s |false |O
+|`disableAttributeValidation` |- |-0 |false |O
 |`disableBER (disable BER encoder/decoder functions)` |- |-b |false |O
 |`disableRAW (disable RAW encoder/decoder functions)` |- |-r |false |O
 |`disableTEXT (disable TEXT encoder/decoder functions)` |- |-x |false |O
