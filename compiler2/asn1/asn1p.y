@@ -827,6 +827,9 @@ ModuleDefinition:
     $$=new Asn::Module($1, $4, $5, $8.exp, $8.imp, $8.asss);
     $$->set_location(asn1_infile, @1.first_line);
     delete $2;
+    if ($5) {
+      $$->warning("EXTENSIBILITY IMPLIED is not supported.");
+    }
   }
 ;
 
