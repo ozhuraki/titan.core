@@ -3050,12 +3050,16 @@ void Type::chk_oer() {
     oerattrib = new OerAST();
   }
   Type* t = get_type_refd_last();
+  // sometimes (like with OPENTYPE fields) the relevant subtype information is 
+  // at the last referenced type
+  SubType* relevant_sub_type = sub_type != NULL && sub_type->is_subtype_notempty() ?
+    sub_type : t->sub_type;
   switch (t->typetype) {
     case T_INT_A: {
-      if (t->is_constrained() && t->get_sub_type()->is_subtype_notempty()) {
+      if (relevant_sub_type != NULL && relevant_sub_type->is_subtype_notempty()) {
         Location loc;
-        int_limit_t upper = t->get_sub_type()->get_int_limit(true, &loc);
-        int_limit_t lower = t->get_sub_type()->get_int_limit(false, &loc);
+        int_limit_t upper = relevant_sub_type->get_int_limit(true, &loc);
+        int_limit_t lower = relevant_sub_type->get_int_limit(false, &loc);
         bool lower_inf = lower.get_type() != int_limit_t::NUMBER;
         bool upper_inf = upper.get_type() != int_limit_t::NUMBER;
         if (lower_inf || upper_inf) {
@@ -3110,10 +3114,10 @@ void Type::chk_oer() {
     case T_VIDEOTEXSTRING:
     case T_GRAPHICSTRING:
     case T_GENERALSTRING: {
-      if (t->is_constrained() && t->get_sub_type()->is_subtype_notempty()) {
+      if (relevant_sub_type != NULL && relevant_sub_type->is_subtype_notempty()) {
         Location loc;
-        int_limit_t upper = t->get_sub_type()->get_int_limit(true, &loc);
-        int_limit_t lower = t->get_sub_type()->get_int_limit(false, &loc);
+        int_limit_t upper = relevant_sub_type->get_int_limit(true, &loc);
+        int_limit_t lower = relevant_sub_type->get_int_limit(false, &loc);
         bool lower_inf = lower.get_type() != int_limit_t::NUMBER;
         bool upper_inf = upper.get_type() != int_limit_t::NUMBER;
         if (!lower_inf && !upper_inf) {

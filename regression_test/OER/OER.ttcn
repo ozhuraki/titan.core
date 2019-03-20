@@ -3710,6 +3710,44 @@
  	  }
  	  setverdict(pass);
  	}
+ 	
+ 	external function f_enc_int1(in Int1 x) return octetstring
+    with { extension "prototype(convert) encode(OER)" }
+
+  external function f_enc_int2(in Int2 x) return octetstring
+    with { extension "prototype(convert) encode(OER)" }
+  
+  external function f_dec_int1(in octetstring x) return Int1
+    with { extension "prototype(convert) decode(OER)" }
+
+  external function f_dec_int2(in octetstring x) return Int2
+    with { extension "prototype(convert) decode(OER)" }
+ 	
+ 	// Testing that type constraints are taken into account during encoding and decoding,
+ 	// even if they are not in the type at the end of the type reference chain.
+ 	testcase tc_541693() runs on EmptyCT {
+ 	  // both types are constrained to one value (1), so there should be no length indicator in their encodings
+ 	  var octetstring enc_exp := '01'O;
+ 	  
+ 	  var octetstring enc := f_enc_int1(x1);
+ 	  if (enc != enc_exp) {
+ 	    setverdict(fail, "Got: ", enc, ", expected: ", enc_exp);
+ 	  }
+ 	  var Int1 dec1 := f_dec_int1(enc_exp);
+ 	  if (dec1 != x1) {
+ 	    setverdict(fail, "Got: ", dec1, ", expected: ", x1);
+ 	  }
+ 	  
+ 	  enc := f_enc_int2(x2);
+ 	  if (enc != enc_exp) {
+ 	    setverdict(fail, "Got: ", enc, ", expected: ", enc_exp);
+ 	  }
+ 	  var Int2 dec2 := f_dec_int2(enc_exp);
+ 	  if (dec2 != x2) {
+ 	    setverdict(fail, "Got: ", dec2, ", expected: ", x2);
+ 	  }
+ 	  setverdict(pass);
+ 	}
 
  	control {
  		execute(tc_boolean());
@@ -3736,6 +3774,7 @@
  		execute(tc_533061());
  		execute(tc_default_dec());
  		execute(tc_default_enc());
+ 		execute(tc_541693());
  	}
  	
 }

@@ -555,5 +555,12 @@ EmptyExtendableSequence ::= SEQUENCE {
 
 SequenceOfInteger ::= SEQUENCE OF INTEGER
 
+Int1 ::= INTEGER {v1(1)} (v1)
+  
+IntBase ::= INTEGER {v1(1)}
+Int2 ::= IntBase (v1)
+
+x1 Int1 ::= v1
+x2 Int2 ::= v1
 
 END
