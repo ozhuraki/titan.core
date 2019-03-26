@@ -8651,4 +8651,28 @@ is not a reference to a type
 <END_TC>
 :exmp.
 
+*-----------------------------------------------------------*
+:h3.Adhoc:: Bug 545802: log(omit)  
+.*-----------------------------------------------------------*
+:xmp tab=0.
+<TC - Bug 545802: log(omit)
+
+<COMPILE>
+<VERDICT_LEAF FAIL>
+<MODULE TTCN Temp Temp.ttcn>
+module Temp {
+
+control {
+  var charstring x := log2str(omit);
+  log(omit);
+}
+
+}
+<END_MODULE>
+<RESULT IF_FAIL COUNT 2>
+Cannot determine the type of the argument
+<END_RESULT>
+<END_TC>
+:exmp.
+
 :etext.

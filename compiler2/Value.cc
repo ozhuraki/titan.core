@@ -11422,10 +11422,6 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         switch (la->get_type()) {
         case Ttcn::LogArgument::L_UNDEF:
         case Ttcn::LogArgument::L_ERROR:
-          FATAL_ERROR("%s argument type",
-            u.expr.v_optype == OPTYPE_ANY2UNISTR ? "any2unistr" : "log2str");
-          break; // not reached
-
         case Ttcn::LogArgument::L_MACRO:
         case Ttcn::LogArgument::L_STR:
           break; // self reference not possible
