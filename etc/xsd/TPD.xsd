@@ -141,6 +141,7 @@
                     <xs:element name="enableRealtimeTesting" minOccurs="0" maxOccurs="1" type="xs:boolean" />
                     <xs:element name="namingRules" minOccurs="0" maxOccurs="1" type="xs:normalizedString" />
                     <xs:element name="disableSubtypeChecking" minOccurs="0" maxOccurs="1" type="xs:boolean" />
+                    <xs:element name="forceGenSeof" minOccurs="0" maxOccurs="1" type="xs:boolean" />
                     <xs:element name="CxxCompiler" minOccurs="0" maxOccurs="1" type="xs:normalizedString" />
                     <xs:element name="optimizationLevel" minOccurs="0" maxOccurs="1" type="xs:normalizedString" />
                     <xs:element name="otherOptimizationFlags" minOccurs="0" maxOccurs="1" type="xs:string" />
