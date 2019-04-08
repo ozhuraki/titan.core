@@ -5491,23 +5491,28 @@ static char *genRawDecodeRecordField(char *src, const struct_def *sdef,
   }
   src = mputprintf(src, ", local_top_order, %s",
     sdef->elements[i].isOptional ? "TRUE" : "no_err");
+  boolean lengthof_or_crostag_found = FALSE;
   if (sdef->elements[i].hasRaw &&
-      sdef->elements[i].raw.crosstaglist.nElements > 0)
+      sdef->elements[i].raw.crosstaglist.nElements > 0){
     src = mputstr(src, ", selected_field");
-  else src = mputstr(src, ", -1");
-  boolean lengthof_found = FALSE;
-  for (a = 0; a < raw_options[i].lengthof; a++) {
-    int field_index = raw_options[i].lengthoffield[a];
-    /* number of elements in 'record of' or 'set of' */
-    if (sdef->elements[field_index].raw.unit == -1) {
-      src = mputprintf(src, ", value_of_length_field%d", field_index);
-      lengthof_found = TRUE;
-      break;
+    lengthof_or_crostag_found = TRUE;
+  }
+  else {
+    for (a = 0; a < raw_options[i].lengthof; a++) {
+      int field_index = raw_options[i].lengthoffield[a];
+      /* number of elements in 'record of' or 'set of' */
+      if (sdef->elements[field_index].raw.unit == -1) {
+        src = mputprintf(src, ", value_of_length_field%d", field_index);
+        lengthof_or_crostag_found = TRUE;
+        break;
+      }
     }
   }
-  if (!lengthof_found) {
-    src = mputstr(src, ", TRUE");
+  if (!lengthof_or_crostag_found) {
+    src = mputstr(src, ", -1");
   }
+
+  src = mputstr(src, ", TRUE");
   src = mputprintf(src, ", &field_%d_force_omit);\n", i);
   if (delayed_decode) {
     src = mputprintf(src, "  if (decoded_field_length != %d) return -1;\n",
