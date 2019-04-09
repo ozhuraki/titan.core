@@ -1,0 +1,7 @@
+Bug546231
+Bug546231.exe
+Bug546231*.hh
+Bug546231*.cc
+*.d
+compile
+Bug546231*.log

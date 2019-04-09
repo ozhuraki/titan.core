@@ -1,0 +1,60 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond – initial implementation
+ *   Szalai, Gabor
+ *
+ ******************************************************************************/
+
+module Bug546231 {
+
+external function dec_R2(in octetstring stream) return R2
+with { extension "prototype(convert)" extension "decode(RAW)" }
+
+type record R2 {
+  integer   lengthfield,
+  record of integer   listfield,
+  integer   last_field
+} with {
+  variant (lengthfield) "LENGTHTO(listfield)"
+  variant (lengthfield) "UNIT(elements)"
+}
+
+type component CT {};
+
+testcase tc1() runs on CT {
+  var R2 res := dec_R2('0000'O);
+  var R2 exp := { lengthfield := 0, listfield := { }, last_field := 0 };
+  if (res == exp) {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, "Got: ", res, ", expected: ", exp);
+  }
+}
+
+testcase tc2() runs on CT {
+  var R2 res := dec_R2('010102'O);
+  var R2 exp := { lengthfield := 1, listfield := { 1 }, last_field := 2 };
+  if (res == exp) {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, "Got: ", res, ", expected: ", exp);
+  }
+}
+
+control {
+  execute(tc1());
+  execute(tc2());
+}
+
+} with {
+  encode "RAW"
+}
+
