@@ -237,8 +237,10 @@ void Type::generate_code_embedded_after(output_struct *target)
   case T_TESTCASE: {
     size_t nof_params = u.fatref.fp_list->get_nof_fps();
     for(size_t i = 0; i < nof_params; i++) {
-      u.fatref.fp_list->get_fp_byIndex(i)->get_Type()
-        ->generate_code(target);
+      Ttcn::FormalPar* fp = u.fatref.fp_list->get_fp_byIndex(i);
+      if (fp->get_asstype() != Assignment::A_PAR_TIMER) {
+        fp->get_Type()->generate_code(target);
+      }
     }
     break; }
   default:
