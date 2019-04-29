@@ -1,0 +1,61 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+
+// this module contains tests for 'map'/'unmap' parameters in parallel mode
+// ('out' and 'inout' do not retain the new values set in the port implementation,
+// because the 'map' and 'unmap' operations are asynchronous, i.e. they don't
+// wait for a response before the next operation is executed)
+module parallel_test {
+
+import from common all;
+
+testcase tc_parallel_mtc() runs on CT {
+  var IntList v_p2 := P2_INITIAL;
+  map(mtc:pt, system:pt) param (-, v_p2);
+  if (v_p2 != P2_INITIAL) {
+    setverdict(fail, "Final value of parameter p2 is incorrect: ", v_p2);
+  }
+  
+  var integer v_p := P_INITIAL;
+  unmap(mtc:pt, system:pt) param(v_p);
+  if (v_p != P_INITIAL) {
+    setverdict(fail, "Final value of parameter p is incorrect: ", v_p);
+  }
+  
+  map(mtc:pt, system:pt);
+  unmap(mtc:pt, system:pt);
+  
+  f_check_calls();
+}
+
+testcase tc_parallel_ptc() runs on CT {
+  var CT ptc := CT.create;
+  
+  var IntList v_p2 := P2_INITIAL;
+  map(ptc:pt, system:pt) param (-, v_p2);
+  if (v_p2 != P2_INITIAL) {
+    setverdict(fail, "Final value of parameter p2 is incorrect: ", v_p2);
+  }
+  
+  var integer v_p := P_INITIAL;
+  unmap(ptc:pt, system:pt) param(v_p);
+  if (v_p != P_INITIAL) {
+    setverdict(fail, "Final value of parameter p is incorrect: ", v_p);
+  }
+  map(ptc:pt, system:pt);
+  unmap(ptc:pt, system:pt);
+  
+  ptc.start(f_check_calls());
+  ptc.done;
+}
+
+}

@@ -1036,7 +1036,7 @@ namespace Ttcn {
   PortTypeBody::PortTypeBody(PortOperationMode_t p_operation_mode,
     Types *p_in_list, Types *p_out_list, Types *p_inout_list,
     bool p_in_all, bool p_out_all, bool p_inout_all, Definitions *defs,
-    bool p_realtime)
+    bool p_realtime, FormalParList *p_map_params, FormalParList *p_unmap_params)
     : Node(), Location(), my_type(0), operation_mode(p_operation_mode),
     in_list(p_in_list), out_list(p_out_list), inout_list(p_inout_list),
     in_all(p_in_all), out_all(p_out_all), inout_all(p_inout_all),
@@ -1044,7 +1044,8 @@ namespace Ttcn {
     in_msgs(0), out_msgs(0), in_sigs(0), out_sigs(0),
     testport_type(TP_REGULAR), port_type(PT_REGULAR),
     provider_refs(), provider_types(),
-    in_mappings(0), out_mappings(0), vardefs(defs), realtime(p_realtime)
+    in_mappings(0), out_mappings(0), vardefs(defs), realtime(p_realtime),
+    map_params(p_map_params), unmap_params(p_unmap_params)
   {
   }
 
@@ -1065,6 +1066,8 @@ namespace Ttcn {
     delete in_mappings;
     delete out_mappings;
     delete vardefs;
+    delete map_params;
+    delete unmap_params;
   }
 
   PortTypeBody *PortTypeBody::clone() const
@@ -1088,6 +1091,12 @@ namespace Ttcn {
     if (in_mappings) in_mappings->set_fullname(p_fullname + ".<in_mappings>");
     if (out_mappings) out_mappings->set_fullname(p_fullname + ".<out_mappings>");
     vardefs->set_fullname(p_fullname + ".<port_var>");
+    if (map_params != NULL) {
+      map_params->set_fullname(p_fullname + ".<map_params>");
+    }
+    if (unmap_params != NULL) {
+      unmap_params->set_fullname(p_fullname + ".<unmap_params>");
+    }
   }
 
   void PortTypeBody::set_my_scope(Scope *p_scope)
@@ -1101,6 +1110,12 @@ namespace Ttcn {
     if (in_mappings) in_mappings->set_my_scope(p_scope);
     if (out_mappings) out_mappings->set_my_scope(p_scope);
     vardefs->set_parent_scope(p_scope);
+    if (map_params != NULL) {
+      map_params->set_my_scope(p_scope);
+    }
+    if (unmap_params != NULL) {
+      unmap_params->set_my_scope(p_scope);
+    }
   }
 
   void PortTypeBody::set_my_type(Type *p_type)
@@ -1185,6 +1200,11 @@ namespace Ttcn {
   {
     if (!checked) FATAL_ERROR("PortTypeBody::is_internal_port()");
     return testport_type == TP_INTERNAL;
+  }
+  
+  FormalParList* PortTypeBody::get_map_parameters(bool map) const
+  {
+    return map ? map_params : unmap_params;
   }
 
   Type *PortTypeBody::get_address_type()
@@ -1776,6 +1796,15 @@ namespace Ttcn {
     if (provider_refs.size() == 0 && vardefs->get_nof_asss() > 0) {
       error("Port variables can only be used when the port is a translation port.");
     }
+    
+    if (map_params != NULL) {
+      Error_Context cntxt(map_params, "In `map' parameters");
+      map_params->chk(Definition::A_PORT);
+    }
+    if (unmap_params != NULL) {
+      Error_Context cntxt(unmap_params, "In `unmap' parameters");
+      unmap_params->chk(Definition::A_PORT);
+    }
   }
 
   void PortTypeBody::chk_attributes(Ttcn::WithAttribPath *w_attrib_path)
@@ -2115,6 +2144,12 @@ namespace Ttcn {
   void PortTypeBody::generate_code(output_struct *target)
   {
     if (!checked || !my_type) FATAL_ERROR("PortTypeBody::generate_code()");
+    if (map_params != NULL) {
+      map_params->generate_code_defval(target);
+    }
+    if (unmap_params != NULL) {
+      unmap_params->generate_code_defval(target);
+    }
     stringpool pool;
     port_def pdef;
     memset(&pdef, 0, sizeof(pdef));
@@ -2592,6 +2627,14 @@ namespace Ttcn {
     if (out_mappings) {
       DEBUG(level, "out mappings:");
       out_mappings->dump(level + 1);
+    }
+    if (map_params != NULL) {
+      DEBUG(level, "map parameters:");
+      map_params->dump(level + 1);
+    }
+    if (unmap_params != NULL) {
+      DEBUG(level, "unmap parameters:");
+      unmap_params->dump(level + 1);
     }
   }
 

@@ -526,10 +526,12 @@ private:
     const char *local_port, component remote_comp, const char *remote_port);
   static void send_disconnect_ack(component_struct *tc);
   static void send_map(component_struct *tc,
-    const char *local_port, const char *system_port, boolean translate);
+    const char *local_port, const char *system_port, unsigned int nof_params,
+    char** params, boolean translate);
   static void send_map_ack(component_struct *tc);
   static void send_unmap(component_struct *tc,
-    const char *local_port, const char *system_port, boolean translate);
+    const char *local_port, const char *system_port, unsigned int nof_params,
+    char** params, boolean translate);
   static void send_unmap_ack(component_struct *tc);
   static void send_debug_command(int fd, int commandID, const char* arguments);
   static void send_debug_setup(host_struct *hc);

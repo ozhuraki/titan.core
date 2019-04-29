@@ -288,6 +288,7 @@ static const string anyname("anytype");
     TypeMappings *in_mappings, *out_mappings;
     size_t varnElements;
     Ttcn::Definition **varElements;
+    FormalParList *map_params, *unmap_params;
   } portdefbody;
   
   struct {
@@ -978,7 +979,7 @@ static const string anyname("anytype");
   TemplateFormalPar FunctionFormalPar TestcaseFormalPar
 %type <formalparlist> optTemplateFormalParList TemplateFormalParList
   optFunctionFormalParList FunctionFormalParList optTestcaseFormalParList
-  TestcaseFormalParList optAltstepFormalParList
+  TestcaseFormalParList optAltstepFormalParList FormalValueParList
 %type <group> GroupDef GroupIdentifier
 %type <friend_list> FriendModuleDef
 %type <ifclause> ElseIfClause
@@ -1038,7 +1039,7 @@ static const string anyname("anytype");
   optReceiveParameter
 %type <parsedpar> FunctionActualParList TestcaseActualParList
   optFunctionActualParList optTestcaseActualParList
-  NamedPart UnnamedPart
+  NamedPart UnnamedPart optParamClause
 %type <templinsts>  optTemplateActualParList
   seqTemplateActualPar seqTemplateInstance
 %type <templs> ValueOrAttribList seqValueOrAttrib ValueList Complement
@@ -1269,6 +1270,7 @@ ForStatement
 FormalTemplatePar
 FormalTimerPar
 FormalValuePar
+FormalValueParList
 FromClause
 FullGroupIdentifier
 FunctionActualPar
@@ -1475,6 +1477,7 @@ optFunctionActualParList
 optFunctionFormalParList
 optMtcSpec
 optParDefaultValue
+optParamClause
 optPortCallBody
 optPortRedirectOutgoing
 optReceiveParameter
@@ -1576,6 +1579,8 @@ StructOfDefBody
     delete $$.varElements[i];
   }
   delete $$.varElements;
+  delete $$.map_params;
+  delete $$.unmap_params;
 }
 PortDefList
 PortDefLists
@@ -2886,7 +2891,8 @@ PortDefAttribs: // 60
     Free($3.varElements);
     PortTypeBody *body = new PortTypeBody($1,
       $3.in_list, $3.out_list, $3.inout_list,
-      $3.in_all, $3.out_all, $3.inout_all, defs, $2);
+      $3.in_all, $3.out_all, $3.inout_all, defs, $2,
+      $3.map_params, $3.unmap_params);
     body->set_location(infile, @$);
     $$ = new Type(Type::T_PORT, body);
     $$->set_location(infile, @$);
@@ -2904,7 +2910,8 @@ PortDefAttribs: // 60
     Free($6.varElements);
     PortTypeBody *body = new PortTypeBody($1,
       $6.in_list, $6.out_list, $6.inout_list,
-      $6.in_all, $6.out_all, $6.inout_all, defs, $2);
+      $6.in_all, $6.out_all, $6.inout_all, defs, $2,
+      $6.map_params, $6.unmap_params);
     body->set_location(infile, @$);
     $$ = new Type(Type::T_PORT, body);
     body->add_user_attribute($5.elements, $5.nElements, $6.in_mappings, $6.out_mappings, false);
@@ -2934,6 +2941,8 @@ PortDefLists:
     $$.out_mappings = 0;
     $$.varnElements = 0;
     $$.varElements = 0;
+    $$.map_params = NULL;
+    $$.unmap_params = NULL;
   }
 ;
 
@@ -3004,6 +3013,26 @@ seqPortDefList:
       }
       Free($2.varElements);
     }
+    if ($2.map_params != NULL) {
+      if ($$.map_params != NULL) {
+        Location loc(infile, @2);
+        loc.error("Multiple `map' parameter lists in port type definition");
+        delete $2.map_params;
+      }
+      else {
+        $$.map_params = $2.map_params;
+      }
+    }
+    if ($2.unmap_params != NULL) {
+      if ($$.unmap_params != NULL) {
+        Location loc(infile, @2);
+        loc.error("Multiple `unmap' parameter lists in port type definition");
+        delete $2.unmap_params;
+      }
+      else {
+        $$.unmap_params = $2.unmap_params;
+      }
+    }
   }
 ;
 
@@ -3031,6 +3060,8 @@ PortDefList:
     $$.inout_all = false;
     $$.varnElements = 0;
     $$.varElements = 0;
+    $$.map_params = NULL;
+    $$.unmap_params = NULL;
   }
 | OutParKeyword AllOrTypeListWithTo
   {
@@ -3055,6 +3086,8 @@ PortDefList:
     $$.inout_all = false;
     $$.varnElements = 0;
     $$.varElements = 0;
+    $$.map_params = NULL;
+    $$.unmap_params = NULL;
   }
 | InOutParKeyword AllOrTypeList
   {
@@ -3075,6 +3108,8 @@ PortDefList:
     $$.out_mappings = 0;
     $$.varnElements = 0;
     $$.varElements = 0;
+    $$.map_params = NULL;
+    $$.unmap_params = NULL;
   }
 | InParKeyword error
   {
@@ -3088,6 +3123,8 @@ PortDefList:
     $$.out_mappings = 0;
     $$.varnElements = 0;
     $$.varElements = 0;
+    $$.map_params = NULL;
+    $$.unmap_params = NULL;
   }
 | OutParKeyword error
   {
@@ -3101,6 +3138,8 @@ PortDefList:
     $$.out_mappings = 0;
     $$.varnElements = 0;
     $$.varElements = 0;
+    $$.map_params = NULL;
+    $$.unmap_params = NULL;
   }
 | InOutParKeyword error
   {
@@ -3114,6 +3153,8 @@ PortDefList:
     $$.out_mappings = 0;
     $$.varnElements = 0;
     $$.varElements = 0;
+    $$.map_params = NULL;
+    $$.unmap_params = NULL;
   }
 | PortElementVarDef optSemiColon {
     $$.in_list = 0;
@@ -3130,7 +3171,54 @@ PortDefList:
       $$.varElements[i] = $1.elements[i];
     }
     delete $1.elements;
-}
+    $$.map_params = NULL;
+    $$.unmap_params = NULL;
+  }
+| MapKeyword ParamKeyword '(' FormalValueParList ')'
+  {
+    $$.in_list = 0;
+    $$.out_list = 0;
+    $$.inout_list = 0;
+    $$.in_all = false;
+    $$.out_all = false;
+    $$.inout_all = false;
+    $$.in_mappings = 0;
+    $$.out_mappings = 0;
+    $$.varnElements = 0;
+    $$.varElements = 0;
+    $$.map_params = $4;
+    $$.map_params->set_location(infile, @4);
+    $$.unmap_params = NULL;
+  }
+| UnmapKeyword ParamKeyword '(' FormalValueParList ')'
+  {
+    $$.in_list = 0;
+    $$.out_list = 0;
+    $$.inout_list = 0;
+    $$.in_all = false;
+    $$.out_all = false;
+    $$.inout_all = false;
+    $$.in_mappings = 0;
+    $$.out_mappings = 0;
+    $$.varnElements = 0;
+    $$.varElements = 0;
+    $$.map_params = NULL;
+    $$.unmap_params = $4;
+    $$.unmap_params->set_location(infile, @4);
+  }
+;
+
+FormalValueParList:
+  FormalValuePar
+  {
+    $$ = new FormalParList;
+    $$->add_fp($1);
+  }
+| FormalValueParList ',' FormalValuePar
+  {
+    $$ = $1;
+    $$->add_fp($3);
+  }
 ;
 
 WithList:
@@ -6072,7 +6160,7 @@ ConnectStatement: // 329
   ConnectKeyword SingleConnectionSpec
   {
     $$=new Statement(Statement::S_CONNECT,
-                     $2.compref1, $2.portref1, $2.compref2, $2.portref2);
+                     $2.compref1, $2.portref1, $2.compref2, $2.portref2, NULL);
     $$->set_location(infile, @$);
   }
 ;
@@ -6115,7 +6203,7 @@ DisconnectStatement: // 335
   {
     if ($2.portref1 && $2.portref2 && $2.compref1 && $2.compref2) {
       $$ = new Statement(Statement::S_DISCONNECT,
-	$2.compref1, $2.portref1, $2.compref2, $2.portref2);
+                         $2.compref1, $2.portref1, $2.compref2, $2.portref2, NULL);
     } else {
       Location loc(infile, @$);
       loc.error("Disconnect operation on multiple connections is "
@@ -6168,13 +6256,18 @@ AllCompsAllPortsSpec: // 339
 ;
 
 MapStatement: // 341
-  MapKeyword SingleConnectionSpec
+  MapKeyword SingleConnectionSpec optParamClause
   {
     $$=new Statement(Statement::S_MAP,
                      $2.compref1, $2.portref1,
-                     $2.compref2, $2.portref2);
+                     $2.compref2, $2.portref2, $3);
     $$->set_location(infile, @$);
   }
+;
+
+optParamClause:
+  /* empty */ { $$ = NULL; }
+| ParamKeyword '(' FunctionActualParList ')' { $$ = $3; }
 ;
 
 UnmapStatement: // 343
@@ -6186,11 +6279,11 @@ UnmapStatement: // 343
     loc.error("Unmap operation on multiple mappings is "
       "not currently supported");
   }
-| UnmapKeyword SingleOrMultiConnectionSpec
+| UnmapKeyword SingleOrMultiConnectionSpec optParamClause
   {
     if ($2.compref1 && $2.portref1 && $2.compref1 && $2.compref2) {
       $$ = new Statement(Statement::S_UNMAP,
-	$2.compref1, $2.portref1, $2.compref2, $2.portref2);
+                         $2.compref1, $2.portref1, $2.compref2, $2.portref2, $3);
     } else {
       Location loc(infile, @$);
       loc.error("Unmap operation on multiple mappings is "
@@ -6199,6 +6292,7 @@ UnmapStatement: // 343
       delete $2.portref1;
       delete $2.compref2;
       delete $2.portref2;
+      delete $3;
       $$ = new Statement(Statement::S_ERROR);
     }
     $$->set_location(infile, @$);

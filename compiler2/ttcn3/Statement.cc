@@ -697,6 +697,7 @@ namespace Ttcn {
       delete config_op.portref1;
       delete config_op.compref2;
       delete config_op.portref2;
+      delete config_op.ap_list;
       break;
     case S_START_TIMER:
       delete timer_op.timerref;
@@ -1423,7 +1424,8 @@ namespace Ttcn {
 
   Statement::Statement(statementtype_t p_st,
                        Value *p_compref1, Reference *p_portref1,
-                       Value *p_compref2, Reference *p_portref2)
+                       Value *p_compref2, Reference *p_portref2,
+                       ParsedActualParameters* p_params)
     : statementtype(p_st), my_sb(0)
   {
     switch(statementtype) {
@@ -1438,6 +1440,8 @@ namespace Ttcn {
       config_op.compref2=p_compref2;
       config_op.portref2=p_portref2;
       config_op.translate=false;
+      config_op.parsed_params=p_params;
+      config_op.fp_list=NULL;
       break;
     default:
       FATAL_ERROR("Statement::Statement()");
@@ -1989,6 +1993,9 @@ namespace Ttcn {
       config_op.portref1->set_my_scope(p_scope);
       config_op.compref2->set_my_scope(p_scope);
       config_op.portref2->set_my_scope(p_scope);
+      if (config_op.parsed_params != NULL) {
+        config_op.parsed_params->set_my_scope(p_scope);
+      }
       break;
     case S_START_TIMER:
       timer_op.timerref->set_my_scope(p_scope);
@@ -2307,6 +2314,9 @@ namespace Ttcn {
       config_op.portref1->set_fullname(p_fullname+".portref1");
       config_op.compref2->set_fullname(p_fullname+".compref2");
       config_op.portref2->set_fullname(p_fullname+".portref2");
+      if (config_op.parsed_params != NULL) {
+        config_op.parsed_params->set_fullname(p_fullname+".<parameters>");
+      }
       break;
     case S_START_TIMER:
       timer_op.timerref->set_fullname(p_fullname+".timerref");
@@ -5031,6 +5041,12 @@ error:
           "endpoint is unknown",
           ptb1 != NULL ? "second" : "first");
       }
+      if (config_op.parsed_params != NULL &&
+          ((cref1_is_system && ptb1 == NULL) ||
+           (cref2_is_system && ptb2 == NULL))) {
+        error("Cannot determine system component in `%s' operation with "
+          "`param' clause", get_stmt_name());
+      }
       return;
     }
     if (cref1_is_tc || cref2_is_system) {
@@ -5097,6 +5113,32 @@ error:
           config_op.compref2->warning(
             "Cannot determine the type of the component in the second parameter."
             "The port translation will not work.");
+        }
+      }
+    }
+    
+    if (config_op.parsed_params != NULL) {
+      if (cref1_is_system) {
+        config_op.fp_list = ptb1->get_map_parameters(statementtype == S_MAP);
+      }
+      else if (cref2_is_system) {
+        config_op.fp_list = ptb2->get_map_parameters(statementtype == S_MAP);
+      }
+      else {
+        error("Cannot determine system component in `%s' operation with "
+          "`param' clause", get_stmt_name());
+      }
+      if (config_op.fp_list != NULL) {
+        ActualParList* parlist = new ActualParList;
+        if (config_op.fp_list->fold_named_and_chk(config_op.parsed_params, parlist)) {
+          delete parlist;
+          delete config_op.parsed_params;
+          config_op.ap_list = NULL;
+        } else {
+          delete config_op.parsed_params;
+          parlist->set_fullname(get_fullname());
+          parlist->set_my_scope(my_sb);
+          config_op.ap_list = parlist;
         }
       }
     }
@@ -7815,6 +7857,60 @@ error:
       // the component type is unknown
       // a simple string shall be formed from the port name and array indices
       generate_code_portref(&expr, config_op.portref2);
+    }
+    if (config_op.ap_list != NULL) {
+      // handle 'map'/'unmap' parameters
+      size_t nof_pars = config_op.ap_list->get_nof_pars();
+      string tmp_id = my_sb->get_scope_mod_gen()->get_temporary_id();
+      expr.preamble = mputprintf(expr.preamble,
+        "Map_Params %s(%u);\n", tmp_id.c_str(), (unsigned int) nof_pars);
+      for (size_t i = 0; i < nof_pars; ++i) {
+        ActualPar* ap = config_op.ap_list->get_par(i);
+        FormalPar* fp = config_op.fp_list->get_fp_byIndex(i);
+        bool copy_needed = ap->get_selection() == ActualPar::AP_VALUE;
+        expression_struct par_expr;
+        Code::init_expr(&par_expr);
+        ap->generate_code(&par_expr, copy_needed, fp);
+        if (fp->get_asstype() != Definition::A_PAR_VAL_OUT) {
+          // set the values of 'in' and 'inout' parameters before the call
+          if (par_expr.preamble != NULL) {
+            expr.preamble = mputstr(expr.preamble, par_expr.preamble);
+          }
+          expr.preamble = mputprintf(expr.preamble,
+            "%s.set_param(%u, ttcn_to_string(%s));\n",
+            tmp_id.c_str(), (unsigned int) i, par_expr.expr);
+        }
+        else {
+          // set empty strings for 'out' parameters
+          expr.preamble = mputprintf(expr.preamble,
+            "%s.set_param(%u, CHARSTRING(\"\"));\n",
+            tmp_id.c_str(), (unsigned int) i);
+        }
+        if (fp->get_asstype() == Definition::A_PAR_VAL_OUT ||
+            fp->get_asstype() == Definition::A_PAR_VAL_INOUT) {
+          // store the new values of 'out' and 'inout' parameters after the call
+          // note: this only works in single mode, in parallel mode execution
+          // will continue after the mapping request, without waiting for a
+          // reply that could contain the new values of the parameters
+          expr.postamble = mputprintf(expr.postamble,
+            "if (%s.get_param(%u).lengthof() > 0) "
+            "string_to_ttcn(%s.get_param(%u), %s);\n",
+            tmp_id.c_str(), (unsigned int) i,
+            tmp_id.c_str(), (unsigned int) i, par_expr.expr);
+          if (par_expr.postamble != NULL) {
+            expr.postamble = mputstr(expr.postamble, par_expr.postamble);
+          }
+        }
+        Code::free_expr(&par_expr);
+      }
+      expr.expr = mputprintf(expr.expr, ", %s", tmp_id.c_str());
+    }
+    else if (statementtype == S_MAP || statementtype == S_UNMAP) {
+      // create an empty struct for 'connect' and 'disconnect'
+      string tmp_id = my_sb->get_scope_mod_gen()->get_temporary_id();
+      expr.preamble = mputprintf(expr.preamble,
+        "Map_Params %s(0);\n", tmp_id.c_str());
+      expr.expr = mputprintf(expr.expr, ", %s", tmp_id.c_str());
     }
     if (config_op.translate == true) {
       expr.expr = mputstr(expr.expr, ", TRUE");

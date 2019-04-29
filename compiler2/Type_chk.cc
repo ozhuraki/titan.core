@@ -163,10 +163,18 @@ void Type::chk()
   case T_ARRAY:
     chk_Array();
     break;
-  case T_PORT:
+  case T_PORT: {
     u.port->chk();
+    Ttcn::FormalParList* map_params = u.port->get_map_parameters(true);
+    if (map_params != NULL) {
+      map_params->set_genname(get_genname_own());
+    }
+    Ttcn::FormalParList* unmap_params = u.port->get_map_parameters(false);
+    if (unmap_params != NULL) {
+      unmap_params->set_genname(get_genname_own());
+    }
     if (w_attrib_path) u.port->chk_attributes(w_attrib_path);
-    break;
+    break; }
   case T_SIGNATURE:
     chk_Signature();
     break;
@@ -7728,6 +7736,45 @@ void Type::chk_this_template_Signature(Template *t, namedbool incomplete_allowed
   if (t->get_length_restriction())
     t->error("Length restriction is not allowed in a template for "
       "signature `%s'", get_typename().c_str());
+}
+
+void Type::chk_map_param(Location* usage)
+{
+  Type* t = get_type_refd_last();
+  if (RecursionTracker::is_happening(t)) {
+    return;
+  }
+  RecursionTracker tracker(t);
+  
+  switch (t->typetype) {
+  case T_COMPONENT:
+  case T_DEFAULT:
+    usage->error("The `map'/`unmap' parameters of a port type cannot be or "
+      "contain a field/element of %s type",
+      t->typetype == T_COMPONENT ? "component" : "default");
+    note("Prohibited type is here");
+    break;
+  case T_SEQ_T:
+  case T_SET_T:
+  case T_CHOICE_T:
+  case T_CHOICE_A:
+  case T_SEQ_A:
+  case T_SET_A:
+  case T_OPENTYPE:
+  case T_ANYTYPE:
+    for (size_t i = 0; i < t->u.secho.cfm->get_nof_comps(); ++i) {
+      t->u.secho.cfm->get_comp_byIndex(i)->get_type()->chk_map_param(usage);
+    }
+    break;
+  case T_SEQOF:
+  case T_SETOF:
+  case T_ARRAY:
+    t->get_ofType()->chk_map_param(usage);
+    break;
+  default:
+    // everything else is allowed
+    break;
+  }
 }
 
 } // namespace Common

@@ -39,6 +39,20 @@ extern const COMPONENT_template& any_compref;
 
 struct port_connection; // no user serviceable parts inside
 
+class Map_Params {
+  unsigned int nof_params;
+  CHARSTRING* params;
+  
+  Map_Params(const Map_Params&); // copy disabled
+  Map_Params& operator=(const Map_Params&); // assignment disabled
+public:
+  Map_Params(unsigned int p_nof_params);
+  ~Map_Params();
+  void set_param(unsigned int p_index, const CHARSTRING& p_param);
+  unsigned int get_nof_params() const;
+  const CHARSTRING& get_param(unsigned int p_index) const;
+};
+
 /** Base class for all test ports */
 class PORT : public Fd_And_Timeout_Event_Handler {
   friend class PORT_LIST;
@@ -305,9 +319,14 @@ protected:
   * It can be used together with the interface introduced in TITAN R7E.
   */
   void Uninstall_Handler();
-
+  
+  // legacy map and unmap functions for backward compatibility
   virtual void user_map(const char *system_port);
   virtual void user_unmap(const char *system_port);
+
+  // new map and unmap functions (with parameters)
+  virtual void user_map(const char *system_port, Map_Params& params);
+  virtual void user_unmap(const char *system_port, Map_Params& params);
 
   virtual void user_start();
   virtual void user_stop();
@@ -376,8 +395,8 @@ private:
   void handle_incoming_data(port_connection *conn_ptr);
   void process_last_message(port_connection *conn_ptr);
 
-  void map(const char *system_port, boolean translation);
-  void unmap(const char *system_port, boolean translation);
+  void map(const char *system_port, Map_Params& params, boolean translation);
+  void unmap(const char *system_port, Map_Params& params, boolean translation);
 
 public:
   static void process_connect_listen(const char *local_port,
@@ -393,8 +412,8 @@ public:
   static void terminate_local_connection(const char *src_port,
     const char *dest_port);
 
-  static void map_port(const char *component_port, const char *system_port, boolean translation);
-  static void unmap_port(const char *component_port, const char *system_port, boolean translation);
+  static void map_port(const char *component_port, const char *system_port, Map_Params& params, boolean translation);
+  static void unmap_port(const char *component_port, const char *system_port, Map_Params& params, boolean translation);
 };
 
 #endif

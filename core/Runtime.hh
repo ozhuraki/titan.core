@@ -33,6 +33,7 @@ class CHARSTRING;
 class INTEGER;
 class FLOAT;
 class PORT;
+class Map_Params;
 
 extern "C" {
 typedef void (*signal_handler_type)(int);
@@ -270,10 +271,12 @@ public:
     const COMPONENT& dst_compref, const char *dst_port);
   static void map_port(
     const COMPONENT& src_compref, const char *src_port,
-    const COMPONENT& dst_compref, const char *dst_port, boolean translation = FALSE);
+    const COMPONENT& dst_compref, const char *dst_port,
+    Map_Params& params, boolean translation = FALSE);
   static void unmap_port(
     const COMPONENT& src_compref, const char *src_port,
-    const COMPONENT& dst_compref, const char *dst_port, boolean translation = FALSE);
+    const COMPONENT& dst_compref, const char *dst_port,
+    Map_Params& params, boolean translation = FALSE);
 
   static void begin_controlpart(const char *module_name);
   static void end_controlpart();

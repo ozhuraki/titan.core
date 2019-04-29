@@ -3410,13 +3410,18 @@ void MainController::send_disconnect_ack(component_struct *tc)
 }
 
 void MainController::send_map(component_struct *tc,
-  const char *local_port, const char *system_port, boolean translation)
+  const char *local_port, const char *system_port, unsigned int nof_params,
+  char** params, boolean translation)
 {
   Text_Buf text_buf;
   text_buf.push_int(MSG_MAP);
   text_buf.push_int(translation == FALSE ? 0 : 1);
   text_buf.push_string(local_port);
   text_buf.push_string(system_port);
+  text_buf.push_int(nof_params);
+  for (unsigned int i = 0; i < nof_params; ++i) {
+    text_buf.push_string(params[i]);
+  }
   send_message(tc->tc_fd, text_buf);
 }
 
@@ -3428,13 +3433,18 @@ void MainController::send_map_ack(component_struct *tc)
 }
 
 void MainController::send_unmap(component_struct *tc,
-  const char *local_port, const char *system_port, boolean translation)
+  const char *local_port, const char *system_port, unsigned int nof_params,
+  char** params, boolean translation)
 {
   Text_Buf text_buf;
   text_buf.push_int(MSG_UNMAP);
   text_buf.push_int(translation == FALSE ? 0 : 1);
   text_buf.push_string(local_port);
   text_buf.push_string(system_port);
+  text_buf.push_int(nof_params);
+  for (unsigned int i = 0; i < nof_params; ++i) {
+    text_buf.push_string(params[i]);
+  }
   send_message(tc->tc_fd, text_buf);
 }
 
@@ -5371,11 +5381,18 @@ void MainController::process_map_req(component_struct *tc)
     delete [] system_port;
     return;
   }
+  
+  unsigned int nof_params = text_buf.pull_int().get_val();
+  char** params = new char*[nof_params];
+  for (unsigned int i = 0; i < nof_params; ++i) {
+    params[i] = text_buf.pull_string();
+  }
 
   port_connection *conn = find_connection(src_compref, src_port,
     SYSTEM_COMPREF, system_port);
   if (conn == NULL) {
-    send_map(components[src_compref], src_port, system_port, translate == 0 ? FALSE : TRUE);
+    send_map(components[src_compref], src_port, system_port, nof_params,
+      params, translate == 0 ? FALSE : TRUE);
     conn = new port_connection;
     conn->head.comp_ref = src_compref;
     conn->head.port_name = src_port;
@@ -5408,6 +5425,11 @@ void MainController::process_map_req(component_struct *tc)
     delete [] src_port;
     delete [] system_port;
   }
+  
+  for (unsigned int i = 0; i < nof_params; ++i) {
+    delete [] params[i];
+  }
+  delete [] params;
 }
 
 void MainController::process_mapped(component_struct *tc)
@@ -5470,6 +5492,13 @@ void MainController::process_unmap_req(component_struct *tc)
     delete [] system_port;
     return;
   }
+  
+  unsigned int nof_params = text_buf.pull_int().get_val();
+  char** params = new char*[nof_params];
+  for (unsigned int i = 0; i < nof_params; ++i) {
+    params[i] = text_buf.pull_string();
+  }
+  
   port_connection *conn = find_connection(src_compref, src_port,
       SYSTEM_COMPREF, system_port);
   if (conn == NULL) {
@@ -5477,7 +5506,8 @@ void MainController::process_unmap_req(component_struct *tc)
   } else {
     switch (conn->conn_state) {
     case CONN_MAPPED:
-      send_unmap(components[src_compref], src_port, system_port, translation);
+      send_unmap(components[src_compref], src_port, system_port, nof_params,
+        params, translation);
       conn->conn_state = CONN_UNMAPPING;
     case CONN_UNMAPPING:
       add_requestor(&conn->requestors, tc);
@@ -5497,6 +5527,11 @@ void MainController::process_unmap_req(component_struct *tc)
 
   delete [] src_port;
   delete [] system_port;
+  
+  for (unsigned int i = 0; i < nof_params; ++i) {
+    delete [] params[i];
+  }
+  delete [] params;
 }
 
 void MainController::process_unmapped(component_struct *tc)

@@ -405,6 +405,7 @@ private:
   TypeMappings *in_mappings, *out_mappings; ///< mappings for PT_USER
   Definitions *vardefs; ///< variable definitions inside the port
   bool realtime;
+  FormalParList *map_params, *unmap_params;
   /** Copy constructor not implemented */
   PortTypeBody(const PortTypeBody& p);
   /** Assignment disabled */
@@ -413,7 +414,7 @@ public:
   PortTypeBody(PortOperationMode_t p_operation_mode,
     Types *p_in_list, Types *p_out_list, Types *p_inout_list,
     bool p_in_all, bool p_out_all, bool p_inout_all, Definitions *defs,
-    bool p_realtime);
+    bool p_realtime, FormalParList *p_map_params, FormalParList *p_unmap_params);
   ~PortTypeBody();
   virtual PortTypeBody *clone() const;
   virtual void set_fullname(const string& p_fullname);
@@ -430,6 +431,7 @@ public:
   bool getreply_allowed() const;
   bool catch_allowed() const;
   bool is_internal() const;
+  FormalParList* get_map_parameters(bool map) const;
   /** Returns the address type that can be used in communication operations
    * on this port type. NULL is returned if addressing inside SUT is not
    * supported or the address type does not exist. */

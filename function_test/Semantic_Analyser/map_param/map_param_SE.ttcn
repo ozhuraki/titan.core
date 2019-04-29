@@ -1,0 +1,92 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+module map_param_SE { //^In TTCN-3 module//
+
+/* testing the 'map param' and 'unmap' param clauses in port type definitions */
+type port PT1 message {
+  inout charstring
+}
+
+type component CT1 {}
+
+type record of CT1 CompList; //Prohibited type is here//
+
+type set Set_w_default {
+  default f //Prohibited type is here//
+}
+
+type port PT2 message { //^In type definition//
+  inout integer
+  map param (CT1 a, in default b, inout PT1 c) //^In `map' parameters// //^In formal parameter list// //^In parameter//3 //The `map'/`unmap' parameters of a port type cannot be or contain a field/element of component type// //Prohibited type is here//2 //The `map'/`unmap' parameters of a port type cannot be or contain a field/element of default type// //The `map'/`unmap' parameters of a port type cannot have port parameter//
+  unmap param (out CompList d, inout Set_w_default e) //^In `unmap' parameters// //In formal parameter list// //^In parameter//2 //The `map'/`unmap' parameters of a port type cannot be or contain a field/element of component type// //The `map'/`unmap' parameters of a port type cannot be or contain a field/element of default type//
+}
+
+signature Sig(in integer x, out float y);
+
+type port PT3 procedure { //^In type definition//
+  inout Sig
+  map param (in integer x, out float x) //^In `map' parameters// //^In formal parameter list// //Duplicate parameter with name// //Previous definition of `x' is here//
+  unmap param (inout Nonexistent x) //^In `unmap' parameters// //^In formal parameter list// //^In parameter// //There is no local or imported definition with name//
+}
+
+type record of integer IntList;
+
+type octetstring Oct2 length (2);
+
+type port PT4 message {
+  inout integer
+  map param (in Oct2 x, out IntList y)
+  unmap param (inout integer z)
+}
+
+type component CT4 {
+  port PT4 pt
+}
+
+/* testing the 'param' clause in 'map' and 'unmap' operations */
+testcase tc() runs on CT4 { //^In testcase definition//
+  map(mtc:pt, system:pt);
+  unmap(mtc:pt, system:pt);
+  
+  var IntList list;
+  var integer i := 6;
+  map(mtc:pt, system:pt) param ('ABCD'O, list);
+  unmap(mtc:pt, system:pt) param (i);
+  
+  map(mtc:pt, system:pt) param (x := 'ABCD'O, y := list);
+  unmap(mtc:pt, system:pt) param (z := i);
+  
+  map(mtc:pt, system:pt) param (octetstring: 'ABCD'O, IntList: list); //^In map statement// //^In parameter// //Explicit type specification is useless for//
+  unmap(mtc:pt, system:pt) param (integer: i); //^In unmap statement// //^In parameter// //Explicit type specification is useless for//
+  
+  map(mtc:pt, system:pt) param ('11223344'O, i); //^In map statement// //^In parameter//2 //is not a valid value for type `octetstring' which has subtype// //Reference to a variable or value parameter of type `@map_param_SE.IntList' was expected instead of `integer'//
+  unmap(mtc:pt, system:pt) param ("2"); //^In unmap statement// //^In parameter// //Reference to a variable or value parameter was expected for an `inout' value parameter//
+  
+  map(mtc:pt, system:pt) param (octetstring: ?); //^In map statement// //Too few parameters\: 2 was expected instead of 1// //^In parameter// //A specific value without matching symbols was expected for a value parameter//
+  unmap(mtc:pt, system:pt) param (-); //^In unmap statement// //^In parameter// //Not used symbol \(`-'\) cannot be used for parameter that does not have default value//
+}
+
+function func_w_system() system CT4 {
+  var IntList list;
+  var integer i := 6;
+  map(mtc:pt, system:pt) param ('ABCD'O, list);
+  unmap(mtc:pt, system:pt) param (i);
+}
+
+function func_w_no_system() runs on CT4 mtc CT4 { //^In function definition//
+  var IntList list;
+  var integer i := 6;
+  map(mtc:pt, system:pt) param ('ABCD'O, list); //^In map statement// //Cannot determine system component in `map' operation with `param' clause//
+  unmap(mtc:pt, system:pt) param (i); //^In unmap statement// //Cannot determine system component in `unmap' operation with `param' clause//
+}
+
+}

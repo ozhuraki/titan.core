@@ -1,0 +1,12 @@
+map_param_single
+map_param_single.exe
+common*.cc
+common*.hh
+single_test*.cc
+single_test*.hh
+*.o
+*.d
+PT.cc
+PT.hh
+common.ttcn
+map_param_single.log
