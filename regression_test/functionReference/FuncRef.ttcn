@@ -38,6 +38,12 @@ type function my_int2str_type(in integer a) return charstring;
 
 modulepar my_int2str_type modulepar_my_intstr := refers(my_int2str);
 
+function f_timer(timer t) return charstring {
+  return log2str(t);
+}
+
+type function f_timer_type(timer t) return charstring;
+
 
 type union operator_type
 {
@@ -462,6 +468,19 @@ testcase tc_modulepar_refer() runs on FuncRef_comp {
   }
 }
 
+// for bug 546800
+testcase tc_function_with_timer() runs on FuncRef_comp {
+  var f_timer_type f := refers(f_timer);
+  timer t1;
+  var charstring res := f.apply(t1);
+  if (res == "timer: { name: t1, default duration: none, state: inactive }") {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, res);
+  }
+}
+
 
 control
 {
@@ -485,6 +504,7 @@ control
   execute(tc_functionrefIsbound());
   execute(tc_send_tc());
   execute(tc_modulepar_refer());
+  execute(tc_function_with_timer());
 }
 }
 
