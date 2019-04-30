@@ -37,7 +37,7 @@ include ../Makefile.cfg
 PDF_GEN_CALL := asciidoctor-pdf --attribute skip-front-matter
 
 TITAN_PDFS := apiguide/Apiguide.pdf userguide/UserGuide.pdf installationguide/installationguide.pdf \
-referenceguide/ReferenceGuide.pdf releasenotes/releasenotes.pdf PRI/PRI.pdf SoC_TITAN/SoC_TITAN.pdf \
+referenceguide/ReferenceGuide.pdf java_referenceguide/JavaReferenceGuide.pdf releasenotes/releasenotes.pdf PRI/PRI.pdf SoC_TITAN/SoC_TITAN.pdf \
 SoC_XML_TITAN/SoC_XML_TITAN.pdf
 
 ifeq ($(GEN_PDF), yes)
@@ -67,6 +67,9 @@ installationguide/installationguide.pdf: installationguide/*.adoc installationgu
 
 referenceguide/ReferenceGuide.pdf: referenceguide/*.adoc referenceguide/images/*
 	$(PDF_GEN_CALL) referenceguide/ReferenceGuide.adoc
+
+referenceguide/JavaReferenceGuide.pdf: java_referenceguide/*.adoc java_referenceguide/images/*
+	$(PDF_GEN_CALL) jva_referenceguide/JavaReferenceGuide.adoc
 
 releasenotes/releasenotes.pdf: releasenotes/*.adoc releasenotes/images/*
 	$(PDF_GEN_CALL) releasenotes/releasenotes.adoc
