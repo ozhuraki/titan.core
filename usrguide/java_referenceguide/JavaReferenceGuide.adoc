@@ -1,0 +1,102 @@
+---
+Author: Jenő Balaskó
+Version: 2/198 17-CRL 113 200/6, Rev. E
+Date: 2018-12-03
+
+---
+= Programmers' Technical Reference Guide for the Java side of the TITAN TTCN-3 Toolset
+:author: Jenő Balaskó
+:revnumber: 2/198 17-CRL 113 200/6, Rev. E
+:revdate: 2019-29-04
+:title-logo-image: images/titan_logo.png
+:sectnums:
+:doctype: book
+:toc:
+
+ifdef::env-github,backend-html5[]
+image::images/titan_logo.png[alt]
+endif::[]
+
+*Abstract*
+
+This document describes detailed information on writing components of executable test suites for the Java side of the TITAN TTCN-3 Toolset.
+
+*Copyright*
+
+Copyright (c) 2000-2019 Ericsson Telecom AB. +
+All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v2.0 that accompanies this distribution, and is available at +
+https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html.
+
+*Disclaimer*
+
+The contents of this document are subject to revision without notice due to continued progress in methodology, design and manufacturing. Ericsson should have no liability for any error or damage of any kind resulting from the use of this document.
+
+////
+TTCN-3 Limitations in this Version
+Clarifications to the TTCN-3 Standard
+TTCN–3 Language Extensions
+Supported ASN.1 Constructs and Limitations
+Compiling TTCN–3 and ASN.1 Modules
+XSD to TTCN-3 Converter ... kulso hivas
+Code Coverage of TTCN-3 Modules
+The TTCN-3 Debugger
+Tips & Troubleshootings
+
+API guide -bol
+Generating the Skeleton
+Message es procedure based example
+Test Port functions
+Logger plugins
+Encoding
+Mapping TTCN-3 Data Type to Java constructs
+////
+
+
+ifdef::env-github,backend-html5[]
+* link:1-about_the_document.adoc[About the document]
+////
+* link:2-ttcn-3_limitations_in_this_version.adoc[TTCN-3 Limitations in this Version]
+* link:3-clarifications_to_the_ttcn-3_standard.adoc[Clarifications to the TTCN-3 Standard]
+* link:4-ttcn3_language_extensions.adoc[TTCN–3 Language Extensions]
+* link:5-supported_asn1_constructs_and_limitations.adoc[Supported ASN.1 Constructs and Limitations]
+* link:6-compiling_ttcn3_and_asn1_modules.adoc[Compiling TTCN–3 and ASN.1 Modules]
+* link:7-the_run-time_configuration_file.adoc[The Run-time Configuration File]
+* link:8-the_titan_project_descriptor_file.adoc[The TITAN Project Descriptor File]
+* link:9-xsd_to_ttcn-3_converter.adoc[XSD to TTCN-3 Converter]
+* link:10-code_coverage_of_ttcn-3_modules.adoc[Code Coverage of TTCN-3 Modules]
+* link:11-the_ttcn-3_debugger.adoc[The TTCN-3 Debugger]
+* link:12-tips_&_troubleshooting.adoc[Tips & Troubleshootings]
+* link:2-test_ports.adoc[Test Ports]
+* link:3-logger_plug-ins.adoc[Logger Plug-ins]
+* link:4-encoding_and_decoding.adoc[Encoding and Decoding]
+* link:5-mapping_ttcn3_data_types_to_c+\+_constructs.adoc[Mapping TTCNâ€“3 Data Types to {cpp} Constructs]
+* link:6-tips_&_troubleshooting.adoc[Tips & Troubleshooting]
+////
+* link:13-references.adoc[References]
+* link:14-abbreviations.adoc[Abbreviations]
+endif::[]
+
+
+ifndef::env-github,backend-html5[]
+include::1-about_the_document.adoc[leveloffset=+1]
+////
+//include::2-ttcn-3_limitations_in_this_version.adoc[leveloffset=+1]
+//include::3-clarifications_to_the_ttcn-3_standard.adoc[leveloffset=+1]
+//include::4-ttcn3_language_extensions.adoc[leveloffset=+1]
+//include::5-supported_asn1_constructs_and_limitations.adoc[leveloffset=+1]
+//include::6-compiling_ttcn3_and_asn1_modules.adoc[leveloffset=+1]
+//include::7-the_run-time_configuration_file.adoc[leveloffset=+1]
+//include::8-the_titan_project_descriptor_file.adoc[leveloffset=+1]
+//include::9-xsd_to_ttcn-3_converter.adoc[leveloffset=+1]
+//include::10-code_coverage_of_ttcn-3_modules.adoc[leveloffset=+1]
+//include::11-the_ttcn-3_debugger.adoc[leveloffset=+1]
+//include::12-tips_&_troubleshooting.adoc[leveloffset=+1]
+//include::2-test_ports.adoc[leveloffset=+1]
+//include::3-logger_plug-ins.adoc[leveloffset=+1]
+//include::4-encoding_and_decoding.adoc[leveloffset=+1]
+//include::5-mapping_ttcn3_data_types_to_c++_constructs.adoc[leveloffset=+1]
+//include::6-tips_&_troubleshooting.adoc[leveloffset=+1]
+////
+include::13-references.adoc[leveloffset=+1]
+include::14-abbreviations.adoc[leveloffset=+1]
+endif::[]

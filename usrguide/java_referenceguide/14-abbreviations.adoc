@@ -1,0 +1,105 @@
+= Abbreviations
+
+API:: Application Programming Interface
+
+ASCII:: American Standard Code for Information Interchange
+
+ASN.1:: Abstract Syntax Notation One
+
+ATS:: Abstract Test Suite
+
+BER:: Basic Encoding Rules (of ASN.1)
+
+BNF:: Backus–Naur Formalism
+
+CER:: Canonical Encoding Rules (of ASN.1)
+
+CPP:: Cello Packet Platform
+
+CR:: Change Request
+
+DER:: Distinguished Encoding Rules (of ASN.1)
+
+DNS:: Domain Name Server
+
+DTD:: Document Type Description
+
+ETS:: Executable Test Suite
+
+ETSI:: European Telecommunications Standards Institute
+
+FIFO:: First In, First Out
+
+GCC:: GNU Compiler Collection
+
+GUI:: Graphical User Interface
+
+HC:: Host Controller
+
+HTML:: Hypertext Markup Language
+
+HTTP:: HyperText Transfer Protocol
+
+IDL:: Interface Description Language
+
+IE:: Information Element
+
+IP:: Internet Protocol
+
+ISO:: International Organization for Standardization
+
+JSON:: JavaScript Object Notation
+
+LCOV:: A graphical front-end for GCC’s coverage testing tool
+
+LSB:: Least Significant Bit
+
+MC:: Main Controller
+
+MSB:: Most Significant Bit
+
+MTC:: Main (or Master) Test Component
+
+OSE:: Open System Environment
+
+PDU:: Protocol Data Unit
+
+pl:: Patch Level
+
+PTC:: Parallel Test Component
+
+PT:: Port Type
+
+SOAP:: Simple Object Access Protocol
+
+SUT:: System Under Test
+
+TC:: Test Component (either MTC or PTC)
+
+TCC:: Test Competence Center
+
+TCP:: Transmission Control Protocol
+
+TLV:: Tag, length, value
+
+TPD:: Titan Project Descriptor
+
+TR:: Trouble Report
+
+TTCN:: Testing and Test Control Notation
+
+TTCN–2:: Tree and Tabular Combined Notation version 2
+
+TTCN–3:: Tree and Tabular Combined Notation version 3 (formerly)Testing and Test Control Notation (new resolution)
+
+UDP:: User Datagram Protocol
+
+URL:: Universal Resource Locator
+
+URI:: Uniform Resource Identifier
+
+W3C:: World Wide Web Consortium
+
+XML:: W3C Extensible Markup Language
+
+XSD:: W3C XML Schema Definition

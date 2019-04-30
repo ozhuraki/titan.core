@@ -1,0 +1,22 @@
+= About the Document
+:toc:
+
+== Purpose
+
+The purpose of this document is to provide detailed information on writing components, for example, test ports, and so on, for executable test suites, for the Java side of the TITAN TTCN-3 Toolset.
+
+== Target Groups
+
+This document is intended for programmers of TTCN–3 test suites, using the prototype Java code generator provided in the plugins, with information in addition to that provided in the <<_13, TITAN User Guide>>, <<_16, API Technical Reference>> and <<_27, Programmers' Technical Reference Guide>>. It is recommended that the programmer reads the TITAN User Guide before reading this document.
+
+== Typographical Conventions
+
+This document uses the following typographical conventions:
+
+*Bold* is used to represent graphical user interface (GUI) components such as buttons, menus, menu items, dialog box options, fields and keywords, as well as menu commands. Bold is also used with ’+’ to represent key combinations. For example, *Ctrl+Click*
+
+The character `**/**' is used to denote a menu and sub-menu sequence. For example, *File / Open*.
+
+`Monospaced` font is used represent system elements such as command and parameter names, program names, path names, URLs, directory names and code examples.
+
+*`Bold monospaced`* font is used for commands that must be entered at the Command Line Interface (CLI).
