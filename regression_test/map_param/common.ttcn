@@ -1,0 +1,53 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+module common {
+
+type record of integer IntList;
+
+type port PT message {
+  in integer
+  out charstring
+  map param (in octetstring p1 := P1_INITIAL, out IntList p2)
+  unmap param (inout integer p)
+}
+
+type component CT {
+  port PT pt;
+  var boolean map_param := false;
+  var boolean unmap_param := false;
+  var boolean map_empty := false;
+  var boolean unmap_empty := false;
+}
+
+const octetstring P1_INITIAL := '1123'O;
+
+const IntList P2_INITIAL := { 1, 2, 3 };
+const IntList P2_FINAL := { 1, 2, 4, 8 };
+
+const integer P_INITIAL := -2;
+const integer P_FINAL := 2;
+
+function f_check_calls() runs on CT {
+  // check whether all 4 user functions have been called
+  if (map_param and unmap_param and map_empty and unmap_empty) {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, "Not all user functions have been called.");
+    log("user_map with parameters: ", map_param);
+    log("user_unmap with parameters: ", unmap_param);
+    log("user_map without parameters: ", map_empty);
+    log("user_unmap without parameters: ", unmap_empty);
+  }
+}
+
+}

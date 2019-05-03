@@ -34,6 +34,7 @@ struct sockaddr_un;
 #include "NetworkHandler.hh"
 
 class MC_Connection;
+class Map_Params;
 
 class TTCN_Communication {
   static int mc_fd;
@@ -120,11 +121,11 @@ public:
   static void send_disconnected(const char *local_port,
     component remote_component, const char *remote_port);
   static void send_map_req(component src_component, const char *src_port,
-    const char *system_port, boolean translation);
+    const char *system_port, Map_Params& params, boolean translation);
   static void send_mapped(const char *local_port,
     const char *system_port, boolean translation);
-  static void send_unmap_req(component src_component,
-    const char *src_port, const char *system_port, boolean translation);
+  static void send_unmap_req(component src_component, const char *src_port,
+    const char *system_port, Map_Params& params, boolean translation);
   static void send_unmapped(const char *local_port,
     const char *system_port, boolean translation);
 

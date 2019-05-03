@@ -702,6 +702,10 @@ namespace Common {
       * Only used with new codec handling. */
     bool can_have_coding(MessageEncodingType_t coding);
     
+    /** Checks whether the type itself or one of its fields/elements is a
+      * component or default type. Recursive. */
+    void chk_map_param(Location* usage);
+    
     /** Return whether the two typetypes are compatible.  Sometimes, this is
      *  just a question of \p p_tt1 == \p p_tt2.  When there are multiple
      *  typetypes for a type (e.g. T_ENUM_A and T_ENUM_T) then all

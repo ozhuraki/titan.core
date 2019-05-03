@@ -350,6 +350,11 @@ namespace Ttcn {
         Value *compref2;
         Reference *portref2;
         bool translate; // true if a map statement enables translation mode
+        union {
+          ParsedActualParameters* parsed_params;
+          ActualParList* ap_list;
+        };
+        FormalParList* fp_list; // not owned
       } config_op; ///< used by S_CONNECT, S_MAP, S_DISCONNECT, S_UNMAP
 
       struct {
@@ -618,7 +623,8 @@ namespace Ttcn {
     /** Constructor used by S_CONNECT, S_DISCONNECT, S_MAP, S_UNMAP */
     Statement(statementtype_t p_st,
               Value *p_compref1, Reference *p_portref1,
-              Value *p_compref2, Reference *p_portref2);
+              Value *p_compref2, Reference *p_portref2,
+              ParsedActualParameters* p_params);
     /** Constructor used by S_TESTCASE_INSTANCE */
     Statement(statementtype_t p_st, Ref_pard *p_ref, Value *p_val);
     /** Constructor used by S_ACTIVATE_REFD */

@@ -9583,6 +9583,22 @@ namespace Ttcn {
         default:
           break;
         }
+        break;
+      case Definition::A_PORT:
+        switch (par->get_asstype()) {
+        case Definition::A_PAR_VAL:
+        case Definition::A_PAR_VAL_IN:
+        case Definition::A_PAR_VAL_OUT:
+        case Definition::A_PAR_VAL_INOUT:
+          // these are allowed
+          par->get_Type()->chk_map_param(par);
+          break;
+        default:
+          par->error("The `map'/`unmap' parameters of a port type cannot have %s",
+            par->get_assname());
+          break;
+        }
+        break;
       default:
         // everything is allowed for functions and altsteps
         break;

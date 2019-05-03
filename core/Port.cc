@@ -53,6 +53,35 @@
 
 #include "../common/dbgnew.hh"
 
+Map_Params::Map_Params(unsigned int p_nof_params)
+: nof_params(p_nof_params), params(new CHARSTRING[nof_params]) { }
+
+Map_Params::~Map_Params()
+{
+  delete[] params;
+}
+
+void Map_Params::set_param(unsigned int p_index, const CHARSTRING& p_param)
+{
+  if (p_index >= nof_params) {
+    TTCN_error("Map/unmap parameter index out of bounds");
+  }
+  params[p_index] = p_param;
+}
+
+unsigned int Map_Params::get_nof_params() const
+{
+  return nof_params;
+}
+
+const CHARSTRING& Map_Params::get_param(unsigned int p_index) const
+{
+  if (p_index >= nof_params) {
+    TTCN_error("Map/unmap parameter index out of bounds");
+  }
+  return params[p_index];
+}
+
 PORT *PORT::list_head = NULL, *PORT::list_tail = NULL;
 PORT *PORT::system_list_head = NULL, *PORT::system_list_tail = NULL;
 
@@ -357,7 +386,8 @@ void PORT::deactivate_port(boolean system)
         TitanLoggerApi::Port__Misc_reason::removing__unterminated__mapping,
         port_name, NULL_COMPREF, system_port);
       try {
-        unmap(system_port, system);
+        Map_Params params(0);
+        unmap(system_port, params, system);
       } catch (const TC_Error&) { }
       if (is_parallel) {
         try {
@@ -1146,12 +1176,28 @@ void PORT::Uninstall_Handler()
   Fd_And_Timeout_User::set_timer(this, 0.0);
 }
 
-void PORT::user_map(const char *)
+void PORT::user_map(const char *system_port)
+{
+  // call the new user_map function if the legacy version is not overridden in
+  // the port implementation
+  Map_Params dummy(0);
+  user_map(system_port, dummy);
+}
+
+void PORT::user_unmap(const char *system_port)
+{
+  // call the new user_unmap function if the legacy version is not overridden in
+  // the port implementation
+  Map_Params dummy(0);
+  user_unmap(system_port, dummy);
+}
+
+void PORT::user_map(const char *, Map_Params&)
 {
 
 }
 
-void PORT::user_unmap(const char *)
+void PORT::user_unmap(const char *, Map_Params&)
 {
 
 }
@@ -2190,7 +2236,7 @@ void PORT::process_last_message(port_connection *conn_ptr)
   }
 }
 
-void PORT::map(const char *system_port, boolean translation)
+void PORT::map(const char *system_port, Map_Params& params, boolean translation)
 {
   if (!is_active) TTCN_error("Inactive port %s cannot be mapped.", port_name);
 
@@ -2215,7 +2261,13 @@ void PORT::map(const char *system_port, boolean translation)
     set_system_parameters(port_name);
   }
 
-  user_map(system_port);
+  if (params.get_nof_params() == 0) {
+    // call the legacy function if there are no parameters (for backward compatibility)
+    user_map(system_port);
+  }
+  else {
+    user_map(system_port, params);
+  }
 
   if (translation == FALSE) {
     TTCN_Logger::log_port_misc(
@@ -2241,7 +2293,7 @@ void PORT::map(const char *system_port, boolean translation)
     "addressing.", port_name);
 }
 
-void PORT::unmap(const char *system_port, boolean translation)
+void PORT::unmap(const char *system_port, Map_Params& params, boolean translation)
 {
   int del_posn;
   for (del_posn = 0; del_posn < n_system_mappings; del_posn++) {
@@ -2273,7 +2325,13 @@ void PORT::unmap(const char *system_port, boolean translation)
     n_system_mappings * sizeof(*system_mappings));
 
   try {
-    user_unmap(system_port);
+    if (params.get_nof_params() == 0) {
+      // call the legacy function if there are no parameters (for backward compatibility)
+      user_unmap(system_port);
+    }
+    else {
+      user_unmap(system_port, params);
+    }
   } catch (...) {
     // prevent from memory leak
     Free(unmapped_port);
@@ -2517,7 +2575,8 @@ void PORT::terminate_local_connection(const char *src_port,
   }
 }
 
-void PORT::map_port(const char *component_port, const char *system_port, boolean translation)
+void PORT::map_port(const char *component_port, const char *system_port,
+                    Map_Params& params, boolean translation)
 {
   if (translation == TRUE) {
     TTCN_Runtime::initialize_system_port(system_port);
@@ -2530,9 +2589,9 @@ void PORT::map_port(const char *component_port, const char *system_port, boolean
     TTCN_error("Map operation is not allowed on a connected port (%s).", port_name);
   }
   if (translation == FALSE) {
-    port_ptr->map(system_port, translation);
+    port_ptr->map(system_port, params, translation);
   } else {
-    port_ptr->map(component_port, translation);
+    port_ptr->map(component_port, params, translation);
   }
   if (translation == TRUE) {
     PORT* other_port_ptr = lookup_by_name(component_port, FALSE);
@@ -2544,7 +2603,8 @@ void PORT::map_port(const char *component_port, const char *system_port, boolean
   }
 }
 
-void PORT::unmap_port(const char *component_port, const char *system_port, boolean translation)
+void PORT::unmap_port(const char *component_port, const char *system_port,
+                      Map_Params& params, boolean translation)
 {
   if (translation == TRUE) {
     TTCN_Runtime::initialize_system_port(system_port);
@@ -2554,9 +2614,9 @@ void PORT::unmap_port(const char *component_port, const char *system_port, boole
   if (port_ptr == NULL) TTCN_error("Unmap operation refers to "
     "non-existent port %s.", port_name);
   if (translation == FALSE) {
-    port_ptr->unmap(system_port, translation);
+    port_ptr->unmap(system_port, params, translation);
   } else {
-    port_ptr->unmap(component_port, translation);
+    port_ptr->unmap(component_port, params, translation);
   }
   if (translation == TRUE) {
     PORT* other_port_ptr = lookup_by_name(component_port, FALSE);
