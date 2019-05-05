@@ -1,0 +1,104 @@
+[[ttcn-3-language-extensions]]
+= TTCN–3 Language Extensions
+:toc:
+:table-number: 3
+
+The Test Executor supports several non-standard additions to TTCN–3 Core Language, as detailed in <<13-references.adoc#_27, [27]>>, in order to improve its usability or provide backward compatibility with older versions.
+
+The following list contains the TTCN–3 language extensions that are not yet supported by the Java side of the Test Executor.
+The sections/feature not listed here are supported.
+
+
+[[ttcn-3-preprocessing]]
+== TTCN–3 Preprocessing
+
+Preprocessing of the TTCN-3 files with a C style preprocessor is supported by the Java side.
+
+Contrary to the C side, on the Java side preprocessing is supported by an internal pre-processor. That is the generated Java files will already have the pre-processable content pre-processed.
+
+Parameterized macros are not supported on the Java side.
+
+
+== Implicit Message Encoding
+
+Compared to the description in section 3.22 of <<13-references.adoc#_27, [27]>> the Java side has 2 major differences:
+Only RAW encoding is supported for now.
+the syntax to be used in Java differs slightly from the of used in {cpp}
+
+The TTCN–3 attribute `errorbehavior(INCOMPL_ANY:ERROR)`, for example, instead of being mapped to the following {cpp} statement
+[source]
+----
+TTCN_EncDec::set_error_behavior(TTCN_EncDec::ET_INCOMPL_ANY,
+  TTCN_EncDec::EB_ERROR);
+----
+
+is mapped to the following Java statement
+[source]
+----
+TTCN_EncDec.et_error_behavior(TTCN_EncDec.error_type.ET_INCOMPL_ANY,
+  TTCN_EncDec.error_behavior_type.EB_ERROR);
+----
+
+
+== RAW Encoder and Decoder
+
+The Java side supports the same RAW Encoder and Decoder features as the C side.
+
+
+== TEXT Encoder and Decoder
+
+The TEXT Encoder and Decoder is not yet supported on the Java side.
+
+== XML Encoder and Decoder
+
+The XML Encoder and Decoder is not yet supported on the Java side.
+
+== JSON Encoder and Decoder
+
+The XML Encoder and Decoder is not yet supported on the Java side.
+
+== OER Encoder and Decoder
+
+The OER Encoder and Decoder is not yet supported on the Java side.
+
+[[build-consistency-checks]]
+== Build Consistency Checks
+
+Executable test suites are typically put together from many sources, some of which (test ports, function libraries, etc.) are not written by the test writers themselves, but are developed independently. Sometimes, a test suite requires an external component with a certain feature or bug fix, or a certain minimum TITAN version. Building with a component which does not meet a requirement, or an old TITAN version, typically results in malfunction during execution or cryptic error messages during build. If version dependencies are specified explicitly, they can be checked during build and the mismatches can be reported.
+
+=== Version Information in TTCN-3 Files
+
+TITAN allows test writers to specify that a certain TTCN-3 module requires a minimum version of another TTCN-3 module or a minimum version of TITAN.
+
+The Java side of the toolset provides the same features as the C side for TTCN-3 level checking of consistency.
+
+=== Consistency Check in the Generated Code
+
+The java side offers different consistency checks compared to the C side, for the generated code.
+
+When connecting to the Main Controller in parallel mode, TITAN verifies that the Main Controller and the Java side binaries are of the exact same version of TITAN.
+This is done to ensure that, that both sides use the same communication protocol.
+
+What is not checked on the Java side or checked differently:
+* There is no platform check as Java is platform independent.
+* The Java runtime will check if it can execute the compiled code. Generally a Java runtime should be able to execute any Java code built using an earlier Java version.
+* During the compilation of the Java code, the Java compiler will check if it is able to compile all parts of the code.
+
+== Negative Testing
+
+Negative Testing is not yet supported on the Java side.
+
+== Differences between the Java side runtime, the C side Load Test Runtime and the C side Function Test Runtime
+
+The Java side was based on the Load Test runtime of the C side.
+For now it has the same features and limitations.
+
+Please note, that based on the differences between Java and {cpp}, the Java runtime should be treated as its own version of the runtime, when preparing for future developments.
+
+
+[[profiling-and-code-coverage]]
+== Profiling and code coverage
+
+The Java side does not yet support profiling and code coverage measuring support directly.
+
+For the time being we recommend using the tools built into Eclipse on the Java generated code (The Java side projects also behave as normal Java projects for Eclipse tooling), or other tools provided for Java.

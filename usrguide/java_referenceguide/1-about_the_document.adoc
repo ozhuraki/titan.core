@@ -9,6 +9,14 @@ The purpose of this document is to provide detailed information on writing compo
 
 This document is intended for programmers of TTCN–3 test suites, using the prototype Java code generator provided in the plugins, with information in addition to that provided in the <<_13, TITAN User Guide>>, <<_16, API Technical Reference>> and <<_27, Programmers' Technical Reference Guide>>. It is recommended that the programmer reads the TITAN User Guide before reading this document.
 
+== Naming Convention
+
+This document uses the expressions "C side" and "Java side" in relation to the TITAN TTCN-3 Toolset and Test Executor.
+
+*C side* is used to reference the "original" part of the TITAN TTCN-3 Toolset available from command line. The compiler, makefile generator, the libraries users need to link their executables to during build time.
+
+*Java side* is used to reference the part of the TITAN TTCN-3 Toolset supporting compiling TTCN-3 and ASN.1 code into Java classes via Java source code and the runtime libraries needed for this form of building.
+
 == Typographical Conventions
 
 This document uses the following typographical conventions:
