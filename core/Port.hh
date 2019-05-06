@@ -39,19 +39,30 @@ extern const COMPONENT_template& any_compref;
 
 struct port_connection; // no user serviceable parts inside
 
+/** Wrapper class for parameters of 'map' and 'unmap' operations */
 class Map_Params {
   unsigned int nof_params;
   CHARSTRING* params;
   
-  Map_Params(const Map_Params&); // copy disabled
-  Map_Params& operator=(const Map_Params&); // assignment disabled
+  void init(unsigned int p_nof_params);
+  void clear();
+  void copy(const Map_Params& p_other);
+  
 public:
-  Map_Params(unsigned int p_nof_params);
-  ~Map_Params();
+  Map_Params(unsigned int p_nof_params) { init(p_nof_params); }
+  Map_Params(const Map_Params& p_other) { copy(p_other); } // not used
+  ~Map_Params() { clear(); }
+  Map_Params& operator=(const Map_Params& p_other);
+  void reset(unsigned int p_nof_params);
   void set_param(unsigned int p_index, const CHARSTRING& p_param);
   unsigned int get_nof_params() const;
   const CHARSTRING& get_param(unsigned int p_index) const;
 };
+
+/** Cached parameters of the last received MAP_ACK or UNMAP_ACK message.
+  * It is used by the mapping/unmapping requestor to retrieve the output
+  * parameters of the 'map'/'unmap' operation. (Only used in parallel mode) */
+extern Map_Params map_params_cache;
 
 /** Base class for all test ports */
 class PORT : public Fd_And_Timeout_Event_Handler {

@@ -36,6 +36,23 @@ const IntList P2_FINAL := { 1, 2, 4, 8 };
 const integer P_INITIAL := -2;
 const integer P_FINAL := 2;
 
+function f_test_params(CT p_comp) runs on CT system CT {
+  var IntList v_p2 := P2_INITIAL;
+  map(p_comp:pt, system:pt) param (-, v_p2);
+  if (v_p2 != P2_FINAL) {
+    setverdict(fail, "Final value of parameter p2 is incorrect: ", v_p2);
+  }
+  
+  var integer v_p := P_INITIAL;
+  unmap(p_comp:pt, system:pt) param(v_p);
+  if (v_p != P_FINAL) {
+    setverdict(fail, "Final value of parameter p is incorrect: ", v_p);
+  }
+  
+  map(p_comp:pt, system:pt);
+  unmap(p_comp:pt, system:pt);
+}
+
 function f_check_calls() runs on CT {
   // check whether all 4 user functions have been called
   if (map_param and unmap_param and map_empty and unmap_empty) {
