@@ -1042,13 +1042,18 @@ void TTCN_Communication::send_map_req(component src_component,
 }
 
 void TTCN_Communication::send_mapped(const char *local_port,
-  const char *system_port, boolean translation)
+  const char *system_port, Map_Params& params, boolean translation)
 {
   Text_Buf text_buf;
   text_buf.push_int(MSG_MAPPED);
   text_buf.push_int(translation == FALSE ? 0 : 1);
   text_buf.push_string(local_port);
   text_buf.push_string(system_port);
+  unsigned int nof_params = params.get_nof_params();
+  text_buf.push_int(nof_params);
+  for (unsigned int i = 0; i < nof_params; ++i) {
+    text_buf.push_string((const char*) params.get_param(i));
+  }
   send_message(text_buf);
 }
 
@@ -1071,13 +1076,18 @@ void TTCN_Communication::send_unmap_req(component src_component,
 }
 
 void TTCN_Communication::send_unmapped(const char *local_port,
-  const char *system_port, boolean translation)
+  const char *system_port, Map_Params& params, boolean translation)
 {
   Text_Buf text_buf;
   text_buf.push_int(MSG_UNMAPPED);
   text_buf.push_int(translation == FALSE ? 0 : 1);
   text_buf.push_string(local_port);
   text_buf.push_string(system_port);
+  unsigned int nof_params = params.get_nof_params();
+  text_buf.push_int(nof_params);
+  for (unsigned int i = 0; i < nof_params; ++i) {
+    text_buf.push_string((const char*) params.get_param(i));
+  }
   send_message(text_buf);
 }
 
@@ -1795,9 +1805,9 @@ void TTCN_Communication::process_map()
     }
     if (!TTCN_Runtime::is_single()) {
       if (translation == FALSE) {
-        send_mapped(local_port, system_port, translation);
+        send_mapped(local_port, system_port, params, translation);
       } else {
-        send_mapped(system_port, local_port, translation);
+        send_mapped(system_port, local_port, params, translation);
       }
     }
   } catch (...) {
@@ -1812,6 +1822,13 @@ void TTCN_Communication::process_map()
 
 void TTCN_Communication::process_map_ack()
 {
+  unsigned int nof_params = incoming_buf.pull_int().get_val();
+  map_params_cache.reset(nof_params);
+  for (unsigned int i = 0; i < nof_params; ++i) {
+    char* par = incoming_buf.pull_string();
+    map_params_cache.set_param(i, CHARSTRING(par));
+    delete [] par;
+  }
   incoming_buf.cut_message();
 
   switch (TTCN_Runtime::get_state()) {
@@ -1848,9 +1865,9 @@ void TTCN_Communication::process_unmap()
     }
     if (!TTCN_Runtime::is_single()) {
       if (translation == FALSE) {
-        send_unmapped(local_port, system_port, translation);
+        send_unmapped(local_port, system_port, params, translation);
       } else {
-        send_unmapped(system_port, local_port, translation);
+        send_unmapped(system_port, local_port, params, translation);
       }
     }
   } catch (...) {
@@ -1865,6 +1882,13 @@ void TTCN_Communication::process_unmap()
 
 void TTCN_Communication::process_unmap_ack()
 {
+  unsigned int nof_params = incoming_buf.pull_int().get_val();
+  map_params_cache.reset(nof_params);
+  for (unsigned int i = 0; i < nof_params; ++i) {
+    char* par = incoming_buf.pull_string();
+    map_params_cache.set_param(i, CHARSTRING(par));
+    delete [] par;
+  }
   incoming_buf.cut_message();
 
   switch(TTCN_Runtime::get_state()){

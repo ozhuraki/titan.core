@@ -1192,7 +1192,8 @@ void MainController::destroy_connection(port_connection *conn,
   remove_connection(conn);
 }
 
-void MainController::destroy_mapping(port_connection *conn)
+void MainController::destroy_mapping(port_connection *conn,
+  unsigned int nof_params, char** params)
 {
   component tc_compref;
   const char *tc_port, *system_port;
@@ -1211,7 +1212,7 @@ void MainController::destroy_mapping(port_connection *conn)
       component_struct *comp = get_requestor(&conn->requestors, i);
       if (comp == NULL) break;
       if (comp->tc_state == TC_UNMAP) {
-        send_unmap_ack(comp);
+        send_unmap_ack(comp, nof_params, params);
         if (comp == mtc) comp->tc_state = MTC_TESTCASE;
         else comp->tc_state = PTC_FUNCTION;
       }
@@ -1737,12 +1738,12 @@ void MainController::component_terminated(component_struct *tc)
   // and send out the related messages
   while (tc->conn_head_list != NULL) {
     if (tc->conn_head_list->tail.comp_ref == SYSTEM_COMPREF)
-      destroy_mapping(tc->conn_head_list);
+      destroy_mapping(tc->conn_head_list, 0, NULL);
     else destroy_connection(tc->conn_head_list, tc);
   }
   while (tc->conn_tail_list != NULL) {
     if (tc->conn_tail_list->head.comp_ref == SYSTEM_COMPREF)
-      destroy_mapping(tc->conn_tail_list);
+      destroy_mapping(tc->conn_tail_list, 0, NULL);
     else destroy_connection(tc->conn_tail_list, tc);
   }
   // drop the name of the currently executed function
@@ -3425,10 +3426,15 @@ void MainController::send_map(component_struct *tc,
   send_message(tc->tc_fd, text_buf);
 }
 
-void MainController::send_map_ack(component_struct *tc)
+void MainController::send_map_ack(component_struct *tc,
+  unsigned int nof_params, char** params)
 {
   Text_Buf text_buf;
   text_buf.push_int(MSG_MAP_ACK);
+  text_buf.push_int(nof_params);
+  for (unsigned int i = 0; i < nof_params; ++i) {
+    text_buf.push_string(params[i]);
+  }
   send_message(tc->tc_fd, text_buf);
 }
 
@@ -3448,10 +3454,15 @@ void MainController::send_unmap(component_struct *tc,
   send_message(tc->tc_fd, text_buf);
 }
 
-void MainController::send_unmap_ack(component_struct *tc)
+void MainController::send_unmap_ack(component_struct *tc,
+  unsigned int nof_params, char** params)
 {
   Text_Buf text_buf;
   text_buf.push_int(MSG_UNMAP_ACK);
+  text_buf.push_int(nof_params);
+  for (unsigned int i = 0; i < nof_params; ++i) {
+    text_buf.push_string(params[i]);
+  }
   send_message(tc->tc_fd, text_buf);
 }
 
@@ -5411,7 +5422,7 @@ void MainController::process_map_req(component_struct *tc)
       status_change();
       break;
     case CONN_MAPPED:
-      send_map_ack(tc);
+      send_map_ack(tc, nof_params, params);
       break;
     case CONN_UNMAPPING:
       send_error(tc->tc_fd, "The port mapping %d:%s - system:%s cannot "
@@ -5441,6 +5452,11 @@ void MainController::process_mapped(component_struct *tc)
   boolean translation = text_buf.pull_int().get_val() == 0 ? FALSE : TRUE;
   char *src_port = text_buf.pull_string();
   char *system_port = text_buf.pull_string();
+  unsigned int nof_params = text_buf.pull_int().get_val();
+  char** params = new char*[nof_params];
+  for (unsigned int i = 0; i < nof_params; ++i) {
+    params[i] = text_buf.pull_string();
+  }
 
   port_connection *conn = NULL;
   if (translation == FALSE) { 
@@ -5463,7 +5479,7 @@ void MainController::process_mapped(component_struct *tc)
       component_struct *comp = get_requestor(&conn->requestors, i);
       if (comp == NULL) break;
       if (comp->tc_state == TC_MAP) {
-        send_map_ack(comp);
+        send_map_ack(comp, nof_params, params);
         if (comp == mtc) comp->tc_state = MTC_TESTCASE;
         else comp->tc_state = PTC_FUNCTION;
       }
@@ -5475,6 +5491,10 @@ void MainController::process_mapped(component_struct *tc)
 
   delete [] src_port;
   delete [] system_port;
+  for (unsigned int i = 0; i < nof_params; ++i) {
+    delete [] params[i];
+  }
+  delete [] params;
 }
 
 void MainController::process_unmap_req(component_struct *tc)
@@ -5502,7 +5522,7 @@ void MainController::process_unmap_req(component_struct *tc)
   port_connection *conn = find_connection(src_compref, src_port,
       SYSTEM_COMPREF, system_port);
   if (conn == NULL) {
-    send_unmap_ack(tc);
+    send_unmap_ack(tc, nof_params, params);
   } else {
     switch (conn->conn_state) {
     case CONN_MAPPED:
@@ -5543,6 +5563,11 @@ void MainController::process_unmapped(component_struct *tc)
   boolean translation = text_buf.pull_int().get_val() == 0 ? FALSE : TRUE;
   char *src_port = text_buf.pull_string();
   char *system_port = text_buf.pull_string();
+  unsigned int nof_params = text_buf.pull_int().get_val();
+  char** params = new char*[nof_params];
+  for (unsigned int i = 0; i < nof_params; ++i) {
+    params[i] = text_buf.pull_string();
+  }
 
   port_connection *conn = NULL;
   if (translation == FALSE) { 
@@ -5557,7 +5582,7 @@ void MainController::process_unmapped(component_struct *tc)
     case CONN_MAPPING:
     case CONN_MAPPED:
     case CONN_UNMAPPING:
-      destroy_mapping(conn);
+      destroy_mapping(conn, nof_params, params);
       break;
     default:
       send_error(tc->tc_fd, "Unexpected UNMAPPED message was "
@@ -5568,6 +5593,10 @@ void MainController::process_unmapped(component_struct *tc)
 
   delete [] src_port;
   delete [] system_port;
+  for (unsigned int i = 0; i < nof_params; ++i) {
+    delete [] params[i];
+  }
+  delete [] params;
   status_change();
 }
 

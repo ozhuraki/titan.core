@@ -53,12 +53,38 @@
 
 #include "../common/dbgnew.hh"
 
-Map_Params::Map_Params(unsigned int p_nof_params)
-: nof_params(p_nof_params), params(new CHARSTRING[nof_params]) { }
+void Map_Params::init(unsigned int p_nof_params)
+{
+  nof_params = p_nof_params;
+  params = new CHARSTRING[nof_params];
+}
 
-Map_Params::~Map_Params()
+void Map_Params::clear()
 {
   delete[] params;
+  nof_params = 0;
+  params = NULL;
+}
+
+void Map_Params::copy(const Map_Params& p_other)
+{
+  init(p_other.nof_params);
+  for (unsigned int i = 0; i < nof_params; ++i) {
+    params[i] = p_other.params[i];
+  }
+}
+
+Map_Params& Map_Params::operator=(const Map_Params& p_other)
+{
+  clear();
+  copy(p_other);
+  return *this;
+}
+
+void Map_Params::reset(unsigned int p_nof_params)
+{
+  clear();
+  init(p_nof_params);
 }
 
 void Map_Params::set_param(unsigned int p_index, const CHARSTRING& p_param)
@@ -81,6 +107,8 @@ const CHARSTRING& Map_Params::get_param(unsigned int p_index) const
   }
   return params[p_index];
 }
+
+Map_Params map_params_cache(0);
 
 PORT *PORT::list_head = NULL, *PORT::list_tail = NULL;
 PORT *PORT::system_list_head = NULL, *PORT::system_list_tail = NULL;
@@ -385,13 +413,13 @@ void PORT::deactivate_port(boolean system)
       TTCN_Logger::log_port_misc(
         TitanLoggerApi::Port__Misc_reason::removing__unterminated__mapping,
         port_name, NULL_COMPREF, system_port);
+      Map_Params params(0);
       try {
-        Map_Params params(0);
         unmap(system_port, params, system);
       } catch (const TC_Error&) { }
       if (is_parallel) {
         try {
-          TTCN_Communication::send_unmapped(port_name, system_port, system);
+          TTCN_Communication::send_unmapped(port_name, system_port, params, system);
         } catch (const TC_Error&) { }
       }
       Free(system_port);

@@ -381,7 +381,8 @@ class MainController {
     boolean new_connection, component_struct *requestor,
     const char *operation);
   static void destroy_connection(port_connection *conn, component_struct *tc);
-  static void destroy_mapping(port_connection *conn);
+  static void destroy_mapping(port_connection *conn, unsigned int nof_params,
+    char** params);
   static boolean stop_all_components();
   static void check_all_component_stop();
   static void send_stop_ack_to_requestors(component_struct *tc);
@@ -528,11 +529,13 @@ private:
   static void send_map(component_struct *tc,
     const char *local_port, const char *system_port, unsigned int nof_params,
     char** params, boolean translate);
-  static void send_map_ack(component_struct *tc);
+  static void send_map_ack(component_struct *tc, unsigned int nof_params,
+    char** params);
   static void send_unmap(component_struct *tc,
     const char *local_port, const char *system_port, unsigned int nof_params,
     char** params, boolean translate);
-  static void send_unmap_ack(component_struct *tc);
+  static void send_unmap_ack(component_struct *tc, unsigned int nof_params,
+    char** params);
   static void send_debug_command(int fd, int commandID, const char* arguments);
   static void send_debug_setup(host_struct *hc);
 

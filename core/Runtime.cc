@@ -1924,12 +1924,14 @@ void TTCN_Runtime::map_port(
       system_port, params, translation);
     executor_state = MTC_MAP;
     wait_for_state_change();
+    params = map_params_cache;
     break;
   case PTC_FUNCTION:
     TTCN_Communication::send_map_req(comp_reference, comp_port,
       system_port, params, translation);
     executor_state = PTC_MAP;
     wait_for_state_change();
+    params = map_params_cache;
     break;
   default:
     if (in_controlpart()) {
@@ -2006,12 +2008,14 @@ void TTCN_Runtime::unmap_port(
       system_port, params, translation);
     executor_state = MTC_UNMAP;
     wait_for_state_change();
+    params = map_params_cache;
     break;
   case PTC_FUNCTION:
     TTCN_Communication::send_unmap_req(comp_reference, comp_port,
       system_port, params, translation);
     executor_state = PTC_UNMAP;
     wait_for_state_change();
+    params = map_params_cache;
     break;
   default:
     if (in_controlpart()) {
