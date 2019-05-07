@@ -73,8 +73,8 @@ private:
 	void Handle_Fd_Event_Readable(int fd);
 	/* void Handle_Timeout(double time_since_last_call); */
 protected:
-	void user_map(const char *system_port);
-	void user_unmap(const char *system_port);
+	void user_map(const char *system_port, Map_Params& params);
+	void user_unmap(const char *system_port, Map_Params& params);
 
 	void user_start();
 	void user_stop();
@@ -142,12 +142,12 @@ void MyMessagePort::Handle_Fd_Event_Readable(int fd)
 
 /*void MyMessagePort::Handle_Timeout(double time_since_last_call) {}*/
 
-void MyMessagePort::user_map(const char *system_port)
+void MyMessagePort::user_map(const char *system_port, Map_Params& params)
 {
 
 }
 
-void MyMessagePort::user_unmap(const char *system_port)
+void MyMessagePort::user_unmap(const char *system_port, Map_Params& params)
 {
 
 }
@@ -228,8 +228,8 @@ private:
 	void Handle_Fd_Event_Readable(int fd);
 	/* void Handle_Timeout(double time_since_last_call); */
 protected:
-	void user_map(const char *system_port);
-	void user_unmap(const char *system_port);
+	void user_map(const char *system_port, Map_Params& params);
+	void user_unmap(const char *system_port, Map_Params& params);
 
 	void user_start();
 	void user_stop();
@@ -298,12 +298,12 @@ void MyProcedurePort::Handle_Fd_Event_Readable(int fd)
 
 /*void MyProcedurePort::Handle_Timeout(double time_since_last_call) {}*/
 
-void MyProcedurePort::user_map(const char *system_port)
+void MyProcedurePort::user_map(const char *system_port, Map_Params& params)
 {
 
 }
 
-void MyProcedurePort::user_unmap(const char *system_port)
+void MyProcedurePort::user_unmap(const char *system_port, Map_Params& params)
 {
 
 }
@@ -437,6 +437,73 @@ The execution of TTCN–3 test component that requested the mapping or unmapping
 When the Test Port detects an error situation during the establishment or termination of the physical connection towards the SUT, the function `TTCN_error` shall be used to indicate the failure. If the error occurs within `user_map` the run-time environment will assume that the connection with SUT is not established thus it will not call `user_unmap` to destroy the mapping during the error recovery procedure. If `user_map` fails, it is the Test Port writer’s responsibility to release all allocated resources and bring the object variables into a stable state before calling `TTCN_error`. Within `user_unmap` the errors should be handled in a more robust way. After a minor failure it is better to issue a warning and continue the connection termination instead of panicking. `TTCN_error` shall be called only to indicate critical errors. If `user_unmap` is interrupted with an error the run-time environment assumes that the mapping has been terminated, that is, `user_unmap` will not be called again.
 
 NOTE: if either `user_map` or `user_unmap` fails, the error is indicated on the initiator test component as well; that is, the respective map or `unmap` operation will also fail and error recovery procedure will start on that component.
+
+==== Parameters of the Map and Unmap Functions
+
+Parameters can be sent to the `user_map` and `user_unmap` functions from TTCN code using the `param` clause of the `map` and `unmap` operations.
+
+The 'user_map` and `user_unmap` functions have a parameter of type `Map_Params`, which contains the string representations of the `in` and `inout` parameters of the `map`/`unmap` operation. The string representations of `out` parameters are empty strings (as these are considered as being `unbound` at the beginning of the `map`/`unmap` operation). After the `user_map` or `user_unmap` function ends and the mapping/unmapping is concluded, the final values (string representations) of `out` and `inout` parameters in the `Map_Params` object are sent back to the mapping/unmapping requestor.
+
+The following member functions can be used to obtain or set data in the `Map_Params` object:
+
+[source]
+----
+unsigned int get_nof_params() const
+----
+Returns the number of parameters in the object. This will either be zero (if the `map` or `unmap` operation had no `param` clause) or the number of parameters specified in the system port type definition's `map param` or `unmap param` clause.
+
+[source]
+----
+const CHARSTRING& get_param(unsigned int p_index) const
+----
+Returns the string representation of the parameter at index `p_index`. This method shall be used to retrieve the values of `in` and `inout` parameters. The parameter indices start at 0. The order of the parameters is the same as their order of declaration. Default values of parameters are automatically set by the runtime environment before the `user_map`/`user_unmap` call. The string representations retrieved with this function can be converted back to the parameter's TTCN-3 type with the predefined function `string_to_ttcn`.
+
+[source]
+----
+void set_param(unsigned int p_index, const CHARSTRING& p_param)
+----
+Sets the string representation of the parameter at index `p_index` to the string `p_param`. This method shall be used to set the final values of `out` and `inout` parameters. The string representation of a TTCN-3 value can be obtained using the predefined function `ttcn_to_string`. If the final value of an `out` or `inout` parameter is an empty string, then the variable used as parameter will remain unchanged. Otherwise its new value will be calculated by applying `string_to_ttcn` on the string value set in the `user_map` or `user_unmap` function (this could cause dynamic test case errors if the string representation is invalid).
+
+Usage example:
+
+Port type:
+[source]
+----
+type port MyPort message {
+  ...
+  map param(in MyInParType in_par, inout MyInOutParType inout_par, out MyOutParType out_par)
+}
+----
+`user_map` function in port implementation:
+[source]
+----
+void MyPort::user_map(const char * system_port, Map_Params& params)
+{
+  if (params.get_nof_params() != 0) {
+    // there were map parameters
+    
+    // extract 'in' and 'inout' parameters
+    MyInParType in_par;
+    string_to_ttcn(params.get_param(0), in_par);
+    MyInOutParType inout_par;
+    string_to_ttcn(params.get_param(1), inout_par);
+    MyOutParType out_par; // remains unbound
+    
+    // do mapping
+    ...
+    
+    // update 'out' and 'inout' parameters
+    params.set_param(1, ttcn_to_string(inout_par));
+    params.set_param(2, ttcn_to_string(out_par));
+  }
+  else {
+    // there were no map parameters
+    
+    // do mapping
+    ...
+  }
+}
+----
 
 === Start and Stop Functions
 
