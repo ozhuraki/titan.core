@@ -1,0 +1,6 @@
+= The TTCN-3 Debugger
+:toc:
+:table-number: 42
+
+
+Debugging TTCN-3 directly from TITAN is not yet supported on the Java side.

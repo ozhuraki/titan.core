@@ -31,7 +31,7 @@ Disables the generation of RAW encoder/decoder routines for all TTCN–3 types.
 * `Disable attribute validation (-0)`
 +
 Disables the validation of with attributes.
-WARNING: This option should only be used temporarily and only by people transferring projects from other TTCN-3 tool vendors. As the attribute validation is turned off, users will not be notified of invalid attributes, or errors within attibutes.
+WARNING: This option should only be used temporarily and only by people transferring projects from other TTCN-3 tool vendors. As the attribute validation is turned off, users will not be notified of invalid attributes, or errors within attributes.
 
 * `Add source line info for logging  (-L)`
 +

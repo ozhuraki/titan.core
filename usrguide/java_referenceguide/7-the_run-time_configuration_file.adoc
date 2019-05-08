@@ -1,0 +1,11 @@
+= The Run-time Configuration File
+:toc:
+:table-number: 12
+
+In general the Java side supports the exact same configuration file format and options in the same way as the C side does, described in chapter 7 of <<13-references.adoc#_27, [27]>>.
+There are some features, that are not yet supported on the Java side:
+
+* LoggerPlugins within the LOGGING section are not yet supported. The section is read correctly, but such plugins are not loaded during runtime.
+* EXTERNAL_COMMANDS section is not yet supported. The section is read correctly, but the scripts set there will not be executed during runtime.
+* In MAIN_CONTROLLER section the `UnixSocketsEnabled` feature is not supported. Java does not seem to offer support for this feature.
+* It is also not yet possible to configure the logging options dynamically.

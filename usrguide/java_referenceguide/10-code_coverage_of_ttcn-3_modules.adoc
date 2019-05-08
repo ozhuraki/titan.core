@@ -1,0 +1,3 @@
+= Code Coverage of TTCN-3 Modules
+
+Measuring Code Coverage directly from TITAN is not yet supported on the Java side.
