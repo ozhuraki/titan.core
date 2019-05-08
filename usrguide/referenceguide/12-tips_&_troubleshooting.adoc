@@ -33,7 +33,7 @@ If you would like to use a logged value in TTCN–3 code, then using the `logfor
 +
 * If an octetstring value contains only visible ASCII characters, then the hexadecimal octetstring notation is followed by its character string representation between quotation marks and parentheses. Delete the character string (including the parentheses).
 +
-* If a `record`, `set`, `record of` or set of value contains no fields or elements, then the logformat utility changes the value from `{}` to `{(empty)}` in the log. Delete the word (empty) (including parentheses).
+* If a `record`, `set`, `record of` or `set of` value contains no fields or elements, then the logformat utility changes the value from `{}` to `{(empty)}` in the log. Delete the word (empty) (including parentheses).
 
 [[using-the-ttcn-3-preprocessing-functionality]]
 == Using the TTCN-3 Preprocessing Functionality
