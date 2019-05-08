@@ -1,0 +1,150 @@
+[[compiling-ttcn-3-and-asn-1-modules]]
+= Compiling TTCN–3 and ASN.1 Modules
+:toc:
+:table-number: 11
+
+You can translate your TTCN–3 and ASN.1 modules, located in TITAN Java projects, to Java source code using the builder built into the Designer plugin.
+
+This builder is automatically invoked, when the eclipse's build command is selected on a project.
+When the "Build Automatically" option is selected in the "Project" menu, eclipse automatically builds the project, in the background, when a file is changed.
+
+The TITAN provided builder will use all TTCN-3 and ASN.1 files from all folders that are not excluded.
+The .java files are generated into the "java_src" folder of the project into a package generated from the name of the project in this format: "org.eclipse.titan." + projectname + ".generated".
+
+The usual and recommended suffix is `.ttcn` for TTCN–3 and `.asn` for ASN.1 source files, but it is not stringentfootnote:[.ttcn3, or .asn1 suffixes are supported as well.]. For TTCN–3 and ASN.1 modules, the names of the output files are the same as the name of the modules, except for the suffixes which are `.java`.
+
+NOTE: In the ASN.1 module names hyphens are replaced by underscore character.
+
+WARNING: If you have a modular test suite (the code located in several projects that reference each other), to build a particular project you have to first build all projects it references. This should be done automatically by eclipse.
+
+[[build-options]]
+== Build Options
+
+The options governing how a project is built can be set via right clicking on the project and selecting "Properties"/"TITAN Java Project Properties" and in the window that appears on the "TITAN" / "flags" sub-page.
+
+The following options are supported:
+
+* `Disable RAW encoding (-r)`
++
+Disables the generation of RAW encoder/decoder routines for all TTCN–3 types.
+
+* `Disable attribute validation (-0)`
++
+Disables the validation of with attributes.
+WARNING: This option should only be used temporarily and only by people transferring projects from other TTCN-3 tool vendors. As the attribute validation is turned off, users will not be notified of invalid attributes, or errors within attibutes.
+
+* `Add source line info for logging  (-L)`
++
+Instructs the compiler to add source file and line number information into the generated code to be included in the log during execution. This option is only a prerequisite for logging the source code information. The run-time configuration file parameters `OptionsSourceInfoFormat` and `LogEntityName` in <<7-the_run-time_configuration_file.adoc#logging, `[LOGGING]`>> have also to be set appropriately. This feature can be useful for finding the cause of dynamic test case errors in fresh TTCN3 code. Using this option enlarges the size of the generated code a bit and reduces execution speed slightly; therefore it is not recommended when the TTCN3 test suite is used for load generation.
+
+* `Allow 'omit' in template value lists (legacy behavior)  (-M)`
++
+Enforces legacy behavior when matching the value `omit`. Allows the use of the value `omit` in template lists and complemented template lists, giving the user another way to declare templates that match omitted fields. If set, an omitted field will match a template list, if the value `omit` appears in the list, and it will match a complemented template list, if `omit` is not in the list (the `ifpresent` attribute can still be used for matching omitted fields). This also affects the `ispresent` operation and the `present` template restriction accordingly.
+
+* `Force the generation of Seof types  (-F)`
++
+Forces the code generator to generate the full classes for record of and set of types.
+When turned off, and the of type of the set of/record of type is a basic type, the generated code will only refer to pre-generated classes in the runtime library, saving compilation time.
+
+
+
+== Makefile Generator
+
+The Java side of TITAN does not generate a Makefile as the build is governed by the built in tools of Eclipse.
+
+
+[[the-compilation-process-for-ttcn-3-and-asn-1-modules]]
+== The Compilation Process for TTCN–3 and ASN.1 Modules
+
+The Java side compilation is integrated into the Designer plug-in using it's syntactic and semantic checking features.
+
+During their run both the Designer's analysis and Java code generator's progress can eb followed in the Progress view of eclipse.
+
+During its run, the Designer might also report some of its activities on the TITAN Debug Console like the following.
+[source]
+----
+On-the-fly analyzation of project bughunt started
+  **The project bughunt does not seem to need syntax check.
+  ** Had to start checking at 0 modules.
+  **On-the-fly semantic checking of projects (4 modules) took 1.04777E-4 seconds
+Generating code for module `common'
+Generating code for module `Bug'
+re-Generated code for module `Bug'
+Generating code for module `single_test'
+Generating code for module `parallel_test'
+Generated 4 Java files.
+Generating code for single main
+The whole analysis block took 0.0022510720000000002 seconds to complete
+----
+
+The activities leading to the compilation of the project can be grouped to 3 sets.
+
+=== The initial analysis
+
+First, the Designer reads the TTCN–3 and ASN.1 input files and performs syntax check according to the BNF of TTCN–3 <<13-references.adoc#_1, [1]>> (including the additions of <<13-references.adoc#_3, [3]>>) or ASN.1 <<13-references.adoc#_4, [4]>>, <<13-references.adoc#_7, [7]>>, <<13-references.adoc#_8, [8]>>, <<13-references.adoc#_9, [9]>>. The syntax errors are reported in the Problems view with the appropriate location information. Whenever it is possible, the Designer tries to recover from syntax errors and continue the analysis in order to detect further errors.
+
+NOTE: Error recovery is not always successful and it might result in additional undesired error messages when the parser gets out of synchronization. Therefore it is recommended to study the first lines on the compiler’s error listings because the error messages at the end are not always relevant.
+
+After the syntax check the Designer performs semantic analysis on TTCN–3 /ASN.1 module(s) and verifies whether the various definitions and language elements are used in the appropriate way according to the static semantics of TTCN–3 and ASN.1 languages. In addition to error messages the Designer reports a warning when the corresponding definition is correct, but it might have unwanted effects.
+
+=== Subsequent analysis after change
+
+Instead of repeating the analysis of the whole project always, the Designer is able to offer incremental analysis.
+This means that after the first analysis, the semantic information gained from the TTCN-3 and ASN.1 files is not deleted, but kept in the memory. So when users edit something in the same project, the Designer only has to re-read that file, and repeat the semantic analysis on the smallest set of semantic entities, that might be affected by the change.
+Reducing the length of subsequent analysis duration times.
+
+=== Actual Java code generation and Java compilation
+
+After at least one analysis was done on a project, the Designer can generate a Java file, for each module without errors, that contains the translated module. If the name of the input module is `MyModule` (i.e. it begins with module `MyModule`), the name of the generated Java file will be `MyModule.java`. Note that the name of the output file does NOT depend on the name of input file. In ASN.1 module names the hyphens are converted to underscore characters (e.g. the Java code for `My-Asn-Module` will be placed into `My_Asn_Module.java`).
+The Java files are generated into the "java_src" folder of the project into a package generated from the name of the project in this format: "org.eclipse.titan." + projectname + ".generated".
+
+By default, the compiler generates the Java code for the input modules:
+* that do not have any errors inside them
+* and were not yet analyzed or the last change might have affected them
+* and either do not already have a Java file generated for them, or the content of the file needs to be updated.
+
+This sophisticated methods allows to reduce the length of the build after a change, by minimizing the amount of code re-analyzed, re-generated and re-compiled by Java.
+
+Once the Designer's built in Java code generator finishes, the Java compiler of Eclipse takes the generated Java code and compiles them into .class files. Which can be used for execution inside eclipse, or can be exported as jar files, to be executed from the command line.
+
+When the compiler translates an ASN.1 module, the different ASN.1 types are mapped to TTCN–3 types as described in the table below.
+
+.Mapping of ASN.1 types to TTCN–3 types
+[cols=",",options="header",]
+|===
+|ASN.1 |TTCN–3
+|Simple types |
+|NULL |– *
+|BOOLEAN |boolean
+|INTEGER |integer
+|ENUMERATED |enumerated
+|REAL |float
+|BIT STRING |bitstring
+|OCTET STRING |octetstring
+|OBJECT IDENTIFIER |objid
+|RELATIVE-OID |objid
+|string † |charstring
+|string ‡ |universal charstring
+|string § |universal charstring
+|*Compound types* |
+|CHOICE |union
+|SEQUENCE |record
+|SET |set
+|SEQUENCE OF |record of
+|SET OF |set of
+|===
+
+\* there is no corresponding TTCN–3 type +
+† IA5String, NumericString, PrintableString, VisibleString (ISO646String) +
+‡ GeneralString, GraphicString, TeletexString (T61String), VideotexString +
+§ BMPString, UniversalString, UTF8String +
+
+[[particularities-of-asn-1-modules]]
+== Particularities of ASN.1 Modules
+
+The Designer performs the same checks on ASN.1 modules as the compiler, but does not yet have support for BER encoding/decoding.
+
+[[using-component-relation-constraints-from-ttcn-3]]
+== Using Component Relation Constraints from TTCN–3
+
+The Designer performs the same checks on ASN.1 modules as the compiler, but does not yet have support for BER encoding/decoding.

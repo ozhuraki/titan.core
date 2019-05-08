@@ -1,0 +1,10 @@
+[[supported-asn-1-constructs-and-limitations]]
+= Supported ASN.1 Constructs and Limitations
+:toc:
+:table-number: 10
+
+The following list contains the ASN.1 features that are not supported on the Java side, above the limitations listed in <<13-references.adoc#_27, [27]>> for the C side:
+
+* BER Encoding and Decoding are not supported.
+* subtypes are not checked.
+* Charsymbols are not parsed
