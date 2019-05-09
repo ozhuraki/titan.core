@@ -307,17 +307,17 @@ The Test Port class has an overloaded function called `outgoing_send` for each o
 
 The only parameter of `outgoing_send` contains a read-only reference to the message in the internal data representation format of the test executor. The access methods for internal data types are described in FIXME "this reference needs to be fixed later"<<4-encoding_and_decoding.adoc#xml-encoding-xer, XML Encoding (XER)>>. The test port writer should encode and send the message towards SUT. For information on how to use the standard encoding functions like RAW, please consult the earlier chapters of this document. Sending a message on a not started port causes a dynamic test case error. In this case `outgoing_send` will not be called.
 
-FIXME written till this point
-
 ==== Call, Reply and Raise Functions
 
 The procedure based Test Port class has overloaded functions called `outgoing_call`, `outgoing_reply` and `outgoing_raise` for each `call`, `reply` and `raise` operations, respectively. One of these functions will be called when a port-operation is addressing the system (that is, SUT using the to `system` statement).
 
 The only parameter of these functions is an internal representation of the signature parameters (and possibly its return value) or the exceptions it may raise. The signature classes are described in <<5-mapping_ttcn3_data_types_to_c++_constructs.adoc#using-the-signature-classes,Using the Signature Classes>>.
 
+FIXME written till this point
+
 === Incoming Operations
 
-Incoming operations are `receive` incoming messages (specific to message based ports); `call`, `reply` and `exception` (specific to procedure based ports).
+Incoming operations are `receive` incoming messages (specific to message based ports); `call`, `reply` and `raise` (specific to procedure based ports).
 
 ==== Descriptor Event and Timeout Handlers
 
