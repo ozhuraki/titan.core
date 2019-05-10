@@ -313,11 +313,9 @@ The procedure based Test Port class has overloaded functions called `outgoing_ca
 
 The only parameter of these functions is an internal representation of the signature parameters (and possibly its return value) or the exceptions it may raise. The signature classes are described in <<5-mapping_ttcn3_data_types_to_c++_constructs.adoc#using-the-signature-classes,Using the Signature Classes>>.
 
-FIXME written till this point
-
 === Incoming Operations
 
-Incoming operations are `receive` incoming messages (specific to message based ports); `call`, `reply` and `raise` (specific to procedure based ports).
+Incoming operations are `receive` for incoming messages (specific to message based ports); `call`, `reply` and `raise` for signatures (specific to procedure based ports).
 
 ==== Descriptor Event and Timeout Handlers
 
@@ -325,99 +323,60 @@ The handling of incoming messages (or operations) is more difficult than sending
 
 After reaching a blocking statement, the test executor evaluates the current snapshot of its timer and port queues and tries to match it with the reached statements and templates. If the matching fails, the executor sleeps until something happens to its timers or ports. After waking up, it re-evaluates its snapshot and tries to match it again. The last two steps are repeated until the executor finds the first matching statement. If the test executor realizes that its snapshot can never match the reached TTCN–3 statements, it causes a dynamic test case error. This mechanism prevents it from infinite blocking.
 
-The test executor handles its timers itself, but it does not know anything about the communication with SUT. So each Test Port instance should inform the snapshot handler of the executor what kind of event the Test Port is waiting for. The event can be either the reception of data on one or more file descriptors or a timeout (when polling is used) or both of them.
+The test executor handles its timers itself, but it does not know anything about the communication with SUT. So each Test Port instance should inform the snapshot handler of the executor what kind of event the Test Port is waiting for. The event can be either the reception of data on one or more socket channels or a timeout (when polling is used) or both of them.
 
 When the test executor reaches a blocking statement and any condition – for which the Test Port waits – is fulfilled, the event handler will be called. First one has to get the incoming message or operation from the operating system. After that, one has to decode it (and possibly decide its type). Finally, if the internal data structure is built, one has to put it into the queue of the port. This can be done using the member function `incoming_message` if it is a message, and using `incoming_call`, `incoming_reply` or `incoming_exception` if it is an operation.
 
-The execution must not be blocked in event handler functions; these must return immediately when the message or operation processing is ready. In other words, always use non-blocking `recv()` system calls. In the case when the messages are fragmented (for instance, when testing TCP based application layer protocols, such as HTTP), intermediate buffering should be performed in the Test Port class.
+The execution must not be blocked in event handler functions; these must return immediately when the message or operation processing is ready. In other words, always use non-blocking calls. In the case when the messages are fragmented (for instance, when testing TCP based application layer protocols, such as HTTP), intermediate buffering should be performed in the Test Port class.
 
-===== Event and timeout handling interface introduced in TITAN version 1.7.pl4
+===== Event and timeout handling interface
 
-This descriptor event and timeout handling interface is the preferred interface for new Test Port development.
-
-There are two possibilities to be notified about available events:
-
-* Either the `Handle_Fd_Event` function has to be implemented, or
-
-* `Handle_Fd_Event_Readable`, `Handle_Fd_Event_Writable`, and `Handle_Fd_Event_Error`.
-
-Using `Handle_Fd_Event` allows receiving all events of a descripor in one function call. Using the other three event handler functions allows creating a more structured code.
-
-All these functions are virtual. The unused event handler functions have to be left un-overridden. (When using the second alternative and the Test Port does not wait for all types of events (readable, writable, error) the handlers of the events – for which the Test Port does not wait – can be left un-overridden.)
-
-The following functions can be used to add events to and remove events from the set of events for which the Test Port waits:
-[source]
-----
-void Handler_Add_Fd(int fd, Fd_Event_Type event_mask = EVENT_ALL);
-void Handler_Add_Fd_Read(int fd);
-void Handler_Add_Fd_Write(int fd);
-void Handler_Remove_Fd(int fd, Fd_Event_Type event_mask = EVENT_ALL);
-void Handler_Remove_Fd_Read(int fd);
-void Handler_Remove_Fd_Write(int fd);
-----
-
-The first parameter in all of these functions is the file descriptor. Possible values of the `event_mask` are `EVENT_RD`, `EVENT_WR`, `EVENT_ERR` and combinations of these using bitwise or: "|".
-
-Timeout notification can be received with the `Handle_Timeout` function. The parameter of the function indicates the time elapsed in seconds since its last call of this function or the latest modification of the timer (whichever occurred later).
-
-The timer can be set with the following function:
+To be notified about available events the `Handle_Event` function has to be implemented.
 [source, subs="+quotes"]
-void Handler_Set_Timer(double call_interval, boolean is_timeout = TRUE,
-    boolean call_anyway = TRUE, boolean is_periodic = TRUE);
+public void Handle_Event(final SelectableChannel channel, final boolean is_readable, final boolean is_writeable);
 
-`call_interval` is measured in seconds and specifies the time after which the `Handle_Timeout` function will be called. To stop the timer `call_interval` value: 0.0 has to be given.
+Using `Handle_Event` allows receiving all events of a descriptor in one function call.
 
-`is_timeout` specifies if the timer has to be stopped when event handler is called. `call_anyway` is meaningful when `is_timeout` is set to `TRUE`. In this case `call_anyway` indicates if the `Handle_Timeout` function has to be called when event handler is called before the timer would expire. If `call_anyway` is `TRUE` the timeout handler will be called after the call of the event handlers and the timer will be stopped. `is_periodic` indicates if the timer has to be restarted instead of stopping when timer expires or event handler is called and `is_timeout` and `call_anyway` are both `TRUE`.
+The first parameter in all of these functions is the selectable channel. The second is true if the channel is readable. The third is true if it is writeable.
 
-===== Event handler for Test Ports developed for 1.7pl3 and earlier versions of TITAN
-
-There is only one event handler function in each Test Port class called `Event_Handler`, which is a virtual member function. The run-time environment calls it when an incoming event arrives. You can install or uninstall the event handler by calling the following inherited member functions:
+You can install or uninstall the event handler by calling the following inherited member functions:
 [source, subs="+quotes"]
-void Install_Handler(const fd_set *read_fds, const fd_set *write_fds,
-                     const fd_set *error_fds, double call_interval);
-void Uninstall_Handler();
+protected void Install_Handler(final Set<SelectableChannel> read_channels, final Set<SelectableChannel> write_channels, final double call_interval) throws IOException;
+protected void Uninstall_Handler() throws IOException;
 
-`Install_Handler` installs the event handler according to its parameters. It takes four arguments, three pointers pointing to bitmasks of file descriptors and a timeout value. Some of the parameters can be ignored, but ignoring all at the same time is not permitted.
+`Install_Handler` installs the event handler according to its parameters. It takes three arguments, two sets of SelectableChannels and a timeout value. Some of the parameters can be ignored, but ignoring all at the same time is not permitted.
 
-The bitmasks are interpreted in the same way as in the select system call. They can be set using the macros `FD_ZERO`, `FD_SET` and `FD_CLR`. If the pointer is NULL, the bitmask is treated as zero. For further details see the manual page of `select(2)` or `select(3)`.
+`read_channels` is the set of SelectabeChannel to register the handler for reading. If null the handler is not registered for any channel to handle reading.
+`write_channels` is the set of SelectabeChannel to register the handler for writing. If null the handler is not registered for any channel to handle writing.
 
 The call interval value is measured in seconds. It means that the event handler function will be called when the time elapsed since its last call reaches the given value. This parameter is ignored when its value is set to zero or negative.
 
-If you want to change your event mask parameters, you may simply call the function `Install_Handler` again (calling of `Uninstall_Handler` is not necessary).
+If you want to change your event handling parameters, you may simply call the function `Install_Handler` again (calling of `Uninstall_Handler` is not necessary).
 
 `Uninstall_Handler` will uninstall your previously installed event handler. The `stop` port operation also uninstalls the event handler automatically. The event handler may be installed or uninstalled in any Test Port member function, even in the event handler itself.
 
-The prototype of the event handler function is the following:
-[source, subs="+quotes"]
-void Event_Handler(const fd_set *r_fds, const fd_set *w_fds,
-                   const fd_set *e_fds, double time_since_last_call);
-
-The function `Event_Handler` has four parameters. The first three of them are pointers to bitmasks of file descriptors as described above. They are the bitwise AND combination of bitmasks you have given to `Install_Handler` and the bitmasks given back by the last call of select. They can be useful when waiting for data from many file descriptors, for example when handling more than one SUT mappings simultaneously, because there is no need to issue a select call again within the event handler. +
-
-NOTE: the pointers can be never NULL, they point to a valid memory area even if there are no file descriptors set in the bitmask. The last parameter contains the time elapsed since the last call of the event handler measured in seconds. This value is always calculated even if the call interval has not been set. If the `Event_Handler` is called the first time since its last installation, the time is measured from the call of `Install_Handler`.footnote:[In versions of Test Executor older than 1.1 the event handler function had no parameters. If you want to upgrade a test port developed for older versions, you should insert this formal parameter list to your event handler both in Test Port header and source file. Otherwise the compilation of Test Port will fail.]
-
 ==== Receiving messages
 
-The member function `incoming_message` of message based ports can be used to put an incoming message in the queue of the port. There are different polymorphic functions for each incoming message type. These functions are inherited from the base class. The received messages are logged when they are put into the queue and not when they are processed by the test suitefootnote:[Note that if the port has connections as well, the messages coming from other test components will also be inserted into the same queue independently from the event handler.].
+The member function `incoming_message` of message based ports can be used to put an incoming message in the queue of the port. There are different functions for each incoming message type. These functions are inherited from the base class. The received messages are logged when they are put into the queue and not when they are processed by the test suitefootnote:[Note that if the port has connections as well, the messages coming from other test components will also be inserted into the same queue independently from the event handler.].
 
 In our example the class `MyMessagePort_BASE` has the following member functions:
 [source, subs="+quotes"]
-incoming_message(const OCTETSTRING& incoming_par);
-incoming_message(const CHARSTRING& incoming_par);
+protected void incoming_message(final TitanOctetString incoming_par);
+protected void incoming_message(final TitanCharString incoming_par);
 
 ==== Receiving calls, replies and exceptions
 
-Receiving operations on procedure based ports is similar to receiving messages on message based ports. The difference is that there are different overloaded incoming functions for call, reply and raise operations called `incoming_call`, `incoming_reply` and `incoming_exception`, respectively. The event handler (when called) must recognize the type of operation on receiving and call one of these functions accordingly with one of the internal representations of the signature (see <<5-mapping_ttcn3_data_types_to_c+\+_constructs.adoc #additional-non-standard-functions, Additional Non-Standard Functions>>).
+Receiving operations on procedure based ports is similar to receiving messages on message based ports. The difference is that there are different overloaded incoming functions for call, reply and raise operations called `incoming_call`, `incoming_reply` and `incoming_exception`, respectively. The event handler (when called) must recognize the type of operation on receiving and call one of these functions accordingly with one of the internal representations of the signature (see FIXME reference <<5-mapping_ttcn3_data_types_to_c+\+_constructs.adoc #additional-non-standard-functions, Additional Non-Standard Functions>>).
 
-In the examplefootnote:[In the example the signatures were defined in a different TTCN–3 module named MyModule2, as a consequence all types defined in that module must be prefixed with the {cpp} namespace name of that module.] the class `MyProcedurePort_BASE` has the following member functions for incoming operations:
+In the examplefootnote:[In the example the signatures were defined in a different TTCN–3 module named MyModule2, as a consequence all types defined in that module must be prefixed with the Java name of that module and its class be imported.] the class `MyProcedurePort_BASE` has the following member functions for incoming operations:
 [source]
 ----
-incoming_call(const MyModule2::inProc_call& incoming_par);
-incoming_call(const MyModule2::inoutProc_call& incoming_par);
-incoming_reply(const MyModule2::outProc_reply& incoming_par);
-incoming_reply(const MyModule2::inoutProc_reply& incoming_par);
-incoming_exception(const MyModule2::outProc_exception& incoming_par);
-incoming_exception(const MyModule2::inoutProc_exception& incoming_par);
+protected void incoming_call(final MyModule2.inProc_call incoming_par);
+protected void incoming_call(final MyModule2.inoutProc_call incoming_par);
+protected void incoming_reply(final MyModule2.outProc_reply incoming_par);
+protected void incoming_reply(final MyModule2.inoutProc_reply incoming_par);
+protected void incoming_exception(final MyModule2.outProc_exception incoming_par);
+protected void incoming_exception(final MyModule2.inoutProc_exception incoming_par);
 ----
 For example, if the event handler receives a call operation that refers to the signature called `inoutProc`, it has to fill the parameters of an instance of the class `inoutProc_call` with the received data. Then it has to call the function `incoming_call` with this object to place the operation into the queue of the port.
 
@@ -427,7 +386,7 @@ The following table shows the relation between the direction of the message type
 
 [cols=" ",options="header",]
 |===
-| | 4+^.^|`MyPort::outgoing_` 4+^.^| `MyPort BASE::incoming_`
+| | 4+^.^|`MyPort.outgoing_` 4+^.^| `MyPort_BASE.incoming_`
 | | |send |call |reply |raise |message |call |reply |exception
 .3+^.^|message type |in |○ |○ |○ |○ |● |○ |○ |○
 |out |● |○ |○ |○ |○ |○ |○ |○
@@ -443,7 +402,7 @@ The following table shows the relation between the direction of the message type
 
 === Additional Functions and Attributes
 
-Any kind of attributes or member functions may be added to the Test Port. A file descriptor, which you communicate on, is almost always necessary. Names not interfering with the identifiers generated by the Compiler can be used in the header file (for example, the names containing one underscore character). Avoid using global variables because you may get confused when more than one instances of the Test Port run simultaneously. Any kind of software libraries may be used in the Test Port as well, but included foreign header files may cause name clashes between the library and the generated code.
+Any kind of attributes or member functions may be added to the Test Port. A selectable channel, which you communicate on, is almost always necessary. Names not interfering with the identifiers generated by the Java code generator can be used in the java file (for example, the names containing one underscore character). Avoid using static variables because you may get confused when more than one instances of the Test Port run simultaneously. Any kind of software libraries may be used in the Test Port as well.
 
 In addition, the following `protected` attributes of ancestor classes are available:
 
@@ -452,12 +411,15 @@ In addition, the following `protected` attributes of ancestor classes are availa
 [width="100%",cols="34%,33%,33%",options="header",]
 |======================================================================================================
 |Name ^.^|Type |Meaning
+|`is_active` ^.^|boolean |Indicates whether the Test Port is active.
 |`is_started` ^.^|boolean |Indicates whether the Test Port is started.
-|`handler_installed` ^.^|boolean |Indicates whether the event handler is installed.
-|`port_name` ^.^|const char* |Contains the name of the Test Port instance. (NUL character terminated string)
+|`is_halted` ^.^|boolean |Indicates whether the Test Port is halted.
+|`port_name` ^.^|String |Contains the name of the Test Port instance.
 |======================================================================================================
 
-Underscore characters are not duplicated in port name. In case of port array member instances the name string looks like this: `"Myport_array[5]"`.
+Underscore characters are not duplicated in port_name. In case of port array member instances the name string looks like this: `"Myport_array[5]"`.
+
+FIXME written till this point
 
 == Support of `address` Type
 
