@@ -1,0 +1,4 @@
+= Logger Plug-ins
+:toc:
+
+The Logger Plug-ins feature is not yet supported on the Java side.
