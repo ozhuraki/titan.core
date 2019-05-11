@@ -419,11 +419,9 @@ In addition, the following `protected` attributes of ancestor classes are availa
 
 Underscore characters are not duplicated in port_name. In case of port array member instances the name string looks like this: `"Myport_array[5]"`.
 
-FIXME written till this point
-
 == Support of `address` Type
 
-The special user-defined TTCN–3 type `address` can be used for addressing entities inside the SUT on ports mapped to the `system` component. Since the majority of Test Ports does not need TTCN–3 addressing and in order to keep the Test Port API backward compatible the support of `address` type is disabled by default. To enable addressing on a particular port type the extension attribute `"address"` must be added to the TTCN–3 port type definition. In addition to component references this extension will allow the usage `address` values or variables in the `to` or `from` clauses and `sender` redirects of port operations.
+The special user-defined TTCN–3 type `address` can be used for addressing entities inside the SUT on ports mapped to the `system` component. Since the majority of Test Ports does not need TTCN–3 addressing and in order to keep the Test Port API backward compatible the support of `address` type is disabled by default. To enable addressing on a particular port type the extension attribute `"address"` must be added to the TTCN–3 port type definition. In addition to component references this extension will allow the usage of `address` values or variables in the `to` or `from` clauses and `sender` redirects of port operations.
 
 In order to use addressing, a type named `address` shall be defined in the same TTCN–3 module as the corresponding port type. Address types defined in other modules of the test suite do not affect the operation of the port type. It is possible to link several Test Ports that use different types for addressing SUT into the same executable test suite.
 
@@ -431,52 +429,40 @@ Test Ports that support SUT addressing have a slightly different API, which is c
 
 In the communication operations the test port author is responsible for handling the address information associated with the message or the operation. In case of an incoming message or operation the value of the received address will be stored in the port queue together with the received message or operation.
 
-The generated code for the port skeleton of message based ports will be the same, except `outgoing_send` member function, which has an extra parameter pointing to an `ADDRESS` value. With the example given in <<test-port-functions, Test Port Functions>>:
+The generated code for the port skeleton of message based ports will be the same, except `outgoing_send` member function, which has an extra parameter pointing to an `TitanAddress` value. With the example given in <<test-port-functions, Test Port Functions>>:
 [source]
 ----
-void outgoing_send(const INTEGER& send_par,
-                   const ADDRESS *destination_address);
-void outgoing_send(const CHARSTRING& send_par,
-                   const ADDRESS *destination_address);
+void outgoing_send(final TitanInteger send_par, final TitanAddress destination_address);
+void outgoing_send(final TitanCharString send_par, final TitanAddress destination_address);
 ----
+
+NOTE: when the type named `address` is defined as a synonym of an other type, these functions could also report that type to be the type of the `destination_address` formal parameter.
 
 If an `address` value was specified in the `to` clause of the corresponding TTCN–3 `send` operation the second argument of `outgoing_send` points to that value. Otherwise it is set to the `NULL` pointer. The Test Port code shall be prepared to handle both cases.
 
 The outgoing operations of procedure based ports are also generated in the same way if the `address` extension is specified. These functions will also have an extra parameter. Based on our example, these will have the following form:
 [source]
 ----
-void outgoing_call(const MyModule2::outProc_call& call_par,
-                   const ADDRESS *destination_address);
-void outgoing_call(const MyModule2::inoutProc_call& call_par,
-                   const ADDRESS *destination_address);
-void outgoing_reply(const MyModule2::inProc_reply& reply_par,
-                    const ADDRESS *destination_address);
-void outgoing_reply(const MyModule2::inoutProc_reply& reply_par,
-                    const ADDRESS *destination_address);
-void outgoing_raise(const MyModule2::inProc_exception& raise_exception,
-                    const ADDRESS *destination_address);
-void outgoing_raise(const MyModule2::inoutProc_exception& raise_exception,
-                    const ADDRESS *destination_address);
+void outgoing_call(final MyModule2.outProc_call call_par, final TitanAddress destination_address);
+void outgoing_call(final MyModule2.inoutProc_call call_par, final TitanAddress destination_address);
+void outgoing_reply(final MyModule2.inProc_reply reply_par, final TitanAddress destination_address);
+void outgoing_reply(final MyModule2.inoutProc_reply reply_par, final TitanAddress destination_address);
+void outgoing_raise(final MyModule2.inProc_exception raise_exception, final TitanAddress destination_address);
+void outgoing_raise(final MyModule2.inoutProc_exception raise_exception, final TitanAddress destination_address);
 ----
 
-The other difference is in the `incoming_message` member function of class `MyMessagePort_BASE`, and in the incoming member functions of class `MyProcedurePort_BASE`. These have an extra parameter, which is a pointer to an `ADDRESS` value. The default value is set the NULL pointer. In our example of `MyMessagePort_BASE`:
+The other difference is in the `incoming_message` member function of class `MyMessagePort_BASE`, and in the incoming member functions of class `MyProcedurePort_BASE`. These have an extra parameter, which is a pointer to an `TitanAddress` value. The version of the function that does not have this formal parameter, will call this function with a null value passed as the sender_address. In our example of `MyMessagePort_BASE`:
 [source]
 ----
-void incoming_call(const MyModule2::inProc_call& incoming_par,
-                   const ADDRESS *sender_address = NULL);
-void incoming_call(const MyModule2::inoutProc_call& incoming_par,
-                   const ADDRESS *sender_address = NULL);
-void incoming_reply(const MyModule2::outProc_reply& incoming_par,
-                    const ADDRESS *sender_address = NULL);
-void incoming_reply(const MyModule2::inoutProc_reply& incoming_par,
-                    const ADDRESS *sender_address = NULL);
-void incoming_exception(const MyModule2::outProc_exception& incoming_par,
-                        const ADDRESS *sender_address = NULL);
-void incoming_exception(const MyModule2::inoutProc_exception& incoming_par,
-                        const ADDRESS *sender_address = NULL);
+void incoming_call(final MyModule2.inProc_call incoming_par, final int sender_component, final TitanAddress sender_address);
+void incoming_call(final MyModule2.inoutProc_call incoming_par, final int sender_component, final TitanAddress sender_address);
+void incoming_reply(final MyModule2.outProc_reply incoming_par, final int sender_component, final TitanAddress sender_address)
+void incoming_reply(final MyModule2.inoutProc_reply incoming_par, final int sender_component, final TitanAddress sender_address)
+void incoming_exception(final MyModule2.outProc_exception incoming_par, final int sender_component, final TitanAddress sender_address)
+void incoming_exception(final MyModule2.inoutProc_exception incoming_par, final int sender_component, final TitanAddress sender_address)
 ----
 
-If the event handler of the Test Port can determine the source address where the message or the operation is coming from, it shall pass a pointer to the incoming function, which points to a variable that stores the `address` value. The given address value is not modified by the run-time environment and a copy of it is created when the message or the operation is appended to the port queue. If the event handler is unable to determine the sender address the default `NULL` pointer shall be passed as second argument.
+If the event handler of the Test Port can determine the source address where the message or the operation is coming from, it shall pass a pointer to the incoming function, which points to a variable that stores the `address` value. The given address value is not modified by the run-time environment and a copy of it is created when the message or the operation is appended to the port queue. If the event handler is unable to determine the sender address the default null value shall be passed as the argument.
 
 The address value stored in the port queue is used in `receive`, `trigger`, `getcall`, `getreply`, `catch` and `check` port operations: it is matched with the `from` clause and/or stored into the variable given in the `sender` redirect. If the receiving operation wants to use the address information of the first element in the port queue, but the Test Port has not supplied it a dynamic testcase error will occur.
 
@@ -486,25 +472,23 @@ Test Ports that belong to port types marked with `extension` attribute `"provide
 
 The purpose of this API is to allow the re-use of the Test Port class with other port types marked with attribute `user` or with ports with translation capability (link:https://www.etsi.org/deliver/etsi_es/202700_202799/202781/01.04.01_60/es_202781v010401p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: Configuration and Deployment Support]). The user port types may have different lists of incoming and outgoing message types. The transformations between incoming and outgoing messages, which are specified entirely by the attribute of the user port type, are done independently of the Test Port. The Test Port needs to support the sending and reception of message types that are listed in the provider port type.
 
-The provider port can be accessed through the port which maps to the port with provider attribute. The `get_provider_port()` is a member function of the PORT class:
+The provider port can be accessed through the port which maps to the port with provider attribute. The `get_provider_port()` is a member function of the TitanPort class:
 [source, subs="+quotes"]
-PORT* get_provider_port();
+TitanPort get_provider_port();
 
-This function is useful when a reference to the provider type is needed. It returns the provider port type for user ports and ports with translation capability. Otherwise returns NULL. The function causes dynamic testcase error when the port has more than one mapping, or the port has both mappings and connections. The function’s return value must be manually cast to the correct provider port type.
+This function is useful when a reference to the provider type is needed. It returns the provider port type for user ports and ports with translation capability. Otherwise returns null. The function causes dynamic testcase error when the port has more than one mapping, or the port has both mappings and connections. The function’s return value must be manually cast to the correct provider port type.
 
 This section summarizes only the differences from the normal Test Port API:
 
 * The name of the Test Port class is suffixed with the string `_PROVIDER` (for example `MyMessagePort_PROVIDER` instead of `MyMessagePort`).
 
-* The base class of the Test Port is class `PORT`, which is part of the Base Library. Please note that normal Test Ports are also derived from class PORT, but indirectly through an intermediate class with suffix `_BASE`.
+* The base class of the Test Port is class `TitanPort`, which is part of the Base Library. Please note that normal Test Ports are also derived from class TitanPort, but indirectly through an intermediate class with suffix `_BASE`.
 
-* The member functions that handle incoming messages and procedure-based operations (that is `incoming_message`, `incoming_call`, `incoming_reply` and `incoming_exception`) must be defined in the header file as pure virtual functions. These functions will be implemented in various descendant classes differently.
+* The member functions that handle incoming messages and procedure-based operations (that is `incoming_message`, `incoming_call`, `incoming_reply` and `incoming_exception`) must be defined as override-able functions. These functions will be implemented in various descendant classes differently.
 
-* The Test Port header file must not include the generated header file of the corresponding TTCN–3 module. The common header file of the Base Library called TTCN3.hh shall be included instead. The source file of the Test Port may include any header file without restriction.
+* The member functions of the Test Port may refer to Java classes that are generated from user-defined message types and signatures.
 
-* The member functions of the Test Port may refer to {cpp} classes that are generated from user-defined message types and signatures. To avoid compilation failures the declarations of the referenced classes must be added to the beginning of the header file. At the moment the Test Port skeleton generator has a limitation that it cannot collect the class declarations from the port type, so they must be added manually. Please note that if a message type or signature is imported from another module the corresponding class declaration must be put into the appropriate namespace.
-
-The following example shows the generated Test Port skeleton of a provider port type.
+The following example shows the skeleton of a provider port type Test Port.
 
 Port type definition in TTCN–3 :
 [source]
@@ -514,148 +498,63 @@ type port MyProviderPort mixed {
 } with { extension "provider" }
 ----
 
-Header file `MyMessagePort.hh`:
+Source file `MyProviderPort_PROVIDER.java`:
 [source]
 ----
-// This Test Port skeleton header file was generated by the
-// TTCN-3 Compiler of the TTCN-3 Test Executor version 1.7.pl0
-// for Janos Zoltan Szabo (ejnosza@EG70E00202E46JR)
-// on Wed Mar 7 18:14:33 2007
+package org.eclipse.titan.MyProject.user_provided;
 
+import java.nio.channels.SelectableChannel;
 
-// Copyright Ericsson Telecom AB 2000-2014
+import org.eclipse.titan.MyProject.generated.MyModule.MyMessage;
+import org.eclipse.titan.MyProject.generated.MyModule.MySignature_call;
+import org.eclipse.titan.MyProject.generated.MyModule.MySignature_exception;
+import org.eclipse.titan.MyProject.generated.MyModule.MySignature_reply;
+import org.eclipse.titan.runtime.core.TitanPort;
 
-// You may modify this file. Add your attributes and prototypes of your
-// member functions here.
+public class MyProviderPort_PROVIDER extends TitanPort {
 
+	public MyProviderPort_PROVIDER() {
+		super();
+	}
 
-#ifndef MyProviderPort_HH
-#define MyProviderPort_HH
+	public MyProviderPort_PROVIDER(final String name) {
+		super(name);
+	}
 
+	@Override
+	public void set_parameter(final String parameter_name, final String parameter_value) {
+	}
 
-#include <TTCN3.hh>
+	@Override
+	public void Handle_Event(final SelectableChannel channel, final boolean is_readable,
+			final boolean is_writeable) {
+	}
 
-// Note: Header file MyModule.hh must not be included into this file!
-// Class declarations were added manually
+	@Override
+	protected void user_map(final String system_port, final Map_Params params) {
+	}
 
-namespace MyOtherModule {
-  // type MyMessageType was imported from MyOtherModule
-  class MyMessageType;
+	@Override
+	protected void user_unmap(final String system_port, final Map_Params params) {
+	}
+
+	@Override
+	protected void user_start() {
+	}
+
+	@Override
+	protected void user_stop() {
+	}
+
+	public void outgoing_send(final MyMessage send_par) {
+	}
+	public void outgoing_call(final MySignature_call call_par) {
+	}
+	public void outgoing_reply(final MySignature_reply reply_par) {
+	}
+	public void outgoing_raise(final MySignature_exception raise_Exception) {
+	}
 }
-
-namespace MyModule {
-
-// signature MySignature was defined locally
-class MySignature_call;
-class MySignature_reply;
-class MySignature_exception;
-class MyProviderPort_PROVIDER : public PORT {
-public:
-  MyProviderPort_PROVIDER(const char *par_port_name = NULL);
-  ~MyProviderPort_PROVIDER();
-
-  void set_parameter(const char *parameter_name,
-    const char *parameter_value);
-
-  void Event_Handler(const fd_set *read_fds,
-    const fd_set *write_fds, const fd_set *error_fds,
-    double time_since_last_call);
-
-protected:
-  void user_map(const char *system_port);
-  void user_unmap(const char *system_port);
-
-  void user_start();
-  void user_stop();
-
-  void outgoing_send(const MyOtherModule::MyMessage& send_par);
-  void outgoing_call(const MySignature_call& call_par);
-  void outgoing_reply(const MySignature_reply& reply_par);
-  void outgoing_raise(const MySignature_exception& raise_exception);
-  virtual void incoming_message(
-    const MyOtherModule::MyMessage& incoming_par) = 0;
-  virtual void incoming_call(const MySignature_call& incoming_par) = 0;
-  virtual void incoming_reply(const MySignature_reply& incoming_par) = 0;
-  virtual void incoming_exception(
-    const MySignature_exception& incoming_par) = 0;
-};
-
-} /* end of namespace */
-----
-
-Source file `MyMessagePort.cc`:
-[source]
-----
-// This Test Port skeleton source file was generated by the
-// TTCN-3 Compiler of the TTCN-3 Test Executor version 1.7.pl0
-// for Janos Zoltan Szabo (ejnosza@EG70E00202E46JR)
-// on Wed Mar 7 18:14:33 2007
-// Copyright Ericsson Telecom AB 2000-2014
-// You may modify this file. Complete the body of empty functions and
-// add your member functions here.
-
-#include "MyProviderPort.hh"
-#include "MyModule.hh"
-
-namespace MyModule {
-
-MyProviderPort_PROVIDER::MyProviderPort_PROVIDER(const char *par_port_name)
-  : PORT(par_port_name)
-{
-}
-
-MyProviderPort_PROVIDER::~MyProviderPort_PROVIDER()
-{
-}
-
-void MyProviderPort_PROVIDER::set_parameter(const char *parameter_name,
-  const char *parameter_value)
-{
-}
-
-void MyProviderPort_PROVIDER::Event_Handler(const fd_set *read_fds,
-  const fd_set *write_fds, const fd_set *error_fds,
-  double time_since_last_call)
-{
-}
-
-void MyProviderPort_PROVIDER::user_map(const char *system_port)
-{
-}
-
-void MyProviderPort_PROVIDER::user_unmap(const char *system_port)
-{
-}
-
-void MyProviderPort_PROVIDER::user_start()
-{
-}
-
-void MyProviderPort_PROVIDER::user_stop()
-{
-}
-
-void MyProviderPort_PROVIDER::outgoing_send(
-  const MyOtherModule::MyMessage& send_par)
-{
-}
-
-void MyProviderPort_PROVIDER::outgoing_call(
-  const MySignature_call& call_par)
-{
-}
-
-void MyProviderPort_PROVIDER::outgoing_reply(
-  const MySignature_reply& reply_par)
-{
-}
-
-void MyProviderPort_PROVIDER::outgoing_raise(
-  const MySignature_exception& raise_exception)
-{
-}
-
-} /* end of namespace */
 ----
 
 == Tips and Tricks
@@ -668,63 +567,51 @@ Test Ports may record important events in the Test Executor log during sending/r
 
 The Test Port member functions may call the functions of class `TTCN_Logger`. These functions are detailed in <<6-tips_&_troubleshooting.adoc#logging-in-test-ports-or-external-functions, Logging in Test Ports or External Functions>>.
 
-If there are many points in the Test Port code that want to log something, it can be a good practice to write a common log function in the Test Port class. We show here an example function, which takes its arguments as the standard C function `printf` and forwards the message to the Test Executor’s logger:
+If there are many points in the Test Port code that want to log something, it can be a good practice to write a common log function in the Test Port class. We show here an example where the calling of `log` uses Java's MessageFormat.format to create a custom message, and inside the `log` function TTCN_Logger.log_event demonstrates logging using the standard C function `printf` style and forwards the message to the Test Executor’s logger:
 
 [source]
 ----
-#include <stdarg.h>
-// using in other member functions:
-// log("The value of i: %d", i);
-void MyPortType::log(const char *fmt, ...)
-{
-  // this flag can be a class member, which is configured through a
-  // test port parameter
-  if (logging_is_enabled) {
-    va_list ap;
-    va_start(ap, fmt);
-    TTCN_Logger::begin_event(TTCN_DEBUG);
-    TTCN_Logger::log_event("Example Test Port (%s): ", get_name());
-    TTCN_Logger::log_event_va_list(fmt, ap);
-    TTCN_Logger::end_event();
-    va_end(ap);
-  }
+private void value_logging(final TitanInteger i) {
+  log(MessageFormat.format("The value of i : {0}.", i.get_int()));
+}
+
+private void log(final String content) {
+  TTCN_Logger.begin_event(Severity.DEBUG_USER);
+  TTCN_Logger.log_event("Example Test Port (%s): ", get_name());
+  TTCN_Logger.log_event_str(content);
+  TTCN_Logger.end_event();
 }
 ----
 
 === Error Handling
 
-None of the Test Port member functions have return value like a status code. If a function returns normally, the run-time environment assumes that it has performed its task successfully. The handling of run-time errors is done in a special way, using {cpp} exceptions. This simplifies the program code because the return values do not have to be checked everywhere and dynamically created complex error messages can be used if necessary.
+None of the Test Port member functions have return value like a status code. If a function returns normally, the run-time environment assumes that it has performed its task successfully. The handling of run-time errors is done using Java exceptions. This simplifies the program code because the return values do not have to be checked everywhere and dynamically created complex error messages can be used if necessary.
 
-If any kind of fatal error is encountered anywhere in the Test Port, the following function should be called:
+If any kind of fatal error is encountered anywhere in the Test Port, an exception of type `TtcnError` should be thrown:
 [source, subs="+quotes"]
-void TTCN_error(const char *err_msg, …);
+throw new TtcnError(errorMessage);
 
-Its parameter should contain the description of the error in a `NUL` terminated string in the format of `printf(3)`. You may pass further parameters to `TTCN_error`, if necessary. The function throws an exception, so it never returns. The exception is usually caught at the end of the test case or PTC function that is being executed. In case of error, the verdict of the component is set to `error` and the execution of the test case or PTC function terminates immediately.
+Its parameter should contain the description of the error in a String. The exception is usually caught at the end of the test case or PTC function that is being executed. In case of error, the verdict of the component is set to `error` and the execution of the test case or PTC function terminates immediately.
 
-The exception class is called `TC_Error`. For performance reasons this is a trivial (empty) class, that is, it does not contain the error message in a string. The error string is written into the log file by `TTCN_error` immediately. Such type of exception should never be caught or thrown directly. If you want to implement your own error handling and error recovery routines you had better use your own classes as exceptions.
+The error string is written into the log file by `TtcnError` immediately. Such type of exception should never be caught or thrown directly. If you want to implement your own error handling and error recovery routines you had better use your own classes as exceptions.
 
-If you write your own error reporting function you can add automatically the name of the port instance to all of your error messages. This makes the fault analysis for the end-users easier. In the following example the error message will occupy two consecutive lines in the log since we can pass only one format string to `TTCN_error`.
+If you write your own error reporting function you can add automatically the name of the port instance to all of your error messages. This makes the fault analysis for the end-users easier. In the following example the error message will occupy two consecutive lines in the log since we can pass only one format string to `TtcnError`.
 [source]
 ----
-void MyPortType::error(const char *msg, ...)
-{
-  va_list ap;
-  va_start(ap, msg);
-  TTCN_Logger::begin_event(TTCN_ERROR);
-  TTCN_Logger::log_event("Example Test Port (%s): ", get_name());
-  TTCN_Logger::log_event_va_list(msg, ap);
-  TTCN_Logger::end_event();
-  va_end(ap);
-  TTCN_error("Fatal error in Example Test Port %s (see above).",
-    get_name());
-}
+private void error(final String content) {
+		TTCN_Logger.begin_event(Severity.ERROR_UNQUALIFIED);
+		TTCN_Logger.log_event("Example Test Port (%s): ", get_name());
+		TTCN_Logger.log_event_str(content);
+		TTCN_Logger.end_event();
+		throw new TtcnError(MessageFormat.format("Fatal error in Example Test Port {0} (see above).", get_name()));
+	}
 ----
 
-There is another function for denoting warnings (that is, events that are not so critical) with the same parameter list as TTCN_error:
+There is another function for denoting warnings (that is, events that are not so critical) with the same parameter list as TtcnError:
 [source, subs="+quotes"]
-void TTCN_warning(const char *warning_msg, …);
+void TtcnError.TtcnWarning(warningMessage);
 
-This function puts an entry in the executor’s log with severity `TTCN_WARNING`. In contrast to `TTCN_error`, after logging the given message `TTCN_warning` returns and your test port can continue running.
+This function puts an entry in the executor’s log with severity `TTCN_WARNING`. In contrast to `TtcnError`, after logging the given message `TtcnWarning` returns and your test port can continue running.
 
 == Setting timestamps
 
@@ -734,21 +621,21 @@ In order to use the timestamp redirects (`-> timestamp`) described in chapter 5 
 
 The timestamps of incoming port operations (`receive`, `trigger`, `getcall`, `getreply`, `catch` and `check`) need to be set when the incoming message or procedure is added to the queue.
 
-The member functions `incoming_message`, `incoming_call`, `incoming_reply` and `incoming_exception` (which add the message/procedure to the queue) have an optional `float` parameter called `timestamp`, if the test port was declared with the `realtime` clause.
+The member functions `incoming_message`, `incoming_call`, `incoming_reply` and `incoming_exception` (which add the message/procedure to the queue) have an optional `TitanFloat` parameter called `timestamp`, if the test port was declared with the `realtime` clause.
 
 The value given to this parameter will be the one stored in the variable referenced in the timestamp redirect, if the operation has a timestamp redirect (otherwise the value is ignored).
 
-It is recommended that this parameter be set to the current test system time, which can be queried with `TTCN_Runtime::now()`, or to a float variable that was set to the current test system time earier in the function.
+It is recommended that this parameter be set to the current test system time, which can be queried with `TTCN_Runtime.now();`, or to a float variable that was set to the current test system time earlier in the function.
 
 Examples:
 [source]
 ----
-incoming_message(my_message, TTCN_Runtime::now());
+incoming_message(my_message, TTCN_Runtime.now());
 ----
 
 [source]
 ----
-FLOAT reply_time = TTCN_Runtime::now();
+TitanFloat reply_time = TTCN_Runtime.now();
 
 ...
 
@@ -759,20 +646,20 @@ incoming_reply(my_reply, reply_time);
 
 The timestamps of outgoing port operations (`send`, `call`, `reply`, `raise`) need to be set in the member functions `outgoing_send`, `outgoing_call`, `outgoing_reply` and `outgoing_raise`.
 
-These functions have a `float` pointer parameter called `timestamp_redirect`, if the test port was declared with the `realtime` clause.
+These functions have a `TitanFloat` pointer parameter called `timestamp_redirect`, if the test port was declared with the `realtime` clause.
 
 The value pointed to by this parameter will be the one stored in the variable referenced in the timestamp redirect, if the operation has a timestamp redirect.
 
-If it does not have a timestamp redirect, then this pointer parameter will be `NULL`. Because of this, the parameter must always have a null pointer check before it is assigned a value.
+If it does not have a timestamp redirect, then this value parameter will be null. Because of this, the parameter must always have a null check before it is assigned a value.
 
-It is recommended that the value pointed to by the parameter be set to the current test system time, which can be queried with `TTCN_Runtime::now()`.
+It is recommended that the value pointed to by the parameter be set to the current test system time, which can be queried with `TTCN_Runtime.now()`.
 
 Example:
 [source]
 ----
-if (timestamp_redirect != NULL) {
-  *timestamp_redirect = TTCN_Runtime::now();
+if (timestamp_redirect != null) {
+	timestamp_redirect.operator_assign(TTCN_Runtime.now());
 }
 ----
 
-Note: Because of this extra parameter, adding or removing the `realtime` clause from a port will cause already-written C++ code for the port to no longer compile. In these cases the new parameters must be manually added or removed from the mentioned functions, or the user-written code copied to newly-generated test port skeletons.
+Note: Because of this extra parameter, adding or removing the `realtime` clause from a port will cause already-written Java code for the port to no longer compile. In these cases the new parameters must be manually added or removed from the mentioned functions.
