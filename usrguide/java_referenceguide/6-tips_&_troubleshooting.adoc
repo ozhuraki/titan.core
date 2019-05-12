@@ -1,0 +1,257 @@
+= Tips & Troubleshooting
+:table-number: 34
+:toc:
+
+Information not fitting in any of the previous chapters is given in this chapter.
+
+[[using-external-c-functions-in-ttcn-3-test-suites]]
+== Using External Java Functions in TTCN–3 Test Suites
+
+Sometimes standard library functionsfootnote:[Java language functions cannot be called directly from TTCN–3; you need at least a wrapper function for them.] are called in the test suite or there is a need for efficiently implemented "bit-crunching" functions in the TTCN–3 ATS. In these cases functions to be called from the test suite can be developed in Java.
+
+There are the standard library functions as well as other libraries in the Java functions. The logging and error handling facilities of the run-time environment are also available as in case of Test Ports.
+
+For example, the following definitions makes two Java functions accessible from TTCN–3 module `MyModule` and from any other module that imports `MyModule`.
+
+[[example-ttcn-3-module-mymodule-ttcn]]
+=== Example TTCN–3 Module (MyModule.ttcn)
+
+[source]
+----
+module MyModule {
+[...]
+  external function MyFunction(integer par1, in octetstring par2)
+    return bitstring;
+  external function MyAnotherFunction(inout My_Type par1,
+    out MyAnotherType par2);
+[...]
+}
+----
+
+The compiler will translate calls those external function definitions to calls to Java functions in the generated files.
+
+NOTE: The Java side does not generate a function prototype for external functions. Only translates the calls of these functions into calls of Java functions.
+
+Call of these function on TTCN-3:
+[source]
+----
+[...]
+MyFunction(1, ''O);
+MyAnotherFunction(myVar, myAnotherVar);
+[...]
+----
+
+Would be translated to call in Java:
+[source]
+----
+[...]
+MyModule_externalfunctions.MyFunction( new TitanInteger(1), new TitanOctetString("") );
+MyModule_externalfunctions.MyAnotherFunction( myVar, myAnotherVar );
+[...]
+----
+
+The implementation of these function has to be placed in a class whose name is generated from the module's name by appending the "_externalfunctions" postfix, and this class has to be located in the user_provided package.
+
+NOTE: Please note to locate the hand written Test Port and external function implementations in a folder different, than were the Java code is generated. When the project is cleaned, those folders are cleared.
+
+An example implementation of the external functions in Java:
+[source]
+----
+package org.eclipse.titan.MyProject.user_provided;
+
+import org.eclipse.titan.MyProject.generated.MyModule.MyAnotherType;
+import org.eclipse.titan.MyProject.generated.MyModule.My__Type;
+import org.eclipse.titan.runtime.core.TitanInteger;
+import org.eclipse.titan.runtime.core.TitanOctetString;
+
+public class MyModule_externalfunctions {
+
+	public static void MyFunction(final TitanInteger titanInteger, final TitanOctetString titanOctetString) {
+    ...
+	}
+
+	public static void MyAnotherFunction(final My__Type myVar, final MyAnotherType myAnotherVar) {
+    ...
+	}
+}
+----
+
+
+Both pre-defined and user-defined TTCN–3 data types can be used as parameters and/or return types of the Java functions. The detailed description of the equivalent Java classes as well as the name mapping rules are described in chapter FIXME correct<<4-encoding_and_decoding.adoc#xml-encoding-xer,XML Encoding (XER)>>.
+
+Using templates as formal parameters in external functions is possible, but not recommended because the API of the classes realizing templates is not documented and subject to change without notice.
+
+The formal parameters of external TTCN–3 functions are mapped to Java function parameters according to the following table:
+
+.TTCN–3 formal parameters and their {cpp} equivalents
+
+[cols=",",options="header",]
+|==============================================
+|TTCN–3 formal parameter |Its Java equivalent
+|`[in] MyType myPar` |`MyType myPar`
+|`out MyType myPar` |`MyType myPar`
+|`inout MyType myPar` |`MyType myPar`
+|`[in] template MyType myPar` |_Not recommended._
+|==============================================
+
+Due to the strictness of the TTCN–3 semantic analyzer one cannot use Java data types with external functions as formal parameters or return types, only TTCN–3 and ASN.1 data types are allowed.
+
+The name, return type and the parameters of the implemented Java functions must match exactly the expected function signature or the compilation will fail.
+
+[[logging-in-test-ports-or-external-functions]]
+== Logging in Test Ports or External Functions
+
+When developing Test Ports or external functions the need may arise for debug messages. Instead of using `System.out.println`, there is a simple way to put these messages into the log file of test executor. This feature can be also useful in case when an error or warning situation is encountered in the Test Port, especially when decoding an incoming message.
+
+There is a class called `TTCN_Logger` in the Base Library, which takes care of logging. Since all member functions of `TTCN_Logger` are static, they can be and should be called without instantiating a logger object.
+
+The class `TTCN_Logger` provides some public member functions. Using them any kind of message can be put into the log file. There are two ways to log a single message, the unbuffered and the buffered mode.
+
+=== Unbuffered Mode
+
+In unbuffered mode the message will be put into log immediately as a separate line together with a time stamp. Thus, the entire message must be passed to the logger class at one function call. The log member function of the logger class should be used. Its prototype is:
+[source, subs="+quotes"]
+log(final Severity msg_severity, final String formatString, final Object... args );
+
+The parameter severity is used for filtering the log messages. The allowed values of the parameter are listed in table "First level (coarse) log filtering" in the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[Programmer's Technical Reference]. We recommend using in Test Ports only `TTCN_WARNING`, `TTCN_ERROR` and `TTCN_DEBUG`. The parameter `formatString` is a format string, which is interpreted as in the `String.format` function. The dots represent the optional additional parameters that are referred in format string. There is no need to put a newline character at the end of format string; otherwise the log file will contain an empty line after your entry.
+
+Here is an example, which logs an integer value:
+[source]
+----
+int myVar = 5;
+TTCN_Logger.log(Severity.WARNING_UNQUALIFIED, ``myVar = %d'', myVar);;
+----
+
+Sometimes the string to be logged is static. In such cases there is no need for `printf`-style argument processing, which may introduce extra risks if the string contains the character `%`. The logger class offers a function for logging a static (or previously assembled) string:
+[source, subs="+quotes"]
+void log_str(final Severity msg_severity, final String string );
+
+The function `log_str` runs significantly faster than log because it bypasses the interpretation of the argument string.
+
+=== Buffered Mode
+
+As opposite to the unbuffered operation, in buffered mode the logger class stores the message fragments in a temporary buffer. New fragments can be added after the existing ones. When finished, the fragments can be flushed after each other to the log file as a simple message. This mode is useful when assembling the message in many functions since the buffer management of logger class is more efficient than passing the fragments as parameters between the functions.
+
+In buffered mode, the following member functions are available.
+
+[[begin-event]]
+==== begin_event
+
+`begin_event` creates a new empty event buffer within the logger. You have to pass the severity value, which will be valid for all fragments (the list of possible values can be found in the table "First level (coarse) log filtering" in the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[ Technical Reference]. If the logger already has an unfinished event when begin event is called the pending event will be pushed onto an internal stack of the logger. That event can be continued and completed after finishing the newly created event.
+[source, subs="+quotes"]
+void begin_event(final Severity msg_severity);
+
+[[log-event]]
+==== log_event
+
+`log_event` appends a new fragment at the end of current buffer. The parameter `fmt` contains a `printf` format string like in unbuffered mode. If you try to add a fragment without initializing the buffer by calling begin event, your fragment will be discarded and a warning message will be logged.
+[source, subs="+quotes"]
+void log_event( final String formatString, final Object... args )
+
+[[log-char]]
+==== log_char
+
+`log_char` appends the character c at the end of current buffer. Its operation is very fast compared to `log_event`.
+[source, subs="+quotes"]
+void log_char(final char c);
+
+[[log-event-str-and-log-event-va-list]]
+==== log_event_str and log_event_va_list
+
+The functions `log_str` and `log_va_list` also have the buffered versions called `log_event_str` and `log_event_va_list`, respectively. Those interpret the parameters as described in case of unbuffered mode.
+[source]
+----
+void log_event_str(final String string);
+void log_event_va_list(final String formatString, final Object... args);
+----
+
+==== log
+
+The Java classes of predefined and compound data types are equipped with a member function called `log`. This function puts the actual value of the variable at the end of current buffer. Unbound variables and fields are denoted by the symbol `<unbound>`. The contents of TTCN–3 value objects can be logged only in buffered mode.
+[source, subs="+quotes"]
+void <any TTCN-3 type>::log();
+
+[[end-event]]
+==== end_event
+
+The function `end_event` flushes the current buffer into the log file as a simple message, then it destroys the current buffer. If the stack of pending events is not empty the topmost event is popped from the stack and becomes active. The time stamp of each log entry is generated at the end and not at the beginning. If there is no active buffer when `end_event` is called, a warning message will be logged.
+[source, subs="+quotes"]
+void end_event();
+
+If an unbuffered message is sent to the logger while the buffer contains a pending event the unbuffered message will be printed to the log immediately and the buffer remains unchanged.
+
+=== Logging Format of TTCN-3 Values and Templates
+
+TTCN-3 values and templates can be logged in the following formats:
+
+TITAN legacy logger format: this is the default format which has always been used in TITAN
+
+TTCN-3 format: this format has ttcn-3 syntax, thus it can be copied into TTCN-3 source files.
+
+Differences between the formats:
+
+[cols=",,",options="header",]
+|==========================================================
+|Value/template |Legacy format output |TTCN-3 format output
+|Unbound value |"<unbound>" |"-"
+|Uninitialized template |"<uninitialized template>" |"-"
+|Enumerated value |name (number) |name
+|==========================================================
+
+The "-" symbol is the NotUsedSymbol which can be used inside compound values, but when logging an unbound value which is not inside a record or record of the TTCN-3 output format of the logger is actually not a legal TTCN-3 value/template because a value or template cannot be set to be unbound. Thus this output format can be copy-pasted from a log file into a ttcn-3 file or to a module parameter value in a configuration file only if it semantically makes sense.
+
+The Java API extensions to change the logging format: +
+A new enum type for the format in TTCN_Logger class:+
+`enum data_log_format_t { LF_LEGACY, LF_TTCN };`; +
+Static functions to get/set the format globally: +
+`data_log_format_t get_log_format();` `void set_log_format(final data_log_format_t p_data_log_format)`.
+
+NOTE: Please note that Logger_Format_Scope is not yet support by the Java side of the Test Executor.
+
+=== Examples
+
+The example below demonstrates the combined usage of buffered and unbuffered modes as well as the working mechanism of the event stack:
+[source]
+----
+TTCN_Logger.begin_event(Severity.DEBUG_UNQUALIFIED);
+TTCN_Logger.log_event_str("first ");
+TTCN_Logger.begin_event(Severity.DEBUG_UNQUALIFIED);
+TTCN_Logger.log_event_str("second ");
+TTCN_Logger.log_str(Severity.DEBUG_UNQUALIFIED, "third message");
+TTCN_Logger.log_event_str("message");
+TTCN_Logger.end_event();
+TTCN_Logger.log_event_str("message");
+TTCN_Logger.end_event();
+----
+
+The above code fragment will produce three lines in the log in the following order:
+
+`third message`
+`second message`
+`first message`
+
+If the code calls a Java function that might throw an exception while the logger has an active event buffer care must be taken that event is properly finished during stack unwinding. Otherwise the stack of the logger and the call stack of the program will get out of sync. The following example illustrates the proper usage of buffered mode with exceptions:
+[source]
+----
+TTCN_Logger.begin_event(Severity.DEBUG_UNQUALIFIED);
+		try {
+		  TTCN_Logger.log_event_str("something");
+		  // a function is called from here
+		  // that might throw an exception (for example TtcnError)
+		  TTCN_Logger.log_event_str("something else");
+		  TTCN_Logger.end_event();
+		} finally {
+		  // don’t forget about the pending event
+		  TTCN_Logger.end_event();
+		}
+----
+
+== Error Recovery during Test Execution
+
+If a fatal error is encountered in the Test Port, you should throw a `TtcnError` exception to do the error handling. It has the following prototype in the Base Library:
+[source, subs="+quotes"]
+TtcnError( final String errorMessage );
+
+The error handling in the executable test program is implemented using Java exceptions. This exception is normally caught at the end of each test case and module control part. Finally, the verdict is set to error and the test executor performs an error recovery, so it continues the execution with the next test case.
+
+It is not recommended to use own error recovery combined with the default method (that is, catching this exception).
