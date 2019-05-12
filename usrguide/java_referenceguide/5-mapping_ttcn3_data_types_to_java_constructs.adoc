@@ -43,6 +43,8 @@ This is because:
 
 This section describes the member functions of these classes.
 
+WARNING: The toString of the built in and generated types is not considered part of the public API for Test Port development. Its implementation might be subject to change without notice. Please do not use it.
+
 === `Integer`
 
 The TTCN–3 type `integer` is implemented in class `TitanInteger`. +
@@ -1575,256 +1577,277 @@ Using the value of an unbound enumerated variable for anything will cause dynami
 
 The special TTCN–3 data type `address` is represented in Java as if it was a regular data type. The name of the equivalent Java class is `ADDRESS`.
 
-FIXME written to this point.
-
 == Predefined Functions
 
-Annex C of link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187301/04.05.01_60/es_20187301v040501p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 1: Core Language European Telecommunications Standards] and Annex B of link:https://pdfs.semanticscholar.org/33b5/877c85f7fd4f35c7f58c39121358c3652966.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 7: Using ASN.1 with TTCN–3 European Telecommunications] define a couple of predefined functions. Most of them perform conversion between the built-in types of TTCN–3. In our test executor these functions are implemented in the Base Library in {cpp} language. They are available not only in TTCN–3 , but they can be called directly from Test Ports as well.
+Annex C of link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187301/04.05.01_60/es_20187301v040501p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 1: Core Language European Telecommunications Standards] and Annex B of link:https://pdfs.semanticscholar.org/33b5/877c85f7fd4f35c7f58c39121358c3652966.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 7: Using ASN.1 with TTCN–3 European Telecommunications] define a couple of predefined functions. Most of them perform conversion between the built-in types of TTCN–3. In our test executor these functions are implemented in the Base Library in Java language. They are available not only in TTCN–3 , but they can be called directly from Test Ports as well.
 
-The prototypes for these functions can be found in `*$TTCN3_DIR/include/Addfunc.hh*`, but for easier navigation we list them also in the present document.
+The implementation of these functions can be found in the class `AdditionalFunctions` in the runtime library, but for easier navigation we list them also in the present document.
 
-The majority of these functions have more than one polymorphic version: when appropriate, one of them takes literal (built-in) {cpp} types as arguments instead of the objects of equivalent {cpp} classes. For instance, if the incoming argument is stored in an `int` variable in your {cpp} code, you should not construct a temporary object of class `INTEGER` because passing an `int` is faster and produces smaller binary code. Similarly, the returned type is also literal when it is possible.
+The majority of these functions have more than one polymorphic version: when appropriate, one of them takes literal (built-in) Java types as arguments instead of the objects of equivalent Java classes. For instance, if the incoming argument is stored in an `int` variable in your Java code, you should not construct a temporary object of class `TitanInteger` because passing an `int` is faster and produces smaller binary code. Similarly, the returned type is also literal when it is possible.
 
 === `Integer` to character
 
 [source]
 ----
-extern CHARSTRING int2char(int value);
-extern CHARSTRING int2char(const INTEGER& value);
+TitanCharString int2char(final int value);
+TitanCharString int2char(final TitanInteger value);
 ----
 === Character to `integer`
 
 [source]
 ----
-extern int char2int(char value);
-extern int char2int(const char *value);
-extern int char2int(const CHARSTRING& value);
+TitanInteger char2int(final char value);
+TitanInteger char2int(final String value);
+TitanInteger char2int(final TitanCharString value);
+TitanInteger char2int(final TitanCharString_Element value);
 ----
 === `Integer` to universal character
 
 [source]
 ----
-extern UNIVERSAL_CHARSTRING int2unichar(int value);
-extern UNIVERSAL_CHARSTRING int2unichar(const INTEGER& value);
+TitanUniversalCharString int2unichar(final int value);
+TitanUniversalCharString int2unichar(final TitanInteger value);
 ----
 === Universal character to `integer`
 
 [source]
 ----
-extern int unichar2int(const universal_char& value);
-extern int unichar2int(const UNIVERSAL_CHARSTRING& value);
+TitanInteger unichar2int(final TitanUniversalChar value);
+TitanInteger unichar2int(final TitanUniversalCharString value);
+TitanInteger unichar2int(final TitanUniversalCharString_Element value);
 ----
 === `Bitstring` to `integer`
 
 [source]
 ----
-extern INTEGER bit2int(const BITSTRING& value);
+TitanInteger bit2int(final TitanBitString value);
+TitanInteger bit2int(final TitanBitString_Element value);
 ----
 === `Hexstring` to `integer`
 
 [source]
 ----
-extern INTEGER hex2int(const HEXSTRING& value);
+TitanInteger hex2int(final TitanHexString value);
+TitanInteger hex2int(final TitanHexString_Element value);
 ----
 === `Octetstring` to `integer`
 
 [source]
 ----
-extern INTEGER oct2int(const OCTETSTRING& value);
+TitanInteger oct2int(final TitanOctetString value);
+TitanInteger oct2int(final TitanOctetString_Element value);
 ----
 === `Charstring` to `integer`
 
 [source]
 ----
-extern INTEGER str2int(const char *value);
-extern INTEGER str2int(const CHARSTRING& value);
+TitanInteger str2int(final String value);
+TitanInteger str2int(final TitanCharString value);
+TitanInteger str2int(final TitanCharString_Element value);
 ----
 === `Integer` to `bitstring`
 
 [source]
 ----
-extern BITSTRING int2bit(const INTEGER& value, const INTEGER& length);
+TitanBitString int2bit(final int value, final int length);
+TitanBitString int2bit(final int value, final TitanInteger length);
+TitanBitString int2bit(final TitanInteger value, final int length);
+TitanBitString int2bit(final TitanInteger value, final TitanInteger length);
 ----
 === `Integer` to `hexstring`
 
 [source]
 ----
-extern HEXSTRING int2hex(const INTEGER& value, const INTEGER& length);
+TitanHexString int2hex(final int value, final int length);
+TitanHexString int2hex(final int value, final TitanInteger length);
+TitanHexString int2hex(final TitanInteger value, final int length);
+TitanHexString int2hex(final TitanInteger value, final TitanInteger length)
 ----
 === `Integer` to `octetstring`
 
 [source]
 ----
-extern OCTETSTRING int2oct(const INTEGER& value, const INTEGER& length);
+TitanOctetString int2oct(final int value, final int length);
+TitanOctetString int2oct(final int value, final TitanInteger length);
+TitanOctetString int2oct(final TitanInteger value, final int length);
+TitanOctetString int2oct(final TitanInteger value, final TitanInteger length);
 ----
 === `Integer` to `charstring`
 
 [source]
 ----
-extern CHARSTRING int2str(int value);
-extern CHARSTRING int2str(const INTEGER& value);
+TitanCharString int2str(final int value);
+TitanCharString int2str(final TitanInteger value);
 ----
 === Length of string Type
 
-This function is built into the equivalent {cpp} classes of all TTCN–3 string types:
+This function is built into the equivalent Java classes of all TTCN–3 string types:
 [source]
 ----
-int <any_string_type>::lengthof() const;
+TitanInteger <any_string_type>.lengthof() const;
 ----
 === Number of elements in a structured type
 
-This function is built into the {cpp} template classes of `record of` and `set of` types:
+This function is built into the Java template classes of `record of` and `set of` types:
 [source]
 ----
-int <any_record_of_or_set_of_type>::size_of() const;
+TitanInteger <any_record_of_or_set_of_type>.size_of() const;
 ----
 This function is currently not implemented for `record` and `set` types.
 
 === The `IsPresent` Function
 
-This function is built into the wrapper {cpp} template class `OPTIONAL`:
+This function is built into the wrapper Java generic class `Optional`:
 [source]
 ----
-boolean <any_optional_field>::ispresent() const;
+boolean <any_optional_field>.ispresent() const;
 ----
 === The `IsChosen` Function
 
-These functions are built into the equivalent {cpp} classes of TTCN–3 union types:
+These functions are built into the equivalent Java classes of TTCN–3 union types:
 [source]
 ----
-boolean <union_type>::ischosen(
-<union_type>::union_selection_type checked_selection) const;
+boolean <union_type>.ischosen(
+<union_type>.union_selection_type checked_selection) const;
 ----
 === The `regexp` Function
 
 [source]
 ----
-extern CHARSTRING regexp(const CHARSTRING& instr,
-const CHARSTRING& expression, const INTEGER& groupno);
+TitanCharString regexp(final TitanCharString instr, final TitanCharString expression, final TitanInteger groupno, final boolean nocase);
+TitanUniversalCharString regexp(final TitanUniversalCharString instr, final TitanUniversalCharString expression, final TitanInteger groupno, final boolean nocase);
 ----
 === `Bitstring` to `charstring`
 
 [source]
 ----
-extern CHARSTRING bit2str(const BITSTRING& value);
+TitanCharString bit2str(final TitanBitString value);
+TitanCharString bit2str(final TitanBitString_Element value);
 ----
 === `Hexstring` to `charstring`
 
 [source]
 ----
-extern CHARSTRING hex2str(const HEXSTRING& value);
+TitanCharString hex2str(final TitanHexString value);
+TitanCharString hex2str(final TitanHexString_Element value);
 ----
-=== `Octetstring` to character string
+=== `Octetstring` to `charstring`
 
 [source]
 ----
-extern CHARSTRING oct2str(const OCTETSTRING& value);
+TitanCharString oct2str(final TitanOctetString value);
+TitanCharString oct2str(final TitanOctetString_Element value);
 ----
 === Character string to `octetstring`
 
 [source]
 ----
-extern OCTETSTRING str2oct(const char *value);
-extern OCTETSTRING str2oct(const CHARSTRING& value);
+TitanOctetString str2oct(final String value);
+TitanOctetString str2oct(final TitanCharString value);
 ----
 === `Bitstring` to `hexstring`
 
 [source]
 ----
-extern HEXSTRING bit2hex(const BITSTRING& value);
+TitanHexString bit2hex(final TitanBitString value);
+TitanHexString bit2hex(final TitanBitString_Element value);
 ----
 === `Hexstring` to `octetstring`
 
 [source]
 ----
-extern OCTETSTRING hex2oct(const HEXSTRING& value);
+TitanOctetString hex2oct(final TitanHexString value);
+TitanOctetString hex2oct(final TitanHexString_Element value)
 ----
 === `Bitstring` to `octetstring`
 
 [source]
 ----
-extern OCTETSTRING bit2oct(const BITSTRING& value);
+TitanOctetString bit2oct(final TitanBitString value);
+TitanOctetString bit2oct(final TitanBitString_Element value)
 ----
 === `Hexstring` to `bitstring`
 
 [source]
 ----
-extern BITSTRING hex2bit(const HEXSTRING& value);
+TitanBitString hex2bit(final TitanHexString value);
+TitanBitString hex2bit(final TitanHexString_Element value);
 ----
 === `Octetstring` to `hexstring`
 
 [source]
 ----
-extern HEXSTRING oct2hex(const OCTETSTRING& value);
+TitanHexString oct2hex(final TitanOctetString value);
+TitanHexString oct2hex(final TitanOctetString_Element value);
 ----
 === `Octetstring` to `bitstring`
 
 [source]
 ----
-extern BITSTRING oct2bit(const OCTETSTRING& value);
+TitanBitString oct2bit(final TitanOctetString value);
+TitanBitString oct2bit(final TitanOctetString_Element value);
 ----
 === `Integer` to `float`
 
 [source]
 ----
-extern double int2float(int value);
-extern double int2float(const INTEGER& value);
+TitanFloat int2float(final int value);
+TitanFloat int2float(final TitanInteger value);
 ----
 === `Float` to `integer`
 
 [source]
 ----
-extern INTEGER float2int(double value);
-extern INTEGER float2int(const FLOAT& value);
+TitanInteger float2int(final double value);
+TitanInteger float2int(final TitanFloat value);
 ----
 === The Random Number Generator Function
 
-The implementation is based on functions `srand48` and `drand48` of `libc`.
+The implementation is based on `java.util.Random`.
 [source]
 ----
-extern double rnd();
-extern double rnd(double seed);
-extern double rnd(const FLOAT& seed);
+TitanFloat rnd();
+TitanFloat rnd(final double seed);
+TitanFloat rnd(final TitanFloat seed);
 ----
 === The Substring Function
 
 Implemented for all string types.
 [source]
 ----
-extern BITSTRING substr(const BITSTRING& value, const INTEGER& index,
-  const INTEGER& returncount);
-extern HEXSTRING substr(const HEXSTRING& value, const INTEGER& index,
-  const INTEGER& returncount);
-extern OCTETSTRING substr(const OCTETSTRING& value, const INTEGER& index,
-  const INTEGER& returncount);
-extern CHARSTRING substr(const CHARSTRING& value, const INTEGER& index,
-  const INTEGER& returncount);
-extern UNIVERSAL_CHARSTRING substr(const UNIVERSAL_CHARSTRING& value,
-  const INTEGER& index, const INTEGER& returncount);
+TitanBitString substr(final TitanBitString value, final int idx, final int returncount);
+TitanBitString substr(final TitanBitString value, final int idx, final TitanInteger returncount);
+TitanBitString substr(final TitanBitString value, final TitanInteger idx, final int returncount);
+TitanBitString substr(final TitanBitString value, final TitanInteger idx, final TitanInteger returncount);
+...
+TitanHexString substr(final TitanHexString value, final TitanInteger idx, final TitanInteger returncount);
+TitanOctetString substr(final TitanOctetString value, final TitanInteger idx, final TitanInteger returncount);
+TitanCharString substr(final TitanCharString value, final TitanInteger idx, final TitanInteger returncount);
+TitanUniversalCharString substr(final TitanUniversalCharString value, final TitanInteger idx, final TitanInteger returncount);
 ----
+And its versions for the _Element types.
 
 === Character string to `float`
 
 [source]
 ----
-extern double str2float(const char *value);
-extern double str2float(const CHARSTRING& value);
+TitanFloat str2float(final String value);
+TitanFloat str2float(final TitanCharString value);
 ----
 === The Replace Function
 
 Implemented for all string types.
 [source]
 ----
-extern BITSTRING replace(const BITSTRING& value, const INTEGER& index,
-  const INTEGER& len, const BITSTRING& repl);
-extern HEXSTRING replace(const HEXSTRING& value, const INTEGER& index,
-  const INTEGER& len, const HEXSTRING& repl);
-extern OCTETSTRING replace(const OCTETSTRING& value, const INTEGER& index,
-  const INTEGER& len, const OCTETSTRING& repl);
-extern CHARSTRING replace(const CHARSTRING& value, const INTEGER& index,
-  const INTEGER& len, const CHARSTRING& repl);
-extern UNIVERSAL_CHARSTRING replace(const UNIVERSAL_CHARSTRING& value,
-  const INTEGER& index, const INTEGER& len, const UNIVERSAL_CHARSTRING& repl);
+TitanBitString replace(final TitanBitString value, final int idx, final int len, final TitanBitString repl);
+TitanBitString replace(final TitanBitString value, final int idx, final TitanInteger len, final TitanBitString repl);
+TitanBitString replace(final TitanBitString value, final TitanInteger idx, final int len, final TitanBitString repl);
+TitanBitString replace(final TitanBitString value, final TitanInteger idx, final TitanInteger len, final TitanBitString repl);
+...
+TitanHexString replace(final TitanHexString value, final TitanInteger idx, final TitanInteger len, final TitanHexString repl);
+TitanOctetString replace(final TitanOctetString value, final TitanInteger idx, final TitanInteger len, final TitanOctetString repl);
+TitanCharString replace(final TitanCharString value, final TitanInteger idx, final TitanInteger len, final TitanCharString repl);
+TitanUniversalCharString replace(final TitanUniversalCharString value, final TitanInteger idx, final TitanInteger len, final TitanUniversalCharString repl);
 ----
 
 [[octetstring-to-character-string-0]]
@@ -1832,15 +1855,17 @@ extern UNIVERSAL_CHARSTRING replace(const UNIVERSAL_CHARSTRING& value,
 
 [source]
 ----
-extern CHARSTRING oct2char(const OCTETSTRING& value);
+TitanCharString oct2char(final TitanOctetString value);
+TitanCharString oct2char(final TitanOctetString_Element value);
 ----
 [[character-string-to-octetstring-0]]
 === Character string to octetstring
 
 [source]
 ----
-extern OCTETSTRING char2oct(const char *value);
-extern OCTETSTRING char2oct(const CHARSTRING& value);
+TitanOctetString char2oct(final String value);
+TitanOctetString char2oct(final TitanCharString value);
+TitanOctetString char2oct(final TitanCharString_Element value);
 ----
 === The `Decompose` Function
 
@@ -1851,33 +1876,33 @@ Not implemented yet.
 
 [source]
 ----
-extern BITSTRING str2bit(const char *value);
-extern BITSTRING str2bit(const CHARSTRING& value);
-extern HEXSTRING str2hex(const char *value);
-extern HEXSTRING str2hex(const CHARSTRING& value);
-extern CHARSTRING float2str(double value);
-extern CHARSTRING float2str(const FLOAT& value);
+TitanBitString str2bit(final String value);
+TitanBitString str2bit(final TitanCharString value);
+TitanBitString str2bit(final TitanCharString_Element value);
+TitanHexString str2hex(final String value);
+TitanHexString str2hex(final TitanCharString value);
+TitanHexString str2hex(final TitanCharString_Element value);
+TitanCharString float2str(final double value);
+TitanCharString float2str(final TitanFloat value);
 
-template<typename TTCN_TYPE>
-CHARSTRING ttcn_to_string(const TTCN_TYPE& ttcn_data)
+TitanCharString TitanCharString.ttcn_to_string(final Base_Type ttcn_data)
 
-template<typename TTCN_TYPE>
-void string_to_ttcn(const CHARSTRING& ttcn_string, TTCN_TYPE& ttcn_value)
+void TitanCharString.string_to_ttcn(final TitanCharString ttcn_string, final Base_Type ttcn_value)
 
-extern UNIVERSAL_CHARSTRING oct2unichar(const OCTETSTRING& invalue);
-extern UNIVERSAL_CHARSTRING oct2unichar(const OCTETSTRING& invalue,
-  const CHARSTRING& string_encoding);
+TitanUniversalCharString oct2unichar(final TitanOctetString value);
+TitanUniversalCharString oct2unichar(final TitanOctetString value, final String encodeStr);
+TitanUniversalCharString oct2unichar(final TitanOctetString value, final TitanCharString encodeStr);
 
-extern OCTETSTRING unichar2oct(const UNIVERSAL_CHARSTRING& invalue);
-extern OCTETSTRING unichar2oct(const UNIVERSAL_CHARSTRING& invalue,
-  const CHARSTRING& string_encoding);
+TitanOctetString unichar2oct(final TitanUniversalCharString value);
+TitanOctetString unichar2oct(final TitanUniversalCharString value, final TitanCharString stringEncoding);
+TitanOctetString unichar2oct(final TitanUniversalCharString value, final String stringEncoding);
 
-extern CHARSTRING get_stringencoding(const OCTETSTRING& encoded__value);
-extern OCTETSTRING remove_bom(const OCTETSTRING& encoded__value);
+TitanCharString get_stringencoding(final TitanOctetString encoded_value);
+TitanOctetString remove_bom(final TitanOctetString encoded_value);
 
-extern CHARSTRING encode_base64(const OCTETSTRING& msg, bool use_linebreaks);
-extern CHARSTRING encode_base64(const OCTETSTRING& msg);
-extern OCTETSTRING decode_base64(const CHARSTRING& b64);
+TitanCharString encode_base64(final TitanOctetString msg, final TitanBoolean use_linebreaks);
+TitanCharString encode_base64(final TitanOctetString msg);
+TitanOctetString decode_base64(final TitanCharString b64);
 ----
 
 See the section "Additional predefined functions" in the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[ Programmer"s Technical Reference] for more details.
@@ -1885,7 +1910,7 @@ See the section "Additional predefined functions" in the link:https://github.com
 [[using-the-signature-classes]]
 == Using the Signature Classes
 
-A Test Port has three outgoing and three incoming types of operation that require the usage of signatures. These are `call` (`getcall`), `reply` (`getreply`) and `raise` (`catch`). Because of this, there are three representation formats (classes generated by the compiler) of a signature the Test Port writer should be familiar with. This section describes these classes using an example.
+A Test Port has three outgoing and three incoming types of operation that require the usage of signatures. These are `call` (`getcall`), `reply` (`getreply`) and `raise` (`catch`). Because of this, there are three representation formats (classes generated by the Java code generator) of a signature the Test Port writer should be familiar with. This section describes these classes using an example.
 
 Let us suppose the following signature definition:
 [source]
@@ -1912,12 +1937,12 @@ The generated class `MyProc_call` will have the following public member function
 |==============================================================
 2+^.^|*Member functions* |*Notes*
 .4+^.^|_Parameter access functions_
-|INTEGER& inPar() |Gives access to parameter inPar.
-|const INTEGER& inPar() const  |
-|BITSTRING& inoutPar() |The same, but it gives read-only access.
-|const BITSTRING& inoutPar() const  |
+|TitanInteger get_field_inPar() |Gives access to parameter inPar.
+|TitanInteger constGet_field_inPar()  |
+|TitanBitString get_field_inoutPar() |The same, but it gives read-only access.
+|TitanBitString constGet_field_inoutPar()  |
 ^.^|_Other member functions_
-|`void log() const` |Puts the parameters into log.
+|`void log()` |Puts the parameters into log.
 |==============================================================
 
 The parameters can be accessed via their access functions that have the same names as the parameters (name mapping also applies to these functions).
@@ -1931,17 +1956,19 @@ The output parameters and return value (if defined) are represented by the class
 [cols=",,",options="",]
 |=====================================================================
 2+^.^|*Member functions* |*Notes*
-.2+^.^|_Parameter access functions_
-|FLOAT& outPar()const FLOAT& outPar() const |Gives access to parameter outPar.
-|BITSTRING& inoutPar() const BITSTRING& inoutPar() const |The same, but it gives read-only access.
+.4+^.^|_Parameter access functions_
+|TitanFloat get_field_outPar() |Gives access to parameter outPar.
+|TitanFloat constGet_field_outPar() |The same, but it gives read-only access.
+|TitanBitString get_field_inoutPar()|
+|TitanBitString constGet_field_inoutPar()|
 .2+^.^|_Access function for return value_
-|HEXSTRING& return value() |Gives access to the return value.
-|const HEXSTRING& return value() const |
+|TitanHexString get_return_value() |Gives access to the return value.
+|TitanHexString constGet_return_value() |
 ^.^|_Other member functions_
-|`void log() const` |Puts the parameters into log.
+|`void log()` |Puts the parameters into log.
 |=====================================================================
 
-The parameters can be accessed by their access functions, and the return value can be accessed via the function `return_value()`.
+The parameters can be accessed by their access functions, and the return value can be accessed via the function `get_return_value()`.
 
 === Representation of Signature Exceptions
 
@@ -1952,23 +1979,26 @@ The class representing the exceptions of a signature (remote procedure) is simil
 [width="100%",cols=",,",options="",]
 |===================================================================================================================================================================================================================================
 2+^.^|*Member functions* |*Notes*
-.2+^.^|_Constructors_
+.5+^.^|_Constructors_
 |`MyProc_exception()` |Initializes to unbound value.
-|`MyProc_exception(const MyProc_exception&)` |Copy constructor.
-^.^|_Destructor_
-|`˜MyProc_exception()` |
+|`MyProc_exception( final TitanCharString otherValue)`|
+|`MyProc_exception( final TitanInteger otherValue)`|
+|`MyProc_exception( final TitanBoolean otherValue)`|
+|`MyProc_exception(final MyProc_exception otherValue)` |Copy constructor.
 ^.^|_Assignment_ _operator_
-|`MyProc_exception& operator=(const MyProc_exception&)` |Assigns the given value.
-.4+^.^|_Field access functions_
-|CHARSTRING& CHARSTRING_field() |Selects and gives access to the CHARSTRING field. If other field was previously selected, its value will be destroyed.
-|const CHARSTRING&CHARSTRING_field() cons |Gives read-only access to the CHARSTRING field. If other field is selected, this function will cause dynamic test case error. So use get selection() first.
-|INTEGER& INTEGER_field() const INTEGER& INTEGER_field() const |
-|BOOLEAN& BOOLEAN_field()const BOOLEAN& BOOLEAN_field() const  |
+|`MyProc_exception operator_assign( final MyProc_exception otherValue )` |Assigns the given value.
+.6+^.^|_Field access functions_
+|TitanCharString get_field_TitanCharString() |Selects and gives access to the CHARSTRING field. If other field was previously selected, its value will be destroyed.
+|TitanCharString constGet_field_TitanCharString() |Gives read-only access to the CHARSTRING field. If other field is selected, this function will cause dynamic test case error. So use get selection() first.
+|TitanInteger get_field_TitanInteger() |
+|TitanInteger constGet_field_TitanInteger()|
+|TitanBoolean get_field_TitanBoolean()  |
+|TitanBoolean constGet_field_TitanBoolean()|
 .2+^.^|_Other member functions_
-|`MyProc_exception::exception_selection_type 	get_selection() const` |Returns the current selection. It will return MyProc exception::UNBOUND VALUE if the exception is unbound, MyProc exception::ALT CHARSTRING if a charstring value is present in the exception, and so on.
-|`void log() const` |Puts the contents of the exception into the log.
+|`exception_selection_type get_selection()` |Returns the current selection. It will return MyProc exception.UNBOUND VALUE if the exception is unbound, MyProc_exception.ALT_TitanCharString if a charstring value is present in the exception, and so on.
+|`void log()` |Puts the contents of the exception into the log.
 |===================================================================================================================================================================================================================================
 
-If an exception type is a user-defined type the field name will be constructed from the {cpp} namespace name of the module that the exception type resides in and the name of the {cpp} class that realizes the exception type. The two identifiers are glued together using a single underscore character. Please note that the namespace name is always present in the identifiers, even if the exception type is defined in the same module as the signature.
+If an exception type is a user-defined type the field name will be constructed from the Java name of the module that the exception type resides in and the name of the Java class that realizes the exception type. The two identifiers are glued together using a single underscore character. Please note that the module name is always present in the identifiers, even if the exception type is defined in the same module as the signature.
 
-For example, if exception type `My_Record` is defined in module `My_Module` the respective field access functions will be named as `My\__Module_My__Record_field` and the associated enum value will be `MyProc_exception::ALT_My__Module_My__Record`.
+For example, if exception type `My_Record` is defined in module `My_Module` the respective field access functions will be named as `My\__Module_My__Record_field` and the associated enum value will be `MyProc_exception.ALT_My__Module_My__Record`.
