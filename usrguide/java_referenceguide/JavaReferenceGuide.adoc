@@ -62,8 +62,8 @@ ifdef::env-github,backend-html5[]
 * link:2-test_ports.adoc[Test Ports]
 * link:3-logger_plug-ins.adoc[Logger Plug-ins]
 * link:4-encoding_and_decoding.adoc[Encoding and Decoding]
+* link:5-mapping_ttcn3_data_types_to_java_constructs.adoc[Mapping TTCNâ€“3 Data Types to {cpp} Constructs]
 ////
-* link:5-mapping_ttcn3_data_types_to_c+\+_constructs.adoc[Mapping TTCNâ€“3 Data Types to {cpp} Constructs]
 * link:6-tips_&_troubleshooting.adoc[Tips & Troubleshooting]
 ////
 * link:13-references.adoc[References]
@@ -84,8 +84,8 @@ include::12-tips_&_troubleshooting.adoc[leveloffset=+1]
 include::2-test_ports.adoc[leveloffset=+1]
 include::3-logger_plug-ins.adoc[leveloffset=+1]
 include::4-encoding_and_decoding.adoc[leveloffset=+1]
+include::5-mapping_ttcn3_data_types_to_java_constructs.adoc[leveloffset=+1]
 ////
-//include::5-mapping_ttcn3_data_types_to_c++_constructs.adoc[leveloffset=+1]
 //include::6-tips_&_troubleshooting.adoc[leveloffset=+1]
 ////
 include::13-references.adoc[leveloffset=+1]

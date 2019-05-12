@@ -1,0 +1,1963 @@
+[[mapping-ttcn-3-data-types-to-java-constructs]]
+= Mapping TTCN–3 Data Types to Java Constructs
+:table-number: 7
+:toc:
+
+On the Java side the TTCN–3 language elements of the test suite are individually mapped into more or less equivalent Java constructs. The data types are mapped to Java classes, the test cases become Java functions, and so on. In order to write a Test Port, it is inevitable to be familiar with the internal representation format of TTCN–3 data types and values. This section gives an overview about the data types and their equivalent Java constructs.
+
+[[mapping-of-names-and-identifiers]]
+== Mapping of Names and Identifiers
+
+In order to identify the TTCN–3 language elements in the generated Java program properly, the names of test suite are translated to Java identifiers according to the following simple rules.
+
+If the TTCN–3 identifier does not contain any underscore (_) character, its equivalent Java identifier will be the same. For example, the TTCN–3 variable `MyVar` will be translated to a Java variable called `MyVar`.
+
+If the TTCN–3 identifier contains one or more underscore characters, each underscore character will be duplicated in the Java identifier. So the TTCN–3 identifier `My_Long_Name` will be mapped to a Java identifier called `My\__Long__Name`.
+
+The idea behind this name mapping is that we may freely use the Java identifiers containing one underscore character in the generated code and in the Test Ports as well. Otherwise name clashes might happen (and to keep in line with the {cpp} side of the toolset and its already existing large amount of code). Furthermore, the generated Java language elements fulfill the condition that the scope of a translated Java identifier is identical as the scope of the original TTCN–3 identifier.
+
+The identifiers that are keywords of Java but not keywords in TTCN–3 are mapped to themselves, but a single underscore character is appended at the end (for example `for` becomes `for_`). The same rule applies to the all-uppercase identifiers that are used in the Base Library: identifier `TitanInteger` in TTCN–3 becomes `TitanInteger_` in Java, `TRUE` footnote:[The built-in `verdict` and `boolean` constants in TTCN–3 shall be written with all lowercase letters, such as true or pass. Although previous compiler versions have accepted `TRUE` or `PASS` as well, these words are treated by the compiler as regular identifiers as specified in the standard.] is mapped to `TRUE_`, etc.
+
+FIXME update list of words
+Here is the complete list (in alphabetical order) of the identifiers that are handled in such special way:asm, auto, bitand, bitor, bool, break, case, class, compl, continue, delete, double, enum, explicit, export, friend, inline, int, ischosen, long, main, mutable, namespace, new, operator, private, protected, public, register, short, signed, static, stderr, stdin, stdout, struct, switch, this, throw, try, typedef, typeid, typename, unsigned, using, virtual, void, volatile, ADDRESS, BITSTRING, BOOLEAN, CHAR, CHARSTRING, COMPONENT, DEFAULT, ERROR, FAIL, FALSE, FLOAT, HEXSTRING, INCONC, INTEGER, NONE, OBJID, OCTETSTRING, PASS, PORT, TIMER, TRUE, VERDICTTYPE.
+
+The identifiers that are the names of common classes of the Java library (such as `System`, `Map`, ) should be avoided in TTCN–3 modules. The name clashes clashes might create problems during the implementation of external functions and testports.
+
+Note that these name mapping rules apply to *all* TTCN–3 identifiers, including module, Test Port, type, field, variable and function names.
+
+== Modules
+
+The Java code generator generates a Java class for every TTCN–3 and ASN.1 module. All Java definitions that belong to the module (including Test Port classes and external functions) are placed in that class. The name of the class is derived from the module identifier according to the rules described in <<mapping-of-names-and-identifiers, Mapping of Names and Identifiers>>.
+
+When accessing a Java entity that belongs to a different module than the referring Test Port or external function is in the reference has to be prefixed with the class of the referenced module and the class of the referenced module being imported. For example, to access the Java class that realizes type `MyType` defined in `MyModule1` from a Test Port that belongs to module `MyModule2` the reference shall be written as `MyModule1.MyType`.
+
+[[predefined-ttcn-3-data-types]]
+== Predefined TTCN–3 Data Types
+
+in the TTCN–3 Base Library all basic data types of TTCN–3 were implemented as Java classes.
+This is because:
+* The TTCN–3 executor must know whether a variable has a valid value or not because sending an unbound value must result in a dynamic test case error.
+* Complex types (like a record or set) have no equivalents in Java.
+* Encoding and decoding of types in not present in Java types.
+* etc.
+
+This section describes the member functions of these classes.
+
+=== `Integer`
+
+The TTCN–3 type `integer` is implemented in class `TitanInteger`. +
+The class `TitanInteger` has the following public member functions:
+
+.Public member functions of the class `TitanInteger`
+[cols="20%,60%,20%",]
+|==================================================
+2+^.^|*Member functions* |*Notes*
+.5+^.^|_Constructors_
+|`TitanInteger()` |Initializes to unbound value.
+|`TitanInteger(final int otherValue)` |Initializes to a given value.
+|`TitanInteger(final BigInteger otherValue)` |Initializes to a given value.
+|`TitanInteger(final TitanInteger otherValue)` |Copy constructor.
+|`TitanInteger(final String otherValue)` |Initializes with the String representation of an integer.
+.4+^.^|_Assignment operators_
+|`TitanInteger operator_assign(final int otherValue)` | Sets to given value.
+|`TitanInteger operator_assign(final BigInteger otherValue)` | Sets to given value.
+|`TitanInteger operator_assign(final TitanInteger otherValue)` |Sets to given value.
+|`TitanInteger operator_assign(final Base_Type otherValue)` |Sets to given value.
+.7+^.^|_Comparison operators_
+| boolean operator_equals(final int otherValue) | Returns TRUE if equals.
+| boolean operator_equals(final BigInteger otherValue) | and FALSE otherwise.
+| boolean operator_equals(final TitanInteger otherValue) |
+| boolean operator_equals(final Base_Type otherValue)  |
+| boolean operator_not_equals(final int otherValue)  |
+| boolean operator_not_equals(final BigInteger otherValue)  |
+| boolean operator_not_equals(final TitanInteger otherValue)  |
+.12+^.^|_Comparison operators_
+| boolean is_less_than(final int otherValue)  |
+| boolean is_less_than(final BigInteger otherValue)  |
+| boolean is_less_than(final TitanInteger otherValue)  |
+| boolean is_less_than_or_equal(final int otherValue)  |
+| boolean is_less_than_or_equal(final BigInteger otherValue)  |
+| boolean is_less_than_or_equal(final TitanInteger otherValue)  |
+| boolean is_greater_than(final int otherValue)  |
+| boolean is_greater_than(final BigInteger otherValue) |
+| boolean is_greater_than(final TitanInteger otherValue)  |
+| boolean is_greater_than_or_equal(final int otherValue)  |
+| boolean is_greater_than_or_equal(final BigInteger otherValue)  |
+| boolean is_greater_than_or_equal(final TitanInteger otherValue)  |
+.20+^.^|_Arithmetic operators_
+| TitanInteger add() |Unary plus.
+| TitanInteger sub() |Unary minus.
+| TitanInteger add(final int other_value) |Addition.
+| TitanInteger add(final BigInteger other_value) |
+| TitanInteger add(final TitanInteger other_value) |
+| TitanInteger sub(final int other_value) |Subtraction.
+| TitanInteger sub(final BigInteger other_value) |
+| TitanInteger sub(final TitanInteger other_value) |
+| TitanInteger mul(final int other_value) |Multiplication.
+| TitanInteger mul(final BigInteger other_value) |
+| TitanInteger mul(final TitanInteger other_value)|
+| TitanInteger div(final int other_value) |Integer division.
+| TitanInteger div(final BigInteger other_value) |
+| TitanInteger div(final TitanInteger other_value) |
+| TitanInteger rem(final int other_value) |remainder of the division.
+| TitanInteger rem(final BigInteger other_value) |
+| TitanInteger rem(final TitanInteger other_value) |
+| TitanInteger mod(final int other_value) |modulo of the division.
+| TitanInteger mod(final BigInteger other_value) |
+| TitanInteger mod(final TitanInteger other_value) |
+.3+^.^|_Casting operator_
+| int get_int() |Returns the value.
+| long get_long() |Returns the value.
+| BigInteger get_BigInteger() |Returns the value.
+.8+^.^|_Other member functions_
+| `boolean is_native()` |is the value native int.
+| `boolean is_bound()` |Returns whether the value is bound.
+| `boolean is_present()` |Returns whether the value is present.
+| `boolean is_value()` |Returns whether the value is a value.
+| `void log()` |Puts the value into log.
+| `void clean_up()` |Deletes the value, setting it to unbound.
+| `void encode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |encodes the value.
+| `void decode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |decodes the value.
+|==================================================
+
+The comparison, arithmetic and shifting operators are also available as global functions for that case when the left side is `int` and the right side is `TitanInteger`. Using the value of an unbound variable for anything will cause dynamic test case error.
+
+The `get_int()` is applicable only to `TitanInteger` objects holding a signed value with at most 31 useful bits, since in Java the native `int` type is 32-bit large including the sign bit. Being used on an `TitanInteger` object holding a bigger (for example a 32-bit unsigned) value will result in run-time error.
+
+Please note that if the value stored in a `TitanInteger` object is too big (that is, it cannot be represented as a `int`) the value returned by `get_long()` will contain only the lowest 64 bits of the original value.
+
+In addition, the following static functions are available for modulo division. These functions return the result of `mod` and `rem` operations according to TTCN–3 semantics.
+[source]
+----
+TitanInteger mod(final TitanInteger left_value, final TitanInteger right_value);
+TitanInteger mod(final TitanInteger left_value, final int right_value);
+TitanInteger mod(final int left_value, final TitanInteger right_value);
+TitanInteger mod(final int left_value, int right_value);
+
+TitanInteger rem(final TitanInteger left_value, final TitanInteger right_value);
+TitanInteger rem(final TitanInteger left_value, final int right_value);
+TitanInteger rem(final int left_value, final TitanInteger right_value);
+TitanInteger rem(final int left_value, final int right_value);
+----
+
+Other operators (static functions):
+[source]
+----
+TitanInteger add(final int int_value, final TitanInteger other_value);  // Add
+TitanInteger sub(final int int_value, final TitanInteger other_value);  // Subtract
+TitanInteger mul(final int int_value, final TitanInteger other_value);  // Multiply
+TitanInteger div(final int int_value, final TitanInteger other_value);  // Divide
+boolean operator_equals(final int intValue, final TitanInteger otherValue); // Equal
+boolean operator_not_equals(final int intValue, final TitanInteger otherValue); // Not equal
+boolean is_less_than(final int intValue, final TitanInteger otherValue);  // Less than
+boolean is_greater_than(final int intValue, final TitanInteger otherValue);  // More than
+----
+
+=== `Float`
+
+The TTCN–3 type `float` is implemented in class `TitanFloat`. +
+The class `TitanFloat` has the following public member functions:
+
+.Public member functions of the class `TitanFloat`
+
+[width="100%",cols="20%,60%,20%"]
+|=================================================================================================
+2+^.^|*Member functions* |*Notes*
+.4+^.^|_Constructors_
+|`TitanFloat()` |Initializes to unbound value.
+|`TitanFloat(final double otherValue)` |Initializes to a given value.
+|`TitanFloat(final Ttcn3Float otherValue)`|
+|`TitanFloat(final TitanFloat otherValue)` |Copy constructor.
+.4+^.^|Assignment operators
+|`TitanFloat operator_assign(final double otherValue)`  |Assigns the given value
+|`TitanFloat operator_assign(final Ttcn3Float otherValue)` |and sets the bound flag.
+|`TitanFloat operator_assign(final TitanFloat otherValue)` |
+|`TitanFloat operator_assign(final Base_Type otherValue)` |
+.19+^.^|_Comparison operators_
+|boolean operator_equals(final double otherValue) |Returns TRUE if equals
+|boolean operator_equals(final Ttcn3Float otherValue) |and FALSE otherwise.
+|boolean operator_equals(final TitanFloat otherValue)  |
+|boolean operator_equals(final Base_Type otherValue)  |
+|boolean operator_not_equals(final double otherValue)  |
+|boolean operator_not_equals(final Ttcn3Float otherValue) |
+|boolean operator_not_equals(final TitanFloat otherValue)  |
+|boolean is_less_than(final double otherValue)  |
+|boolean is_less_than(final Ttcn3Float otherValue)   |
+|boolean is_less_than(final TitanFloat otherValue)   |
+|boolean is_less_than_or_equal(final double otherValue)  |
+|boolean is_less_than_or_equal(final Ttcn3Float otherValue)  |
+|boolean is_less_than_or_equal(final TitanFloat otherValue)  |
+|boolean is_greater_than(final double otherValue)  |
+|boolean is_greater_than(final Ttcn3Float otherValue)  |
+|boolean is_greater_than(final TitanFloat otherValue)  |
+|boolean is_greater_than_or_equal(final double otherValue)  |
+|boolean is_greater_than_or_equal(final Ttcn3Float otherValue) |
+|boolean is_greater_than_or_equal(final TitanFloat otherValue)  |
+.14+^.^|_Arithmetic operators_
+|TitanFloat add()  |Unary plus.
+|TitanFloat sub()  |Unary minus.
+|TitanFloat add(final double other_value) |Addition.
+|TitanFloat add(final Ttcn3Float other_value)  |
+|TitanFloat add(final TitanFloat other_value)  |
+|TitanFloat sub(final double other_value)  |Subtraction.
+|TitanFloat sub(final Ttcn3Float other_value)  |
+|TitanFloat sub(final TitanFloat other_value) |
+|TitanFloat mul(final double other_value)  |Multiplication.
+|TitanFloat mul(final Ttcn3Float other_value)  |
+|TitanFloat mul(final TitanFloat other_value)  |
+|TitanFloat div(final double other_value)  |Division.
+|TitanFloat div(final Ttcn3Float other_value)  |
+|TitanFloat div(final TitanFloat other_value)  |
+^.^|_Casting operator_
+|Double get_value() |Returns the value.
+.8+^.^|_Other member functions_
+| `boolean is_native()` |is the value native int.
+| `boolean is_bound()` |Returns whether the value is bound.
+| `boolean is_present()` |Returns whether the value is present.
+| `boolean is_value()` |Returns whether the value is a value.
+| `void log()` |Puts the value into log.
+| `void clean_up()` |Deletes the value, setting it to unbound.
+| `void encode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |encodes the value.
+| `void decode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |decodes the value.
+
+
+|=================================================================================================
+
+The comparison and arithmetic operators are also available as static functions for that case when the left side is `double` and the right side is `TitanFloat`. Using the value of an unbound variable for anything will cause dynamic test case error.
+
+Other operators (static functions):
+[source]
+----
+TitanFloat add(final double double_value, final TitanFloat other_value);    // Add
+TitanFloat sub(final double double_value, final TitanFloat other_value);    // Subtract
+TitanFloat mul(final double double_value, final TitanFloat other_value);    // Multiply
+TitanFloat div(final double double_value, final TitanFloat other_value);    // Divide
+boolean operator_equals(final double doubleValue, final TitanFloat otherValue); // Equal
+boolean operator_not_equals(final double doubleValue, final TitanFloat otherValue); // Not equal
+boolean is_less_than(final double doubleValue, final TitanFloat otherValue);  // Less than
+boolean is_greater_than(final double doubleValue, final TitanFloat otherValue);  // More than
+----
+
+=== `Boolean`
+
+The TTCN–3 type `boolean` is implemented in class `TitanBoolean`. +
+The class `TitanBoolean` has the following public member functions:
+
+.Public member functions of the class `TitanBoolean`
+
+[cols="20%,80%,20%",,]
+|==================================================
+2+^.^|*Member functions* |*Notes*
+.3+^.^|_Constructors_
+|`TitanBoolean()` |Initializes to unbound value.
+|`TitanBoolean(final Boolean otherValue)` |Initializes to a given value.
+|`TitanBoolean(final TitanBoolean otherValue)` | Copy constructor.
+.3+^.^|_Assignment operators_
+|`TitanBoolean operator_assign(final boolean otherValue)` |Assigns the given value
+|`TitanBoolean operator_assign(final TitanBoolean otherValue)` |and sets the bound flag.
+|`TitanBoolean operator_assign(final Base_Type otherValue)` |
+.5+^.^|_Comparison operators_
+|boolean operator_equals(final boolean otherValue) |Returns TRUE if equals
+|boolean operator_equals(final TitanBoolean otherValue) |and FALSE otherwise.
+|boolean operator_equals(final Base_Type otherValue) |
+|boolean operator_not_equals(final boolean otherValue)|Same as XOR.
+|boolean operator_not_equals(final TitanBoolean otherValue) |
+.7+^.^|_Logical operators_
+|boolean not() |Negation (NOT).
+|boolean and(final boolean other_value) |Logical AND.
+|boolean and(final TitanBoolean other_value) |
+|boolean or(final boolean other_value) |Logical OR.
+|boolean or(final TitanBoolean other_value) |
+|boolean xor(final boolean other_value) |Exclusive or (XOR).
+|boolean xor(final TitanBoolean other_value) |
+^.^|_Casting operator_
+| Boolean get_value() |Returns the value.
+.7+^.^|_Other member functions_
+| `boolean is_bound()` |Returns whether the value is bound.
+| `boolean is_present()` |Returns whether the value is present.
+| `boolean is_value()` |Returns whether the value is a value.
+| `void log()` |Puts the value into log. Like "TRUE" or "FALSE".
+| `void clean_up()` |Deletes the value, setting it to unbound.
+| `void encode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |encodes the value.
+| `void decode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |decodes the value.
+
+|==================================================
+
+The comparison and logical operators are also available as static functions for that case when the left side is `boolean` and the right side is `TitanBoolean`. Using the value of an unbound variable for anything will cause dynamic test case error.
+
+Other operators (static functions):
+[source]
+----
+boolean and(final boolean bool_value, final TitanBoolean other_value); // And
+boolean xor(final boolean bool_value, final TitanBoolean other_value);  // Xor
+boolean or(final boolean bool_value, final TitanBoolean other_value); // Or
+boolean operator_equals(final boolean boolValue, final TitanBoolean otherValue); // Equal
+boolean operator_not_equals(final boolean boolValue, final TitanBoolean otherValue);// Not equal
+----
+
+=== `Verdicttype`
+
+The TTCN–3 type `verdicttype` is implemented in class `TitanVerdictType`. +
+The class `TitanVerdictType` has the following public member functions:
+
+.Public member functions of the class `TitanVerdictType`
+
+[cols="20%,80%,20%",,]
+|==================================================
+2+^.^|*Member functions* |*Notes*
+.3+^.^|_Constructors_
+|`TitanVerdictType()` |Initializes to unbound value.
+|`TitanVerdictType(final VerdictTypeEnum otherValue)`  |Initializes to a given value.
+|`TitanVerdictType(final TitanVerdictType otherValue)`  |Copy constructor.
+.3+^.^|_Assignment operators_
+|`TitanVerdictType operator_assign(final VerdictTypeEnum otherValue)` |Assigns the given value
+|`TitanVerdictType operator_assign(final TitanVerdictType otherValue)`  |and sets the bound flag.
+|`TitanVerdictType operator_assign(final Base_Type otherValue)`  |
+.5+^.^|_Comparison operators_
+|boolean operator_equals(final VerdictTypeEnum otherValue) |Returns TRUE if equals
+|boolean operator_equals(final TitanVerdictType otherValue) |and FALSE otherwise.
+|boolean operator_equals(final Base_Type otherValue)  |
+|boolean operator_not_equals(final VerdictTypeEnum otherValue)  |
+|boolean operator_not_equals(final TitanVerdictType otherValue)  |
+^.^|_Casting operator_
+|VerdictTypeEnum get_value()  |Returns the value.
+.7+^.^|_Other member functions_
+| `boolean is_bound()` |Returns whether the value is bound.
+| `boolean is_present()` |Returns whether the value is present.
+| `boolean is_value()` |Returns whether the value is a value.
+| `void log()` |Puts the value into log. Like "pass" or "fail".
+| `void clean_up()` |Deletes the value, setting it to unbound.
+| `void encode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |encodes the value.
+| `void decode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |decodes the value.
+|==================================================
+
+The comparison operators are also available as static functions for that case when the left side is `VerdictTypeEnum` and the right side is `TitanVerdictType`. Using the value of an unbound `TitanVerdictType` variable for anything will cause dynamic test case error.
+
+Other operators (static functions):
+[source]
+----
+boolean operator_equals(final VerdictTypeEnum par_value, final TitanVerdictType other_value); // Equal
+boolean operator_not_equals(final VerdictTypeEnum par_value, final TitanVerdictType other_value); // Not equal
+----
+
+There are the following three static member functions in class `TTCN_Runtime` defined in the Base Library for getting or modifying the local verdict of the current test components:
+[source]
+----
+void setverdict(final TitanVerdictType.VerdictTypeEnum newValue);
+void setverdict(final TitanVerdictType newValue);
+void setverdict(final TitanVerdictType.VerdictTypeEnum newValue, final String reason);
+setverdict(final TitanVerdictType newValue, final String reason);
+TitanVerdictType get_verdict();
+----
+
+These functions are the Java equivalents of TTCN–3 `setverdict` and `getverdict` operations. Use them only if your Test Port or Java function encounters a low-level failure, but it can continue its normal operation (that is, error recovery is not necessary).
+
+=== `Bitstring`
+
+The equivalent Java class of TTCN–3 type `bitstring` is called `TitanBitString`. The bits of the bit string are stored in an array of ints. In order to reduce the wasted memory space the bits are packed together, so each int contains eight bits. The first int contains the first eight bits of the bit string; the second int contains the bits from the 9th up to the 16th, and so on. The first bit of the bit string is the LSB of the first character; the second bit is the second least significant bit of the first character, and so on. If the length of the bit string is not a multiple of eight, the unused bits of the last character can contain any value. So the length of the bit string must be always given.
+
+The class `TitanBitString` has the following public member functions:
+
+.Public member functions of the class `TitanBitString`
+
+[width="100%",cols="20%,60%,20%"]
+|==============================================================================================================================
+2+^.^|*Member functions* |*Notes*
+.4+^.^|_Constructors_
+|`TitanBitString()` |Initializes to unbound value.
+|`TitanBitString(final int other_value[], final int nof_bits)` |Initializes from a given length
+and  int array.
+|`TitanBitString(final TitanBitString otherValue)` |Copy constructor.
+|`TitanBitString(final TitanBitString_Element otherValue)` |Initializes from a single bitstring element.
+.3+^.^|_Assignment operators_
+|`TitanBitString operator_assign(final TitanBitString otherValue)` |Assigns the given value and sets the bound flag.
+|`TitanBitString operator_assign(final TitanBitString_Element otherValue)` |Assigns the given single bitstring element.
+|`TitanBitString operator_assign(final Base_Type otherValue)` |
+.5+^.^|_Comparison operators_
+|boolean operator_equals(final TitanBitString otherValue) |Returns TRUE if equals
+|boolean operator_equals(final TitanBitString_Element otherValue) |and FALSE otherwise.
+|boolean operator_equals(final Base_Type otherValue) |
+|boolean operator_not_equals(final TitanBitString otherValue) |
+|boolean operator_not_equals(final TitanBitString_Element otherValue) |
+.2+^.^|_Concatenation operator_
+|TitanBitString operator_concatenate(final TitanBitString other_value) |Concatenates two bitstrings.
+|TitanBitString operator_concatenate(final TitanBitString_Element other_value) |Concatenates a bitstring and a bitstring element.
+.4+^.^|_Index operator_
+|TitanBitString_Element get_at(final int index_value) |Gives access to the given element. Indexing begins from zero. Index overflow causes dynamic test case error.
+|TitanBitString_Element get_at(final TitanInteger index_value) |
+|TitanBitString_Element constGet_at(final int index_value) |Gives read-only access to the given element.
+|TitanBitString_Element constGet_at(final TitanInteger index_value) |
+.7+^.^|_Bitwise operators_
+|TitanBitString not4b() | not4b. (bitwise negation)
+|TitanBitString and4b(final TitanBitString otherValue) | and4b. (bitwise and)
+|TitanBitString and4b(final TitanBitString_Element otherValue) |
+|TitanBitString or4b(final TitanBitString otherValue) |or4b. (bitwise or)
+|TitanBitString or4b(final TitanBitString_Element otherValue) |
+|TitanBitString xor4b(final TitanBitString otherValue) |xor4b. (bitwise xor)
+|TitanBitString xor4b(final TitanBitString_Element otherValue) |
+.8+^.^|_Shifting and rotating operators_
+|TitanBitString shift_left(int shift_count) |Java equivalent of operator
+|TitanBitString shift_left(final TitanInteger shift_count) |<<.(shift left)
+|TitanBitString shift_right(int shift_count) |Java equivalent of operator
+|TitanBitString shift_right(final TitanInteger shift_count) |>>. (shift right)
+|TitanBitString rotate_left(int rotate_count) |Java equivalent of operator
+|TitanBitString rotate_left(final TitanInteger rotate_count) |< @. (rotate left)
+|TitanBitString rotate_right(int rotate_count) |Java equivalent of operator
+|TitanBitString rotate_right(final TitanInteger rotate_count) |@ >. (rotate right)
+^.^|_Casting operator_
+|int[] get_value() |Returns a pointer to the int array.
+.8+^.^|_Other member functions_
+|`int lengthof() const` |Returns the length measured in bits.
+| `boolean is_bound()` |Returns whether the value is bound.
+| `boolean is_present()` |Returns whether the value is present.
+| `boolean is_value()` |Returns whether the value is a value.
+| `void log()` |Puts the value into log. Example: ’100011’B.
+| `void clean_up()` |Deletes the value, setting it to unbound.
+| `void encode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |encodes the value.
+| `void decode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |decodes the value.
+|==============================================================================================================================
+
+Using the value of an unbound `TitanBitString` variable for anything will cause dynamic test case error.
+
+==== `Bitstring element`
+
+The Java class `TitanBitString_Element` is the equivalent of the TTCN-3 `bitstring`’s element type (the result of indexing a `bitstring` value). The class does not store the actual bit, only a reference to the original `TitanBitString` object, an index value and a bound flag.
+
+Note: changing the value of the `TitanBitString_Element` (through the assignment operator) changes the referenced bit in the original `bitstring` object.
+
+The class `TitanBitString_Element` has the following public member functions:
+
+.Public member functions of the class `TitanBitString_Element`
+
+[width="100%",cols="20%,80%,20%"]
+|========================================================================================================================================================
+2+^.^|*Member functions* |*Notes*
+|_Constructor_
+|`TitanBitString_Element(final boolean par_bound_flag, final TitanBitString par_str_val, final int par_bit_pos)` |Initializes the object with an unbound value or a reference to a bit in an existring TitanBitString object.
+.2+^.^|_Assignment operators_
+|`TitanBitString_Element operator_assign(final TitanBitString otherValue)` |Sets the referenced bit to the given bitstring of length 1.
+|`TitanBitString_Element operator_assign(final TitanBitString_Element otherValue)` |Sets the referenced bit to the given bitstring element.
+.4+^.^|_Comparison operators_
+|boolean operator_equals(final TitanBitString otherValue) |Comparison with a bitstring or a bitstring element (the value of the referenced bits is compared, not the references and indexes).
+|boolean operator_equals(final TitanBitString_Element otherValue) |
+|boolean operator_not_equals(final TitanBitString otherValue) |
+|boolean operator_not_equals(final TitanBitString_Element otherValue) |
+.2+^.^|_Concatenation operator_
+|TitanBitString operator_concatenate(final TitanBitString other_value) |Concatenates a bitstring element with a bitstring, or two bitstring elements.
+|TitanBitString operator_concatenate(final TitanBitString_Element other_value) |
+.7+^.^|_Bitwise operators_
+|TitanBitString not4b()| not4b. (bitwise negation)
+|TitanBitString and4b(final TitanBitString otherValue) |and4b. (bitwise and)
+|TitanBitString and4b(final TitanBitString_Element otherValue)  |
+|TitanBitString or4b(final TitanBitString otherValue)  | or4b. (bitwise or)
+|TitanBitString or4b(final TitanBitString_Element otherValue)  |
+|TitanBitString xor4b(final TitanBitString otherValue) | xor4b. (bitwise xor)
+|TitanBitString xor4b(final TitanBitString_Element otherValue) |
+.4+^.^|_Other member functions_
+|`boolean get_bit()` |Returns the referenced bit.
+|`void log()` | Puts the value into log.
+Example: '1'B.
+|`boolean is_bound()` | Returns whether the value is bound.
+| `boolean is_value()` |Returns whether the value is a value.
+|========================================================================================================================================================
+
+Using the value of an unbound `TitanBitString_Element` variable for anything will cause dynamic test case error.
+
+=== `Hexstring`
+
+The equivalent Java class of TTCN–3 type `hexstring` is called `TitanHexString`. The hexadecimal digits (nibbles) are stored in an array of unsigned bytes. In order to reduce the wasted memory space two nibbles are packed into one byte. The first byte contains the first two nibbles of the `hexstring`, the second byte contains the third and fourth nibbles, and so on. The hexadecimal digits at odd (first, third, fifth, etc.) positions occupy the lower 4 bits in the characters; the even ones use the upper 4 bits. The length must be always given with the pointer. If the `hexstring` has odd length the unused upper 4 bits of the last character may contain any value.
+
+The class `TitanHexString` has the following public member functions:
+
+.Public member functions of the class `TitanHexString`
+
+[width="100%",cols="20%,60%,20%",options="header",]
+|==============================================================================================================================
+2+^.^|*Member functions* |*Notes*
+.6+^.^|_Constructors_
+|`TitanHexString()` |Initializes to unbound value.
+|`TitanHexString(final byte otherValue[])` |Initializes from a given byte array.
+|`TitanHexString(final TitanHexString otherValue)`|
+|`TitanHexString(final TitanHexString_Element otherValue)`|
+|`TitanHexString(final byte aValue)`|
+|`TitanHexString(final String aValue)`|
+.3+^.^|_Assignment operators_
+|`TitanHexString operator_assign(final TitanHexString otherValue)` |Assigns the given value
+|`TitanHexString operator_assign(final TitanHexString_Element otherValue)` |
+|`TitanHexString operator_assign(final Base_Type otherValue)` |
+.5+^.^|_Comparison operators_
+|boolean operator_equals(final TitanHexString otherValue)  |Returns TRUE if equals and FALSE otherwise.
+|boolean operator_equals(final TitanHexString_Element otherValue) |
+|boolean operator_equals(final Base_Type otherValue) |
+|boolean operator_not_equals(final TitanHexString otherValue)  |
+|boolean operator_not_equals(final TitanHexString_Element otherValue) |
+.2+^.^|_Concatenation operator_
+|TitanHexString operator_concatenate(final TitanHexString other_value) |Concatenates two hexstrings.
+|TitanHexString operator_concatenate(final TitanHexString_Element other_value) |Concatenates a hexstring and a hexstring element.
+.4+^.^|_Index operator_
+|TitanHexString_Element get_at(final int index_value) |Gives access to the given element. Indexing begins from zero. Index overflow causes dynamic test case error.
+|TitanHexString_Element get_at(final TitanInteger index_value) |
+|TitanHexString_Element constGet_at(final int index_value) |
+|TitanHexString_Element constGet_at(final TitanInteger index_value) |
+.7+^.^|_Bitwise operators_
+|TitanHexString not4b()  | not4b. (bitwise negation)
+|TitanHexString and4b(final TitanHexString otherValue)  |and4b. (bitwise and)
+|TitanHexString and4b(final TitanHexString_Element otherValue) |
+|TitanHexString or4b(final TitanHexString otherValue) |or4b. (bitwise or)
+|TitanHexString or4b(final TitanHexString_Element otherValue)  |
+|TitanHexString xor4b(final TitanHexString otherValue)  |xor4b. (bitwise xor)
+|HTitanHexString xor4b(final TitanHexString_Element otherValue)  |
+.8+^.^|_Shifting and rotating operators_
+|TitanHexString shift_left(int shift_count)  |Java equivalent of operator
+|TitanHexString shift_left(final TitanInteger shift_count)  |<<.(shift left)
+|TitanHexString shift_right(int shift_count) |Java equivalent of operator
+|TitanHexString shift_right(final TitanInteger shift_count) |>>. (shift right)
+|TitanHexString rotate_left(int rotate_count)  |Java equivalent of operator
+|TitanHexString rotate_left(final TitanInteger rotate_count)  |< @. (rotate left)
+|TitanHexString rotate_right(int rotateCount)|Javaequivalent of operator
+|TitanHexString rotate_right(final TitanInteger rotateCount) |@ >. (rotate right)
+^.^|_Casting operator_
+|byte[] get_value() |Returns a pointer to the character array. The pointer might be NULL if the length is 0.
+.4+^.^|_Other member functions_
+|`int lengthof() const` |Returns the length measured in bits.
+| `boolean is_bound()` |Returns whether the value is bound.
+| `boolean is_present()` |Returns whether the value is present.
+| `boolean is_value()` |Returns whether the value is a value.
+| `void log()` |Puts the value into log. Example: ’5A7’H.
+| `void clean_up()` |Deletes the value, setting it to unbound.
+| `void encode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |encodes the value.
+| `void decode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |decodes the value.
+|==============================================================================================================================
+
+Using the value of an unbound `TitanHexString` variable for anything will cause a dynamic test case error.
+
+==== `Hexstring` element
+
+The Java class `TitanHexString_Element` is the equivalent of the TTCN-3 `hexstring`’s element type (the result of indexing a `hexstring` value). The class does not store the actual hexadecimal digit (nibble), only a reference to the original TitanHexString object, an index value and a bound flag.
+
+Note: changing the value of the `TitanHexString_Element` (through the assignment operator) changes the referenced nibble in the original `hexstring` object.
+
+The class `TitanHexString_Element` has the following public member functions:
+
+.Public member functions of the class `TitanHexString_Element`
+
+[width="100%",cols="20%,60%,20%",options="",]
+|===========================================================================================================================================================
+2+^.^|*Member functions* |*Notes*
+^.^|_Constructor_
+| `TitanHexString_Element(final boolean par_bound_flag, final TitanHexString par_str_val, final int par_nibble_pos)` |Initializes the object with an unbound value or a reference to a nibble in an existring TitanHexString object.
+.2+^.^|_Assignment operators_
+|`TitanHexString_Element operator_assign(final TitanHexString otherValue)` |Sets the referenced nibble to the given hexstring of length 1.
+|`TitanHexString_Element operator_assign(final TitanHexString_Element otherValue)` | Sets the referenced nibble to the given hexstring element.
+.4+^.^|_Comparison operators_
+|boolean operator_equals(final TitanHexString otherValue) |Comparison with a hexstring or a hexstring element (the value of the referenced nibbles is compared, not the references and indexes).
+|boolean operator_equals(final TitanHexString_Element otherValue)  |
+|boolean operator_not_equals(final TitanHexString otherValue) |
+|boolean operator_not_equals(final TitanHexString_Element otherValue)  |
+.2+^.^|_Concatenation operator_
+|TitanHexString operator_concatenate(final TitanHexString other_value) |Concatenates a hexstring element with a hexstring, or two hexstring elements.
+|TitanHexString operator_concatenate(final TitanHexString_Element other_value) |
+.7+^.^|_Bitwise operators_
+|TitanHexString not4b()  |Java equivalent of operator not4b. (bitwise negation)
+|TitanHexString and4b(final TitanHexString other_value) |and4b. (bitwise and)
+|TitanHexString and4b(final TitanHexString_Element other_value) |
+|TitanHexString or4b(final TitanHexString other_value)  |or4b. (bitwise or)
+|TitanHexString or4b(final TitanHexString_Element other_value)  |
+|TitanHexString xor4b(final TitanHexString other_value) |xor4b. (bitwise xor)
+|TitanHexString xor4b(final TitanHexString_Element other_value) |
+.4+^.^|_Other member functions_
+|`char get_nibble()` |Returns the referenced nibble (stored in the lower 4 bits of the returned character).
+|`void log()` |Puts the value into log. Example: '8'H.
+|`boolean is_bound()` |Returns whether the value is bound.
+|`boolean is_value()` |Returns whether the value is a value.
+|===========================================================================================================================================================
+
+Using the value of an unbound `TitanHexString_Element` variable for anything will cause dynamic test case error.
+
+=== `Octetstring`
+
+The equivalent Java class of TTCN–3 type `octetstring` is called `TitanOctetString`. The octets are stored in an array of unsigned characters. Each character contains one octet; the first character is the first octet of the string. The length of the octet string must be always given.
+
+The class `TitanOctetString` has the following public member functions:
+
+.Public member functions of the class `TitanOctetString`
+
+[width="100%",cols="20%,60%,20%",options="header",]
+|==============================================================================================================================
+2+^.^|*Member functions* |*Notes*
+.4+^.^|_Constructors_
+|`TitanOctetString()` |Initializes to unbound value.
+|`TitanOctetString(final char otherValue[])` |Initializes from a given character array.
+|`TitanOctetString(final TitanOctetString otherValue)` |Copy constructor.
+|`TitanOctetString(final TitanOctetString_Element otherValue)` |Initializes from a single octetstring element.
+.3+^.^|_Assignment operators_
+|`TitanOctetString operator_assign(final TitanOctetString otherValue)` |Assigns the given value and sets the bound flag.
+|`TitanOctetString operator_assign(final TitanOctetString_Element otherValue)` |Assigns the given octetstring element.
+|`TitanOctetString operator_assign(final Base_Type otherValue)` |
+.5+^.^|_Comparison operators_
+| boolean operator_equals(final TitanOctetString otherValue)  |Returns TRUE if equals
+| boolean operator_equals(final TitanOctetString_Element otherValue)  |and FALSE otherwise.
+| boolean operator_equals(final Base_Type otherValue)  |
+| boolean operator_not_equals(final TitanOctetString otherValue)  |
+| boolean operator_not_equals(final TitanOctetString_Element otherValue)  |
+.2+^.^|_Concatenation operator_
+|TitanOctetString operator_concatenate(final TitanOctetString other_value) |Concatenates two octetstrings.
+|TitanOctetString operator_concatenate(final TitanOctetString_Element other_value) |Concatenates an octetstring and an octetstring element.
+.4+^.^|_Index operator_
+|TitanOctetString_Element get_at(final int index_value) |Gives access to the given element. Indexing begins from zero. Index overflow causes dynamic test case error.
+|TitanOctetString_Element get_at(final TitanInteger index_value) |
+|TitanOctetString_Element constGet_at(final int index_value) |Gives read-only access to the given element.
+|TitanOctetString_Element constGet_at(final TitanInteger index_value) |
+.7+^.^|_Bitwise operators_
+|TitanOctetString not4b()  | not4b.(bitwise negation)
+|TitanOctetString and4b(final TitanOctetString otherValue) | and4b.(bitwise and)
+|TitanOctetString and4b(final TitanOctetString_Element otherValue) |
+|TitanOctetString or4b(final TitanOctetString otherValue)  | or4b.(bitwise or)
+|TitanOctetString or4b(final TitanOctetString_Element otherValue) |
+|TitanOctetString xor4b(final TitanOctetString otherValue) | xor4b. (bitwise xor)
+|TitanOctetString xor4b(final TitanOctetString_Element otherValue) |
+.8+^.^|_Shifting and rotating operators_
+|TitanOctetString shift_left(final int shift_count) | operator <<.
+|TitanOctetString shift_left(final TitanInteger shift_count) |(shift left)
+|TitanOctetString shift_right(final int shift_count)  |operator >>.
+|TitanOctetString shift_right(final TitanInteger shift_count)  |(shift right)
+|TitanOctetString rotate_left(final int rotate_count)  |operator < @.
+|TitanOctetString rotate_left(final TitanInteger rotate_count)  |(rotate left)
+|TitanOctetString rotate_right(final int rotate_count) |operator @ >.
+|TitanOctetString rotate_right(final TitanInteger rotate_count)  |(rotate right)
+^.^|_Casting operator_
+|char[] get_value() |Returns a pointer to the character array. The pointer might be NULL if the length is 0.
+.8+^.^|_Other member functions_
+|`int lengthof() const` |Returns the length measured in bits.
+| `boolean is_bound()` |Returns whether the value is bound.
+| `boolean is_present()` |Returns whether the value is present.
+| `boolean is_value()` |Returns whether the value is a value.
+| `void log()` |Puts the value into log. Like ’073CF0’O.
+| `void clean_up()` |Deletes the value, setting it to unbound.
+| `void encode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |encodes the value.
+| `void decode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |decodes the value.
+|==============================================================================================================================
+
+Using the value of an unbound `TitanOctetString` variable for anything will cause dynamic test case error.
+
+==== `Octetstring` element
+
+The Java class `TitanOctetString_Element` is the equivalent of the TTCN-3 `octetstring`’s element type (the result of indexing an `octetstring` value). The class does not store the actual octet, only a reference to the original TitanOctetString object, an index value and a bound flag.
+
+Note: changing the value of the TitanOctetString_Element (through the assignment operator) changes the referenced octet in the original `octetstring` object.
+
+The class `TitanOctetString_Element` has the following public member functions:
+
+.Public member functions of the class `TitanOctetString_Element`
+
+[width="100%",cols="20%,60%,20%",options="header",]
+|================================================================================================================================================================
+2+^.^|*Member functions* |*Notes*
+^.^|_Constructor_
+|`TitanOctetString_Element(final boolean par_bound_flag, final TitanOctetString par_str_val, final int par_nibble_pos)` |Initializes the object with an unbound value or a reference to an octet in an existing TitanOctetString object.
+.2+^.^|_Assignment operators_
+|`TitanOctetString_Element operator_assign(final TitanOctetString otherValue)` |Sets the referenced octet to the given octetstring of length 1.
+|`TitanOctetString_Element operator_assign(final TitanOctetString_Element otherValue)` |Sets the referenced octet to the given octetstring element.
+.4+^.^|_Comparison operators_
+|TitanOctetString_Element operator_equals(final TitanOctetString otherValue) |Comparison with an octetstring or an octetstring element (the value of the referenced octets is compared, not the references and indexes).
+|TitanOctetString_Element operator_equals(final TitanOctetString_Element otherValue)  |
+|boolean operator_not_equals(final TitanOctetString otherValue) |
+|boolean operator_not_equals(final TitanOctetString_Element otherValue)  |
+.2+^.^|_Concatenation operator_
+| TitanOctetString operator_concatenate(final TitanOctetString other_value) |Concatenates an octetstring element with an octetstring, or two octetstring elements.
+| TitanOctetString operator_concatenate(final TitanOctetString_Element other_value) |
+.7+^.^|_Bitwise operators_
+|TitanOctetString not4b() | bitwise negation
+|TitanOctetString and4b(final TitanOctetString other_value) |and4b. (bitwise and)
+|TitanOctetString and4b(final TitanOctetString_Element other_value)  |
+|TitanOctetString or4b(final TitanOctetString other_value)  | or4b. (bitwise or)
+|TitanOctetString or4b(final TitanOctetString_Element other_value)  |
+|TitanOctetString xor4b(final TitanOctetString other_value) |xor4b. (bitwise xor)
+|TitanOctetString xor4b(final TitanOctetString_Element other_value) |
+.4+^.^|_Other member functions_
+|`char get_nibble()` |Returns the referenced octet.
+|`void log()` |Puts the value into log. Example: '3C'O.
+|`boolean is_bound()` |Returns whether the value is bound.
+|`boolean is_value()` |Returns whether the value is a value.
+|================================================================================================================================================================
+
+Using the value of an unbound `TitanOctetString_Element` variable for anything will cause dynamic test case error.
+
+=== `Char`
+
+The `char` type, which has been removed from the TTCN–3 standard, is no longer supported by the run-time environment. The compiler substitutes all occurrences of `char` type with type `charstring` automatically.
+
+[[Charstring]]
+=== `Charstring`
+
+The equivalent Java class of TTCN–3 type `charstring` is called `TitanCharString`. The characters are stored in a StringBuilder..
+
+The class `TitanCharString` has the following public member functions:
+
+.Public member functions of the class `TitanCharString`
+
+[width="100%",cols="20%,60%,20%",,]
+|==============================================================================================================================
+2+^.^|*Member functions* |*Notes*
+.6+^.^|_Constructors_
+|`TitanCharString()`|Initializes to unbound value.
+|`TitanCharString(final String otherValue)`|Initializes from a String.
+|`TitanCharString(final StringBuilder otherValue)`| Initializes from the StringBuilder.
+|`TitanCharString(final TitanCharString otherValue)`|Copy constructor.
+|`TitanCharString(final TitanCharString_Element otherValue)`|Initializes from a charstring element.
+|`TitanCharString(final TitanUniversalCharString otherValue)`| Initializs from the universal charstring.
+.5+^.^|_Assignment operators_
+|`TitanCharString operator_assign(final String otherValue)`|Assigns the given value and sets the bound flag.
+|`TitanCharString operator_assign(final TitanCharString otherValue)`|
+|`TitanCharString operator_assign(final Base_Type otherValue)`|
+|`TitanCharString operator_assign(final TitanCharString_Element otherValue)`|
+|`TitanCharString operator_assign(final TitanUniversalCharString otherValue)`|
+.9+^.^|_Comparison operators_
+|boolean operator_equals(final TitanCharString otherValue) |Returns TRUE if equals and FALSE otherwise.
+|boolean operator_equals(final TitanUniversalCharString otherValue) |
+|boolean operator_equals(final Base_Type otherValue) |
+|boolean operator_equals(final String otherValue) |
+|boolean operator_equals(final TitanCharString_Element otherValue) |
+|boolean operator_equals(final TitanUniversalCharString_Element otherValue)|
+|boolean operator_not_equals(final TitanCharString otherValue) |
+|boolean operator_not_equals(final TitanCharString_Element otherValue)|
+|boolean operator_not_equals(final String otherValue) |
+.7+^.^|_Concatenation operator_
+|TitanCharString operator_concatenate(final TitanCharString other_value) |Concatenates two charstrings.
+|TitanCharString operator_concatenate(final String other_value) |
+|TitanCharString operator_concatenate(final TitanCharString_Element other_value) |
+|TitanUniversalCharString operator_concatenate(final TitanUniversalCharString other_value) |Concatenates with a universal charstring.
+|TitanCharString append(final String aOtherValue) |Appends a String.
+|TitanCharString append(final TitanCharString_Element aOtherValue) |
+|TitanCharString append(final TitanCharString aOtherValue) |Appends a charstring.
+.4+^.^|_Index operator_
+|TitanCharString_Element get_at(final int index_value) |Gives access to the given element. Indexing begins from zero. Index overflow causes dynamic test case error.
+|TitanCharString_Element get_at(final TitanInteger index_value) |
+|TitanCharString_Element constGet_at(final int index_value) |Gives read-only access to the given element.
+|TitanCharString_Element constGet_at(final TitanInteger index_value) |
+.4+^.^|_Rotating operators_
+|TitanCharString rotate_left(final int rotate_count) |Java equivalent of operator < @.(rotate left)
+|TitanCharString rotate_left(final TitanInteger rotate_count) |
+|TitanCharString rotate_right(final int rotate_count)  | @ >. (rotate right)
+|TitanCharString rotate_right(final TitanInteger rotate_count) |
+^.^|_Casting operator_
+|StringBuilder get_value() |Returns the StringBuilder.
+.8+^.^|_Other member functions_
+|`int lengthof() const` |Returns the length measured in bits.
+| `boolean is_bound()` |Returns whether the value is bound.
+| `boolean is_present()` |Returns whether the value is present.
+| `boolean is_value()` |Returns whether the value is a value.
+| `void log()` |Puts the value into log. Like "abc".
+| `void clean_up()` |Deletes the value, setting it to unbound.
+| `void encode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |encodes the value.
+| `void decode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |decodes the value.
+
+|==============================================================================================================================
+
+The comparison, concatenation and rotating operators are also available as static functions for that case when the left side is `String` and the right side is `TitanCharString`.
+
+The log() member function uses single character output for regular characters, but special characters (such as the quotation mark, backslash or newline characters) are printed using the escape sequences of the C language. Non-printable control characters are printed in TTCN–3 quadruple notation, where the first three octets are always zero. The concatenation operator (`&`) is used between the fragments when necessary. Note that the output does not always conform to TTCN–3 Core Language syntax, but it is always recognized by both our compiler and the configuration file parser.
+
+Using the value of an unbound `TitanCharString` variable for anything will cause dynamic test case error.
+
+Other operators (static functions):
+[source]
+----
+boolean operator_equals(final String stringValue, final TitanCharString otherValue);            // Equal
+boolean operator_equals(final String stringValue, final TitanCharString_Element otherValue);    // Equal
+boolean operator_not_equals(final String stringValue, final TitanCharString otherValue);            // Not equal
+boolean operator_not_equals(final String stringValue, final TitanCharString_Element otherValue);    // Not equal
+TitanCharString operator_concatenate(final String stringValue, final TitanCharString other_value);          // Concatenation
+TitanCharString operator_concatenate(final String stringValue, final TitanCharString_Element other_value);  // Concatenation
+----
+
+==== `Charstring` element
+
+The Java class `TitanCharString_Element` is the equivalent of the TTCN-3 `charstring`’s element type (the result of indexing a `charstring` value). The class does not store the actual character, only a reference to the original TitanCharString object, an index value and a bound flag.
+
+Note: changing the value of the `TitanCharString_Element` (through the assignment operator) changes the referenced character in the original `charstring` object.
+
+The class `TitanCharString_Element` has the following public member functions:
+
+.Public member functions of the class `TitanCharString_Element`
+
+[width="100%",cols="20%,60%,20%",options="",]
+|================================================================================================================================================================================================================================================================================
+2+^.^|*Member functions* |*Notes*
+^.^|_Constructor_
+|`TitanCharString_Element(final boolean par_bound_flag, final TitanCharString par_str_val, final int par_char_pos)` |Initializes the object with an unbound value or a reference to a character in an existing TitanCharString object.
+.3+^.^|_Assignment operators_
+|`TitanCharString_Element operator_assign(final String otherValue)` |Sets the referenced character to the given String of length 1.
+|`TitanCharString_Element operator_assign(final TitanCharString otherValue)` |Sets the referenced character to the given charstring of length 1.
+|`TitanCharString_Element operator_assign(final TitanCharString_Element otherValue)` |Sets the referenced character to the given charstring element.
+.8+^.^|_Comparison operators_
+|boolean operator_equals(final String otherValue) |Comparison with a String.
+|boolean operator_equals(final TitanCharString otherValue) |
+|boolean operator_equals(final TitanCharString_Element otherValue)  |
+|boolean operator_equals(final TitanUniversalCharString otherValue) |
+|boolean operator_equals(final TitanUniversalCharString_Element otherValue) |
+|boolean operator_not_equals(final String otherValue)  |
+|boolean operator_not_equals(final TitanUniversalCharString otherValue) |
+|boolean operator_not_equals(final TitanUniversalCharString_Element otherValue)  |
+.5+^.^|_Concatenation operator_
+|TitanCharString operator_concatenate(final String other_value) |Concatenates this object with a String.
+|TitanCharString operator_concatenate(final TitanCharString other_value) |
+|TitanCharString operator_concatenate(final TitanCharString_Element other_value) |
+|TitanUniversalCharString operator_concatenate(final TitanUniversalCharString other_value) |
+|TitanUniversalCharString operator_concatenate(final TitanUniversalCharString_Element other_value)  |
+.3+^.^|_Other member functions_
+|`char get_char()` |Returns the referenced character.
+|`void log()` |Puts the value into log. Example: “a”.
+|`boolean is_bound()` |Returns whether the value is bound.
+|`boolean is_value()` |Returns whether the value is a value.
+
+|================================================================================================================================================================================================================================================================================
+
+Using the value of an unbound `TitanCharString_Element` variable for anything will cause dynamic test case error.
+
+=== `Universal char`
+
+This obsolete TTCN–3 type is converted automatically to `universal charstring` in the parser.
+
+=== `Universal charstring`
+
+Each character of a `universal charstring` value is represented in the following C structure defined in the Base Library:
+[source]
+----
+public class TitanUniversalChar {
+	private char uc_group;
+	private char uc_plane;
+	private char uc_row;
+	private char uc_cell;
+  ...
+----
+
+The four components of the quadruple (that is, group, plane, row and cell) are stored in fields `uc_group`, `uc_plane`, `uc_row` and `uc_cell`, respectively. All fields are 8bit unsigned numeric values with the possible value range 0 .. 255.
+
+In case of single-octet characters, which can be also given in TTCN–3 charstring notation (between quotation marks), the fields `uc_group`, `uc_plane`, `uc_row` are set to zero. If tuple notation was used for an ASN.1 string value fields `uc_row` and `uc_cell` carry the tuple and the others are set to zero.
+
+Except when performing encoding or decoding, the run-time environment does not check whether the quadruples used in the following API represent valid character positions according to <<7-references.adoc#_8,[8]>>. Moreover, if ASN.1 multi-octet character string values are used, it is not verified whether the elements of such strings are permitted characters of the corresponding string type.
+
+The Java equivalent of TTCN–3 type `universal charstring` is implemented in class `TitanUniversalCharString`. The characters of the string are stored in an array of structure `TitanUniversalChar`. The array returned by the casting operator is not terminated with a special character, thus, the length of the string must be always considered when doing operations with the array. The length of the string, which can be obtained by using member function `lengthof()`, is measured in characters (quadruples) and not bytes.
+
+For the more convenient usage the strings containing only single-octet characters can also be used with class `TitanUniversalCharString`. Therefore some polymorphic member functions and operators have variants that take `String` as argument. In these member functions the characters of the String are implicitly converted to quadruples with group, plane and row fields set to zero.
+
+The class `TitanUniversalCharString` has the following public member functions:
+
+.Public member functions of the class `TitanUniversalCharString`
+
+[width="100%",cols="20%,60%,20%",options="",]
+|==============================================================================================================================
+2+^.^|*Member functions* |*Notes*
+.7+^.^|_Constructors_
+|`TitanUniversalCharString()`|Initializes to unbound value.
+|`TitanUniversalCharString(final char uc_group, final char uc_plane, final char uc_row,  final char uc_cell)`| Constructs a string containing one character formed from the given quadruple.
+|`TitanUniversalCharString(final TitanUniversalChar otherValue)`| Constructs a string containing the given single character.
+|`TitanUniversalCharString(final List<TitanUniversalChar> otherValue)`| Constructs a string from an array by taking the given number of single-octet characters.
+|`TitanUniversalCharString(final TitanUniversalChar[] otherValue)`|
+|`TitanUniversalCharString(final String otherValue)`|
+|`TitanUniversalCharString(final StringBuilder otherValue)`|
+.4+^.^|_Constructors_
+|`TitanUniversalCharString(final TitanCharString otherValue)`| Constructs a universal charstring from a charstring value.
+|`TitanUniversalCharString(final TitanCharString_Element otherValue)`| Constructs a string containing the given singe charstring element.
+|`TitanUniversalCharString(final TitanUniversalCharString otherValue)`| Copy constructor.
+|`TitanUniversalCharString(final TitanUniversalCharString_Element otherValue)`| Constructs a string containing the given singe universal charstring element.
+.8+^.^|_Assignment operators_
+|`TitanUniversalCharString operator_assign(final TitanUniversalCharString otherValue)`  |Assigns another string.
+|`TitanUniversalCharString operator_assign(final TitanUniversalChar otherValue)` |Assigns a single character.
+|`TitanUniversalCharString operator_assign(final char[] otherValue)` |Assigns an array single-octet characters.
+|`TitanUniversalCharString operator_assign(final String otherValue)`|
+|`TitanUniversalCharString operator_assign(final TitanCharString otherValue)` |Assigns a charstring.
+|`TitanUniversalCharString operator_assign(final TitanCharString_Element otherValue)` |Assigns a single charstring element.
+|`TitanUniversalCharString operator_assign(final TitanUniversalCharString_Element otherValue)` |Assigns a single universal charstring element.
+|`TitanUniversalCharString operator_assign(final Base_Type otherValue)`|
+.7+^.^|_Comparison operators_
+|boolean operator_equals(final TitanUniversalCharString otherValue)  |Returns TRUE if the strings are identical or FALSE otherwise.
+|boolean operator_equals(final TitanUniversalChar otherValue)  |Compares to a single character.
+|boolean operator_equals(final String otherValue) |Compares to a String.
+|boolean operator_equals(final TitanCharString otherValue) |Compares to a charstring.
+|boolean operator_equals(final TitanCharString_Element otherValue) |Compares to a charstring element.
+|boolean operator_equals(final TitanUniversalCharString_Element otherValue)|Compares to a universal charstring element.
+|boolean operator_equals(final Base_Type otherValue)|
+.7+^.^|_Comparison operators_
+|boolean operator_not_equals(final TitanUniversalCharString otherValue)  |
+|boolean operator_not_equals(final TitanUniversalChar otherValue) |
+|boolean operator_not_equals(final String otherValue)  |
+|boolean operator_not_equals(final TitanCharString otherValue) |
+|boolean operator_not_equals(final TitanCharString_Element otherValue) |
+|boolean operator_not_equals(final TitanUniversalCharString_Element otherValue) |
+|boolean operator_not_equals(final Base_Type otherValue)|
+.6+^.^|_Concatenation operator_
+|TitanUniversalCharString operator_concatenate(final TitanUniversalCharString other_value) |Concatenates two strings.
+|TitanUniversalCharString operator_concatenate(final TitanUniversalChar other_value)  |Concatenates a single character.
+|TitanUniversalCharString operator_concatenate(final String other_value)  |Concatenates a single-octet string.
+|TitanUniversalCharString operator_concatenate(final TitanCharString other_value) |Concatenates a charstring.
+|TitanUniversalCharString operator_concatenate(final TitanCharString_Element other_value) |Concatenates a charstring element.
+|TitanUniversalCharString operator_concatenate(final TitanUniversalCharString_Element other_value)  |Concatenates a universal charstring element.
+.4+^.^|_Index operator_
+|TitanUniversalCharString_Element get_at(final int index_value)|Gives access to the given element. Indexing begins from zero. Index overflow causes dynamic test case error.
+|TitanUniversalCharString_Element get_at(final TitanInteger index_value) |
+|TitanUniversalCharString_Element constGet_at(final int index_value) |Gives read-only access to the given element.
+|TitanUniversalCharString_Element constGet_at(final TitanInteger index_value) |
+.4+^.^|_Rotating operators_
+|TitanUniversalCharString rotate_left(final int rotate_count) | < @(rotate left).
+|TitanUniversalCharString rotate_left(final TitanInteger rotate_count) |
+|TitanUniversalCharString rotate_right(final int rotate_count) | @ >(rotate right).
+|TitanUniversalCharString rotate_right(final TitanInteger rotate_count) |
+^.^|_Casting operator_
+|List<TitanUniversalChar> get_value() |Returns a pointer to the array of characters. There is no terminator character at the end.
+.7+^.^|_UTF-8 encoding and decoding_
+|void encode_utf8(final TTCN_Buffer buf) |Appends the UTF-8 representation of the string to the given buffer
+|void encode_utf8(final TTCN_Buffer buf, final boolean addBOM) |
+|void decode_utf8(final char[] valueStr, final CharCoding code, final boolean checkBOM)|
+|void encode_utf16(final TTCN_Buffer buf, final CharCoding expected_coding)|
+|void decode_utf16(final int n_octets, final char[] octets_ptr, final CharCoding expected_coding)|
+|void encode_utf32(final TTCN_Buffer buf, final CharCoding expected_coding)|
+|void decode_utf32(final int n_octets, final char[] octets_ptr, final CharCoding expected_coding) |
+.8+^.^|_Other member functions_
+|`int lengthof() const` |Returns the length measured in characters.
+| `boolean is_bound()` |Returns whether the value is bound.
+| `boolean is_present()` |Returns whether the value is present.
+| `boolean is_value()` |Returns whether the value is a value.
+| `void log()` |Puts the value into log. See below.
+| `void clean_up()` |Deletes the value, setting it to unbound.
+| `void encode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |encodes the value.
+| `void decode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |decodes the value.
+|==============================================================================================================================
+
+The comparison and concatenation operators are also available as static functions for that case when the left operand is a single-octet string (`String`) or a single character (`TitanUniversalChar`) and the right side is `TitanUniversalCharString` value. Using the value of an unbound `TitanUniversalCharString` variable for anything causes dynamic test case error.
+
+The `TitanUniversalCharString` variable used with the `decode_utf8()` method must be newly constructed (unbound) or `clean_up()` must have been called, otherwise a memory leak will occur.
+
+The logged printout of universal charstring values is compatible with the TTCN–3 notation for such strings. The format to be used depends on the contents of the string. Each character (quadruple) is classified whether it is directly printable or not. The string is fragmented based on this classification. Each fragment consists of either a single non-printable character or a maximal length contiguous sequence of printable characters. The fragments are logged one after another separated by an `&` character (concatenation operator). The printable fragments use the normal charstring notation; the non-printable characters are logged in the TTCN–3 quadruple notation. An empty universal charstring value is represented by a pair of quotation marks (like in case of empty charstring values).
+
+An example printout in the log can be the following. The string consists of two fragments of printable characters and a non-printable quadruple, which stands for Hungarian letter "ű":
+[source, subs="+quotes"]
+"Character " & char(0, 0, 1, 113) & " is a letter of Hungarian alphabet"
+
+Other operators (static functions):
+[source]
+----
+boolean operator_equals(final TitanUniversalChar left_value, final TitanUniversalChar right_value); //Equal
+boolean operator_equals(final TitanUniversalChar ucharValue, final TitanUniversalCharString otherValue);  // Equal
+boolean operator_equals(final String otherValue, final TitanUniversalCharString rightValue));  // Equal
+boolean operator_not_equals(final TitanUniversalChar left_value, final TitanUniversalChar right_value); //Not equal
+boolean operator_not_equals(final TitanUniversalChar ucharValue, final TitanUniversalCharString otherValue);  // Not equal
+boolean operator_not_equals(final String otherValue, final TitanUniversalCharString rightValue));  // Not equal
+TitanUniversalCharString operator_concatenate(final TitanUniversalChar ucharValue, final TitanUniversalCharString other_value);  // Concatenation
+TitanUniversalCharString operator_concatenate(final String stringValue, final TitanUniversalCharString other_value); // Concatenation
+----
+
+==== `Universal charstring` element
+
+The Java class `TitanUniversalCharString_Element` is the equivalent of the TTCN-3 `universal charstring`’s element type (the result of indexing a `universal charstring` value). The class does not store the actual character, only a reference to the original `TitanUniversalCharString` object, an index value and a bound flag.
+
+Note: changing the value of the `TitanUniversalCharString_Element` (through the assignment operator) changes the referenced character in the original `universal charstring` object.
+
+The class `TitanUniversalCharString_Element` has the following public member functions:
+
+.Public member functions of the class `TitanUniversalCharString_Element`
+
+[width="100%",cols="20%,60%,20%",options="",]
+|=======================================================================================================================================================================================================================================================================================================
+2+^.^|*Member functions* |*Notes*
+^.^|_Constructor_
+|`TitanUniversalCharString_Element(final boolean par_bound_flag, final TitanUniversalCharString par_str_val, final int par_char_pos)` |Initializes the object with an unbound value or a reference to a character in an existing TitanUniversalCharString object.
+.6+^.^|_Assignment operators_
+|`TitanUniversalCharString_Element operator_assign(final TitanUniversalChar otherValue)` |Sets the referenced character to the given universal character.
+|`TitanUniversalCharString_Element operator_assign(final String otherValue)` |
+|`TitanUniversalCharString_Element operator_assign(final TitanCharString otherValue)` |
+|`TitanUniversalCharString_Element operator_assign(final TitanCharString_Element otherValue)` |
+|`TitanUniversalCharString_Element operator_assign(final TitanUniversalCharString otherValue)` |
+|`TitanUniversalCharString_Element operator_assign(final TitanUniversalCharString_Element otherValue)` |
+.6+^.^|_Comparison operators_
+|boolean operator_equals(final TitanUniversalChar otherValue) |Comparison with a universal character.
+|boolean operator_equals(final String otherValue) |
+|boolean operator_equals(final TitanCharString otherValue) |
+|boolean operator_equals(final TitanCharString_Element otherValue)  |
+|boolean operator_equals(final TitanUniversalCharString otherValue) |
+|boolean operator_equals(final TitanUniversalCharString_Element otherValue) |
+.6+^.^|_Comparison operators_
+|boolean operator_not_equals(final TitanUniversalChar otherValue) |
+|boolean operator_not_equals(final String otherValue) |
+|boolean operator_not_equals(final TitanCharString otherValue) |
+|boolean operator_not_equals(final TitanCharString_Element otherValue)  |
+|boolean operator_not_equals(final TitanUniversalCharString otherValue) |
+|boolean operator_not_equals(final TitanUniversalCharString_Element otherValue) |
+.6+^.^|_Concatenation operator_
+|TitanUniversalCharString operator_concatenate(final TitanUniversalChar other_value) |Concatenates this object with a universal character.
+|TitanUniversalCharString operator_concatenate(final String other_value) |
+|TitanUniversalCharString operator_concatenate(final TitanCharString other_value) |
+|TitanUniversalCharString operator_concatenate(final TitanCharString_Element other_value) |
+|TitanUniversalCharString operator_concatenate(final TitanUniversalCharString other_value) |
+|TitanUniversalCharString operator_concatenate(final TitanUniversalCharString_Element other_value)  |
+.5+^.^|_Other member functions_
+|`TitanUniversalChar get_char()` |Returns the referenced character.
+|`void log()` |Puts the value into log. Example: “a” or char(0, 0, 1, 113).
+|`boolean is_bound()` |Returns whether the value is bound.
+|`boolean is_present()` |Returns whether the value is present.
+|`boolean is_value()` |Returns whether the value is a value.
+|=======================================================================================================================================================================================================================================================================================================
+
+Using the value of an unbound `TitanUniversalCharString_Element` variable for anything will cause dynamic test case error.
+
+=== Object Identifier Type
+
+The object identifier type of TTCN–3 (`objid`) is implemented in class TitanObjectid. In the run-time environment the components of object identifier values are represented in NumberForm, that is, in integer values. The values of components are stored in an array with a given length. The type of the components is specified with a `TitanInteger`. Class `TitanObjectid` has the following member functions.
+
+.Public member functions of the class `TitanObjectid`
+
+[width="100%",cols="20%,60%,20%",options="header",]
+|=====================================================================================
+2+^.^|*Member functions* |*Notes*
+.3+^.^|_Constructors_
+|`TitanObjectid()` |Initializes to unbound value.
+|`TitanObjectid(final int init_n_components, final TitanInteger... values)` |Initializes the number of components to n_components. The components themselves shall be given as additional integer arguments after each other, starting with the first one.
+|TitanObjectid(final TitanObjectid otherValue) |Copy constructor.
+.2+^.^|_Assignment operator_
+|`TitanObjectid operator_assign(final TitanObjectid otherValue)` |Assigns the given value and sets the bound flag.
+|`Base_Type operator_assign(final Base_Type otherValue)`|
+.3+^.^|_Comparison operators_
+|boolean operator_equals(final TitanObjectid otherValue) |Returns TRUE if the two values are equal and FALSE otherwise.
+|boolean operator_equals(final Base_Type otherValue)|
+|boolean operator_not_equals(final TitanObjectid otherValue) |
+.4+^.^|_Indexing operators_
+|TitanInteger get_at(final int index_value)  |Returns a reference to the _i th_ component.
+|TitanInteger get_at(final TitanInteger index_value)|
+|TitanInteger constGet_at(final int index_value) |Returns a read-only reference to the i th component.
+|TitanInteger constGet_at(final TitanInteger index_value)|
+.5+^.^|_Other member functions_
+|`TitanInteger lengthof()` |Returns the number of components.
+|`void log()` |Puts the value into log in NumberForm. Like this: “objid 0 4 0 ”.
+|`boolean is_bound()` |Returns whether the value is bound.
+|`boolean is_present()` |Returns whether the value is present.
+|`void clean_up()` |Deletes the value, setting it to unbound.
+
+|=====================================================================================
+
+NOTE: The constructor with variable number of arguments is useful in situations when the number of components is constant and known at compile time.
+
+Using the value of an unbound `TitanObjectid` variable for anything will cause dynamic test case error.
+
+=== Component References
+
+TTCN–3 variables of component types are used for storing component references to PTCs. The internal representation of component references are test tool dependent, our test executor handles them as small integer numbers.
+
+All TTCN–3 component types are mapped to the same Java class, which is called TitanComponent.
+
+There are some predefined constants of component references in TTCN–3. These are public static final members of the TitanComponent class defined in the following way:
+
+.Predefined component references
+
+[cols=",,",options="header",]
+|===================================================
+|TTCN–3 constant |TitanComponent member name |Numeric value
+|null |NULL |COMPREF 0
+|mtc |MTC |COMPREF 1
+|system |SYSTEM |COMPREF 2
+|===================================================
+
+The class `TitanComponent` has the following public member functions:
+
+.Public member functions of the class `TitanComponent`
+
+[width="100%",cols="20%,60%,20%",options="",]
+|===========================================================================================================================
+2+^.^|*Member functions* |*Notes*
+.3+^.^|_Constructors_
+|`TitanComponent()` |Initializes to unbound value.
+|`TitanComponent(final int otherValue)` |Initializes to a given value.
+|`TitanComponent(final TitanComponent otherValue)` |Copy constructor.
+.3+^.^|_Assignment_ _operators_
+|`TitanComponent operator_assign(final int otherValue)`|Assigns the given value
+|`TitanComponent operator_assign(final TitanComponent otherValue)`|and sets the bound flag.
+|`TitanComponent operator_assign(final Base_Type otherValue)`|
+.5+^.^|_Comparison operators_
+|boolean operator_equals(final int otherValue)  |Returns TRUE if equals
+|boolean operator_equals(final TitanComponent otherValue) |and FALSE otherwise.
+|boolean operator_equals(final Base_Type otherValue)|
+|boolean operator_not_equals(final int otherValue)  |
+|boolean operator_not_equals(final TitanComponent otherValue)  |
+^.^|_Casting operator_
+|int get_component() |Returns the value.
+.5+^.^|Other member functions
+|`void log()` |Puts the value into log in decimal form or in symbolic format for special constants. Like 3 or mtc.
+|`boolean is_present()` |Returns whether the value is present.
+|`boolean is_bound()` |Returns whether the value is bound.
+|`boolean is_value()` |Returns whether the value is a value.
+|`void clean_up()` |Deletes the value, setting it to unbound.
+
+|===========================================================================================================================
+
+Component references are managed by MC. All new test components are given a unique reference that was never used in the test campaign before (not even in a previous test case). The new numbers are increasing monotonously. The reference of the firstly created component is 3; the next one will be 4, and so on.
+
+Using the value of an unbound component reference for anything will cause dynamic test case error.
+
+Other operators (static functions):
+[source]
+----
+boolean operator_equals(final int left_value, final TitanComponent right_value); // Equal
+boolean operator_not_equals(final int left_value, final TitanComponent right_value); // Not equal
+----
+
+[[empty-types]]
+=== Empty Types
+
+Empty `record` and `set` types are not real built-in types in TTCN–3, but the Java realization of these types also differs from regular records or sets. The empty types are almost identical to each other, only their names are different.
+
+Each empty type is defined in a Java class, which is generated by the Java code generator. Using separate classes enables us to differentiate among them in Java. For example, several empty types can be defined as incoming or outgoing types on the same TTCN–3 port type.
+
+Let us consider the following TTCN–3 type definition as an example:
+[source, subs="+quotes"]
+type record Dummy {};
+
+The generated class will rely on an enumerated Java type TitanNull_Type, which is defined as follows:
+[source, subs="+quotes"]
+----
+public enum TitanNull_Type {
+	NULL_VALUE
+}
+----
+
+The only possible value stands for the TTCN–3 empty record or array value (that is for "{}"), which is the only possible value of TTCN–3 type `Dummy`. Note that this type and value is also used in the definition of `record` of and `set of` type construct.
+
+The generated Java class `Dummy` will have the following member functions:
+
+.Public member functions of the class `Dummy`
+
+[width="100%",cols=",,",options="header",]
+|================================================================================
+2+^.^|*Member functions* |*Notes*
+.3+^.^|_Constructors_
+|`Dummy()` |Initializes to unbound value.
+|`Dummy( final TitanNull_Type otherValue )` |Initializes to the only possible value.
+|`Dummy( final Dummy otherValue )` |Copy constructor.
+.3+^.^|_Assignment operators_
+|`Dummy operator_assign( final TitanNull_Type otherValue )` |Assigns the only possible value and sets the bound flag.
+|`Dummy operator_assign( final Dummy otherValue )` |
+|`Dummy operator_assign( final Base_Type otherValue )`|
+.5+^.^|_Comparison operators_
+|boolean operator_equals( final TitanNull_Type otherValue )  |Returns TRUE if both arguments are bound.
+|boolean operator_equals( final Dummy otherValue ) |
+|boolean operator_equals( final Base_Type otherValue )|
+|boolean operator_not_equals( final TitanNull_Type otherValue ) | Returns FALSE if both arguments are bound.
+|boolean operator_not_equals( final Base_Type otherValue ) |
+.7+^.^|_Other member functions_
+|`void log()` |Puts the value, that is, {}, into log.
+|`boolean is_present()` |Returns whether the value is present.
+|`boolean is_bound()` |Returns whether the value is bound.
+|`boolean is_value()` |Returns whether the value is a value.
+|`void clean_up()` |Deletes the value, setting it to unbound.
+|`encode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)`|
+|`void decode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)`|
+
+|================================================================================
+
+Setting the only possible value is important, because using the value of an unbound variable for anything will cause dynamic test case error.
+
+FIXME written to this point.
+
+== Compound Data Types
+
+The user-defined compound data types are implemented in {cpp} classes. These classes are generated by the compiler according to type definitions. In contrast with the basic types, these classes can be found in the generated code.
+
+=== Record and Set Type Constructs
+
+The TTCN–3 type constructs `record` and `set` are mapped in an identical way to {cpp}. There will be a {cpp} class for each record type in the generated code. This class builds up the record from its fields.footnote:[This section deals with the record and set types that have at least one field. See <<empty-types, Empty Types>> for the {cpp} mapping of empty record and set types.] The fields can be either basic or compound types.
+
+Let us consider the following example type definition. The types `t1` and `t2` can be arbitrary.
+[source]
+----
+type record t3 {
+  t1 f1,
+  t2 f2
+}
+----
+
+The generated class `t3` will have the following public member functions:
+
+.Public member functions of the class `t3`
+
+[width="100%",cols=",,",options="",]
+|=====================================================================================
+2+^.^|*Member functions* |*Notes*
+.3+^.^|_Constructors_
+|`t3()` |Initializes all fields to unbound value.
+|`t3(const t1& par_f1, const t2& par_f2)` |Initializes from given field values. The number of arguments equals to the number of fields.
+|`t3(const t3&)` |Copy constructor.
+^.^|_Destructor_
+|`˜t3()` |
+^.^|_Assignment operator_
+|`t3& operator=(const t3&)`  |Assigns the given value and setsthe bound flag for each field.
+.2+^.^|_Comparison operators_
+|boolean operator==(const t3&) const |Returns TRUE if all fields are equal and FALSE otherwise.
+|boolean operator!=(const t3&) const |
+.2+^.^|_Field access functions_
+|t1& f1();                     t2& f2(); |Gives access to the first/second field.
+|const t1& f1() const; const t2& f2() const; |The same, but it gives read-only access.
+.4+^.^|_Other member functions_
+|`int size_of() const` |Returns the size (number of fields).
+|`void log() const` |Puts the value into log. Like { f1 := 5, f2 := ”abc”}.
+|`boolean is_bound() const` |Returns whether the value is bound.
+|`void clean_up()` |Deletes the value, setting it to unbound.
+|=====================================================================================
+
+The record value is unbound if one or more fields of it are unbound. Using the value of an unbound variable for anything (even for comparison) will cause dynamic test case error.
+
+==== Optional Fields in Records and Sets
+
+TTCN–3 permits optional fields in record and set type definitions. An optional field does not have to be always present, it can be omitted. But the omission must be explicitly denoted. Let us change our last example to this.
+[source]
+----
+type record t3 {
+  t1 f1,
+  t2 f2 optional
+}
+----
+
+The optional fields are implemented using a {cpp} template class called `OPTIONAL` that creates an optional value from any type. In the definition of the generated class `t3` the type `t2` will be replaced by `OPTIONAL<t2>` everywhere and anything else will not be changed.
+
+The instantiated template class `OPTIONAL<t2>` will have the following member functions:
+
+.Table Public member functions of the class `OPTIONAL<t2>`
+
+[width="100%",cols=",,",options="",]
+|================================================================================================================================================================================
+2+^.^|*Member functions* |*Notes*
+.8+^.^|_Constructors_
+|`OPTIONAL()` |Initializes to unbound value.
+|`OPTIONAL(template_sel init_val)` |Initializes to omit value, if the argument is OMIT VALUE.
+|`OPTIONAL(const t2& init_val)`  |Initializes to given value.
+|`OPTIONAL(const OPTIONAL& init_val)`  |Copy constructor.
+|`template <typename T_tmp> `|Initializes to given value of different (compatible) type.
+|`OPTIONAL(const OPTIONAL<T_tmp>&)` |
+|`template <typename T_tmp>` |Initializes to given optional value of different (compatible) type.
+|`OPTIONAL(const T_tmp&)` |
+^.^|_Destructor_
+|`˜OPTIONAL()` |
+.6+^.^|_Assignment operators_
+|`OPTIONAL& operator=(template_sel)` |Assigns omit value, if the right value is OMIT VALUE.
+|`OPTIONAL& operator=(const OPTIONAL&)` |Assigns the given optional value.
+|`template <typename T_tmp>`|Assigns the given optional value of different (compatible) type.
+|`OPTIONAL& operator=(const OPTIONAL<T_tmp>&)`|
+|`template <typename T_tmp>` |Assigns the given value of different (compatible) type.
+|`OPTIONAL& operator=(const T_tmp&)` |
+.7+^.^|_Comparison operators_
+|boolean operator==(template_sel) const |Returns TRUE if the value is omit and the right side is OMIT VALUE or FALSE otherwise.
+|boolean operator==(const OPTIONAL&) const |Returns TRUE if the two values are equal or FALSE otherwise.
+|template <typename T_tmp> |Returns TRUE if the two values of different (compatible) types are equal or FALSE otherwise.
+|boolean operator!=(template_sel) const  |
+|boolean operator!=(const OPTIONAL&) const |
+|template <typename T_tmp> |
+|boolean operator!=(const OPTIONAL<T_tmp>&) const |
+.2+^.^|_Casting operators_
+|operator t2&() |Gives read-write access to the value. If the value was not previously present, sets the bound flag true and the value will be initialized to unbound.
+|operator const t2&() const |Gives read-only access to the value. If the value is not present, causes a dynamic test case error.
+.2+^.^|_Function call operators_
+|t2& operator()() |Gives read-write access to the value. If the value was not previously present, sets the bound flag true and the value will be initialized to unbound.
+|const t2& operator()() const |Gives read-only access to the value. If the value is not present, causes a dynamic test case error.
+.4+^.^|_Other member functions_
+|`boolean ispresent() const` |Returns TRUE if the value is present, FALSE if the value is omit or causes dynamic test case error if the value is unbound.
+|`void log() const` |Puts the optional value into log. Either ”omit” or the value of t2.
+|`boolean is_bound() const` |Returns whether the value is bound.
+|`void clean_up()` |Deletes the value, setting it to unbound.
+|================================================================================================================================================================================
+
+In some member functions of the template class `OPTIONAL` the enumerated C type `template_sel` is used. It has many possible values, but in the optional class only `OMIT_VALUE` can be used, which stands for the TTCN–3 omit. Usage of other predefined values of `template_sel` will cause dynamic test case error.
+
+Using the value of an unbound optional field for anything will also cause dynamic test case error.
+
+=== Union Type Construct
+
+The TTCN–3 type construct union is implemented in a {cpp} class for each union type in the generated code. This class may contain any, but exactly one of its fields. The fields can be either basic or compound types or even identical types.
+
+Let us consider the following example type definition. The types `t1` and `t2` can be arbitrary.
+[source]
+----
+type union t3 {
+  t1 f1,
+  t2 f2
+}
+----
+
+An ancillary enumerated type is created in the generated class `t3`, which represents the selection:
+[source, subs="+quotes"]
+enum union_selection_type { UNBOUND_VALUE = 0, ALT_f1 = 1, ALT_f2 = 2 };
+
+The type `t3::union_selection_type` is used to distinguish the fields of the union. The predefined constant values are generated as `t3::ALT_`<field name>.
+
+The generated class `t3` will have the following public member functions:
+
+.Public member functions of the class `t3`
+
+[width="100%",cols=",,",options="header",]
+|=========================================================================================================================================================================
+2+^.^|*Member functions* |*Notes*
+.2+^.^|_Constructors_
+|`t3()` |Initializes to unbound value.
+|`t3(const t3&)` |Copy constructor.
+^.^|_Destructor_
+|`˜t3()` |
+^.^|_Assignment operator_
+|`t3& operator=(const t3&)` |Assigns the given value.
+.2+^.^|_Comparison operators_
+|boolean operator==(const t3&) const |Returns TRUE if the selections and field values are equal and FALSE otherwise.
+|boolean operator!=(const t3&) const |
+.4+^.^|_Field access functions_
+|const t1& f1() const  |Selects and gives access to the first field. If other field was previously selected, its value will be destroyed.
+|t1& f1() |Gives read-only access to the first field. If other field is selected, this function will cause a dynamic test case error. So use get_selection() first.
+|t2& f2() |
+|const t2& f2() const |
+.4+^.^|_Other member functions_
+|`union_selection_type get_selection() const` |Returns the current selection. It will return t3::UNBOUND VALUE if the value is unbound, t3::ALT_f1 if the first field was selected, and so on.
+|`void log() const` |Puts the value into log. Example: { f1 := 5 } or { f2 := "abc" }.
+|`boolean is_bound() const` |Returns whether the value is bound.
+|`void clean_up()` |Deletes the value, setting it to unbound.
+|=========================================================================================================================================================================
+
+Using the value of an unbound `union` variable for anything will cause dynamic test case error.
+
+==== The anytype
+
+The TTCN-3 anytype is implemented as a {cpp} class named anytype. The class is generated only if an actual anytype access is present in the module. It has the same interface as any other {cpp} class generated for a union, with a few differences:
+
+If a field is a built-in type or the address type, the name used in `union_selection_type` is the name of the runtime class implementing the type (usually the name of the type in all uppercase).
+
+If a field is a user-defined type, the mapping rules in <<mapping-of-names-and-identifiers, Mapping of Names and Identifiers>> above apply.
+
+The names of field accessor functions are prefixed with AT_. This is necessary, because otherwise the accessor function looks like a constructor to {cpp}.
+
+For example, for the following module
+[source]
+----
+module anyuser {
+  type record myrec {}
+
+  control {
+    var anytype v_at;
+  }
+}
+with {
+  extension “anytype integer, myrec, charstring”
+}
+----
+
+The generated class name will be "anytype". The union_selection_type enumerated type will be:
+[source, subs="+quotes"]
+enum union_selection_type { UNBOUND_VALUE = 0, ALT_INTEGER = 1, ALT_myrec = 2, ALT_CHARSTRING = 3 };
+
+The field accessor methods will be:
+[source]
+----
+INTEGER&    AT_INTEGER();
+myrec&      AT_myrec();
+CHARSTRING& AT_CHARSTRING();
+----
+
+=== Record of Type Construct
+
+The TTCN–3 type construct `record` of makes a variable length sequence from one given type. This construct is implemented as a {cpp} class.
+
+Let us consider the following example type definition. The type t1 can be arbitrary.
+[source, subs=+quotes]
+type record of t1 t2;
+
+This definition will be translated to a {cpp} class that will be called t2.
+
+There is an `enum` type called `null_type` defined in the Base Library that has only one possible value. NULL_VALUE stands for the empty `"record of"` value, that is, for {}.
+
+Class `t2` will have the following public member functions:
+
+.Public member functions of the class `t2`
+
+[width="100%",cols=",,",options="",]
+|==================================================================================================================================================================================================================
+2+^.^|*Member functions* |*Notes*
+.3+^.^|_Constructors_
+|`t2()` |Initializes to unbound value.
+|`t2(null type)` |Initializes to the empty value.
+|`t2(const t2&)` |Copy constructor.
+^.^|_Destructor_
+|`˜t2()` |
+.2+^.^|_Assignment operator_
+|`t2& operator=(null type)` |Assigns the empty value.
+|`t2& operator=(const t2&)` |Assigns the given value.
+.4+^.^|_Comparison operators_
+|boolean operator==(null type) const  |Returns TRUE if the two values are equal and FALSE otherwise.
+|boolean operator==(const t2&) const |
+|boolean operator!=(null type) const |
+|boolean operator!=(const t2&) const |
+.4+^.^|_Index operators_
+|t1& operator[](int) |Gives access to the given element. Indexing begins from zero. If this element of the variable was never used before, new (unbound) elements will be allocated up to (and including) this index.
+|t1& opetator[](const INTEGER&) |
+|const t1& operator[](int) const |Gives read-only access to the given element. Index overflow causes dynamic test case error.
+|const t1& opetator[](const INTEGER&) const |
+.4+^.^|_Rotating operators_
+|t2 operator<<=(int) |{cpp} equivalent of operator <@. (rotate left)
+|t2 operator<<=(const INTEGER&) |
+|t2 operator>>=(int) |{cpp} equivalent of operator @>. (rotate right)
+|t2 operator>>=(const INTEGER&) |
+^.^|_Concatenation operator_
+|t2 operator+(const t2&) const |Concatenates two arrays.
+.7+^.^|_Other member functions_
+|`int size_of() const` |Returns the number of elements, that is, the largest used index plus one and zero for the empty value.
+|`void set_size(int new_size)` |Sets the number of elements to the given value. If the value has fewer elements new (unbound) elements are allocated at the end. The excess elements at the end are erased if the value has more elements than necessary.
+|`t2 substr(int index, int returncount) const` |Returns the section of the array specified by the given start index and length.
+|`t2 replace(int index, int len, const t2& repl) const` |Returns a copy of the array, where the section indicated by the given start index and length is replaced by the given array.
+|`void log() const` |Puts the value into log. Like {1, 2, 3 }.
+|`boolean is_bound() const` |Returns whether the value is bound.
+|`void clean_up()` |Deletes the value, setting it to unbound.
+|==================================================================================================================================================================================================================
+
+A `record of` value is unbound if no value has been assigned to it or it has at least one unbound element. Using the value of an unbound `record of` variable for anything will cause dynamic test case error.
+
+Starting with the largest index improves performance when filling a `record of value`.
+
+Other operators (global functions):
+[source]
+----
+boolean operator==(null_type null_value, const t2& other_value); // Equal
+boolean operator!=(null_type null_value, const t2& other_value); // Not equal
+----
+
+==== Pre-generated `record of` and `set of` constructs
+
+The {cpp} classes for the `record of` and `set of` constructs of most predefined TTCN-3 types are pre-generated and part of the TITAN runtime. Only a type alias ({cpp} `typedef`) is generated for instances of these types declared in TTCN-3 and ASN.1 modules. There is a class with regular memory allocation and one with optimized memory allocation pre-generated for each type. These classes are located in the `PreGenRecordOf` namespace.
+
+.Pre-generated classes for `record of`/`set of` predefined types
+
+[width="100%",cols="50%,50%",options="header",]
+|====================================================================================================================================
+|{cpp} class name |Equivalent type in TTCN-3
+|`PREGEN\__RECORD__OF__BOOLEAN` |`record of boolean`
+|`PREGEN\__RECORD__OF__INTEGER` |`record of integer`
+|`PREGEN\__RECORD__OF__FLOAT` |`record of float`
+|`PREGEN\__RECORD__OF__BITSTRING` |`record of bitstring`
+|`PREGEN\__RECORD__OF__HEXSTRING` |`record of hexstring`
+|`PREGEN\__RECORD__OF__OCTETSTRING` |`record of octetstring`
+|`PREGEN\__RECORD__OF__CHARSTRING` |`record of charstring`
+|`PREGEN\__RECORD__OF\__UNIVERSAL__CHARSTRING` |`record of universal charstring`
+|`PREGEN\__RECORD__OF\__BOOLEAN__OPTIMIZED` |`record of boolean with { extension "optimize:memalloc" }`
+|`PREGEN\__RECORD__OF\__INTEGER__OPTIMIZED` |`record of integer with { extension "optimize:memalloc" }`
+|`PREGEN\__RECORD__OF\__FLOAT__OPTIMIZED` |`record of float with { extension "optimize:memalloc" }`
+|`PREGEN\__RECORD__OF\__BITSTRING__OPTIMIZED` |`record of bitstring with { extension "optimize:memalloc" }`
+|`PREGEN\__RECORD__OF\__HEXSTRING__OPTIMIZED` |`record of hexstring with { extension "optimize:memalloc" }`
+|`PREGEN\__RECORD__OF\__OCTETSTRING__OPTIMIZED` |`record of octetstring with { extension "optimize:memalloc" }`
+|`PREGEN\__RECORD__OF\__CHARSTRING__OPTIMIZED` |`record of charstring with { extension "optimize:memalloc" }`
+|`PREGEN\__RECORD__OF\__UNIVERSAL__CHARSTRING__OPTIMIZED` |`record of universal charstring with { extension "optimize:memalloc" }`
+|`PREGEN\__SET__OF__BOOLEAN` |`set of boolean`
+|`PREGEN\__SET__OF__INTEGER` |`set of integer`
+|`PREGEN\__SET__OF__FLOAT` |`set of float`
+|`PREGEN\__SET__OF__BITSTRING` |`set of bitstring`
+|`PREGEN\__SET__OF__HEXSTRING` |`set of hexstring`
+|`PREGEN\__SET__OF__OCTETSTRING` |`set of octetstring`
+|`PREGEN\__SET__OF__CHARSTRING` |`set of charstring`
+|`PREGEN\__SET__OF\__UNIVERSAL__CHARSTRING` |`set of universal charstring`
+|`PREGEN\__SET__OF\__BOOLEAN__OPTIMIZED` |`set of boolean with { extension "optimize:memalloc" }`
+|`PREGEN\__SET__OF\__INTEGER__OPTIMIZED` |`set of integer with { extension "optimize:memalloc" }`
+|`PREGEN\__SET__OF\__FLOAT__OPTIMIZED` |`set of float with { extension "optimize:memalloc" }`
+|`PREGEN\__SET__OF\__BITSTRING__OPTIMIZED` |`set of bitstring with { extension "optimize:memalloc" }`
+|`PREGEN\__SET__OF\__HEXSTRING__OPTIMIZED` |`set of hexstring with { extension "optimize:memalloc" }`
+|`PREGEN\__SET__OF\__OCTETSTRING__OPTIMIZED` |`set of octetstring with { extension "optimize:memalloc" }`
+|`PREGEN\__SET__OF\__CHARSTRING__OPTIMIZED` |`set of charstring with { extension "optimize:memalloc" }`
+|`PREGEN\__SET__OF\__UNIVERSAL__CHARSTRING__OPTIMIZED` |`set OF\ universal charstring with { extension "optimize:memalloc" }`
+|====================================================================================================================================
+
+=== `Set of` Type Construct
+
+The `set of` construct of TTCN–3 is implemented similarly to `record of`. The external interface of this class is exactly the same as in case of `record of`. For more details please see the previous section.
+
+In the internal implementation only the equality operator differs. Unlike in `record of`, it considers the unordered property of the `set of` type construct, that is, it returns `TRUE` if it is able to find exactly one pair for each element.
+
+The index is a unique identifier for a `set of` element because the {cpp} class does not reorder the elements when a new element is added or an element is modified. The copy constructor also keeps the original order of elements.
+
+=== Enumerated Types
+
+The TTCN–3 `enumerated` type construct is implemented as a {cpp} class with an embedded enum type.
+[source, subs="+quotes"]
+type enumerated Day { Monday (1), Tuesday, Wednesday (3) };
+
+The example above will result in the following, very similar C `enum` type definition which is embedded in the {cpp} class `Day`:
+[source, subs="+quotes"]
+
+enum enum_type { Monday = 1, Tuesday = 0, Wednesday = 3,
+       UNKNOWN_VALUE = 2, UNBOUND_VALUE = 4 };
+
+The automatic assignment of numeric values is done according to the standard. Note that there are two extra enumerated values in C, which stand for the unknown and unbound values. They are used in the conversion functions described below. The compiler assigns the smallest two non-negative integer numbers that are not used by the user-defined enumerated values to the unknown and unbound values.
+
+When using the C `enum` type and its values from user code the names must be prefixed with the {cpp} class name. The `enum` type in the above example can be referenced with `Day::enum_type`, its values can be accessed as `Day::Monday, Day::Tuesday`, and so on.
+
+The class `Day` will have the following public member functions:
+
+.Public member functions of the class `Day`
+
+[width="100%",cols=",,",options="",]
+|=========================================================================================================================
+2+^.^|*Member functions* |*Notes*
+.4+^.^|_Constructors_
+|`Day()` |Initializes to unbound value.
+|`Day(int)` |Converts the given numeric value to Day::enum_type and initializes to it.
+Only valid values are accepted.
+|`Day(enum_type)` |Initializes to a given value.
+|`Day(const Day&)`  |Copy constructor.
+^.^|_Destructor_
+|`˜Day()` |
+.3+^.^|_Assignment operator_
+|`Day& operator=(int)` |Converts the given numeric value to Day::enum_type and assigns it. Only valid values are accepted.
+|`Day& operator=(enum_type)` |Assigns the given value.
+|`Day& operator=(const Day&)` |
+.12+^.^|_Comparison operators_
+|boolean operator==(enum_type) const |Returns TRUE if the two values are equal and FALSE otherwise.
+|boolean operator==(const Day&) const |
+|boolean operator!=(enum_type) const |
+|boolean operator!=(const Day&) const |
+|boolean operator<(enum_type) const |
+|boolean operator<(const Day&) const |
+|boolean operator<=(enum_type) const |
+|boolean operator<=(const Day&) const |
+|boolean operator>(enum_type) const |
+|boolean operator>(const Day&) const |
+|boolean operator>=(enum_type) const |
+|boolean operator>=(const Day&) const |
+^.^|_Casting operator_
+|operator enum_type() const |Returns the enum_value.
+.5+^.^|_Static conversion functions_
+|static const char *enum_to_str(enum_type) |See below.
+|static enum_type str_to_enum(const char *)  |
+|static boolean is_valid_enum(int) |
+|static int enum2int(enum_type); |
+|static int enum2int(const Day&); |
+.3+^.^|_Non-static conversion functions_
+|int as_int() const; |See below
+|void from_int(int); |
+|void int2enum(int); |
+.3+^.^|_Other member functions_
+|`void log() const` |Puts the value into log. Like this: Monday
+|`boolean is_bound() const` |Returns whether the value is bound.
+|`void clean_up()` |Deletes the value, setting it to unbound.
+|=========================================================================================================================
+
+The static member function `Day::enum_to_str` converts the given parameter of type `Day::enum_type` to a NULL terminated C character string. It returns the string "<unknown>", if the input is not a valid value of the TTCN–3 enumerated type. The returned string is read-only, it must not be modified.
+
+The function `Day::str_to_enum` does the conversion in the reverse direction. It converts the symbolic enumerated identifier represented by a C character string back to the `Day::enum_type` equivalent. It returns the value `Day::UNKNOWN_VALUE` if the input string is not the equivalent of any of the possible values in the enumerated type. The behavior of this function is undefined if the input parameter does not point to an addressable memory area.
+
+In the above two functions the strings are treated case sensitive and they shall not contain any whitespace or other characters that are not part of the enumerated value. In case of ASN.1 `ENUMERATED` types the strings used by `enum_to_str`, `str_to_enum` and log represent the TTCN–3 view of the enumerated value, that is, the hyphenation characters are mapped to a single underscore character. For example, if an ASN.1 enumerated type has a value with name `my-enum-value` and numeric value 2, the function `enum_to_str` will return the string `"my_enum_value"` if the input parameter equals to 2. Of course, its {cpp} equivalent will be `my_enum_value` with numeric value 2.
+
+Static member function `Day::is_valid_enum` returns the Boolean value `TRUE` if there is a defined enumerated value having numeric value equal to the `int` parameter and `FALSE` otherwise.
+
+The static member function `Day::enum_to_int` converts the given parameter of type Day or `Day::enum_type` to its numeric value. The member function `as_int` does the same thing for the enumerated instance.
+
+The member function `int_to_enum` initializes the enumerated instance with the enumerated value having numeric value equal to the given `int` parameter. A dynamic test case error is displayed if there is no such enumerated value. The member function `from_int` does the same thing.
+
+If a value of type `int` is passed to the constructor or assignment operator the value is accepted only if it is a numerical representation of a valid enumerated value, that is, the function `is_valid_enum` returns `TRUE`. A dynamic test case error occurs otherwise.
+
+To avoid run-time errors at the decoding of invalid messages the Test Port writer should use the constructor or assignment operator in this way:
+[source]
+----
+Day myDayVar;
+int myIntVar = buffer[position];
+if (Day::is_valid_enum(myIntVar)) myDayVar = myIntVar;
+else myDayVar = Day::UNKNOWN_VALUE;
+----
+
+Using the value of an unbound enumerated variable for anything will cause dynamic test case error.
+
+=== The `address` Type
+
+The special TTCN–3 data type `address` is represented in {cpp} as if it was a regular data type. The name of the equivalent {cpp} class is `ADDRESS`. If it is an alias to another (either built-in or user-defined) type then a {cpp} `typedef` is used.
+
+== Predefined Functions
+
+Annex C of link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187301/04.05.01_60/es_20187301v040501p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 1: Core Language European Telecommunications Standards] and Annex B of link:https://pdfs.semanticscholar.org/33b5/877c85f7fd4f35c7f58c39121358c3652966.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 7: Using ASN.1 with TTCN–3 European Telecommunications] define a couple of predefined functions. Most of them perform conversion between the built-in types of TTCN–3. In our test executor these functions are implemented in the Base Library in {cpp} language. They are available not only in TTCN–3 , but they can be called directly from Test Ports as well.
+
+The prototypes for these functions can be found in `*$TTCN3_DIR/include/Addfunc.hh*`, but for easier navigation we list them also in the present document.
+
+The majority of these functions have more than one polymorphic version: when appropriate, one of them takes literal (built-in) {cpp} types as arguments instead of the objects of equivalent {cpp} classes. For instance, if the incoming argument is stored in an `int` variable in your {cpp} code, you should not construct a temporary object of class `INTEGER` because passing an `int` is faster and produces smaller binary code. Similarly, the returned type is also literal when it is possible.
+
+=== `Integer` to character
+
+[source]
+----
+extern CHARSTRING int2char(int value);
+extern CHARSTRING int2char(const INTEGER& value);
+----
+=== Character to `integer`
+
+[source]
+----
+extern int char2int(char value);
+extern int char2int(const char *value);
+extern int char2int(const CHARSTRING& value);
+----
+=== `Integer` to universal character
+
+[source]
+----
+extern UNIVERSAL_CHARSTRING int2unichar(int value);
+extern UNIVERSAL_CHARSTRING int2unichar(const INTEGER& value);
+----
+=== Universal character to `integer`
+
+[source]
+----
+extern int unichar2int(const universal_char& value);
+extern int unichar2int(const UNIVERSAL_CHARSTRING& value);
+----
+=== `Bitstring` to `integer`
+
+[source]
+----
+extern INTEGER bit2int(const BITSTRING& value);
+----
+=== `Hexstring` to `integer`
+
+[source]
+----
+extern INTEGER hex2int(const HEXSTRING& value);
+----
+=== `Octetstring` to `integer`
+
+[source]
+----
+extern INTEGER oct2int(const OCTETSTRING& value);
+----
+=== `Charstring` to `integer`
+
+[source]
+----
+extern INTEGER str2int(const char *value);
+extern INTEGER str2int(const CHARSTRING& value);
+----
+=== `Integer` to `bitstring`
+
+[source]
+----
+extern BITSTRING int2bit(const INTEGER& value, const INTEGER& length);
+----
+=== `Integer` to `hexstring`
+
+[source]
+----
+extern HEXSTRING int2hex(const INTEGER& value, const INTEGER& length);
+----
+=== `Integer` to `octetstring`
+
+[source]
+----
+extern OCTETSTRING int2oct(const INTEGER& value, const INTEGER& length);
+----
+=== `Integer` to `charstring`
+
+[source]
+----
+extern CHARSTRING int2str(int value);
+extern CHARSTRING int2str(const INTEGER& value);
+----
+=== Length of string Type
+
+This function is built into the equivalent {cpp} classes of all TTCN–3 string types:
+[source]
+----
+int <any_string_type>::lengthof() const;
+----
+=== Number of elements in a structured type
+
+This function is built into the {cpp} template classes of `record of` and `set of` types:
+[source]
+----
+int <any_record_of_or_set_of_type>::size_of() const;
+----
+This function is currently not implemented for `record` and `set` types.
+
+=== The `IsPresent` Function
+
+This function is built into the wrapper {cpp} template class `OPTIONAL`:
+[source]
+----
+boolean <any_optional_field>::ispresent() const;
+----
+=== The `IsChosen` Function
+
+These functions are built into the equivalent {cpp} classes of TTCN–3 union types:
+[source]
+----
+boolean <union_type>::ischosen(
+<union_type>::union_selection_type checked_selection) const;
+----
+=== The `regexp` Function
+
+[source]
+----
+extern CHARSTRING regexp(const CHARSTRING& instr,
+const CHARSTRING& expression, const INTEGER& groupno);
+----
+=== `Bitstring` to `charstring`
+
+[source]
+----
+extern CHARSTRING bit2str(const BITSTRING& value);
+----
+=== `Hexstring` to `charstring`
+
+[source]
+----
+extern CHARSTRING hex2str(const HEXSTRING& value);
+----
+=== `Octetstring` to character string
+
+[source]
+----
+extern CHARSTRING oct2str(const OCTETSTRING& value);
+----
+=== Character string to `octetstring`
+
+[source]
+----
+extern OCTETSTRING str2oct(const char *value);
+extern OCTETSTRING str2oct(const CHARSTRING& value);
+----
+=== `Bitstring` to `hexstring`
+
+[source]
+----
+extern HEXSTRING bit2hex(const BITSTRING& value);
+----
+=== `Hexstring` to `octetstring`
+
+[source]
+----
+extern OCTETSTRING hex2oct(const HEXSTRING& value);
+----
+=== `Bitstring` to `octetstring`
+
+[source]
+----
+extern OCTETSTRING bit2oct(const BITSTRING& value);
+----
+=== `Hexstring` to `bitstring`
+
+[source]
+----
+extern BITSTRING hex2bit(const HEXSTRING& value);
+----
+=== `Octetstring` to `hexstring`
+
+[source]
+----
+extern HEXSTRING oct2hex(const OCTETSTRING& value);
+----
+=== `Octetstring` to `bitstring`
+
+[source]
+----
+extern BITSTRING oct2bit(const OCTETSTRING& value);
+----
+=== `Integer` to `float`
+
+[source]
+----
+extern double int2float(int value);
+extern double int2float(const INTEGER& value);
+----
+=== `Float` to `integer`
+
+[source]
+----
+extern INTEGER float2int(double value);
+extern INTEGER float2int(const FLOAT& value);
+----
+=== The Random Number Generator Function
+
+The implementation is based on functions `srand48` and `drand48` of `libc`.
+[source]
+----
+extern double rnd();
+extern double rnd(double seed);
+extern double rnd(const FLOAT& seed);
+----
+=== The Substring Function
+
+Implemented for all string types.
+[source]
+----
+extern BITSTRING substr(const BITSTRING& value, const INTEGER& index,
+  const INTEGER& returncount);
+extern HEXSTRING substr(const HEXSTRING& value, const INTEGER& index,
+  const INTEGER& returncount);
+extern OCTETSTRING substr(const OCTETSTRING& value, const INTEGER& index,
+  const INTEGER& returncount);
+extern CHARSTRING substr(const CHARSTRING& value, const INTEGER& index,
+  const INTEGER& returncount);
+extern UNIVERSAL_CHARSTRING substr(const UNIVERSAL_CHARSTRING& value,
+  const INTEGER& index, const INTEGER& returncount);
+----
+
+=== Character string to `float`
+
+[source]
+----
+extern double str2float(const char *value);
+extern double str2float(const CHARSTRING& value);
+----
+=== The Replace Function
+
+Implemented for all string types.
+[source]
+----
+extern BITSTRING replace(const BITSTRING& value, const INTEGER& index,
+  const INTEGER& len, const BITSTRING& repl);
+extern HEXSTRING replace(const HEXSTRING& value, const INTEGER& index,
+  const INTEGER& len, const HEXSTRING& repl);
+extern OCTETSTRING replace(const OCTETSTRING& value, const INTEGER& index,
+  const INTEGER& len, const OCTETSTRING& repl);
+extern CHARSTRING replace(const CHARSTRING& value, const INTEGER& index,
+  const INTEGER& len, const CHARSTRING& repl);
+extern UNIVERSAL_CHARSTRING replace(const UNIVERSAL_CHARSTRING& value,
+  const INTEGER& index, const INTEGER& len, const UNIVERSAL_CHARSTRING& repl);
+----
+
+[[octetstring-to-character-string-0]]
+=== Octetstring to character string
+
+[source]
+----
+extern CHARSTRING oct2char(const OCTETSTRING& value);
+----
+[[character-string-to-octetstring-0]]
+=== Character string to octetstring
+
+[source]
+----
+extern OCTETSTRING char2oct(const char *value);
+extern OCTETSTRING char2oct(const CHARSTRING& value);
+----
+=== The `Decompose` Function
+
+Not implemented yet.
+
+[[additional-non-standard-functions]]
+=== Additional Non-Standard Functions
+
+[source]
+----
+extern BITSTRING str2bit(const char *value);
+extern BITSTRING str2bit(const CHARSTRING& value);
+extern HEXSTRING str2hex(const char *value);
+extern HEXSTRING str2hex(const CHARSTRING& value);
+extern CHARSTRING float2str(double value);
+extern CHARSTRING float2str(const FLOAT& value);
+
+template<typename TTCN_TYPE>
+CHARSTRING ttcn_to_string(const TTCN_TYPE& ttcn_data)
+
+template<typename TTCN_TYPE>
+void string_to_ttcn(const CHARSTRING& ttcn_string, TTCN_TYPE& ttcn_value)
+
+extern UNIVERSAL_CHARSTRING oct2unichar(const OCTETSTRING& invalue);
+extern UNIVERSAL_CHARSTRING oct2unichar(const OCTETSTRING& invalue,
+  const CHARSTRING& string_encoding);
+
+extern OCTETSTRING unichar2oct(const UNIVERSAL_CHARSTRING& invalue);
+extern OCTETSTRING unichar2oct(const UNIVERSAL_CHARSTRING& invalue,
+  const CHARSTRING& string_encoding);
+
+extern CHARSTRING get_stringencoding(const OCTETSTRING& encoded__value);
+extern OCTETSTRING remove_bom(const OCTETSTRING& encoded__value);
+
+extern CHARSTRING encode_base64(const OCTETSTRING& msg, bool use_linebreaks);
+extern CHARSTRING encode_base64(const OCTETSTRING& msg);
+extern OCTETSTRING decode_base64(const CHARSTRING& b64);
+----
+
+See the section "Additional predefined functions" in the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[ Programmer"s Technical Reference] for more details.
+
+[[using-the-signature-classes]]
+== Using the Signature Classes
+
+A Test Port has three outgoing and three incoming types of operation that require the usage of signatures. These are `call` (`getcall`), `reply` (`getreply`) and `raise` (`catch`). Because of this, there are three representation formats (classes generated by the compiler) of a signature the Test Port writer should be familiar with. This section describes these classes using an example.
+
+Let us suppose the following signature definition:
+[source]
+----
+signature MyProc(in integer inPar, out float outPar,
+	inout bitstring inoutPar)
+		return hexstring
+		exception(charstring, integer, boolean);
+----
+
+The classes generated and needed to write a Test Port using this signature are `MyProc_call`, `MyProc_reply` and `MyProc_exception`. These represent the parameters, the return value and the exception type and value of the signature needed by a call, reply or raise.
+
+For example, if a port uses the signature `MyProc` as an output remote procedure, the Test Port gets the outgoing parameters for a call operation towards the system in an instance of the class `MyProc_call`. In this case the classes `MyProc_reply` and `MyProc_exception` are used for placing an incoming reply or raise operation in the queue of the port (using the functions `incoming_reply` and `incoming_exception` of the port class).
+
+=== The Representation of the Input Parameters
+
+The class `MyProc_call` (using the above example) represents all incoming parameters of the signature `MyProc`. It temporary stores the parameters inPar and inoutPar.
+
+The generated class `MyProc_call` will have the following public member functions:
+
+.Public member functions of the class `MyProc_call`
+
+[cols=",,",options="",]
+|==============================================================
+2+^.^|*Member functions* |*Notes*
+.4+^.^|_Parameter access functions_
+|INTEGER& inPar() |Gives access to parameter inPar.
+|const INTEGER& inPar() const  |
+|BITSTRING& inoutPar() |The same, but it gives read-only access.
+|const BITSTRING& inoutPar() const  |
+^.^|_Other member functions_
+|`void log() const` |Puts the parameters into log.
+|==============================================================
+
+The parameters can be accessed via their access functions that have the same names as the parameters (name mapping also applies to these functions).
+
+=== The Output Parameters and Return Value
+
+The output parameters and return value (if defined) are represented by the class `MyProc_reply` that has the following public member functions:
+
+.Public member functions of the class `MyProc_reply`
+
+[cols=",,",options="",]
+|=====================================================================
+2+^.^|*Member functions* |*Notes*
+.2+^.^|_Parameter access functions_
+|FLOAT& outPar()const FLOAT& outPar() const |Gives access to parameter outPar.
+|BITSTRING& inoutPar() const BITSTRING& inoutPar() const |The same, but it gives read-only access.
+.2+^.^|_Access function for return value_
+|HEXSTRING& return value() |Gives access to the return value.
+|const HEXSTRING& return value() const |
+^.^|_Other member functions_
+|`void log() const` |Puts the parameters into log.
+|=====================================================================
+
+The parameters can be accessed by their access functions, and the return value can be accessed via the function `return_value()`.
+
+=== Representation of Signature Exceptions
+
+The class representing the exceptions of a signature (remote procedure) is similar to the representation of the union data type. Using the above example this class is called `MyProc_exception`. This class is generated only if the signature has at least one exception type.
+
+.Public member functions of the class `MyProc_exception`
+
+[width="100%",cols=",,",options="",]
+|===================================================================================================================================================================================================================================
+2+^.^|*Member functions* |*Notes*
+.2+^.^|_Constructors_
+|`MyProc_exception()` |Initializes to unbound value.
+|`MyProc_exception(const MyProc_exception&)` |Copy constructor.
+^.^|_Destructor_
+|`˜MyProc_exception()` |
+^.^|_Assignment_ _operator_
+|`MyProc_exception& operator=(const MyProc_exception&)` |Assigns the given value.
+.4+^.^|_Field access functions_
+|CHARSTRING& CHARSTRING_field() |Selects and gives access to the CHARSTRING field. If other field was previously selected, its value will be destroyed.
+|const CHARSTRING&CHARSTRING_field() cons |Gives read-only access to the CHARSTRING field. If other field is selected, this function will cause dynamic test case error. So use get selection() first.
+|INTEGER& INTEGER_field() const INTEGER& INTEGER_field() const |
+|BOOLEAN& BOOLEAN_field()const BOOLEAN& BOOLEAN_field() const  |
+.2+^.^|_Other member functions_
+|`MyProc_exception::exception_selection_type 	get_selection() const` |Returns the current selection. It will return MyProc exception::UNBOUND VALUE if the exception is unbound, MyProc exception::ALT CHARSTRING if a charstring value is present in the exception, and so on.
+|`void log() const` |Puts the contents of the exception into the log.
+|===================================================================================================================================================================================================================================
+
+If an exception type is a user-defined type the field name will be constructed from the {cpp} namespace name of the module that the exception type resides in and the name of the {cpp} class that realizes the exception type. The two identifiers are glued together using a single underscore character. Please note that the namespace name is always present in the identifiers, even if the exception type is defined in the same module as the signature.
+
+For example, if exception type `My_Record` is defined in module `My_Module` the respective field access functions will be named as `My\__Module_My__Record_field` and the associated enum value will be `MyProc_exception::ALT_My__Module_My__Record`.
