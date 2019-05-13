@@ -31,23 +31,6 @@ https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html.
 
 The contents of this document are subject to revision without notice due to continued progress in methodology, design and manufacturing. Ericsson should have no liability for any error or damage of any kind resulting from the use of this document.
 
-////
-Supported ASN.1 Constructs and Limitations
-Compiling TTCN–3 and ASN.1 Modules
-XSD to TTCN-3 Converter ... kulso hivas
-Code Coverage of TTCN-3 Modules
-The TTCN-3 Debugger
-Tips & Troubleshootings
-
-API guide -bol
-Generating the Skeleton
-Message es procedure based example
-Test Port functions
-Logger plugins
-Encoding
-Mapping TTCN-3 Data Type to Java constructs
-////
-
 
 ifdef::env-github,backend-html5[]
 * link:1-about_the_document.adoc[About the document]
