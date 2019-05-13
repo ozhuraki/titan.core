@@ -66,8 +66,8 @@ The class `TitanInteger` has the following public member functions:
 |`TitanInteger operator_assign(final TitanInteger otherValue)` |Sets to given value.
 |`TitanInteger operator_assign(final Base_Type otherValue)` |Sets to given value.
 .7+^.^|_Comparison operators_
-| boolean operator_equals(final int otherValue) | Returns TRUE if equals.
-| boolean operator_equals(final BigInteger otherValue) | and FALSE otherwise.
+| boolean operator_equals(final int otherValue) | Returns true if equals.
+| boolean operator_equals(final BigInteger otherValue) | and false otherwise.
 | boolean operator_equals(final TitanInteger otherValue) |
 | boolean operator_equals(final Base_Type otherValue)  |
 | boolean operator_not_equals(final int otherValue)  |
@@ -176,8 +176,8 @@ The class `TitanFloat` has the following public member functions:
 |`TitanFloat operator_assign(final TitanFloat otherValue)` |
 |`TitanFloat operator_assign(final Base_Type otherValue)` |
 .19+^.^|_Comparison operators_
-|boolean operator_equals(final double otherValue) |Returns TRUE if equals
-|boolean operator_equals(final Ttcn3Float otherValue) |and FALSE otherwise.
+|boolean operator_equals(final double otherValue) |Returns true if equals
+|boolean operator_equals(final Ttcn3Float otherValue) |and false otherwise.
 |boolean operator_equals(final TitanFloat otherValue)  |
 |boolean operator_equals(final Base_Type otherValue)  |
 |boolean operator_not_equals(final double otherValue)  |
@@ -259,8 +259,8 @@ The class `TitanBoolean` has the following public member functions:
 |`TitanBoolean operator_assign(final TitanBoolean otherValue)` |and sets the bound flag.
 |`TitanBoolean operator_assign(final Base_Type otherValue)` |
 .5+^.^|_Comparison operators_
-|boolean operator_equals(final boolean otherValue) |Returns TRUE if equals
-|boolean operator_equals(final TitanBoolean otherValue) |and FALSE otherwise.
+|boolean operator_equals(final boolean otherValue) |Returns true if equals
+|boolean operator_equals(final TitanBoolean otherValue) |and false otherwise.
 |boolean operator_equals(final Base_Type otherValue) |
 |boolean operator_not_equals(final boolean otherValue)|Same as XOR.
 |boolean operator_not_equals(final TitanBoolean otherValue) |
@@ -278,7 +278,7 @@ The class `TitanBoolean` has the following public member functions:
 | `boolean is_bound()` |Returns whether the value is bound.
 | `boolean is_present()` |Returns whether the value is present.
 | `boolean is_value()` |Returns whether the value is a value.
-| `void log()` |Puts the value into log. Like "TRUE" or "FALSE".
+| `void log()` |Puts the value into log. Like "true" or "false".
 | `void clean_up()` |Deletes the value, setting it to unbound.
 | `void encode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |encodes the value.
 | `void decode(final TTCN_Typedescriptor p_td, final TTCN_Buffer p_buf, final coding_type p_coding, final int flavour)` |decodes the value.
@@ -316,8 +316,8 @@ The class `TitanVerdictType` has the following public member functions:
 |`TitanVerdictType operator_assign(final TitanVerdictType otherValue)`  |and sets the bound flag.
 |`TitanVerdictType operator_assign(final Base_Type otherValue)`  |
 .5+^.^|_Comparison operators_
-|boolean operator_equals(final VerdictTypeEnum otherValue) |Returns TRUE if equals
-|boolean operator_equals(final TitanVerdictType otherValue) |and FALSE otherwise.
+|boolean operator_equals(final VerdictTypeEnum otherValue) |Returns true if equals
+|boolean operator_equals(final TitanVerdictType otherValue) |and false otherwise.
 |boolean operator_equals(final Base_Type otherValue)  |
 |boolean operator_not_equals(final VerdictTypeEnum otherValue)  |
 |boolean operator_not_equals(final TitanVerdictType otherValue)  |
@@ -376,8 +376,8 @@ and  int array.
 |`TitanBitString operator_assign(final TitanBitString_Element otherValue)` |Assigns the given single bitstring element.
 |`TitanBitString operator_assign(final Base_Type otherValue)` |
 .5+^.^|_Comparison operators_
-|boolean operator_equals(final TitanBitString otherValue) |Returns TRUE if equals
-|boolean operator_equals(final TitanBitString_Element otherValue) |and FALSE otherwise.
+|boolean operator_equals(final TitanBitString otherValue) |Returns true if equals
+|boolean operator_equals(final TitanBitString_Element otherValue) |and false otherwise.
 |boolean operator_equals(final Base_Type otherValue) |
 |boolean operator_not_equals(final TitanBitString otherValue) |
 |boolean operator_not_equals(final TitanBitString_Element otherValue) |
@@ -403,9 +403,9 @@ and  int array.
 |TitanBitString shift_right(int shift_count) |Java equivalent of operator
 |TitanBitString shift_right(final TitanInteger shift_count) |>>. (shift right)
 |TitanBitString rotate_left(int rotate_count) |Java equivalent of operator
-|TitanBitString rotate_left(final TitanInteger rotate_count) |< @. (rotate left)
+|TitanBitString rotate_left(final TitanInteger rotate_count) | <@. (rotate left)
 |TitanBitString rotate_right(int rotate_count) |Java equivalent of operator
-|TitanBitString rotate_right(final TitanInteger rotate_count) |@ >. (rotate right)
+|TitanBitString rotate_right(final TitanInteger rotate_count) | @>. (rotate right)
 ^.^|_Casting operator_
 |int[] get_value() |Returns a pointer to the int array.
 .8+^.^|_Other member functions_
@@ -488,7 +488,7 @@ The class `TitanHexString` has the following public member functions:
 |`TitanHexString operator_assign(final TitanHexString_Element otherValue)` |
 |`TitanHexString operator_assign(final Base_Type otherValue)` |
 .5+^.^|_Comparison operators_
-|boolean operator_equals(final TitanHexString otherValue)  |Returns TRUE if equals and FALSE otherwise.
+|boolean operator_equals(final TitanHexString otherValue)  |Returns true if equals and false otherwise.
 |boolean operator_equals(final TitanHexString_Element otherValue) |
 |boolean operator_equals(final Base_Type otherValue) |
 |boolean operator_not_equals(final TitanHexString otherValue)  |
@@ -515,9 +515,9 @@ The class `TitanHexString` has the following public member functions:
 |TitanHexString shift_right(int shift_count) |Java equivalent of operator
 |TitanHexString shift_right(final TitanInteger shift_count) |>>. (shift right)
 |TitanHexString rotate_left(int rotate_count)  |Java equivalent of operator
-|TitanHexString rotate_left(final TitanInteger rotate_count)  |< @. (rotate left)
+|TitanHexString rotate_left(final TitanInteger rotate_count)  |<@. (rotate left)
 |TitanHexString rotate_right(int rotateCount)|Javaequivalent of operator
-|TitanHexString rotate_right(final TitanInteger rotateCount) |@ >. (rotate right)
+|TitanHexString rotate_right(final TitanInteger rotateCount) |@>. (rotate right)
 ^.^|_Casting operator_
 |byte[] get_value() |Returns a pointer to the character array. The pointer might be NULL if the length is 0.
 .4+^.^|_Other member functions_
@@ -597,8 +597,8 @@ The class `TitanOctetString` has the following public member functions:
 |`TitanOctetString operator_assign(final TitanOctetString_Element otherValue)` |Assigns the given octetstring element.
 |`TitanOctetString operator_assign(final Base_Type otherValue)` |
 .5+^.^|_Comparison operators_
-| boolean operator_equals(final TitanOctetString otherValue)  |Returns TRUE if equals
-| boolean operator_equals(final TitanOctetString_Element otherValue)  |and FALSE otherwise.
+| boolean operator_equals(final TitanOctetString otherValue)  |Returns true if equals
+| boolean operator_equals(final TitanOctetString_Element otherValue)  |and false otherwise.
 | boolean operator_equals(final Base_Type otherValue)  |
 | boolean operator_not_equals(final TitanOctetString otherValue)  |
 | boolean operator_not_equals(final TitanOctetString_Element otherValue)  |
@@ -623,9 +623,9 @@ The class `TitanOctetString` has the following public member functions:
 |TitanOctetString shift_left(final TitanInteger shift_count) |(shift left)
 |TitanOctetString shift_right(final int shift_count)  |operator >>.
 |TitanOctetString shift_right(final TitanInteger shift_count)  |(shift right)
-|TitanOctetString rotate_left(final int rotate_count)  |operator < @.
+|TitanOctetString rotate_left(final int rotate_count)  |operator <@.
 |TitanOctetString rotate_left(final TitanInteger rotate_count)  |(rotate left)
-|TitanOctetString rotate_right(final int rotate_count) |operator @ >.
+|TitanOctetString rotate_right(final int rotate_count) |operator @>.
 |TitanOctetString rotate_right(final TitanInteger rotate_count)  |(rotate right)
 ^.^|_Casting operator_
 |char[] get_value() |Returns a pointer to the character array. The pointer might be NULL if the length is 0.
@@ -715,7 +715,7 @@ The class `TitanCharString` has the following public member functions:
 |`TitanCharString operator_assign(final TitanCharString_Element otherValue)`|
 |`TitanCharString operator_assign(final TitanUniversalCharString otherValue)`|
 .9+^.^|_Comparison operators_
-|boolean operator_equals(final TitanCharString otherValue) |Returns TRUE if equals and FALSE otherwise.
+|boolean operator_equals(final TitanCharString otherValue) |Returns true if equals and false otherwise.
 |boolean operator_equals(final TitanUniversalCharString otherValue) |
 |boolean operator_equals(final Base_Type otherValue) |
 |boolean operator_equals(final String otherValue) |
@@ -738,9 +738,9 @@ The class `TitanCharString` has the following public member functions:
 |TitanCharString_Element constGet_at(final int index_value) |Gives read-only access to the given element.
 |TitanCharString_Element constGet_at(final TitanInteger index_value) |
 .4+^.^|_Rotating operators_
-|TitanCharString rotate_left(final int rotate_count) |Java equivalent of operator < @.(rotate left)
+|TitanCharString rotate_left(final int rotate_count) |Java equivalent of operator <@.(rotate left)
 |TitanCharString rotate_left(final TitanInteger rotate_count) |
-|TitanCharString rotate_right(final int rotate_count)  | @ >. (rotate right)
+|TitanCharString rotate_right(final int rotate_count)  | @>. (rotate right)
 |TitanCharString rotate_right(final TitanInteger rotate_count) |
 ^.^|_Casting operator_
 |StringBuilder get_value() |Returns the StringBuilder.
@@ -874,7 +874,7 @@ The class `TitanUniversalCharString` has the following public member functions:
 |`TitanUniversalCharString operator_assign(final TitanUniversalCharString_Element otherValue)` |Assigns a single universal charstring element.
 |`TitanUniversalCharString operator_assign(final Base_Type otherValue)`|
 .7+^.^|_Comparison operators_
-|boolean operator_equals(final TitanUniversalCharString otherValue)  |Returns TRUE if the strings are identical or FALSE otherwise.
+|boolean operator_equals(final TitanUniversalCharString otherValue)  |Returns true if the strings are identical or false otherwise.
 |boolean operator_equals(final TitanUniversalChar otherValue)  |Compares to a single character.
 |boolean operator_equals(final String otherValue) |Compares to a String.
 |boolean operator_equals(final TitanCharString otherValue) |Compares to a charstring.
@@ -902,9 +902,9 @@ The class `TitanUniversalCharString` has the following public member functions:
 |TitanUniversalCharString_Element constGet_at(final int index_value) |Gives read-only access to the given element.
 |TitanUniversalCharString_Element constGet_at(final TitanInteger index_value) |
 .4+^.^|_Rotating operators_
-|TitanUniversalCharString rotate_left(final int rotate_count) | < @(rotate left).
+|TitanUniversalCharString rotate_left(final int rotate_count) | <@(rotate left).
 |TitanUniversalCharString rotate_left(final TitanInteger rotate_count) |
-|TitanUniversalCharString rotate_right(final int rotate_count) | @ >(rotate right).
+|TitanUniversalCharString rotate_right(final int rotate_count) | @>(rotate right).
 |TitanUniversalCharString rotate_right(final TitanInteger rotate_count) |
 ^.^|_Casting operator_
 |List<TitanUniversalChar> get_value() |Returns a pointer to the array of characters. There is no terminator character at the end.
@@ -1020,7 +1020,7 @@ The object identifier type of TTCN–3 (`objid`) is implemented in class TitanOb
 |`TitanObjectid operator_assign(final TitanObjectid otherValue)` |Assigns the given value and sets the bound flag.
 |`Base_Type operator_assign(final Base_Type otherValue)`|
 .3+^.^|_Comparison operators_
-|boolean operator_equals(final TitanObjectid otherValue) |Returns TRUE if the two values are equal and FALSE otherwise.
+|boolean operator_equals(final TitanObjectid otherValue) |Returns true if the two values are equal and false otherwise.
 |boolean operator_equals(final Base_Type otherValue)|
 |boolean operator_not_equals(final TitanObjectid otherValue) |
 .4+^.^|_Indexing operators_
@@ -1075,8 +1075,8 @@ The class `TitanComponent` has the following public member functions:
 |`TitanComponent operator_assign(final TitanComponent otherValue)`|and sets the bound flag.
 |`TitanComponent operator_assign(final Base_Type otherValue)`|
 .5+^.^|_Comparison operators_
-|boolean operator_equals(final int otherValue)  |Returns TRUE if equals
-|boolean operator_equals(final TitanComponent otherValue) |and FALSE otherwise.
+|boolean operator_equals(final int otherValue)  |Returns true if equals
+|boolean operator_equals(final TitanComponent otherValue) |and false otherwise.
 |boolean operator_equals(final Base_Type otherValue)|
 |boolean operator_not_equals(final int otherValue)  |
 |boolean operator_not_equals(final TitanComponent otherValue)  |
@@ -1139,10 +1139,10 @@ The generated Java class `Dummy` will have the following member functions:
 |`Dummy operator_assign( final Dummy otherValue )` |
 |`Dummy operator_assign( final Base_Type otherValue )`|
 .5+^.^|_Comparison operators_
-|boolean operator_equals( final TitanNull_Type otherValue )  |Returns TRUE if both arguments are bound.
+|boolean operator_equals( final TitanNull_Type otherValue )  |Returns true if both arguments are bound.
 |boolean operator_equals( final Dummy otherValue ) |
 |boolean operator_equals( final Base_Type otherValue )|
-|boolean operator_not_equals( final TitanNull_Type otherValue ) | Returns FALSE if both arguments are bound.
+|boolean operator_not_equals( final TitanNull_Type otherValue ) | Returns false if both arguments are bound.
 |boolean operator_not_equals( final Base_Type otherValue ) |
 .7+^.^|_Other member functions_
 |`void log()` |Puts the value, that is, {}, into log.
@@ -1189,7 +1189,7 @@ The generated class `t3` will have the following public member functions:
 |`t3 operator_assign(final t3 otherValue )`  |Assigns the given value and sets the bound flag for each field.
 |`t3 operator_assign(final Base_Type otherValue)`|
 .3+^.^|_Comparison operators_
-|boolean operator_equals( final t3 other_value) |Returns TRUE if all fields are equal and FALSE otherwise.
+|boolean operator_equals( final t3 other_value) |Returns true if all fields are equal and false otherwise.
 |boolean operator_equals(final Base_Type other_value)|
 |boolean operator_not_equals( final t3 other_value) |
 .2+^.^|_Field access functions_
@@ -1237,8 +1237,8 @@ The class `Optional<TYPE extends Base_Type>` has the following member functions:
 |`Optional<TYPE> operator_assign(final Optional<TYPE> otherValue)` |Assigns the given optional value.
 |`Optional<TYPE> operator_assign(final Base_Type otherValue)`|
 .5+^.^|_Comparison operators_
-|boolean operator_equals(final template_sel otherValue) |Returns TRUE if the value is omit and the right side is OMIT VALUE or FALSE otherwise.
-|boolean operator_equals(final Optional<TYPE> otherValue) |Returns TRUE if the two values are equal or FALSE otherwise.
+|boolean operator_equals(final template_sel otherValue) |Returns true if the value is omit and the right side is OMIT VALUE or false otherwise.
+|boolean operator_equals(final Optional<TYPE> otherValue) |Returns true if the two values are equal or false otherwise.
 |boolean operator_equals(final Base_Type otherValue)|
 |boolean operator_not_equals(final template_sel otherValue)  |
 |boolean operator_not_equals(final Optional<TYPE> otherValue) |
@@ -1246,10 +1246,10 @@ The class `Optional<TYPE extends Base_Type>` has the following member functions:
 |TYPE get() |Gives read-write access to the value. If the value was not previously present, sets the bound flag true and the value will be initialized to unbound.
 |TYPE constGet() |Gives read-only access to the value. If the value is not present, causes a dynamic test case error.
 .7+^.^|_Other member functions_
-|`boolean ispresent()` |Returns TRUE if the value is present, FALSE if the value is omit or causes dynamic test case error if the value is unbound.
-|`boolean is_present()` |Returns TRUE if the value is present, false otherwise.
-|`boolean is_value()` |Returns TRUE if the value is present and is a value, false otherwise.
-|`boolean is_bound()` |Returns TRUE if the value is present or omit, false otherwise.
+|`boolean ispresent()` |Returns true if the value is present, false if the value is omit or causes dynamic test case error if the value is unbound.
+|`boolean is_present()` |Returns true if the value is present, false otherwise.
+|`boolean is_value()` |Returns true if the value is present and is a value, false otherwise.
+|`boolean is_bound()` |Returns true if the value is present or omit, false otherwise.
 |`boolean is_optional()`| return true;
 |`void log()` |Puts the optional value into log. Either ”omit” or the value of t2.
 |`void clean_up()` |Deletes the value, setting it to unbound.
@@ -1292,7 +1292,7 @@ The generated class `t3` will have the following public member functions:
 |`t3 operator_assign( final t3 otherValue )` |Assigns the given value.
 |`t3 operator_assign( final Base_Type otherValue )`|
 .3+^.^|_Comparison operators_
-|boolean operator_equals( final t3 otherValue ) |Returns TRUE if the selections and field values are equal and FALSE otherwise.
+|boolean operator_equals( final t3 otherValue ) |Returns true if the selections and field values are equal and false otherwise.
 |boolean operator_equals( final Base_Type otherValue )|
 |boolean operator_not_equals( final t3 otherValue ) |
 .4+^.^|_Field access functions_
@@ -1379,7 +1379,7 @@ Class `t2` will have the following public member functions:
 |`t2 operator_assign( final t2 otherValue )` |Assigns the given value.
 |`t2 operator_assign(final Base_Type otherValue)`|
 .5+^.^|_Comparison operators_
-|boolean operator_equals( final TitanNull_Type nullValue)  |Returns TRUE if the two values are equal and FALSE otherwise.
+|boolean operator_equals( final TitanNull_Type nullValue)  |Returns true if the two values are equal and false otherwise.
 |boolean operator_equals( final t2 otherValue ) |
 |boolean operator_equals(final Base_Type otherValue)|
 |boolean operator_not_equals( final TitanNull_Type nullValue) |
@@ -1503,12 +1503,12 @@ Only valid values are accepted.
 |`Day(final Day.enum_type otherValue )` |Initializes to a given value.
 |`Day(final Day otherValue)`  |Copy constructor.
 .4+^.^|_Assignment operator_
-|`Day operator_assign(final int otherValue)` |Converts the given numeric value to Day::enum_type and assigns it. Only valid values are accepted.
+|`Day operator_assign(final int otherValue)` |Converts the given numeric value to Day.enum_type and assigns it. Only valid values are accepted.
 |`Day operator_assign(final Day.enum_type otherValue)` |Assigns the given value.
 |`Day operator_assign(final Day otherValue)` |
 |`Day operator_assign(final Base_Type otherValue)`|
 .6+^.^|_Comparison operators_
-|boolean operator_equals(final Day.enum_type otherValue) |Returns TRUE if the two values are equal and FALSE otherwise.
+|boolean operator_equals(final Day.enum_type otherValue) |Returns true if the two values are equal and false otherwise.
 |boolean operator_equals(final Day otherValue)|
 |boolean operator_equals(final Base_Type otherValue)|
 |boolean operator_not_equals(final Day.enum_type otherValue) |

@@ -35,7 +35,7 @@ TTCN_EncDec::set_error_behavior(TTCN_EncDec::ET_INCOMPL_ANY,
 is mapped to the following Java statement
 [source]
 ----
-TTCN_EncDec.et_error_behavior(TTCN_EncDec.error_type.ET_INCOMPL_ANY,
+TTCN_EncDec.set_error_behavior(TTCN_EncDec.error_type.ET_INCOMPL_ANY,
   TTCN_EncDec.error_behavior_type.EB_ERROR);
 ----
 

@@ -135,7 +135,7 @@ Here is an example, which logs an integer value:
 [source]
 ----
 int myVar = 5;
-TTCN_Logger.log(Severity.WARNING_UNQUALIFIED, ``myVar = %d'', myVar);;
+TTCN_Logger.log(Severity.WARNING_UNQUALIFIED, ''myVar = %d'', myVar);;
 ----
 
 Sometimes the string to be logged is static. In such cases there is no need for `printf`-style argument processing, which may introduce extra risks if the string contains the character `%`. The logger class offers a function for logging a static (or previously assembled) string:
@@ -185,7 +185,7 @@ void log_event_va_list(final String formatString, final Object... args);
 
 The Java classes of predefined and compound data types are equipped with a member function called `log`. This function puts the actual value of the variable at the end of current buffer. Unbound variables and fields are denoted by the symbol `<unbound>`. The contents of TTCN–3 value objects can be logged only in buffered mode.
 [source, subs="+quotes"]
-void <any TTCN-3 type>::log();
+void <any TTCN-3 type>.log();
 
 [[end-event]]
 ==== end_event
