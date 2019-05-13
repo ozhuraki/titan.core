@@ -135,7 +135,7 @@ Here is an example, which logs an integer value:
 [source]
 ----
 int myVar = 5;
-TTCN_Logger.log(Severity.WARNING_UNQUALIFIED, ''myVar = %d'', myVar);;
+TTCN_Logger.log(Severity.WARNING_UNQUALIFIED, "myVar = %d", myVar);;
 ----
 
 Sometimes the string to be logged is static. In such cases there is no need for `printf`-style argument processing, which may introduce extra risks if the string contains the character `%`. The logger class offers a function for logging a static (or previously assembled) string:
