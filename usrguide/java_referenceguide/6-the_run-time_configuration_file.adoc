@@ -9,3 +9,6 @@ There are some features, that are not yet supported on the Java side:
 * EXTERNAL_COMMANDS section is not yet supported. The section is read correctly, but the scripts set there will not be executed during runtime.
 * In MAIN_CONTROLLER section the `UnixSocketsEnabled` feature is not supported. Java does not seem to offer support for this feature.
 * It is also not yet possible to configure the logging options dynamically.
+
+On the C side, in the configuration file it is possible to use the `%e` Meta-character in the log file's name, to insert into it the name of the binary generating the log files.
+On the Java side this `%e` Meta-character will represent the name of the project. This is because on the Java side the easiest and fastest way to execute TITAN Java projects does not involve the generation of a "binary" to be executed. As such in these situations the concept of the "name of the binary" does not exist.
