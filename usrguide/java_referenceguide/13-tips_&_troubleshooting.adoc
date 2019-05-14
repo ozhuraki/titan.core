@@ -93,7 +93,7 @@ public class MyModule_externalfunctions {
 ----
 
 
-Both pre-defined and user-defined TTCN–3 data types can be used as parameters and/or return types of the Java functions. The detailed description of the equivalent Java classes as well as the name mapping rules are described in chapter <<12-mapping_ttcn3_data_types_to_java_constructs.adoc #mapping-of-names-and-identifiers, Mapping of Names and Identifiers>>.
+Both pre-defined and user-defined TTCN–3 data types can be used as parameters and/or return types of the Java functions. The detailed description of the equivalent Java classes as well as the name mapping rules are described in chapter <<12-mapping_ttcn3_data_types_to_java_constructs.adoc#mapping-of-names-and-identifiers, Mapping of Names and Identifiers>>.
 
 Using templates as formal parameters in external functions is possible, but not recommended because the API of the classes realizing templates is not documented and subject to change without notice.
 
