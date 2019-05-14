@@ -35,7 +35,7 @@ WARNING: This option should only be used temporarily and only by people transfer
 
 * `Add source line info for logging  (-L)`
 +
-Instructs the compiler to add source file and line number information into the generated code to be included in the log during execution. This option is only a prerequisite for logging the source code information. The run-time configuration file parameters `OptionsSourceInfoFormat` and `LogEntityName` in <<7-the_run-time_configuration_file.adoc#logging, `[LOGGING]`>> have also to be set appropriately. This feature can be useful for finding the cause of dynamic test case errors in fresh TTCN3 code. Using this option enlarges the size of the generated code a bit and reduces execution speed slightly; therefore it is not recommended when the TTCN3 test suite is used for load generation.
+Instructs the compiler to add source file and line number information into the generated code to be included in the log during execution. This option is only a prerequisite for logging the source code information. The run-time configuration file parameters `OptionsSourceInfoFormat` and `LogEntityName` in <<6-the_run-time_configuration_file.adoc#logging, `[LOGGING]`>> have also to be set appropriately. This feature can be useful for finding the cause of dynamic test case errors in fresh TTCN3 code. Using this option enlarges the size of the generated code a bit and reduces execution speed slightly; therefore it is not recommended when the TTCN3 test suite is used for load generation.
 
 * `Allow 'omit' in template value lists (legacy behavior)  (-M)`
 +
@@ -81,7 +81,7 @@ The activities leading to the compilation of the project can be grouped to 3 set
 
 === The initial analysis
 
-First, the Designer reads the TTCN–3 and ASN.1 input files and performs syntax check according to the BNF of TTCN–3 <<13-references.adoc#_1, [1]>> (including the additions of <<13-references.adoc#_3, [3]>>) or ASN.1 <<13-references.adoc#_4, [4]>>, <<13-references.adoc#_7, [7]>>, <<13-references.adoc#_8, [8]>>, <<13-references.adoc#_9, [9]>>. The syntax errors are reported in the Problems view with the appropriate location information. Whenever it is possible, the Designer tries to recover from syntax errors and continue the analysis in order to detect further errors.
+First, the Designer reads the TTCN–3 and ASN.1 input files and performs syntax check according to the BNF of TTCN–3 <<14-references.adoc#_1, [1]>> (including the additions of <<14-references.adoc#_3, [3]>>) or ASN.1 <<14-references.adoc#_4, [4]>>, <<14-references.adoc#_7, [7]>>, <<14-references.adoc#_8, [8]>>, <<14-references.adoc#_9, [9]>>. The syntax errors are reported in the Problems view with the appropriate location information. Whenever it is possible, the Designer tries to recover from syntax errors and continue the analysis in order to detect further errors.
 
 NOTE: Error recovery is not always successful and it might result in additional undesired error messages when the parser gets out of synchronization. Therefore it is recommended to study the first lines on the compiler’s error listings because the error messages at the end are not always relevant.
 

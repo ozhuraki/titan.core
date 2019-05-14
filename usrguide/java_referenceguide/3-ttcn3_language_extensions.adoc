@@ -3,7 +3,7 @@
 :toc:
 :table-number: 3
 
-The Test Executor supports several non-standard additions to TTCN–3 Core Language, as detailed in <<13-references.adoc#_27, [27]>>, in order to improve its usability or provide backward compatibility with older versions.
+The Test Executor supports several non-standard additions to TTCN–3 Core Language, as detailed in <<14-references.adoc#_27, [27]>>, in order to improve its usability or provide backward compatibility with older versions.
 
 The following list contains the TTCN–3 language extensions that are not yet supported by the Java side of the Test Executor.
 The sections/feature not listed here are supported.
@@ -21,7 +21,7 @@ Parameterized macros are not supported on the Java side.
 
 == Implicit Message Encoding
 
-Compared to the description in section 3.22 of <<13-references.adoc#_27, [27]>> the Java side has 2 major differences:
+Compared to the description in section 3.22 of <<14-references.adoc#_27, [27]>> the Java side has 2 major differences:
 Only RAW encoding is supported for now.
 the syntax to be used in Java differs slightly from the of used in {cpp}
 
