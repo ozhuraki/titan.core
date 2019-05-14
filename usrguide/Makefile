@@ -68,8 +68,8 @@ installationguide/installationguide.pdf: installationguide/*.adoc installationgu
 referenceguide/ReferenceGuide.pdf: referenceguide/*.adoc referenceguide/images/*
 	$(PDF_GEN_CALL) referenceguide/ReferenceGuide.adoc
 
-referenceguide/JavaReferenceGuide.pdf: java_referenceguide/*.adoc java_referenceguide/images/*
-	$(PDF_GEN_CALL) jva_referenceguide/JavaReferenceGuide.adoc
+java_referenceguide/JavaReferenceGuide.pdf: java_referenceguide/*.adoc java_referenceguide/images/*
+	$(PDF_GEN_CALL) java_referenceguide/JavaReferenceGuide.adoc
 
 releasenotes/releasenotes.pdf: releasenotes/*.adoc releasenotes/images/*
 	$(PDF_GEN_CALL) releasenotes/releasenotes.adoc
