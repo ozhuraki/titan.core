@@ -92,7 +92,7 @@ static void end_colorize()
 {
   if (!should_colorize())
     return;
-  fputs("\033]0;m", stderr);
+  fputs("\033[0;m", stderr);
 }
 
 void fatal_error(const char *filename, int lineno, const char *fmt, ...)
@@ -335,7 +335,6 @@ namespace Common {
   void Error_Context::report_error(const Location *loc, const char *fmt,
     va_list args)
   {
-    begin_colorize(COLOR_ERROR);
     if (!suppress_context) print_context(stderr);
     if (tail != 0 && loc && loc->get_filename() == 0) {
       // borrow location information from the innermost context
@@ -345,10 +344,11 @@ namespace Common {
     } else if (loc) {
       loc->print_location(stderr);
     }
+    begin_colorize(COLOR_ERROR);
     fputs("error: ", stderr);
+    end_colorize();
     vfprintf(stderr, fmt, args);
     putc('\n', stderr);
-    end_colorize();
     fflush(stderr);
     increment_error_count();
   }
@@ -356,14 +356,14 @@ namespace Common {
   void Error_Context::report_warning(const Location *loc, const char *fmt,
     va_list args)
   {
-    begin_colorize(COLOR_WARNING);
     if(!(verb_level & 2)) return;
     if (!suppress_context) print_context(stderr);
     if (loc) loc->print_location(stderr);
+    begin_colorize(COLOR_WARNING);
     fputs("warning: ", stderr);
+    end_colorize();
     vfprintf(stderr, fmt, args);
     putc('\n', stderr);
-    end_colorize();
     fflush(stderr);
     increment_warning_count();
   }
@@ -371,13 +371,13 @@ namespace Common {
   void Error_Context::report_note(const Location *loc, const char *fmt,
     va_list args)
   {
-    begin_colorize(COLOR_NOTE);
     if (!suppress_context) print_context(stderr);
     if (loc) loc->print_location(stderr);
+    begin_colorize(COLOR_NOTE);
     fputs("note: ", stderr);
+    end_colorize();
     vfprintf(stderr, fmt, args);
     putc('\n', stderr);
-    end_colorize();
     fflush(stderr);
   }
 
