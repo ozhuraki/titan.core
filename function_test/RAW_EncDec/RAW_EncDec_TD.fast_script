@@ -375,9 +375,9 @@ testcase TC_FIELDLENGTH_4_and_BYTEORDER_first_for_octetstring() runs on TempComp
 
 testcase TC_FIELDLENGTH_4_for_octetstring_3_octets_long() runs on TempComp {
   const RAW_PDU_18 	i := '123456'O
-  const octetstring 	o := '00123456'O
+  const octetstring 	o := '12345600'O
 
-  if ((enc_RAW_PDU_18(i) == o)and(dec_RAW_PDU_18(o) == '00'O & i)) {setverdict(pass);}
+  if ((enc_RAW_PDU_18(i) == o)and(dec_RAW_PDU_18(o) == i & '00'O)) {setverdict(pass);}
   else {setverdict(fail,"enc_RAW_PDU_18(i)= ", enc_RAW_PDU_18(i), "; dec_RAW_PDU_18(o)= ", dec_RAW_PDU_18(o));}
 }
 
@@ -392,9 +392,9 @@ external function dec_RAW_PDU_19(in octetstring stream) return RAW_PDU_19 with {
 
 testcase TC_FIELDLENGTH_5_for_octetstring_2_octets_long() runs on TempComp {
   const RAW_PDU_19 	i := '1234'O
-  const octetstring 	o := '0000001234'O
+  const octetstring 	o := '1234000000'O
 
-  if ((enc_RAW_PDU_19(i) == o)and(dec_RAW_PDU_19(o) == '000000'O & i)) {setverdict(pass);}
+  if ((enc_RAW_PDU_19(i) == o)and(dec_RAW_PDU_19(o) == i & '000000'O)) {setverdict(pass);}
   else {setverdict(fail,"enc_RAW_PDU_19(i)= ", enc_RAW_PDU_19(i), "; dec_RAW_PDU_19(o)= ", dec_RAW_PDU_19(o));}
 }
 
@@ -418,9 +418,9 @@ testcase TC_FIELDLENGTH_4_and_BYTEORDER_last_for_octetstring() runs on TempComp 
 
 testcase TC_FIELDLENGTH_4_and_BYTEORDER_last_for_octetstring_3_octets_long() runs on TempComp {
   const RAW_PDU_20 	i := '123456'O
-  const octetstring 	o := '56341200'O
+  const octetstring 	o := '00563412'O
 
-  if ((enc_RAW_PDU_20(i) == o)and(dec_RAW_PDU_20(o) == '00'O & i)) {setverdict(pass);}
+  if ((enc_RAW_PDU_20(i) == o)and(dec_RAW_PDU_20(o) == i & '00'O)) {setverdict(pass);}
   else {setverdict(fail,"enc_RAW_PDU_20(i)= ", enc_RAW_PDU_20(i), "; dec_RAW_PDU_20(o)= ", dec_RAW_PDU_20(o));}
 }
 

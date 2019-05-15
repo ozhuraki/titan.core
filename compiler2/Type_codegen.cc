@@ -722,8 +722,16 @@ void Type::generate_code_rawdescriptor(output_struct *target)
   else str = mputstr(str, "SG_NO,");
   if (rawattrib->byteorder == XDEFLAST) str = mputstr(str, "ORDER_MSB,");
   else str = mputstr(str, "ORDER_LSB,");
-  if (rawattrib->align == XDEFLEFT) str = mputstr(str, "ORDER_MSB,");
-  else str = mputstr(str, "ORDER_LSB,");
+  if (get_type_refd_last()->typetype == T_OSTR) {
+    // the default alignment for octetstrings is 'left'
+    if (rawattrib->align == XDEFRIGHT) str = mputstr(str, "ORDER_LSB,");
+    else str = mputstr(str, "ORDER_MSB,");
+  }
+  else {
+    // the default alignment for all other types is 'right'
+    if (rawattrib->align == XDEFLEFT) str = mputstr(str, "ORDER_MSB,");
+    else str = mputstr(str, "ORDER_LSB,");
+  }
   if (rawattrib->bitorderinfield == XDEFMSB)
     str = mputstr(str, "ORDER_MSB,");
   else str = mputstr(str, "ORDER_LSB,");

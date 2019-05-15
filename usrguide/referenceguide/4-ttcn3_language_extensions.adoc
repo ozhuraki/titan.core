@@ -2514,7 +2514,7 @@ Attribute syntax: `ALIGN(<parameter>)`
 
 Parameters allowed: `left`, `right`
 
-Default value: `right`
+Default value: `left` for `octetstrings`, `right` for all other types
 
 Can be used with: stand-alone types or the field of a `record` or `set`.
 
