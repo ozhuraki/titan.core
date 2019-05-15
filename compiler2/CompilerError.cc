@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <errno.h>
+#include <unistd.h>
 #ifndef MINGW
 # include <sys/wait.h>
 #endif
@@ -29,6 +30,70 @@
 unsigned verb_level=0x0007; /* default value */
 
 const char *argv0; /* the programname :) */
+
+enum stderr_color {
+	COLOR_ERROR,
+	COLOR_WARNING,
+	COLOR_NOTE,
+	COLOR_NOTIFY,
+	COLOR_DEBUG,
+};
+
+/* might be interesting to provide a way to override these from the environment, similar to GCC_COLORS,
+ * or even to fall back to GCC_COLORS if it is set? */
+static const char *color_error = "01;31";
+static const char *color_warning = "01;35";
+static const char *color_note = "01;36";
+static const char *color_notify = "";
+static const char *color_debug = "";
+
+static const char *get_color(enum stderr_color color)
+{
+  switch (color) {
+  case COLOR_ERROR:
+    return color_error;
+  case COLOR_WARNING:
+    return color_warning;
+  case COLOR_NOTE:
+    return color_note;
+  case COLOR_NOTIFY:
+    return color_notify;
+  case COLOR_DEBUG:
+    return color_debug;
+  default:
+    return NULL;
+  }
+}
+
+/* should we colorize the output? */
+static bool should_colorize(void)
+{
+  char const *t = getenv("TERM");
+  if (!t)
+    return false;
+  if (!strcmp(t, "dumb"))
+    return false;
+  if (isatty(STDERR_FILENO))
+    return true;
+  return false;
+}
+
+static void begin_colorize(enum stderr_color color)
+{
+  const char *colstr;
+  if (!should_colorize())
+    return;
+  colstr = get_color(color);
+  if (colstr)
+    fprintf(stderr, "\033[1;%sm", colstr);
+}
+
+static void end_colorize()
+{
+  if (!should_colorize())
+    return;
+  fputs("\033[0;m", stderr);
+}
 
 void fatal_error(const char *filename, int lineno, const char *fmt, ...)
 {
@@ -39,12 +104,14 @@ void fatal_error(const char *filename, int lineno, const char *fmt, ...)
   Common::Error_Context::report_error(&loc, fmt, parameters);
   va_end(parameters);
 #else
+  begin_colorize(COLOR_ERROR);
   fprintf(stderr, "FATAL ERROR: %s: In line %d of %s: ",
           argv0, lineno, filename);
   va_start(parameters, fmt);
   vfprintf(stderr, fmt, parameters);
   va_end(parameters);
   putc('\n', stderr);
+  end_colorize();
 #endif
   fflush(stderr);
   abort();
@@ -52,12 +119,14 @@ void fatal_error(const char *filename, int lineno, const char *fmt, ...)
 
 void ERROR(const char *fmt, ...)
 {
+  begin_colorize(COLOR_ERROR);
   fprintf(stderr, "%s: error: ", argv0);
   va_list parameters;
   va_start(parameters, fmt);
   vfprintf(stderr, fmt, parameters);
   va_end(parameters);
   putc('\n', stderr);
+  end_colorize();
   fflush(stderr);
   Common::Error_Context::increment_error_count();
 }
@@ -65,12 +134,14 @@ void ERROR(const char *fmt, ...)
 void WARNING(const char *fmt, ...)
 {
   if(!(verb_level & 2)) return;
+  begin_colorize(COLOR_WARNING);
   fprintf(stderr, "%s: warning: ", argv0);
   va_list parameters;
   va_start(parameters, fmt);
   vfprintf(stderr, fmt, parameters);
   va_end(parameters);
   putc('\n', stderr);
+  end_colorize();
   fflush(stderr);
   Common::Error_Context::increment_warning_count();
 }
@@ -91,24 +162,28 @@ void NOTSUPP(const char *fmt, ...)
 void NOTIFY(const char *fmt, ...)
 {
   if(!(verb_level & 4)) return;
+  begin_colorize(COLOR_NOTIFY);
   fprintf(stderr, "Notify: ");
   va_list parameters;
   va_start(parameters, fmt);
   vfprintf(stderr, fmt, parameters);
   va_end(parameters);
   putc('\n', stderr);
+  end_colorize();
   fflush(stderr);
 }
 
 void DEBUG(unsigned level, const char *fmt, ...)
 {
   if((level>7?7:level)>((verb_level>>3)&0x07)) return;
+  begin_colorize(COLOR_DEBUG);
   fprintf(stderr, "%*sDebug: ", level, "");
   va_list parameters;
   va_start(parameters, fmt);
   vfprintf(stderr, fmt, parameters);
   va_end(parameters);
   putc('\n', stderr);
+  end_colorize();
   fflush(stderr);
 }
 
@@ -269,7 +344,9 @@ namespace Common {
     } else if (loc) {
       loc->print_location(stderr);
     }
+    begin_colorize(COLOR_ERROR);
     fputs("error: ", stderr);
+    end_colorize();
     vfprintf(stderr, fmt, args);
     putc('\n', stderr);
     fflush(stderr);
@@ -282,7 +359,9 @@ namespace Common {
     if(!(verb_level & 2)) return;
     if (!suppress_context) print_context(stderr);
     if (loc) loc->print_location(stderr);
+    begin_colorize(COLOR_WARNING);
     fputs("warning: ", stderr);
+    end_colorize();
     vfprintf(stderr, fmt, args);
     putc('\n', stderr);
     fflush(stderr);
@@ -294,7 +373,9 @@ namespace Common {
   {
     if (!suppress_context) print_context(stderr);
     if (loc) loc->print_location(stderr);
+    begin_colorize(COLOR_NOTE);
     fputs("note: ", stderr);
+    end_colorize();
     vfprintf(stderr, fmt, args);
     putc('\n', stderr);
     fflush(stderr);
