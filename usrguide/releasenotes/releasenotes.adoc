@@ -31,10 +31,12 @@ The document is organized as follows: <<what-s-new-in-this-version,What's new in
 == Version 6.6 (CRL 113 200/6 R6A)
 
 This release introduces two major new features in the form of two new experimental Eclipse plug-ins:
+
 * a Java codegeneration plug-in, see: https://github.com/eclipse/titan.core/blob/master/usrguide/java_referenceguide/JavaReferenceGuide.adoc
 
 and also:
 https://github.com/eclipse/titan.core/blob/master/usrguide/JavaCodegenExecTutorial.pdf
+
 * a Refactoring plug-in, see:
 https://github.com/eclipse/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium.refactoring/docs/Titanium_Refactoring_Description/Titanium_Refactoring_Description.adoc
 
