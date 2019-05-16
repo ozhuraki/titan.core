@@ -1,13 +1,13 @@
 ---
 Author: Elemér Lelik
-Version: 109 47-CRL 113 200/6 Uen, Rev. E
-Date: 2018-12-04
+Version: 109 47-CRL 113 200/6 Uen, Rev. F
+Date: 2019-05-16
 
 ---
 = Release Notes for TITAN TTCN-3 Test Executor
 :author: Elemér Lelik
-:revnumber: 109 47-CRL 113 200/6 Uen, Rev. E
-:revdate: 2018-12-03
+:revnumber: 109 47-CRL 113 200/6 Uen, Rev. F
+:revdate: 2019-05-16
 :title-logo-image: images/titan_logo.png
 :sectnums:
 :doctype: book
@@ -26,6 +26,27 @@ The document is organized as follows: <<what-s-new-in-this-version,What's new in
 
 [[what-s-new-in-this-version]]
 = What’s new in this version?
+
+[[version-6-6-crl-113-200-6-r6a]]
+== Version 6.6 (CRL 113 200/6 R6A)
+
+This release introduces two major new features in the form of two new experimental Eclipse plug-ins:
+* a Java codegeneration plug-in, see: https://github.com/eclipse/titan.core/blob/master/usrguide/java_referenceguide/JavaReferenceGuide.adoc
+
+and also:
+https://github.com/eclipse/titan.core/blob/master/usrguide/JavaCodegenExecTutorial.pdf
+* a Refactoring plug-in, see:
+https://github.com/eclipse/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium.refactoring/docs/Titanium_Refactoring_Description/Titanium_Refactoring_Description.adoc
+
+Apart from the above,  this version has the following new features of the Titan compiler and excutor:
+
+* Printing symbolic version in 'compiler -v’
+* Legitimized compiler option '-0’
+* New command line option '-p' implemented for TTCN binaries (both in single mode and parallel mode), which lists all module parameters
+* Support for real-time testing 
+* Implementation of map param/unmap param
+* Extended 'default' JSON attribute for structured types
+
 
 [[version-6-5-crl-113-200-6-r5a]]
 == Version 6.5 (CRL 113 200/6 R5A)
@@ -622,6 +643,22 @@ Version 1.1 has the following new features:
 [[version-history]]
 = Version history
 
+[[version-crl-113-200-6-r6a]]
+== Version CRL 113 200/6 R6A
+
+Release date: 17th of May 2019
+
+This release has the following new features:
+
+* a Java codegeneration plug-in
+* a Refactoring plug-in
+* Printing symbolic version in 'compiler -v’
+* Legitimized compiler option '-0’
+* New command line option '-p' implemented for TTCN binaries (both in single mode and parallel mode), which lists all module parameters
+* Support for real-time testing 
+* Implementation of map param/unmap param
+* Extended 'default' JSON attribute for structured types
+* Bug fixes
 
 [[version-crl-113-200-6-r5a]]
 == Version CRL 113 200/6 R5A
