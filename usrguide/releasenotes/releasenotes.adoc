@@ -46,6 +46,7 @@ Apart from the above,  this version has the following new features of the Titan 
 * Support for real-time testing 
 * Implementation of map param/unmap param
 * Extended 'default' JSON attribute for structured types
+* Colorized compiler error/warning messages
 
 
 [[version-6-5-crl-113-200-6-r5a]]
@@ -658,6 +659,7 @@ This release has the following new features:
 * Support for real-time testing 
 * Implementation of map param/unmap param
 * Extended 'default' JSON attribute for structured types
+* Colorized compiler error/warning messages
 * Bug fixes
 
 [[version-crl-113-200-6-r5a]]
