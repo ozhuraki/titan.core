@@ -6,10 +6,10 @@
 You can translate your TTCN–3 and ASN.1 modules, located in TITAN Java projects, to Java source code using the builder built into the Designer plugin.
 
 This builder is automatically invoked, when the eclipse's build command is selected on a project.
-When the "Build Automatically" option is selected in the "Project" menu, eclipse automatically builds the project, in the background, when a file is changed.
+When the *Build Automatically* option is selected in the *Project* menu, eclipse automatically builds the project, in the background, when a file is changed.
 
 The TITAN provided builder will use all TTCN-3 and ASN.1 files from all folders that are not excluded.
-The .java files are generated into the "java_src" folder of the project into a package generated from the name of the project in this format: "org.eclipse.titan." + projectname + ".generated".
+The .java files are generated into the *java_src* folder of the project into a package generated from the name of the project in this format: "org.eclipse.titan." + projectname + ".generated".
 
 The usual and recommended suffix is `.ttcn` for TTCN–3 and `.asn` for ASN.1 source files, but it is not stringentfootnote:[.ttcn3, or .asn1 suffixes are supported as well.]. For TTCN–3 and ASN.1 modules, the names of the output files are the same as the name of the modules, except for the suffixes which are `.java`.
 
@@ -20,7 +20,7 @@ WARNING: If you have a modular test suite (the code located in several projects 
 [[build-options]]
 == Build Options
 
-The options governing how a project is built can be set via right clicking on the project and selecting "Properties"/"TITAN Java Project Properties" and in the window that appears on the "TITAN" / "flags" sub-page.
+The options governing how a project is built can be set via right clicking on the project and selecting *Properties / TITAN Java Project Properties* and in the window that appears on the *TITAN / Flags* sub-page.
 
 The following options are supported:
 
@@ -30,7 +30,8 @@ Disables the generation of RAW encoder/decoder routines for all TTCN–3 types.
 
 * `Disable attribute validation (-0)`
 +
-Disables the validation of with attributes.
+Disables the validation of "with" attributes.
+
 WARNING: This option should only be used temporarily and only by people transferring projects from other TTCN-3 tool vendors. As the attribute validation is turned off, users will not be notified of invalid attributes, or errors within attributes.
 
 * `Add source line info for logging  (-L)`
@@ -99,6 +100,7 @@ After at least one analysis was done on a project, the Designer can generate a J
 The Java files are generated into the "java_src" folder of the project into a package generated from the name of the project in this format: "org.eclipse.titan." + projectname + ".generated".
 
 By default, the compiler generates the Java code for the input modules:
+
 * that do not have any errors inside them
 * and were not yet analyzed or the last change might have affected them
 * and either do not already have a Java file generated for them, or the content of the file needs to be updated.
@@ -134,7 +136,7 @@ When the compiler translates an ASN.1 module, the different ASN.1 types are mapp
 |SET OF |set of
 |===
 
-\* there is no corresponding TTCN–3 type +
+\* There is no corresponding TTCN–3 type +
 † IA5String, NumericString, PrintableString, VisibleString (ISO646String) +
 ‡ GeneralString, GraphicString, TeletexString (T61String), VideotexString +
 § BMPString, UniversalString, UTF8String +

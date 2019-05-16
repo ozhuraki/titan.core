@@ -9,8 +9,8 @@ When applicable, the relevant clause of the standard text (<<14-references.adoc#
 * The `update`, `interleave`, `label`, `goto` statements are not yet supported. (19.7, 19.8, 20.4 and 22.3.1 in <<14-references.adoc#_1, [1]>>)
 * The `hostId` predefined function is not yet supported.
 
-* Additionally the `start_profiler`, `stop_profiler`, `string2ttcn` TITAN extensions are also not yet supported on the Java side.
-* The `profilerrunning` TITAN extension is also not supported.
+* Additionally the `@profiler.start`, `@profiler.stop`, `string2ttcn` TITAN extensions are also not yet supported on the Java side.
+* The `@profiler.running` TITAN extension is also not supported.
 * Concatenating template strings is not yet supported on the Java side.
 * Type compatibility is not yet supported on the Java side.footnote:[except record of/set of types for certain element types, see section 4.32.2]
 

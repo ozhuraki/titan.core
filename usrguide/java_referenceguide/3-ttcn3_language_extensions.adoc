@@ -6,7 +6,7 @@
 The Test Executor supports several non-standard additions to TTCN–3 Core Language, as detailed in <<14-references.adoc#_27, [27]>>, in order to improve its usability or provide backward compatibility with older versions.
 
 The following list contains the TTCN–3 language extensions that are not yet supported by the Java side of the Test Executor.
-The sections/feature not listed here are supported.
+The sections/features not listed here are supported.
 
 
 [[ttcn-3-preprocessing]]
@@ -23,7 +23,7 @@ Parameterized macros are not supported on the Java side.
 
 Compared to the description in section 3.22 of <<14-references.adoc#_27, [27]>> the Java side has 2 major differences:
 Only RAW encoding is supported for now.
-the syntax to be used in Java differs slightly from the of used in {cpp}
+The syntax to be used in Java differs slightly from the of used in {cpp}
 
 The TTCN–3 attribute `errorbehavior(INCOMPL_ANY:ERROR)`, for example, instead of being mapped to the following {cpp} statement
 [source]
@@ -80,6 +80,7 @@ When connecting to the Main Controller in parallel mode, TITAN verifies that the
 This is done to ensure that, that both sides use the same communication protocol.
 
 What is not checked on the Java side or checked differently:
+
 * There is no platform check as Java is platform independent.
 * The Java runtime will check if it can execute the compiled code. Generally a Java runtime should be able to execute any Java code built using an earlier Java version.
 * During the compilation of the Java code, the Java compiler will check if it is able to compile all parts of the code.
