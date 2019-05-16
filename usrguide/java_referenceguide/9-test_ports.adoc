@@ -565,7 +565,8 @@ The following sections deal with logging and error handling in Test Ports.
 
 Test Ports may record important events in the Test Executor log during sending/receiving or encoding/decoding messages. Such log messages are also good for debugging fresh code.
 
-The Test Port member functions may call the functions of class `TTCN_Logger`. These functions are detailed in <<13-tips_&_troubleshooting.adoc#logging-in-test-ports-or-external-functions, Logging in Test Ports or External Functions>>.
+The Test Port member functions may call the functions of class `TTCN_Logger`.
+These functions are detailed in <<13-tips_&_troubleshooting.adoc#logging-in-test-ports-or-external-functions, Logging in Test Ports or External Functions>>.
 
 If there are many points in the Test Port code that want to log something, it can be a good practice to write a common log function in the Test Port class. We show here an example where the calling of `log` uses Java's MessageFormat.format to create a custom message, and inside the `log` function TTCN_Logger.log_event demonstrates logging using the standard C function `printf` style and forwards the message to the Test Executor’s logger:
 
