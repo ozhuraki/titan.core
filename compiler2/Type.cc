@@ -2281,42 +2281,44 @@ namespace Common {
           }
         }
       }
-      for(int a=0;a<rawattrib->presence.nElements;a++){  //PRESENCE
-        Type *t=this;
-        bool hiba=false;
-        for(int b=0;b<rawattrib->presence.keyList[a].keyField->nElements;b++){
-          Identifier *idf=rawattrib->presence.keyList[a].keyField->names[b];
-          if(!t->is_secho()){
-            error("Invalid fieldmember type in RAW parameter PRESENCE"
-                  " for the record %s."
-                  ,get_typename().c_str());
-            hiba=true;
-            break;
+      if (ownertype != OT_COMP_FIELD) {
+        for(int a=0;a<rawattrib->presence.nElements;a++){  //PRESENCE
+          Type *t=this;
+          bool hiba=false;
+          for(int b=0;b<rawattrib->presence.keyList[a].keyField->nElements;b++){
+            Identifier *idf=rawattrib->presence.keyList[a].keyField->names[b];
+            if(!t->is_secho()){
+              error("Invalid fieldmember type in RAW parameter PRESENCE"
+                    " for the record %s."
+                    ,get_typename().c_str());
+              hiba=true;
+              break;
+            }
+            if(!t->has_comp_withName(*idf)){
+              error("Invalid fieldname in RAW parameter"
+                    " PRESENCE for the record %s: %s"
+                    ,get_typename().c_str()
+                    ,rawattrib->presence.keyList[a].keyField->names[b]
+                                                    ->get_dispname().c_str());
+              hiba=true;
+              break;
+            }
+            t=t->get_comp_byName(*idf)->get_type()->get_type_refd_last();
           }
-          if(!t->has_comp_withName(*idf)){
-            error("Invalid fieldname in RAW parameter"
-                  " PRESENCE for the record %s: %s"
-                  ,get_typename().c_str()
-                  ,rawattrib->presence.keyList[a].keyField->names[b]
-                                                  ->get_dispname().c_str());
-            hiba=true;
-            break;
-          }
-          t=t->get_comp_byName(*idf)->get_type()->get_type_refd_last();
-        }
-        if(!hiba){
-          Error_Context cntx(this, "In Raw parameter PRESENCE");
-          Value *v = rawattrib->presence.keyList[a].v_value;
-          v->set_my_scope(get_my_scope());
-          v->set_my_governor(t);
-          t->chk_this_value_ref(v);
-          self_ref = t->chk_this_value(v, 0, EXPECTED_CONSTANT,
-            INCOMPLETE_NOT_ALLOWED, OMIT_NOT_ALLOWED, SUB_CHK);
-          Value::valuetype_t vt = v->get_valuetype();
-          if (vt == Value::V_ENUM || vt == Value::V_REFD) {
-            Free(rawattrib->presence.keyList[a].value);
-            rawattrib->presence.keyList[a].value =
-              mcopystr(v->get_single_expr().c_str());
+          if(!hiba){
+            Error_Context cntx(this, "In Raw parameter PRESENCE");
+            Value *v = rawattrib->presence.keyList[a].v_value;
+            v->set_my_scope(get_my_scope());
+            v->set_my_governor(t);
+            t->chk_this_value_ref(v);
+            self_ref = t->chk_this_value(v, 0, EXPECTED_CONSTANT,
+              INCOMPLETE_NOT_ALLOWED, OMIT_NOT_ALLOWED, SUB_CHK);
+            Value::valuetype_t vt = v->get_valuetype();
+            if (vt == Value::V_ENUM || vt == Value::V_REFD) {
+              Free(rawattrib->presence.keyList[a].value);
+              rawattrib->presence.keyList[a].value =
+                mcopystr(v->get_single_expr().c_str());
+            }
           }
         }
       }

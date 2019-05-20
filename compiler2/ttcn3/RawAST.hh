@@ -172,7 +172,8 @@ extern int parse_rawAST(RawAST *par, TextAST *textpar, XerAttributes *xerpar,
     int l_multip, const Common::Module* mod, bool &raw_found, bool &text_found,
     bool &xer_found, bool &ber_found, bool &json_found,
     Common::Type::MessageEncodingType_t par_codec = Common::Type::CT_UNDEF);
-extern void copy_rawAST_to_struct(RawAST *from, raw_attrib_struct *to);
+extern void copy_rawAST_to_struct(RawAST *from, raw_attrib_struct *to,
+  bool copy_presences);
 extern void free_raw_attrib_struct(raw_attrib_struct *raw);
 extern int compare_raw_attrib(RawAST *a, RawAST *b);
 
