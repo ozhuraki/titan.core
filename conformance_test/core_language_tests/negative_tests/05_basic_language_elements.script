@@ -2067,10 +2067,6 @@ module NegSyn_05040101_parameters_of_kind_value_009 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `map': syntax error, unexpected MapKeyword
-<END_RESULT>
-
-<RESULT COUNT 1>
 error: at or before token `\(': syntax error, unexpected '\(', expecting MessageKeyword or MixedKeyword or ProcedureKeyword
 <END_RESULT>
 
