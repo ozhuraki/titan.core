@@ -228,6 +228,7 @@ const char *get_suffix(const char *file_name);
  * @param cxxcompiler CxxCompiler
  * @param optlevel optimizationLevel
  * @param optflags otherOptimizationFlags
+ * @param linkerOptions freeTextLinkerOptions
  * @param disableber disableBER -b
  * @param disableraw disableRAW -r
  * @param disabletext disableTEXT -x
@@ -283,7 +284,7 @@ tpd_result process_tpd(const char **p_tpd_name, const char *actcfg,
   const char* program_name, FILE* prj_graph_fp, struct string2_list* create_symlink_list, struct string_list* ttcn3_prep_includes,
   struct string_list* ttcn3_prep_defines, struct string_list* ttcn3_prep_undefines, struct string_list* prep_includes,
   struct string_list* prep_defines, struct string_list* prep_undefines, char **codesplit, boolean *quietly, boolean *disablesubtypecheck,
-  char** cxxcompiler, char** optlevel, char** optflags, boolean* semantic_check_only, boolean* disable_attibute_validation,
+  char** cxxcompiler, char** optlevel, char** optflags, char** linkerOptions, boolean* semantic_check_only, boolean* disable_attibute_validation,
   boolean *disableber, boolean *disableraw, boolean *disabletext, boolean *disablexer, boolean *disablejson, boolean *disableoer,
   boolean *forcexerinasn, boolean *defaultasomit, boolean *gccmessageformat,
   boolean *linenumber, boolean *includesourceinfo, boolean *addsourcelineinfo, boolean *suppresswarnings,

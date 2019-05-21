@@ -1266,7 +1266,7 @@ static tpd_result process_tpd_internal(const char **p_tpd_name, char* tpdName, c
   const char* program_name, FILE* prj_graph_fp, struct string2_list* create_symlink_list, struct string_list* ttcn3_prep_includes,
   struct string_list* ttcn3_prep_defines, struct string_list* ttcn3_prep_undefines, struct string_list* prep_includes,
   struct string_list* prep_defines, struct string_list* prep_undefines, char **p_csmode, boolean *p_quflag, boolean* p_dsflag,
-  char** cxxcompiler, char** optlevel, char** optflags, boolean* semantic_check_only, boolean* disable_attibute_validation,
+  char** cxxcompiler, char** optlevel, char** optflags, char** linkerOptions, boolean* semantic_check_only, boolean* disable_attibute_validation,
   boolean* p_dbflag, boolean* p_drflag, boolean* p_dtflag, boolean* p_dxflag, boolean* p_djflag, boolean* p_doerflag,
   boolean* p_fxflag, boolean* p_doflag, boolean* p_gfflag, boolean* p_lnflag, boolean* p_isflag,
   boolean* p_asflag, boolean* p_swflag, boolean* p_Yflag, boolean* p_Mflag, boolean *p_Eflag, boolean* p_nflag, boolean* p_Nflag,
@@ -1288,7 +1288,7 @@ extern "C" tpd_result process_tpd(const char **p_tpd_name, const char *actcfg,
   const char* program_name, FILE* prj_graph_fp, struct string2_list* create_symlink_list, struct string_list* ttcn3_prep_includes,
   struct string_list* ttcn3_prep_defines, struct string_list* ttcn3_prep_undefines, struct string_list* prep_includes, 
   struct string_list* prep_defines, struct string_list* prep_undefines, char **p_csmode, boolean *p_quflag, boolean* p_dsflag,
-  char** cxxcompiler, char** optlevel, char** optflags, boolean* semantic_check_only, boolean* disable_attibute_validation,
+  char** cxxcompiler, char** optlevel, char** optflags, char** linkerOptions, boolean* semantic_check_only, boolean* disable_attibute_validation,
   boolean* p_dbflag, boolean* p_drflag, boolean* p_dtflag, boolean* p_dxflag, boolean* p_djflag, boolean* p_doerflag,
   boolean* p_fxflag, boolean* p_doflag, boolean* p_gfflag, boolean* p_lnflag, boolean* p_isflag,
   boolean* p_asflag, boolean* p_swflag, boolean* p_Yflag, boolean* p_Mflag, boolean* p_Eflag, boolean* p_nflag, boolean* p_Nflag,
@@ -1320,7 +1320,7 @@ extern "C" tpd_result process_tpd(const char **p_tpd_name, const char *actcfg,
       program_name, prj_graph_fp, create_symlink_list, ttcn3_prep_includes,
       ttcn3_prep_defines, ttcn3_prep_undefines, prep_includes, prep_defines,
       prep_undefines, p_csmode, p_quflag, p_dsflag, cxxcompiler,
-      optlevel, optflags, semantic_check_only, disable_attibute_validation,
+      optlevel, optflags, linkerOptions, semantic_check_only, disable_attibute_validation,
       p_dbflag, p_drflag, p_dtflag, p_dxflag, p_djflag, p_doerflag,
       p_fxflag, p_doflag, p_gfflag, p_lnflag, p_isflag,
       p_asflag, p_swflag, p_Yflag, p_Mflag, p_Eflag, p_nflag, p_Nflag,
@@ -1351,7 +1351,7 @@ extern "C" tpd_result process_tpd(const char **p_tpd_name, const char *actcfg,
       program_name, prj_graph_fp, create_symlink_list, ttcn3_prep_includes,
       ttcn3_prep_defines, ttcn3_prep_undefines, prep_includes, prep_defines,
       prep_undefines, p_csmode, p_quflag, p_dsflag, cxxcompiler,
-      optlevel, optflags, semantic_check_only, disable_attibute_validation,
+      optlevel, optflags, linkerOptions, semantic_check_only, disable_attibute_validation,
       p_dbflag, p_drflag, p_dtflag, p_dxflag, p_djflag, p_doerflag,
       p_fxflag, p_doflag, p_gfflag, p_lnflag, p_isflag,
       p_asflag, p_swflag, p_Yflag, p_Mflag, p_Eflag, p_nflag, p_Nflag,
@@ -1420,6 +1420,7 @@ failure:
   Free(*cxxcompiler);
   Free(*optlevel);
   Free(*optflags);
+  Free(*linkerOptions);
   Free(*ttcn3prep);
   if (*p_free_argv) {
     for (int E = 0; E < *p_argc; ++E) Free((*p_argv)[E]);
@@ -1457,7 +1458,7 @@ static tpd_result process_tpd_internal(const char **p_tpd_name, char *tpdName, c
   const char* program_name, FILE* prj_graph_fp, struct string2_list* create_symlink_list, struct string_list* ttcn3_prep_includes,
   struct string_list* ttcn3_prep_defines, struct string_list* ttcn3_prep_undefines, struct string_list* prep_includes,
   struct string_list* prep_defines, struct string_list* prep_undefines, char **p_csmode, boolean *p_quflag, boolean* p_dsflag,
-  char** cxxcompiler, char** optlevel, char** optflags, boolean* semantic_check_only, boolean* disable_attibute_validation,
+  char** cxxcompiler, char** optlevel, char** optflags, char** linkerOptions, boolean* semantic_check_only, boolean* disable_attibute_validation,
   boolean* p_dbflag, boolean* p_drflag, boolean* p_dtflag, boolean* p_dxflag, boolean* p_djflag, boolean* p_doerflag,
   boolean* p_fxflag, boolean* p_doflag, boolean* p_gfflag, boolean* p_lnflag, boolean* p_isflag,
   boolean* p_asflag, boolean* p_swflag, boolean* p_Yflag, boolean* p_Mflag, boolean* p_Eflag, boolean* p_nflag, boolean* p_Nflag,
@@ -2411,6 +2412,18 @@ static tpd_result process_tpd_internal(const char **p_tpd_name, char *tpdName, c
     }
   }
   {
+    char *linkerOptsXpath = mprintf(
+        "/TITAN_Project_File_Information/Configurations/Configuration[@name='%s']"
+        "/ProjectProperties/MakefileSettings/freeTextLinkerOptions/text()",
+        actcfg);
+    XPathObject linkerOptsObj(run_xpath(xpathCtx, linkerOptsXpath));
+    Free(linkerOptsXpath);
+    xmlNodeSetPtr nodes = linkerOptsObj->nodesetval;
+    if (nodes) {
+      *linkerOptions = mcopystr((const char*)linkerOptsObj->nodesetval->nodeTab[0]->content);
+    }
+  }
+  {
     //SolarisSpecificLibraries
     char *solspeclibXpath = mprintf(
         "/TITAN_Project_File_Information/Configurations/Configuration[@name='%s']"
@@ -3017,7 +3030,7 @@ static tpd_result process_tpd_internal(const char **p_tpd_name, char *tpdName, c
           &my_mflag, &my_Pflag, &my_Lflag, recursive, force_overwrite, gen_only_top_level, NULL, &sub_proj_abs_work_dir,
           sub_project_dirs, program_name, prj_graph_fp, create_symlink_list, ttcn3_prep_includes, ttcn3_prep_defines, ttcn3_prep_undefines, 
           prep_includes, prep_defines, prep_undefines, &my_csmode,
-          &my_quflag, &my_dsflag, cxxcompiler, optlevel, optflags, semantic_check_only, disable_attibute_validation,
+          &my_quflag, &my_dsflag, cxxcompiler, optlevel, optflags, linkerOptions, semantic_check_only, disable_attibute_validation,
           &my_dbflag, &my_drflag, &my_dtflag, &my_dxflag, &my_djflag, &my_doerflag, &my_fxflag, &my_doflag,
           &my_gfflag, &my_lnflag, &my_isflag, &my_asflag, &my_swflag, &my_Yflag, &my_Mflag, &my_Eflag, &my_nflag, &my_Nflag, &my_diflag,
           &my_enable_legacy_encoding, &my_duflag, &my_realtime_features, solspeclibs, sol8speclibs, linuxspeclibs, freebsdspeclibs, win32speclibs,
