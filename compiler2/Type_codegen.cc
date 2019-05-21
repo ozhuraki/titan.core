@@ -1465,7 +1465,7 @@ void Type::generate_code_Choice(output_struct *target)
     if (dummy_raw) {
       rawattrib = new RawAST(get_default_raw_fieldlength());
     }
-    copy_rawAST_to_struct(rawattrib,&(sdef.raw));
+    copy_rawAST_to_struct(rawattrib,&(sdef.raw), true);
     // building taglist
     for(int c=0;c<rawattrib->taglist.nElements;c++){
       if(rawattrib->taglist.tag[c].nElements)
@@ -1967,7 +1967,7 @@ void Type::generate_code_Se(output_struct *target)
     if (dummy_raw) {
       rawattrib = new RawAST(get_default_raw_fieldlength());
     }
-    copy_rawAST_to_struct(rawattrib,&(sdef.raw));
+    copy_rawAST_to_struct(rawattrib,&(sdef.raw), ownertype != OT_COMP_FIELD);
     // building taglist
     for(int c=0;c<rawattrib->taglist.nElements;c++) {
       if(rawattrib->taglist.tag[c].nElements)
@@ -2045,31 +2045,33 @@ void Type::generate_code_Se(output_struct *target)
       }
     }
     // building presence list
-    for(int a=0;a<rawattrib->presence.nElements;a++) {
-      rawAST_coding_field_list* presences=sdef.raw.presence.fields+a;
-      presences->nElements=
-                          rawattrib->presence.keyList[a].keyField->nElements;
-      presences->value=rawattrib->presence.keyList[a].value;
-      presences->fields=(rawAST_coding_fields*)
-        Malloc(presences->nElements*sizeof(rawAST_coding_fields));
-      Type *t = this;
-      for (int b = 0; b < presences->nElements; b++) {
-        Identifier *idf = rawattrib->presence.keyList[a].keyField->names[b];
-        size_t comp_index = t->get_comp_index_byName(*idf);
-        CompField *cf = t->get_comp_byIndex(comp_index);
-        presences->fields[b].nthfield = comp_index;
-        presences->fields[b].nthfieldname = idf->get_name().c_str();
-        if (t->typetype == T_CHOICE_T)
-          presences->fields[b].fieldtype = UNION_FIELD;
-        else if (cf->get_is_optional())
-          presences->fields[b].fieldtype = OPTIONAL_FIELD;
-        else presences->fields[b].fieldtype = MANDATORY_FIELD;
-        Type *field_type = cf->get_type();
-        presences->fields[b].type =
-          pool.add(field_type->get_genname_value(my_scope));
-        presences->fields[b].typedescr =
-          pool.add(field_type->get_genname_typedescriptor(my_scope));
-        t = field_type->get_type_refd_last();
+    if (ownertype != OT_COMP_FIELD) {
+      for(int a=0;a<rawattrib->presence.nElements;a++) {
+        rawAST_coding_field_list* presences=sdef.raw.presence.fields+a;
+        presences->nElements=
+                            rawattrib->presence.keyList[a].keyField->nElements;
+        presences->value=rawattrib->presence.keyList[a].value;
+        presences->fields=(rawAST_coding_fields*)
+          Malloc(presences->nElements*sizeof(rawAST_coding_fields));
+        Type *t = this;
+        for (int b = 0; b < presences->nElements; b++) {
+          Identifier *idf = rawattrib->presence.keyList[a].keyField->names[b];
+          size_t comp_index = t->get_comp_index_byName(*idf);
+          CompField *cf = t->get_comp_byIndex(comp_index);
+          presences->fields[b].nthfield = comp_index;
+          presences->fields[b].nthfieldname = idf->get_name().c_str();
+          if (t->typetype == T_CHOICE_T)
+            presences->fields[b].fieldtype = UNION_FIELD;
+          else if (cf->get_is_optional())
+            presences->fields[b].fieldtype = OPTIONAL_FIELD;
+          else presences->fields[b].fieldtype = MANDATORY_FIELD;
+          Type *field_type = cf->get_type();
+          presences->fields[b].type =
+            pool.add(field_type->get_genname_value(my_scope));
+          presences->fields[b].typedescr =
+            pool.add(field_type->get_genname_typedescriptor(my_scope));
+          t = field_type->get_type_refd_last();
+        }
       }
     }
     for(int c=0;c<rawattrib->ext_bit_goup_num;c++){
@@ -2085,7 +2087,7 @@ void Type::generate_code_Se(output_struct *target)
       Type *t_field_last = t_field->get_type_refd_last();
       RawAST *rawpar = t_field->rawattrib;
       if(rawpar) {
-        copy_rawAST_to_struct(rawpar,&(sdef.elements[i].raw));
+        copy_rawAST_to_struct(rawpar,&(sdef.elements[i].raw), true);
         for(int j=0; j<rawpar->lengthto_num;j++){
           Identifier *idf=rawpar->lengthto[j];
           sdef.elements[i].raw.lengthto[j]=get_comp_index_byName(*idf);
@@ -2389,7 +2391,7 @@ void Type::generate_code_SeOf(output_struct *target)
     if (dummy_raw) {
       rawattrib = new RawAST(get_default_raw_fieldlength());
     }
-    copy_rawAST_to_struct(rawattrib,&(sofdef.raw));
+    copy_rawAST_to_struct(rawattrib,&(sofdef.raw), true);
     if (dummy_raw) {
       delete rawattrib;
       rawattrib = NULL;

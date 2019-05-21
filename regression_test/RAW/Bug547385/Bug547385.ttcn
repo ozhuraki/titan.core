@@ -1,0 +1,73 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond – initial implementation
+ *
+ ******************************************************************************/
+
+module Bug547385 {
+
+type record Rec {
+  integer f1,
+  record {
+    integer v2
+  } f2 optional
+}
+with {
+  encode "RAW";
+  variant (f2) "PRESENCE(f1 = 0)";
+}
+
+type component CT {}
+
+testcase tc1() runs on CT {
+  var Rec x := { f1 := 0, f2 := { v2 := 10 } };
+  var bitstring enc_exp := oct2bit('000A'O);
+  var bitstring enc := encvalue(x);
+  if (enc != enc_exp) {
+    setverdict(fail, "Encoding failed. Expected: ", bit2oct(enc_exp), ", got: ", bit2oct(enc));
+  }
+  var Rec dec;
+  var integer res := decvalue(enc_exp, dec);
+  if (res != 0) {
+    setverdict(fail, "Decoding failed. Result: ", res);
+  }
+  else if (dec != x) {
+    setverdict(fail, "Decoding failed. Expected: ", x, ", got: ", dec);
+  }
+  else {
+    setverdict(pass);
+  }
+}
+
+testcase tc2() runs on CT {
+  var Rec x := { f1 := 2, f2 := omit };
+  var bitstring enc_exp := oct2bit('02'O);
+  var bitstring enc := encvalue(x);
+  if (enc != enc_exp) {
+    setverdict(fail, "Encoding failed. Expected: ", bit2oct(enc_exp), ", got: ", bit2oct(enc));
+  }
+  var Rec dec;
+  var integer res := decvalue(enc_exp, dec);
+  if (res != 0) {
+    setverdict(fail, "Decoding failed. Result: ", res);
+  }
+  else if (dec != x) {
+    setverdict(fail, "Decoding failed. Expected: ", x, ", got: ", dec);
+  }
+  else {
+    setverdict(pass);
+  }
+}
+
+control {
+  execute(tc1());
+  execute(tc2());
+}
+
+}

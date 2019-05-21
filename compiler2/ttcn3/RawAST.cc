@@ -217,7 +217,7 @@ void RawAST::print_RawAST(){
       (stringformat == CharCoding::UTF16 ? "UTF-16" : "unknown"));
 }
 
-void copy_rawAST_to_struct(RawAST *from, raw_attrib_struct *to){
+void copy_rawAST_to_struct(RawAST *from, raw_attrib_struct *to, bool copy_presences){
     to->fieldlength=from->fieldlength;
     to->comp=from->comp;
     to->byteorder=from->byteorder;
@@ -262,7 +262,7 @@ void copy_rawAST_to_struct(RawAST *from, raw_attrib_struct *to){
 	to->taglist.list[i].fields = NULL;
       }
     } else to->taglist.list = NULL;
-    to->presence.nElements = from->presence.nElements;
+    to->presence.nElements = copy_presences ? from->presence.nElements : 0;
     if (to->presence.nElements > 0)
       to->presence.fields = static_cast<rawAST_coding_field_list*>(
          Malloc(to->presence.nElements * sizeof(rawAST_coding_field_list)) );
