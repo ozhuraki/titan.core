@@ -1,14 +1,16 @@
 ---
 Author: Arpad Lovassy
-Version: 8/198 17-CRL 113 200/6, Rev. PE1
-Date: 2018-06-19
+Version: 8/198 17-CRL 113 200/6, Rev. F
+Date: 2019-05-20
 
 ---
 = Titan Executor API User Guide
 :author: Arpad Lovassy
-:revnumber: 8/198 17-CRL 113 200/6, Rev. PE1
-:revdate: 2018-06-19
+:revnumber: 8/198 17-CRL 113 200/6, Rev. F
+:revdate: 2019-05-20
 :title-logo-image: images/titan_logo.png
+:sectnums:
+:doctype: book
 :toc:
 
 ifdef::env-github,backend-html5[]
@@ -29,7 +31,7 @@ https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html.
 
 The contents of this document are subject to revision without notice due to continued progress in methodology, design and manufacturing. Ericsson shall have no liability for any error or damage of any kind resulting from the use of this document.
 
-= Overview
+== Overview
 
 The Titan Executor API provides the following functionalities:
 
@@ -38,8 +40,6 @@ The Titan Executor API provides the following functionalities:
 * console log callback
 
 It is implemented in Java using JNI calls to the C++ side, which is based on the implementation of titan_eclipse JNI executor. The Titan Executor API is independent from Eclipse.
-
-= Titan Executor API
 
 == Prerequisites
 
@@ -56,26 +56,26 @@ The entry point of the API is the `com.ericsson.titan.executor.api.JniExecutor`,
 
 For further details see the Javadoc embedded in the project.
 
-= Titan Executor API Demo
+== Titan Executor API Demo
 
-== Install
+=== Install
 
 Copy _TITAN_Executor_API_Demo.jar_ and _lib/TITAN_Executor_API.jar_ to any selected directory, so keep the directory structure, make sure, that _TITAN_Executor_API.jar_ is in _lib/_, so it means, that Titan Executor API is in the classpath, which is defined in the manifest file of _TITAN_Executor_API_Demo.jar_.
 
-== Usage
+=== Usage
 
 To start the demo the following command must be used:
 
 [source]
 java -jar <install directory>/TITAN_Executor_API_Demo.jar
 
-= Javadoc
+== Javadoc
 
-== Install
+=== Install
 
 Extract javadoc directory from the zip file
 
-== Usage
+=== Usage
 
 Open _javadoc/index.html_ from a browser.
 
