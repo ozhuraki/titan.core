@@ -2419,8 +2419,8 @@ static tpd_result process_tpd_internal(const char **p_tpd_name, char *tpdName, c
     XPathObject linkerOptsObj(run_xpath(xpathCtx, linkerOptsXpath));
     Free(linkerOptsXpath);
     xmlNodeSetPtr nodes = linkerOptsObj->nodesetval;
-    if (nodes) {
-      *linkerOptions = mcopystr((const char*)linkerOptsObj->nodesetval->nodeTab[0]->content);
+    if (nodes != NULL && nodes->nodeNr > 0) {
+      *linkerOptions = mcopystr((const char*)nodes->nodeTab[0]->content);
     }
   }
   {
