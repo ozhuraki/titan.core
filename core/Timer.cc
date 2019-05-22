@@ -29,11 +29,41 @@ void TIMER::add_to_list()
 {
   // do nothing if already a member of list
   if (this == list_head || list_prev != NULL) return;
-  if (list_head == NULL) list_head = this;
-  else if (list_tail != NULL) list_tail->list_next = this;
-  list_prev = list_tail;
-  list_next = NULL;
-  list_tail = this;
+  if (list_head == NULL) {
+    // the list is empty, this will be its only element
+    list_head = this;
+    list_tail = this;
+    list_next = NULL;
+    list_prev = NULL;
+  }
+  else {
+    // insert this timer into the list based on its expiration (in an ascending order)
+    TIMER* prev = NULL;
+    TIMER* next = list_head;
+    while (next != NULL) {
+      if (next->t_expires > t_expires) {
+        break;
+      }
+      prev = next;
+      next = next->list_next;
+    }
+    if (prev != NULL) {
+      prev->list_next = this;
+    }
+    else {
+      // this will be the first element
+      list_head = this;
+    }
+    list_prev = prev;
+    list_next = next;
+    if (next != NULL) {
+      next->list_prev = this;
+    }
+    else {
+      // this will be the last element
+      list_tail = this;
+    }
+  }
 }
 
 void TIMER::remove_from_list()
@@ -137,6 +167,8 @@ void TIMER::start(double start_val)
       is_started = TRUE;
     }
     TTCN_Logger::log_timer_start(timer_name, start_val);
+    t_started = TTCN_Snapshot::time_now();
+    t_expires = t_started + start_val;
     add_to_list();
   } else {
     if (start_val < 0.0)
@@ -148,9 +180,9 @@ void TIMER::start(double start_val)
     }
     is_started = TRUE;
     TTCN_Logger::log_timer_guard(start_val);
+    t_started = TTCN_Snapshot::time_now();
+    t_expires = t_started + start_val;
   }
-  t_started = TTCN_Snapshot::time_now();
-  t_expires = t_started + start_val;
 }
 
 void TIMER::start(const FLOAT& start_val)
@@ -283,6 +315,7 @@ boolean TIMER::get_min_expiration(double& min_val)
     else if (!min_flag || list_iter->t_expires < min_val) {
       min_val = list_iter->t_expires;
       min_flag = TRUE;
+      break;
     }
   }
   return min_flag;
