@@ -23,7 +23,7 @@ Parameterized macros are not supported on the Java side.
 
 Compared to the description in section 3.22 of <<14-references.adoc#_27, [27]>> the Java side has 2 major differences:
 Only RAW encoding is supported for now.
-The syntax to be used in Java differs slightly from the of used in {cpp}
+The syntax to be used in Java differs slightly from the one used in {cpp}:
 
 The TTCN–3 attribute `errorbehavior(INCOMPL_ANY:ERROR)`, for example, instead of being mapped to the following {cpp} statement
 [source]
