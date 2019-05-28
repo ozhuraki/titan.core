@@ -180,7 +180,21 @@ Compressed update site and SHA512 checksum:
 * http://git.eclipse.org/gitroot/titan/titan.ProtocolModules.V5
 * http://git.eclipse.org/gitroot/titan/titan.ProtocolModules.WTP 
 * http://git.eclipse.org/gitroot/titan/titan.ProtocolModules.XML_RPC
-* http://git.eclipse.org/gitroot/titan/titan.ProtocolModules.XTDP   
+* http://git.eclipse.org/gitroot/titan/titan.ProtocolModules.XTDP
+* http://git.eclipse.org/gitroot/titan/titan.ProtocolModules.5G_system_TS29502_Nsmf_v15	
+* http://git.eclipse.org/gitroot/titan/titan.ProtocolModules.5G_system_TS29503_Nudm_v15	
+* http://git.eclipse.org/gitroot/titan/titan.ProtocolModules.5G_system_TS29508_Nsmf_v15	
+* http://git.eclipse.org/gitroot/titan/titan.ProtocolModules.5G_system_TS29509_Nausf_v15	
+* http://git.eclipse.org/gitroot/titan/titan.ProtocolModules.5G_system_TS29510_Nnrf_v15	
+* http://git.eclipse.org/gitroot/titan/titan.ProtocolModules.5G_system_TS29511_N5g_eir_v15	
+* http://git.eclipse.org/gitroot/titan/titan.ProtocolModules.5G_system_TS29512_Npcf_v15	
+* http://git.eclipse.org/gitroot/titan/titan.ProtocolModules.5G_system_TS29514_Npcf_v15	
+* http://git.eclipse.org/gitroot/titan/titan.ProtocolModules.5G_system_TS29518_Namf_v15	
+* http://git.eclipse.org/gitroot/titan/titan.ProtocolModules.5G_system_TS29520_Nnwdaf_v15	
+* http://git.eclipse.org/gitroot/titan/titan.ProtocolModules.5G_system_TS29571_CommonData_v15	
+* http://git.eclipse.org/gitroot/titan/titan.ProtocolModules.5G_system_TS29572_Nlmf_v15	
+* http://git.eclipse.org/gitroot/titan/titan.ProtocolModules.5G_system_TS29594_Nchf_v15	
+* http://git.eclipse.org/gitroot/titan/titan.ProtocolModules.5G_system_TS32291_Nchf_v15
 
 
 ## Protocol Emulations
