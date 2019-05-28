@@ -1891,7 +1891,7 @@ const INT2 c_i2 := -1
 
 Attribute syntax: `FIELDLENGTH(<parameter>)`
 
-Parameters allowed: `variable`, `null_terminated` (for `charstrin` and universal `charstring` types only) positive integer
+Parameters allowed: `variable`, `null_terminated` (for `charstring` and universal `charstring` types only) positive integer
 
 Default value: `variable`, 8 (for `integer` type only)
 
