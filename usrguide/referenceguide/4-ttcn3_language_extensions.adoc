@@ -8314,6 +8314,7 @@ while (f_fill_array(v_roi[sizeof(v_roi)], v_val)) {
 // and its sizeof would return 4
 ----
 
+[[compatibility_of_record_of_types]]
 === Compatibility of record of types
 
 In the Function Test runtime `record of` and `set of` types of the same element type are compatible with each other. In the Load Test runtime this is only true for the following (TTCN-3) element types:

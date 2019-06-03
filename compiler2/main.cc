@@ -395,7 +395,7 @@ static boolean is_valid_asn1_filename(const char* file_name)
 static void usage()
 {
   fprintf(stderr, "\n"
-    "usage: %s [-abcdDeEfgiIjlLMnNOpqrRsStuwxXyY0] [-J file] [-K file] [-z file] [-V verb_level]\n"
+    "usage: %s [-abcdDeEfFgiIjlLMnNOpqrRsStuwxXyY0] [-J file] [-K file] [-z file] [-V verb_level]\n"
     "	[-o dir] [-U none|type|'number'] [-P modulename.top_level_pdu_name] [-Q number] ...\n"
     "	[-T] module.ttcn [-A] module.asn ...\n"
     "	or  %s -v\n"
@@ -411,6 +411,7 @@ static void usage()
     "	-e:		enforce legacy handling of 'encode' and 'variant' attributes\n"
     "	-E:		display only warnings for unrecognized encoding variants\n"
     "	-f:		force overwriting of output files\n"
+    "	-F:		force generation of records of/sets of basic types and remove their compatibility\n"
     "	-g:		emulate GCC error/warning message format\n"
     "	-i:		use only line numbers in error/warning messages\n"
     "	-I:		enable real-time testing features\n"

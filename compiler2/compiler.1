@@ -3,7 +3,7 @@
 compiler \- TTCN-3 and ASN.1 to C++ translator
 .SH SYNOPSIS
 .B compiler
-.RB "[\| " \-abcdDeEfgiIjlLMnNpqrRsStuwxXyY0 " \|]"
+.RB "[\| " \-abcdDeEfFgiIjlLMnNpqrRsStuwxXyY0 " \|]"
 .RB "[\| " \-V
 .IR " verb_level" " \|]"
 .RB "[\| " \-J
@@ -103,6 +103,9 @@ for unrecognized/erroneous attributes.
 Forces the compiler to
 .I overwrite
 the output files even if they exist or are unchanged.
+.TP
+.B \-F
+Forces the compiler to generate the full C++ classes for records of/sets of basic types (i.e. boolean, integer, float, bitstring, hexstring, octetstring, charstring and unversal charstring). Otherwise only type aliases to pre-generated classes are generated for these types. This also disables the type compatibility between records of/sets of basic types in the Load Test Runtime.
 .TP
 .B \-g
 The compiler error/warning messages will contain only the starting

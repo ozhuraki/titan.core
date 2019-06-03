@@ -18,7 +18,7 @@ The program compiler resides in the directory `$TTCN3_DIR/bin`.
 The command line syntax of the compiler is the following:
 
 [source]
-compiler [ -abBcdDeEfgiIjlLMnNOpqrRstuwxXyY0 ] [ -J file ] [ -K file ] [ -z file ] [ -N old|new ][ -o dir ] [ -V n ] [ -P toplevel pdu ] [ -Qn ] [ -U none|type|"number" ] …[ -T ] module.ttcn [ -A ] module.asn … [ - module.ttcn module.asn … ]
+compiler [ -abBcdDeEfFgiIjlLMnNOpqrRstuwxXyY0 ] [ -J file ] [ -K file ] [ -z file ] [ -N old|new ][ -o dir ] [ -V n ] [ -P toplevel pdu ] [ -Qn ] [ -U none|type|"number" ] …[ -T ] module.ttcn [ -A ] module.asn … [ - module.ttcn module.asn … ]
 
 or
 
@@ -103,6 +103,14 @@ Instructs the variant attribute parser to display warnings instead of errors for
 * `-f`
 +
 Forces the compiler to overwrite (update) the output files even if they exist or the contents of them will be identical. Without this flag the output {cpp} header and source files will be overwritten only if their contents change compared to the previous version.
+
+* `-F`
++
+Forces the compiler to generate the full {cpp} classes for `records of`/`sets of` basic types (i.e. `boolean`, `integer`, `float`, `bitstring`, `hexstring`, `octetstring`, `charstring` and `unversal charstring`). Otherwise only type aliases to pre-generated classes are generated for these types. This also disables the type compatibility between `records of`/`sets of` basic types in the Load Test Runtime (see <<4-ttcn3_language_extensions.adoc#compatibility_of_record_of_types>>).
++
+As of compiler version /5 R3A (5.3.pl0) the {cpp} classes for the mentioned `record of`/`set of` types are pre-generated, and are part of the runtime library. Before that they were generated into the {cpp} code the same as for other structured types. This command line option is mostly a legacy behavior switch, however the classes generated with this option are not identical to the classes generated with the old behavior (the new classes contain all codecs and the code needed to handle any possible coding instructions, not just the ones specified for the type).
++
+This option is used internally for pre-generating the mentioned {cpp} classes.
 
 * `-g`
 +
