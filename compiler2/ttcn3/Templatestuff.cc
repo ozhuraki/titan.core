@@ -957,10 +957,18 @@ namespace Ttcn {
   : Node(), Location(), nps()
   {
   }
+  
+  NamedParams::NamedParams(const NamedParams& p)
+  : Node(p), Location(p)
+  {
+    for (size_t i = 0; i < p.nps.size(); ++i) {
+      nps.add(p.nps[i]->clone());
+    }
+  }
 
   NamedParams * NamedParams::clone() const
   {
-    FATAL_ERROR("NamedParams::clone");
+    return new NamedParams(*this);
   }
 
   NamedParams::~NamedParams()
