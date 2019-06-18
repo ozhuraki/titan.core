@@ -9,7 +9,7 @@
  *   Balasko, Jeno
  *
  ******************************************************************************/
-module types {
+module types2 {
 
 type component MC {}
 

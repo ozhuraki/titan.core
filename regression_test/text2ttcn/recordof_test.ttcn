@@ -20,8 +20,8 @@ module recordof_test
 //=========================================================================
 // Import Part
 //=========================================================================
-import from types all;
-import from functions all;
+import from types2 all;
+import from functions2 all;
  
 //=========================================================================
 // Module Parameters

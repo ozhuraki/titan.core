@@ -9,9 +9,9 @@
  *   Balasko, Jeno
  *
  ******************************************************************************/
-module functions {
+module functions2 {
 
-import from types all;
+import from types2 all;
 
 
 group g_boolean {
@@ -367,14 +367,14 @@ group g_array {
     }
   } //with { extension "transparent" }
 
-  function f_checkMatchingValues_ai3(template AI3 pl_ai3,in RoAI3 pl_good_values, in RoAI3 pl_wrong_values, in boolean pl_successExpected := true) {
+  function f_checkMatchingValues_ai3( template AI3 pl_ai3,in RoAI3 pl_good_values, in RoAI3 pl_wrong_values, in boolean pl_successExpected := true) {
     f_checkMatchingGoodValues_ai3( pl_ai3,  pl_good_values, pl_successExpected);
     f_checkMatchingWrongValues_ai3( pl_ai3, pl_wrong_values, pl_successExpected);
   }
 
   //=== AI2x3 ====
 
-function f_check_AI2x3(template AI2x3 pl_t, RoAI2x3 pl_goodV, RoAI2x3 pl_badV) {
+function f_check_AI2x3( template AI2x3 pl_t, RoAI2x3 pl_goodV, RoAI2x3 pl_badV) {
   var integer NG := lengthof(pl_goodV);
   var integer NB := lengthof(pl_badV);
   for(var integer i:=0;i< NG;i:=i+1) {

@@ -17,7 +17,7 @@ include   $(TOPDIR)/Makefile.regression
 
 MAKE_PROG := $(MAKE)
 
-TTCN_FILES := array_test.ttcn bitstring_test.ttcn boolean_test.ttcn charstring_test.ttcn enum_test.ttcn float_test.ttcn functions.ttcn hexstring_test.ttcn integer_test.ttcn octetstring_test.ttcn record_test.ttcn recordof_test.ttcn set_test.ttcn setof_test.ttcn types.ttcn ucharstring_test.ttcn union_test.ttcn objid_test.ttcn
+TTCN_FILES := array_test.ttcn bitstring_test.ttcn boolean_test.ttcn charstring_test.ttcn enum_test.ttcn float_test.ttcn functions2.ttcn hexstring_test.ttcn integer_test.ttcn octetstring_test.ttcn record_test.ttcn recordof_test.ttcn set_test.ttcn setof_test.ttcn types2.ttcn ucharstring_test.ttcn union_test.ttcn objid_test.ttcn
 TTCN_PARALLEL_FILES := component_test.ttcn
 
 SINGLE_CFG := text2ttcn_1.cfg
