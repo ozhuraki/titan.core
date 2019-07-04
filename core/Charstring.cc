@@ -1551,6 +1551,7 @@ int CHARSTRING::RAW_encode(const TTCN_Typedescriptor_t& p_td,
   }
   if (p_td.raw->endianness == ORDER_MSB) myleaf.align = -align_length;
   else myleaf.align = align_length;
+  myleaf.coding_par.csn1lh = p_td.raw->csn1lh;
   return myleaf.length = bl + align_length;
 }
 
@@ -1581,6 +1582,7 @@ int CHARSTRING::RAW_decode(const TTCN_Typedescriptor_t& p_td,
   cp.byteorder = orders ? ORDER_MSB : ORDER_LSB;
   cp.fieldorder = p_td.raw->fieldorder;
   cp.hexorder = ORDER_LSB;
+  cp.csn1lh = p_td.raw->csn1lh;
   if(p_td.raw->fieldlength >= 0){
     clean_up();
     init_struct(decode_length / 8);

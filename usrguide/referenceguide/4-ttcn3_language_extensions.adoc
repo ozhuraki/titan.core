@@ -2357,6 +2357,29 @@ const OCT c_hocts := ’1234’O
 //The encoding will result in the octetstring ’2143’O
 ----
 
+*CSN.1 L/H*
+
+Attribute syntax: `CSN.1 L/H`
+
+Default value: unset
+
+Can be used with: all basic types, `records`/`sets`/`unions` (in which case the attribute is set for all fields of the `record`/`set`/`union`)
+
+Description: If set, the bits in the bitfield are treated as the relative values `L` and `H` from `CSN.1` instead of their absolute values (`0` is treated as `L` and `1` is treated as `H`). These values are encoded in terms of the default padding pattern '2B'O ('00101011'B), depending on their position in the bitstream.
+
+Practically the bits in the bitfield are XOR-ed with the pattern '2B'O before being inserted into the stream.
+
+Example:
+[source]
+----
+type integer uint16_t
+with { variant "FIELDLENGTH(16)" variant "CSN.1 L/H" }
+
+const uint16_t c_val := 4080;
+// Without the variant attribute "CSN.1 L/H" this would be encoded as '11110000 00001111'B
+// With the variant attribute "CSN.1 L/H" this would be encoded as '11011011 00100100'B
+----
+
 ==== Extension Bit Setting Attributes
 
 This section defines the attributes describing the extension bit mechanism.

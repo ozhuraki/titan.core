@@ -570,6 +570,7 @@ int BOOLEAN::RAW_encode(const TTCN_Typedescriptor_t& p_td, RAW_enc_tree& myleaf)
     // remove the extra ones from the last octet
     bc[length - 1] &= BitMaskTable[loc_length % 8];
   }
+  myleaf.coding_par.csn1lh = p_td.raw->csn1lh;
   return myleaf.length = loc_length;
 }
 
@@ -610,6 +611,7 @@ int BOOLEAN::RAW_decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& buff,
     cp.byteorder = orders ? ORDER_MSB : ORDER_LSB;
     cp.fieldorder = p_td.raw->fieldorder;
     cp.hexorder = ORDER_LSB;
+    cp.csn1lh = p_td.raw->csn1lh;
     int length = (decode_length + 7) / 8;
     unsigned char *data = (unsigned char*)Malloc(length*sizeof(unsigned char));
     buff.get_b((size_t)decode_length, data, cp, top_bit_ord);

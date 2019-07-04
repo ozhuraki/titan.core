@@ -1,0 +1,269 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+
+// this module contains tests for the RAW coding instruction 'CSN.1 L/H'
+module CSN1_LH {
+
+type bitstring BIT1
+with { variant "FIELDLENGTH(1)" }
+
+type integer uint2_t
+with { variant "FIELDLENGTH(2)" }
+
+type integer uint3_t
+with { variant "FIELDLENGTH(3)" }
+
+type integer uint5_t
+with { variant "FIELDLENGTH(5)" }
+
+type integer uint6_t
+with { variant "FIELDLENGTH(6)" }
+
+type integer uint16_t
+with { variant "FIELDLENGTH(16)" variant "CSN.1 L/H" }
+
+type record RecLsb {
+  uint3_t a,
+  uint2_t b,
+  uint16_t c
+}
+with {
+  variant "FIELDORDER(lsb)";
+  variant (a) "CSN.1 L/H";
+  variant (b) "CSN.1 L/H";
+}
+
+type record RecMsb {
+  uint3_t a,
+  uint2_t b,
+  uint16_t c
+}
+with {
+  variant "FIELDORDER(msb)";
+  variant (a, b) "CSN.1 L/H";
+}
+
+type record RecMixed {
+  uint3_t a,
+  uint2_t b,
+  uint16_t c
+}
+with {
+  variant "FIELDORDER(msb)";
+}
+
+
+type record Si3RestOctets {
+  BIT1             sel_params_present,
+  SelectionParams  sel_params optional,
+  BIT1             power_offset_present,
+  uint2_t          power_offset optional,
+  BIT1             si2ter_indicator,
+  BIT1             ealy_cm_sending_control,
+  BIT1             where_present,
+  uint3_t          where optional,
+  BIT1             gprs_ind_present,
+  GprsIndicator    gprs_ind optional
+}
+with {
+  variant "FIELDORDER(msb)";
+  variant "CSN.1 L/H";
+  variant (sel_params) "PRESENCE(sel_params_present = '1'B)"
+  variant (power_offset) "PRESENCE(power_offset_present = '1'B)"
+  variant (where) "PRESENCE(where_present = '1'B)"
+  variant (gprs_ind) "PRESENCE(gprs_ind_present = '1'B)"
+}
+
+type record SelectionParams {
+  boolean cbq,
+  uint6_t cell_reselect_offset,
+  uint3_t temporary_offset,
+  uint5_t penalty_time
+}
+with {
+  variant "FIELDORDER(msb)";
+  variant "CSN.1 L/H";
+}
+
+type record GprsIndicator {
+  uint3_t ra_colour,
+  BIT1    si13_position
+}
+with {
+  variant "FIELDORDER(msb)";
+  variant "CSN.1 L/H";
+}
+
+type record OtherTypes {
+  float a,
+  hexstring b,
+  octetstring c,
+  charstring d,
+  universal charstring e,
+  enumerated { val(4080) } f
+}
+with {
+  variant "FIELDORDER(msb)";
+  variant "CSN.1 L/H";
+  variant (a) "FORMAT(IEEE754 float)";
+  variant (b) "FIELDLENGTH(4)";
+  variant (c, d, e) "FIELDLENGTH(2)";
+  variant (f) "FIELDLENGTH(16)";
+}
+
+type component CT {}
+
+testcase tc_CSN1LH_uint16() runs on CT {
+  var uint16_t val := 4080;
+  var bitstring enc := encvalue(val);
+  var bitstring enc_exp := '11011011 00100100'B;
+  if (enc != enc_exp) {
+    setverdict(fail, "Encoding failed. Expected: ", enc_exp, ", got: ", enc);
+  }
+  var uint16_t dec;
+  var integer res := decvalue(enc_exp, dec);
+  if (res != 0) {
+    setverdict(fail, "Decoding failed. Result: ", res);
+  }
+  else if (dec != val) {
+    setverdict(fail, "Decoding failed. Expected: ", val, ", got: ", dec);
+  }
+  setverdict(pass);
+}
+
+testcase tc_CSN1LH_record_LSB() runs on CT {
+  var RecLsb val := { a := 7, b := 0, c := 4080 };
+  var bitstring enc := encvalue(val);
+  var bitstring enc_exp := '00101100 11010101 00001010'B;
+  if (enc != enc_exp) {
+    setverdict(fail, "Encoding failed. Expected: ", enc_exp, ", got: ", enc);
+  }
+  var RecLsb dec;
+  var integer res := decvalue(enc_exp, dec);
+  if (res != 0) {
+    setverdict(fail, "Decoding failed. Result: ", res);
+  }
+  else if (dec != val) {
+    setverdict(fail, "Decoding failed. Expected: ", val, ", got: ", dec);
+  }
+  setverdict(pass);
+}
+
+testcase tc_CSN1LH_record_MSB() runs on CT {
+  var RecMsb val := { a := 7, b := 0, c := 4080 };
+  var bitstring enc := encvalue(val);
+  var bitstring enc_exp := '11001100 10101011 01010000'B;
+  if (enc != enc_exp) {
+    setverdict(fail, "Encoding failed. Expected: ", enc_exp, ", got: ", enc);
+  }
+  var RecMsb dec;
+  var integer res := decvalue(enc_exp, dec);
+  if (res != 0) {
+    setverdict(fail, "Decoding failed. Result: ", res);
+  }
+  else if (dec != val) {
+    setverdict(fail, "Decoding failed. Expected: ", val, ", got: ", dec);
+  }
+  setverdict(pass);
+}
+
+testcase tc_CSN1LH_record_MSB_mixed() runs on CT {
+  var RecMixed val := { a := 7, b := 0, c := 4080 };
+  var bitstring enc := encvalue(val);
+  var bitstring enc_exp := '11100100 10101011 01010000'B;
+  if (enc != enc_exp) {
+    setverdict(fail, "Encoding failed. Expected: ", enc_exp, ", got: ", enc);
+  }
+  var RecMixed dec;
+  var integer res := decvalue(enc_exp, dec);
+  if (res != 0) {
+    setverdict(fail, "Decoding failed. Result: ", res);
+  }
+  else if (dec != val) {
+    setverdict(fail, "Decoding failed. Expected: ", val, ", got: ", dec);
+  }
+  setverdict(pass);
+}
+
+testcase tc_CSN1LH_record_with_presence() runs on CT {
+  var Si3RestOctets val := {
+    sel_params_present := '1'B,
+    sel_params := {
+      cbq := false,
+      cell_reselect_offset := 41,
+      temporary_offset := 4,
+      penalty_time := 10
+    },
+    power_offset_present := '0'B,
+    power_offset := omit,
+    si2ter_indicator := '1'B,
+    ealy_cm_sending_control := '0'B,
+    where_present := '0'B,
+    where := omit,
+    gprs_ind_present := '1'B,
+    gprs_ind := {
+      ra_colour := 7,
+      si13_position := '0'B
+    }
+  };
+  var bitstring enc := encvalue(val);
+  var bitstring enc_exp := '10000010 10100001 01100100 00000000'B;
+  if (enc != enc_exp) {
+    setverdict(fail, "Encoding failed. Expected: ", enc_exp, ", got: ", enc);
+  }
+  var Si3RestOctets dec;
+  var integer res := decvalue(enc_exp, dec);
+  if (res != 0) {
+    setverdict(fail, "Decoding failed. Result: ", res);
+  }
+  else if (dec != val) {
+    setverdict(fail, "Decoding failed. Expected: ", val, ", got: ", dec);
+  }
+  setverdict(pass);
+}
+
+testcase tc_CSN1LH_other_types() runs on CT {
+  var OtherTypes val := { a := -1.0, b := 'F00F'H, c := 'F00F'O, d := "ab", e := "é", f := val };
+  var bitstring enc := encvalue(val);
+  var bitstring enc_exp := '10010100 10101011 00101011 00101011
+                            00100100 11011011
+                            11011011 00100100
+                            01001010 01001001
+                            11101000 10000010
+                            11011011 00100100'B;
+  if (enc != enc_exp) {
+    setverdict(fail, "Encoding failed. Expected: ", enc_exp, ", got: ", enc);
+  }
+  var OtherTypes dec;
+  var integer res := decvalue(enc_exp, dec);
+  if (res != 0) {
+    setverdict(fail, "Decoding failed. Result: ", res);
+  }
+  else if (dec != val) {
+    setverdict(fail, "Decoding failed. Expected: ", val, ", got: ", dec);
+  }
+  setverdict(pass);
+}
+
+control {
+  execute(tc_CSN1LH_uint16());
+  execute(tc_CSN1LH_record_LSB());
+  execute(tc_CSN1LH_record_MSB());
+  execute(tc_CSN1LH_record_MSB_mixed());
+  execute(tc_CSN1LH_record_with_presence());
+  execute(tc_CSN1LH_other_types());
+}
+
+}
+with {
+  encode "RAW";
+}

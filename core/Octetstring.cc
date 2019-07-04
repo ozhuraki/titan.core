@@ -1227,6 +1227,7 @@ int OCTETSTRING::RAW_encode(const TTCN_Typedescriptor_t& p_td,
   else myleaf.body.leaf.data_ptr = val_ptr->octets_ptr;
   if (p_td.raw->endianness == ORDER_MSB) myleaf.align = align_length;
   else myleaf.align = -align_length;
+  myleaf.coding_par.csn1lh = p_td.raw->csn1lh;
   return myleaf.length = bl + align_length;
 }
 
@@ -1256,6 +1257,7 @@ int OCTETSTRING::RAW_decode(const TTCN_Typedescriptor_t& p_td,
   cp.byteorder = orders ? ORDER_MSB : ORDER_LSB;
   cp.fieldorder = p_td.raw->fieldorder;
   cp.hexorder = ORDER_LSB;
+  cp.csn1lh = p_td.raw->csn1lh;
   if (p_td.raw->extension_bit != EXT_BIT_NO) {
     const unsigned char* data = buff.get_read_data();
     int count = 1;

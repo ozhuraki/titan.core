@@ -95,6 +95,8 @@ TTCN_EncDec::error_behavior[TTCN_EncDec::ET_ALL] = {
 TTCN_EncDec::error_type_t TTCN_EncDec::last_error_type=ET_NONE;
 char *TTCN_EncDec::error_str=NULL;
 
+static const unsigned char CSN1_L_H_Mask = 0x2B; // 00101011
+
 static TTCN_EncDec::error_type_t& operator++(TTCN_EncDec::error_type_t& eb)
 {
   return eb
@@ -833,6 +835,11 @@ local_fieldorder==ORDER_MSB?"M":"L"
                  (REVERSE_BITS(s[0]&BitMaskTable[len])>>bit_pos);
       }
     }
+    if (coding_par.csn1lh) {
+      data_ptr[new_size-1] ^= CSN1_L_H_Mask & (local_fieldorder == ORDER_LSB ?
+        (BitMaskTable[bit_pos + len] & ~BitMaskTable[bit_pos]) :
+        (~BitMaskTable[8 - bit_pos - len] & BitMaskTable[8 - bit_pos]));
+    }
   }
   else if(bit_pos==0 && (len%8)==0){ // octet aligned data
     if(coding_par.byteorder==ORDER_LSB){
@@ -852,6 +859,12 @@ local_fieldorder==ORDER_MSB?"M":"L"
       else{
         unsigned char *prt=data_ptr+buf_len;
         for(size_t a=0,b=len/8-1;a<len/8;a++,b--) prt[a]=REVERSE_BITS(s[b]);
+      }
+    }
+    if (coding_par.csn1lh) {
+      unsigned char* ptr = data_ptr + buf_len;
+      for (size_t a = 0; a < len / 8; ++a) {
+        ptr[a] ^= CSN1_L_H_Mask;
       }
     }
   }
@@ -987,6 +1000,18 @@ local_fieldorder==ORDER_MSB?"M":"L"
             data_ptr[new_size-1]<<=(8-new_bit_pos);
       }
     }
+    if (coding_par.csn1lh) {
+      unsigned char *ptr = data_ptr + (buf_len == 0 ? 0 : buf_len - 1);
+      ptr[0] ^= CSN1_L_H_Mask & (local_fieldorder == ORDER_LSB ?
+        ~BitMaskTable[bit_pos] : BitMaskTable[8 - bit_pos]);
+      for (unsigned int a = 1; a < (len + bit_pos) / 8; ++a) {
+        ptr[a] ^= CSN1_L_H_Mask;
+      }
+      if (new_bit_pos != 0) {
+        data_ptr[new_size - 1] ^= CSN1_L_H_Mask & (local_fieldorder == ORDER_LSB ?
+          BitMaskTable[new_bit_pos] : ~BitMaskTable[8 - new_bit_pos]);
+      }
+    }
   }
   if(st) Free(st);
   if(st2) Free(st2);
@@ -1028,8 +1053,13 @@ void TTCN_Buffer::get_b(size_t len, unsigned char *s,
     if(local_fieldorder==ORDER_LSB) local_fieldorder=ORDER_MSB;
     else local_fieldorder=ORDER_LSB;
   }
-  const unsigned char *data_ptr = buf_ptr != NULL ? buf_ptr->data_ptr : NULL;
+  unsigned char *data_ptr = buf_ptr != NULL ? buf_ptr->data_ptr : NULL;
   if(bit_pos+len<=8){  // the data is within 1 octet
+    if (coding_par.csn1lh) {
+      data_ptr[buf_pos] ^= CSN1_L_H_Mask & (local_fieldorder == ORDER_LSB ?
+        (BitMaskTable[bit_pos + len] & ~BitMaskTable[bit_pos]) :
+        (~BitMaskTable[8 - bit_pos - len] & BitMaskTable[8 - bit_pos]));
+    }
     if(local_bitorder==ORDER_LSB){
       if(local_fieldorder==ORDER_LSB){
         s[0]=data_ptr[buf_pos]>>bit_pos;
@@ -1046,6 +1076,12 @@ void TTCN_Buffer::get_b(size_t len, unsigned char *s,
     }
   }
   else if(bit_pos==0 && (len%8)==0){ // octet aligned data
+    if (coding_par.csn1lh) {
+      unsigned char* ptr = data_ptr + buf_pos;
+      for (size_t a = 0; a < len / 8; ++a) {
+        ptr[a] ^= CSN1_L_H_Mask;
+      }
+    }
     if(coding_par.byteorder==ORDER_LSB){
       if(local_bitorder==ORDER_LSB){
         memcpy(s, data_ptr+buf_pos, len/8*sizeof(unsigned char));
@@ -1067,6 +1103,18 @@ void TTCN_Buffer::get_b(size_t len, unsigned char *s,
     }
   }
   else{ // unaligned
+    if (coding_par.csn1lh) {
+      unsigned char *ptr = data_ptr + buf_pos;
+      ptr[0] ^= CSN1_L_H_Mask & (local_fieldorder == ORDER_LSB ?
+        ~BitMaskTable[bit_pos] : BitMaskTable[8 - bit_pos]);
+      for (unsigned int a = 1; a < (len + bit_pos) / 8; ++a) {
+        ptr[a] ^= CSN1_L_H_Mask;
+      }
+      if (new_bit_pos != 0) {
+        data_ptr[buf_len - 1] ^= CSN1_L_H_Mask & (local_fieldorder == ORDER_LSB ?
+          BitMaskTable[new_bit_pos] : ~BitMaskTable[8 - new_bit_pos]);
+      }
+    }
     size_t num_bytes = (len + 7) / 8;
     if(coding_par.byteorder==ORDER_LSB){
       if(local_bitorder==ORDER_LSB){

@@ -1019,6 +1019,7 @@ int BITSTRING::RAW_encode(const TTCN_Typedescriptor_t& p_td, RAW_enc_tree& mylea
   if (p_td.raw->bitorderinoctet == ORDER_MSB) orders = TRUE;
   if (p_td.raw->bitorderinfield == ORDER_LSB) orders = !orders;
   myleaf.coding_par.bitorder = orders ? ORDER_MSB : ORDER_LSB;
+  myleaf.coding_par.csn1lh = p_td.raw->csn1lh;
 
   if (p_td.raw->endianness == ORDER_MSB) myleaf.align =  align_length;
   else                                   myleaf.align = -align_length;
@@ -1055,6 +1056,7 @@ int BITSTRING::RAW_decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& buff,
   cp.byteorder = orders ? ORDER_MSB : ORDER_LSB;
   cp.fieldorder = p_td.raw->fieldorder;
   cp.hexorder = ORDER_LSB;
+  cp.csn1lh = p_td.raw->csn1lh;
   buff.get_b((size_t) decode_length, val_ptr->bits_ptr, cp, top_bit_ord);
   if (p_td.raw->length_restrition != -1 &&
       decode_length > p_td.raw->length_restrition) {

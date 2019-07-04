@@ -1,0 +1,7 @@
+CSN1_LH
+CSN1_LH.exe
+CSN1_LH*.cc
+CSN1_LH*.hh
+*.o
+compile
+CSN1_LH*.log

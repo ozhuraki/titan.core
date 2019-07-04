@@ -2391,6 +2391,7 @@ int UNIVERSAL_CHARSTRING::RAW_encode(const TTCN_Typedescriptor_t& p_td,
   myleaf.data_ptr_used = TRUE;
   if (p_td.raw->endianness == ORDER_MSB) myleaf.align = -align_length;
   else myleaf.align = align_length;
+  myleaf.coding_par.csn1lh = p_td.raw->csn1lh;
   return myleaf.length = bl + align_length;
 }
 

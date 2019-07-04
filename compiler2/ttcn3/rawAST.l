@@ -308,6 +308,7 @@ unsigned    { RETURN(XUnsignedKeyword); }
 "UTF-16"    { RETURN(XUTF16Keyword); }
 "IEEE754 float"  { RETURN(XIEEE754FloatKeyword); }
 "IEEE754 double" { RETURN(XIEEE754DoubleKeyword); }
+"CSN.1 L/H" { RETURN(XCsn1LHKeyword); }
 
 <rawcodec>{
 yes         { yylval.enumval = XDEFYES; RETURN(XYes); }

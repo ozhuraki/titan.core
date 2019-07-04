@@ -128,6 +128,7 @@ public:
     bool intx; /**< IntX encoding for integers */
     CharCoding::CharCodingType stringformat; /**< String serialization type for
                                                * universal charstrings */
+    bool csn1lh; /**< use CSN.1 L/H values */
     /** Default constructor.
      *  Calls \c init_rawast(false).
      *  \todo should be merged with the next one */

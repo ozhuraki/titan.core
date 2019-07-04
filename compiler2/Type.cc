@@ -2150,6 +2150,22 @@ namespace Common {
             }
           }
         }
+        if (rawattrib->csn1lh){ // CSN.1 L/H
+          for (size_t i = 0; i < get_nof_comps(); i++) {
+            CompField* cfield = get_comp_byIndex(i);
+            RawAST* field_rawattr = cfield->get_type()->rawattrib;
+            if (field_rawattr == NULL) {
+              // create the field's RAW structure if it doesn't have one
+              Type* t = cfield->get_type();
+              if (t->is_ref()) t = t->get_type_refd();
+              while (t->rawattrib == NULL && t->is_ref()) t = t->get_type_refd();
+              cfield->get_type()->rawattrib = new RawAST(t->rawattrib, 
+                cfield->get_type()->get_default_raw_fieldlength());
+              field_rawattr = cfield->get_type()->rawattrib;
+            }
+            field_rawattr->csn1lh = true;
+          }
+        }
       }
       break;
     case T_SEQ_T:
@@ -2265,7 +2281,7 @@ namespace Common {
             }
           }
         }
-        if(rawattrib->fieldorder!=XDEFDEFAULT){ // FIELDORDER
+        if(rawattrib->fieldorder!=XDEFDEFAULT || rawattrib->csn1lh){ // FIELDORDER or CSN.1 L/H
           for(size_t i = 0; i < get_nof_comps(); i++) {
             CompField *cfield=get_comp_byIndex(i);
             RawAST *field_rawattr=cfield->get_type()->rawattrib;
@@ -2276,8 +2292,12 @@ namespace Common {
               cfield->get_type()->rawattrib= new RawAST(t->rawattrib,cfield->get_type()->get_default_raw_fieldlength());
               field_rawattr=cfield->get_type()->rawattrib;
             }
-            if(field_rawattr->fieldorder==XDEFDEFAULT)
+            if(rawattrib->fieldorder!=XDEFDEFAULT &&
+               field_rawattr->fieldorder==XDEFDEFAULT)
               field_rawattr->fieldorder=rawattrib->fieldorder;
+            if (rawattrib->csn1lh) {
+              field_rawattr->csn1lh = true;
+            }
           }
         }
       }

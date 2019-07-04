@@ -95,6 +95,7 @@ struct RAW_coding_par{
   raw_order_t byteorder;
   raw_order_t hexorder;
   raw_order_t fieldorder;
+  bool csn1lh;
 };
 
 /** A list of field indexes, that identify the optional field to be omitted */
@@ -155,6 +156,7 @@ struct TTCN_RAWdescriptor_t{
   int length_restrition;
   CharCoding::CharCodingType stringformat;
   const RAW_Force_Omit* forceomit;
+  bool csn1lh; /**< use CSN.1 L/H terminals */
 };
 
 enum calc_type {

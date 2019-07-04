@@ -69,6 +69,7 @@ RawAST::RawAST(RawAST *other, int default_length){
     length_restrition=other->length_restrition;
     intx = other->intx;
     stringformat = other->stringformat;
+    csn1lh = other->csn1lh;
     }
     else init_rawast(default_length);
 }
@@ -112,6 +113,7 @@ void RawAST::init_rawast(int default_length){
     topleveleind=0;
     intx = false;
     stringformat = CharCoding::UNKNOWN;
+    csn1lh = false;
 }
 
 RawAST::~RawAST(){
@@ -215,6 +217,7 @@ void RawAST::print_RawAST(){
     printf("%sIntX encoding\n\r", intx ? "" : "not ");
     printf("String format: %s\n\r", stringformat == CharCoding::UTF_8 ? "UTF-8" :
       (stringformat == CharCoding::UTF16 ? "UTF-16" : "unknown"));
+    printf("%susing CSN.1 L/H values\n\r", csn1lh ? "" : "not ");
 }
 
 void copy_rawAST_to_struct(RawAST *from, raw_attrib_struct *to, bool copy_presences){
@@ -324,5 +327,7 @@ int compare_raw_attrib(RawAST *a, RawAST *b){
            a->ptroffset!=b->ptroffset ||
            a->repeatable!=b->repeatable ||
            a->unit!=b->unit ||
-           a->intx != b->intx;
+           a->intx != b->intx ||
+           a->stringformat != b->stringformat ||
+           a->csn1lh != b->csn1lh;
 }

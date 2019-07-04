@@ -760,6 +760,7 @@ int FLOAT::RAW_encode(const TTCN_Typedescriptor_t& p_td, RAW_enc_tree& myleaf) c
   else
     TTCN_EncDec_ErrorContext::error_internal("Invalid FLOAT length %d", length);
 
+  myleaf.coding_par.csn1lh = p_td.raw->csn1lh;
   return myleaf.length = p_td.raw->fieldlength;
 }
 
@@ -795,6 +796,7 @@ int FLOAT::RAW_decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& buff,
   cp.byteorder = orders ? ORDER_MSB : ORDER_LSB;
   cp.fieldorder = p_td.raw->fieldorder;
   cp.hexorder = ORDER_LSB;
+  cp.csn1lh = p_td.raw->csn1lh;
   buff.get_b((size_t) decode_length, data, cp, top_bit_ord);
   if (decode_length == 64) {
     unsigned char *dv = (unsigned char *) &tmp;

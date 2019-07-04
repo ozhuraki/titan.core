@@ -791,11 +791,12 @@ void Type::generate_code_rawdescriptor(output_struct *target)
       gennameown_str, rawattrib->forceomit.nElements, gennameown_str);
     target->source.global_vars = mputstr(target->source.global_vars, force_omit_str);
     Free(force_omit_str);
-    str = mputprintf(str, "&%s_raw_force_omit", gennameown_str);
+    str = mputprintf(str, "&%s_raw_force_omit,", gennameown_str);
   }
   else {
-    str = mputstr(str, "NULL");
+    str = mputstr(str, "NULL,");
   }
+  str = mputstr(str, rawattrib->csn1lh ? "true" : "false");
   str = mputstr(str, "};\n");
   target->source.global_vars = mputstr(target->source.global_vars, str);
   Free(str);

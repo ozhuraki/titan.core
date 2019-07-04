@@ -177,6 +177,7 @@ static void yyprint(FILE *file, int type, const YYSTYPE& value);
 %token XUTF16Keyword
 %token XIEEE754FloatKeyword
 %token XIEEE754DoubleKeyword
+%token XCsn1LHKeyword "CSN.1 L/H"
 
        /* XER attributes */
 %token XKWall           "all"
@@ -521,6 +522,8 @@ XSingleEncodingDef : XPaddingDef
     | XUTFDef
         { raw_f = true; }
     | XIEEE754Def
+        { raw_f = true; }
+    | XCsn1LHDef
         { raw_f = true; }
     /* TEXT encoder keywords */
     | XBeginDef
@@ -989,6 +992,9 @@ XUTFDef:
 XIEEE754Def:
   XIEEE754FloatKeyword { rawstruct->fieldlength = 32; }
 | XIEEE754DoubleKeyword { rawstruct->fieldlength = 64; }
+
+XCsn1LHDef:
+  XCsn1LHKeyword { rawstruct->csn1lh = true; }
 
 /* Text encoder */
 XBeginDef:

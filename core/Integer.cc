@@ -1251,6 +1251,7 @@ int INTEGER::RAW_encode(const TTCN_Typedescriptor_t& p_td, RAW_enc_tree& myleaf)
     }
     myleaf.length = p_td.raw->fieldlength;
   }
+  myleaf.coding_par.csn1lh = p_td.raw->csn1lh;
   return myleaf.length;
 }
 
@@ -1399,6 +1400,7 @@ int INTEGER::RAW_encode_openssl(const TTCN_Typedescriptor_t& p_td,
     BN_free(D);
     myleaf.length = p_td.raw->fieldlength;
   }
+  myleaf.coding_par.csn1lh = p_td.raw->csn1lh;
   return myleaf.length;
 }
 
@@ -1420,6 +1422,7 @@ int INTEGER::RAW_decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& buff,
   cp.byteorder = orders ? ORDER_MSB : ORDER_LSB;
   cp.fieldorder = p_td.raw->fieldorder;
   cp.hexorder = ORDER_LSB;
+  cp.csn1lh = p_td.raw->csn1lh;
   int decode_length = 0;
   int len_bits = 0; // only for IntX (amount of bits used to store the length)
   unsigned char len_data = 0; // only for IntX (an octet used to store the length)

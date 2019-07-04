@@ -784,6 +784,7 @@ int HEXSTRING::RAW_encode(const TTCN_Typedescriptor_t& p_td,
     myleaf.align = -align_length;
   else
     myleaf.align = align_length;
+  myleaf.coding_par.csn1lh = p_td.raw->csn1lh;
   return myleaf.length = nbits + align_length;
 }
 
@@ -814,6 +815,7 @@ int HEXSTRING::RAW_decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& buff,
   cp.byteorder = orders ? ORDER_MSB : ORDER_LSB;
   cp.fieldorder = p_td.raw->fieldorder;
   cp.hexorder = p_td.raw->hexorder;
+  cp.csn1lh = p_td.raw->csn1lh;
   clean_up();
   init_struct(decode_length / 4);
   buff.get_b((size_t) decode_length, val_ptr->nibbles_ptr, cp, top_bit_ord);
