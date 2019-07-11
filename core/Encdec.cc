@@ -1373,6 +1373,7 @@ void TTCN_Buffer::put_pad(size_t len, const unsigned char *s,
   cp.byteorder=ORDER_LSB;
   cp.fieldorder=fieldorder;
   cp.hexorder=ORDER_LSB;
+  cp.csn1lh = false;
   int length=len;
   while(length>0){
     put_b(length>pat_len?pat_len:length,s,cp,0);
