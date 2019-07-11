@@ -191,6 +191,7 @@ RAW_enc_tree::RAW_enc_tree(boolean is_leaf, RAW_enc_tree *par,
   coding_par.bitorder = orders ? ORDER_MSB : ORDER_LSB;
   coding_par.hexorder = raw_attr->hexorder;
   coding_par.fieldorder = raw_attr->fieldorder;
+  coding_par.csn1lh = false;
   if (isleaf) {
     body.leaf.data_ptr = NULL;
   }
