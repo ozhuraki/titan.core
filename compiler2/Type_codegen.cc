@@ -433,7 +433,7 @@ void Type::generate_code_typedescriptor(output_struct *target)
     
     if (T_SEQOF == last->typetype || T_SETOF == last->typetype) {
       target->source.global_vars=mputprintf(target->source.global_vars,
-        "&%s_descr_, ", get_type_refd_last()->u.seof.ofType->get_genname_typedescriptor(my_scope).c_str());
+        "&%s_descr_, ", last->u.seof.ofType->get_genname_typedescriptor(my_scope).c_str());
     }
     else {
       target->source.global_vars = mputstr(target->source.global_vars,
