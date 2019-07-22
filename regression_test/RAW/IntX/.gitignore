@@ -1,0 +1,7 @@
+IntX
+IntX.exe
+IntX*.cc
+IntX*.hh
+compile
+*.d
+IntX*.log
