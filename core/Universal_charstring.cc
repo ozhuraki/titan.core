@@ -2961,7 +2961,7 @@ void UNIVERSAL_CHARSTRING::decode_utf16(int n_octets,
         "Wrong UTF-16 string. The word (0x%04X) shall be between 0xDC00 and 0xDFFF", W2);
       else
         TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_DEC_UCSTR,
-        "Wrong UTF-16 string. The decoding algorythm does not expect 0x00 or EOL");
+        "Wrong UTF-16 string. The decoding algorithm does not expect 0x00 or EOL");
     }
     else {
       //Construct a 20-bit unsigned integer, taking the 10 low-order bits of W1 as its 10 high-
