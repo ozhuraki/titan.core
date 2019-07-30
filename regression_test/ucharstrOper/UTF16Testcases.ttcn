@@ -49,7 +49,7 @@ testcase tc_oct2unichar_UTF16_negative_D800() runs on MTC {
   f_oct2unichar_negativetest(
     inputOs :=  'FEFFD800'O,
     encType := "UTF-16BE",
-    expectedErrorMsg := "Wrong UTF-16 string. The decoding algorythm does not expect 0x00 or EOL"
+    expectedErrorMsg := "Wrong UTF-16 string. The decoding algorithm does not expect 0x00 or EOL"
   );
 }
 
@@ -65,7 +65,7 @@ testcase tc_oct2unichar_UTF16_negative_D8000000() runs on MTC {
   f_oct2unichar_negativetest(
     inputOs :=  'FEFFD8000000'O,
     encType := "UTF-16BE",
-    expectedErrorMsg := "Wrong UTF-16 string. The decoding algorythm does not expect 0x00 or EOL"
+    expectedErrorMsg := "Wrong UTF-16 string. The decoding algorithm does not expect 0x00 or EOL"
   );
 }
 
