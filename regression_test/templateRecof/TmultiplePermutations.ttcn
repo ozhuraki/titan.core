@@ -1,15 +1,15 @@
 /******************************************************************************
- * Copyright (c) 2000-2019 Ericsson Telecom AB
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v2.0
- * which accompanies this distribution, and is available at
- * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
- *
- * Contributors:
- *   Balasko, Jeno
- *   Baranyi, Botond
- *
- ******************************************************************************/
+* Copyright (c) 2000-2019 Ericsson Telecom AB
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v2.0
+* which accompanies this distribution, and is available at
+* https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+*
+* Contributors:
+*   Balasko, Jeno
+*   Baranyi, Botond
+*
+******************************************************************************/
 // Test cases for TR HQ19911:
 // Adding multiple permutations to the same template variable, testing if permutation data is
 // cleared properly between commands
@@ -19,10 +19,16 @@ type record of integer RoI;
 type record of float RoF;
 type record of charstring RoCS;
 
+type record of RoI RoRoI;
+type record of RoF RoRoF;
+type record of RoCS RoRoCS;
+
 type record Roios {
   RoI roi,
   octetstring os
 }
+
+modulepar template RoI mpt_roi := { };
 
 type component CT_empty { };
 type component CT_perm {
@@ -37,74 +43,193 @@ function f_do_nothing(in template RoI p_roi) runs on CT_empty return template Ro
   return p_roi;
 }
 
-modulepar {
-  template RoI mpt_roi := { };
+
+function f_roi_match_test(inout RoRoI pl_matching_values, in template RoI t_roi) {
+  var integer vl_size := sizeof(pl_matching_values);
+  for(var integer i:= 0; i < vl_size ; i:=i+1) {
+    if(not match(pl_matching_values[i],t_roi)) {
+      setverdict(fail, i, ": ",match(pl_matching_values[i],t_roi) );
+      break; //?
+    }
+  }
+  setverdict(pass);
 }
+
+function f_roi_no_match_test(inout RoRoI pl_matching_values, in template RoI t_roi) {
+  var integer vl_size := sizeof(pl_matching_values);
+  for(var integer i:= 0; i < vl_size ; i:=i+1) {
+    if( match(pl_matching_values[i],t_roi)) {
+      setverdict(fail," i: ", match( pl_matching_values[i],t_roi) );
+      break; //?
+    }
+  }
+  setverdict(pass);
+}
+
+//float
+function f_rof_match_test(inout RoRoF pl_matching_values, in template RoF t_rof) {
+  var integer vl_size := sizeof(pl_matching_values);
+  for(var integer i:= 0; i < vl_size ; i:=i+1) {
+    if(not match(pl_matching_values[i],t_rof)) {
+      setverdict(fail, i, match(pl_matching_values[i],t_rof) );
+      break; //?
+    }
+  }
+  setverdict(pass);
+}
+
+function f_rof_no_match_test(inout RoRoF pl_matching_values, in template RoF t_rof) {
+  var integer vl_size := sizeof(pl_matching_values);
+  for(var integer i:= 0; i < vl_size ; i:=i+1) {
+    if( match(pl_matching_values[i],t_rof)) {
+      setverdict(fail);
+      break; //?
+    }
+  }
+  setverdict(pass);
+}
+
+//charstring
+function f_rocs_match_test(inout RoRoCS pl_matching_values, in template RoCS t_rocs) {
+  var integer vl_size := sizeof(pl_matching_values);
+  for(var integer i:= 0; i < vl_size ; i:=i+1) {
+    if(not match(pl_matching_values[i],t_rocs)) {
+      setverdict(fail, i,":", match(pl_matching_values[i],t_rocs) );
+      break; //?
+    }
+  }
+  setverdict(pass);
+}
+
+function f_rocs_no_match_test(inout RoRoCS pl_matching_values, in template RoCS t_rocs) {
+  var integer vl_size := sizeof(pl_matching_values);
+  for(var integer i:= 0; i < vl_size ; i:=i+1) {
+    if( match(pl_matching_values[i],t_rocs)) {
+      setverdict(fail,i, ":", match(pl_matching_values[i],t_rocs));
+      break; //?
+    }
+  }
+  setverdict(pass);
+}
+
+//**** Test cases ****
 
 // Testing permutation with template variable in a component
 testcase tc_mul_perm_component1() runs on CT_perm {
+  vt_comp_perm := { permutation(4,5,6) };
+  var RoRoI vl_maching := { {4,5,6}, {4,6,5}, {5,4,6},{5,6,4}, {6,4,5},{6,5,4} }
+  var RoRoI vl_notmaching := {{}, {2}, {4},{4,5}, {4,5,7}, {4,5,6,6}, {4,5,6,7},{10,11,4,5,6} }
+  f_roi_match_test(vl_maching,vt_comp_perm);
+  f_roi_no_match_test(vl_notmaching, vt_comp_perm);
   setverdict(pass);
+
 }
 
-testcase tc_mul_perm_component2() runs on CT_perm {
-  setverdict(pass);
-}
 
 // Testing multiple permutations on a template variable
 testcase tc_mul_perm_var() runs on CT_empty {
-  var template RoI vt_roi := { permutation(2) };
+  var template RoI vt_roi := { permutation(4,5,6) };
+  var RoRoI vl_maching := { {3,4,7}, {3,7,4},{4,3,7}, {4,7,3}, {7,4,3},{7,3,4} }
+  var RoRoI vl_notmaching := {{2}, {2,3,4,7}, {}}
   vt_roi := { permutation(3,4,7) };
+  f_roi_match_test(vl_maching,vt_roi);
+  f_roi_no_match_test(vl_notmaching, vt_roi);
   setverdict(pass);
 }
 
 testcase tc_mul_perm_temp() runs on CT_empty {
   var template RoI vt_roi := { permutation(5,2) };
   vt_roi := t_perm1;
-  vt_roi := t_perm2;
+  vt_roi := t_perm2; //{1,2,permutation(5,?))}
+  var RoRoI vl_maching := { {1,2,5,6}, {1,2,6,5}, {1,2,99,5} }
+  var RoRoI vl_notmaching := { {2}, {6,5,4,3,2,1}, {1,2,6,6} }
+  f_roi_match_test(vl_maching,vt_roi);
+  f_roi_no_match_test(vl_notmaching, vt_roi);
   setverdict(pass);
 }
 
 testcase tc_mul_perm_var2() runs on CT_empty {
   var template RoI vt_roi1 := { permutation(1,2,3,4) };
   var template RoI vt_roi2 := { permutation(5,6) };
-  vt_roi2 := valueof(vt_roi1) & { 10, 20, 30 };
-  vt_roi2 := t_perm2;
+  vt_roi2 := valueof(vt_roi1) & { 10, 20, 30 }; //result := { 1,2,3,4,10,20,30} ???
+  //  log(vt_roi2); //{ 1, 2, 3, 4, 10, 20, 30 }
+  //  log(t_perm2); //
+  vt_roi2 := t_perm2; //{1,2,permutation(5,?))}
+  //  log(vt_roi2);
   vt_roi1 := vt_roi2;
+  //  log(vt_roi1);
   vt_roi1 := vt_roi1;
+  log(vt_roi1); //{ 1, 2, permutation(5, ?) }
+  var RoRoI vl_maching := { {1,2,5,6}, {1,2,6,5}, {1,2,99,5} }
+  var RoRoI vl_notmaching := { {2}, {6,5,4,3,2,1}, {1,2,6,6} }
+  f_roi_match_test(vl_maching,vt_roi1);
+  f_roi_no_match_test(vl_notmaching, vt_roi1);
   setverdict(pass);
 }
 
+//float:
 testcase tc_mul_perm_var_f() runs on CT_empty {
   var template RoF vt_rof := { 1.0, 0.0, permutation(9.5, *) };
   vt_rof := { 0.0, permutation(1.0, 2.0, ?), 10.0, permutation(2.73, 3.14, *) };
-  vt_rof := { permutation( (0.0 .. 1.0) ) };
+
+  vt_rof := { -1.0, permutation( (0.0 .. 1.0), 2.0, 3.0 ) }; //???
+  var RoRoF vl_maching := { {-1.0, 0.0, 2.0, 3.0}, {-1.0, 0.2, 3.0, 2.0} }
+  var RoRoF vl_notmaching := { {}, {-1.0}, {0.0}, {-1.0, 0.2, 3.0} , {-1.0, 0.0, 2.0, 3.0, 4.0} }
+  f_rof_match_test(vl_maching,vt_rof);
+  f_rof_no_match_test(vl_notmaching, vt_rof);
   setverdict(pass);
 }
 
+//charstring
 testcase tc_mul_perm_var_cs() runs on CT_empty {
   var template RoCS vt_rocs := { "one", "two", permutation("six", "seven", "eight") };
   vt_rocs := { permutation("cat", "dog", pattern "a*d" length (4..10) ) };
   vt_rocs := { permutation( ("a".."f") ) };
+  vt_rocs := { permutation("cat", "dog", pattern "a*d" length (4..10) ) };
+  var RoRoCS vl_maching := { {"cat", "dog", "axxd"}, { "dog", "cat", "a12345678d"} }
+  var RoRoCS vl_notmaching := { {},  {"cat", "dog", "axd"}, { "dog", "cat", "a123456789d"} }
+  f_rocs_match_test(vl_maching,vt_rocs);
+  f_rocs_no_match_test(vl_notmaching, vt_rocs);
   setverdict(pass);
 }
 
 testcase tc_mul_perm_func() runs on CT_empty {
   var template RoI vt_roi := { 1, 2, permutation(6,7,8) };
   vt_roi := f_do_nothing(vt_roi);
+  var RoRoI vl_maching := { {1,2,6,7,8}, {1,2,6,8,7}, {1,2,8,7,6} } //etc
+  var RoRoI vl_notmaching := { {}, {2}, {2,1,6,7,8}, {1,2,6,7,9},{1,2,6,7,8,9} }
   setverdict(pass);
 }
 
 testcase tc_mul_perm_modulepar() runs on CT_empty {
   var template RoI vt_roi := { permutation(8,9) };
-  vt_roi := mpt_roi;
+  vt_roi := mpt_roi;//{ permutation(1,2,3), 10 }
   vt_roi := { permutation(8,9,10) };
+  var RoRoI vl_maching := { {8,9,10},{8,10,9},{9,8,10}} //etc
+  var RoRoI vl_notmaching := { {}, {8}, {8,9,10,11} }
+  f_roi_match_test(vl_maching,vt_roi);
+  f_roi_no_match_test(vl_notmaching, vt_roi);
+  setverdict(pass);
+}
+
+testcase tc_mul_perm_modulepar2() runs on CT_empty {
+  var template RoI vt_roi := { permutation(8,9) };
+  vt_roi := mpt_roi;//{ permutation(1,2,3), 10 }
+  var RoRoI vl_maching := { {1,2,3,10},{1,3,2,10}} //etc
+  var RoRoI vl_notmaching := { {}, {1}, {1,2,10},{10,1,2,3} }
+  f_roi_match_test(vl_maching,vt_roi);
+  f_roi_no_match_test(vl_notmaching, vt_roi);
   setverdict(pass);
 }
 
 testcase tc_mul_perm_all_from() runs on CT_empty {
   var template RoI vt_roi := { 1, 2, permutation(3, 4, all from t_simple ) };
   vt_roi := { permutation(-2, -1, all from t_simple) };
-  vt_roi := { -2, -1, permutation(all from t_simple) };
+  vt_roi := { -2, -1, permutation(all from t_simple) };//  {-2,-1, permutation(6,7,8)}
+  var RoRoI vl_maching := { {-2,-1,6,7,8}, {-2,-1,8,7,6} } //etc
+  var RoRoI vl_notmaching := { {}, {2}, {2,1,6,7,8}, {-2,-1},{-2,-1,6,8,9}, {-2,-1,8,7,6,6} }
+  f_roi_match_test(vl_maching,vt_roi);
+  f_roi_no_match_test(vl_notmaching, vt_roi);
   setverdict(pass);
 }
 
@@ -119,13 +244,18 @@ testcase tc_mul_perm_var3() runs on CT_empty {
 testcase tc_mul_perm_field() runs on CT_empty {
   var template Roios vt_roios := { { permutation (1, 2, 3) } , 'DEAD'O };
   vt_roios.roi := { 1, permutation(2, 3) };
-  vt_roios.roi := { permutation(7, lengthof(vt_roios.roi)), 19 };
-  setverdict(pass);
+  vt_roios.roi := { permutation(7, lengthof(vt_roios.roi)), 19 }; //perm(7,3),19}
+  var template Roios vt_expected := { { permutation(7,3),19}, 'DEAD'O }
+  log(vt_roios);
+  if( log2str(vt_roios) == log2str(vt_expected)) {
+    setverdict(pass);
+  } else {
+    setverdict(fail)
+  }
 }
 
 control {
   execute(tc_mul_perm_component1());
-  execute(tc_mul_perm_component2());
   execute(tc_mul_perm_var());
   execute(tc_mul_perm_temp());
   execute(tc_mul_perm_var2());
@@ -133,6 +263,7 @@ control {
   execute(tc_mul_perm_var_cs());
   execute(tc_mul_perm_func());
   execute(tc_mul_perm_modulepar());
+  execute(tc_mul_perm_modulepar2());
   execute(tc_mul_perm_all_from());
   execute(tc_mul_perm_var3());
   execute(tc_mul_perm_field());
