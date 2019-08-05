@@ -3112,14 +3112,22 @@ namespace Common {
         err = true;
       }
       break;
-    case T_INT:
+    case T_INT: {
+      boolean first_digit = false; // there's at least one digit
       for (size_t i = (dval[0] == '-') ? 1 : 0; i < dval_len; ++i) {
         if (dval[i] < '0' || dval[i] > '9') {
           err = true;
           break; // from the loop
         }
+        else {
+          first_digit = true;
+        }
       }
-      break;
+      if (!first_digit) {
+        // empty value or just a '-'
+        err = true;
+      }
+      break; }
     case T_REAL: {
       if (strcmp(dval, "infinity") == 0 || strcmp(dval, "-infinity") == 0 ||
           strcmp(dval, "not_a_number") == 0) {
