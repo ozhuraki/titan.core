@@ -401,7 +401,7 @@ Create the makefile with library as the default target. The name of the generate
 
 * `-m`
 +
-Always use `makedepend` for dependencies. By default, for makefiles used by GNU `make`, the compiler (usually GCC) is used to generate dependency information in an incremental fashion. This switch reverts to the process for generic make tools, which uses the `makedepend` tool.
+Always use `makedepend` for dependencies. By default, for makefiles used by GNU `make`, the compiler (usually GCC) is used to generate dependency information in an incremental fashion. This switch reverts to the process for generic make tools, which use the `makedepend` tool. This switch has no effect if switch `-g` (GNU make) is not set.
 
 * `-M`
 +
