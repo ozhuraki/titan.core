@@ -592,14 +592,14 @@ void TTCN_Logger::set_executable_name(const char *argv_0)
   // Cut the '.exe' suffix from the end (if present).
   if (name_end >= 4 && !strncasecmp(argv_0 + name_end - 4, ".exe", 4))
     name_end -= 4;
-    size_t name_begin = 0;
-    // Find the last '/' (if present) to cut the leading directory part.
-    for (int i = name_end - 1; i >= 0; i--) {
-      if (argv_0[i] == '/') {
-        name_begin = i + 1;
-        break;
-      }
+  size_t name_begin = 0;
+  // Find the last '/' (if present) to cut the leading directory part.
+  for (int i = name_end - 1; i >= 0; i--) {
+    if (argv_0[i] == '/') {
+      name_begin = i + 1;
+      break;
     }
+  }
   int name_len = name_end - name_begin;
   if (name_len > 0) {
     executable_name = (char*)Malloc(name_len + 1);

@@ -1903,7 +1903,7 @@ void Record_Of_Type::decode(const TTCN_Typedescriptor_t& p_td,
     if(RAW_decode(p_td, p_buf, p_buf.get_len()*8, order)<0)
       ec.error(TTCN_EncDec::ET_INCOMPL_MSG,"Can not decode type '%s', "
                  "because invalid or incomplete message was received", p_td.name);
-      break;}
+    break;}
   case TTCN_EncDec::CT_TEXT: {
     Limit_Token_List limit;
     TTCN_EncDec_ErrorContext ec("While TEXT-decoding type '%s': ", p_td.name);
