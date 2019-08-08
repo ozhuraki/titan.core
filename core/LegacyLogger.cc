@@ -2092,8 +2092,8 @@ char *LegacyLogger::get_file_name(size_t idx)
     case 'i': // %i -> log file index
       if (this->logfile_number_ != 1)
         ret_val = mputprintf(ret_val, "%lu", (unsigned long)idx);
-        i_present = TRUE;
-        break;
+      i_present = TRUE;
+      break;
     case '\0': // trailing single %: leave as it is
       i--; // to avoid over-indexing in next iteration
       // no break
