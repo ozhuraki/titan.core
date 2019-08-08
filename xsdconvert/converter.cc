@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
 
   // The file holding a list of the XSD files.
   const char *from_file = NULL;
-  char c;
+  signed char c;
   opterr = 0;
 
   while ((c = getopt(argc, argv, "cdef:ghJ:mnopqstvwxz")) != -1) {
