@@ -2053,7 +2053,7 @@ inline
 static char
 in_word_set (const char *str, unsigned int len)
 {
-  static char wordlist[] =
+  static signed char wordlist[] =
     {
       -1, -1,
       12, // FF

@@ -1322,7 +1322,7 @@ int CHARSTRING::XER_encode(const XERdescriptor_t& p_td,
 * Translates a Base64 value to either its 6-bit reconstruction value
 * or a negative number indicating some other meaning.
 * Public domain from http://iharder.net/base64 */
-char  base64_decoder_table[256] =
+signed char  base64_decoder_table[256] =
 {
   -9,-9,-9,-9,-9,-9,-9,-9,-9,                 // Decimal  0 -  8
   -5,-5,                                      // Whitespace: Tab and Linefeed
