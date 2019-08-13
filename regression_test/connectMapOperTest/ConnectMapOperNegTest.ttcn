@@ -20,13 +20,13 @@ module ConnectMapOperNegTest {
           port loopbackPort p2;
     }   
 
-    type component System_ {
+    type component System {
           port loopbackPort p1;
           port loopbackPort p2;
          
     }   
 
-    testcase tc_neg_connect_after_map() runs on GeneralComp system System_ {
+    testcase tc_neg_connect_after_map() runs on GeneralComp system System {
         map(self:p1, system:p1);
         template charstring t_expected := pattern "*Dynamic test case error: Connect operation cannot be performed on a mapped port \(p1\).*"
         @try {
@@ -44,7 +44,7 @@ module ConnectMapOperNegTest {
         setverdict(pass);    
     }
 
-    testcase tc_neg_connect_after_map2() runs on GeneralComp system System_ {
+    testcase tc_neg_connect_after_map2() runs on GeneralComp system System {
         var GeneralComp v_comp := GeneralComp.create;
         template charstring t_expected := pattern "*Dynamic test case error: Connect operation cannot be performed on a mapped port \(p1\).*"
         map(self:p1, system:p1);
@@ -63,7 +63,7 @@ module ConnectMapOperNegTest {
         setverdict(pass);    
     }
 
-    testcase tc_neg_map_after_connect() runs on GeneralComp system System_ {
+    testcase tc_neg_map_after_connect() runs on GeneralComp system System {
         var GeneralComp v_comp := GeneralComp.create;
         template charstring t_expected := pattern "*Dynamic test case error: Map operation is not allowed on a connected port \(p1\)."
         connect(self:p1, v_comp:p2);
