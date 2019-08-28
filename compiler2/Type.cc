@@ -3458,12 +3458,17 @@ namespace Common {
     default:
       // no need to generate coder functions for basic types, but this function
       // is also used to determine codec-specific descriptor generation
-      return can_have_coding(coding);
+      return can_have_coding(coding) == TTRUE;
     }
   }
   
   void Type::set_gen_coder_functions(MessageEncodingType_t coding)
   {
+    if (is_asn1() && !checked) {
+      // probably a recursive ASN.1 type
+      // this function will be called again after the type is checked
+      return;
+    }
     // TODO: this should also influence type descriptor generation
     switch (coding) {
     case CT_BER:
@@ -3528,19 +3533,27 @@ namespace Common {
     }
 
     if (built_in_coding != CT_CUSTOM && built_in_coding != CT_PER) {
-      if (get_type_refd_last()->can_have_coding(built_in_coding)) {
+      switch (get_type_refd_last()->can_have_coding(built_in_coding)) {
+      case TTRUE: {
         coding_t* new_coding = new coding_t;
         new_coding->built_in = TRUE;
         new_coding->modifier = modifier;
         new_coding->built_in_coding = built_in_coding;
         coding_table.add(new_coding);
         get_type_refd_last()->set_gen_coder_functions(built_in_coding);
-      }
-      else if (!silent) {
-        // TODO: if an ASN.1 type cannot have a specific encoding,
-        // it shouldn't be given that encoding in 'Type::chk_encodings'
-        warning("Type `%s' cannot have %s encoding. Encode attribute ignored.",
-          get_typename().c_str(), get_encoding_name(built_in_coding));
+        break; }
+      case TFALSE:
+        if (!silent) {
+          // TODO: if an ASN.1 type cannot have a specific encoding,
+          // it shouldn't be given that encoding in 'Type::chk_encodings'
+          warning("Type `%s' cannot have %s encoding. Encode attribute ignored.",
+            get_typename().c_str(), get_encoding_name(built_in_coding));
+        }
+        break;
+      case TUNKNOWN:
+        // do nothing, parts of the type are unchecked
+        // this function will be called later after the type has been checked
+        break;
       }
     }
     else {
@@ -3689,11 +3702,15 @@ namespace Common {
     return t_parent;
   }
   
-  bool Type::can_have_coding(MessageEncodingType_t coding)
+  tribool Type::can_have_coding(MessageEncodingType_t coding)
   {
+    if (is_asn1() && !checked) {
+      // the type isn't fully checked yet
+      return TUNKNOWN;
+    }
     // this helps avoid infinite recursions in self-referencing types
     if (RecursionTracker::is_happening(this)) {
-      return true;
+      return TTRUE;
     }
     RecursionTracker tracker(this);
     
@@ -3705,24 +3722,24 @@ namespace Common {
         (coding == CT_XER && !enable_xer()) ||
         (coding == CT_JSON && !enable_json()) ||
         (coding == CT_OER && !enable_oer())) {
-      return false;
+      return TFALSE;
     }
     
     // BER encoding is handled by 'has_encoding'
     if (coding == CT_BER) {
-      return has_encoding(CT_BER);
+      return has_encoding(CT_BER) ? TTRUE: TFALSE;
     }
     
     // XER encoding for ASN.1 types can only be enabled by a compiler option 
     if (coding == CT_XER && !asn1_xer && is_asn1()) {
-      return false;
+      return TFALSE;
     }
     
     // optimization: if it already has the encoding set, then the answer is true
     for (size_t i = 0; i < coding_table.size(); ++i) {
       if (coding_table[i]->built_in &&
           coding_table[i]->built_in_coding == coding) {
-        return true;
+        return TTRUE;
       }
     }
     
@@ -3738,15 +3755,16 @@ namespace Common {
       // all field types must be able to have the specified encoding
       for (size_t i = 0; i < get_nof_comps(); ++i) {
         Type* field_type = get_comp_byIndex(i)->get_type()->get_type_refd_last();
-        if (!field_type->can_have_coding(coding)) {
-          return false;
+        tribool tb = field_type->can_have_coding(coding);
+        if (tb != TTRUE) {
+          return tb;
         }
       }
-      return true;
+      return TTRUE;
       
     case T_ARRAY:
       if (coding != CT_JSON) {
-        return false; // arrays can only have JSON encoding
+        return TFALSE; // arrays can only have JSON encoding
       }
       // else fall through
     case T_SEQOF:
@@ -3769,9 +3787,9 @@ namespace Common {
         case T_CSTR:
         case T_USTR:
         case T_ENUM_T:
-          return true;
+          return TTRUE;
         default:
-          return false;
+          return TFALSE;
         }
         
       case CT_TEXT:
@@ -3783,9 +3801,9 @@ namespace Common {
         case T_CSTR:
         case T_USTR:
         case T_ENUM_T:
-          return true;
+          return TTRUE;
         default:
-          return false;
+          return TFALSE;
         }
         
       case CT_XER:
@@ -3802,9 +3820,9 @@ namespace Common {
         case T_CSTR:
         case T_USTR:
         case T_ENUM_T:
-          return true; // TODO: what about T_ERROR?
+          return TTRUE; // TODO: what about T_ERROR?
         default:
-          return false;
+          return TFALSE;
         }
         
       case CT_JSON:
@@ -3837,9 +3855,9 @@ namespace Common {
         case T_ANY:
         case T_ENUM_T:
         case T_ENUM_A:
-          return true; // TODO: what about T_ERROR?
+          return TTRUE; // TODO: what about T_ERROR?
         default:
-          return false;
+          return TFALSE;
         }
         
       case CT_OER:
@@ -3869,9 +3887,9 @@ namespace Common {
           case T_SEQOF:
           case T_EXTERNAL:
           case T_OBJECTDESCRIPTOR:
-            return true;
+            return TTRUE;
           default:
-            return false;
+            return TFALSE;
         }
       default:
         FATAL_ERROR("Type::can_have_coding");
@@ -6585,7 +6603,7 @@ namespace Common {
         // types need an 'encode' attribute for user-defined codecs
         return false;
       }
-      return last->can_have_coding(encoding_type);
+      return last->can_have_coding(encoding_type) == TTRUE;
     }
     // legacy codec handling, plus BER and PER encoding in both cases
     static memoizer memory;
