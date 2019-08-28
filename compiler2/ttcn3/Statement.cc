@@ -9065,7 +9065,9 @@ error:
 
     type->chk_this_template_ref(templ);
     self_ref |= type->chk_this_template_generic(templ, INCOMPLETE_ALLOWED,
-      OMIT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK, NOT_IMPLICIT_OMIT, lhs);
+      (type->get_parent_type() != NULL && !type->is_optional_field()) ?
+      OMIT_NOT_ALLOWED : OMIT_ALLOWED,
+      ANY_OR_OMIT_ALLOWED, SUB_CHK, NOT_IMPLICIT_OMIT, lhs);
     chk_template_restriction();
     return;
   error:
