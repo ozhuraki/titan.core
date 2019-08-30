@@ -153,15 +153,6 @@ testcase choice_template() runs on CT { // TYPE 2: union change alternative
   else                   { setverdict(fail, "boo should be bound"); }
   if (valueof(vtu.boo))  { setverdict(pass); }
   else                   { setverdict(fail, match(valueof(vtu.boo), true)); }
-
-  vtu.s := omit;
-  vtu := { boo := ispresent(vtu.s) }
-  if (ischosen(vtu.boo)) { setverdict(pass); }
-  else                   { setverdict(fail, "boo should be chosen"); }
-  if (isvalue (vtu.boo)) { setverdict(pass); }
-  else                   { setverdict(fail, "boo should be bound"); }
-  if (not valueof(vtu.boo)) { setverdict(pass); }
-  else                   { setverdict(fail, match(valueof(vtu.boo), false)); }
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
