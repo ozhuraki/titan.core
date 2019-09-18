@@ -2646,6 +2646,29 @@ group Elements{
         "www_example_org_bug537922.ttcn", c_numOfDiff);
     }
   }
+  
+  testcase tc_noTargetNamespace_separate() runs on xmlTest_CT { // bug 550942
+    f_shellCommandWithVerdict(xsd2ttcn_command & " -N XmlTest_noTargetNamespace_1.xsd XmlTest_noTargetNamespace_2.xsd", "", c_shell_successWithoutWarningAndError);
+
+    if(getverdict == pass) {
+      f_compareFiles(
+        "NoTargetNamespace_XmlTest_noTargetNamespace_1_xsd_e.ttcn",
+        "NoTargetNamespace_XmlTest_noTargetNamespace_1_xsd.ttcn", c_numOfDiff);
+      f_compareFiles(
+        "NoTargetNamespace_XmlTest_noTargetNamespace_2_xsd_e.ttcn",
+        "NoTargetNamespace_XmlTest_noTargetNamespace_2_xsd.ttcn", c_numOfDiff);
+    }
+  }
+  
+  testcase tc_noTargetNamespace_merged() runs on xmlTest_CT { // bug 550942
+    f_shellCommandWithVerdict(xsd2ttcn_command & " XmlTest_noTargetNamespace_1.xsd XmlTest_noTargetNamespace_2.xsd", "", c_shell_successWithoutWarningAndError);
+
+    if(getverdict == pass) {
+      f_compareFiles(
+        "NoTargetNamespace3_e.ttcn",
+        "NoTargetNamespace.ttcn", c_numOfDiff);
+    }
+  }
 
 }//Element
 
@@ -2925,6 +2948,9 @@ control {
   execute(tc_name_clashes_and_references_merged());
   
   execute(tc_group_ref_order());
+  
+  execute(tc_noTargetNamespace_separate());
+  execute(tc_noTargetNamespace_merged());
 }
 
 } with {
