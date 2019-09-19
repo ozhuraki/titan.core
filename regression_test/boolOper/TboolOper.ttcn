@@ -278,28 +278,28 @@ testcase boolUninitXor() runs on boolOper_comptype {
   x1:=true;
   @try {
     x3:=x1 xor x2;
-    setverdict(fail, "This line should not reached. DTE expected")
+    setverdict(fail, "This line should not be reached. DTE expected")
   } @catch(e) {
     //check e
     setverdict(pass);
   }
   @try {
     x3:=x2 xor x1;
-    setverdict(fail, "This line should not reached. DTE expected")
+    setverdict(fail, "This line should not be reached. DTE expected")
   } @catch(e) {
     //check e
     setverdict(pass);
   }
   @try {
     x3:= true xor x2;
-    setverdict(fail, "This line should not reached. DTE expected")
+    setverdict(fail, "This line should not be reached. DTE expected")
   } @catch(e) {
     //check e
     setverdict(pass);
   }
   @try {
     x3:=x2 xor true;
-    setverdict(fail, "This line should not reached. DTE expected")
+    setverdict(fail, "This line should not be reached. DTE expected")
   } @catch(e) {
     //check e
     setverdict(pass);
@@ -311,14 +311,14 @@ testcase boolUninitOr() runs on boolOper_comptype {
   x1:=false; 
   @try {
     x3:=x1 or x2;
-    setverdict(fail, "This line should not reached. DTE expected")
+    setverdict(fail, "This line should not be reached. DTE expected")
   } @catch(e) {
     //check e
     setverdict(pass);
   }
   @try {
     x3:=x2 or x1;
-    setverdict(fail, "This line should not reached. DTE expected")
+    setverdict(fail, "This line should not be reached. DTE expected")
   } @catch(e) {
     //check e
     setverdict(pass);
@@ -332,7 +332,7 @@ testcase boolUninitOr() runs on boolOper_comptype {
   }
   @try {
     x3:=x2 or true;
-    setverdict(fail, "This line should not reached. DTE expected")
+    setverdict(fail, "This line should not be reached. DTE expected")
   } @catch(e) {
     //check e
     setverdict(pass);
@@ -344,28 +344,28 @@ testcase boolUninitAnd() runs on boolOper_comptype {
   x1:=true;
   @try {
     x3:=x1 and x2;
-    setverdict(fail, "This line should not reached. DTE expected")
+    setverdict(fail, "This line should not be reached. DTE expected")
   } @catch(e) {
     //check e
     setverdict(pass);
   }
   @try {
     x3:=x2 and x1;
-    setverdict(fail, "This line should not reached. DTE expected")
+    setverdict(fail, "This line should not be reached. DTE expected")
   } @catch(e) {
     //check e
     setverdict(pass);
   }
   @try {
     x3:= true and x2;
-    setverdict(fail, "This line should not reached. DTE expected")
+    setverdict(fail, "This line should not be reached. DTE expected")
   } @catch(e) {
     //check e
     setverdict(pass);
   }
   @try {
     x3:=x2 and true;
-    setverdict(fail, "This line should not reached. DTE expected")
+    setverdict(fail, "This line should not be reached. DTE expected")
   } @catch(e) {
     //check e
     setverdict(pass);
@@ -376,7 +376,7 @@ testcase boolUninitNot() runs on boolOper_comptype {
   var boolean x1,x2;
   @try {
     x2:= not x1;
-    setverdict(fail, "This line should not reached. DTE expected")
+    setverdict(fail, "This line should not be reached. DTE expected")
   } @catch(e) {
     //check e
     setverdict(pass);
@@ -388,14 +388,14 @@ testcase boolUninitTemplate() runs on boolOper_comptype {
   var boolean x1;
   @try {
     x2:= x1;
-    setverdict(fail, "This line should not reached. DTE expected")
+    setverdict(fail, "This line should not be reached. DTE expected")
   } @catch(e) {
     //check e
     setverdict(pass);
   }
   @try {
     x2:= not x1;
-    setverdict(fail, "This line should not reached. DTE expected")
+    setverdict(fail, "This line should not be reached. DTE expected")
   } @catch(e) {
     //check e
     setverdict(pass);
@@ -403,7 +403,7 @@ testcase boolUninitTemplate() runs on boolOper_comptype {
 
   @try {
     x1:= valueof(x2);
-    setverdict(fail, "This line should not reached. DTE expected")
+    setverdict(fail, "This line should not be reached. DTE expected")
   } @catch(e) {
     //check e
     setverdict(pass);
@@ -415,14 +415,14 @@ testcase boolUninitModulepar() runs on boolOper_comptype {
   var boolean x1 := true;
   @try {
     x2:= tsp_uninit;
-    setverdict(fail, "This line should not reached. DTE expected")
+    setverdict(fail, "This line should not be reached. DTE expected")
   } @catch(e) {
     //check e
     setverdict(pass);
   }
   @try {
     x2:= not tsp_uninit;
-    setverdict(fail, "This line should not reached. DTE expected")
+    setverdict(fail, "This line should not be reached. DTE expected")
   } @catch(e) {
     //check e
     setverdict(pass);
@@ -430,7 +430,7 @@ testcase boolUninitModulepar() runs on boolOper_comptype {
 
   @try {
     x2:= tsp_uninit or x1;
-    setverdict(fail, "This line should not reached. DTE expected")
+    setverdict(fail, "This line should not be reached. DTE expected")
   } @catch(e) {
     //check e
     setverdict(pass);
