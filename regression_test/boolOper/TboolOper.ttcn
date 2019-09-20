@@ -18,6 +18,8 @@ module TboolOper
 {
 
 modulepar boolean tsp_uninit;
+modulepar boolean tsp_init := true;
+
 const boolean TboolOper_const1:=true;
 type component boolOper_comptype { };
 
@@ -383,6 +385,15 @@ testcase boolUninitNot() runs on boolOper_comptype {
   }
 }
 
+testcase boolUninitLog() runs on boolOper_comptype {
+  var boolean x1;
+  if (log2str(x1) == "<unbound>") { 
+    setverdict(pass, "x1: ",x1);
+  } else { 
+    setverdict(fail);
+  }
+}
+
 testcase boolUninitTemplate() runs on boolOper_comptype {
   var template boolean x2;
   var boolean x1;
@@ -410,7 +421,7 @@ testcase boolUninitTemplate() runs on boolOper_comptype {
   }
 }
 
-testcase boolUninitModulepar() runs on boolOper_comptype {
+testcase boolModulepar() runs on boolOper_comptype {
   var template boolean x2;
   var boolean x1 := true;
   @try {
@@ -434,6 +445,17 @@ testcase boolUninitModulepar() runs on boolOper_comptype {
   } @catch(e) {
     //check e
     setverdict(pass);
+  }
+  if (true != tsp_init) { 
+    setverdict(fail);
+  }
+  if (log2str(tsp_uninit) == "<unbound>") { 
+    setverdict(pass);
+  } else { 
+    setverdict(fail);
+  }
+  if (log2str(tsp_init) != "true") {
+    setverdict(fail);
   }
 }
 
@@ -477,6 +499,13 @@ testcase boolIsvalue() runs on boolOper_comptype{
 
   if ( isvalue(vt0) ) { setverdict(fail); } else { setverdict(pass); };
   if ( isvalue(vt1) ) { setverdict(fail); } else { setverdict(pass); };
+
+  var boolean x1 := true;
+  if (isvalue(x1) ){ 
+    setverdict (pass);
+  } else  {
+    setverdict (fail);
+  }
 }
 
 type union TestUnion {
@@ -533,6 +562,15 @@ testcase boolShortCircuit() runs on boolOper_comptype {
   setverdict(pass);
 }
 
+testcase boolUnion() runs on boolOper_comptype {
+  // create a union variable, make sure the boolean field is not chosen
+  var TestUnion myUnion := { b := true };
+  if (ischosen(myUnion.b))  {
+    setverdict(pass,"The value of the field: ", myUnion.b);
+  }
+
+}
+
 type record MyRecord {
   integer a optional
 }
@@ -565,8 +603,10 @@ control {
   execute(boolUninitOr());
   execute(boolUninitAnd());
   execute(boolUninitNot());
+  execute(boolUninitLog());
   execute(boolUninitTemplate());
-  execute(boolUninitModulepar());
+  execute(boolModulepar());
+  execute(boolUnion());
 }
 
 }
