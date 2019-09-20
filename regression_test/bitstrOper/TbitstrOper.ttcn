@@ -653,11 +653,90 @@ testcase bitstrIsbound() runs on bitstrOper_comptype{
   if ( isbound(tostr) ) { setverdict(fail); } else { setverdict(pass); };
 }
 
+testcase tc_bitstrUninit() runs on bitstrOper_comptype{
+  var bitstring x1, x2;
+  @try {
+    x2 := x1;
+    setverdict(fail, "This line should not be reached. DTE expected")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ", e)
+    if (isbound(x2)) {setverdict(fail)}
+  }
+  @try {
+    x2 := x1[2];
+    setverdict(fail, "This line should not be reached. DTE expected")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ", e)
+    if (isbound(x2)) {setverdict(fail)}
+  }
+  @try {
+    x2 := x1 @> 2;
+    setverdict(fail, "This line should not be reached");
+  } @catch(e) {
+    setverdict(pass, "Expected DTE: ", e)
+    if (isbound(x2)) {setverdict(fail)}
+  }
+  @try {
+    x2 := x1 <@ 2;
+    setverdict(fail, "This line should not be reached");
+  } @catch(e) {
+    setverdict(pass, "Expected DTE: ", e)
+    if (isbound(x2)) {setverdict(fail)}
+  }
+  var integer i;
+  @try {
+    i := lengthof(x1);
+    setverdict(fail, "This line should not be reached");
+  } @catch(e) {
+    setverdict(pass, "Expected DTE: ", e)
+    if (isbound(i)) {setverdict(fail)}
+  }
+  if (isbound(x1)) {setverdict(fail)};
+}
+
+testcase tc_bitstrIndexMistakes() runs on bitstrOper_comptype {
+  var bitstring x1, x2;
+  x1 := '101'B;
+  @try {
+    x2 := x1[3];
+    setverdict(fail, "This line should not be reached");
+  } @catch(e) {
+    setverdict(pass, "Expected DTE: ", e)
+    if (isbound(x2)) {setverdict(fail)};
+  }
+  var integer i := 1, j:= 2,  k;
+  @try {
+    x2 := x1[i-j]; //runtime negative index
+    setverdict(fail, "This line should not be reached");
+  } @catch(e) {
+    setverdict(pass, "Expected DTE: ", e)
+    if (isbound(x2)) {setverdict(fail)};
+  }
+  @try {
+    x2 := x1[k]; //runtime uninitialized index
+    setverdict(fail, "This line should not be reached");
+  } @catch(e) {
+    setverdict(pass, "Expected DTE: ", e)
+    if (isbound(x2)) {setverdict(fail)};
+  }
+  @try {
+    x2[1] := '1'B; //runtime pos index of uninit charstr
+    setverdict(fail, "This line should not be reached");
+  } @catch(e) {
+    setverdict(pass, "Expected DTE: ", e)
+    if (isbound(x2)) {setverdict(fail)};
+  }
+  @try {
+    x1[i-j] := '0'B; //runtime negative index
+    setverdict(fail, "This line should not be reached");
+  } @catch(e) {
+    setverdict(pass, "Expected DTE: ", e)
+  }
+}
   control
   {
     const bitstring cl_1:='1000'B;
     var bitstring vl_1;
-
     execute(bitstrAssign());
     execute(bitstrAssignElem10());
     execute(bitstrAssignElem01());
@@ -704,5 +783,7 @@ testcase bitstrIsbound() runs on bitstrOper_comptype{
     execute(bitstrSubtypes('0'B));
     execute(bitstrIsvalue());
     execute(bitstrIsbound());
-   }
+    execute(tc_bitstrUninit());
+    execute(tc_bitstrIndexMistakes());
+}
 }
