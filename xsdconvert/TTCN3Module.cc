@@ -369,6 +369,11 @@ void TTCN3Module::generate_with_statement(FILE * file, List<NamespaceType> used_
 
 void TTCN3Module::TargetNamespace2ModuleName() {
   Mstring res(targetNamespace);
+  
+  if (N_flag_used && res == Mstring("NoTargetNamespace")) {
+    res += Mstring("_") + schemaname;
+    // TODO: delete '.xsd' or not? the standard CR is conflicted on this...
+  }
 
   if (z_flag_used) {
     char * found;

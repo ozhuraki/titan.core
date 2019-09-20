@@ -21,6 +21,7 @@ extern bool g_flag_used;
 extern bool h_flag_used;
 extern bool m_flag_used;
 extern bool n_flag_used; // Undocumented. Internal use only with makefilegen
+extern bool N_flag_used;
 extern bool o_flag_used;
 extern bool p_flag_used;
 extern bool s_flag_used;

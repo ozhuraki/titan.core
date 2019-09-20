@@ -264,6 +264,8 @@
                 <File path="../XmlTest_xsds/XmlTest_annotation1.xsd" />
                 <File path="../XmlTest_xsds/XmlTest_annotation2.xsd" />
                 <File path="../XmlTest_xsds/XmlTest_version.xsd" />
+                <File path="../XmlTest_xsds/XmlTest_noTargetNamespace_1.xsd" />
+                <File path="../XmlTest_xsds/XmlTest_noTargetNamespace_2.xsd" />
                 <File path="../XmlTest_xsds/XmlTest_files1.txt" />
             </File_Group>
             <File_Group name="expectedTtcns" >
@@ -399,6 +401,9 @@
 		<File path="../XmlTest_expectedTtcns/XSD_Definitions_e.ttcn" />
 		<File path="../XmlTest_expectedTtcns/XSD_Definitions_e2.ttcn" />
 		<File path="../XmlTest_expectedTtcns/www_example_org_bug537922_e.ttcn" />
+		<File path="../XmlTest_expectedTtcns/NoTargetNamespace_XmlTest_noTargetNamespace_1_xsd_e.ttcn" />
+		<File path="../XmlTest_expectedTtcns/NoTargetNamespace_XmlTest_noTargetNamespace_2_xsd_e.ttcn" />
+		<File path="../XmlTest_expectedTtcns/NoTargetNamespace3_e.ttcn" />
 	        <File path="../XmlTest_expectedTtcns/www_example_org_simpletype_base_e.ttcn" />
 	        <File path="../XmlTest_expectedTtcns/www_example_org_type_substitution_e.ttcn" />
 	        <File path="../XmlTest_expectedTtcns/www_example_org_type_substitution_chain_e.ttcn" />

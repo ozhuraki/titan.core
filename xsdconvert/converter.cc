@@ -38,6 +38,7 @@ bool g_flag_used = true;
 bool h_flag_used = false;
 bool m_flag_used = false;
 bool n_flag_used = false; // Undocumented. Internal use only with makefilegen
+bool N_flag_used = false;
 bool o_flag_used = false;
 bool p_flag_used = false;
 bool s_flag_used = false;
@@ -75,7 +76,7 @@ int main(int argc, char **argv) {
   signed char c;
   opterr = 0;
 
-  while ((c = getopt(argc, argv, "cdef:ghJ:mnopqstvwxz")) != -1) {
+  while ((c = getopt(argc, argv, "cdef:ghJ:mnNopqstvwxz")) != -1) {
     switch (c) {
       case 'c':
         c_flag_used = true;
@@ -102,6 +103,9 @@ int main(int argc, char **argv) {
         break;
       case 'n':
         n_flag_used = true;
+        break;
+      case 'N':
+        N_flag_used = true;
         break;
       case 'o':
         o_flag_used = true;
@@ -258,6 +262,7 @@ static void printUsage(const char * argv0) {
     "	-g:		generate TTCN-3 code disallowing element substitution\n"
     "	-h:		generate TTCN-3 code allowing type substitution\n"
     "	-m:		generate only the UsefulTtcn3Types and XSD predefined modules\n"
+    "	-N:		generate separate modules for each XSD with no target namespace\n"
     "	-o:		generate all definitions into one module (called XSD_Definitions)\n"
     "	-p:		do not generate the UsefulTtcn3Types and XSD predefined modules\n"
     "	-q:		quiet mode - disable the issue of status messages\n"
