@@ -30,6 +30,7 @@
 #include "../common/pattern.hh"
 #include "../common/UnicharPattern.hh"
 #include <iostream>
+#include <locale.h>
 
 // used by regex
 #define ERRMSG_BUFSIZE 512
@@ -607,11 +608,13 @@ namespace Common {
       return new string("not_a_number");
     }
     char str_buf[64];
-    if ( (value > -MAX_DECIMAL_FLOAT && value <= -MIN_DECIMAL_FLOAT)
+    bool f = (value > -MAX_DECIMAL_FLOAT && value <= -MIN_DECIMAL_FLOAT)
       || (value >= MIN_DECIMAL_FLOAT && value <   MAX_DECIMAL_FLOAT)
-      || (value == 0.0))
-      snprintf(str_buf,64,"%f",value);
-    else snprintf(str_buf,64,"%e",value);
+      || (value == 0.0);
+    const char* loc = setlocale(LC_ALL, NULL);
+    setlocale(LC_NUMERIC, "C"); // use default locale for displaying numbers
+    snprintf(str_buf, 64, f ? "%f" : "%e", value);
+    setlocale(LC_NUMERIC, loc);
     return new string(str_buf);
   }
 

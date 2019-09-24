@@ -49,7 +49,8 @@ all_from lazyEval tryCatch text2ttcn json ttcn2json profiler templateOmit \
 customEncoding makefilegen uidChars checkstate hostid templateIstemplatekind \
 selectUnion templateExclusiveRange any_from templatePatternRef indexWithRecofArray \
 connectMapOperTest fuzzy portTranslation ischosen OER functionSubref done \
-nondeterministicDefaultParam predefFunction2 realtime portTranslationCentralStorage
+nondeterministicDefaultParam predefFunction2 realtime portTranslationCentralStorage \
+locale
 
 ifdef DYN
 DIRS += loggerplugin junitlogger 

@@ -1,0 +1,56 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+
+// this module contains tests for conversions and logging with certain locale settings
+// (converting to strings or logging must not be affected by locale settings)
+module locale {
+
+type component CT {}
+
+// simulates the initialization of an external
+// library, which uses a Swedish locale setting
+external function ef_simulate_library_with_locale();
+
+function f_test_float(in float val, in charstring exp) runs on CT {
+  ef_simulate_library_with_locale();
+  
+  var charstring log_res := log2str(val);
+  if (log_res != exp) {
+    setverdict(fail, "invalid log() result: ", log_res);
+  }
+  
+  var charstring conv_res := float2str(val);
+  if (conv_res != exp) {
+    setverdict(fail, "invalid flaot2str() result: ", conv_res);
+  }
+  setverdict(pass);
+}
+
+testcase tc_locale_float_zero() runs on CT {
+  f_test_float(0.0, "0.000000");
+}
+
+testcase tc_locale_float_regular() runs on CT {
+  f_test_float(1.23, "1.230000");
+}
+
+testcase tc_locale_float_exponent() runs on CT {
+  f_test_float(-123.456e78, "-1.234560e+80");
+}
+
+control {
+  execute(tc_locale_float_zero());
+  execute(tc_locale_float_regular());
+  execute(tc_locale_float_exponent());
+}
+
+}
