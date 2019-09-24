@@ -13,8 +13,12 @@
  ******************************************************************************/
 module ThexstrOper
 {
-type component hexstrOper_comptype { }
+type component CT { }
 
+modulepar hexstring tsp_notChangedUninit
+modulepar hexstring tsp_notChangedInit := '12345'H
+modulepar hexstring tsp_changedInit := '1'H
+modulepar hexstring tsp_changedInitConcat := '1'H
 type hexstring myhstr0
 type hexstring myhstr1 length(1)
 type hexstring myhstr2 length(0..1)
@@ -36,11 +40,294 @@ template myhstr3 t_myhstr3 := '0'H length(1)
 // TITAN doesn't allow patterns to be other than `charstring' or `universal
 // charstring' types.  It's denied by the grammar.
 
+//=== Basic ====
+testcase tc_hexstrAssign() runs on CT {
+  var hexstring x1 := '0f'H;
+  var hexstring x2, x3, x4, x5 :=x1, x6;
+  x2 := '1234'H;
+  x6 := x2;
+  x4 := 'ab12'H;
+  x3 := ''H
+
+  if (x1 =='0F'H ) {setverdict(pass)} else {setverdict(fail, x1)}
+  if (x5 == '0f'H) {setverdict(pass)} else {setverdict(fail, x5)}
+  if (x2 == '1234'H) {setverdict(pass)} else {setverdict(fail, x2)}
+  if (x6 == '1234'H) {setverdict(pass)} else {setverdict(fail, x6)}
+
+  if (x3 == ''H) {setverdict(pass)} else {setverdict(fail, x3)}
+  if (x1 == x2) {setverdict(fail, x1, x2)} else {setverdict(pass)}
+  if (x1 != x2) {setverdict(pass)} else {setverdict(fail, x1,x2)}
+  //The change does not change the original var:
+  x6 := 'DEADBEEF'H;
+  if (x2 == '1234'H) {setverdict(pass)} else {setverdict(fail, x2)}
+  if (x6 == 'DEADBEEF'H) {setverdict(pass)} else {setverdict(fail, x6)}
+}
+
+testcase tc_hexstrAssignIndex() runs on CT {
+  var hexstring x1 := 'DEADBEEF'H;
+  var hexstring x2 := x1[3];
+  if (x2 == 'D'H) { setverdict(pass)} else { setverdict(fail,x2)}
+  var hexstring x3;
+  x1[0] := 'B'H;
+  if (x1 == 'BEADBEEF'H) {setverdict(pass)} else { setverdict(fail,x2)}
+  x1[6] := x1[2];
+  x1[7] := x1[3];
+  if (x1 == 'BEADBEAD'H) { setverdict(pass)} else {setverdict(fail,x1)}
+  //additional nibble:
+  x1[8] := '1'H
+  if (x1 == 'BEADBEAD1'H) { setverdict(pass,x1)} else {setverdict(fail,x1)}
+  if( 'BEADBEAD1'H == x1) { setverdict(pass,x1)} else {setverdict(fail,x1)}
+  if (x1[1] == x1[5]) { setverdict(pass,x1)} else {setverdict(fail,x1)}
+  //  x1[9] := '00000010'B //'2'H
+  //  if( x1 == 'BEADBEAD12'H) { setverdict(pass,x1)} else {setverdict(fail,x1)}
+  if (x1[8]=='1'H) { setverdict(pass,x1[8])} else {setverdict(fail,x1[8])}
+}
+
+testcase tc_hexstr_lengthof() runs on CT {
+  var hexstring x1 := 'DEADBEEF'H, x2;
+  if (lengthof(x1) == 8) { setverdict(pass)} else { setverdict(fail,lengthof(x1))}
+  @try {
+    var integer i := lengthof(x2);
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ", e);
+  }
+}
+
+testcase tc_hexstrUninit() runs on CT {
+  var hexstring x1, x2;
+  //assign
+  @try {
+    x2 := x1;
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE")
+  }
+  //assign, index on the right side
+  @try {
+    x2 := x1[3];
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE")
+  }
+
+  //too big index
+  @try {
+    x1 := 'ABBA1'H
+    x2 := x1[5];
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE")
+  }
+  //neg index
+  @try {
+    //x1 := 'ABBA1'H
+    var integer i := 1, j:=2;
+    x2 := x1[i-j]; //neg index
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+  @try {
+    if(x1 == x2){ log(x1, x2)}
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+  @try {
+    if(x2 == x1){ log(x1, x2)}
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+  @try {
+    if(x1 != x2){ log(x1, x2)}
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+  @try {
+    if(x2 != x1){ log(x1, x2)}
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+  //or4b:
+  var hexstring x3 := '12F'H;
+  var hexstring x4 ;
+  @try {
+    if( (x3 or4b x4) == '33F'H ){ log(x3, x4)}
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+  @try {
+    if( (x4 or4b x3) == '33F'H ){ log(x4, x3)}
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+  //and4b:
+  @try {
+    if( (x3 and4b x4) == '33F'H ){ log(x3, x4)}
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+  @try {
+    if( (x4 and4b x3) == '33F'H ){ log(x4, x3)}
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+  //xor4b
+  @try {
+    if( (x3 xor4b x4) == '33F'H ){ log(x3, x4)}
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+  @try {
+    if( (x4 xor4b x3) == '33F'H ){ log(x4, x3)}
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+  //shift
+  @try {
+    if( (x4 << 10 ) == '33F'H ){ log(x4) }
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+
+  @try {
+    if( (x4 <@ 10 ) == '33F'H ){ log(x4) }
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+
+  @try {
+    if( (x4 >> 10 ) == '33F'H ){ log(x4) }
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+
+  @try {
+    if( (x4 @> 10 ) == '33F'H ){ log(x4) }
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+}
+
+testcase tc_hexstrOr4b() runs on CT {
+  var hexstring x1 := '12F'H
+  var hexstring x2 := '231'H
+  if ((x1 or4b x2) == '33F'H) {setverdict(pass, x1,x2)} else { setverdict(fail, x1 or4b x2) }
+  if ((x2 or4b x1) == '33F'H) {setverdict(pass, x1,x2)} else { setverdict(fail, x1 or4b x2) }
+  if ((x1[1] or4b x2[1]) == '3'H) {setverdict(pass, (x1[1] or4b x2[1]))} else { setverdict(fail,(x1[1] or4b x2[1])) }
+  if (x1[1] == x2[0])  {setverdict(pass)} else { setverdict(fail, x1[1] == x2[0]) }
+}
+
+testcase tc_hexstrAnd4b() runs on CT {
+  var hexstring x1 := '12F'H
+  var hexstring x2 := '231'H
+  if( (x1 and4b x2) == '021'H) {setverdict(pass, x1,x2)} else { setverdict(fail, x1 and4b x2) }
+  if( (x2 and4b x1) == '021'H) {setverdict(pass, x1,x2)} else { setverdict(fail, x1 and4b x2) }
+
+}
+
+testcase tc_hexstrXor4b() runs on CT {
+  var hexstring x1 := '12F'H
+  var hexstring x2 := '231'H
+  if( (x1 xor4b x2) == '31E'H) {setverdict(pass, x1,x2)} else { setverdict(fail, x1 and4b x2) }
+  if( (x2 xor4b x1) == '31E'H) {setverdict(pass, x1,x2)} else { setverdict(fail, x1 and4b x2) }
+
+}
+
+testcase tc_hexstrNot4b() runs on CT {
+  var hexstring x1 := '12F'H
+  var hexstring x2 := '231'H
+  if( ( not4b x1) == 'ED0'H) {setverdict(pass, x1,x2)} else { setverdict(fail, not4b x1) }
+  if( ( not4b x2) == 'DCE'H) {setverdict(pass, x1,x2)} else { setverdict(fail, not4b x2) }
+
+}
+
+testcase tc_hexstrShiftLeft() runs on CT {
+  var hexstring x1 := '12F'H
+  if( ( x1 << 1) == '2F0'H) {setverdict(pass, x1 << 1)} else { setverdict(fail, x1 << 1) }
+  log( x1<<1 );
+  log( x1 <@ 1);
+  if( ( x1 <@ 1) == '2F1'H) {setverdict(pass, x1 <@ 1)} else { setverdict(fail, x1 <@ 1) }
+  x1 := '12F'H
+  if( ( x1 << 0) == '12F'H) {setverdict(pass, x1 << 0)} else { setverdict(fail, x1 << 0) }
+  //Negative shift:
+  //"Their right-hand operand shall be a non-negative integer":
+  @try {
+    if( (x1 << -1) == '012'H ){setverdict(pass, x1 << -1)} else { setverdict(fail, x1 << -1) }
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+  @try {
+    if( (x1 <@ -1) == 'F12'H ){setverdict(pass, x1 <@ -1)} else { setverdict(fail, x1 <@ -1) }
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+}
+
+testcase tc_hexstrShiftRight() runs on CT {
+  var hexstring x1 := '12F'H
+  if( ( x1 >> 1) == '012'H) {setverdict(pass, x1 >> 1)} else { setverdict(fail, x1 >> 1) }
+  log(x1 @> 1);
+  log(x1>>1);
+  if( ( x1 @> 1) == 'F12'H) {setverdict(pass, x1 @> 1)} else { setverdict(fail, x1 @> 1) }
+  //"Their right-hand operand shall be a non-negative integer":
+  @try {
+    if( (x1 >> -1) == '2F0'H ){setverdict(pass, x1 >> -1)} else { setverdict(fail, x1 >> -1) } //titan pecific
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+  @try {
+    if( (x1 @> -1) == '2F1'H ){setverdict(pass, x1 @> -1)} else { setverdict(fail, x1 @> -1) } //titan specific
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+}
+testcase tc_hexstrModulepar() runs on CT {
+
+  if(  tsp_notChangedInit == '12345'H ) {setverdict(pass, tsp_notChangedInit)} else { setverdict(fail, tsp_notChangedInit) }
+
+  @try {
+    if( tsp_notChangedUninit == '2F0'H ){setverdict(fail, tsp_notChangedInit)} else { setverdict(fail, tsp_notChangedUninit) } //titan pecific
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ",e)
+  }
+  if(  tsp_changedInit == '1234567890ABCDEF'H ) {setverdict(pass, tsp_changedInit)} else { setverdict(fail, tsp_changedInit) }
+
+  if(  tsp_changedInitConcat == '12345'H ) {
+    setverdict(pass, tsp_changedInitConcat)
+  } else { 
+    setverdict(fail, tsp_changedInitConcat)
+  }
+
+}
+
+testcase tc_hexstrConcat() runs on CT {
+  var hexstring x1 := '12F'H
+  var hexstring x2 := '231'H
+  if( (x1 & x2) == '12F231'H) {setverdict(pass, x1 & x2)} else { setverdict(fail, x1 & x2) }
+  if( (x2 & x1) == '23112F'H) {setverdict(pass, x2,x2)} else { setverdict(fail, x1 and4b x2) }
+
+}
+//===== Older ===
 function f_hstr1() return myhstr6 {
   return substr(replace(int2hex(0, 1) & int2hex(1, 1), 0, 1, '1'H), 0, 1)
 }
 
-testcase hexstrSubtypes() runs on hexstrOper_comptype {
+testcase hexstrSubtypes() runs on CT {
   var template myhstr1 vt_myhstr1 := '0'H  // Simple length.
   var template myhstr2 vt_myhstr2 := ''H  // Length with range.
   var template myhstr3 vt_myhstr3 := vt_myhstr1  // Values and length.
@@ -58,7 +345,7 @@ testcase hexstrSubtypes() runs on hexstrOper_comptype {
   else { setverdict(fail) }
 }
 
-testcase hexstrIsvalue() runs on hexstrOper_comptype{
+testcase hexstrIsvalue() runs on CT{
   var hexstring hstr0;
   var hexstring hstr1 := '1111'H;
   var template hexstring thstr;
@@ -66,9 +353,15 @@ testcase hexstrIsvalue() runs on hexstrOper_comptype{
   if ( isvalue(hstr0) ) { setverdict(fail); } else { setverdict(pass); };
   if ( isvalue(hstr1) ) { setverdict(pass); } else { setverdict(fail); };
   if ( isvalue(thstr) ) { setverdict(fail); } else { setverdict(pass); };
+  thstr := hstr1;
+  if ( isvalue(thstr) ) { setverdict(pass); } else { setverdict(fail); };
+  thstr := ?;
+  if ( isvalue(thstr) ) { setverdict(fail); } else { setverdict(pass); };
+  thstr := ('123'H,'124'H);
+  if ( isvalue(thstr) ) { setverdict(fail); } else { setverdict(pass); };
 }
 
-testcase hexstrIsbound() runs on hexstrOper_comptype {
+testcase hexstrIsbound() runs on CT {
   var hexstring hstr0;
   var hexstring hstr1 := '1111'H;
   var template hexstring thstr;
@@ -77,9 +370,16 @@ testcase hexstrIsbound() runs on hexstrOper_comptype {
   if ( isbound(hstr0[0]) ) { setverdict(fail); } else { setverdict(pass); };
   if ( isbound(hstr1) ) { setverdict(pass); } else { setverdict(fail); };
   if ( isbound(thstr) ) { setverdict(fail); } else { setverdict(pass); };
+
+  thstr := hstr1;
+  if ( isbound(thstr) ) { setverdict(pass); } else { setverdict(fail); };
+  thstr := ?;
+  if ( isbound(thstr) ) { setverdict(pass); } else { setverdict(fail); };
+  thstr := ('123'H,'124'H);
+  if ( isbound(thstr) ) { setverdict(pass); } else { setverdict(fail); };
 }
 
-testcase CR_TR00018474() runs on hexstrOper_comptype {
+testcase CR_TR00018474() runs on CT {
   // Indexing of string template variables.
   var template hexstring vth1 := 'AABBCCDDEE'H
   var template hexstring vth2 := 'AABB?CC'H  // It's a pattern, cannot be indexed.
@@ -94,6 +394,17 @@ control {
   const hexstring cl_1 := '0'H
   var hexstring vl_1;
 
+  execute(tc_hexstrAssign());
+  execute(tc_hexstrAssignIndex());
+  execute(tc_hexstrOr4b());
+  execute(tc_hexstrAnd4b());
+  execute(tc_hexstrXor4b());
+  execute(tc_hexstrNot4b());
+  execute(tc_hexstrShiftLeft());
+  execute(tc_hexstrShiftRight());
+  execute(tc_hexstrModulepar());
+  execute(tc_hexstrConcat());
+  execute(tc_hexstrUninit());
   execute(hexstrSubtypes());
   execute(hexstrIsvalue());
   execute(hexstrIsbound());
