@@ -45,6 +45,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <regex.h>
+#include <locale.h>
 
 #define ERRMSG_BUFSIZE 512
 
@@ -2876,7 +2877,10 @@ CHARSTRING float2str(double value)
     || (value >= MIN_DECIMAL_FLOAT && value < MAX_DECIMAL_FLOAT);
   // true if decimal representation possible (use %f format)
   char str_buf[64];
+  const char* loc = setlocale(LC_ALL, NULL);
+  setlocale(LC_NUMERIC, "C"); // use default locale for displaying numbers
   int str_len = snprintf(str_buf, sizeof(str_buf), f ? "%f" : "%e", value);
+  setlocale(LC_NUMERIC, loc);
   if (str_len < 0 || str_len >= (int)sizeof(str_buf)) {
     TTCN_error("Internal error: system call snprintf() returned "
       "unexpected status code %d when converting value %g in function "

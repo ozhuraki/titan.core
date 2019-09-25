@@ -1,0 +1,6 @@
+locale
+locale.exe
+locale*.cc
+locale*.hh
+compile
+locale*.log

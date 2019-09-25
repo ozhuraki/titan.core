@@ -25,6 +25,7 @@
 #include <string.h>
 #include <math.h>
 #include <float.h>
+#include <locale.h>
 
 #include "../common/memory.h"
 #include "Float.hh"
@@ -60,17 +61,21 @@ const FLOAT NOT_A_NUMBER((double)PLUS_INFINITY+(double)MINUS_INFINITY);
 
 static inline void log_float(double float_val)
 {
-  if (   (float_val > -MAX_DECIMAL_FLOAT && float_val <= -MIN_DECIMAL_FLOAT)
-      || (float_val >= MIN_DECIMAL_FLOAT && float_val <   MAX_DECIMAL_FLOAT)
-      || (float_val == 0.0))
-    TTCN_Logger::log_event("%f", float_val);
-  else if(float_val==INFINITY)
+  if(float_val==INFINITY)
     TTCN_Logger::log_event_str("infinity");
   else if(float_val==-INFINITY)
     TTCN_Logger::log_event_str("-infinity");
   else if(float_val!=float_val)
     TTCN_Logger::log_event_str("not_a_number");
-  else TTCN_Logger::log_event("%e", float_val);
+  else {
+    boolean f = (float_val > -MAX_DECIMAL_FLOAT && float_val <= -MIN_DECIMAL_FLOAT)
+      || (float_val >= MIN_DECIMAL_FLOAT && float_val <   MAX_DECIMAL_FLOAT)
+      || (float_val == 0.0);
+    const char* loc = setlocale(LC_ALL, NULL);
+    setlocale(LC_NUMERIC, "C"); // use default locale for displaying numbers
+    TTCN_Logger::log_event(f ? "%f" : "%e", float_val);
+    setlocale(LC_NUMERIC, loc);
+  }
 }
 
 // float value class
