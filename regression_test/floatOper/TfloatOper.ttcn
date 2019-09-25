@@ -15,8 +15,13 @@
  *
  ******************************************************************************/
 module TfloatOper
-{const float TfloatOper_const1:=2.0;
+{
+const float TfloatOper_const1:=2.0;
 type component floatOper_comptype { };
+modulepar float tsp_f_unchanged := 1.2+3.6/2.0;
+modulepar float tsp_f_changed1 := 1.2+3.6/2.0;
+modulepar float tsp_f_changed2;
+modulepar float tsp_f_uninit_notchanged;
 
 testcase floatAssign() runs on floatOper_comptype
 { var float x1:=12E3;
@@ -284,6 +289,15 @@ testcase floatDiv() runs on floatOper_comptype
    else {setverdict(fail);}
   if (((x6+4.0)<1E-12)and((-4.0-x6)>-1E-12)) {setverdict(pass);}	//value_value
    else {setverdict(fail);}
+  //Divide by zero:
+  x1 := 1.0;
+  x2 := 0.0;
+  @try {
+    if (x1/x2 == infinity) {log(x1/x1) } else {log(x1/x2)}
+    setverdict(fail, "This line should not be reached, DTE expected")
+  } @catch(e){
+    setverdict(pass, "DTE expected: ", e);
+  }
 }
 
 type component floatOperSubtypes_comptype { }
@@ -481,6 +495,44 @@ testcase constFloatComparison() runs on floatOper_comptype {
   if (NaN > NaN) { setverdict(fail, __LINE__, ": not_a_number<not_a_number:NotOK") }
 }
 
+testcase tc_float_modulepars() runs on floatOper_comptype {
+  if (tsp_f_unchanged == 3.0 ) {
+    setverdict(pass)
+  } else {
+    setverdict(fail, "Expected: 3.0, got ",tsp_f_unchanged);
+  }
+  if (tsp_f_changed1 == 3.0 ) {
+    setverdict(pass)
+  } else {
+    setverdict(fail, "Expected: 3.0, got ",tsp_f_changed1);
+  }
+  if (tsp_f_changed2 == -1.3 ) {
+    setverdict(pass)
+  } else {
+    setverdict(fail, "Expected: -1.3, got ",tsp_f_changed2);
+  }
+}
+
+testcase tc_float_log2str() runs on floatOper_comptype {
+  var float f1, f2, f3;
+  f1 := 1.0;
+  if( log2str(f1) == "1.000000") {setverdict(pass)} else { setverdict(fail,f1)}
+  f1 := -1.0;
+  if( log2str(f1) == "-1.000000") {setverdict(pass)} else { setverdict(fail,f1)}
+  f1 := -1.0e+3;
+  if( log2str(f1) == "-1000.000000") {setverdict(pass)} else { setverdict(fail,f1)}
+  f1 := -1.0e+30;
+  if( log2str(f1) == "-1.000000e+30") {setverdict(pass)} else { setverdict(fail,f1)}
+  f1 := infinity;
+  if( log2str(f1) == "infinity") {setverdict(pass)} else { setverdict(fail,f1)}
+  f1 := -infinity;
+  if( log2str(f1) == "-infinity") {setverdict(pass)} else { setverdict(fail,f1)}
+  f1 := infinity/infinity;
+  if( log2str(f1) == "not_a_number") {setverdict(pass)} else { setverdict(fail,log2str(f1)) }
+  if( log2str(f2) == "<unbound>") {setverdict(pass)} else { setverdict(fail,f2)}
+  
+}
+
 control {
   const float cl_1:=2.0;
   var float vl_1;
@@ -502,6 +554,8 @@ control {
   execute(floatIsbound());
   execute(floatComparison());
   execute(constFloatComparison());
+  execute(tc_float_modulepars());
+  execute(tc_float_log2str());
 }
 
 }
