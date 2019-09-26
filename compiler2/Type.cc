@@ -7580,7 +7580,23 @@ namespace Common {
         t = t->get_type_refd();
       }
       else {
-        return string();
+        switch (t->get_typetype_ttcn3()) {
+        case T_NULL:
+        case T_BOOL:
+        case T_INT:
+        case T_REAL:
+        case T_ENUM_T:
+        case T_BSTR:
+        case T_HSTR:
+        case T_OSTR:
+        case T_CSTR:
+        case T_USTR:
+        case T_OID:
+          // if the type is a base type, then it needs its own coder functions
+          return t->get_genname_own(p_scope);
+        default:
+          return string();
+        }
       }
     }
   }
