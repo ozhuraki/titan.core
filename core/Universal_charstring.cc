@@ -1205,7 +1205,9 @@ void UNIVERSAL_CHARSTRING::decode(const TTCN_Typedescriptor_t& p_td,
       TTCN_EncDec_ErrorContext::error_internal
         ("No TEXT descriptor available for type '%s'.", p_td.name);
     const unsigned char *b=p_buf.get_data();
+    int null_added=0;
     if(b[p_buf.get_len()-1]!='\0'){
+      null_added=1;
       p_buf.set_pos(p_buf.get_len());
       p_buf.put_zero(8,ORDER_LSB);
       p_buf.rewind();
@@ -1215,6 +1217,12 @@ void UNIVERSAL_CHARSTRING::decode(const TTCN_Typedescriptor_t& p_td,
                "Can not decode type '%s', because invalid or incomplete"
                " message was received"
                , p_td.name);
+    if(null_added){
+      size_t actpos=p_buf.get_pos();
+      p_buf.set_pos(p_buf.get_len()-1);
+      p_buf.cut_end();
+      p_buf.set_pos(actpos);
+    }
     break;}
   case TTCN_EncDec::CT_XER : {
     unsigned XER_coding=va_arg(pvar, unsigned);
