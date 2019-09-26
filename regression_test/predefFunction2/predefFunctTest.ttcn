@@ -503,6 +503,26 @@ testcase tc_predef_char2int_bad2() runs on CT {
   }
 }
 
+testcase tc_predef_char2int_bad3() runs on CT {
+  var charstring vl_cs := "á";//UTF-8
+  @try {
+    var integer vl_i :=char2int(vl_cs);
+    setverdict(fail, "Not expected to reach this line, DTE expected")
+  } @catch(e){
+    setverdict(pass, "DTE catched")
+  }
+}
+
+testcase tc_predef_char2int_bad4() runs on CT {
+  var charstring vl_cs := "á";//UTF-8
+  @try {
+    var integer vl_i :=char2int(vl_cs[0]);
+    setverdict(fail, "Not expected to reach this line, DTE expected")
+  } @catch(e){
+    setverdict(pass, "DTE catched")
+  }
+}
+
 //char2oct
 testcase tc_predef_char2oct_good1() runs on CT {
   var RoCS vl_cslist := {"a","b", "z", "A","Z", "0","1", "9"," ","!", "\"", "\\","~"  }
@@ -536,6 +556,7 @@ testcase tc_predef_char2oct_good_empty() runs on CT {
   setverdict(pass);
 }
 //char2hexdigit ??
+
 //float2int
 testcase tc_predef_float2int_good1() runs on CT {
   //  var RoC vl_roc := {"1","-123", "-0.000","0.0","+0.0", "1.0", "002.34567890", "+003.000000", "+4.0","5.0e+0", "-6.0e+2", "7.125e+10", "8.250e+100","9e5" }
@@ -549,6 +570,16 @@ testcase tc_predef_float2int_good1() runs on CT {
     }
   }
   setverdict(pass);
+}
+
+testcase tc_predef_float2int_bad1() runs on CT {
+  var float f := infinity;
+  @try{
+    var integer i := float2int(f);
+    setverdict(fail,"This line should not be reached");
+  } @catch(e){
+  	setverdict(pass, "Expected DTE: ",e);
+  }
 }
 //======= float2str ==============
 testcase tc_predef_float2str_good0() runs on CT {
@@ -1278,6 +1309,7 @@ testcase tc_predef_int2hex_bad3() runs on CT {
     setverdict(pass, "DTE catched")
   }
 }
+
 //int2oct
 testcase tc_predef_int2oct_good1() runs on CT {
   var RoI vl_intlist := {0,1,123, 600, 703401 }
@@ -2175,7 +2207,6 @@ testcase tc_predef_replace_hexstring_18_bad() runs on CT {
 
 //*********** Replace() for octetstring **********
 
-
 // remove 2 chars from the beginnining, compile time
 testcase tc_predef_replace_octetstring_1() runs on CT {
   var octetstring vl_bs := replace('0000 1111'O,0,1,''O);
@@ -2185,6 +2216,7 @@ testcase tc_predef_replace_octetstring_1() runs on CT {
     setverdict(pass);
   }
 }
+
 //var pars
 testcase tc_predef_replace_octetstring_1a() runs on CT {
   var integer vl_beginning :=0, vl_len := 1;
@@ -3679,9 +3711,13 @@ control{
   execute(tc_predef_char2int_good());
   execute(tc_predef_char2int_bad1());
   execute(tc_predef_char2int_bad2());
+  execute(tc_predef_char2int_bad3());
+  execute(tc_predef_char2int_bad4());
   execute(tc_predef_char2oct_good1());
   execute(tc_predef_char2oct_good2());
   execute(tc_predef_char2oct_good_empty());
+  execute(tc_predef_float2int_good1());
+  execute(tc_predef_float2int_bad1());
   execute(tc_predef_float2str_good0());
   execute(tc_predef_float2str_good1());
   execute(tc_predef_float2str_good2());
