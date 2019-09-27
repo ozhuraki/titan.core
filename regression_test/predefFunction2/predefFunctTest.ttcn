@@ -1237,6 +1237,10 @@ testcase tc_predef_int2char_bad2() runs on CT {
     setverdict(pass, "DTE catched")
   }
 }
+
+//===int2enum===
+//see: enumOper
+
 //==== int2float =====
 testcase tc_predef_int2float_good1() runs on CT {
   var RoI vl_intlist := {1,-123,0,1,2,3,4,5,-600, 71250000000, 4294967296,9000000, 123000000000000000  }
@@ -3293,9 +3297,10 @@ testcase tc_predef_substring_octetstring6() runs on CT {
 //  const octetstring vl_bs := substr(vl_cs,1,4)
 //  setverdict(fail);
 //}
+
 //runtime error
 testcase tc_predef_substring_octetstring8() runs on CT {
-  var octetstring vl_cs := '00100110'O;
+  var octetstring vl_cs := '01020304'O;
   @try {
     var octetstring vl_bs := substr(vl_cs,1,4)
     setverdict(fail,"DTE expected");
@@ -3826,7 +3831,7 @@ control{
   execute(tc_predef_replace_bitstring_5());
   execute(tc_predef_replace_bitstring_6());
   execute(tc_predef_replace_bitstring_7());
-  //  execute(tc_predef_replace_bitstring_8());
+  execute(tc_predef_replace_bitstring_8());
   execute(tc_predef_replace_bitstring_9());
   //  execute(tc_predef_replace_bitstring_10());
   execute(tc_predef_replace_bitstring_11());
@@ -3953,7 +3958,7 @@ control{
   execute(tc_predef_substring_octetstring4());  
   execute(tc_predef_substring_octetstring5());
   execute(tc_predef_substring_octetstring6());
-  //    execute(tc_predef_substring_octetstring7()); //semantic error
+  //execute(tc_predef_substring_octetstring7()); //semantic error
   execute(tc_predef_substring_octetstring8());
   //    execute(tc_predef_substring_octetstring9()); //semantic error
   execute(tc_predef_substring_octetstring10());
