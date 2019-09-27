@@ -1121,6 +1121,9 @@ testcase tc_predef_hex2str_good20() runs on CT {
   }
 }
 
+//C.1.20 Hexstring to charstring
+//Example: hex2str('AB801'H) // will return "AB801"
+
 testcase tc_predef_hex2str_good21() runs on CT {
   var hexstring vl_hs :='ABBA9'H
   var RoCS vl_bs := { "A","B","B","A","9"}
