@@ -1075,7 +1075,7 @@ testcase tc_predef_hex2str_good2() runs on CT{
     } else {
       setverdict(fail);
     }
-    log(vl_hexaValues[i],"->expected:",vl_expectedValues[i]," got:",hex2oct(vl_hexaValues[i]))
+    log(vl_hexaValues[i],"->expected:",vl_expectedValues[i]," got:",hex2str(vl_hexaValues[i]))
   }
 }
 
@@ -1119,6 +1119,7 @@ testcase tc_predef_hex2str_good20() runs on CT {
   } else {
     setverdict(fail);
   }
+  log(vl_hs,"->",hex2str(vl_hs))
 }
 
 //C.1.20 Hexstring to charstring
@@ -1732,6 +1733,8 @@ testcase tc_predef_oct2int_empty() runs on CT {
 }
 
 //oct2str
+//C.1.24 Octetstring to character string
+//oct2str('4469707379'O) = "4469707379"
 testcase tc_predef_oct2str_good1() runs on CT {
   var RoOS vl_oslist := {
     '00'O,'01'O,'0001'O,'02'O,'03'O,
@@ -1776,6 +1779,21 @@ testcase tc_predef_oct2str_good2() runs on CT {
     //    log(oct2str(vl_oslist[i]))
   }
   setverdict(pass);
+}
+
+//for octetstring elements
+testcase tc_predef_oct2str_good21() runs on CT {
+  var octetstring vl_os :='ABBA09'O
+  var RoCS vl_cs := { "AB","BA","09"}
+  var integer N := lengthof(vl_os);
+  for(var integer i:=0;i<N;i:=i+1){
+    if(oct2str(vl_os[i])==vl_cs[i]){
+      setverdict(pass);
+    } else {
+      setverdict(fail);
+    }
+    log(vl_os[i],"->",oct2str(vl_os[i])," expected: ",vl_cs[i]);
+  }
 }
 
 //================================================
@@ -3823,6 +3841,7 @@ control{
 
   execute(tc_predef_oct2str_good1());
   execute(tc_predef_oct2str_good2());
+  execute(tc_predef_oct2str_good21());
 
   execute(tc_predef_replace_bitstring_1());
   execute(tc_predef_replace_bitstring_1a());
