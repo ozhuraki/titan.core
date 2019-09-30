@@ -282,17 +282,32 @@ testcase tc_predef_rnd() runs on CT {
 }
 //====== bit2hex ===============
 
-
 testcase tc_predef_bit2hex1() runs on CT {
-  var bitstring vl_bs := '0001'B;
-  var hexstring vl_hs := bit2hex( c_bs_empty1 & vl_bs & vl_bs[1]);
-  if (vl_hs == '02'H) {
-    setverdict(pass)
-  } else {
-    setverdict(fail, "expected '02'H got:", vl_hs);
+  var RoBS bs_list := { 
+    '0000'B, '0001'B, '0010'B, '0011'B,
+    '0100'B, '0101'B, '0110'B, '0111'B,
+    '1000'B, '1001'B, '1010'B, '1011'B,
+    '1100'B, '1101'B, '1110'B, '1111'B
+  }
+
+  var RoHS hs_list := { 
+    '0'H, '1'H, '2'H, '3'H, 
+    '4'H, '5'H, '6'H, '7'H,
+    '8'H, '9'H, 'A'H, 'B'H,
+    'C'H, 'D'H, 'E'H, 'F'H
+  }
+
+  var integer N := lengthof(bs_list);
+  for (var integer i:=0; i<N; i:=i+1){
+    if(bit2hex(bs_list[i])==hs_list[i]) {
+      setverdict(pass,bs_list[i],"->",bit2hex(bs_list[i])," exp:", hs_list[i]);
+    } else {
+      setverdict(fail,bs_list[i],"->",bit2hex(bs_list[i])," exp:", hs_list[i]);
+    }
   }
 }
 
+//longer:
 testcase tc_predef_bit2hex2() runs on CT {
   var bitstring vl_bs1 := '0001'B, vl_bs2 :='0010'B,vl_bsF := '1111'B,vl_bsA:= '1010'B;
 
@@ -303,34 +318,42 @@ testcase tc_predef_bit2hex2() runs on CT {
     setverdict(fail, "expected '12FA'H got:", vl_hs);
   }
 }
-
-
-testcase tc_predef_bit2oct0010() runs on CT {
-  var bitstring vl_bs := '0010'B;
-  var octetstring vl_os := bit2oct(vl_bs);
-  if (vl_os == '02'O) {
-    setverdict(pass)
-  } else {
-    setverdict(fail, "expected '02'H got:", vl_os);
+//TitanBitString_Element is the argument
+testcase tc_predef_bit2hex_bitstr_element() runs on CT {
+  var bitstring vl_bs := '001'B;
+  var RoHS exp := {'0'H,'0'H,'1'H};
+  for( var integer i:=0; i< lengthof(vl_bs); i:=i+1) {
+    if( bit2hex(vl_bs[i]) == exp[i]){
+      setverdict(pass,vl_bs[i],"->",bit2hex(vl_bs[i])," exp:", exp[i])
+    } else {
+      setverdict(fail)
+    }
   }
 }
 
-testcase tc_predef_bit2oct00010() runs on CT {
-  var bitstring vl_bs := '00010'B;
-  var octetstring vl_os := bit2oct(vl_bs);
-  if (vl_os == '02'O) {
-    setverdict(pass)
-  } else {
-    setverdict(fail, "expected '02'O got:", vl_os);
-  }
-}
+//==== bit2oct ====
 testcase tc_predef_bit2oct1() runs on CT {
-  var bitstring vl_bs := '0001'B;
-  var octetstring vl_os := bit2oct( c_bs_empty1 & vl_bs & vl_bs[1]);
-  if (vl_os == '02'O) {
-    setverdict(pass)
-  } else {
-    setverdict(fail, "expected '02'O got:", vl_os);
+  var RoBS bs_list := {
+    '0000'B, '0001'B, '0010'B, '0011'B,
+    '0100'B, '0101'B, '0110'B, '0111'B,
+    '1000'B, '1001'B, '1010'B, '1011'B,
+    '1100'B, '1101'B, '1110'B, '1111'B
+  }
+
+  var RoOS os_list := { 
+    '00'O, '01'O, '02'O, '03'O, 
+    '04'O, '05'O, '06'O, '07'O,
+    '08'O, '09'O, '0A'O, '0B'O,
+    '0C'O, '0D'O, '0E'O, '0F'O
+  }
+
+  var integer N := lengthof(bs_list);
+  for (var integer i:=0; i<N; i:=i+1){
+    if(bit2oct(bs_list[i])==os_list[i]) {
+      setverdict(pass,bs_list[i],"->",bit2oct(bs_list[i])," exp:", os_list[i]);
+    } else {
+      setverdict(fail,bs_list[i],"->",bit2oct(bs_list[i])," exp:", os_list[i]);
+    }
   }
 }
 
@@ -342,6 +365,19 @@ testcase tc_predef_bit2oct2() runs on CT {
     setverdict(pass)
   } else {
     setverdict(fail, "expected '12FA'O got:", vl_os);
+  }
+}
+
+//TitanBitString_Element is the argument
+testcase tc_predef_bit2oct_bitstr_element() runs on CT {
+  var bitstring vl_bs := '001'B;
+  var RoOS exp := {'00'O,'00'O,'01'O};
+  for( var integer i:=0; i< lengthof(vl_bs); i:=i+1) {
+    if( bit2oct(vl_bs[i]) == exp[i]){
+      setverdict(pass,vl_bs[i],"->",bit2oct(vl_bs[i])," exp:", exp[i])
+    } else {
+      setverdict(fail)
+    }
   }
 }
 //====== bit2int ===============
@@ -398,6 +434,30 @@ testcase tc_predef_bit2int_good_long4() runs on CT {
   setverdict(pass,"expected: 133153 got:", bit2int(vl_bs));
 }
 
+//longer than 32 bits:
+testcase tc_predef_bit2int_good_long5() runs on CT {
+  var bitstring vl_bs := '0001 0000 0000 0000 0000 0000 0000 0000 0001'B;
+  var integer expected := 4294967297;
+  if (bit2int(vl_bs)!=expected ){
+    setverdict(fail, "expected:", expected, " got:", bit2int(vl_bs) );
+  } else {
+    setverdict(pass,"expected:", expected," got:", bit2int(vl_bs));
+  }
+}
+
+//TitanBitString_Element is the argument
+testcase tc_predef_bit2int_bitstr_element() runs on CT {
+  var bitstring vl_bs := '001'B;
+  var RoI exp := {0,0,1};
+  for( var integer i:=0; i< lengthof(vl_bs); i:=i+1) {
+    if( bit2int(vl_bs[i]) == exp[i]){
+      setverdict(pass,vl_bs[i],"->",bit2int(vl_bs[i])," exp:", exp[i])
+    } else {
+      setverdict(fail)
+    }
+  }
+}
+
 //Eclipse Titan handles only space as whitespace
 //testcase tc_predef_bit2int_good_with_whitespace() runs on CT {
 //  if (bit2int('1 100000'B)!=16 ){
@@ -414,7 +474,9 @@ testcase tc_predef_bit2int_good_empty() runs on CT {
   setverdict(pass);
 }
 
-//bit2oct
+//===== bit2oct =====
+//C.1.15 Bitstring to octetstring
+//bit2oct('111010111'B)= '01D7'O
 testcase tc_predef_bit2oct_good() runs on CT {
   var RoBS vl_bslist := {'0'B, '00000'B, '1'B, '0001'B,'0000 0000 0001'B,'0010'B, '0011'B,'0100'B,'0101'B,
     '0110'B,'0111'B,'1000'B,'00001000'B,'1001'B,'1010'B, '10000'B, '10001'B
@@ -437,7 +499,8 @@ testcase tc_predef_bit2oct_good_with_space() runs on CT {
   }
   setverdict(pass);
 }
-//bit2str
+
+//===== bit2str =====
 testcase tc_predef_bit2str_good() runs on CT {
   var RoBS vl_bslist := {'0'B, '00000'B, '1'B, '0001'B,'000000000001'B,'0010'B, '0011'B,'0100'B,'0101'B,
     '0110'B,'0111'B,'1000'B,'00001000'B,'1001'B,'1010'B, '10000'B, '10001'B
@@ -470,6 +533,19 @@ testcase tc_predef_bit2str_good_empty() runs on CT {
   setverdict(pass);
 }
 
+//TitanBitString_Element is the argument
+testcase tc_predef_bit2str_bitstr_element() runs on CT {
+  var bitstring vl_bs := '001'B;
+  var RoCS exp := {"0","0","1"};
+  for( var integer i:=0; i< lengthof(vl_bs); i:=i+1) {
+    if( bit2str(vl_bs[i]) == exp[i]){
+      setverdict(pass,vl_bs[i],"->",bit2str(vl_bs[i])," exp:", exp[i])
+    } else {
+      setverdict(fail)
+    }
+  }
+}
+
 //char2int
 testcase tc_predef_char2int_good() runs on CT {
   var RoCS vl_cslist := { "a","b", "z", "A","Z", "0","1", "9"," ","!", "\"","~","\n","\b","\t", "\f","\r" }
@@ -483,6 +559,17 @@ testcase tc_predef_char2int_good() runs on CT {
   setverdict(pass);
 }
 
+testcase tc_predef_char2int_good_charstring_element() runs on CT {
+  var charstring cs := "Apple ABBA78-~";
+  var RoI exp := {65,112,112,108,101,   32, 65,66,66,65, 55,56,45,126}
+  for( var integer i:=0; i< lengthof(cs); i:=i+1) {
+    if (char2int(cs[i])==exp[i]) {
+      setverdict(pass, cs[i],"->",char2int(cs[i])," expected: ",exp[i]);
+    } else{
+      setverdict(fail, cs[i],"->",char2int(cs[i])," expected: ",exp[i]);
+    }
+  }
+}
 testcase tc_predef_char2int_bad1() runs on CT {
   var charstring vl_cs := "aa";
   @try {
@@ -523,7 +610,9 @@ testcase tc_predef_char2int_bad4() runs on CT {
   }
 }
 
-//char2oct
+//====== char2oct =====
+//C.1.11 Character to octetstring
+//char2oct ("Tinky-Winky") = '54696E6B792D57696E6B79'O
 testcase tc_predef_char2oct_good1() runs on CT {
   var RoCS vl_cslist := {"a","b", "z", "A","Z", "0","1", "9"," ","!", "\"", "\\","~"  }
   var RoOS vl_expectedList := { '61'O,'62'O,'7A'O, '41'O, '5A'O,'30'O,'31'O,'39'O,'20'O,'21'O, '22'O, '5C'O,'7E'O  }
@@ -536,14 +625,14 @@ testcase tc_predef_char2oct_good1() runs on CT {
   setverdict(pass);
 }
 
-testcase tc_predef_char2oct_good2() runs on CT {
-  var RoCS vl_cslist := {"abzAZ019 !\"\\~\b\t\n\f\r\'\"*?"  }
-  var RoOS vl_expectedList := { '61627A415A3031392021225C7E08090A0C0D27222A3F'O  }
-  var integer N := sizeof(vl_cslist);
+testcase tc_predef_char2oct_charstring_element() runs on CT {
+  var charstring vl_cslist := "abzAZ019 !\"\\~\b\t\n\f\r\'\"*?"
+  var octetstring vl_expectedList := '61627A415A3031392021225C7E08090A0C0D27222A3F'O 
+  var integer N := lengthof(vl_cslist);
   for(var integer i:=0;i<N; i:=i+1){
     if(char2oct(vl_cslist[i])!=vl_expectedList[i]){
       setverdict(fail, "expected (i=",i,") ", vl_expectedList[i]," got:", char2oct(vl_cslist[i]));
-    }
+    } 
   }
   setverdict(pass);
 }
@@ -557,7 +646,7 @@ testcase tc_predef_char2oct_good_empty() runs on CT {
 }
 //char2hexdigit ??
 
-//float2int
+//====== float2int ======
 testcase tc_predef_float2int_good1() runs on CT {
   //  var RoC vl_roc := {"1","-123", "-0.000","0.0","+0.0", "1.0", "002.34567890", "+003.000000", "+4.0","5.0e+0", "-6.0e+2", "7.125e+10", "8.250e+100","9e5" }
   var RoF vl_rof := {1.0, -123.0, -0.0, 0.0, +0.0,1.0, 2.34567890, 3.0, 4.0, 5.0,-600.0, 71.25e+9, 429496729.6e+1, 9e5, -0.1}
@@ -578,7 +667,7 @@ testcase tc_predef_float2int_bad1() runs on CT {
     var integer i := float2int(f);
     setverdict(fail,"This line should not be reached");
   } @catch(e){
-  	setverdict(pass, "Expected DTE: ",e);
+    setverdict(pass, "Expected DTE: ",e);
   }
 }
 //======= float2str ==============
@@ -1561,23 +1650,23 @@ testcase tc_predef_oct2bit_good() runs on CT {
 //2. "The resulting charstring shall have the same length as the input octetstring."
 
 testcase tc_predef_oct2char_good1() runs on CT {
-  var RoOS vl_oslist := {
-    '00'O,'01'O,'0001'O,'02'O,'03'O,
-    '04'O,'05'O,'06'O,'07'O,'08'O,
-    '08'O,'09'O,'0A'O,'10'O,'11'O,
-    '00 00 11'O,'1A'O,'7F'O, '30 31 32 33 39 3A 3B 7e 60'O,''O
-  }
-  var RoCS vl_cslist := {
-    char(0, 0, 0, 0),char(0, 0, 0, 1),char(0, 0, 0, 0) & char(0, 0, 0, 1),char(0, 0, 0, 2),char(0, 0, 0, 3),
-    char(0, 0, 0, 4),char(0, 0, 0, 5),char(0, 0, 0, 6),char(0, 0, 0, 7),char(0, 0, 0, 8),
-    "\b","\t","\n",char(0, 0, 0, 16),char(0, 0, 0, 17),
-    char(0, 0, 0, 0)& char(0, 0, 0, 0)& char(0, 0, 0, 17),
-    char(0, 0, 0, 26), char(0,0,0,127), "01239:;~`",""
-  }
+ var charstring cs := "Dipsy";
+ var octetstring os := '4469707379'O;
+ if( oct2char(os) == cs) {
+   setverdict(pass) 
+ } else {
+   setverdict(fail);
+ }
+ log(oct2char(os), " Dipsy");
+  var RoOS vl_oslist := { '44'O,'61'O,'62'O,'7A'O, '41'O, '5A'O,'30'O,'31'O,'39'O,'20'O,'21'O, '22'O, '5C'O,'7E'O  }
+  var RoCS vl_cslist := {"D","a","b", "z", "A","Z", "0","1", "9"," ","!", "\"", "\\","~"  }
+
   var integer N := sizeof(vl_oslist);
   for(var integer i:=0;i<N; i:=i+1){
     if(oct2char(vl_oslist[i])!=vl_cslist[i]){
       setverdict(fail, "expected (i=",i,") ", vl_cslist[i]," got:", oct2char(vl_oslist[i]));
+    } else {
+      setverdict(pass);
     }
     log(oct2char(vl_oslist[i]))
   }
@@ -1633,7 +1722,40 @@ testcase tc_predef_oct2char_bad3() runs on CT {
     setverdict(pass, "exception catched")
   }
 }
-//oct2hex
+
+//for TitanOctetString_Element
+testcase tc_predef_oct2char_octetstr_elem() runs on CT {
+ var charstring cs := "Dipsy";
+ var octetstring os := '4469707379'O;
+ var integer N := lengthof(os);
+ for( var integer i:=0;i<N;i:=i+1){
+   if (oct2char(os[i]) == cs[i]) {
+     setverdict(pass, os[i],"->",oct2char(os[i])," expected: ", cs[i] ) 
+   } else {
+     setverdict(fail, os[i],"->",oct2char(os[i])," expected: ", cs[i] ) 
+   }
+ } 
+}
+
+//for TitanOctetString_Element
+testcase tc_predef_oct2char_octetstr_elem_bad() runs on CT {
+ var charstring cs := "Áá";
+ var octetstring os := 'C1E1'O; //>'7f'O 2x
+ var integer N := lengthof(os);
+ for( var integer i:=0;i<N;i:=i+1){
+   @try {
+   if (oct2char(os[i]) == cs[i]) {
+     log( os[i],"->",oct2char(os[i])," expected: ", cs[i] );
+   } else {
+     log( os[i],"-->",oct2char(os[i])," expected: ", cs[i] ); 
+   }
+   setverdict(fail, "This line should not be reached");
+   }@catch(e){
+     setverdict(pass, "Expected DTE: ", e);
+   }
+ } 
+}
+//===== oct2hex ======
 
 testcase tc_predef_oct2hex_good1() runs on CT {
   var RoOS vl_oslist := {
@@ -3717,30 +3839,35 @@ control{
   execute(  tc_predef_rnd());
   execute(  tc_predef_bit2hex1());
   execute(  tc_predef_bit2hex2());
-  execute(tc_predef_bit2oct0010());
-  execute(tc_predef_bit2oct00010());
+  execute(tc_predef_bit2hex_bitstr_element());
   execute(tc_predef_bit2oct1());
   execute(tc_predef_bit2oct2());
+  execute(tc_predef_bit2oct_bitstr_element())
   execute(tc_predef_bit2int_good());
   execute(tc_predef_bit2int_good_with_space());
   execute(tc_predef_bit2int_good_long1());
   execute(tc_predef_bit2int_good_long2());
   execute(tc_predef_bit2int_good_long3());
   execute(tc_predef_bit2int_good_long4());
+  execute(tc_predef_bit2int_good_long5());
+  execute(tc_predef_bit2int_bitstr_element());
   //  execute(tc_predef_bit2int_good_with_whitespace());
   execute(tc_predef_bit2int_good_empty());
   execute(tc_predef_bit2oct_good());
   execute(tc_predef_bit2oct_good_with_space());
+  execute(tc_predef_bit2oct_bitstr_element());
   execute(tc_predef_bit2str_good());
   execute(tc_predef_bit2str_good_with_space());
   execute(tc_predef_bit2str_good_empty());
+  execute(tc_predef_bit2str_bitstr_element());
   execute(tc_predef_char2int_good());
+  execute(tc_predef_char2int_good_charstring_element());
   execute(tc_predef_char2int_bad1());
   execute(tc_predef_char2int_bad2());
   execute(tc_predef_char2int_bad3());
   execute(tc_predef_char2int_bad4());
   execute(tc_predef_char2oct_good1());
-  execute(tc_predef_char2oct_good2());
+  execute(tc_predef_char2oct_charstring_element());
   execute(tc_predef_char2oct_good_empty());
   execute(tc_predef_float2int_good1());
   execute(tc_predef_float2int_bad1());
@@ -3831,6 +3958,8 @@ control{
   execute(tc_predef_oct2char_bad1());
   execute(tc_predef_oct2char_bad2());
   execute(tc_predef_oct2char_bad3());
+  execute(tc_predef_oct2char_octetstr_elem());
+  execute(tc_predef_oct2char_octetstr_elem_bad());
   execute(tc_predef_oct2hex_good1());
 
   execute(tc_predef_oct2int_good1());
@@ -3995,7 +4124,7 @@ control{
   //    execute(tc_predef_substring_charstring9()); //semantic error
   execute(tc_predef_substring_charstring10());
 
-//  execute(tc_predef_substring_RoI1());//semantic error
+  //  execute(tc_predef_substring_RoI1());//semantic error
   execute(tc_predef_substring_RoI2());
   execute(tc_predef_substring_RoI3());
   execute(tc_predef_substring_RoI4());  
@@ -4008,7 +4137,7 @@ control{
   //    execute(tc_predef_substring_RoI9()); //semantic error
   execute(tc_predef_substring_RoI10());
 
-//  execute(tc_predef_substring_SoI1()); //semantic error
+  //  execute(tc_predef_substring_SoI1()); //semantic error
   execute(tc_predef_substring_SoI2());
   execute(tc_predef_substring_SoI3());
   execute(tc_predef_substring_SoI4());  
