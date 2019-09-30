@@ -55,7 +55,7 @@ clean distclean:
 dep: $(GENERATED_SOURCES)
 	makedepend $(CPPFLAGS) $(GENERATED_SOURCES)
 
-run: $(TARGET) config.cfg
+run: $(TARGET) config$(RT2_SUFFIX).cfg
 	./$^
 
 .NOTPARALLEL:

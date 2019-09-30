@@ -307,11 +307,11 @@ testcase tc_hexstrModulepar() runs on CT {
   }
   if(  tsp_changedInit == '1234567890ABCDEF'H ) {setverdict(pass, tsp_changedInit)} else { setverdict(fail, tsp_changedInit) }
 
-  /*if(  tsp_changedInitConcat == '12345'H ) {
+  if(  tsp_changedInitConcat == '12345'H ) {
     setverdict(pass, tsp_changedInitConcat)
   } else { 
     setverdict(fail, tsp_changedInitConcat)
-  }*/
+  }
 
 }
 

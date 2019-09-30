@@ -506,11 +506,11 @@ testcase tc_float_modulepars() runs on floatOper_comptype {
   } else {
     setverdict(fail, "Expected: 3.0, got ",tsp_f_changed1);
   }
-  /*if (tsp_f_changed2 == -1.3 ) {
+  if (tsp_f_changed2 == -1.3 ) {
     setverdict(pass)
   } else {
     setverdict(fail, "Expected: -1.3, got ",tsp_f_changed2);
-  }*/
+  }
 }
 
 testcase tc_float_log2str() runs on floatOper_comptype {
