@@ -265,7 +265,7 @@ string_map_t *config_defines;
 %token <uint_val> ProfilerStatsFlag "profiler statistics filter"
 
 %type <int_val> IntegerValue
-%type <float_val> FloatValue
+%type <float_val> FloatValue PlusMinusMPFloat
 %type <objid_val> ObjIdValue ObjIdComponentList
 %type <int_val> ObjIdComponent NumberForm NameAndNumberForm
 
@@ -805,52 +805,58 @@ IntegerRange:
   }
 ;
 
+PlusMinusMPFloat:
+  MPFloat { $$ = $1; }
+| '+' MPFloat { $$ = $2; }
+| '-' MPFloat { $$ = -$2; }
+;
+
 FloatRange:
-  '(' '-' InfinityKeyword DotDot MPFloat ')'
+  '(' '-' InfinityKeyword DotDot PlusMinusMPFloat ')'
   {
     $$ = new Module_Param_FloatRange(0.0, false, $5, true, false, false);
   }
-| '(' '!' '-' InfinityKeyword DotDot MPFloat ')'
+| '(' '!' '-' InfinityKeyword DotDot PlusMinusMPFloat ')'
   {
     $$ = new Module_Param_FloatRange(0.0, false, $6, true, true, false);
   }
-| '(' '-' InfinityKeyword DotDot '!' MPFloat ')'
+| '(' '-' InfinityKeyword DotDot '!' PlusMinusMPFloat ')'
   {
     $$ = new Module_Param_FloatRange(0.0, false, $6, true, false, true);
   }
-| '(' '!' '-' InfinityKeyword DotDot '!' MPFloat ')'
+| '(' '!' '-' InfinityKeyword DotDot '!' PlusMinusMPFloat ')'
   {
     $$ = new Module_Param_FloatRange(0.0, false, $7, true, true, true);
   }
-| '(' MPFloat DotDot MPFloat ')'
+| '(' PlusMinusMPFloat DotDot PlusMinusMPFloat ')'
   {
     $$ = new Module_Param_FloatRange($2, true, $4, true, false, false);
   }
-| '(' '!' MPFloat DotDot MPFloat ')'
+| '(' '!' PlusMinusMPFloat DotDot PlusMinusMPFloat ')'
   {
     $$ = new Module_Param_FloatRange($3, true, $5, true, true, false);
   }
-| '(' MPFloat DotDot '!' MPFloat ')'
+| '(' PlusMinusMPFloat DotDot '!' PlusMinusMPFloat ')'
   {
     $$ = new Module_Param_FloatRange($2, true, $5, true, false, true);
   }
-| '(' '!' MPFloat DotDot '!' MPFloat ')'
+| '(' '!' PlusMinusMPFloat DotDot '!' PlusMinusMPFloat ')'
   {
     $$ = new Module_Param_FloatRange($3, true, $6, true, true, true);
   }
-| '(' MPFloat DotDot InfinityKeyword ')'
+| '(' PlusMinusMPFloat DotDot InfinityKeyword ')'
   {
     $$ = new Module_Param_FloatRange($2, true, 0.0, false, false, false);
   }
-| '(' '!' MPFloat DotDot InfinityKeyword ')'
+| '(' '!' PlusMinusMPFloat DotDot InfinityKeyword ')'
   {
     $$ = new Module_Param_FloatRange($3, true, 0.0, false, true, false);
   }
-| '(' MPFloat DotDot '!' InfinityKeyword ')'
+| '(' PlusMinusMPFloat DotDot '!' InfinityKeyword ')'
   {
     $$ = new Module_Param_FloatRange($2, true, 0.0, false, false, true);
   }
-| '(' '!' MPFloat DotDot '!' InfinityKeyword ')'
+| '(' '!' PlusMinusMPFloat DotDot '!' InfinityKeyword ')'
   {
     $$ = new Module_Param_FloatRange($3, true, 0.0, false, true, true);
   }
