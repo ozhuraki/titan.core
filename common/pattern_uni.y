@@ -589,8 +589,9 @@ RE_Quadruple:
 
 char* TTCN_pattern_to_regexp_uni(const char* p_pattern, bool p_nocase, int** groups)
 {
-  /* if you want to debug */
-  //pattern_unidebug=1;
+#ifdef PARSER_DEBUG
+  pattern_unidebug = 1;
+#endif
 
   ret_val=NULL;
   user_groups = 0;

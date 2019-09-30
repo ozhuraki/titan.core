@@ -678,6 +678,9 @@ int parse_rawAST(RawAST *par, TextAST *textpar, XerAttributes *xerpar,
     bool &xer_found, bool &ber_found, bool &json_found,
     Common::Type::MessageEncodingType_t par_codec /* = Common::Type::CT_UNDEF */)
 {
+#ifdef PARSER_DEBUG
+    rawAST_debug = 1;
+#endif
     rawstruct=par;
     textstruct=textpar;
     xerstruct = xerpar;

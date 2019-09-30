@@ -2286,6 +2286,9 @@ static void reset_configuration_options()
 
 Module_Param* process_config_string2ttcn(const char* mp_str, boolean is_component)
 {
+#ifdef PARSER_DEBUG
+  config_process_debug = 1;
+#endif
   if (parsed_module_param!=NULL || parsing_error_messages!=NULL) TTCN_error("Internal error: previously parsed ttcn string was not cleared.");
   // add the hidden keyword
   std::string mp_string = (is_component) ? std::string("$#&&&(#TTCNSTRINGPARSING_COMPONENT$#&&^#% ") + mp_str
@@ -2323,6 +2326,9 @@ Module_Param* process_config_string2ttcn(const char* mp_str, boolean is_componen
 
 Module_Param* process_config_debugger_value(const char* mp_str)
 {
+#ifdef PARSER_DEBUG
+  config_process_debug = 1;
+#endif
   if (parsed_module_param != NULL || parsing_error_messages != NULL) {
     ttcn3_debugger.print(DRET_NOTIFICATION,
       "Internal error: previously parsed TTCN string was not cleared.");
@@ -2376,6 +2382,9 @@ Module_Param* process_config_debugger_value(const char* mp_str)
 
 boolean process_config_string(const char *config_string, int string_len)
 {
+#ifdef PARSER_DEBUG
+  config_process_debug = 1;
+#endif
   error_flag = FALSE;
 
   struct yy_buffer_state *flex_buffer =
@@ -2405,6 +2414,9 @@ boolean process_config_string(const char *config_string, int string_len)
 
 boolean process_config_file(const char *file_name)
 {
+#ifdef PARSER_DEBUG
+  config_process_debug = 1;
+#endif
   error_flag = FALSE;
   string_chain_t *filenames=NULL;
 

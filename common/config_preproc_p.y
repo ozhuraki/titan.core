@@ -298,6 +298,9 @@ extern int add_include_file(const std::string& filename)
 extern int preproc_parse_file(const char *filename, string_chain_t **filenames,
                               string_map_t **defines)
 {
+#ifdef PARSER_DEBUG
+  config_preproc_yydebug = 1;
+#endif
   int error_flag = 0;
   config_preproc_filenames=NULL;
   config_preproc_defines=string_map_new();

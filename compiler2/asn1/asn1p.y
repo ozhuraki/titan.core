@@ -3946,6 +3946,9 @@ LowerRef:
 
 int asn1_parse_file(const char* filename, boolean generate_code)
 {
+#ifdef PARSER_DEBUG
+  yydebug = 1;
+#endif
   asn1_yy_parse_internal=false;
   int retval=0;
   asn1la_newfile(filename);
@@ -3976,6 +3979,9 @@ int asn1_parse_file(const char* filename, boolean generate_code)
  */
 int asn1_parse_string(const char* p_str)
 {
+#ifdef PARSER_DEBUG
+  yydebug = 1;
+#endif
   unsigned verb_level_backup=verb_level;
   verb_level=0; // be vewy, vewy quiet
   asn1la_newfile("<internal>");

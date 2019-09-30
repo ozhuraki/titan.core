@@ -1086,6 +1086,9 @@ optSemiColon:
 
 int process_config_read_file(const char *file_name, config_data *pcfg)
 {
+#ifdef PARSER_DEBUG
+  config_read_debug = 1;
+#endif
   // reset "locals"
   local_addr_set = FALSE;
   tcp_listen_port_set = FALSE;

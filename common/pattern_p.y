@@ -636,6 +636,9 @@ RE_Quadruple:
 
 char* TTCN_pattern_to_regexp(const char* p_pattern, bool utf8)
 {
+#ifdef PARSER_DEBUG
+  pattern_yydebug = 1;
+#endif
   /* if you want to debug */
   //pattern_yydebug=1;
 

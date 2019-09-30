@@ -11017,6 +11017,9 @@ static void ttcn3_error(const char *str)
 
 int ttcn3_parse_file(const char* filename, boolean generate_code)
 {
+#ifdef PARSER_DEBUG
+  ttcn3_debug = 1;
+#endif
   anytype_access = false;
   ttcn3_in = fopen(filename, "r");
   if (ttcn3_in == NULL) {

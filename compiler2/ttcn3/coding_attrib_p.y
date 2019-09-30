@@ -881,6 +881,9 @@ static void yyerror(const char *str)
 /** Parse all extension attributes in a "with" statement */
 ExtensionAttributes * parse_extattributes(WithAttribPath *w_attrib_path)
 {
+#ifdef PARSER_DEBUG
+  yydebug = 1;
+#endif
   extatrs = 0;
   if (!w_attrib_path) FATAL_ERROR("parse_extattributes(): NULL pointer");
   // Collect attributes from outer scopes
