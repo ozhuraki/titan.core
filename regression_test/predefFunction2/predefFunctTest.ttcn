@@ -318,7 +318,7 @@ testcase tc_predef_bit2hex2() runs on CT {
     setverdict(fail, "expected '12FA'H got:", vl_hs);
   }
 }
-//TitanBitString_Element is the argument
+//bitstring element is the argument
 testcase tc_predef_bit2hex_bitstr_element() runs on CT {
   var bitstring vl_bs := '001'B;
   var RoHS exp := {'0'H,'0'H,'1'H};
@@ -368,7 +368,7 @@ testcase tc_predef_bit2oct2() runs on CT {
   }
 }
 
-//TitanBitString_Element is the argument
+//bitstring element is the argument
 testcase tc_predef_bit2oct_bitstr_element() runs on CT {
   var bitstring vl_bs := '001'B;
   var RoOS exp := {'00'O,'00'O,'01'O};
@@ -445,7 +445,7 @@ testcase tc_predef_bit2int_good_long5() runs on CT {
   }
 }
 
-//TitanBitString_Element is the argument
+//bitstring element is the argument
 testcase tc_predef_bit2int_bitstr_element() runs on CT {
   var bitstring vl_bs := '001'B;
   var RoI exp := {0,0,1};
@@ -533,7 +533,7 @@ testcase tc_predef_bit2str_good_empty() runs on CT {
   setverdict(pass);
 }
 
-//TitanBitString_Element is the argument
+//bitstring element is the argument
 testcase tc_predef_bit2str_bitstr_element() runs on CT {
   var bitstring vl_bs := '001'B;
   var RoCS exp := {"0","0","1"};
@@ -1723,7 +1723,7 @@ testcase tc_predef_oct2char_bad3() runs on CT {
   }
 }
 
-//for TitanOctetString_Element
+//octetstring element is the argument
 testcase tc_predef_oct2char_octetstr_elem() runs on CT {
  var charstring cs := "Dipsy";
  var octetstring os := '4469707379'O;
@@ -1737,7 +1737,7 @@ testcase tc_predef_oct2char_octetstr_elem() runs on CT {
  } 
 }
 
-//for TitanOctetString_Element
+//octetstring element is the argument
 testcase tc_predef_oct2char_octetstr_elem_bad() runs on CT {
  var charstring cs := "Áá";
  var octetstring os := 'C1E1'O; //>'7f'O 2x
