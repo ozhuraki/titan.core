@@ -2248,7 +2248,7 @@ testcase tc_predef_replace_bitstring_24() runs on CT {
   template bitstring tl_bs1 := '11'B;
   var integer idx := 0;
   var integer len := 2
-  var bitstring vl_bs := replace(tl_bs0,idx,len,tl_bs1); //NPE, cont here!!!
+  var bitstring vl_bs := replace(tl_bs0,idx,len,tl_bs1);
   if(vl_bs != '1100 1111'B){
     setverdict(fail, "expected '11001111'B got:", vl_bs);
   } else {
@@ -2469,6 +2469,124 @@ testcase tc_predef_replace_hexstring_18_bad() runs on CT {
   }
   @catch(e) {
     setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//too long index: 7+2, runtime
+testcase tc_predef_replace_hexstring_19() runs on CT {
+  var hexstring vl_bs0 := '0000 1111'H
+  var hexstring vl_bs1 := '011'H;
+  var integer idx := 7;
+  var integer len := 2;
+  @try {
+    var hexstring vl_bs := replace(vl_bs0,idx,len,vl_bs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//too long index: 9+0, runtime
+testcase tc_predef_replace_hexstring_20() runs on CT {
+  var hexstring vl_bs0 := '0000 1111'H
+  var hexstring vl_bs1 := '011'H;
+  var integer idx := 9;
+  var integer len := 0;
+  @try {
+    var hexstring vl_bs := replace(vl_bs0,idx,len,vl_bs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//negative index
+testcase tc_predef_replace_hexstring_21() runs on CT {
+  var hexstring vl_bs0 := '0000 1111'H
+  var hexstring vl_bs1 := '011'H;
+  var integer idx := -1;
+  var integer len := 2;
+  @try {
+    var hexstring vl_bs := replace(vl_bs0,idx,len,vl_bs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//negative length
+testcase tc_predef_replace_hexstring_22() runs on CT {
+  var hexstring vl_bs0 := '0000 1111'H
+  var hexstring vl_bs1 := '011'H;
+  var integer idx := 0;
+  var integer len := -2;
+  @try {
+    var hexstring vl_bs := replace(vl_bs0,idx,len,vl_bs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//uninit original string
+testcase tc_predef_replace_hexstring_23() runs on CT {
+  var hexstring vl_bs0;
+  var hexstring vl_bs1 := '011'H;
+  var integer idx := 0;
+  var integer len := 0;
+  @try {
+    var hexstring vl_bs := replace(vl_bs0,idx,len,vl_bs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//uninit string to be inserted
+testcase tc_predef_replace_hexstring_24() runs on CT {
+  var hexstring vl_bs0 := '0000 1111'H
+  var hexstring vl_bs1 ;
+  var integer idx := 0;
+  var integer len := 0;
+  @try {
+    var hexstring vl_bs := replace(vl_bs0,idx,len,vl_bs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+// var templates. append 3 char runtime
+testcase tc_predef_replace_hexstring_25() runs on CT {
+  var template hexstring vl_bs0 := '0000 1111'H
+  var template hexstring vl_bs1 := '011'H;
+  var integer idx := 8;
+  var integer len := 0;
+  var hexstring vl_bs := replace(vl_bs0,idx,len, vl_bs1);
+  if(vl_bs != '0000 1111 011'H){
+    setverdict(fail, "expected '00001111011'H got:", vl_bs);
+  } else {
+    setverdict(pass);
+  }
+}
+
+// const local templates. append 3 char runtime
+testcase tc_predef_replace_hexstring_26() runs on CT {
+  template hexstring vl_bs0 := '0000 1111'H
+  template hexstring vl_bs1 := '011'H;
+  var integer idx := 8;
+  var integer len := 0;
+  var hexstring vl_bs := replace(vl_bs0,idx,len, vl_bs1);
+  if(vl_bs != '0000 1111 011'H){
+    setverdict(fail, "expected '00001111011'H got:", vl_bs);
+  } else {
+    setverdict(pass);
   }
 }
 
@@ -4137,9 +4255,18 @@ control{
   execute(tc_predef_replace_hexstring_10());
   execute(tc_predef_replace_hexstring_11());
   execute(tc_predef_replace_hexstring_12());
-  execute(  tc_predef_replace_hexstring_14_bad());
-  execute(  tc_predef_replace_hexstring_16_bad());
-  execute(  tc_predef_replace_hexstring_18_bad());
+  execute(tc_predef_replace_hexstring_14_bad());
+  execute(tc_predef_replace_hexstring_16_bad());
+  execute(tc_predef_replace_hexstring_18_bad());
+  execute(tc_predef_replace_hexstring_19());
+  execute(tc_predef_replace_hexstring_20());
+  execute(tc_predef_replace_hexstring_21());
+  execute(tc_predef_replace_hexstring_22());
+  execute(tc_predef_replace_hexstring_23());
+  execute(tc_predef_replace_hexstring_24());
+  execute(tc_predef_replace_hexstring_25());
+  execute(tc_predef_replace_hexstring_26());
+  
   //===
   execute(tc_predef_replace_octetstring_1());
   execute(tc_predef_replace_octetstring_1a());
