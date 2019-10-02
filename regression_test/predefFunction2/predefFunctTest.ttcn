@@ -2199,7 +2199,7 @@ testcase tc_predef_replace_bitstring_20_bad() runs on CT {
     setverdict(pass,"Expected DTE catched")
   }
 }
-//uninitialized input str
+//uninitialized str to be inserted
 testcase tc_predef_replace_bitstring_21_bad() runs on CT {
   var bitstring vl_bs0 := '0000 1111'B; 
    var bitstring vl_bs1;//uninit!
@@ -2213,7 +2213,7 @@ testcase tc_predef_replace_bitstring_21_bad() runs on CT {
   }
 }
 
-//uninitialized string to be inserted:
+//uninitialized input string 
 testcase tc_predef_replace_bitstring_22_bad() runs on CT {
   var bitstring vl_bs0 ; //uninit!
   var integer idx := 0, len := 1;
@@ -2547,7 +2547,7 @@ testcase tc_predef_replace_hexstring_23() runs on CT {
   }
 }
 
-//uninit string to be inserted
+//uninit string to be inserted 
 testcase tc_predef_replace_hexstring_24() runs on CT {
   var hexstring vl_bs0 := '0000 1111'H
   var hexstring vl_bs1 ;
@@ -2605,9 +2605,9 @@ testcase tc_predef_replace_octetstring_1() runs on CT {
 //var pars
 testcase tc_predef_replace_octetstring_1a() runs on CT {
   var integer vl_beginning :=0, vl_len := 1;
-  var octetstring vl_bs := replace('0000 1111'O,vl_beginning,vl_len,''O);
-  if(vl_bs != '00 1111'O){
-    setverdict(fail, "expected '001111'O got:", vl_bs);
+  var octetstring vl_os := replace('0000 1111'O,vl_beginning,vl_len,''O);
+  if(vl_os != '00 1111'O){
+    setverdict(fail, "expected '001111'O got:", vl_os);
   } else {
     setverdict(pass);
   }
@@ -2615,19 +2615,19 @@ testcase tc_predef_replace_octetstring_1a() runs on CT {
 //const pars
 testcase tc_predef_replace_octetstring_1b() runs on CT {
   const integer vl_beginning :=0, vl_len := 1;
-  var octetstring vl_bs := replace('0000 1111'O,vl_beginning,vl_len,''O);
-  if(vl_bs != '00 1111'O){
-    setverdict(fail, "expected '001111'O got:", vl_bs);
+  var octetstring vl_os := replace('0000 1111'O,vl_beginning,vl_len,''O);
+  if(vl_os != '00 1111'O){
+    setverdict(fail, "expected '001111'O got:", vl_os);
   } else {
     setverdict(pass);
   }
 }
 // remove 2 chars from the beginnining, run time
 testcase tc_predef_replace_octetstring_2() runs on CT {
-  var octetstring vl_bs0 := '0000 1111'O
-  var octetstring vl_bs := replace(vl_bs0,0,1,''O);
-  if(vl_bs != '00 1111'O){
-    setverdict(fail, "expected '001111'O got:", vl_bs);
+  var octetstring vl_os0 := '0000 1111'O
+  var octetstring vl_os := replace(vl_os0,0,1,''O);
+  if(vl_os != '00 1111'O){
+    setverdict(fail, "expected '001111'O got:", vl_os);
   } else {
     setverdict(pass);
   }
@@ -2637,19 +2637,19 @@ testcase tc_predef_replace_octetstring_2() runs on CT {
 //parameters are variables
 testcase tc_predef_replace_octetstring_2a() runs on CT {
   var integer vl_beginning :=0, vl_len := 1;
-  var octetstring vl_bs0 := '0000 1111'O
-  var octetstring vl_bs := replace(vl_bs0,vl_beginning,vl_len,''O);
-  if(vl_bs != '00 1111'O){
-    setverdict(fail, "expected '001111'O got:", vl_bs);
+  var octetstring vl_os0 := '0000 1111'O
+  var octetstring vl_os := replace(vl_os0,vl_beginning,vl_len,''O);
+  if(vl_os != '00 1111'O){
+    setverdict(fail, "expected '001111'O got:", vl_os);
   } else {
     setverdict(pass);
   }
 }
 // remove 2 chars from the beginnining,insert 1 char compile time
 testcase tc_predef_replace_octetstring_3() runs on CT {
-  var octetstring vl_bs := replace('0000 1111'O,0,1,'11'O);
-  if(vl_bs != '1100 1111'O){
-    setverdict(fail, "expected '11001111'O got:", vl_bs);
+  var octetstring vl_os := replace('0000 1111'O,0,1,'11'O);
+  if(vl_os != '1100 1111'O){
+    setverdict(fail, "expected '11001111'O got:", vl_os);
   } else {
     setverdict(pass);
   }
@@ -2657,10 +2657,10 @@ testcase tc_predef_replace_octetstring_3() runs on CT {
 }
 // remove 2 chars from the beginnining,insert 1 char runtime
 testcase tc_predef_replace_octetstring_4() runs on CT {
-  var octetstring vl_bs0 := '0000 1111'O
-  var octetstring vl_bs := replace(vl_bs0,0,1,'11'O);
-  if(vl_bs != '1100 1111'O){
-    setverdict(fail, "expected '11001111'O got:", vl_bs);
+  var octetstring vl_os0 := '0000 1111'O
+  var octetstring vl_os := replace(vl_os0,0,1,'11'O);
+  if(vl_os != '1100 1111'O){
+    setverdict(fail, "expected '11001111'O got:", vl_os);
   } else {
     setverdict(pass);
   }
@@ -2668,9 +2668,9 @@ testcase tc_predef_replace_octetstring_4() runs on CT {
 
 // remove 4 chars from the beginnining,insert 2 char compile time
 testcase tc_predef_replace_octetstring_5() runs on CT {
-  var octetstring vl_bs := replace('0000 1111'O,0,2,'11'O);
-  if(vl_bs != '11 1111'O){
-    setverdict(fail, "expected '111111'O got:", vl_bs);
+  var octetstring vl_os := replace('0000 1111'O,0,2,'11'O);
+  if(vl_os != '11 1111'O){
+    setverdict(fail, "expected '111111'O got:", vl_os);
   } else {
     setverdict(pass);
   }
@@ -2678,10 +2678,10 @@ testcase tc_predef_replace_octetstring_5() runs on CT {
 }
 // remove 2 chars from the beginnining,insert 2 char runtime
 testcase tc_predef_replace_octetstring_6() runs on CT {
-  var octetstring vl_bs0 := '0000 1111'O
-  var octetstring vl_bs := replace(vl_bs0,0,2,'11'O);
-  if(vl_bs != '11 1111'O){
-    setverdict(fail, "expected '111111'O got:", vl_bs);
+  var octetstring vl_os0 := '0000 1111'O
+  var octetstring vl_os := replace(vl_os0,0,2,'11'O);
+  if(vl_os != '11 1111'O){
+    setverdict(fail, "expected '111111'O got:", vl_os);
   } else {
     setverdict(pass);
   }
@@ -2689,9 +2689,9 @@ testcase tc_predef_replace_octetstring_6() runs on CT {
 
 // remove 2 chars from the beginnining,insert 3 char compile time
 testcase tc_predef_replace_octetstring_7() runs on CT {
-  var octetstring vl_bs := replace('0000 1111'O,0,2,'1111'O);
-  if(vl_bs != '1111 1111'O){
-    setverdict(fail, "expected '11111111'O got:", vl_bs);
+  var octetstring vl_os := replace('0000 1111'O,0,2,'1111'O);
+  if(vl_os != '1111 1111'O){
+    setverdict(fail, "expected '11111111'O got:", vl_os);
   } else {
     setverdict(pass);
   }
@@ -2699,10 +2699,10 @@ testcase tc_predef_replace_octetstring_7() runs on CT {
 }
 // remove 2 chars from the beginnining,insert 3 char runtime
 testcase tc_predef_replace_octetstring_8() runs on CT {
-  var octetstring vl_bs0 := '0000 1111'O
-  var octetstring vl_bs := replace(vl_bs0,0,2,'1111'O);
-  if(vl_bs != '1111 1111'O){
-    setverdict(fail, "expected '11111111'O got:", vl_bs);
+  var octetstring vl_os0 := '0000 1111'O
+  var octetstring vl_os := replace(vl_os0,0,2,'1111'O);
+  if(vl_os != '1111 1111'O){
+    setverdict(fail, "expected '11111111'O got:", vl_os);
   } else {
     setverdict(pass);
   }
@@ -2710,9 +2710,9 @@ testcase tc_predef_replace_octetstring_8() runs on CT {
 
 // remove 2 chars from the second char (index position 1), insert 3 char compile time
 testcase tc_predef_replace_octetstring_9() runs on CT {
-  var octetstring vl_bs := replace('0000 1111'O,1,2,'1111'O);
-  if(vl_bs != '00 1111 11'O){
-    setverdict(fail, "expected '00111111'O got:", vl_bs);
+  var octetstring vl_os := replace('0000 1111'O,1,2,'1111'O);
+  if(vl_os != '00 1111 11'O){
+    setverdict(fail, "expected '00111111'O got:", vl_os);
   } else {
     setverdict(pass);
   }
@@ -2720,10 +2720,10 @@ testcase tc_predef_replace_octetstring_9() runs on CT {
 }
 // remove 2 chars from the second char (index position 1), insert 3 char runtime
 testcase tc_predef_replace_octetstring_10() runs on CT {
-  var octetstring vl_bs0 := '0000 1111'O
-  var octetstring vl_bs := replace(vl_bs0,1,2,'1111'O);
-  if(vl_bs != '00111111'O){
-    setverdict(fail, "expected '00111111'O got:", vl_bs);
+  var octetstring vl_os0 := '0000 1111'O
+  var octetstring vl_os := replace(vl_os0,1,2,'1111'O);
+  if(vl_os != '00111111'O){
+    setverdict(fail, "expected '00111111'O got:", vl_os);
   } else {
     setverdict(pass);
   }
@@ -2731,9 +2731,9 @@ testcase tc_predef_replace_octetstring_10() runs on CT {
 
 // append 4 chars compile time
 testcase tc_predef_replace_octetstring_11() runs on CT {
-  var octetstring vl_bs := replace('0000 1111'O,4,0,'0011'O);
-  if(vl_bs != '0000 1111 0011'O){
-    setverdict(fail, "expected '000011110011'O got:", vl_bs);
+  var octetstring vl_os := replace('0000 1111'O,4,0,'0011'O);
+  if(vl_os != '0000 1111 0011'O){
+    setverdict(fail, "expected '000011110011'O got:", vl_os);
   } else {
     setverdict(pass);
   }
@@ -2741,10 +2741,10 @@ testcase tc_predef_replace_octetstring_11() runs on CT {
 }
 // append 3 char runtime
 testcase tc_predef_replace_octetstring_12() runs on CT {
-  var octetstring vl_bs0 := '0000 1111'O
-  var octetstring vl_bs := replace(vl_bs0,4,0,'0011'O);
-  if(vl_bs != '0000 1111 0011'O){
-    setverdict(fail, "expected '000011110011'O got:", vl_bs);
+  var octetstring vl_os0 := '0000 1111'O
+  var octetstring vl_os := replace(vl_os0,4,0,'0011'O);
+  if(vl_os != '0000 1111 0011'O){
+    setverdict(fail, "expected '000011110011'O got:", vl_os);
   } else {
     setverdict(pass);
   }
@@ -2753,15 +2753,15 @@ testcase tc_predef_replace_octetstring_12() runs on CT {
 //Expected on-the-fly semantic marker:
 //The sum of the second operand (8) and the third operand (1) of operation `replace' is greater than the length of the first operand (8) 
 //testcase tc_predef_replace_octetstring_13_bad() runs on CT {
-//  var octetstring vl_bs := replace('0000 1111'O,8,1,'011'O);
+//  var octetstring vl_os := replace('0000 1111'O,8,1,'011'O);
 
 //}
 
-//too long index: 8+1
+//too long index: 4+1, perhaps compile time
 testcase tc_predef_replace_octetstring_14_bad() runs on CT {
-  var octetstring vl_bs0 := '0000 1111'O
+  var octetstring vl_os0 := '0000 1111'O
   @try {
-    var octetstring vl_bs := replace(vl_bs0,4,1,'0011'O);
+    var octetstring vl_os := replace(vl_os0,4,1,'0011'O);
     setverdict(fail,"DTE expected")
   }
   @catch(e) {
@@ -2772,33 +2772,33 @@ testcase tc_predef_replace_octetstring_14_bad() runs on CT {
 //Expected on-the-fly semantic marker:
 //The sum of the second operand (8) and the third operand (1) of operation `replace' is greater than the length of the first operand (8) 
 //testcase tc_predef_replace_octetstring_15_bad() runs on CT {
-//  var octetstring vl_bs := replace('0000 1111'O,3,2,'0011'O);
+//  var octetstring vl_os := replace('0000 1111'O,3,2,'0011'O);
 //}
 ////Expected on-the-fly semantic marker:
 ////The third operand of operation `replace' should not be negative
 //testcase tc_predef_replace_octetstring_15a_bad() runs on CT {
-//  var octetstring vl_bs := replace('0000 1111'O,3,-2,'0011'O);
+//  var octetstring vl_os := replace('0000 1111'O,3,-2,'0011'O);
 //}
 //testcase tc_predef_replace_octetstring_15b_bad() runs on CT {
-//  var octetstring vl_bs := replace('0000 1111'O,3,-2,'11'O);
+//  var octetstring vl_os := replace('0000 1111'O,3,-2,'11'O);
 //}
 
-//too long index: 7+2
+//too long index: 3+2
 testcase tc_predef_replace_octetstring_16_bad() runs on CT {
-  var octetstring vl_bs0 := '0000 1111'O
+  var octetstring vl_os0 := '0000 1111'O
   @try {
-    var octetstring vl_bs := replace(vl_bs0,3,2,'0011'O);
+    var octetstring vl_os := replace(vl_os0,3,2,'0011'O);
     setverdict(fail,"DTE expected")
   }
   @catch(e) {
     setverdict(pass,"Expected DTE catched")
   }
 }
-//too long index: 9+0
+//too long index: 5+0
 testcase tc_predef_replace_octetstring_18_bad() runs on CT {
-  var octetstring vl_bs0 := '0000 1111'O
+  var octetstring vl_os0 := '0000 1111'O
   @try {
-    var octetstring vl_bs := replace(vl_bs0,5,0,'0011'O);
+    var octetstring vl_os := replace(vl_os0,5,0,'0011'O);
     setverdict(fail,"DTE expected")
   }
   @catch(e) {
@@ -2806,6 +2806,125 @@ testcase tc_predef_replace_octetstring_18_bad() runs on CT {
   }
 }
 
+//too long index: 5+0, runtime
+testcase tc_predef_replace_octetstring_19_bad() runs on CT {
+  var octetstring vl_os0 := '0000 1111'O
+  var octetstring vl_os1 := '0011'O;
+  var integer idx := 5;
+  var integer len := 0;
+  @try {
+    var octetstring vl_os := replace(vl_os0,idx,len,vl_os1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//too long index: 3+2, runtime
+testcase tc_predef_replace_octetstring_20_bad() runs on CT {
+  var octetstring vl_os0 := '0000 1111'O
+  var octetstring vl_os1 := '0011'O;
+  var integer idx := 3;
+  var integer len := 2;
+  @try {
+    var octetstring vl_os := replace(vl_os0,idx,len,vl_os1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//negative index
+testcase tc_predef_replace_octetstring_21_bad() runs on CT {
+  var octetstring vl_os0 := '0000 1111'O
+  var octetstring vl_os1 := '0011'O;
+  var integer idx := -1;
+  var integer len := 2;
+  @try {
+    var octetstring vl_os := replace(vl_os0,idx,len,vl_os1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//negative length
+testcase tc_predef_replace_octetstring_22_bad() runs on CT {
+  var octetstring vl_os0 := '0000 1111'O
+  var octetstring vl_os1 := '0011'O;
+  var integer idx := 3;
+  var integer len := -2;
+  @try {
+    var octetstring vl_os := replace(vl_os0,idx,len,vl_os1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//uninit orig str
+testcase tc_predef_replace_octetstring_23_bad() runs on CT {
+  var octetstring vl_os0;
+  var octetstring vl_os1 := '0011'O;
+  var integer idx := 3;
+  var integer len := -2;
+  @try {
+    var octetstring vl_os := replace(vl_os0,idx,len,vl_os1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//uninit string to be inserted
+testcase tc_predef_replace_octetstring_24_bad() runs on CT {
+  var octetstring vl_os0 := '0000 1111'O
+  var octetstring vl_os1;
+  var integer idx := 3;
+  var integer len := -2;
+  @try {
+    var octetstring vl_os := replace(vl_os0,idx,len,vl_os1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+// var templates, append 3 char runtime
+testcase tc_predef_replace_octetstring_25() runs on CT {
+  var template octetstring vl_os0 := '0000 1111'O
+  var template octetstring vl_os1 := '0011'O;
+  var integer idx := 4;
+  var integer len := 0;
+  var octetstring vl_os := replace(vl_os0, idx, len, vl_os1);
+
+  if(vl_os != '0000 1111 0011'O){
+    setverdict(fail, "expected '000011110011'O got:", vl_os);
+  } else {
+    setverdict(pass);
+  }
+}
+
+// templates, append 3 char runtime
+testcase tc_predef_replace_octetstring_26() runs on CT {
+  template octetstring vl_os0 := '0000 1111'O
+  template octetstring vl_os1 := '0011'O;
+  var integer idx := 4;
+  var integer len := 0;
+  var octetstring vl_os := replace(vl_os0, idx, len, vl_os1);
+
+  if(vl_os != '0000 1111 0011'O){
+    setverdict(fail, "expected '000011110011'O got:", vl_os);
+  } else {
+    setverdict(pass);
+  }
+}
 
 //*********** Replace() for charstring ***********
 
@@ -4283,9 +4402,17 @@ control{
   execute(tc_predef_replace_octetstring_10());
   execute(tc_predef_replace_octetstring_11());
   execute(tc_predef_replace_octetstring_12());
-  execute(  tc_predef_replace_octetstring_14_bad());
-  execute(  tc_predef_replace_octetstring_16_bad());
-  execute(  tc_predef_replace_octetstring_18_bad());
+  execute(tc_predef_replace_octetstring_14_bad());
+  execute(tc_predef_replace_octetstring_16_bad());
+  execute(tc_predef_replace_octetstring_18_bad());
+  execute(tc_predef_replace_octetstring_19_bad());
+  execute(tc_predef_replace_octetstring_20_bad());
+  execute(tc_predef_replace_octetstring_21_bad());
+  execute(tc_predef_replace_octetstring_22_bad());
+  execute(tc_predef_replace_octetstring_23_bad());
+  execute(tc_predef_replace_octetstring_24_bad());
+  execute(tc_predef_replace_octetstring_25());
+  execute(tc_predef_replace_octetstring_26());
   //===
   execute(tc_predef_replace_charstring_1());
   execute(tc_predef_replace_charstring_1a());
