@@ -1,14 +1,14 @@
 /******************************************************************************
- * Copyright (c) 2000-2019 Ericsson Telecom AB
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v2.0
- * which accompanies this distribution, and is available at
- * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
- *
- * Contributors:
- *   Balasko, Jeno
- *
- ******************************************************************************/
+* Copyright (c) 2000-2019 Ericsson Telecom AB
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v2.0
+* which accompanies this distribution, and is available at
+* https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+*
+* Contributors:
+*   Balasko, Jeno
+*
+******************************************************************************/
 //These tests are supplementary testcases to ../predefFunction/*
 //If commented testcases are commented back, the code can be used in static test, as well
 module predefFunctTest {
@@ -908,7 +908,8 @@ testcase tc_predef_hex2bit_good20() runs on CT {
   }
 }
 
-testcase tc_predef_hex2bit_good21() runs on CT {
+//hexstring element in the arg
+testcase tc_predef_hex2bit_hexstr_element() runs on CT {
   var hexstring vl_hs :='ABBA9'H
   var bitstring vl_bs := '10101011101110101001'B
   var integer N := lengthof(vl_hs);
@@ -921,7 +922,7 @@ testcase tc_predef_hex2bit_good21() runs on CT {
     log(vl_hs[i],"->",hex2bit(vl_hs[i])," expected: ",substr(vl_bs,i*4,4));
   }
 }
-//hex2int
+//===== hex2int ====
 testcase tc_predef_hex2int_unbound() runs on CT {
   var hexstring vl_hs;
   @try {
@@ -978,16 +979,30 @@ testcase tc_predef_hex2int_good2() runs on CT{
   }
 }
 
-testcase tc_predef_hex2int_good20() runs on CT {
-  var hexstring vl_hs :='ABBA9'H
-  if(hex2int(vl_hs)==703401){
+testcase tc_predef_hex2int_good3() runs on CT {
+  var hexstring vl_hs :='0123456789ABCDEF'H
+  if(hex2int(vl_hs)==81985529216486895){
     setverdict(pass);
   } else {
     setverdict(fail);
   }
 }
 
-//hex2oct
+//hexstring element in the arg
+testcase tc_predef_hex2int_hexstr_element() runs on CT {
+  var hexstring vl_hs :='019ABBAF'H
+  var RoI int_list :={0,1,9,10,11,11,10,15} 
+  var integer N := lengthof(vl_hs);
+  for(var integer i:=0;i<N;i:=i+1){
+    if (hex2int(vl_hs[i])==int_list[i]) {
+      setverdict(pass);
+    } else {
+      setverdict(fail);
+    }
+    log(vl_hs[i],"->",hex2bit(vl_hs[i])," expected: ",int_list[i]);
+  }
+}
+//===== hex2oct =====
 testcase tc_predef_hex2oct_empty1() runs on CT {
   if(hex2oct(''H)==''O) {
     setverdict(pass);
@@ -1053,15 +1068,17 @@ testcase tc_predef_hex2oct_good2() runs on CT{
     log(vl_hexaValues[i],"->expected:",vl_expectedValues[i]," got:",hex2oct(vl_hexaValues[i]))
   }
 }
-
-testcase tc_predef_hex2oct_good1_bug() runs on CT{
+//literal 1
+testcase tc_predef_hex2oct_good3() runs on CT{
   if(hex2oct('4'H)=='04'O){
     setverdict(pass);
   } else {
     setverdict(fail);
   }
 }
-testcase tc_predef_hex2oct_good2_bug() runs on CT{
+
+//literal 2
+testcase tc_predef_hex2oct_good4() runs on CT{
   if(hex2oct('00FF'H)=='00FF'O){
     setverdict(pass);
   } else {
@@ -1069,7 +1086,8 @@ testcase tc_predef_hex2oct_good2_bug() runs on CT{
   }
 }
 
-testcase tc_predef_hex2oct_good3_bug() runs on CT{
+//literal 3
+testcase tc_predef_hex2oct_good5() runs on CT{
   if(hex2oct('0FF'H)=='00FF'O){
     setverdict(pass);
   } else {
@@ -1077,8 +1095,8 @@ testcase tc_predef_hex2oct_good3_bug() runs on CT{
   }
 }
 
-//padding expected
-testcase tc_predef_hex2oct_good4_bug() runs on CT{
+//padding expected, runtime
+testcase tc_predef_hex2oct_good6() runs on CT{
   var hexstring vl_hs := '0FF'H
   if(hex2oct(vl_hs)=='00FF'O){
     setverdict(pass);
@@ -1087,7 +1105,7 @@ testcase tc_predef_hex2oct_good4_bug() runs on CT{
   }
 }
 
-testcase tc_predef_hex2oct_good20() runs on CT {
+testcase tc_predef_hex2oct_good7() runs on CT {
   var hexstring vl_hs :='ABBA9'H
   if(hex2oct(vl_hs)=='0ABBA9'O){
     setverdict(pass);
@@ -1096,7 +1114,8 @@ testcase tc_predef_hex2oct_good20() runs on CT {
   }
 }
 
-testcase tc_predef_hex2oct_good21() runs on CT {
+//hexstring element in the arg
+testcase tc_predef_hex2oct_hexstr_element() runs on CT {
   var hexstring vl_hs :='ABBA9'H
   var RoOS vl_bs := { '0A'O,'0B'O,'0B'O,'0A'O,'09'O}
   var integer N := lengthof(vl_hs);
@@ -1111,6 +1130,9 @@ testcase tc_predef_hex2oct_good21() runs on CT {
 }
 
 //=========hex2str=============
+//C.1.20 Hexstring to charstring
+//Example: hex2str('AB801'H) // will return "AB801"
+
 testcase tc_predef_hex2str_empty1() runs on CT {
   var hexstring vl_hs :=''H
   if(hex2str(vl_hs)==""){
@@ -1127,6 +1149,7 @@ testcase tc_predef_hex2str_unbound() runs on CT {
     } else {
       setverdict(fail,"DTE expected");
     }
+    setverdict(fail, "This line should not be reached");
   }@catch(e){
     setverdict(pass, "Expected DTE catched")
   }
@@ -1168,14 +1191,17 @@ testcase tc_predef_hex2str_good2() runs on CT{
   }
 }
 
-testcase tc_predef_hex2str_good1_bug() runs on CT{
+//literal 1 (compiler time evaluation)
+testcase tc_predef_hex2str_good3() runs on CT{
   if(hex2str('4'H)=="4"){
     setverdict(pass);
   } else {
     setverdict(fail);
   }
 }
-testcase tc_predef_hex2str_good2_bug() runs on CT{
+
+//literal 2 
+testcase tc_predef_hex2str_good4() runs on CT{
   if(hex2str('00FF'H)=="00FF"){
     setverdict(pass);
   } else {
@@ -1183,7 +1209,7 @@ testcase tc_predef_hex2str_good2_bug() runs on CT{
   }
 }
 
-testcase tc_predef_hex2str_good3_bug() runs on CT{
+testcase tc_predef_hex2str_good5() runs on CT{
   if(hex2str('0FF'H)=="0FF"){
     setverdict(pass);
   } else {
@@ -1191,8 +1217,8 @@ testcase tc_predef_hex2str_good3_bug() runs on CT{
   }
 }
 
-//padding expected
-testcase tc_predef_hex2str_good4_bug() runs on CT{
+//no padding 
+testcase tc_predef_hex2str_good6() runs on CT{
   var hexstring vl_hs := '0FF'H
   if(hex2str(vl_hs)=="0FF"){
     setverdict(pass);
@@ -1201,9 +1227,10 @@ testcase tc_predef_hex2str_good4_bug() runs on CT{
   }
 }
 
-testcase tc_predef_hex2str_good20() runs on CT {
-  var hexstring vl_hs :='ABBA9'H
-  if(hex2str(vl_hs)=="ABBA9"){
+//longer
+testcase tc_predef_hex2str_good7() runs on CT {
+  var hexstring vl_hs :='0123456789ABBAF'H
+  if(hex2str(vl_hs)=="0123456789ABBAF"){
     setverdict(pass);
   } else {
     setverdict(fail);
@@ -1211,10 +1238,9 @@ testcase tc_predef_hex2str_good20() runs on CT {
   log(vl_hs,"->",hex2str(vl_hs))
 }
 
-//C.1.20 Hexstring to charstring
-//Example: hex2str('AB801'H) // will return "AB801"
 
-testcase tc_predef_hex2str_good21() runs on CT {
+//hexstring element
+testcase tc_predef_hex2str_hexstring_element() runs on CT {
   var hexstring vl_hs :='ABBA9'H
   var RoCS vl_bs := { "A","B","B","A","9"}
   var integer N := lengthof(vl_hs);
@@ -1241,6 +1267,16 @@ testcase tc_predef_int2bit_unbound() runs on CT {
 
 testcase tc_predef_int2bit_wrongLength() runs on CT {
   var integer vl_i:= 4;
+  @try {
+    var bitstring vl_bs := int2bit(vl_i,2);
+    setverdict(fail, "DTE expected:");
+  } @catch(e){
+    setverdict(pass,"DTE catched");
+  }
+}
+
+testcase tc_predef_int2bit_negLength() runs on CT {
+  var integer vl_i:= -1;
   @try {
     var bitstring vl_bs := int2bit(vl_i,2);
     setverdict(fail, "DTE expected:");
@@ -1645,7 +1681,7 @@ testcase tc_predef_oct2bit_good() runs on CT {
   setverdict(pass);
 }
 
-//oct2char
+//===== oct2char =======
 //1. "The input parameter invalue shall not contain octet values higher than 7F."
 //2. "The resulting charstring shall have the same length as the input octetstring."
 
@@ -1904,7 +1940,7 @@ testcase tc_predef_oct2str_good2() runs on CT {
 }
 
 //for octetstring elements
-testcase tc_predef_oct2str_good21() runs on CT {
+testcase tc_predef_oct2str_octetstring_element() runs on CT {
   var octetstring vl_os :='ABBA09'O
   var RoCS vl_cs := { "AB","BA","09"}
   var integer N := lengthof(vl_os);
@@ -1917,6 +1953,8 @@ testcase tc_predef_oct2str_good21() runs on CT {
     log(vl_os[i],"->",oct2str(vl_os[i])," expected: ",vl_cs[i]);
   }
 }
+
+//==== universal charstring related functions: see ucharstrOper ===
 
 //================================================
 //============ replace() =========================
@@ -2085,7 +2123,6 @@ testcase tc_predef_replace_bitstring_12() runs on CT {
 //The sum of the second operand (8) and the third operand (1) of operation `replace' is greater than the length of the first operand (8) 
 //testcase tc_predef_replace_bitstring_13_bad() runs on CT {
 //  var bitstring vl_bs := replace('0000 1111'B,8,1,'011'B);
-
 //}
 
 //too long index: 8+1
@@ -2136,6 +2173,89 @@ testcase tc_predef_replace_bitstring_18_bad() runs on CT {
     setverdict(pass,"Expected DTE catched")
   }
 }
+
+//negative index:
+testcase tc_predef_replace_bitstring_19_bad() runs on CT {
+  var bitstring vl_bs0 := '0000 1111'B
+  var integer idx := -1;
+  @try {
+    var bitstring vl_bs := replace(vl_bs0,idx,0,'011'B);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//negative length
+testcase tc_predef_replace_bitstring_20_bad() runs on CT {
+  var bitstring vl_bs0 := '0000 1111'B
+  var integer idx := 0, len := -1;
+  @try {
+    var bitstring vl_bs := replace(vl_bs0,idx,len,'011'B);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+//uninitialized input str
+testcase tc_predef_replace_bitstring_21_bad() runs on CT {
+  var bitstring vl_bs0 := '0000 1111'B; 
+   var bitstring vl_bs1;//uninit!
+  var integer idx := 0, len := 1;
+  @try {
+    var bitstring vl_bs := replace(vl_bs0,idx,len, vl_bs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//uninitialized string to be inserted:
+testcase tc_predef_replace_bitstring_22_bad() runs on CT {
+  var bitstring vl_bs0 ; //uninit!
+  var integer idx := 0, len := 1;
+  @try {
+    var bitstring vl_bs := replace(vl_bs0,idx,len,'011'B);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+// bitstring template
+// remove 2 chars from the beginnining,insert 2 char compile time
+testcase tc_predef_replace_bitstring_23() runs on CT {
+  var template bitstring tl_bs0 := '0000 1111'B;
+  var template bitstring tl_bs1 := '11'B;
+  const integer idx := 0;
+  const integer len := 2
+  var bitstring vl_bs := replace(tl_bs0,idx,len,tl_bs1);
+  if(vl_bs != '1100 1111'B){
+    setverdict(fail, "expected '11001111'B got:", vl_bs);
+  } else {
+    setverdict(pass);
+  }
+
+}
+
+// remove 2 chars from the beginnining,insert 2 char runtime
+testcase tc_predef_replace_bitstring_24() runs on CT {
+  template bitstring tl_bs0 := '0000 1111'B;
+  template bitstring tl_bs1 := '11'B;
+  var integer idx := 0;
+  var integer len := 2
+  var bitstring vl_bs := replace(tl_bs0,idx,len,tl_bs1); //NPE, cont here!!!
+  if(vl_bs != '1100 1111'B){
+    setverdict(fail, "expected '11001111'B got:", vl_bs);
+  } else {
+    setverdict(pass);
+  }
+}
+
 
 //*********** Replace() for hexstring ************
 
@@ -3894,34 +4014,39 @@ control{
   execute(tc_predef_hex2bit_good1());
   execute(tc_predef_hex2bit_good2());
   execute(tc_predef_hex2bit_good20());
-  execute(tc_predef_hex2bit_good21());
+  execute(tc_predef_hex2bit_hexstr_element());
   execute(tc_predef_hex2int_unbound());
   execute(tc_predef_hex2int_empty());
   execute(tc_predef_hex2int_good1());
   execute(tc_predef_hex2int_good2());
-  execute(tc_predef_hex2int_good20());
+  execute(tc_predef_hex2int_good3());
+  execute(tc_predef_hex2int_hexstr_element());
   execute(tc_predef_hex2oct_empty1());
   execute(tc_predef_hex2oct_empty2());
   execute(tc_predef_hex2oct_unbound());
   execute(tc_predef_hex2oct_good1());
   execute(tc_predef_hex2oct_good2());
-  execute(tc_predef_hex2oct_good3_bug());
-  execute(tc_predef_hex2oct_good4_bug()); 
-  execute(tc_predef_hex2oct_good20());
+  execute(tc_predef_hex2oct_good3());
+  execute(tc_predef_hex2oct_good4());
+  execute(tc_predef_hex2oct_good5());
+  execute(tc_predef_hex2oct_good6());
+  execute(tc_predef_hex2oct_good7());
+  execute(tc_predef_hex2oct_hexstr_element());
 
   execute(tc_predef_hex2str_empty1());
   execute(tc_predef_hex2str_unbound());
   execute(tc_predef_hex2str_good1()); 
   execute(tc_predef_hex2str_good2());
-  execute(tc_predef_hex2str_good1_bug());
-  execute(tc_predef_hex2str_good2_bug());
-  execute(tc_predef_hex2str_good3_bug());
-  execute(tc_predef_hex2str_good4_bug());
-  execute(tc_predef_hex2str_good20());
-  execute(tc_predef_hex2str_good21());
+  execute(tc_predef_hex2str_good3());
+  execute(tc_predef_hex2str_good4());
+  execute(tc_predef_hex2str_good5());
+  execute(tc_predef_hex2str_good6());
+  execute(tc_predef_hex2str_good7());
+  execute(tc_predef_hex2str_hexstring_element());
 
   execute(tc_predef_int2bit_unbound());
   execute(tc_predef_int2bit_wrongLength());
+  execute(tc_predef_int2bit_negLength());
   execute(tc_predef_int2bit_good1());
   execute(tc_predef_int2bit_good2());
   execute(tc_predef_int2bit_good3());
@@ -3970,7 +4095,7 @@ control{
 
   execute(tc_predef_oct2str_good1());
   execute(tc_predef_oct2str_good2());
-  execute(tc_predef_oct2str_good21());
+  execute(tc_predef_oct2str_octetstring_element());
 
   execute(tc_predef_replace_bitstring_1());
   execute(tc_predef_replace_bitstring_1a());
@@ -3987,10 +4112,15 @@ control{
   //  execute(tc_predef_replace_bitstring_10());
   execute(tc_predef_replace_bitstring_11());
   //  execute(tc_predef_replace_bitstring_12());
-  execute(  tc_predef_replace_bitstring_14_bad());
-  execute(  tc_predef_replace_bitstring_16_bad());
-  execute(  tc_predef_replace_bitstring_18_bad());
-
+  execute(tc_predef_replace_bitstring_14_bad());
+  execute(tc_predef_replace_bitstring_16_bad());
+  execute(tc_predef_replace_bitstring_18_bad());
+  execute(tc_predef_replace_bitstring_19_bad());
+  execute(tc_predef_replace_bitstring_20_bad());
+  execute(tc_predef_replace_bitstring_21_bad());
+  execute(tc_predef_replace_bitstring_22_bad());
+  execute(tc_predef_replace_bitstring_23());
+  execute(tc_predef_replace_bitstring_24());
   //===
   execute(tc_predef_replace_hexstring_1());
   execute(tc_predef_replace_hexstring_1a());
