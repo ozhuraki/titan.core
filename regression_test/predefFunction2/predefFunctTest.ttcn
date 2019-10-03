@@ -2871,7 +2871,7 @@ testcase tc_predef_replace_octetstring_23_bad() runs on CT {
   var octetstring vl_os0;
   var octetstring vl_os1 := '0011'O;
   var integer idx := 3;
-  var integer len := -2;
+  var integer len := 2;
   @try {
     var octetstring vl_os := replace(vl_os0,idx,len,vl_os1);
     setverdict(fail,"DTE expected")
@@ -2886,7 +2886,7 @@ testcase tc_predef_replace_octetstring_24_bad() runs on CT {
   var octetstring vl_os0 := '0000 1111'O
   var octetstring vl_os1;
   var integer idx := 3;
-  var integer len := -2;
+  var integer len := 2;
   @try {
     var octetstring vl_os := replace(vl_os0,idx,len,vl_os1);
     setverdict(fail,"DTE expected")
@@ -2896,7 +2896,7 @@ testcase tc_predef_replace_octetstring_24_bad() runs on CT {
   }
 }
 
-// var templates, append 3 char runtime
+// var templates, append 2 chars runtime
 testcase tc_predef_replace_octetstring_25() runs on CT {
   var template octetstring vl_os0 := '0000 1111'O
   var template octetstring vl_os1 := '0011'O;
@@ -2911,7 +2911,7 @@ testcase tc_predef_replace_octetstring_25() runs on CT {
   }
 }
 
-// templates, append 3 char runtime
+// templates, append 2 chars runtime
 testcase tc_predef_replace_octetstring_26() runs on CT {
   template octetstring vl_os0 := '0000 1111'O
   template octetstring vl_os1 := '0011'O;
