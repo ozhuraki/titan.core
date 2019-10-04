@@ -2498,17 +2498,40 @@ UNIVERSAL_CHARSTRING replace(const UNIVERSAL_CHARSTRING& value, int idx,
     "unbound universal charstring value.");
   check_replace_arguments(value.lengthof(), idx, len,
     "universal charstring", "character");
-  int value_len = value.lengthof();
-  int repl_len = repl.lengthof();
-  UNIVERSAL_CHARSTRING ret_val(value_len + repl_len - len);
-  memcpy(ret_val.val_ptr->uchars_ptr, value.val_ptr->uchars_ptr,
-    idx * sizeof(universal_char));
-  memcpy(ret_val.val_ptr->uchars_ptr + idx, repl.val_ptr->uchars_ptr,
-    repl_len * sizeof(universal_char));
-  memcpy(ret_val.val_ptr->uchars_ptr + idx + repl_len,
-    value.val_ptr->uchars_ptr + idx + len,
-    (value_len - idx - len) * sizeof(universal_char));
-  return ret_val;
+  
+  if (value.charstring && repl.charstring) {
+    // both are charstrings => delegate to charstring replace function
+    return UNIVERSAL_CHARSTRING(replace(value.cstr, idx, len, repl.cstr));
+  }
+  else {
+    int value_len = value.lengthof();
+    int repl_len = repl.lengthof();
+    UNIVERSAL_CHARSTRING ret_val(value_len + repl_len - len);
+    if (!value.charstring && !repl.charstring) {
+      // both are universal charstrings => copy parts efficiently with memcpy
+      memcpy(ret_val.val_ptr->uchars_ptr, value.val_ptr->uchars_ptr,
+        idx * sizeof(universal_char));
+      memcpy(ret_val.val_ptr->uchars_ptr + idx, repl.val_ptr->uchars_ptr,
+        repl_len * sizeof(universal_char));
+      memcpy(ret_val.val_ptr->uchars_ptr + idx + repl_len,
+        value.val_ptr->uchars_ptr + idx + len,
+        (value_len - idx - len) * sizeof(universal_char));
+    }
+    else {
+      // operand types mismatch => copy parts inefficiently, character by character
+      size_t i;
+      for (i = 0; i < idx; ++i) {
+        ret_val[i] = value[i];
+      }
+      for (i = 0; i < repl_len; ++i) {
+        ret_val[idx + i] = repl[i];
+      }
+      for (i = idx; i < value_len - len; ++i) {
+        ret_val[repl_len + i] = value[len + i];
+      }
+    }
+    return ret_val;
+  }
 }
 
 UNIVERSAL_CHARSTRING replace(const UNIVERSAL_CHARSTRING& value, int idx,
