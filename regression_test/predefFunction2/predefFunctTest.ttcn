@@ -1268,7 +1268,7 @@ testcase tc_predef_int2bit_unbound() runs on CT {
 testcase tc_predef_int2bit_wrongLength() runs on CT {
   var integer vl_i:= 4;
   @try {
-    var bitstring vl_bs := int2bit(vl_i,2);
+    var bitstring vl_bs := int2bit(vl_i,2); //to small
     setverdict(fail, "DTE expected:");
   } @catch(e){
     setverdict(pass,"DTE catched");
@@ -1276,9 +1276,21 @@ testcase tc_predef_int2bit_wrongLength() runs on CT {
 }
 
 testcase tc_predef_int2bit_negLength() runs on CT {
-  var integer vl_i:= -1;
+  var integer vl_i:= 4;
+  var integer len := -1;
   @try {
-    var bitstring vl_bs := int2bit(vl_i,2);
+    var bitstring vl_bs := int2bit(vl_i,len);
+    setverdict(fail, "DTE expected:");
+  } @catch(e){
+    setverdict(pass,"DTE catched");
+  }
+}
+
+testcase tc_predef_int2bit_negInt() runs on CT {
+  var integer vl_i:= -4;
+  var integer len := 4;
+  @try {
+    var bitstring vl_bs := int2bit(vl_i,len);
     setverdict(fail, "DTE expected:");
   } @catch(e){
     setverdict(pass,"DTE catched");
@@ -1300,8 +1312,7 @@ testcase tc_predef_int2bit_good1() runs on CT {
 }
 
 testcase tc_predef_int2bit_good2() runs on CT {
-  var RoBS vl_expectedList := {'011111111'B,'100000000'B
-  }
+  var RoBS vl_expectedList := {'011111111'B,'100000000'B}
   var RoI vl_intList := {255,256}
   var integer N := sizeof(vl_intList);
   for(var integer i:=0;i<N; i:=i+1){
@@ -1413,6 +1424,7 @@ testcase tc_predef_int2hex_good1() runs on CT {
   setverdict(pass);
 }
 
+//neg integer to be converted
 testcase tc_predef_int2hex_bad1() runs on CT {
   var integer i := -1;
   @try {
@@ -1423,27 +1435,43 @@ testcase tc_predef_int2hex_bad1() runs on CT {
   }
 }
 
+//too small length
 testcase tc_predef_int2hex_bad2() runs on CT {
   var integer i := 600;
+  var integer len := 2;
   @try {
-    var hexstring vl_cs := int2hex(i,2)
+    var hexstring vl_cs := int2hex(i,len)
     setverdict(fail, "Not expected to reach this line, DTE expected")
   } @catch(e){
     setverdict(pass, "DTE catched")
   }
 }
 
+// too small length 2
 testcase tc_predef_int2hex_bad3() runs on CT {
-  var integer i := 703401;
+  var integer i := 703401; //''ABBA9'H
+  var integer len := 4;
   @try {
-    var hexstring vl_cs := int2hex(i,4)
+    var hexstring vl_cs := int2hex(i,len)
     setverdict(fail, "Not expected to reach this line, DTE expected")
   } @catch(e){
     setverdict(pass, "DTE catched")
   }
 }
 
-//int2oct
+//negative length
+testcase tc_predef_int2hex_bad4() runs on CT {
+  var integer i := 703401; //''ABBA9'H
+  var integer len := -4;
+  @try {
+    var hexstring vl_cs := int2hex(i,len)
+    setverdict(fail, "Not expected to reach this line, DTE expected")
+  } @catch(e){
+    setverdict(pass, "DTE catched")
+  }
+}
+
+//===== int2oct =====
 testcase tc_predef_int2oct_good1() runs on CT {
   var RoI vl_intlist := {0,1,123, 600, 703401 }
   var RoOS vl_octlist :={'000000'O,'000001'O,'00007B'O,'000258'O, '0ABBA9'O }
@@ -1512,6 +1540,8 @@ testcase tc_predef_int2oct_good3() runs on CT {
   }
   setverdict(pass);
 }
+
+//negative integer to be converted
 testcase tc_predef_int2oct_bad1() runs on CT {
   var integer i := -1;
   @try {
@@ -1522,6 +1552,7 @@ testcase tc_predef_int2oct_bad1() runs on CT {
   }
 }
 
+//to small length 1
 testcase tc_predef_int2oct_bad2() runs on CT {
   var integer i := 600;
   @try {
@@ -1531,7 +1562,7 @@ testcase tc_predef_int2oct_bad2() runs on CT {
     setverdict(pass, "DTE catched")
   }
 }
-
+//to small length 2
 testcase tc_predef_int2oct_bad3() runs on CT {
   var integer i := 703401;
   @try {
@@ -1541,11 +1572,23 @@ testcase tc_predef_int2oct_bad3() runs on CT {
     setverdict(pass, "DTE catched")
   }
 }
-
+//to small length 3
 testcase tc_predef_int2oct_bad4() runs on CT {
-  var integer i := 2147483648;
+  var integer i := 2147483648; //->'8000 0000'O, len = 4
   @try {
     var octetstring vl_cs := int2oct(i,3)
+    setverdict(fail, "Not expected to reach this line, DTE expected")
+  } @catch(e){
+    setverdict(pass, "DTE catched")
+  }
+}
+
+//negative length
+testcase tc_predef_int2oct_bad5() runs on CT {
+  var integer i := 2147483648; //->'8000 0000'O, len = 4
+  var integer len := -1;
+  @try {
+    var octetstring vl_cs := int2oct(i,len)
     setverdict(fail, "Not expected to reach this line, DTE expected")
   } @catch(e){
     setverdict(pass, "DTE catched")
@@ -1810,6 +1853,27 @@ testcase tc_predef_oct2hex_good1() runs on CT {
   for(var integer i:=0;i<N; i:=i+1){
     if(oct2hex(vl_oslist[i])!=vl_cslist[i]){
       setverdict(fail, "expected (i=",i,") ", vl_cslist[i]," got:", oct2hex(vl_oslist[i]));
+    }
+    //    log(oct2hex(vl_oslist[i]))
+  }
+  setverdict(pass);
+}
+
+testcase tc_predef_oct2hex_good2() runs on CT {
+  var octetstring vl_oslist := '00010203040506070808090a10111a7fFF'O;
+
+  var RoHS vl_cslist :=  {
+    '00'H,'01'H,'02'H,'03'H,
+    '04'H,'05'H,'06'H,'07'H,'08'H,
+    '08'H,'09'H,'0A'H,'10'H,'11'H, 
+    '1A'H,'7F'H,'FF'H
+  }
+  var integer N := lengthof(vl_oslist);
+  for(var integer i:=0;i<N; i:=i+1){
+    if(oct2hex(vl_oslist[i])!=vl_cslist[i]){
+      setverdict(fail, "expected (i=",i,") ", vl_cslist[i]," got:", oct2hex(vl_oslist[i]));
+    } else {
+      setverdict(pass,"expected (i=",i,") ", vl_cslist[i]," got:", oct2hex(vl_oslist[i]))
     }
     //    log(oct2hex(vl_oslist[i]))
   }
@@ -3129,8 +3193,9 @@ testcase tc_predef_replace_charstring_16_bad() runs on CT {
     setverdict(pass,"Expected DTE catched")
   }
 }
-//too long index: 9+0
-testcase tc_predef_replace_charstring_18_bad() runs on CT {
+
+//to big idx 9+0
+testcase tc_predef_replace_charstring_17_bad() runs on CT {
   var charstring vl_bs0 := "00001111"
   @try {
     var charstring vl_bs := replace(vl_bs0,9,0,"011");
@@ -3140,6 +3205,560 @@ testcase tc_predef_replace_charstring_18_bad() runs on CT {
     setverdict(pass,"Expected DTE catched")
   }
 }
+
+// remove 2 chars from the beginnining,insert 3 char runtime
+testcase tc_predef_replace_charstring_18() runs on CT {
+  var charstring vl_bs0 := "00001111"
+  var charstring vl_bs1 := "111";
+  var integer idx := 0;
+  var integer len := 2;
+  var charstring vl_bs := replace(vl_bs0,idx,len,vl_bs1);
+  if(vl_bs != "111001111"){
+    setverdict(fail, "expected \"111001111\" got:", vl_bs);
+  } else {
+    setverdict(pass);
+  }
+}
+//too long index: 9+0, runtime
+testcase tc_predef_replace_charstring_19_bad() runs on CT {
+  var charstring vl_bs0 := "00001111";
+  var charstring vl_bs1 := "011";
+  var integer idx := 9;
+  var integer len := 0;
+  @try {
+    var charstring vl_bs := replace(vl_bs0,idx,len,vl_bs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//too long index: 7+2, runtime
+testcase tc_predef_replace_charstring_20_bad() runs on CT {
+  var charstring vl_bs0 := "00001111";
+  var charstring vl_bs1 := "011";
+  var integer idx := 7;
+  var integer len := 2;
+  @try {
+    var charstring vl_bs := replace(vl_bs0,idx,len,vl_bs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//neg index, runtime
+testcase tc_predef_replace_charstring_21_bad() runs on CT {
+  var charstring vl_bs0 := "00001111";
+  var charstring vl_bs1 := "011";
+  var integer idx := -1;
+  var integer len := 0;
+  @try {
+    var charstring vl_bs := replace(vl_bs0,idx,len,vl_bs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//neg length, runtime
+testcase tc_predef_replace_charstring_22_bad() runs on CT {
+  var charstring vl_bs0 := "00001111";
+  var charstring vl_bs1 := "011";
+  var integer idx := 1;
+  var integer len := -2;
+  @try {
+    var charstring vl_bs := replace(vl_bs0,idx,len,vl_bs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//uninit orig str, runtime
+testcase tc_predef_replace_charstring_23_bad() runs on CT {
+  var charstring vl_bs0 ;
+  var charstring vl_bs1 := "011";
+  var integer idx := 1;
+  var integer len := 2;
+  @try {
+    var charstring vl_bs := replace(vl_bs0,idx,len,vl_bs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//uninit string to be inserted
+testcase tc_predef_replace_charstring_24_bad() runs on CT {
+  var charstring vl_bs0 := "00001111";
+  var charstring vl_bs1;
+  var integer idx := 1;
+  var integer len := 2;
+  @try {
+    var charstring vl_bs := replace(vl_bs0,idx,len,vl_bs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+// var templates, remove 2 chars from the beginnining,insert 3 char runtime
+testcase tc_predef_replace_charstring_25() runs on CT {
+  var template charstring vl_bs0 := "00001111"
+  var template charstring vl_bs1 := "111";
+  var integer idx := 0;
+  var integer len := 2;
+  var charstring vl_bs := replace(vl_bs0,idx,len,vl_bs1);
+  if(vl_bs != "111001111"){
+    setverdict(fail, "expected \"111001111\" got:", vl_bs);
+  } else {
+    setverdict(pass);
+  }
+}
+
+//templates, remove 2 chars from the beginnining,insert 3 char runtime
+testcase tc_predef_replace_charstring_26() runs on CT {
+  template charstring vl_bs0 := "00001111"
+  template charstring vl_bs1 := "111";
+  var integer idx := 0;
+  var integer len := 2;
+  var charstring vl_bs := replace(vl_bs0,idx,len,vl_bs1);
+  if(vl_bs != "111001111"){
+    setverdict(fail, "expected \"111001111\" got:", vl_bs);
+  } else {
+    setverdict(pass);
+  }
+}
+
+//uninit orig str, runtime
+testcase tc_predef_replace_charstring_27_bad() runs on CT {
+  var template charstring vl_bs0 ;
+  var template charstring vl_bs1 := "011";
+  var integer idx := 1;
+  var integer len := 2;
+  @try {
+    var charstring vl_bs := replace(vl_bs0,idx,len,vl_bs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//uninit string to be inserted
+testcase tc_predef_replace_charstring_28_bad() runs on CT {
+  var template charstring vl_bs0 := "00001111";
+  var template charstring vl_bs1;
+  var integer idx := 1;
+  var integer len := 2;
+  @try {
+    var charstring vl_bs := replace(vl_bs0,idx,len,vl_bs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//======uchar CONT HERE
+
+//*********** Replace() for universal charstring ***********
+
+// remove 2 chars from the beginnining, compile time
+testcase tc_predef_replace_ucharstring_1() runs on CT {
+  var universal charstring vl_ucs := replace("0000 1111",0,2,"");
+  if(vl_ucs != "00 1111"){
+    setverdict(fail, "expected \"00 1111\" got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+}
+//var pars
+testcase tc_predef_replace_ucharstring_1a() runs on CT {
+  var integer vl_beginning :=0, vl_len := 2;
+  var universal charstring vl_ucs := replace("0000 1111",vl_beginning,vl_len,"");
+  if(vl_ucs != "00 1111"){
+    setverdict(fail, "expected \"001111\" got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+}
+//const pars
+testcase tc_predef_replace_ucharstring_1b() runs on CT {
+  const integer vl_beginning :=0, vl_len := 2;
+  var universal charstring vl_ucs := replace("0000 1111",vl_beginning,vl_len,"");
+  if(vl_ucs != "00 1111"){
+    setverdict(fail, "expected \"00 1111\" got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+}
+// remove 2 chars from the beginnining, run time
+testcase tc_predef_replace_ucharstring_2() runs on CT {
+  var universal charstring ucsa := char( 0,0,1, 123) & char( 0,0,2, 124)
+  var universal charstring ucsb := char( 0,0,1, 123) & char( 0,0,2, 124)
+  var universal charstring vl_ucs0 := ucsa & ucsb;
+  var universal charstring vl_ucs1 := "";
+  var universal charstring vl_ucs := replace(vl_ucs0, 0, 2, vl_ucs1);
+  if(vl_ucs != ucsa) {
+    setverdict(fail, "expected ",ucsa," got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+}
+
+//remove 2 chars from the beginnining, run time
+//parameters are variables
+testcase tc_predef_replace_ucharstring_2a() runs on CT {
+  var integer vl_beginning :=0, vl_len := 2;
+  var universal charstring vl_ucs0 := char(0,0,0,213) & "1234567890AZaz~"
+  var universal charstring vl_ucs1 := "";
+  var universal charstring vl_ucs := replace(vl_ucs0,vl_beginning,vl_len,vl_ucs1);
+  if(vl_ucs != "234567890AZaz~"){
+    setverdict(fail, "expected \"00 1111\" got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+}
+// remove 2 chars from the beginnining,insert 1 char compile time
+testcase tc_predef_replace_ucharstring_3() runs on CT {
+  var universal charstring vl_ucs := replace("0000 1111",0,2,"1");
+  if(vl_ucs != "100 1111"){
+    setverdict(fail, "expected \"1001111\" got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+
+}
+// remove 2 chars from the beginnining,insert 1 char runtime
+testcase tc_predef_replace_ucharstring_4() runs on CT {
+  var universal charstring vl_ucs0 := "0000 1111"
+  var integer idx :=0, len := 2;
+  var universal charstring vl_ucs1 := "1";
+  var universal charstring vl_ucs := replace(vl_ucs0,idx,len, vl_ucs1);
+  if(vl_ucs != "100 1111"){
+    setverdict(fail, "expected \"100 1111\" got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+}
+
+// remove 2 chars from the beginnining,insert 2 char compile time
+testcase tc_predef_replace_ucharstring_5() runs on CT {
+  var universal charstring vl_ucs := replace("0000 1111",0,2,"11");
+  if(vl_ucs != "1100 1111"){
+    setverdict(fail, "expected \"1100 1111\" got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+
+}
+// remove 2 chars from the beginnining,insert 2 char runtime
+testcase tc_predef_replace_ucharstring_6() runs on CT {
+  var universal charstring vl_ucs0 := "0000 1111";
+  var universal charstring vl_ucs1 := "11";
+  var universal charstring vl_ucs := replace(vl_ucs0,0,2,vl_ucs1);
+  if(vl_ucs != "1100 1111"){
+    setverdict(fail, "expected \"1100 1111\" got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+}
+
+// remove 2 chars from the beginnining,insert 3 char compile time
+testcase tc_predef_replace_ucharstring_7() runs on CT {
+  var universal charstring vl_ucs := replace("0000 1111",0,2,"111");
+  if(vl_ucs != "11100 1111"){
+    setverdict(fail, "expected \"11100 1111\" got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+
+}
+// remove 2 chars from the beginnining,insert 3 char runtime
+testcase tc_predef_replace_ucharstring_8() runs on CT {
+  var universal charstring vl_ucs0 := "00001111";
+  var universal charstring vl_ucs1 := "111"
+  var universal charstring vl_ucs := replace(vl_ucs0,0,2, vl_ucs1);
+  if(vl_ucs != "111001111"){
+    setverdict(fail, "expected \"111001111\" got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+}
+
+// remove 2 chars from the second char (index position 1), insert 3 char compile time
+testcase tc_predef_replace_ucharstring_9() runs on CT {
+  var universal charstring vl_ucs := replace("00001111",1,2,"111");
+  if(vl_ucs != "011101111"){
+    setverdict(fail, "expected \"011101111\" got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+
+}
+// remove 2 chars from the second char (index position 1), insert 3 char runtime
+testcase tc_predef_replace_ucharstring_10() runs on CT {
+  var universal charstring vl_ucs0 := "00001111"
+  var universal charstring vl_ucs1 := "111"
+  var universal charstring vl_ucs := replace(vl_ucs0,1,2,vl_ucs1);
+  if(vl_ucs != "011101111"){
+    setverdict(fail, "expected \"011101111\" got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+}
+
+// append 3 chars compile time
+testcase tc_predef_replace_ucharstring_11() runs on CT {
+  var universal charstring vl_ucs := replace("00001111",8,0,"011");
+  if(vl_ucs != "00001111011"){
+    setverdict(fail, "expected \"00001111011\" got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+
+}
+// append 3 char runtime
+testcase tc_predef_replace_ucharstring_12() runs on CT {
+  var universal charstring vl_ucs0 := "00001111"
+  var universal charstring vl_ucs1 := "011"
+  var universal charstring vl_ucs := replace(vl_ucs0,8,0,vl_ucs1);
+  if(vl_ucs != "00001111011"){
+    setverdict(fail, "expected \"00001111011\" got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+}
+
+//Expected on-the-fly semantic marker:
+//The sum of the second operand (8) and the third operand (1) of operation `replace" is greater than the length of the first operand (8) 
+//testcase tc_predef_replace_ucharstring_13_bad() runs on CT {
+//  var charstring vl_ucs := replace("0000 1111",8,1,"011");
+
+//}
+
+//too long index: 8+1
+testcase tc_predef_replace_ucharstring_14_bad() runs on CT {
+  var universal charstring vl_ucs0 := "00001111";
+  var universal charstring vl_ucs1 := "011"
+  @try {
+    var universal charstring vl_ucs := replace(vl_ucs0,8,1, vl_ucs1);
+    setverdict(fail,"DTE expected, got:", vl_ucs)
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//Expected on-the-fly semantic marker:
+//The sum of the second operand (8) and the third operand (1) of operation `replace" is greater than the length of the first operand (8) 
+//testcase tc_predef_replace_ucharstring_15_bad() runs on CT {
+//  var charstring vl_ucs := replace("0000 1111",7,2,"011");
+//}
+////Expected on-the-fly semantic marker:
+////The third operand of operation `replace" should not be negative
+//testcase tc_predef_replace_ucharstring_15a_bad() runs on CT {
+//  var charstring vl_ucs := replace("00001111",7,-2,"011");
+//}
+//testcase tc_predef_replace_ucharstring_15b_bad() runs on CT {
+//  var charstring vl_ucs := replace("00001111",7,-2,"11"H);
+//}
+
+//too long index: 7+2
+testcase tc_predef_replace_ucharstring_16_bad() runs on CT {
+  var universal charstring vl_ucs0 := "00001111"
+  var universal charstring vl_ucs1 := "011"
+  @try {
+    var universal charstring vl_ucs := replace(vl_ucs0,7,2,vl_ucs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//to big idx 9+0
+testcase tc_predef_replace_ucharstring_17_bad() runs on CT {
+  var universal charstring vl_ucs0 := "00001111";
+  var universal charstring vl_ucs1 := "011"
+  @try {
+    var universal charstring vl_ucs := replace(vl_ucs0,9,0,vl_ucs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+// remove 2 chars from the beginnining,insert 3 char runtime
+testcase tc_predef_replace_ucharstring_18() runs on CT {
+  var universal charstring vl_ucs0 := "00001111"
+  var universal charstring vl_ucs1 := "111";
+  var integer idx := 0;
+  var integer len := 2;
+  var universal charstring vl_ucs := replace(vl_ucs0,idx,len,vl_ucs1);
+  if(vl_ucs != "111001111"){
+    setverdict(fail, "expected \"111001111\" got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+}
+//too long index: 9+0, runtime
+testcase tc_predef_replace_ucharstring_19_bad() runs on CT {
+  var universal charstring vl_ucs0 := "00001111";
+  var universal charstring vl_ucs1 := "011";
+  var integer idx := 9;
+  var integer len := 0;
+  @try {
+    var universal charstring vl_ucs := replace(vl_ucs0,idx,len,vl_ucs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//too long index: 7+2, runtime
+testcase tc_predef_replace_ucharstring_20_bad() runs on CT {
+  var universal charstring vl_ucs0 := "00001111";
+  var universal charstring vl_ucs1 := "011";
+  var integer idx := 7;
+  var integer len := 2;
+  @try {
+    var universal charstring vl_ucs := replace(vl_ucs0,idx,len,vl_ucs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//neg index, runtime
+testcase tc_predef_replace_ucharstring_21_bad() runs on CT {
+  var universal charstring vl_ucs0 := "00001111";
+  var universal charstring vl_ucs1 := "011";
+  var integer idx := -1;
+  var integer len := 0;
+  @try {
+    var universal charstring vl_ucs := replace(vl_ucs0,idx,len,vl_ucs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//neg length, runtime
+testcase tc_predef_replace_ucharstring_22_bad() runs on CT {
+  var universal charstring vl_ucs0 := "00001111";
+  var universal charstring vl_ucs1 := "011";
+  var integer idx := 1;
+  var integer len := -2;
+  @try {
+    var universal charstring vl_ucs := replace(vl_ucs0,idx,len,vl_ucs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//uninit orig str, runtime
+testcase tc_predef_replace_ucharstring_23_bad() runs on CT {
+  var universal charstring vl_ucs0 ;
+  var universal charstring vl_ucs1 := "011";
+  var integer idx := 1;
+  var integer len := 2;
+  @try {
+    var universal charstring vl_ucs := replace(vl_ucs0,idx,len,vl_ucs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//uninit string to be inserted
+testcase tc_predef_replace_ucharstring_24_bad() runs on CT {
+  var universal charstring vl_ucs0 := "00001111";
+  var universal charstring vl_ucs1;
+  var integer idx := 1;
+  var integer len := 2;
+  @try {
+    var universal charstring vl_ucs := replace(vl_ucs0,idx,len,vl_ucs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+// var templates, remove 2 chars from the beginnining,insert 3 char runtime
+testcase tc_predef_replace_ucharstring_25() runs on CT {
+  var template universal charstring vl_ucs0 := "00001111"
+  var template universal charstring vl_ucs1 := "111";
+  var integer idx := 0;
+  var integer len := 2;
+  var universal charstring vl_ucs := replace(vl_ucs0,idx,len,vl_ucs1);
+  if(vl_ucs != "111001111"){
+    setverdict(fail, "expected \"111001111\" got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+}
+
+//templates, remove 2 chars from the beginnining,insert 3 char runtime
+testcase tc_predef_replace_ucharstring_26() runs on CT {
+  template universal charstring vl_ucs0 := "00001111"
+  template universal charstring vl_ucs1 := "111";
+  var integer idx := 0;
+  var integer len := 2;
+  var universal charstring vl_ucs := replace(vl_ucs0,idx,len,vl_ucs1);
+  if(vl_ucs != "111001111"){
+    setverdict(fail, "expected \"111001111\" got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+}
+
+//uninit orig str, runtime
+testcase tc_predef_replace_ucharstring_27_bad() runs on CT {
+  var template universal charstring vl_ucs0 ;
+  var template universal charstring vl_ucs1 := "011";
+  var integer idx := 1;
+  var integer len := 2;
+  @try {
+    var universal charstring vl_ucs := replace(vl_ucs0,idx,len,vl_ucs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
+//uninit string to be inserted
+testcase tc_predef_replace_ucharstring_28_bad() runs on CT {
+  var template universal charstring vl_ucs0 := "00001111";
+  var template universal charstring vl_ucs1;
+  var integer idx := 1;
+  var integer len := 2;
+  @try {
+    var universal charstring vl_ucs := replace(vl_ucs0,idx,len,vl_ucs1);
+    setverdict(fail,"DTE expected")
+  }
+  @catch(e) {
+    setverdict(pass,"Expected DTE catched")
+  }
+}
+
 //********** Replace for RoI *******************
 // remove 2 chars from the beginnining, compile time
 testcase tc_predef_replace_RoI_1() runs on CT {
@@ -4284,6 +4903,7 @@ control{
   execute(tc_predef_int2bit_unbound());
   execute(tc_predef_int2bit_wrongLength());
   execute(tc_predef_int2bit_negLength());
+  execute(tc_predef_int2bit_negInt());
   execute(tc_predef_int2bit_good1());
   execute(tc_predef_int2bit_good2());
   execute(tc_predef_int2bit_good3());
@@ -4298,6 +4918,7 @@ control{
   execute(tc_predef_int2hex_bad1());
   execute(tc_predef_int2hex_bad2());
   execute(tc_predef_int2hex_bad3());
+  execute(tc_predef_int2hex_bad4());
 
   execute(tc_predef_int2oct_good1());
   execute(tc_predef_int2oct_good1a());
@@ -4307,6 +4928,7 @@ control{
   execute(tc_predef_int2oct_bad2());
   execute(tc_predef_int2oct_bad3());
   execute(tc_predef_int2oct_bad4());
+  execute(tc_predef_int2oct_bad5());
   execute(tc_predef_int2str_good1());
   execute(tc_predef_int2str_good2());
   execute(tc_predef_int2unichar_good1());
@@ -4323,6 +4945,7 @@ control{
   execute(tc_predef_oct2char_octetstr_elem());
   execute(tc_predef_oct2char_octetstr_elem_bad());
   execute(tc_predef_oct2hex_good1());
+  execute(tc_predef_oct2hex_good2());
 
   execute(tc_predef_oct2int_good1());
   execute(tc_predef_oct2int_good1a());
@@ -4429,10 +5052,51 @@ control{
   execute(tc_predef_replace_charstring_10());
   execute(tc_predef_replace_charstring_11());
   execute(tc_predef_replace_charstring_12());
-  execute(  tc_predef_replace_charstring_14_bad());
-  execute(  tc_predef_replace_charstring_16_bad());
-  execute(  tc_predef_replace_charstring_18_bad());
-
+  execute(tc_predef_replace_charstring_14_bad());
+  execute(tc_predef_replace_charstring_16_bad());
+  execute(tc_predef_replace_charstring_17_bad());
+  execute(tc_predef_replace_charstring_18());
+  execute(tc_predef_replace_charstring_19_bad());
+  execute(tc_predef_replace_charstring_20_bad());
+  execute(tc_predef_replace_charstring_21_bad());
+  execute(tc_predef_replace_charstring_22_bad());
+  execute(tc_predef_replace_charstring_23_bad());
+  execute(tc_predef_replace_charstring_24_bad());
+  execute(tc_predef_replace_charstring_25());
+  execute(tc_predef_replace_charstring_26());
+  execute(tc_predef_replace_charstring_27_bad());
+  execute(tc_predef_replace_charstring_28_bad());
+  //=== uchar
+  execute(tc_predef_replace_ucharstring_1());
+  execute(tc_predef_replace_ucharstring_1a());
+  execute(tc_predef_replace_ucharstring_1b());
+  execute(tc_predef_replace_ucharstring_2());
+  execute(tc_predef_replace_ucharstring_2a());
+  execute(tc_predef_replace_ucharstring_3());
+  execute(tc_predef_replace_ucharstring_4());
+  execute(tc_predef_replace_ucharstring_5());
+  execute(tc_predef_replace_ucharstring_6());
+  execute(tc_predef_replace_ucharstring_7());
+  execute(tc_predef_replace_ucharstring_8());
+  execute(tc_predef_replace_ucharstring_9());
+  execute(tc_predef_replace_ucharstring_10());
+  execute(tc_predef_replace_ucharstring_11());
+  execute(tc_predef_replace_ucharstring_12());
+  execute(tc_predef_replace_ucharstring_14_bad());
+  execute(tc_predef_replace_ucharstring_16_bad());
+  execute(tc_predef_replace_ucharstring_17_bad());
+  execute(tc_predef_replace_ucharstring_18());
+  execute(tc_predef_replace_ucharstring_19_bad());
+  execute(tc_predef_replace_ucharstring_20_bad());
+  execute(tc_predef_replace_ucharstring_21_bad());
+  execute(tc_predef_replace_ucharstring_22_bad());
+  execute(tc_predef_replace_ucharstring_23_bad());
+  execute(tc_predef_replace_ucharstring_24_bad());
+  execute(tc_predef_replace_ucharstring_25());
+  execute(tc_predef_replace_ucharstring_26());
+  execute(tc_predef_replace_ucharstring_27_bad());
+  execute(tc_predef_replace_ucharstring_28_bad());
+  //==
   execute(tc_predef_replace_RoI_1());
   execute(tc_predef_replace_RoI_1a());
   execute(tc_predef_replace_RoI_1b());
@@ -4448,9 +5112,10 @@ control{
   execute(tc_predef_replace_RoI_10());
   execute(tc_predef_replace_RoI_11());
   execute(tc_predef_replace_RoI_12());
-  execute(  tc_predef_replace_RoI_14_bad());
-  execute(  tc_predef_replace_RoI_16_bad());
-  execute(  tc_predef_replace_RoI_18_bad());
+  execute(tc_predef_replace_RoI_14_bad());
+  execute(tc_predef_replace_RoI_16_bad());
+  execute(tc_predef_replace_RoI_18_bad());
+  //==
   execute(tc_predef_str2bit_good1());
   execute(tc_predef_str2bit_good2());
   execute(tc_predef_str2bit_good2a());
