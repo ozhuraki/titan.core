@@ -1268,7 +1268,7 @@ testcase tc_predef_int2bit_unbound() runs on CT {
 testcase tc_predef_int2bit_wrongLength() runs on CT {
   var integer vl_i:= 4;
   @try {
-    var bitstring vl_bs := int2bit(vl_i,2); //to small
+    var bitstring vl_bs := int2bit(vl_i,2); //too small
     setverdict(fail, "DTE expected:");
   } @catch(e){
     setverdict(pass,"DTE catched");
@@ -1449,7 +1449,7 @@ testcase tc_predef_int2hex_bad2() runs on CT {
 
 // too small length 2
 testcase tc_predef_int2hex_bad3() runs on CT {
-  var integer i := 703401; //''ABBA9'H
+  var integer i := 703401; // 'ABBA9'H
   var integer len := 4;
   @try {
     var hexstring vl_cs := int2hex(i,len)
@@ -1461,7 +1461,7 @@ testcase tc_predef_int2hex_bad3() runs on CT {
 
 //negative length
 testcase tc_predef_int2hex_bad4() runs on CT {
-  var integer i := 703401; //''ABBA9'H
+  var integer i := 703401; //'ABBA9'H
   var integer len := -4;
   @try {
     var hexstring vl_cs := int2hex(i,len)
