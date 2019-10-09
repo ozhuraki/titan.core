@@ -3611,6 +3611,38 @@ testcase tc_predef_replace_ucharstring_18() runs on CT {
     setverdict(pass);
   }
 }
+
+// remove 2 chars from the beginnining,insert 3 char runtime
+//The repl is real univ charstr
+testcase tc_predef_replace_ucharstring_18a() runs on CT {
+  var universal charstring vl_ucs0 := "00001111";
+  var universal charstring vl_ucs1 := char(0,0,1,125) & "11";
+  var universal charstring exp := char(0,0,1,125) & "11001111"
+  var integer idx := 0;
+  var integer len := 2;
+  var universal charstring vl_ucs := replace(vl_ucs0,idx,len,vl_ucs1);
+  if(vl_ucs != exp){
+    setverdict(fail, "expected ", exp, "got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+}
+
+// remove 2 chars from the beginnining,insert 3 char runtime
+//The first value is real univ charstr
+testcase tc_predef_replace_ucharstring_18b() runs on CT {
+  var universal charstring vl_ucs0 := char(0,1,2,127) & "0001111"
+  var universal charstring vl_ucs1 := "111";
+  var integer idx := 0;
+  var integer len := 2;
+  var universal charstring vl_ucs := replace(vl_ucs0,idx,len,vl_ucs1);
+  if(vl_ucs != "111001111"){
+    setverdict(fail, "expected \"111001111\" got:", vl_ucs);
+  } else {
+    setverdict(pass);
+  }
+}
+
 //too long index: 9+0, runtime
 testcase tc_predef_replace_ucharstring_19_bad() runs on CT {
   var universal charstring vl_ucs0 := "00001111";
@@ -5086,6 +5118,8 @@ control{
   execute(tc_predef_replace_ucharstring_16_bad());
   execute(tc_predef_replace_ucharstring_17_bad());
   execute(tc_predef_replace_ucharstring_18());
+  execute(tc_predef_replace_ucharstring_18a());
+  execute(tc_predef_replace_ucharstring_18b());
   execute(tc_predef_replace_ucharstring_19_bad());
   execute(tc_predef_replace_ucharstring_20_bad());
   execute(tc_predef_replace_ucharstring_21_bad());
