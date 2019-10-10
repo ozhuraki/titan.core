@@ -46,6 +46,395 @@ function f_ustr1() return myustr7 {
   else { return c_myustr1 }
 }
 
+//**** Assign, reassign *****
+//charstr->ucharstr, compile time
+testcase tc_ucharstr_assign_comp1() runs on ucharstrOper_comptype {
+  const universal charstring u1 := "1"
+  var universal charstring u := u1;
+  var universal charstring exp := "1"
+  if (u == exp) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+  //check side effect:
+  u:= "2";
+  if (u == "2") {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+  //Whether value of u1 is untouched
+  if (u1 == "1") {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+  
+}
+
+//ucharstr->ucharstr, compile time
+testcase tc_ucharstr_assign_comp2() runs on ucharstrOper_comptype {
+  const universal charstring u1 := char(1,2,3,4)
+  var universal charstring u := u1;
+  var universal charstring exp := char(1,2,3,4)
+  if (u == exp) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+  //check side effect:
+  u:= "2";
+  if (u == "2") {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+  //Whether value of u1 is untouched
+  if (u1 == char(1,2,3,4)) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+  
+}
+
+//charstr->ucharstr, run time
+testcase tc_ucharstr_assign_runtime1() runs on ucharstrOper_comptype {
+  var universal charstring u1 := "1"
+  var universal charstring u := u1;
+  var universal charstring exp := "1"
+  if (u == exp) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+  //check side effect:
+  u:= "2";
+  if (u == "2") {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+  //Whether value of u1 is untouched
+  if (u1 == "1") {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+  
+}
+
+//ucharstr->ucharstr, run time
+testcase tc_ucharstr_assign_runtime2() runs on ucharstrOper_comptype {
+  var universal charstring u1 := char(1,2,3,4)
+  var universal charstring u := u1;
+  var universal charstring exp := char(1,2,3,4)
+  if (u == exp) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+  //check side effect:
+  u:= "2";
+  if (u == "2") {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+  //Whether value of u1 is untouched
+  if (u1 == char(1,2,3,4)) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+  
+}
+
+
+
+//uninit->ucharstr, run time
+testcase tc_ucharstr_assign_runtime3() runs on ucharstrOper_comptype {
+  var universal charstring u1; //uninit
+  @try {
+    var universal charstring u := u1;
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass)
+  }
+}
+
+//uninit->ucharstr, run time
+testcase tc_ucharstr_assign_runtime4() runs on ucharstrOper_comptype {
+  var universal charstring u1; //uninit
+  var universal charstring u;
+  @try {
+    u := u1;
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass)
+  }
+}
+
+//ucharstr[index]->ucharstr, run time
+testcase tc_ucharstr_assign_runtime5() runs on ucharstrOper_comptype {
+  var universal charstring u1 := char(1,2,3,4) & char(5,6,7,8);
+  var universal charstring u := u1[0];
+  var universal charstring exp := char(1,2,3,4)
+  if (u == exp) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+  //check side effect:
+  u:= "2";
+  if (u == "2") {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+  //Whether value of u1 is untouched
+  if (u1 == char(1,2,3,4) & char(5,6,7,8)) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+  
+}
+
+//ucharstr->ucharstr[idx], run time
+testcase tc_ucharstr_assign_runtime6() runs on ucharstrOper_comptype {
+  var universal charstring u1 := char(1,2,3,4) & char(5,6,7,8);
+  var universal charstring u := char(1,1,1,1);
+  u1[1] := u;
+  var universal charstring exp := char(1,2,3,4) & char(1,1,1,1)
+  if (u1 == exp) {
+    setverdict(pass, u1)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+  //check side effect:
+  u:= "2";
+  if (u == "2") {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+  //Whether value of u1 is untouched
+  if (u1 == exp) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+}
+
+//ucharstr[idx], idx too big, run time
+testcase tc_ucharstr_assign_runtime7() runs on ucharstrOper_comptype {
+  var universal charstring u1 := char(1,2,3,4) & char(5,6,7,8);
+  var universal charstring u;
+  @try {
+    u := u1[2];
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ", e)
+  }
+}
+
+//ucharstr[idx], idx < 0, run time
+testcase tc_ucharstr_assign_runtime8() runs on ucharstrOper_comptype {
+  var universal charstring u1 := char(1,2,3,4) & char(5,6,7,8);
+  var universal charstring u;
+  var integer idx := -129;
+  @try {
+    u := u1[idx];
+    setverdict(fail, "This line should not be reached")
+  } @catch(e){
+    setverdict(pass, "Expected DTE: ", e)
+  }
+}
+
+//**** Concat *****
+//concat at compile time, charstr & charstr
+testcase tc_ucharstr_concat_comp1() runs on ucharstrOper_comptype {
+  const universal charstring u1 := "1"
+  const universal charstring u2 := "2"
+  var universal charstring u := u1 & u2;
+  var universal charstring exp := "12"
+  if (u == exp) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+}
+
+//concat at compile time, ucharstr & charstr
+testcase tc_ucharstr_concat_comp2() runs on ucharstrOper_comptype {
+  const universal charstring u1 := char(0,1,2,123) & "1"
+  const universal charstring u2 := "2"
+  var universal charstring u := u1 & u2;
+  var universal charstring exp := char(0,1,2,123) & "12"
+  if (u == exp) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+}
+
+//concat at compile time, ucharstr & charstr
+testcase tc_ucharstr_concat_comp3() runs on ucharstrOper_comptype {
+  const universal charstring u1 := char(0,1,2,123) & "1"
+  const universal charstring u2 := "2" & char(1,3,2,124)
+  var universal charstring u := u1 & u2;
+  var universal charstring exp := char(0,1,2,123) & "12" & char(1,3,2,124)
+  if (u == exp) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+}
+
+//concat at run time, charstr & charstr
+testcase tc_ucharstr_concat_runtime1() runs on ucharstrOper_comptype {
+  var universal charstring u1 := "1"
+  var universal charstring u2 := "2"
+  var universal charstring u := u1 & u2;
+  var universal charstring exp := "12"
+  if (u == exp) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+}
+
+//concat at run time, ucharstr & charstr
+testcase tc_ucharstr_concat_runtime2() runs on ucharstrOper_comptype {
+  var universal charstring u1 := char(0,1,2,123) & "1"
+  var universal charstring u2 := "2"
+  var universal charstring u := u1 & u2;
+  var universal charstring exp := char(0,1,2,123) & "12"
+  if (u == exp) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+}
+
+//concat at run time, ucharstr & charstr
+testcase tc_ucharstr_concat_runtime3() runs on ucharstrOper_comptype {
+  var universal charstring u1 := char(0,1,2,123) & "1"
+  var universal charstring u2 := "2" & char(1,3,2,124)
+  var universal charstring u := u1 & u2;
+  var universal charstring exp := char(0,1,2,123) & "12" & char(1,3,2,124)
+  if (u == exp) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+}
+
+//concat at run time, uninit & charstr
+testcase tc_ucharstr_concat_runtime4() runs on ucharstrOper_comptype {
+  var universal charstring u1;
+  var universal charstring u2 := "2" & char(1,3,2,124)
+  var universal charstring u;
+  @try{
+    u:= u1 & u2;
+    setverdict(fail,"This line should not be reached.")
+  } @catch(e) {
+    setverdict(pass,"Expected DTE: ",e)
+  }
+}
+
+//concat at run time, ucharstr & uninit
+testcase tc_ucharstr_concat_runtime5() runs on ucharstrOper_comptype {
+  var universal charstring u1 := char(0,1,2,123) & "1"
+  var universal charstring u2 ;
+  var universal charstring u;
+  @try{
+    u:= u1 & u2;
+    setverdict(fail,"This line should not be reached.")
+  } @catch(e) {
+    setverdict(pass,"Expected DTE: ",e)
+  }
+}
+
+//concat at run time, ucharstr[idx] & charstr[idx]
+testcase tc_ucharstr_concat_runtime6() runs on ucharstrOper_comptype {
+  var universal charstring u1 := char(0,1,2,123) & "1"
+  var universal charstring u2 := "2" & char(1,3,2,124)
+  var universal charstring u := u1[0] & u2[1];
+  var universal charstring exp := char(0,1,2,123) & char(1,3,2,124)
+  if (u == exp) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+}
+
+//concat at run time, ucharstr & ucharstr[idx]
+testcase tc_ucharstr_concat_runtime7() runs on ucharstrOper_comptype {
+  var universal charstring u1 := char(0,1,2,123) & "1"
+  var universal charstring u2 := "2" & char(1,3,2,124)
+  var universal charstring u := u1 & u2[1];
+  var universal charstring exp := char(0,1,2,123) & "1" & char(1,3,2,124)
+  if (u == exp) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+}
+//concat at run time, ucharstr[idx] & ucharstr
+testcase tc_ucharstr_concat_runtime8() runs on ucharstrOper_comptype {
+  var universal charstring u1 := char(0,1,2,123) & "1"
+  var universal charstring u2 := "2" & char(1,3,2,124)
+  var universal charstring u := u1[0] & u2;
+  var universal charstring exp := char(0,1,2,123) & "2" & char(1,3,2,124)
+  if (u == exp) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+}
+
+//concat at run time, ucharstr[idx] & ucharstr[idx]
+testcase tc_ucharstr_concat_runtime9() runs on ucharstrOper_comptype {
+  var universal charstring u1 := "12345"
+  var universal charstring u2 := "67890" 
+  var universal charstring u := u1[0] & u2[1];
+  var universal charstring exp := "17"
+  if (u == exp) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+}
+
+//concat at run time, ucharstr & ucharstr[idx]
+testcase tc_ucharstr_concat_runtime10() runs on ucharstrOper_comptype {
+  var universal charstring u1 := "12345"
+  var universal charstring u2 := "67890" 
+  var universal charstring u := u1 & u2[1];
+  var universal charstring exp :=  "123457"
+  if (u == exp) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+}
+//concat at run time, ucharstr[idx] & ucharstr
+testcase tc_ucharstr_concat_runtime11() runs on ucharstrOper_comptype {
+  var universal charstring u1 :=  "12345"
+  var universal charstring u2 :=  "67890"
+  var universal charstring u := u1[0] & u2;
+  var universal charstring exp :=  "167890"
+  if (u == exp) {
+    setverdict(pass)
+  } else {
+    setverdict(fail,"expected ", exp, " got ",u);
+  }
+}
+
+//***** Subtypes ****
 testcase ucharstrSubtypes() runs on ucharstrOper_comptype {
   var template myustr2 vt_myustr1 := char(0, 0, 0, 1)  // Value range.
   var template myustr3 vt_myustr2 := vt_myustr1  // Value list.
@@ -66,22 +455,26 @@ testcase ucharstrSubtypes() runs on ucharstrOper_comptype {
 
 testcase ucharstrIsvalue() runs on ucharstrOper_comptype {
   var universal charstring us := "foo";
+  var universal charstring us1 := char(0, 0, 0, 0)
   var universal charstring un;
   var template universal charstring ust := "bar";
 
   if ( isvalue(us) ) { setverdict(pass); } else { setverdict(fail); };
+  if ( isvalue(us1) ) { setverdict(pass); } else { setverdict(fail); };
   if ( isvalue(un) ) { setverdict(fail); } else { setverdict(pass); };
   if ( isvalue(ust) ) { setverdict(pass); } else { setverdict(fail); };
 }
 
 testcase ucharstrIsbound() runs on ucharstrOper_comptype {
   var universal charstring us := "foo";
+  var universal charstring us1 := char(0, 0, 0, 0)
   var universal charstring un;
   var template universal charstring ust := "bar";
 
   if ( isbound(un) ) { setverdict(fail); } else { setverdict(pass); };
   if ( isbound(un[0]) ) { setverdict(fail); } else { setverdict(pass); };
   if ( isbound(us) ) { setverdict(pass); } else { setverdict(fail); };
+  if ( isbound(us1) ) { setverdict(pass); } else { setverdict(fail); };
   if ( isbound(ust) ) { setverdict(pass); } else { setverdict(fail); };
 }
 
@@ -213,6 +606,30 @@ control {
   var universal charstring vl_1 := char(0, 0, 0, 0)
   var universal charstring vl_2 := "abcxyz"
 
+  execute(tc_ucharstr_assign_comp1());
+  execute(tc_ucharstr_assign_comp2());
+  execute(tc_ucharstr_assign_runtime1());
+  execute(tc_ucharstr_assign_runtime2());
+  execute(tc_ucharstr_assign_runtime3());
+  execute(tc_ucharstr_assign_runtime4());
+  execute(tc_ucharstr_assign_runtime5());
+  execute(tc_ucharstr_assign_runtime6());
+  execute(tc_ucharstr_assign_runtime7());
+  execute(tc_ucharstr_assign_runtime8());
+  execute(tc_ucharstr_concat_comp1());
+  execute(tc_ucharstr_concat_comp2());
+  execute(tc_ucharstr_concat_comp3());
+  execute(tc_ucharstr_concat_runtime1());
+  execute(tc_ucharstr_concat_runtime2());
+  execute(tc_ucharstr_concat_runtime3());
+  execute(tc_ucharstr_concat_runtime4());
+  execute(tc_ucharstr_concat_runtime5());
+  execute(tc_ucharstr_concat_runtime6());
+  execute(tc_ucharstr_concat_runtime7());
+  execute(tc_ucharstr_concat_runtime8());
+  execute(tc_ucharstr_concat_runtime9());
+  execute(tc_ucharstr_concat_runtime10());
+  execute(tc_ucharstr_concat_runtime11());
   execute(ucharstrSubtypes());
   execute(ucharstrIsvalue());
   execute(ucharstrIsbound());
