@@ -428,6 +428,7 @@ namespace Ttcn {
     virtual string get_scopeMacro_name() const;
     virtual NameBridgingScope* clone() const;
     virtual Common::Assignment* get_ass_bySRef(Ref_simple *p_ref);
+    virtual bool is_class_scope() const;
   };
 
   /**
@@ -524,6 +525,7 @@ namespace Ttcn {
     virtual Common::Assignment* get_ass_byIndex(size_t p_i);
     size_t get_nof_raw_asss();
     Definition *get_raw_ass_byIndex(size_t p_i);
+    virtual bool is_class_scope() const;
     /** Checks the uniqueness of identifiers. */
     void chk_uniq();
     /** Checks all definitions. */
@@ -1601,6 +1603,24 @@ namespace Ttcn {
       * inserted in the schema. */
     void generate_json_schema_ref(map<Type*, JSON_Tokenizer>& json_refs);
   };
+  
+  /**
+    * Represents an abstract function definition (inside a class definition)
+    */
+  class Def_AbsFunction : public Def_Function_Base {
+    bool deterministic;
+  public:
+    Def_AbsFunction(bool p_deterministic, Identifier* p_id, FormalParList* p_fpl,
+      Type* p_return_type, bool returns_template,
+      template_restriction_t p_template_restriction)
+    : Def_Function_Base(false, p_id, p_fpl, p_return_type, returns_template,
+      p_template_restriction) { }
+    virtual ~Def_AbsFunction();
+    virtual Definition* clone() const;
+    virtual void chk();
+    virtual void generate_code(output_struct* target, bool clean_up = false);
+    // TODO
+  };
 
   /**
    * Represents an altstep definition.
@@ -1715,6 +1735,38 @@ namespace Ttcn {
     virtual void generate_code(CodeGenHelper& cgh);
     virtual void dump_internal(unsigned level) const;
 
+    virtual void set_parent_path(WithAttribPath* p_path);
+  };
+  
+  /**
+   * Represents a constructor definition (inside a class definition).
+   */
+  class Def_Constructor : public Definition {
+  private:
+    /** The formal parameter list of the constructor. It is never NULL even if
+     * the constructor has no parameters. */
+    FormalParList* fp_list;
+    
+    Ref_pard* base_call;
+    
+    StatementBlock* block;
+    
+    //NameBridgingScope bridgeScope;
+    
+    /// Copy constructor disabled
+    Def_Constructor(const Def_Constructor& p);
+    /// %Assignment disabled
+    Def_Constructor& operator=(const Def_Constructor& p);
+  public:
+    Def_Constructor(FormalParList* p_fp_list, Ref_pard* p_base_call,
+      StatementBlock* p_block);
+    virtual ~Def_Constructor();
+    virtual Def_Constructor* clone() const;
+    virtual void set_fullname(const string& p_fullname);
+    virtual void set_my_scope(Scope* p_scope);
+    virtual FormalParList *get_FormalParList();
+    virtual void chk();
+    virtual void generate_code(output_struct *target, bool clean_up = false);
     virtual void set_parent_path(WithAttribPath* p_path);
   };
 

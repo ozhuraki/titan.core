@@ -130,6 +130,7 @@ namespace Common {
   "altstep reference(TTCN-3)",                   // T_ALTSTEP
   "testcase reference(TTCN-3)",                  // T_TESTCASE
   "anytype(TTCN-3)",                             // T_ANYTYPE
+  "class(TTCN-3)"                                // T_CLASS
   };
 
   // =================================
@@ -579,6 +580,9 @@ namespace Common {
       u.fatref.returns_template = false;
       u.fatref.template_restriction = TR_NONE;
       break;
+    case T_CLASS:
+      u.class_ = p.u.class_->clone();
+      break;
     default:
       FATAL_ERROR("Type::Type()");
     } // switch
@@ -748,6 +752,9 @@ namespace Common {
       delete u.fatref.fp_list;
       delete u.fatref.runs_on.ref;
       delete u.fatref.system.ref;
+      break;
+    case T_CLASS:
+      delete u.class_;
       break;
     default:
       FATAL_ERROR("Type::clean_up()");
@@ -1120,7 +1127,23 @@ namespace Common {
     u.fatref.returns_template = false;
     u.fatref.template_restriction = TR_NONE;
   }
-
+  
+  Type::Type(typetype_t p_tt, Ttcn::ClassTypeBody* p_class)
+  : Governor(S_T), typetype(p_tt)
+  {
+    init();
+    switch (typetype) {
+    case T_CLASS:
+      if (p_class == NULL) {
+        FATAL_ERROR("Type::Type");
+      }
+      u.class_ = p_class;
+      break;
+    default:
+      FATAL_ERROR("Type::Type");
+    }
+  }
+  
   Type::~Type()
   {
     clean_up();
@@ -1446,6 +1469,9 @@ namespace Common {
       if (u.fatref.system.ref)
         u.fatref.system.ref->set_fullname(p_fullname + ".<system_type>");
       break;
+    case T_CLASS:
+      u.class_->set_fullname(p_fullname);
+      break;
     default:
       break;
     } // switch
@@ -1521,6 +1547,9 @@ namespace Common {
         u.fatref.runs_on.ref->set_my_scope(p_scope);
       if (u.fatref.system.ref)
         u.fatref.system.ref->set_my_scope(p_scope);
+      break;
+    case T_CLASS:
+      u.class_->set_my_scope(p_scope);
       break;
     default:
       break;
@@ -3923,6 +3952,7 @@ namespace Common {
     case T_FUNCTION:
     case T_ALTSTEP:
     case T_TESTCASE:
+    case T_CLASS:
       return p_tt1 == p_tt2;
     case T_OSTR:
       return p_tt2==T_OSTR || (!p_is_asn11 && p_tt2==T_ANY);
@@ -4300,6 +4330,7 @@ namespace Common {
     case T_FUNCTION:
     case T_ALTSTEP:
     case T_TESTCASE:
+    case T_CLASS:
       // TODO: Compatibility.
       is_type_comp = ( t1 == t2 );
       break;
@@ -5222,6 +5253,7 @@ namespace Common {
     case T_FUNCTION:
     case T_ALTSTEP:
     case T_TESTCASE:
+    case T_CLASS:
       // user-defined structured types must be identical
       return t1 == t2;
     case T_ARRAY:
@@ -6034,6 +6066,14 @@ namespace Common {
       FATAL_ERROR("Type::Returns_template()");
     return u.fatref.returns_template;
   }
+  
+  Ttcn::ClassTypeBody* Type::get_class_type_body()
+  {
+    if (typetype != T_CLASS) {
+      FATAL_ERROR("Type::get_class_type_body()");
+    }
+    return u.class_;
+  }
 
   void Type::add_tag(Tag *p_tag)
   {
@@ -6680,6 +6720,7 @@ namespace Common {
           case T_FUNCTION:  // TTCN-3
           case T_ALTSTEP:   // TTCN-3
           case T_TESTCASE:  // TTCN-3
+          case T_CLASS:     // TTCN-3
             return memory.remember(t, ANSWER_NO);
 
           case T_UNDEF:
@@ -7387,7 +7428,8 @@ namespace Common {
     case T_SIGNATURE:
     case T_FUNCTION:
     case T_ALTSTEP:
-    case T_TESTCASE: {
+    case T_TESTCASE:
+    case T_CLASS: {
       // user-defined types
       // always use the qualified name (including module identifier)
       string ret_val(t_scope->get_scope_mod_gen()->get_modid().get_name());
@@ -7424,6 +7466,7 @@ namespace Common {
     case T_FUNCTION:
     case T_ALTSTEP:
     case T_TESTCASE:
+    case T_CLASS:
       return t->get_fullname();
     case T_ARRAY: {
       string dimensions(t->u.array.dimension->get_stringRepr());
@@ -8065,6 +8108,10 @@ namespace Common {
         u.fatref.system.ref->dump(level+2);
       }
       break;
+    case T_CLASS:
+      DEBUG(level,"Type: class");
+      u.class_->dump(level + 1);
+      break;
     default:
       DEBUG(level, "type (%d - %s)", typetype, const_cast<Type*>(this)->get_stringRepr().c_str());
     } // switch
@@ -8222,6 +8269,7 @@ namespace Common {
     switch (typetype) {
     case T_DEFAULT:
     case T_PORT:
+    case T_CLASS:
       return true;
     case T_FUNCTION:
     case T_ALTSTEP:

@@ -1,0 +1,121 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+module oop {
+
+type component CT {
+  port PT pt;
+}
+
+type port PT message { inout integer; } with { extension "internal" }
+
+///////////////////////////////////////////////////
+///////////////////// CLASSES /////////////////////
+///////////////////////////////////////////////////
+
+type class BaseClass runs on CT mtc CT system CT {
+  public const integer m_const := 1;
+  /*protected*/ var charstring m_var;
+  private template octetstring m_temp := ? length (1..4);
+  public var template float m_var_temp;
+  //private PT m_port; // port members not supported
+  /*protected*/ timer m_timer;
+  private timer m_timer_array[3];
+  
+  //public template integer m_temp_pard(integer p) := p; // parameterized template members not supported
+  
+  // this would also be the implicit constructor (constructors are not yet implemented):
+  create(integer p_const, charstring p_var,
+         template octetstring p_temp, template float p_var_temp,
+         PT p_port, timer p_timer) {
+    m_const := p_const;
+    m_const := 2;
+    m_var := p_var;
+    m_temp := p_temp;
+    m_temp := *;
+    m_var_temp := p_var_temp;
+    m_port := p_port;
+    m_timer := p_timer;
+  }
+  
+  public function f(in integer x) return integer {
+    m_var := m_var & int2str(x);
+    return x;
+  }
+  
+  public function get_var() return charstring {
+    return m_var;
+  }
+}
+finally {
+  //pt.send(-1);
+  log(m_var);
+}
+
+type class SubClass extends BaseClass {
+  const octetstring m_const2 := 'AB'O; // the parser currently doesn't accept constants without initial value
+  
+  create(integer p_const := 1, charstring p_var,
+         template octetstring p_temp, template float p_var_temp,
+         PT p_port, timer p_timer)
+         : BaseClass(p_const, p_var, p_temp, p_var_temp, p_port, p_timer) {
+    m_const2 := 'FFFF'O;
+  }
+  
+  public function f(in integer x) return integer {
+    //return super.f(x) - 1; // not supported yet
+    m_var := m_var & int2str(x);
+    return x - 1;
+  }
+}
+
+type class @final FinalClass extends SubClass {
+  public function @final f(in integer x) return integer {
+    //return super.super.f(x) + 1; // not supported yet
+    m_var := m_var & int2str(x);
+    return x + 1;
+  }
+}
+
+
+type class @abstract AbstractClass {
+  public function @abstract f_abs(inout integer x) return boolean;
+  public function f_con(in charstring x) {
+    log(x);
+  }
+}
+
+type class ConcreteClass extends AbstractClass {
+  public function f_abs(inout integer x) return boolean {
+    x := x + 1;
+    return x > 0;
+  }
+}
+
+/* external classes don't work yet 
+type external class ExternalClass {
+  public external function f_ext(in integer x) return charstring;
+}
+
+type class InternalClass extends ExternalClass {
+  public function f_int() return integer {
+    return 0;
+  }
+  public external function f_ext2();
+}
+*/
+
+
+control {
+  log("nothing to run, yet...");
+}
+
+}

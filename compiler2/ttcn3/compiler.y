@@ -659,6 +659,7 @@ static const string anyname("anytype");
 %token CharStringKeyword
 %token CheckOpKeyword
 %token CheckStateKeyword
+%token ClassKeyword
 %token ClearOpKeyword
 %token ComplementKeyword
 %token ComponentKeyword
@@ -687,6 +688,7 @@ static const string anyname("anytype");
 %token ExtKeyword
 %token FailKeyword
 %token FalseKeyword
+%token FinallyKeyword
 %token FloatKeyword
 %token ForKeyword
 %token FriendKeyword
@@ -807,6 +809,8 @@ static const string anyname("anytype");
 %token FuzzyKeyword
 %token IndexKeyword
 %token LocalKeyword
+%token FinalKeyword
+%token AbstractKeyword
 
 /* TITAN specific keywords */
 %token TitanSpecificTryKeyword
@@ -942,6 +946,7 @@ static const string anyname("anytype");
 
 %type <bool_val> optAliveKeyword optOptionalKeyword
   optErrValueRaw optAllKeyword optDeterministicModifier optRealtimeClause
+  optExtKeyword optFinalModifier optAbstractModifier
 %type <str> FreeText optLanguageSpec PatternChunk PatternChunkList
 %type <uchar_val> Group Plane Row Cell
 %type <id> FieldIdentifier FieldReference GlobalModuleId
@@ -968,9 +973,11 @@ static const string anyname("anytype");
 %type <compfield> StructFieldDef UnionFieldDef
 %type <compfieldmap> StructFieldDefList optStructFieldDefList UnionFieldDefList
 %type <definition> AltstepDef ExtFunctionDef FunctionDef TemplateDef TestcaseDef
+  ClassFunctionDef ConstructorDef
+%type <defs> optClassMemberList ClassMemberList
 %type <deftype> TypeDefBody StructuredTypeDef SubTypeDef RecordDef UnionDef
   SetDef RecordOfDef SetOfDef EnumDef PortDef PortDefBody ComponentDef
-  TypeDef SignatureDef FunctionTypeDef AltstepTypeDef TestcaseTypeDef
+  TypeDef SignatureDef FunctionTypeDef AltstepTypeDef TestcaseTypeDef ClassDef
 %type <deftimer> SingleTimerInstance
 %type <enumitem> Enumeration
 %type <enumitems> EnumerationList
@@ -1028,7 +1035,7 @@ static const string anyname("anytype");
   SelectUnionConstruct UpdateStatement SetstateStatement SetencodeStatement
   StopTestcaseStatement String2TtcnStatement ProfilerStatement int2enumStatement
 %type <statementblock> StatementBlock optElseClause FunctionStatementOrDefList
-  ControlStatementOrDefList ModuleControlBody
+  ControlStatementOrDefList ModuleControlBody optFinallyDef
 %type <subtypeparse> ValueOrRange
 %type <templ> MatchingSymbol SingleValueOrAttrib SimpleSpec TemplateBody
   ArrayElementSpec ArrayValueOrAttrib FieldSpecList ArraySpecList
@@ -1046,7 +1053,7 @@ static const string anyname("anytype");
   ArrayElementSpecList SubsetMatch SupersetMatch PermutationMatch
 %type <ass> Assignment Step
 %type <refbase> DerivedRefWithParList TemplateRefWithParList DecValueArg
-%type <refpard> FunctionInstance AltstepInstance
+%type <refpard> FunctionInstance AltstepInstance optBaseConstructorCall
 %type <reference> PortType optDerivedDef DerivedDef IndexSpec Signature
   VariableRef TimerRef Port PortOrAll ValueStoreSpec
   SenderSpec ComponentType optRunsOnSpec RunsOnSpec optSystemSpec optPortSpec
@@ -1056,7 +1063,7 @@ static const string anyname("anytype");
 %type <type> NestedEnumDef NestedRecordDef NestedRecordOfDef NestedSetDef
   NestedSetOfDef NestedTypeDef NestedUnionDef PortDefAttribs ReferencedType
   Type TypeOrNestedTypeDef NestedFunctionTypeDef NestedAltstepTypeDef
-  NestedTestcaseTypeDef
+  NestedTestcaseTypeDef optExtendsClassDef
 %type <types_with_mapping> TypeList AllOrTypeList AllOrTypeListWithFrom
 AllOrTypeListWithTo TypeListWithFrom TypeListWithTo
 %type <value> AddressValue AliveOp AllPortsSpec AltGuardChar ArrayBounds
@@ -1081,7 +1088,7 @@ AllOrTypeListWithTo TypeListWithFrom TypeListWithTo
 %type <def_list> AltstepLocalDef AltstepLocalDefList ComponentElementDef
   ConstDef ExtConstDef FunctionLocalDef FunctionLocalInst ModuleDef ModulePar
   ModuleParDef MultiTypedModuleParList PortInstance TimerInstance TimerList
-  VarInstance PortElementVarDef
+  VarInstance PortElementVarDef ClassMember
 %type <stmt_list> FunctionStatementOrDef ControlStatementOrDef
 
 %type <rangedef> RangeDef
@@ -1223,6 +1230,8 @@ CatchStatement
 CharStringMatch
 CharStringValue
 CheckStatement
+ClassDef
+ClassMemberList
 ClearStatement
 CommunicationStatements
 Complement
@@ -1467,11 +1476,15 @@ WithList
 WithStatement
 optAltstepFormalParList
 optAttribQualifier
+optBaseConstructorCall
+optClassMemberList
 optComponentDefList
 optDerivedDef
 optElseClause
 optExceptionSpec
+optExtendsClassDef
 optExtendsDef
+optFinallyDef
 optFromClause
 optFunctionActualParList
 optFunctionFormalParList
@@ -2345,6 +2358,7 @@ StructuredTypeDef: // 16
 | FunctionTypeDef { $$ = $1; }
 | AltstepTypeDef { $$ = $1; }
 | TestcaseTypeDef { $$ = $1; }
+| ClassDef { $$ = $1; }
 ;
 
 RecordDef: // 17
@@ -3492,6 +3506,140 @@ PortElement: // 86
     $$.yyloc = @$;
   }
 ;
+
+ClassDef:
+  optExtKeyword ClassKeyword optFinalModifier optAbstractModifier IDentifier
+  optExtendsClassDef optRunsOnSpec optMtcSpec optSystemSpec '{'
+  optClassMemberList '}' optFinallyDef
+  {
+    ClassTypeBody* class_ = new ClassTypeBody($5, $1, $3, $4, $6, $7, $8, $9,
+      $11, $13);
+    class_->set_location(infile, @$);
+    Type* type = new Type(Type::T_CLASS, class_);
+    type->set_location(infile, @$);
+    $$ = new Def_Type($5, type);
+    $$->set_location(infile, @$);
+  }
+;
+
+optExtKeyword:
+  /* empty */ { $$ = false; }
+| ExtKeyword  { $$ = true; }
+;
+
+optFinalModifier:
+  /* empty */  { $$ = false; }
+| FinalKeyword { $$ = true; }
+;
+
+optAbstractModifier:
+  /* empty */     { $$ = false; }
+| AbstractKeyword { $$ = true; }
+;
+
+optExtendsClassDef:
+  /* empty */                   { $$ = NULL; }
+| ExtendsKeyword ReferencedType { $$ = $2; }
+;
+
+optFinallyDef:
+  /* empty */                   { $$ = NULL; }
+| FinallyKeyword StatementBlock { $$ = $2; }
+;
+
+optClassMemberList:
+  /* empty */     { $$ = new Definitions; }
+| ClassMemberList { $$ = $1; }
+;
+
+ClassMemberList:
+  optVisibility ClassMember optWithStatementAndSemiColon
+  {
+    $$ = new Definitions;
+    for (size_t i = 0; i < $2.nElements; ++i) {
+      $2.elements[i]->set_visibility($1.visibility);
+      $$->add_ass($2.elements[i]);
+    }
+    Free($2.elements);
+    // TODO: 'with' attributes
+  }
+| ClassMemberList optVisibility ClassMember optWithStatementAndSemiColon
+  {
+    $$ = $1;
+    for (size_t i = 0; i < $3.nElements; ++i) {
+      $3.elements[i]->set_visibility($2.visibility);
+      $$->add_ass($3.elements[i]);
+    }
+    Free($3.elements);
+    // TODO: 'with' attributes
+  }
+;
+
+ClassMember:
+  VarInstance { $$ = $1; }
+| TimerInstance { $$ = $1; }
+| ConstDef { $$ = $1; }
+| TemplateDef
+  {
+    $$.nElements = 1;
+    $$.elements = (Definition**)Malloc(sizeof(Definition*));
+    $$.elements[0] = $1;
+  }
+| ClassFunctionDef
+  {
+    $$.nElements = 1;
+    $$.elements = (Definition**)Malloc(sizeof(Definition*));
+    $$.elements[0] = $1;
+  }
+| ConstructorDef
+  {
+    $$.nElements = 1;
+    $$.elements = (Definition**)Malloc(sizeof(Definition*));
+    $$.elements[0] = $1;
+  }
+;
+
+ClassFunctionDef:
+  FunctionKeyword optFinalModifier
+  optDeterministicModifier IDentifier '(' optFunctionFormalParList ')'
+  optReturnType optError StatementBlock
+  {
+    $$ = new Def_Function($3, $4, $6, NULL, NULL, NULL, NULL, $8.type,
+      $8.returns_template, $8.template_restriction, $10);
+    $$->set_location(infile, @$);
+  }
+| FunctionKeyword optFinalModifier AbstractKeyword
+  optDeterministicModifier IDentifier '(' optFunctionFormalParList ')'
+  optReturnType optError
+  {
+    $$ = new Def_AbsFunction($4, $5, $7, $9.type, $9.returns_template,
+      $9.template_restriction);
+    $$->set_location(infile, @$);
+  }
+| ExtKeyword FunctionKeyword optFinalModifier optAbstractModifier
+  optDeterministicModifier IDentifier '(' optFunctionFormalParList ')'
+  optReturnType
+  {
+    $$ = new Def_ExtFunction($5, $6, $8, $10.type, $10.returns_template,
+      $10.template_restriction);
+    $$->set_location(infile, @$);
+  }
+;
+
+ConstructorDef:
+  CreateKeyword '(' optFunctionFormalParList ')' optBaseConstructorCall
+  StatementBlock
+  {
+    $$ = new Def_Constructor($3, $5, $6);
+    $$->set_location(infile, @$);
+  }
+;
+
+optBaseConstructorCall:
+  /* empty */          { $$ = NULL; }
+| ':' FunctionInstance { $$ = $2; }
+;
+
 
 /* A.1.6.1.2 Constant definitions */
 

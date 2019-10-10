@@ -62,6 +62,7 @@ namespace Ttcn {
   class ErroneousDescriptors;
   class transparency_holder;
   class Statement;
+  class ClassTypeBody;
 } // namespace Ttcn
 
 namespace Common {
@@ -613,6 +614,8 @@ public:
      * Module. */
     virtual Module* get_scope_mod();
     virtual Module* get_scope_mod_gen();
+    virtual bool is_class_scope() const { return false; }
+    virtual const Ttcn::ClassTypeBody* get_scope_class() const;
     /** Returns the assignment referenced by \a p_ref. If no such
      * node, 0 is returned. */
     virtual Assignment* get_ass_bySRef(Ref_simple *p_ref) =0;

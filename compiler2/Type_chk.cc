@@ -186,6 +186,9 @@ void Type::chk()
   case T_TESTCASE:
     chk_Fat();
     break;
+  case T_CLASS:
+    u.class_->chk();
+    break;
   default:
     FATAL_ERROR("Type::chk()");
   } // switch

@@ -1233,6 +1233,14 @@ namespace Ttcn {
   {
     return get_parent_scope()->get_ass_bySRef(p_ref);
   }
+  
+  bool NameBridgingScope::is_class_scope() const
+  {
+    if (parent_scope == NULL) {
+      FATAL_ERROR("NameBridgingScope::is_class_scope()");
+    }
+    return parent_scope->is_class_scope();
+  }
 
   // =================================
   // ===== RunsOnScope
@@ -2013,6 +2021,14 @@ namespace Ttcn {
   Ttcn::Definition* Definitions::get_raw_ass_byIndex(size_t p_i) {
     return ass_v[p_i];
   }
+  
+  bool Definitions::is_class_scope() const
+  {
+    if (parent_scope == NULL) {
+      FATAL_ERROR("Definitions::is_class_scope()");
+    }
+    return parent_scope->is_class_scope();
+  }
 
   void Definitions::chk_uniq()
   {
@@ -2089,7 +2105,16 @@ namespace Ttcn {
 
   void Definitions::generate_code(output_struct* target)
   {
-    for(size_t i = 0; i < ass_v.size(); i++) ass_v[i]->generate_code(target);
+    bool in_class = parent_scope->is_class_scope();
+    for (size_t i = 0; i < ass_v.size(); i++) {
+      if (in_class && ass_v[i]->get_asstype() != Common::Assignment::A_CONSTRUCTOR) {
+        visibility_t vis = ass_v[i]->get_visibility();
+        target->header.class_defs = mputprintf(target->header.class_defs,
+          "%s:\n", vis == PUBLIC ? "public" : (vis == PRIVATE ? "private" :
+          "protected"));
+      }
+      ass_v[i]->generate_code(target);
+    }
   }
 
   void Definitions::generate_code(CodeGenHelper& cgh) {
@@ -3784,7 +3809,8 @@ namespace Ttcn {
     type->generate_code(target);
     const_def cdef;
     Code::init_cdef(&cdef);
-    type->generate_code_object(&cdef, value);
+    bool in_class = my_scope->is_class_scope();
+    type->generate_code_object(&cdef, value, in_class);
     if (value->is_unfoldable()) {
     cdef.post = update_location_object(cdef.post);
     cdef.post = value->generate_code_init(cdef.post,
@@ -3794,7 +3820,7 @@ namespace Ttcn {
     cdef.init = value->generate_code_init(cdef.init,
       value->get_lhs_name().c_str());
     }
-    Code::merge_cdef(target, &cdef);
+    Code::merge_cdef(target, &cdef, in_class);
     Code::free_cdef(&cdef);
   }
 
@@ -4069,7 +4095,7 @@ namespace Ttcn {
     Code::init_cdef(&cdef);
     const string& t_genname = get_genname();
     const char *name = t_genname.c_str();
-    type->generate_code_object(&cdef, my_scope, t_genname, "modulepar_", false, false);
+    type->generate_code_object(&cdef, my_scope, t_genname, "modulepar_", false, false, false);
     if (def_value) {
       cdef.init = update_location_object(cdef.init);
       cdef.init = def_value->generate_code_init(cdef.init, def_value->get_lhs_name().c_str());
@@ -4248,7 +4274,7 @@ namespace Ttcn {
     Code::init_cdef(&cdef);
     const string& t_genname = get_genname();
     const char *name = t_genname.c_str();
-    type->generate_code_object(&cdef, my_scope, t_genname, "modulepar_", true, false);
+    type->generate_code_object(&cdef, my_scope, t_genname, "modulepar_", true, false, false);
     if (def_template) {
       cdef.init = update_location_object(cdef.init);
       cdef.init = def_template->generate_code_init(cdef.init, def_template->get_lhs_name().c_str());
@@ -4761,7 +4787,8 @@ namespace Ttcn {
       // non-parameterized template
       const_def cdef;
       Code::init_cdef(&cdef);
-      type->generate_code_object(&cdef, body);
+      bool in_class = my_scope->is_class_scope();
+      type->generate_code_object(&cdef, body, in_class);
       cdef.init = update_location_object(cdef.init);
       if (base_template) {
         // modified template
@@ -4812,12 +4839,12 @@ namespace Ttcn {
           body->get_lhs_name().c_str(), body->get_lhs_name().c_str(),
           static_cast<unsigned long>( body->get_err_descr()->get_descr_index(NULL) ));
       }
-      target->header.global_vars = mputstr(target->header.global_vars,
-        cdef.decl);
-      target->source.global_vars = mputstr(target->source.global_vars,
-        cdef.def);
-      target->functions.post_init = mputstr(target->functions.post_init,
-        cdef.init);
+      char*& header = in_class ? target->header.class_defs : target->header.global_vars;
+      header = mputstr(header, cdef.decl);
+      char*& source = in_class ? target->temp.constructor_init : target->source.global_vars;
+      source = mputstr(source, cdef.def);
+      char*& init = in_class ? target->temp.constructor : target->functions.post_init;
+      init = mputstr(init, cdef.init);
       Code::free_cdef(&cdef);
     }
   }
@@ -5076,12 +5103,15 @@ namespace Ttcn {
     type->generate_code(target);
     const_def cdef;
     Code::init_cdef(&cdef);
-    type->generate_code_object(&cdef, my_scope, get_genname(), 0, false, false);
-    Code::merge_cdef(target, &cdef);
+    bool in_class = my_scope->is_class_scope();
+    type->generate_code_object(&cdef, my_scope, get_genname(), 0, false, false,
+      in_class);
+    Code::merge_cdef(target, &cdef, in_class);
     Code::free_cdef(&cdef);
     if (initial_value) {
-      target->functions.init_comp =
-      initial_value->generate_code_init(target->functions.init_comp,
+      char*& init = in_class ? target->temp.constructor :
+        target->functions.init_comp;
+      init = initial_value->generate_code_init(init,
         initial_value->get_lhs_name().c_str());
     } else if (clean_up) {  // No initial value.
       target->functions.init_comp = mputprintf(target->functions.init_comp,
@@ -5288,22 +5318,24 @@ namespace Ttcn {
     type->generate_code(target);
     const_def cdef;
     Code::init_cdef(&cdef);
-    type->generate_code_object(&cdef, my_scope, get_genname(), 0, true, false);
-    Code::merge_cdef(target, &cdef);
+    bool in_class = my_scope->is_class_scope();
+    type->generate_code_object(&cdef, my_scope, get_genname(), 0, true, false,
+      in_class);
+    Code::merge_cdef(target, &cdef, in_class);
     Code::free_cdef(&cdef);
     if (initial_value) {
+      char*& init = in_class ? target->temp.constructor :
+        target->functions.init_comp;
       if (Common::Type::T_SEQOF == initial_value->get_my_governor()->get_typetype() ||
           Common::Type::T_ARRAY == initial_value->get_my_governor()->get_typetype()) {
-        target->functions.init_comp = mputprintf(target->functions.init_comp, 
-          "%s.remove_all_permutations();\n", initial_value->get_lhs_name().c_str());
+        init = mputprintf(init, "%s.remove_all_permutations();\n",
+          initial_value->get_lhs_name().c_str());
       }
-      target->functions.init_comp =
-        initial_value->generate_code_init(target->functions.init_comp,
+      init = initial_value->generate_code_init(init,
           initial_value->get_lhs_name().c_str());
       if (template_restriction!=TR_NONE && gen_restriction_check)
-        target->functions.init_comp = Template::generate_restriction_check_code(
-          target->functions.init_comp, initial_value->get_lhs_name().c_str(),
-          template_restriction);
+        init = Template::generate_restriction_check_code(init,
+          initial_value->get_lhs_name().c_str(), template_restriction);
     } else if (clean_up) {  // No initial value.
       // Always reset component variables/variable templates on component
       // reinitialization.  Fix for HM79493.
@@ -5649,54 +5681,82 @@ namespace Ttcn {
     const string& t_genname = get_genname();
     const char *genname_str = t_genname.c_str();
     const string& dispname = id->get_dispname();
+    bool in_class = my_scope->is_class_scope();
+    char*& header = in_class ? target->header.class_defs :
+      target->header.global_vars;
+    char*& source = in_class ? target->temp.constructor :
+      target->source.global_vars;
+    char*& pre_init = in_class ? target->temp.constructor :
+      target->functions.pre_init;
+    char*& post_init = in_class ? target->temp.constructor :
+      target->functions.post_init;
     if (dimensions) {
       // timer array
       const string& array_type = dimensions->get_timer_type();
       const char *array_type_str = array_type.c_str();
-      target->header.global_vars = mputprintf(target->header.global_vars,
-        "extern %s %s;\n", array_type_str, genname_str);
-      target->source.global_vars = mputprintf(target->source.global_vars,
-        "%s %s;\n", array_type_str, genname_str);
-      target->functions.pre_init = mputstr(target->functions.pre_init, "{\n"
+      header = mputprintf(header,
+        "%s%s %s;\n", in_class ? "" : "extern ", array_type_str, genname_str);
+      if (!in_class) {
+        source = mputprintf(source, "%s %s;\n", array_type_str, genname_str);
+      }
+      pre_init = mputstr(pre_init, "{\n"
         "static const char * const timer_name = \"");
-      target->functions.pre_init = mputstr(target->functions.pre_init,
+      pre_init = mputstr(pre_init,
         dispname.c_str());
-      target->functions.pre_init = mputprintf(target->functions.pre_init,
-        "\";\n"
+      pre_init = mputprintf(pre_init, "\";\n"
         "%s.set_name(timer_name);\n"
         "}\n", genname_str);
-      if (default_duration) target->functions.post_init =
-        generate_code_array_duration(target->functions.post_init, genname_str,
+      if (default_duration) post_init =
+        generate_code_array_duration(post_init, genname_str,
           default_duration);
     } else {
       // single timer
-      target->header.global_vars = mputprintf(target->header.global_vars,
-        "extern TIMER %s;\n", genname_str);
+      header = mputprintf(header, "%sTIMER %s;\n",
+        in_class ? "" : "extern ", genname_str);
       if (default_duration) {
         // has default duration
         Value *v = default_duration->get_value_refd_last();
         if (v->get_valuetype() == Value::V_REAL) {
           // duration is known at compilation time -> set in the constructor
-          target->source.global_vars = mputprintf(target->source.global_vars,
-            "TIMER %s(\"%s\", %s);\n", genname_str, dispname.c_str(),
-            v->get_single_expr().c_str());
+          if (in_class) {
+            source = mputprintf(source,
+              "%s.set_name(\"%s\");\n"
+              "%s.set_default_duration(%s);\n",
+              genname_str, dispname.c_str(),
+              genname_str, v->get_single_expr().c_str());
+          }
+          else {
+            source = mputprintf(source, "TIMER %s(\"%s\", %s);\n",
+              genname_str, dispname.c_str(), v->get_single_expr().c_str());
+          }
         } else {
           // duration is known only at runtime -> set in post_init
-          target->source.global_vars = mputprintf(target->source.global_vars,
-            "TIMER %s(\"%s\");\n", genname_str, dispname.c_str());
+          if (in_class) {
+            source = mputprintf(source, "%s.set_name(\"%s\");\n",
+              genname_str, dispname.c_str());
+          }
+          else {
+            source = mputprintf(source, "TIMER %s(\"%s\");\n",
+              genname_str, dispname.c_str());
+          }
           expression_struct expr;
           Code::init_expr(&expr);
           expr.expr = mputprintf(expr.expr, "%s.set_default_duration(",
             genname_str);
           default_duration->generate_code_expr(&expr);
           expr.expr = mputc(expr.expr, ')');
-          target->functions.post_init =
-            Code::merge_free_expr(target->functions.post_init, &expr);
+          post_init = Code::merge_free_expr(post_init, &expr);
         }
       } else {
         // does not have default duration
-        target->source.global_vars = mputprintf(target->source.global_vars,
-          "TIMER %s(\"%s\");\n", genname_str, dispname.c_str());
+        if (in_class) {
+          source = mputprintf(source, "%s.set_name(\"%s\");\n",
+            genname_str, dispname.c_str());
+        }
+        else {
+          source = mputprintf(source, "TIMER %s(\"%s\");\n",
+            genname_str, dispname.c_str());
+        }
       }
     }
   }
@@ -6669,27 +6729,34 @@ namespace Ttcn {
     // smart formal parameter list (names of unused parameters are omitted)
     char *formal_par_list = fp_list->generate_code(memptystr());
     fp_list->generate_code_defval(target);
+    
+    bool in_class = my_scope->is_class_scope();
+    char*& header = in_class ? target->header.class_defs :
+      target->header.function_prototypes;
+    char*& source = in_class ? target->source.methods :
+      target->source.function_bodies;
+    
     // function prototype
-    target->header.function_prototypes =
-      mputprintf(target->header.function_prototypes, "%s%s %s(%s);\n",
-        get_PortType() && clean_up ? "" : "extern ",
-        return_type_str, genname_str, formal_par_list);
+    header = mputprintf(header, "%s%s %s(%s);\n",
+      get_PortType() && clean_up ? "" : (in_class ? "virtual " : "extern "),
+      return_type_str, genname_str, formal_par_list);
 
     // function body    
-    target->source.function_bodies = mputprintf(target->source.function_bodies,
+    source = mputprintf(source,
       "%s %s%s%s%s(%s)\n"
       "{\n"
       "%s"
       "}\n\n",
       return_type_str,
-      port_type && clean_up ? port_type->get_genname_own().c_str() : "",
+      port_type && clean_up ? port_type->get_genname_own().c_str() :
+      (in_class ? my_scope->get_scope_class()->get_id()->get_name().c_str() : ""),
       port_type && clean_up && port_type->get_PortBody()->get_testport_type() != PortTypeBody::TP_INTERNAL ? "_BASE" : "",
-      port_type && clean_up ? "::" : "",
+      in_class || (port_type && clean_up) ? "::" : "",
       genname_str, formal_par_list, body);
     Free(formal_par_list);
     Free(body);
 
-    if (is_startable) {
+    if (is_startable && !in_class) {
       size_t nof_fps = fp_list->get_nof_fps();
       // use the full list of formal parameters here (since they are all logged)
       char *full_formal_par_list = fp_list->generate_code(memptystr(), nof_fps);
@@ -6800,15 +6867,17 @@ namespace Ttcn {
       Free(full_formal_par_list);
     }
 
-    target->functions.pre_init = mputprintf(target->functions.pre_init,
-      "%s.add_function(\"%s\", (genericfunc_t)&%s, ", get_module_object_name(),
-      dispname_str, genname_str);
-    if(is_startable)
+    if (!in_class) {
       target->functions.pre_init = mputprintf(target->functions.pre_init,
-        "(genericfunc_t)&start_%s);\n", genname_str);
-    else
-      target->functions.pre_init = mputstr(target->functions.pre_init,
-        "NULL);\n");
+        "%s.add_function(\"%s\", (genericfunc_t)&%s, ", get_module_object_name(),
+        dispname_str, genname_str);
+      if(is_startable)
+        target->functions.pre_init = mputprintf(target->functions.pre_init,
+          "(genericfunc_t)&start_%s);\n", genname_str);
+      else
+        target->functions.pre_init = mputstr(target->functions.pre_init,
+          "NULL);\n");
+    }
   }
 
   void Def_Function::generate_code(CodeGenHelper& cgh) {
@@ -7556,10 +7625,13 @@ namespace Ttcn {
     const char *return_type_str = return_type_name.c_str();
     char *formal_par_list = fp_list->generate_code(memptystr(), fp_list->get_nof_fps());
     fp_list->generate_code_defval(target);
+    
+    bool in_class = my_scope->is_class_scope();
     // function prototype
-    target->header.function_prototypes =
-      mputprintf(target->header.function_prototypes, "extern %s %s(%s);\n",
-        return_type_str, genname_str, formal_par_list);
+    char*& header = in_class ? target->header.class_defs :
+      target->header.function_prototypes;
+    header = mputprintf(header, "%s %s %s(%s);\n",
+      in_class ? "virtual" : "extern", return_type_str, genname_str, formal_par_list);
 
     if (function_type != EXTFUNC_MANUAL) {
       // function body written by the compiler
@@ -7593,9 +7665,11 @@ namespace Ttcn {
 
     Free(formal_par_list);
 
-    target->functions.pre_init = mputprintf(target->functions.pre_init,
-      "%s.add_function(\"%s\", (genericfunc_t)&%s, NULL);\n",
-      get_module_object_name(), id->get_dispname().c_str(), genname_str);
+    if (!in_class) {
+      target->functions.pre_init = mputprintf(target->functions.pre_init,
+        "%s.add_function(\"%s\", (genericfunc_t)&%s, NULL);\n",
+        get_module_object_name(), id->get_dispname().c_str(), genname_str);
+    }
   }
 
   void Def_ExtFunction::generate_code(CodeGenHelper& cgh) {
@@ -7740,6 +7814,56 @@ namespace Ttcn {
       json->put_next_token(JSON_TOKEN_OBJECT_END);
     }
   }
+  
+  // =================================
+  // ===== Def_AbsFunction
+  // =================================
+  
+  Def_AbsFunction::~Def_AbsFunction()
+  {
+    // TODO
+  }
+  
+  Definition* Def_AbsFunction::clone() const
+  {
+    return NULL;
+    // TODO
+  }
+  
+  void Def_AbsFunction::chk()
+  {
+    // TODO
+  }
+  
+  void Def_AbsFunction::generate_code(output_struct* target, bool)
+  {
+    const string& t_genname = get_genname();
+    const char* genname_str = t_genname.c_str();
+    string return_type_name;
+    switch (asstype) {
+    case A_FUNCTION:
+      return_type_name = "void";
+      break;
+    case A_FUNCTION_RVAL:
+      return_type_name = return_type->get_genname_value(my_scope);
+      break;
+    case A_FUNCTION_RTEMP:
+      return_type_name = return_type->get_genname_template(my_scope);
+      break;
+    default:
+      FATAL_ERROR("Def_AbsFunction::generate_code");
+    }
+    const char* return_type_str = return_type_name.c_str();
+    char* formal_par_list = fp_list->generate_code(memptystr(), fp_list->get_nof_fps());
+    fp_list->generate_code_defval(target);
+    
+    target->header.class_defs = mputprintf(target->header.class_defs,
+      "virtual %s %s(%s) = 0;\n", return_type_str, genname_str, formal_par_list);
+    
+    Free(formal_par_list);
+  }
+  
+  // TODO
 
   // =================================
   // ===== Def_Altstep
@@ -8351,6 +8475,78 @@ namespace Ttcn {
     Definition::set_parent_path(p_path);
     if (block)
       block->set_parent_path(w_attrib_path);
+  }
+  
+  // =================================
+  // ===== Def_Constructor
+  // =================================
+  
+  Def_Constructor::Def_Constructor(FormalParList* p_fp_list,
+    Ref_pard* p_base_call, StatementBlock* p_block)
+  : Definition(A_CONSTRUCTOR, new Common::Identifier(
+    Common::Identifier::ID_TTCN, string("create"), true)),
+    fp_list(p_fp_list), base_call(p_base_call), block(p_block)
+  {
+    if (p_fp_list == NULL || block == NULL) {
+      FATAL_ERROR("Def_Constructor::Def_Constructor");
+    }
+  }
+  
+  Def_Constructor::~Def_Constructor()
+  {
+    delete fp_list;
+    delete base_call;
+    delete block;
+  }
+  
+  Def_Constructor *Def_Constructor::clone() const
+  {
+    FATAL_ERROR("Def_Constructor::clone");
+  }
+
+  void Def_Constructor::set_fullname(const string& p_fullname)
+  {
+    Definition::set_fullname(p_fullname);
+    fp_list->set_fullname(p_fullname + ".<formal_par_list>");
+    if (base_call != NULL) {
+      base_call->set_fullname(p_fullname + ".<base_call>");
+    }
+    block->set_fullname(p_fullname + ".<statement_block>");
+  }
+
+  void Def_Constructor::set_my_scope(Scope* p_scope)
+  {
+    //bridgeScope.set_parent_scope(p_scope);
+    //bridgeScope.set_scopeMacro_name(id->get_dispname());
+
+    //Definition::set_my_scope(&bridgeScope);
+    Definition::set_my_scope(p_scope); // TODO
+    if (base_call != NULL) {
+      base_call->set_my_scope(p_scope);
+    }
+    block->set_my_scope(fp_list);
+  }
+
+  FormalParList* Def_Constructor::get_FormalParList()
+  {
+    if (!checked) chk();
+    return fp_list;
+  }
+  
+  void Def_Constructor::chk()
+  {
+    // TODO
+  }
+  
+  void Def_Constructor::generate_code(output_struct *target, bool clean_up)
+  {
+    // TODO
+  }
+  
+  void Def_Constructor::set_parent_path(WithAttribPath* p_path)
+  {
+    Definition::set_parent_path(p_path);
+    block->set_parent_path(w_attrib_path);
   }
 
   // =================================
@@ -9210,7 +9406,7 @@ namespace Ttcn {
       Value *val = defval.ap->get_Value();
       const_def cdef;
       Code::init_cdef(&cdef);
-      type->generate_code_object(&cdef, val);
+      type->generate_code_object(&cdef, val, false);
       Code::merge_cdef(target, &cdef);
       Code::free_cdef(&cdef);
       break; }
@@ -9222,7 +9418,7 @@ namespace Ttcn {
       Template *temp = ti->get_Template();
       const_def cdef;
       Code::init_cdef(&cdef);
-      type->generate_code_object(&cdef, temp);
+      type->generate_code_object(&cdef, temp, false);
       Code::merge_cdef(target, &cdef);
       Code::free_cdef(&cdef);
       break; }

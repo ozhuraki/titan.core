@@ -753,6 +753,47 @@ public:
   size_t size() const { return vector<ExtensionAttribute>::size(); }
 };
 
+
+class ClassTypeBody : public Common::Scope, public Common::Location {
+  Common::Identifier* class_id; // not owned
+  boolean external;
+  boolean final;
+  boolean abstract;
+  Common::Type* base_type;
+  Reference* runs_on_ref;
+  Reference* mtc_ref;
+  Reference* system_ref;
+  Definitions* members;
+  StatementBlock* finally_block;
+  bool checked;
+  
+public:
+  ClassTypeBody(Common::Identifier* p_class_id, boolean p_external, boolean p_final,
+    boolean p_abstract, Common::Type* p_base_type, Ttcn::Reference* p_runs_on_ref,
+    Reference* p_mtc_ref, Reference* p_system_ref,
+    Definitions* p_members, StatementBlock* p_finally_block);
+  ClassTypeBody(const ClassTypeBody& p);
+  ClassTypeBody* clone() const;
+  virtual ~ClassTypeBody();
+  
+  void set_fullname(const string& p_fullname);
+  void set_my_scope(Scope* p_scope);
+  void dump(unsigned level) const;
+  
+  virtual bool is_class_scope() const { return true; }
+  virtual const ClassTypeBody* get_scope_class() const { return this; }
+  Common::Identifier* get_id() const { return class_id; }
+  
+  bool is_parent_class(const ClassTypeBody* p_class) const;
+  bool has_local_ass_withId(const Identifier& p_id);
+  Common::Assignment* get_local_ass_byId(const Identifier& p_id);
+  Common::Assignment* get_ass_bySRef(Common::Ref_simple* p_ref);
+  
+  void chk();
+  
+  void generate_code(output_struct* target);
+};
+
 }
 
 #endif /* TTCNSTUFF_H_ */

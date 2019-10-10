@@ -38,6 +38,7 @@
 #include "main.hh"
 #include "ttcn3/profiler.h"
 #include "ttcn3/Attributes.hh"
+#include "ttcn3/Ttcnstuff.hh"
 
 namespace Common {
 
@@ -603,6 +604,14 @@ namespace Common {
     else FATAL_ERROR("The module scope is not visible from this scope: `%s'", \
                      get_scope_name().c_str());
     return 0;
+  }
+  
+  const Ttcn::ClassTypeBody* Scope::get_scope_class() const
+  {
+    if (parent_scope != NULL) {
+      return parent_scope->get_scope_class();
+    }
+    return NULL;
   }
 
   bool Scope::has_ass_withId(const Identifier& p_id)

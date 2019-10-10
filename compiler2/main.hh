@@ -52,7 +52,7 @@ extern boolean generate_skeleton, force_overwrite, include_line_info,
   implicit_json_encoding, json_refs_for_all_types, force_gen_seof,
   omit_in_value_list, warnings_for_bad_variants, debugger_active,
   legacy_unbound_union_fields, split_to_slices, legacy_untagged_union,
-  disable_user_info, legacy_codec_handling, realtime_features;
+  disable_user_info, legacy_codec_handling, realtime_features, oop_features;
 
 extern const char *expected_platform;
 

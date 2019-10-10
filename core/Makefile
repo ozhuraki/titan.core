@@ -204,7 +204,7 @@ Module_list.hh Parameters.h Addfunc.hh RAW.hh BER.hh TEXT.hh ASN_Null.hh \
 ASN_Any.hh ASN_External.hh ASN_EmbeddedPDV.hh ASN_CharacterString.hh XER.hh \
 XmlReader.hh cversion.h TitanLoggerControl.ttcn TitanLoggerApi.xsd Vector.hh \
 JSON.hh Profiler.hh RefdIndex.hh ProfilerTools.hh Debugger.hh DebugCommands.hh \
-DebuggerUI.hh OER.hh
+DebuggerUI.hh OER.hh OOP.hh
 # Copied during "make install"
 
 ifdef REGEX_DIR

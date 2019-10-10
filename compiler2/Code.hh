@@ -36,7 +36,7 @@ namespace Common {
     static void free_output(output_struct *output);
 
     static void init_cdef(const_def *cdef);
-    static void merge_cdef(output_struct *dest, const_def *cdef);
+    static void merge_cdef(output_struct *dest, const_def *cdef, boolean in_class = FALSE);
     static void free_cdef(const_def *cdef);
 
     static void init_expr(expression_struct *expr);

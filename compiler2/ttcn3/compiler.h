@@ -68,6 +68,10 @@ extern "C" {
       char *control;   /**< Code for module_control_part() */
     } functions;
     struct {
+      char* constructor_init;
+      char* constructor;
+    } temp;
+    struct {
       size_t pre_things_size; // Size of string_literals + global_vars
       size_t *methods;
       size_t methods_max_size;

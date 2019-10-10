@@ -722,7 +722,7 @@ namespace Asn {
     if(defval) {
       const_def cdef;
       Code::init_cdef(&cdef);
-      fixtype->generate_code_object(&cdef, defval);
+      fixtype->generate_code_object(&cdef, defval, false);
       cdef.init = defval->generate_code_init(cdef.init,
         defval->get_lhs_name().c_str());
       Code::merge_cdef(target, &cdef);
@@ -1316,7 +1316,7 @@ namespace Asn {
     const_def cdef;
     Code::init_cdef(&cdef);
     Type *type = setting->get_my_governor();
-    type->generate_code_object(&cdef, setting);
+    type->generate_code_object(&cdef, setting, false);
     cdef.init = setting->generate_code_init(cdef.init,
       setting->get_lhs_name().c_str());
     Code::merge_cdef(target, &cdef);

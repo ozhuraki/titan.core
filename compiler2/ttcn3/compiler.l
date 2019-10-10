@@ -558,6 +558,30 @@ timestamp {
     RETURN_LVAL(IDentifier);
   }
 }
+class {
+  if (oop_features) {
+    RETURN(ClassKeyword);
+  }
+  else {
+    Location loc(infile, yylloc);
+    loc.warning("Keyword 'class' is treated as an identifier. Activate "
+      "compiler option '-k' to use object-oriented features.");
+    yylval.id = new Identifier(Identifier::ID_TTCN, string(yyleng, yytext));
+    RETURN_LVAL(IDentifier);
+  }
+}
+finally {
+  if (oop_features) {
+    RETURN(FinallyKeyword);
+  }
+  else {
+    Location loc(infile, yylloc);
+    loc.warning("Keyword 'finally' is treated as an identifier. Activate "
+      "compiler option '-k' to use object-oriented features.");
+    yylval.id = new Identifier(Identifier::ID_TTCN, string(yyleng, yytext));
+    RETURN_LVAL(IDentifier);
+  }
+}
 
   /* modifier keywords */
 
@@ -568,6 +592,8 @@ timestamp {
 "@fuzzy"         RETURN(FuzzyKeyword);
 "@index"         RETURN(IndexKeyword);
 "@local"         RETURN(LocalKeyword);
+"@final"         RETURN(FinalKeyword);
+"@abstract"      RETURN(AbstractKeyword);
 
   /* special TITAN specific keywords */
 

@@ -525,6 +525,7 @@ namespace Common {
       A_EXT_FUNCTION_RTEMP, /**< ext. func that returns a template (TTCN-3) */
       A_ALTSTEP,        /**< altstep (TTCN-3) */
       A_TESTCASE,       /**< testcase (TTCN-3) */
+      A_CONSTRUCTOR,    /**< constructor (TTCN-3) */
       A_PAR_VAL,        /**< formal parameter (value) (TTCN-3) */
       A_PAR_VAL_IN,     /**< formal parameter (in value) (TTCN-3) */
       A_PAR_VAL_OUT,    /**< formal parameter (out value) (TTCN-3) */

@@ -23,6 +23,7 @@
 #include "../main.hh"
 #include "Attributes.hh"
 #include <errno.h>
+#include "Statement.hh"
 
 // implemented in coding_attrib_p.y
 extern Ttcn::ExtensionAttributes * parse_extattributes(
@@ -379,17 +380,17 @@ namespace Ttcn {
   void TypeMappingTarget::chk_function(Type *source_type, Type *port_type, bool legacy, bool incoming)
   {
     Error_Context cntxt(this, "In `function' mapping");
-    Assignment *t_ass = u.func.function_ref->get_refd_assignment(false);
+    Common::Assignment *t_ass = u.func.function_ref->get_refd_assignment(false);
     if (!t_ass) return;
     t_ass->chk();
     switch (t_ass->get_asstype()) {
-    case Assignment::A_FUNCTION:
-    case Assignment::A_FUNCTION_RVAL:
-    case Assignment::A_FUNCTION_RTEMP:
+    case Common::Assignment::A_FUNCTION:
+    case Common::Assignment::A_FUNCTION_RVAL:
+    case Common::Assignment::A_FUNCTION_RTEMP:
       break;
-    case Assignment::A_EXT_FUNCTION:
-    case Assignment::A_EXT_FUNCTION_RVAL:
-    case Assignment::A_EXT_FUNCTION_RTEMP:
+    case Common::Assignment::A_EXT_FUNCTION:
+    case Common::Assignment::A_EXT_FUNCTION_RVAL:
+    case Common::Assignment::A_EXT_FUNCTION_RTEMP:
       // External functions are not allowed when the standard like behaviour is used
       if (legacy) {
         break;
@@ -1504,9 +1505,9 @@ namespace Ttcn {
     size_t n_prov_t = 0;
     for (size_t p = 0; p < provider_refs.size(); p++) {
       provider_body = 0;
-      Assignment *t_ass = provider_refs[p]->get_refd_assignment(); // provider port
+      Common::Assignment *t_ass = provider_refs[p]->get_refd_assignment(); // provider port
       if (t_ass) {
-        if (t_ass->get_asstype() == Assignment::A_TYPE) {
+        if (t_ass->get_asstype() == Common::Assignment::A_TYPE) {
           Type *t = t_ass->get_Type()->get_type_refd_last();
           if (t->get_typetype() == Type::T_PORT) {
             bool found = false;
@@ -2440,11 +2441,11 @@ namespace Ttcn {
           Definition* def = static_cast<Definition*>(vardefs->get_ass_byIndex(i));
           string type;
           switch (def->get_asstype()) {
-            case Assignment::A_VAR:
-            case Assignment::A_CONST:
+            case Common::Assignment::A_VAR:
+            case Common::Assignment::A_CONST:
               type = def->get_Type()->get_genname_value(my_scope);
               break;
-            case Assignment::A_VAR_TEMPLATE:
+            case Common::Assignment::A_VAR_TEMPLATE:
               type = def->get_Type()->get_genname_template(my_scope);
               break;
             default:
@@ -2462,7 +2463,7 @@ namespace Ttcn {
           
           // If the def does not have default value then clean it up to
           // restore to unbound. (for constants the generate_code_init_comp does nothing)
-          if ((pdef.var_defs == NULL || len == strlen(pdef.var_defs)) && def->get_asstype() != Assignment::A_CONST) {
+          if ((pdef.var_defs == NULL || len == strlen(pdef.var_defs)) && def->get_asstype() != Common::Assignment::A_CONST) {
             pdef.var_defs = mputprintf(pdef.var_defs, "%s.clean_up();\n",
               def->get_genname().c_str());
           }
@@ -2972,6 +2973,310 @@ namespace Ttcn {
       vector<ExtensionAttribute>::add((*other)[i]);
     }
     other->clear();
+  }
+  
+  // =================================
+  // ===== ClassTypeBody
+  // =================================
+  
+  ClassTypeBody::ClassTypeBody(Common::Identifier* p_class_id, boolean p_external, boolean p_final,
+                               boolean p_abstract, Common::Type* p_base_type, Reference* p_runs_on_ref,
+                               Reference* p_mtc_ref, Reference* p_system_ref,
+                               Definitions* p_members, StatementBlock* p_finally_block)
+  : Scope(), Location(), class_id(p_class_id), external(p_external), final(p_final), abstract(p_abstract),
+    base_type(p_base_type), runs_on_ref(p_runs_on_ref), mtc_ref(p_mtc_ref), system_ref(p_system_ref),
+    members(p_members), finally_block(p_finally_block), checked(false)
+  {
+    if (members == NULL) {
+      FATAL_ERROR("ClassTypeBody::ClassTypeBody");
+    }
+  }
+  
+  ClassTypeBody::ClassTypeBody(const ClassTypeBody& p)
+  {
+    class_id = p.class_id->clone();
+    external = p.external;
+    final = p.final;
+    abstract = p.abstract;
+    base_type = p.base_type != NULL ? p.base_type->clone() : NULL;
+    runs_on_ref = p.runs_on_ref != NULL ? p.runs_on_ref->clone() : NULL;
+    mtc_ref = p.mtc_ref != NULL ? p.mtc_ref->clone() : NULL;
+    system_ref = p.system_ref != NULL ? p.system_ref->clone() : NULL;
+    members = p.members->clone();
+    finally_block = p.finally_block != NULL ? p.finally_block->clone() : NULL;
+    checked = p.checked;
+  }
+  
+  ClassTypeBody* ClassTypeBody::clone() const
+  {
+    return new ClassTypeBody(*this);
+  }
+  
+  ClassTypeBody::~ClassTypeBody()
+  {
+    delete base_type;
+    delete finally_block;
+    delete members;
+    delete mtc_ref;
+    delete runs_on_ref;
+    delete system_ref;
+  }
+  
+  void ClassTypeBody::set_fullname(const string& p_fullname)
+  {
+    Common::Scope::set_fullname(p_fullname);
+    if (base_type != NULL) {
+      base_type->set_fullname(p_fullname + ".<base_type>");
+    }
+    if (runs_on_ref != NULL) {
+      runs_on_ref->set_fullname(p_fullname + ".<runs_on_type>");
+    }
+    if (mtc_ref != NULL) {
+      mtc_ref->set_fullname(p_fullname + ".<mtc_type>");
+    }
+    if (system_ref != NULL) {
+      system_ref->set_fullname(p_fullname + ".<system_type>");
+    }
+    members->set_fullname(p_fullname + ".<members>");
+    if (finally_block != NULL) {
+      finally_block->set_fullname(p_fullname + ".<finally_block>");
+    }
+  }
+  
+  void ClassTypeBody::set_my_scope(Scope* p_scope)
+  {
+    set_parent_scope(p_scope);
+    if (base_type != NULL) {
+      base_type->set_my_scope(p_scope);
+    }
+    if (runs_on_ref != NULL) {
+      runs_on_ref->set_my_scope(p_scope);
+    }
+    if (mtc_ref != NULL) {
+      mtc_ref->set_my_scope(p_scope);
+    }
+    if (system_ref != NULL) {
+      system_ref->set_my_scope(p_scope);
+    }
+    //members->set_my_scope(p_scope);
+    /*if (finally_block != NULL) {
+      finally_block->set_my_scope(p_scope);
+    }*/
+  }
+  
+  void ClassTypeBody::dump(unsigned level) const
+  {
+    DEBUG(level, "Modifiers:%s%s%s", external ? "external " : "",
+      final ? " @final " : "", abstract ? " @abstract" : "");
+    DEBUG(level, "Base class: %s", base_type != NULL ?
+      base_type->get_typename().c_str() : "");
+    if (runs_on_ref != NULL) {
+      DEBUG(level, "Runs on clause:");
+      runs_on_ref->dump(level + 1);
+    }
+    if (mtc_ref != NULL) {
+      DEBUG(level, "MTC clause:");
+      mtc_ref->dump(level + 1);
+    }
+    if (system_ref != NULL) {
+      DEBUG(level, "System clause:");
+      system_ref->dump(level + 1);
+    }
+    DEBUG(level, "Members:");
+    members->dump(level + 1);
+    DEBUG(level, "%s `finally' block", finally_block != NULL ?
+      "Has" : "Doesn't have");
+  }
+  
+  bool ClassTypeBody::is_parent_class(const ClassTypeBody* p_class) const
+  {
+    if (this == p_class) {
+      return true;
+    }
+    if (base_type == NULL) {
+      return false;
+    }
+    return base_type->get_type_refd_last()->get_class_type_body()->
+      is_parent_class(p_class);
+  }
+  
+  bool ClassTypeBody::has_local_ass_withId(const Identifier& p_id)
+  {
+    chk();
+    if (members->has_local_ass_withId(p_id)) {
+      return true;
+    }
+    if (base_type != NULL) {
+      return base_type->get_type_refd_last()->get_class_type_body()->
+        has_local_ass_withId(p_id);
+    }
+    else {
+      return false;
+    }
+  }
+  
+  Common::Assignment* ClassTypeBody::get_local_ass_byId(const Identifier& p_id)
+  {
+    chk();
+    Common::Assignment* ass = NULL;
+    if (members->has_local_ass_withId(p_id)) {
+      ass = members->get_local_ass_byId(p_id);
+    }
+    if (ass == NULL && base_type != NULL) {
+      ass = base_type->get_type_refd_last()->get_class_type_body()->
+        get_local_ass_byId(p_id);
+    }
+    return ass;
+  }
+  
+  Common::Assignment* ClassTypeBody::get_ass_bySRef(Common::Ref_simple* p_ref)
+  {
+    if (p_ref == NULL || parent_scope == NULL) {
+      FATAL_ERROR("ClassTypeBody::get_ass_bySRef()");
+    }
+    if (p_ref->get_modid() == NULL) {
+      const Common::Identifier* id = p_ref->get_id();
+      if (id != NULL && has_local_ass_withId(*id)) {
+        Common::Assignment* ass = get_local_ass_byId(*id);
+        if (ass == NULL) {
+          FATAL_ERROR("ClassTypeBody::get_ass_bySRef()");
+        }
+
+        if (ass->get_visibility() == PUBLIC) {
+          // it's public, so it doesn't matter where it's accessed from
+          return ass;
+        }
+        
+        const ClassTypeBody* ref_scope_class = p_ref->get_my_scope()->get_scope_class();
+        if (ref_scope_class == this) {
+          // the reference is inside this class => any visibility is fine
+          return ass;
+        }
+        
+        if (ref_scope_class != NULL &&
+            ass->get_visibility() == NOCHANGE && // i.e. protected
+            ref_scope_class->is_parent_class(this)) {
+          return ass;
+        }
+
+        p_ref->error("The member definition `%s' in class type `%s'"
+          " is not visible in this scope", id->get_dispname().c_str(),
+            class_id->get_dispname().c_str());
+        return NULL;
+      }
+    }
+    return parent_scope->get_ass_bySRef(p_ref);
+  }
+  
+  void ClassTypeBody::chk()
+  {
+    if (checked) {
+      return;
+    }
+    checked = true;
+    // TODO: external? final? abstract?
+    if (base_type != NULL) {
+      base_type->chk();
+      // TODO: additional checks for the base type
+    }
+
+    if (runs_on_ref != NULL) {
+      Common::Assignment* ass = runs_on_ref->get_refd_assignment(true);
+      // TODO
+    }
+    if (mtc_ref != NULL) {
+      Common::Assignment* ass = mtc_ref->get_refd_assignment(true);
+      // TODO
+    }
+    if (system_ref != NULL) {
+      Common::Assignment* ass = system_ref->get_refd_assignment(true);
+      // TODO
+    }
+
+    members->set_parent_scope(this);
+    members->chk_uniq();
+    members->chk();
+
+    if (finally_block != NULL) {
+      finally_block->set_parent_scope(this);
+      finally_block->chk();
+    }
+  }
+  
+  void ClassTypeBody::generate_code(output_struct* target)
+  {
+    target->header.class_decls = mputprintf(target->header.class_decls,
+      "class %s;\n", class_id->get_name().c_str());
+    if (!external) {
+      string base_type_name = base_type != NULL ?
+        base_type->get_genname_value(this) : string("OBJECT");
+      
+      target->header.class_defs = mputprintf(target->header.class_defs,
+        "class %s : public %s {\n",
+        class_id->get_name().c_str(), base_type_name.c_str());
+      // members
+      members->generate_code(target);
+      
+      // constructor
+      target->header.class_defs = mputprintf(target->header.class_defs,
+        "public:\n"
+        "%s();\n", class_id->get_name().c_str());
+      target->source.methods = mputprintf(target->source.methods,
+        "%s::%s()\n"
+        ": %s()",
+        class_id->get_name().c_str(), class_id->get_name().c_str(),
+        base_type_name.c_str());
+      if (target->temp.constructor_init != NULL) {
+        target->source.methods = mputstr(target->source.methods,
+          target->temp.constructor_init);
+        Free(target->temp.constructor_init);
+        target->temp.constructor_init = NULL;
+      }
+      target->source.methods = mputstr(target->source.methods, "\n{\n");
+      if (target->temp.constructor != NULL) {
+        target->source.methods = create_location_object(
+          target->source.methods, "FUNCTION", class_id->get_name().c_str());
+        target->source.methods = mputstr(target->source.methods,
+          target->temp.constructor);
+        Free(target->temp.constructor);
+        target->temp.constructor = NULL;
+      }
+      target->source.methods = mputstr(target->source.methods, "}\n\n");
+
+      // destructor
+      target->header.class_defs = mputprintf(target->header.class_defs,
+        "public:\n"
+        "virtual ~%s()%s\n",
+        class_id->get_name().c_str(), finally_block != NULL ? ";" : " { }");
+      if (finally_block != NULL) {
+        target->source.methods = mputprintf(target->source.methods,
+          "%s::~%s()\n"
+          "{\n", class_id->get_name().c_str(), class_id->get_name().c_str());
+        char* destructor_str = mprintf("~%s", class_id->get_name().c_str());
+        target->source.methods = finally_block->create_location_object(
+          target->source.methods, "FUNCTION", destructor_str);
+        Free(destructor_str);
+        target->source.methods = mputstr(target->source.methods, "try {\n");
+        target->source.methods = finally_block->generate_code(
+          target->source.methods, target->header.global_vars,
+          target->source.global_vars);
+        target->source.methods = mputprintf(target->source.methods,
+          "} catch (...) {\n"
+          "fprintf(stderr, \"Unhandled exception or dynamic test case error in "
+          "destructor of class `%s'\");\n"
+          "exit(EXIT_FAILURE);\n"
+          "}\n"
+          "}\n\n", class_id->get_name().c_str());
+      }
+
+      target->header.class_defs = mputstr(target->header.class_defs, "};\n\n");
+    }
+    else { // external class
+      target->header.class_defs = mputprintf(target->header.class_defs,
+        "#include \"%s.hh\"\n\n",
+        duplicate_underscores ? class_id->get_name().c_str() :
+          class_id->get_dispname().c_str());
+    }
   }
 
 } // namespace Ttcn

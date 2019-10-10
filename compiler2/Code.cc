@@ -82,6 +82,8 @@ namespace Common {
       output->intervals.static_conversion_function_bodies = NULL;
       output->intervals.static_function_bodies = NULL;
     }
+    output->temp.constructor_init = NULL;
+    output->temp.constructor = NULL;
   }
 
   void Code::merge_output(output_struct *dest, output_struct *src)
@@ -177,6 +179,8 @@ namespace Common {
     Free(output->intervals.function_bodies);
     Free(output->intervals.static_conversion_function_bodies);
     Free(output->intervals.static_function_bodies);
+    Free(output->temp.constructor_init);
+    Free(output->temp.constructor);
     init_output(output, TRUE);
   }
 
@@ -189,12 +193,16 @@ namespace Common {
     cdef->post = NULL;
   }
 
-  void Code::merge_cdef(output_struct *dest, const_def *cdef)
+  void Code::merge_cdef(output_struct *dest, const_def *cdef, boolean in_class)
   {
-    dest->header.global_vars = mputstr(dest->header.global_vars, cdef->decl);
-    dest->source.global_vars = mputstr(dest->source.global_vars, cdef->def);
-    dest->functions.pre_init = mputstr(dest->functions.pre_init, cdef->init);
-    dest->functions.post_init = mputstr(dest->functions.post_init, cdef->post);
+    char*& header = in_class ? dest->header.class_defs : dest->header.global_vars;
+    header = mputstr(header, cdef->decl);
+    char*& source = in_class ? dest->temp.constructor_init : dest->source.global_vars;
+    source = mputstr(source, cdef->def);
+    char*& pre_init = in_class ? dest->temp.constructor : dest->functions.pre_init;
+    pre_init = mputstr(pre_init, cdef->init);
+    char*& post_init = in_class ? dest->temp.constructor : dest->functions.post_init;
+    post_init = mputstr(post_init, cdef->post);
   }
 
   void Code::free_cdef(const_def *cdef)

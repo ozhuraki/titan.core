@@ -93,5 +93,6 @@
 #include "XmlReader.hh"
 #include "Profiler.hh"
 #include "Debugger.hh"
+#include "OOP.hh"
 
 #endif

@@ -77,6 +77,7 @@ namespace Ttcn {
   class PortTypeBody;
   class Def_Type;
   class Ref_pard;
+  class ClassTypeBody;
   
   /** Stores the modifier of an attribute */
   enum attribute_modifier_t {
@@ -199,6 +200,7 @@ namespace Common {
       T_ALTSTEP, /**< altstep reference (TTCN-3) */
       T_TESTCASE, /**< testcase reference (TTCN-3) */
       T_ANYTYPE, /**< anytype (TTCN-3) */
+      T_CLASS, /**< class (TTCN-3) */
       // WRITE new type before this line
       T_LAST
     };       //DO NOT FORGET to update type_as_string[] in Type.cc 
@@ -466,6 +468,7 @@ namespace Common {
         template_restriction_t template_restriction;
         bool is_startable;
       } fatref;
+      Ttcn::ClassTypeBody* class_;
     } u;
     static const char* type_as_string[];
     
@@ -587,6 +590,7 @@ namespace Common {
     /// Create a TTCN3 testcase
     Type(typetype_t p_tt,Ttcn::FormalParList *p_params,
         Ttcn::Reference* p_runs_on_ref, Ttcn::Reference *p_system_ref);
+    Type(typetype_t p_tt, Ttcn::ClassTypeBody* p_class);
     /** @} */
     virtual ~Type();
     /** This function must be called to clean up the pool types,
@@ -1165,6 +1169,8 @@ namespace Common {
     bool get_fat_runs_on_self();
     /** Applicable only if typetype == T_FUNCTION */
     bool get_returns_template();
+    /** Applicably only if typetype == T_CLASS */
+    Ttcn::ClassTypeBody* get_class_type_body();
 
     /** Retruns true if it is a tagged type.*/
     bool is_tagged() const {return tags!=0;}
@@ -1320,11 +1326,11 @@ namespace Common {
      * Value or Template object in the AST (e.g. in case of variables). */
     void generate_code_object(const_def *cdef, Scope* p_scope,
       const string& name, const char *prefix, bool is_template,
-      bool has_err_descr);
+      bool has_err_descr, bool in_class);
     /** Generates the declaration and definition of a C++ value or template
      * object governed by \a this into \a cdef based on the attributes of
      * \a p_setting. */
-    void generate_code_object(const_def *cdef, GovernedSimple *p_setting);
+    void generate_code_object(const_def *cdef, GovernedSimple *p_setting, bool in_class);
   private:
     virtual string create_stringRepr();
   public:

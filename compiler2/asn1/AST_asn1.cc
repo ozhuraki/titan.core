@@ -1872,7 +1872,7 @@ namespace Asn {
     left->generate_code(target);
     const_def cdef;
     Code::init_cdef(&cdef);
-    left->generate_code_object(&cdef, right);
+    left->generate_code_object(&cdef, right, false);
     cdef.init = right->generate_code_init(cdef.init,
       right->get_lhs_name().c_str());
     Code::merge_cdef(target, &cdef);
