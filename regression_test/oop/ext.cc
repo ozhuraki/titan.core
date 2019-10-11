@@ -12,18 +12,11 @@
 
 #include "oop.hh"
 
-#ifndef EXTERNALCLASS_HH
-#define EXTERNALCLASS_HH
+namespace oop {
 
-// NOTE: no namespace specification needed, since the 'include' command is
-// already in the desired namespace!
+void InternalClass::f__ext2()
+{
+  TTCN_Logger::log_str(TTCN_USER, "f_ext2!");
+}
 
-class ExternalClass : public OBJECT {
-public:
-  virtual CHARSTRING f__ext(const INTEGER& x) {
-    return int2str(x) + CHARSTRING("?");
-  }
-  virtual ~ExternalClass() { }
-};
-
-#endif
+} // namespace

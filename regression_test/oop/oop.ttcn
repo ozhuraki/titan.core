@@ -100,7 +100,7 @@ type class ConcreteClass extends AbstractClass {
   }
 }
 
-/* external classes don't work yet 
+
 type external class ExternalClass {
   public external function f_ext(in integer x) return charstring;
 }
@@ -111,7 +111,6 @@ type class InternalClass extends ExternalClass {
   }
   public external function f_ext2();
 }
-*/
 
 
 control {
