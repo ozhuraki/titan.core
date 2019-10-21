@@ -8831,7 +8831,7 @@ namespace Ttcn {
       Value *v = ap_template->get_Value();
       v->set_my_governor(type);
       type->chk_this_value_ref(v);
-      type->chk_this_value(v, 0, exp_val, INCOMPLETE_NOT_ALLOWED,
+      type->chk_this_value(v, 0, exp_val, WARNING_FOR_INCOMPLETE,
         OMIT_NOT_ALLOWED, SUB_CHK);
       return new ActualPar(v);
     } else {
