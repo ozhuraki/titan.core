@@ -15223,7 +15223,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       // these values cannot occur during code generation
       FATAL_ERROR("Value::has_single_expr()");
     case V_INT:
-      return u.val_Int->is_native_fit();
+      return u.val_Int->is_native_fit() && u.val_Int->get_val() != -2147483648;
     case V_NOTUSED:
       // should only happen when generating code for an unbound record/set value
       return false;
