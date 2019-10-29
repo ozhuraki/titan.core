@@ -10707,8 +10707,14 @@ error:
         expression_struct var_ref_expr;
         Code::init_expr(&var_ref_expr);
         inst_params_str = mputstr(inst_params_str, "&(");
-        v[i]->get_var_ref()->generate_code(&var_ref_expr);
+        Reference* ref = v[i]->get_var_ref();
+        ref->generate_code(&var_ref_expr);
         inst_params_str = mputstr(inst_params_str, var_ref_expr.expr);
+        if (ref->get_refd_assignment()->get_Type()->get_type_refd_last()->
+            get_field_type(ref->get_subrefs(),
+            Common::Type::EXPECTED_DYNAMIC_VALUE)->is_optional_field()) {
+          inst_params_str = mputstr(inst_params_str, "()");
+        }
         inst_params_str = mputc(inst_params_str, ')');
         if (var_ref_expr.preamble != NULL) {
           expr->preamble = mputstr(expr->preamble, var_ref_expr.preamble);
