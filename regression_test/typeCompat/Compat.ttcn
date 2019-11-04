@@ -287,7 +287,7 @@ testcase tc_MsgPortOps_idx() runs on Empty system Empty {
   MyTimer.start
   P.send(il4[0])
   alt {
-    [] Q.receive(il4[0]) -> value rec1.f1 { //<<<<<<====Wrong java/cpp code will be generated from This line
+    [] Q.receive(il4[0]) -> value rec1.f1 {
     	if (rec1.f1 == 1) { setverdict(pass) } else { setverdict(fail) }
     	MyTimer.stop;
     }
