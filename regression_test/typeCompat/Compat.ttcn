@@ -278,6 +278,33 @@ testcase tc_MsgPortOps() runs on Empty system Empty {
   disconnect(self:P, self:Q)
 }
 
+testcase tc_MsgPortOps_idx() runs on Empty system Empty {
+  var myrec1 rec1 :=  { 1, 2 }
+  var intlist4 il4 := { 1, 2 }
+
+  connect(self:P, self:Q)
+  timer MyTimer := 0.5
+  MyTimer.start
+  P.send(il4[0])
+  alt {
+    [] Q.receive(il4[0]) -> value rec1.f1 { //<<<<<<====Wrong java/cpp code will be generated from This line
+    	if (rec1.f1 == 1) { setverdict(pass) } else { setverdict(fail) }
+    	MyTimer.stop;
+    }
+    [] MyTimer.timeout { setverdict(inconc) }
+  }
+  
+  MyTimer.start
+  P.send(il4[1])
+  alt {
+    [] Q.receive(il4[1]) -> value rec1.f2 {
+    	if (rec1.f2 == 2) { setverdict(pass) } else { setverdict(fail) }
+    	MyTimer.stop;
+    }
+    [] MyTimer.timeout { setverdict(inconc) }
+  }
+}
+
 testcase tc_ProcPortOps() runs on Empty {
   connect(self:X, self:X);
   var intlist4 v_il4;
