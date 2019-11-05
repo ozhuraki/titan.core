@@ -631,6 +631,7 @@ control {
   var myrec1 rec1 := { 66, 77 }
   var myrec2 rec2 := { 88, 99 }
   execute(tc_MsgPortOps())
+  execute(tc_MsgPortOps_idx());
   execute(tc_ProcPortOps())
   execute(tc_EqNeAss())
   execute(tc_Params())
