@@ -69,7 +69,8 @@ extern "C" {
     } functions;
     struct {
       char* constructor_init;
-      char* constructor;
+      char* constructor_preamble;
+      char* constructor_block;
     } temp;
     struct {
       size_t pre_things_size; // Size of string_literals + global_vars

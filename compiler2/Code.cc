@@ -83,7 +83,8 @@ namespace Common {
       output->intervals.static_function_bodies = NULL;
     }
     output->temp.constructor_init = NULL;
-    output->temp.constructor = NULL;
+    output->temp.constructor_preamble = NULL;
+    output->temp.constructor_block = NULL;
   }
 
   void Code::merge_output(output_struct *dest, output_struct *src)
@@ -180,7 +181,7 @@ namespace Common {
     Free(output->intervals.static_conversion_function_bodies);
     Free(output->intervals.static_function_bodies);
     Free(output->temp.constructor_init);
-    Free(output->temp.constructor);
+    Free(output->temp.constructor_preamble);
     init_output(output, TRUE);
   }
 
@@ -199,9 +200,9 @@ namespace Common {
     header = mputstr(header, cdef->decl);
     char*& source = in_class ? dest->temp.constructor_init : dest->source.global_vars;
     source = mputstr(source, cdef->def);
-    char*& pre_init = in_class ? dest->temp.constructor : dest->functions.pre_init;
+    char*& pre_init = in_class ? dest->temp.constructor_preamble : dest->functions.pre_init;
     pre_init = mputstr(pre_init, cdef->init);
-    char*& post_init = in_class ? dest->temp.constructor : dest->functions.post_init;
+    char*& post_init = in_class ? dest->temp.constructor_preamble : dest->functions.post_init;
     post_init = mputstr(post_init, cdef->post);
   }
 

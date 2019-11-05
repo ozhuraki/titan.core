@@ -17,12 +17,15 @@ type component CT {
 
 type port PT message { inout integer; } with { extension "internal" }
 
+type record of integer IntList;
+
 ///////////////////////////////////////////////////
 ///////////////////// CLASSES /////////////////////
 ///////////////////////////////////////////////////
 
 type class BaseClass runs on CT mtc CT system CT {
   public const integer m_const := 1;
+  private const IntList m_const2 := { 1, 2, 3 };
   /*protected*/ var charstring m_var;
   private template octetstring m_temp := ? length (1..4);
   public var template float m_var_temp;
@@ -33,17 +36,17 @@ type class BaseClass runs on CT mtc CT system CT {
   //public template integer m_temp_pard(integer p) := p; // parameterized template members not supported
   
   // this would also be the implicit constructor (constructors are not yet implemented):
-  create(integer p_const, charstring p_var,
-         template octetstring p_temp, template float p_var_temp,
-         PT p_port, timer p_timer) {
+  create(integer p_const, IntList p_const2, charstring p_var,
+         template octetstring p_temp, template float p_var_temp) {
     m_const := p_const;
     m_const := 2;
     m_var := p_var;
+    m_const2[2] := p_const2[0];
     m_temp := p_temp;
     m_temp := *;
     m_var_temp := p_var_temp;
-    m_port := p_port;
-    m_timer := p_timer;
+    //m_port := p_port;
+    //m_timer := p_timer;
   }
   
   public function f(in integer x) return integer {
@@ -60,15 +63,15 @@ finally {
   log(m_var);
 }
 
-type class SubClass extends BaseClass {
-  const octetstring m_const2 := 'AB'O; // the parser currently doesn't accept constants without initial value
-  
-  create(integer p_const := 1, charstring p_var,
-         template octetstring p_temp, template float p_var_temp,
-         PT p_port, timer p_timer)
-         : BaseClass(p_const, p_var, p_temp, p_var_temp, p_port, p_timer) {
-    m_const2 := 'FFFF'O;
+type class SubClass extends BaseClass {  
+  create(integer p_const := 1, IntList p_const2, charstring p_var,
+         template octetstring p_temp, template float p_var_temp)
+         : BaseClass(p_const, p_const2, p_var, p_temp, p_var_temp) {
+    m_const3 := 'FFFF'O;
+    m_var := m_var & "x";
   }
+  
+  const octetstring m_const3 := 'AB'O; // the parser currently doesn't accept constants without initial value
   
   public function f(in integer x) return integer {
     //return super.f(x) - 1; // not supported yet
@@ -78,10 +81,14 @@ type class SubClass extends BaseClass {
 }
 
 type class @final FinalClass extends SubClass {
+  private const integer m_final_const := 1;
+  private template charstring m_final_temp := ? length (1..4);
+  private var float m_final_var;
+  private var template octetstring m_final_var_temp;
   public function @final f(in integer x) return integer {
     //return super.super.f(x) + 1; // not supported yet
     m_var := m_var & int2str(x);
-    return x + 1;
+    return x + m_final_const;
   }
 }
 
@@ -94,6 +101,10 @@ type class @abstract AbstractClass {
 }
 
 type class ConcreteClass extends AbstractClass {
+  create(octetstring p_const := 'AB'O) {
+    // for compilation only, to make sure there are no name clases between parameter default values
+    log(p_const);
+  }
   public function f_abs(inout integer x) return boolean {
     x := x + 1;
     return x > 0;

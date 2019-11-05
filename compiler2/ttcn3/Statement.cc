@@ -3248,6 +3248,10 @@ error:
   void Statement::chk_assignment()
   {
     Error_Context cntxt(this, "In variable assignment");
+    Definition* sb_def = my_sb->get_my_def();
+    if (sb_def != NULL && sb_def->get_asstype() == Common::Assignment::A_CONSTRUCTOR) {
+      ass->set_in_contructor();
+    }
     ass->chk();
   }
 
@@ -8754,14 +8758,16 @@ error:
 
   Assignment::Assignment(Reference *p_ref, Template *p_templ)
     : asstype(ASS_UNKNOWN), ref(p_ref), templ(p_templ), self_ref(false),
-      template_restriction(TR_NONE), gen_restriction_check(false)
+      template_restriction(TR_NONE), gen_restriction_check(false),
+      in_constructor(false)
   {
     if(!ref || !templ) FATAL_ERROR("Ttcn::Assignment::Assignment");
   }
 
   Assignment::Assignment(Reference *p_ref, Value *p_val)
     : asstype(ASS_VAR), ref(p_ref), val(p_val), self_ref(false),
-      template_restriction(TR_NONE), gen_restriction_check(false)
+      template_restriction(TR_NONE), gen_restriction_check(false),
+      in_constructor(false)
   {
     if(!ref || !val) FATAL_ERROR("Ttcn::Assignment::Assignment");
   }
@@ -8863,6 +8869,14 @@ error:
     case Common::Assignment::A_PAR_VAL_IN:
       t_ass->use_as_lvalue(*ref);
       // no break
+    case Common::Assignment::A_CONST:
+      if (t_ass->get_asstype() == Common::Assignment::A_CONST &&
+          !in_constructor) {
+        ref->error("Reference to a variable or template variable was expected "
+          "instead of %s", t_ass->get_description().c_str());
+        goto error;
+      }
+      // no break
     case Common::Assignment::A_VAR:
     case Common::Assignment::A_PAR_VAL_OUT:
     case Common::Assignment::A_PAR_VAL_INOUT:
@@ -8880,6 +8894,14 @@ error:
       break;
     case Common::Assignment::A_PAR_TEMPL_IN:
       t_ass->use_as_lvalue(*ref);
+      // no break
+    case Common::Assignment::A_TEMPLATE:
+      if (t_ass->get_asstype() == Common::Assignment::A_TEMPLATE &&
+          !in_constructor) {
+        ref->error("Reference to a variable or template variable was expected "
+          "instead of %s", t_ass->get_description().c_str());
+        goto error;
+      }
       // no break
     case Common::Assignment::A_VAR_TEMPLATE: {
       Type::typetype_t tt = t_ass->get_Type()->get_typetype();
@@ -9180,6 +9202,9 @@ error:
         const char *type_genname_str = type_genname.c_str();
         expression_struct expr;
         Code::init_expr(&expr);
+        if (in_constructor) {
+          ref->set_gen_const_prefix();
+        }
         ref->generate_code(&expr);
 
         if (rhs_copied) {
@@ -9218,6 +9243,9 @@ error:
           // C++ equivalent of RHS is a single expression.
           expression_struct expr;
           Code::init_expr(&expr);
+          if (in_constructor) {
+            ref->set_gen_const_prefix();
+          }
           ref->generate_code(&expr);// vu.s()
           if (rhs_copied) {
             str = mputprintf(str, "%s = %s;\n",
@@ -9233,8 +9261,12 @@ error:
         }
         else {
           // The LHS is a single identifier.
-          const string& rhs_name = ref->get_refd_assignment()
-            ->get_genname_from_scope(ref->get_my_scope());
+          Common::Assignment* refd_ass = ref->get_refd_assignment();
+          string rhs_name = refd_ass->get_genname_from_scope(ref->get_my_scope());
+          if (in_constructor &&
+              refd_ass->get_asstype() == Common::Assignment::A_CONST) {
+            rhs_name = string("const_") + rhs_name;
+          }
           if (val->can_use_increment(ref)) {
             switch (val->get_optype()) {
             case Value::OPTYPE_ADD:
@@ -9275,6 +9307,9 @@ error:
         const char *tmp_id_str = tmp_id.c_str();
         expression_struct expr;
         Code::init_expr(&expr);
+        if (in_constructor) {
+          ref->set_gen_const_prefix();
+        }
         ref->generate_code(&expr);
 
         if (rhs_copied) {
@@ -9319,6 +9354,9 @@ error:
             // check.  Skipped if conversion needed.
             expression_struct expr;
             Code::init_expr(&expr);
+            if (in_constructor) {
+              ref->set_gen_const_prefix();
+            }
             ref->generate_code(&expr);
             if (rhs_copied) {
               str = mputprintf(str, "%s = %s;\n",
@@ -9336,8 +9374,12 @@ error:
         }
         else {
           // LHS is a single identifier
-          const string& rhs_name = ref->get_refd_assignment()
-            ->get_genname_from_scope(ref->get_my_scope());
+          Common::Assignment* refd_ass = ref->get_refd_assignment();
+          string rhs_name = refd_ass->get_genname_from_scope(ref->get_my_scope());
+          if (in_constructor &&
+              refd_ass->get_asstype() == Common::Assignment::A_TEMPLATE) {
+            rhs_name = string("template_") + rhs_name;
+          }
           if (Common::Type::T_SEQOF == templ->get_my_governor()->get_typetype() ||
               Common::Type::T_ARRAY == templ->get_my_governor()->get_typetype()) {
             str = mputprintf(str, "%s.remove_all_permutations();\n", (rhs_copied ? rhs_copy : rhs_name).c_str());

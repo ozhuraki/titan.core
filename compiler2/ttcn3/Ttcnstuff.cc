@@ -24,6 +24,8 @@
 #include "Attributes.hh"
 #include <errno.h>
 #include "Statement.hh"
+#include "Templatestuff.hh"
+#include "TtcnTemplate.hh"
 
 // implemented in coding_attrib_p.y
 extern Ttcn::ExtensionAttributes * parse_extattributes(
@@ -2985,7 +2987,8 @@ namespace Ttcn {
                                Definitions* p_members, StatementBlock* p_finally_block)
   : Scope(), Location(), class_id(p_class_id), external(p_external), final(p_final), abstract(p_abstract),
     base_type(p_base_type), runs_on_ref(p_runs_on_ref), mtc_ref(p_mtc_ref), system_ref(p_system_ref),
-    members(p_members), finally_block(p_finally_block), checked(false)
+    members(p_members), finally_block(p_finally_block), constructor(NULL), checked(false),
+    default_constructor(false)
   {
     if (members == NULL) {
       FATAL_ERROR("ClassTypeBody::ClassTypeBody");
@@ -3004,6 +3007,8 @@ namespace Ttcn {
     system_ref = p.system_ref != NULL ? p.system_ref->clone() : NULL;
     members = p.members->clone();
     finally_block = p.finally_block != NULL ? p.finally_block->clone() : NULL;
+    default_constructor = p.default_constructor;
+    constructor = default_constructor ? p.constructor->clone() : p.constructor;
     checked = p.checked;
   }
   
@@ -3020,6 +3025,9 @@ namespace Ttcn {
     delete mtc_ref;
     delete runs_on_ref;
     delete system_ref;
+    if (default_constructor) {
+      delete constructor;
+    }
   }
   
   void ClassTypeBody::set_fullname(const string& p_fullname)
@@ -3058,10 +3066,10 @@ namespace Ttcn {
     if (system_ref != NULL) {
       system_ref->set_my_scope(p_scope);
     }
-    //members->set_my_scope(p_scope);
-    /*if (finally_block != NULL) {
-      finally_block->set_my_scope(p_scope);
-    }*/
+    members->set_parent_scope(this);
+    if (finally_block != NULL) {
+      finally_block->set_parent_scope(this);
+    }
   }
   
   void ClassTypeBody::dump(unsigned level) const
@@ -3086,6 +3094,12 @@ namespace Ttcn {
     members->dump(level + 1);
     DEBUG(level, "%s `finally' block", finally_block != NULL ?
       "Has" : "Doesn't have");
+  }
+  
+  Def_Constructor* ClassTypeBody::get_constructor()
+  {
+    chk();
+    return constructor;
   }
   
   bool ClassTypeBody::is_parent_class(const ClassTypeBody* p_class) const
@@ -3193,12 +3207,87 @@ namespace Ttcn {
       // TODO
     }
 
-    members->set_parent_scope(this);
     members->chk_uniq();
     members->chk();
+    
+    for (size_t i = 0; i < members->get_nof_asss(); ++i) {
+      Common::Assignment* ass = members->get_ass_byIndex(i);
+      if (ass->get_asstype() == Common::Assignment::A_CONSTRUCTOR) {
+        // TODO: check for multiple constructors, or is that handled by previous checks?
+        constructor = dynamic_cast<Def_Constructor*>(ass);
+        if (constructor == NULL) {
+          FATAL_ERROR("ClassTypeBody::chk");
+        }
+        break;
+      }
+    }
+    
+    if (constructor == NULL) {
+      // create a default constructor
+      Ref_pard* base_call = NULL;
+      FormalParList* fp_list = NULL;
+      if (base_type != NULL) {
+        ClassTypeBody* base_class = base_type->get_type_refd_last()->
+          get_class_type_body();
+        FormalParList* base_fp_list = base_class->get_constructor()->
+          get_FormalParList();
+        fp_list = base_fp_list->clone();
+        ParsedActualParameters* parsed_ap_list = new ParsedActualParameters();
+        for (size_t i = 0; i < base_fp_list->get_nof_fps(); ++i) {
+          // the actual parameters are references to the formal parameters of
+          // the base constructor (also present in this constructor)
+          Reference* ref = new Reference(NULL,
+            base_fp_list->get_fp_byIndex(i)->get_id().clone());
+          Common::Value* val = new Value(Common::Value::V_REFD, ref);
+          Template* temp = new Template(val);
+          TemplateInstance* ti = new TemplateInstance(NULL, NULL, temp);
+          parsed_ap_list->add_ti(ti);
+        }
+        base_call = new Ref_pard(base_class->get_scope_mod()->get_modid().clone(),
+          base_class->get_id()->clone(), parsed_ap_list);
+      }
+      else {
+        fp_list = new FormalParList;
+      }
+      StatementBlock* block = new StatementBlock();
+      for (size_t i = 0; i < members->get_nof_asss(); ++i) {
+        Common::Assignment* member = members->get_ass_byIndex(i);
+        bool is_template = false;
+        switch (member->get_asstype()) {
+        case Common::Assignment::A_TEMPLATE:
+        case Common::Assignment::A_VAR_TEMPLATE:
+          is_template = true;
+          // no break
+        case Common::Assignment::A_CONST:
+        case Common::Assignment::A_VAR: {
+          // add a formal parameter for this member
+          Common::Identifier* id = new Common::Identifier(
+            Common::Identifier::ID_TTCN, string("p_") + member->get_id().get_ttcnname());
+          FormalPar* fp = new FormalPar(is_template ?
+            Common::Assignment::A_PAR_TEMPL_IN : Common::Assignment::A_PAR_VAL_IN,
+            member->get_Type()->clone(), id, NULL);
+          fp_list->add_fp(fp);
+          // add a statement, that assigns the parameter's value to the member
+          Reference* ref_lhs = new Reference(NULL, member->get_id().clone());
+          Reference* ref_rhs = new Reference(NULL, id->clone());
+          Common::Value* val_rhs = new Value(Common::Value::V_REFD, ref_rhs);
+          Template* temp_rhs = new Template(val_rhs);
+          Assignment* par_ass = new Assignment(ref_lhs, temp_rhs);
+          Statement* stmt = new Statement(Statement::S_ASSIGNMENT, par_ass);
+          block->add_stmt(stmt);
+          break; }
+        default:
+          break;
+        }
+      }
+      constructor = new Def_Constructor(fp_list, base_call, block);
+      constructor->set_my_scope(this);
+      constructor->set_fullname(get_fullname() + ".<default_constructor>");
+      constructor->chk();
+      default_constructor = true;
+    }
 
     if (finally_block != NULL) {
-      finally_block->set_parent_scope(this);
       finally_block->chk();
     }
   }
@@ -3214,18 +3303,45 @@ namespace Ttcn {
       target->header.class_defs = mputprintf(target->header.class_defs,
         "class %s : public %s {\n",
         class_id->get_name().c_str(), base_type_name.c_str());
+      
       // members
       members->generate_code(target);
+      if (default_constructor) {
+        target->source.methods = mputstr(target->source.methods,
+          "/* default constructor */\n");
+        // code has not been generated for the constructor yet, since it's not
+        // in 'members' in this case
+        constructor->generate_code(target);
+      }
       
       // constructor
+      char* formal_par_list_str = NULL;
+      expression_struct_t base_call_expr;
+      Code::init_expr(&base_call_expr);
+      Ref_pard* base_call = constructor->get_base_call();
+      if (base_call != NULL) {
+        base_call->generate_code(&base_call_expr);
+      }
+      // generate code for the base call first, so the formal parameter list
+      // knows which parameters are used and which aren't
+      formal_par_list_str = constructor->get_FormalParList()->generate_code(
+        memptystr());
+      if (base_call_expr.expr == NULL) {
+        base_call_expr.expr = mprintf("%s()", base_type_name.c_str());
+      }
       target->header.class_defs = mputprintf(target->header.class_defs,
         "public:\n"
-        "%s();\n", class_id->get_name().c_str());
+        "%s(%s);\n",
+        class_id->get_name().c_str(),
+        formal_par_list_str != NULL ? formal_par_list_str : "");
       target->source.methods = mputprintf(target->source.methods,
-        "%s::%s()\n"
-        ": %s()",
+        "%s::%s(%s)\n"
+        ": %s",
         class_id->get_name().c_str(), class_id->get_name().c_str(),
-        base_type_name.c_str());
+        formal_par_list_str != NULL ? formal_par_list_str : "",
+        base_call_expr.expr);
+      Free(formal_par_list_str);
+      Code::free_expr(&base_call_expr);
       if (target->temp.constructor_init != NULL) {
         target->source.methods = mputstr(target->source.methods,
           target->temp.constructor_init);
@@ -3233,13 +3349,18 @@ namespace Ttcn {
         target->temp.constructor_init = NULL;
       }
       target->source.methods = mputstr(target->source.methods, "\n{\n");
-      if (target->temp.constructor != NULL) {
+      if (target->temp.constructor_preamble != NULL ||
+          target->temp.constructor_block != NULL) {
         target->source.methods = create_location_object(
           target->source.methods, "FUNCTION", class_id->get_name().c_str());
         target->source.methods = mputstr(target->source.methods,
-          target->temp.constructor);
-        Free(target->temp.constructor);
-        target->temp.constructor = NULL;
+          target->temp.constructor_preamble);
+        target->source.methods = mputstr(target->source.methods,
+          target->temp.constructor_block);
+        Free(target->temp.constructor_preamble);
+        Free(target->temp.constructor_block);
+        target->temp.constructor_preamble = NULL;
+        target->temp.constructor_block = NULL;
       }
       target->source.methods = mputstr(target->source.methods, "}\n\n");
 

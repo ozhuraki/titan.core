@@ -765,7 +765,11 @@ class ClassTypeBody : public Common::Scope, public Common::Location {
   Reference* system_ref;
   Definitions* members;
   StatementBlock* finally_block;
+  /** set during semantic analysis to either a pointer to the constructor in
+    * 'members', or the actual default constructor (if no constructor is defined) */
+  Def_Constructor* constructor;
   bool checked;
+  bool default_constructor; /// true if the class uses a default constructor
   
 public:
   ClassTypeBody(Common::Identifier* p_class_id, boolean p_external, boolean p_final,
@@ -783,6 +787,7 @@ public:
   virtual bool is_class_scope() const { return true; }
   virtual const ClassTypeBody* get_scope_class() const { return this; }
   Common::Identifier* get_id() const { return class_id; }
+  Def_Constructor* get_constructor();
   
   bool is_parent_class(const ClassTypeBody* p_class) const;
   bool has_local_ass_withId(const Identifier& p_id);

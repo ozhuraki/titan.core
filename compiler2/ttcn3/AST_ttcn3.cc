@@ -749,6 +749,15 @@ namespace Ttcn {
     ref_usage_found();
     Common::Assignment *ass = get_refd_assignment();
     if (!ass) FATAL_ERROR("Reference::generate_code()");
+    string const_prefix; // empty by default
+    if (gen_const_prefix) {
+      if (ass->get_asstype() == Common::Assignment::A_CONST) {
+        const_prefix = "const_";
+      }
+      else if (ass->get_asstype() == Common::Assignment::A_TEMPLATE) {
+        const_prefix = "template_";
+      }
+    }
     if (parlist) {
       // reference without parameters to a template that has only default formal parameters.
       // if @lazy: nothing to do, it's a C++ function call just like in case of Ref_pard::generate_code()
@@ -761,7 +770,7 @@ namespace Ttcn {
       expr->expr = mputstr(expr->expr,
         LazyFuzzyParamData::in_lazy_or_fuzzy() ?
         LazyFuzzyParamData::add_ref_genname(ass, my_scope).c_str() :
-        ass->get_genname_from_scope(my_scope).c_str());
+        (const_prefix + ass->get_genname_from_scope(my_scope)).c_str());
     }
     if (subrefs.get_nof_refs() > 0) subrefs.generate_code(expr, ass);
   }
@@ -1037,6 +1046,19 @@ namespace Ttcn {
     if (ass && check_parlist && !params_checked) {
       params_checked = true;
       FormalParList *fplist = ass->get_FormalParList();
+      if (fplist == NULL && ass->get_asstype() == Common::Assignment::A_TYPE) {
+        Def_Type* def = dynamic_cast<Def_Type*>(ass);
+        if (def == NULL) {
+          FATAL_ERROR("Ref_pard::get_refd_assignment");
+        }
+        Type* type = def->get_Type();
+        if (type->get_typetype() == Common::Type::T_CLASS) {
+          // if the referred assignment is a class type, then the reference and
+          // its parameters are meant for the constructor instead
+          fplist = type->get_class_type_body()->get_constructor()->
+            get_FormalParList();
+        }
+      }
       if (fplist) {
         Error_Context cntxt(params, "In actual parameter list of %s",
           ass->get_description().c_str());
@@ -3491,7 +3513,7 @@ namespace Ttcn {
     chk();
     return type;
   }
-
+  
   void Def_Type::chk()
   {
     if (checked) return;
@@ -4843,7 +4865,7 @@ namespace Ttcn {
       header = mputstr(header, cdef.decl);
       char*& source = in_class ? target->temp.constructor_init : target->source.global_vars;
       source = mputstr(source, cdef.def);
-      char*& init = in_class ? target->temp.constructor : target->functions.post_init;
+      char*& init = in_class ? target->temp.constructor_preamble : target->functions.post_init;
       init = mputstr(init, cdef.init);
       Code::free_cdef(&cdef);
     }
@@ -5109,7 +5131,7 @@ namespace Ttcn {
     Code::merge_cdef(target, &cdef, in_class);
     Code::free_cdef(&cdef);
     if (initial_value) {
-      char*& init = in_class ? target->temp.constructor :
+      char*& init = in_class ? target->temp.constructor_preamble :
         target->functions.init_comp;
       init = initial_value->generate_code_init(init,
         initial_value->get_lhs_name().c_str());
@@ -5324,7 +5346,7 @@ namespace Ttcn {
     Code::merge_cdef(target, &cdef, in_class);
     Code::free_cdef(&cdef);
     if (initial_value) {
-      char*& init = in_class ? target->temp.constructor :
+      char*& init = in_class ? target->temp.constructor_preamble :
         target->functions.init_comp;
       if (Common::Type::T_SEQOF == initial_value->get_my_governor()->get_typetype() ||
           Common::Type::T_ARRAY == initial_value->get_my_governor()->get_typetype()) {
@@ -5684,11 +5706,11 @@ namespace Ttcn {
     bool in_class = my_scope->is_class_scope();
     char*& header = in_class ? target->header.class_defs :
       target->header.global_vars;
-    char*& source = in_class ? target->temp.constructor :
+    char*& source = in_class ? target->temp.constructor_preamble :
       target->source.global_vars;
-    char*& pre_init = in_class ? target->temp.constructor :
+    char*& pre_init = in_class ? target->temp.constructor_preamble :
       target->functions.pre_init;
-    char*& post_init = in_class ? target->temp.constructor :
+    char*& post_init = in_class ? target->temp.constructor_preamble :
       target->functions.post_init;
     if (dimensions) {
       // timer array
@@ -8490,6 +8512,8 @@ namespace Ttcn {
     if (p_fp_list == NULL || block == NULL) {
       FATAL_ERROR("Def_Constructor::Def_Constructor");
     }
+    fp_list->set_my_def(this);
+    block->set_my_def(this);
   }
   
   Def_Constructor::~Def_Constructor()
@@ -8499,7 +8523,7 @@ namespace Ttcn {
     delete block;
   }
   
-  Def_Constructor *Def_Constructor::clone() const
+  Def_Constructor* Def_Constructor::clone() const
   {
     FATAL_ERROR("Def_Constructor::clone");
   }
@@ -8516,13 +8540,14 @@ namespace Ttcn {
 
   void Def_Constructor::set_my_scope(Scope* p_scope)
   {
-    //bridgeScope.set_parent_scope(p_scope);
-    //bridgeScope.set_scopeMacro_name(id->get_dispname());
+    bridgeScope.set_parent_scope(p_scope);
+    bridgeScope.set_scopeMacro_name(id->get_dispname());
 
-    //Definition::set_my_scope(&bridgeScope);
-    Definition::set_my_scope(p_scope); // TODO
+    Definition::set_my_scope(&bridgeScope);
+    
+    fp_list->set_my_scope(&bridgeScope);
     if (base_call != NULL) {
-      base_call->set_my_scope(p_scope);
+      base_call->set_my_scope(fp_list);
     }
     block->set_my_scope(fp_list);
   }
@@ -8535,12 +8560,36 @@ namespace Ttcn {
   
   void Def_Constructor::chk()
   {
-    // TODO
+    if (checked) {
+      return;
+    }
+    checked = true;
+    
+    Error_Context cntxt(this, "In constructor definition");
+    
+    fp_list->chk(asstype);
+    
+    if (base_call != NULL) {
+      Common::Assignment* base_type_ass = base_call->get_refd_assignment(true);
+      // TODO
+    }
+    
+    block->chk();
+    
+    if (!semantic_check_only) {
+      // prefix 'create' with the class name when forming parameter names
+      // to avoid collisions in the generated code
+      fp_list->set_genname(my_scope->get_scope_class()->get_id()->get_name() +
+        string("_") + get_genname());
+      block->set_code_section(GovernedSimple::CS_INLINE);
+    }
   }
   
   void Def_Constructor::generate_code(output_struct *target, bool clean_up)
   {
-    // TODO
+    fp_list->generate_code_defval(target);
+    target->temp.constructor_block = block->generate_code(target->temp.constructor_block,
+      target->header.global_vars, target->source.global_vars);
   }
   
   void Def_Constructor::set_parent_path(WithAttribPath* p_path)
@@ -8609,6 +8658,21 @@ namespace Ttcn {
       FATAL_ERROR("Ttcn::FormalPar::FormalPar(): invalid parameter type");
     defval.ti = p_defval;
   }
+  
+  FormalPar::FormalPar(const FormalPar& p)
+  : Definition(p.asstype, p.id->clone()), type(p.type->clone()), my_parlist(0),
+    used_as_lvalue(false), template_restriction(p.template_restriction),
+    eval(p.eval), defval_generated(false), usage_found(false)
+  {
+    type->set_ownertype(Type::OT_FORMAL_PAR, this);
+    checked = p.checked;
+    if (checked) {
+      defval.ap = p.defval.ap != NULL ? p.defval.ap->clone() : NULL;
+    }
+    else {
+      defval.ti = p.defval.ti != NULL ? p.defval.ti->clone() : NULL;
+    }
+  }
 
   FormalPar::~FormalPar()
   {
@@ -8619,7 +8683,7 @@ namespace Ttcn {
 
   FormalPar* FormalPar::clone() const
   {
-    FATAL_ERROR("FormalPar::clone");
+    return new FormalPar(*this);
   }
 
   void FormalPar::set_fullname(const string& p_fullname)
@@ -9599,6 +9663,15 @@ namespace Ttcn {
   // =================================
   // ===== FormalParList
   // =================================
+  
+  FormalParList::FormalParList(const FormalParList& p)
+  : Scope(), Location(), pars_v(), pars_m(), min_nof_pars(0), my_def(0),
+    checked(false), is_startable(false)
+  {
+    for (size_t i = 0; i < p.pars_v.size(); ++i) {
+      add_fp(p.pars_v[i]->clone());
+    }
+  }
 
   FormalParList::~FormalParList()
   {
@@ -9610,7 +9683,7 @@ namespace Ttcn {
 
   FormalParList *FormalParList::clone() const
   {
-    FATAL_ERROR("FormalParList::clone");
+    return new FormalParList(*this);
   }
 
   void FormalParList::set_fullname(const string& p_fullname)
@@ -10313,6 +10386,31 @@ namespace Ttcn {
     if (!a) FATAL_ERROR("ActualPar::ActualPar()");
     act = a;
   }
+  
+  ActualPar::ActualPar(const ActualPar& p)
+  : Node(), selection(p.selection), my_scope(p.my_scope),
+    gen_restriction_check(p.gen_restriction_check),
+    gen_post_restriction_check(p.gen_post_restriction_check)
+  {
+    switch(selection) {
+    case AP_ERROR:
+      break;
+    case AP_VALUE:
+      val = p.val->clone();
+      break;
+    case AP_TEMPLATE:
+      temp = p.temp->clone();
+      break;
+    case AP_REF:
+      ref = p.ref->clone();
+      break;
+    case AP_DEFAULT:
+      act = p.act;
+      break;
+    default:
+      FATAL_ERROR("ActualPar::ActualPar()");
+    }
+  }
 
   ActualPar::~ActualPar()
   {
@@ -10337,7 +10435,7 @@ namespace Ttcn {
 
   ActualPar *ActualPar::clone() const
   {
-    FATAL_ERROR("ActualPar::clone");
+    return new ActualPar(*this);
   }
 
   void ActualPar::set_fullname(const string& p_fullname)

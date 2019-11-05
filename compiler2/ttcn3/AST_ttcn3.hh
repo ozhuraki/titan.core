@@ -91,7 +91,7 @@ namespace Ttcn {
      *  runtime checks for out and inout parameters after the call */
     template_restriction_t gen_post_restriction_check;
   private:
-    /** Copy constructor not implemented */
+    /** Copy constructor */
     ActualPar(const ActualPar& p);
     /** %Assignment disabled */
     ActualPar& operator=(const ActualPar& p);
@@ -325,10 +325,11 @@ namespace Ttcn {
    */
   class Reference : public Ref_base {
     ActualParList *parlist;
+    bool gen_const_prefix;
   public:
     Reference(Identifier *p_id);
     Reference(Identifier *p_modid, Identifier *p_id)
-      : Ref_base(p_modid, p_id), parlist(0) { }
+      : Ref_base(p_modid, p_id), parlist(0), gen_const_prefix(false) { }
     ~Reference();
     virtual Reference *clone() const;
     virtual void set_my_scope(Scope* p_scope);
@@ -336,6 +337,7 @@ namespace Ttcn {
     virtual Common::Assignment *get_refd_assignment(bool check_parlist = true);
     virtual const Identifier* get_modid();
     virtual const Identifier* get_id();
+    void set_gen_const_prefix() { gen_const_prefix = true; }
     /** Checks whether \a this points to a variable or value parameter.
      * Returns the type of the respective variable or variable field or NULL
      * in case of error. */
@@ -1751,7 +1753,7 @@ namespace Ttcn {
     
     StatementBlock* block;
     
-    //NameBridgingScope bridgeScope;
+    NameBridgingScope bridgeScope;
     
     /// Copy constructor disabled
     Def_Constructor(const Def_Constructor& p);
@@ -1764,7 +1766,8 @@ namespace Ttcn {
     virtual Def_Constructor* clone() const;
     virtual void set_fullname(const string& p_fullname);
     virtual void set_my_scope(Scope* p_scope);
-    virtual FormalParList *get_FormalParList();
+    virtual FormalParList* get_FormalParList();
+    virtual Ref_pard* get_base_call() const { return base_call; }
     virtual void chk();
     virtual void generate_code(output_struct *target, bool clean_up = false);
     virtual void set_parent_path(WithAttribPath* p_path);

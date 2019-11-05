@@ -952,6 +952,7 @@ namespace Ttcn {
     template_restriction_t template_restriction;
     /** set in chk(), used by code generation */
     bool gen_restriction_check;
+    bool in_constructor;
 
     Assignment(const Assignment& p);
     Assignment& operator=(const Assignment& p);
@@ -965,6 +966,7 @@ namespace Ttcn {
     virtual void set_my_scope(Scope *p_scope);
     virtual void set_fullname(const string& p_fullname);
     virtual void dump(unsigned int level) const;
+    void set_in_contructor() { in_constructor = true; }
   private:
     void chk_unknown_ass();
     void chk_var_ass();
