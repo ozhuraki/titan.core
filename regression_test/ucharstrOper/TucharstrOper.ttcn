@@ -644,7 +644,7 @@ testcase tc_altstep_ucs_idx() runs on CT {
 	var universal charstring vl_str := char(0,0,0,1) & char(0,0,0,20)
 	T.start(1.0);
 	connect(self:UCS, self:UCS);
-	UCS.send(vl_str[0]); //<====== This is compiled for an erroneous code
+	UCS.send(vl_str[0]);
 	as_ucs(vl_str[0]);
 	T.stop;
 }
@@ -667,7 +667,7 @@ testcase tc_altstep_ucs_template() runs on CT {
 
 testcase tc__value_list_ucs() runs on CT {
 	var universal charstring vl_cs1 := char(0,0,0,1) & char(0,0,0,20), vl_cs2
-	var template universal charstring vlt_cs := (vl_cs1[0], vl_cs1[1],vl_cs1); //<====== ok
+	var template universal charstring vlt_cs := (vl_cs1[0], vl_cs1[1],vl_cs1);
 	vl_cs2 := char(0,0,0,1);
 	if( match(vl_cs2,vlt_cs)) {setverdict(pass)} else { setverdict(fail)}
 	vl_cs2 := char(0,0,0,20);
