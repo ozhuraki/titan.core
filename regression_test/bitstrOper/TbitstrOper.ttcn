@@ -25,13 +25,13 @@ testcase bitstrAssign() runs on bitstrOper_comptype
   x3:=''B;
   x4:='0101'B;
   if (x1=='01101'B) {setverdict(pass);}	//at declaration
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x2=='0111'B) {setverdict(pass);}		//later
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x3==''B) {setverdict(pass);}		//empty string
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x4=='0101'B) {setverdict(pass);}		//change of size
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrAssignElem10() runs on bitstrOper_comptype
@@ -47,15 +47,15 @@ testcase bitstrAssignElem10() runs on bitstrOper_comptype
   x4[3]:=x2[3];
   x5[1]:=x6;
   if (x1[0]=='1'B) {setverdict(pass);}		//accessing an element
-   else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x3=='0'B) {setverdict(pass);}		//change string to element
-   else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x1=='10111'B) {setverdict(pass);}	//change element to value
-   else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x4=='11101'B) {setverdict(pass);}	//change element to element
-   else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x5=='10111'B) {setverdict(pass);}	//change element to string
-   else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrAssignElem01() runs on bitstrOper_comptype
@@ -71,13 +71,13 @@ testcase bitstrAssignElem01() runs on bitstrOper_comptype
   x4[1]:=x2[4];
   x5[1]:=x6;
   if (x3=='1'B) {setverdict(pass);}		//change string to element
-   else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x1=='00100'B) {setverdict(pass);}	//change element to value
-   else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x4=='01000'B) {setverdict(pass);}	//change element to element
-   else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x5=='01000'B) {setverdict(pass);}	//change element to string
-   else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrAssignElem00() runs on bitstrOper_comptype
@@ -93,13 +93,13 @@ testcase bitstrAssignElem00() runs on bitstrOper_comptype
   x4[1]:=x2[4];
   x5[1]:=x6;
   if (x3=='0'B) {setverdict(pass);}		//change string to element
-   else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x1=='00000'B) {setverdict(pass);}	//change element to value
-   else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x4=='00000'B) {setverdict(pass);}	//change element to element
-   else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x5=='00000'B) {setverdict(pass);}	//change element to string
-   else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrAssignElem11() runs on bitstrOper_comptype
@@ -115,25 +115,25 @@ testcase bitstrAssignElem11() runs on bitstrOper_comptype
   x4[1]:=x2[4];
   x5[1]:=x6;
   if (x3=='1'B) {setverdict(pass);}		//change string to element
-   else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x1=='11111'B) {setverdict(pass);}	//change element to value
-   else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x4=='11111'B) {setverdict(pass);}	//change element to element
-   else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x5=='11111'B) {setverdict(pass);}	//change element to string
-   else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrAssignElemAdd() runs on bitstrOper_comptype
 {var bitstring x1,x2;
- x1:='000'B;
- x2:='1111'B;
- x1[3]:='1'B;
- x2[4]:=x1[0];
- if (x1=='0001'B) {setverdict(pass);}	//add "1"
-   else {setverdict(fail);}
- if (x2=='11110'B) {setverdict(pass);}	//add "0"
-   else {setverdict(fail);}
+  x1:='000'B;
+  x2:='1111'B;
+  x1[3]:='1'B;
+  x2[4]:=x1[0];
+  if (x1=='0001'B) {setverdict(pass);}	//add "1"
+  else {setverdict(fail);}
+  if (x2=='11110'B) {setverdict(pass);}	//add "0"
+  else {setverdict(fail);}
 }
 
 testcase bitstrLengthof() runs on bitstrOper_comptype
@@ -146,104 +146,104 @@ testcase bitstrLengthof() runs on bitstrOper_comptype
   x4:='0101'B;
   x5[2]:='0'B;
   if (lengthof(x1)==5) {setverdict(pass);}	//at declaration
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (lengthof(x2)==4) {setverdict(pass);}	//later
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (lengthof(x3)==0) {setverdict(pass);}	//empty string
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (lengthof(x4)==4) {setverdict(pass);}	//change of size
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (lengthof(x5)==3) {setverdict(pass);}	//add element
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrConst() runs on bitstrOper_comptype
 {const bitstring TbitstrOper_const3:='0001'B;
- if (TbitstrOper_const1=='1000'B) {setverdict(pass);}	//definition part
-     else {setverdict(fail);}
- if (TbitstrOper_const3=='0001'B) {setverdict(pass);}	//testcase
-     else {setverdict(fail);}
+  if (TbitstrOper_const1=='1000'B) {setverdict(pass);}	//definition part
+  else {setverdict(fail);}
+  if (TbitstrOper_const3=='0001'B) {setverdict(pass);}	//testcase
+  else {setverdict(fail);}
 }
 
 testcase bitstrComp_str_str() runs on bitstrOper_comptype
 {var bitstring x1,x2,x3;
- x1:='0110'B;
- x2:='0110'B;
- x3:='011'B;
- if (x1==x2) {setverdict(pass);}	//equality, equals
-   else {setverdict(fail);}
- if (not(x3==x2)) {setverdict(pass);}	//equality, not equals
-   else {setverdict(fail);}
- if (x1!=x3) {setverdict(pass);}	//non-equality, not equals
-   else {setverdict(fail);}
- if (not(x1!=x2)) {setverdict(pass);}	//non-equality, equals
-   else {setverdict(fail);}
+  x1:='0110'B;
+  x2:='0110'B;
+  x3:='011'B;
+  if (x1==x2) {setverdict(pass);}	//equality, equals
+  else {setverdict(fail);}
+  if (not(x3==x2)) {setverdict(pass);}	//equality, not equals
+  else {setverdict(fail);}
+  if (x1!=x3) {setverdict(pass);}	//non-equality, not equals
+  else {setverdict(fail);}
+  if (not(x1!=x2)) {setverdict(pass);}	//non-equality, equals
+  else {setverdict(fail);}
 }
 
 testcase bitstrComp_el_str() runs on bitstrOper_comptype
 {var bitstring x1,x2,x3;
- x1:='0110'B;
- x2:='1'B;
- x3:='0'B;
- if (x1[2]==x2) {setverdict(pass);}	//equality, equals
-   else {setverdict(fail);}
- if (not(x1[2]==x3)) {setverdict(pass);}	//equality, not equals
-   else {setverdict(fail);}
- if (x1[1]!=x3) {setverdict(pass);}	//non-equality, not equals
-   else {setverdict(fail);}
- if (not(x1[1]!='1'B)) {setverdict(pass);}	//non-equality, equals
-   else {setverdict(fail);}
+  x1:='0110'B;
+  x2:='1'B;
+  x3:='0'B;
+  if (x1[2]==x2) {setverdict(pass);}	//equality, equals
+  else {setverdict(fail);}
+  if (not(x1[2]==x3)) {setverdict(pass);}	//equality, not equals
+  else {setverdict(fail);}
+  if (x1[1]!=x3) {setverdict(pass);}	//non-equality, not equals
+  else {setverdict(fail);}
+  if (not(x1[1]!='1'B)) {setverdict(pass);}	//non-equality, equals
+  else {setverdict(fail);}
 }
 
 testcase bitstrComp_str_el() runs on bitstrOper_comptype
 {var bitstring x1,x2,x3;
- x1:='0110'B;
- x2:='1'B;
- x3:='0'B;
- if (x2==x1[1]) {setverdict(pass);}	//equality, equals
-   else {setverdict(fail);}
- if (not(x3==x1[1])) {setverdict(pass);}	//equality, not equals
-   else {setverdict(fail);}
- if (x2!=x1[0]) {setverdict(pass);}	//non-equality, not equals
-   else {setverdict(fail);}
- if (not('1'B!=x1[1])) {setverdict(pass);}	//non-equality, equals
-   else {setverdict(fail);}
+  x1:='0110'B;
+  x2:='1'B;
+  x3:='0'B;
+  if (x2==x1[1]) {setverdict(pass);}	//equality, equals
+  else {setverdict(fail);}
+  if (not(x3==x1[1])) {setverdict(pass);}	//equality, not equals
+  else {setverdict(fail);}
+  if (x2!=x1[0]) {setverdict(pass);}	//non-equality, not equals
+  else {setverdict(fail);}
+  if (not('1'B!=x1[1])) {setverdict(pass);}	//non-equality, equals
+  else {setverdict(fail);}
 }
 
 testcase bitstrComp_el_el() runs on bitstrOper_comptype
 {var bitstring x1,x2,x3;
- x1:='0110'B;
- x2:='0110'B;
- x3:='011'B;
- if (x1[2]==x2[2]) {setverdict(pass);}	//equality, equals
-   else {setverdict(fail);}
- if (not(x1[2]==x2[3])) {setverdict(pass);}	//equality, not equals
-   else {setverdict(fail);}
- if (x1[1]!=x3[0]) {setverdict(pass);}	//non-equality, not equals
-   else {setverdict(fail);}
- if (not(x1[1]!=x3[1])) {setverdict(pass);}	//non-equality, equals
-   else {setverdict(fail);}
+  x1:='0110'B;
+  x2:='0110'B;
+  x3:='011'B;
+  if (x1[2]==x2[2]) {setverdict(pass);}	//equality, equals
+  else {setverdict(fail);}
+  if (not(x1[2]==x2[3])) {setverdict(pass);}	//equality, not equals
+  else {setverdict(fail);}
+  if (x1[1]!=x3[0]) {setverdict(pass);}	//non-equality, not equals
+  else {setverdict(fail);}
+  if (not(x1[1]!=x3[1])) {setverdict(pass);}	//non-equality, equals
+  else {setverdict(fail);}
 }
 
 testcase bitstrConcat() runs on bitstrOper_comptype
 {var bitstring x1,x2,x3,x4,x5,x6,x7,x8;
- x1:='0011'B;
- x2:='1100'B;
- x3:= x1 & x2;
- x4:=x1&x2[3];
- x5:=x1[1]&x2;
- x6:=x1[2]&x2[1];
- x7:='11111111000000001111111'B;
- x8:=x1[0]&x7;
- if ((x3=='00111100'B)and(lengthof(x3)==8)) {setverdict(pass);}	//string_string
-   else {setverdict(fail);}
- if ((x4=='00110'B)and(lengthof(x4)==5)) {setverdict(pass);}		//string_element
-   else {setverdict(fail);}
- if ((x5=='01100'B)and(lengthof(x5)==5)) {setverdict(pass);}		//element_string
-   else {setverdict(fail);}
- if ((x6=='11'B)and(lengthof(x6)==2)) {setverdict(pass);}		//element_element
+  x1:='0011'B;
+  x2:='1100'B;
+  x3:= x1 & x2;
+  x4:=x1&x2[3];
+  x5:=x1[1]&x2;
+  x6:=x1[2]&x2[1];
+  x7:='11111111000000001111111'B;
+  x8:=x1[0]&x7;
+  if ((x3=='00111100'B)and(lengthof(x3)==8)) {setverdict(pass);}	//string_string
   else {setverdict(fail);}
- if((x8=='011111111000000001111111'B)and(lengthof(x8)==24)) {setverdict(pass);}
+  if ((x4=='00110'B)and(lengthof(x4)==5)) {setverdict(pass);}		//string_element
+  else {setverdict(fail);}
+  if ((x5=='01100'B)and(lengthof(x5)==5)) {setverdict(pass);}		//element_string
+  else {setverdict(fail);}
+  if ((x6=='11'B)and(lengthof(x6)==2)) {setverdict(pass);}		//element_element
+  else {setverdict(fail);}
+  if((x8=='011111111000000001111111'B)and(lengthof(x8)==24)) {setverdict(pass);}
   else {setverdict(fail);}
 }
 
@@ -252,7 +252,7 @@ testcase bitstrNot_str() runs on bitstrOper_comptype
   x1:='01101'B;
   x2:=not4b(x1);
   if (x2=='10010'B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   log(not4b(x1));    // HQ51603: the generated C++ must compile
   action(not4b(x1)); // HQ51603
 }
@@ -263,9 +263,9 @@ testcase bitstrNot_el() runs on bitstrOper_comptype
   x2:=not4b(x1[1]);
   x3:=not4b(x1[3]);
   if (x2=='1'B) {setverdict(pass);}	//not "0"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x3=='0'B) {setverdict(pass);}	//not "1"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrAnd_str_str() runs on bitstrOper_comptype
@@ -274,7 +274,7 @@ testcase bitstrAnd_str_str() runs on bitstrOper_comptype
   x2:='00111'B;
   x3:=x1 and4b x2;
   if (x3=='00101'B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrAnd_el_str() runs on bitstrOper_comptype
@@ -286,13 +286,13 @@ testcase bitstrAnd_el_str() runs on bitstrOper_comptype
   x5:=x1[2] and4b '0'B;
   x6:=x1[3] and4b x2;
   if (x3=='0'B) {setverdict(pass);}	//"0" and "0"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x4=='0'B) {setverdict(pass);}	//"0" and "1"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x5=='0'B) {setverdict(pass);}	//"1" and "0"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x6=='1'B) {setverdict(pass);}	//"1" and "1"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrAnd_str_el() runs on bitstrOper_comptype
@@ -304,13 +304,13 @@ testcase bitstrAnd_str_el() runs on bitstrOper_comptype
   x5:='0'B and4b x1[2];
   x6:=x2 and4b x1[3];
   if (x3=='0'B) {setverdict(pass);}	//"0" and "0"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x4=='0'B) {setverdict(pass);}	//"0" and "1"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x5=='0'B) {setverdict(pass);}	//"1" and "0"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x6=='1'B) {setverdict(pass);}	//"1" and "1"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrAnd_el_el() runs on bitstrOper_comptype
@@ -322,13 +322,13 @@ testcase bitstrAnd_el_el() runs on bitstrOper_comptype
   x5:=x1[3] and4b x1[0];
   x6:=x2[3] and4b x1[3];
   if (x3=='0'B) {setverdict(pass);}	//"0" and "0"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x4=='0'B) {setverdict(pass);}	//"0" and "1"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x5=='0'B) {setverdict(pass);}	//"1" and "0"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x6=='1'B) {setverdict(pass);}	//"1" and "1"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrOr_str_str() runs on bitstrOper_comptype
@@ -337,7 +337,7 @@ testcase bitstrOr_str_str() runs on bitstrOper_comptype
   x2:='00111'B;
   x3:=x1 or4b x2;
   if (x3=='01111'B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrOr_el_str() runs on bitstrOper_comptype
@@ -349,13 +349,13 @@ testcase bitstrOr_el_str() runs on bitstrOper_comptype
   x5:=x1[2] or4b '0'B;
   x6:=x1[3] or4b x2;
   if (x3=='0'B) {setverdict(pass);}	//"0" or "0"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x4=='1'B) {setverdict(pass);}	//"0" or "1"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x5=='1'B) {setverdict(pass);}	//"1" or "0"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x6=='1'B) {setverdict(pass);}	//"1" or "1"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrOr_str_el() runs on bitstrOper_comptype
@@ -367,13 +367,13 @@ testcase bitstrOr_str_el() runs on bitstrOper_comptype
   x5:='0'B or4b x1[2];
   x6:=x2 or4b x1[3];
   if (x3=='0'B) {setverdict(pass);}	//"0" or "0"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x4=='1'B) {setverdict(pass);}	//"0" or "1"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x5=='1'B) {setverdict(pass);}	//"1" or "0"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x6=='1'B) {setverdict(pass);}	//"1" or "1"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrOr_el_el() runs on bitstrOper_comptype
@@ -385,13 +385,13 @@ testcase bitstrOr_el_el() runs on bitstrOper_comptype
   x5:=x1[3] or4b x1[0];
   x6:=x2[3] or4b x1[3];
   if (x3=='0'B) {setverdict(pass);}	//"0" or "0"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x4=='1'B) {setverdict(pass);}	//"0" or "1"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x5=='1'B) {setverdict(pass);}	//"1" or "0"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x6=='1'B) {setverdict(pass);}	//"1" or "1"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrXor_str_str() runs on bitstrOper_comptype
@@ -400,7 +400,7 @@ testcase bitstrXor_str_str() runs on bitstrOper_comptype
   x2:='00111'B;
   x3:=x1 xor4b x2;
   if (x3=='01010'B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrXor_el_str() runs on bitstrOper_comptype
@@ -412,13 +412,13 @@ testcase bitstrXor_el_str() runs on bitstrOper_comptype
   x5:=x1[2] xor4b '0'B;
   x6:=x1[3] xor4b x2;
   if (x3=='0'B) {setverdict(pass);}	//"0" xor "0"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x4=='1'B) {setverdict(pass);}	//"0" xor "1"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x5=='1'B) {setverdict(pass);}	//"1" xor "0"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x6=='0'B) {setverdict(pass);}	//"1" xor "1"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrXor_str_el() runs on bitstrOper_comptype
@@ -430,13 +430,13 @@ testcase bitstrXor_str_el() runs on bitstrOper_comptype
   x5:='0'B xor4b x1[2];
   x6:=x2 xor4b x1[3];
   if (x3=='0'B) {setverdict(pass);}	//"0" xor "0"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x4=='1'B) {setverdict(pass);}	//"0" xor "1"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x5=='1'B) {setverdict(pass);}	//"1" xor "0"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x6=='0'B) {setverdict(pass);}	//"1" xor "1"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrXor_el_el() runs on bitstrOper_comptype
@@ -448,13 +448,13 @@ testcase bitstrXor_el_el() runs on bitstrOper_comptype
   x5:=x1[3] xor4b x1[0];
   x6:=x2[3] xor4b x1[3];
   if (x3=='0'B) {setverdict(pass);}	//"0" xor "0"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x4=='1'B) {setverdict(pass);}	//"0" xor "1"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x5=='1'B) {setverdict(pass);}	//"1" xor "0"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
   if (x6=='0'B) {setverdict(pass);}	//"1" xor "1"
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrShiftRight1() runs on bitstrOper_comptype
@@ -462,7 +462,7 @@ testcase bitstrShiftRight1() runs on bitstrOper_comptype
   x1:='01101'B;
   x2:=x1 >> 1;
   if (x2=='00110'B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrShiftRight2() runs on bitstrOper_comptype
@@ -470,7 +470,7 @@ testcase bitstrShiftRight2() runs on bitstrOper_comptype
   x1:='01101'B;
   x2:=x1 >> 2;
   if (x2=='00011'B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrShiftRightSum() runs on bitstrOper_comptype
@@ -478,7 +478,7 @@ testcase bitstrShiftRightSum() runs on bitstrOper_comptype
   x1:='01101'B;
   x2:=x1 >> (1+1);
   if (x2=='00011'B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrShiftRightEmpty() runs on bitstrOper_comptype
@@ -486,7 +486,7 @@ testcase bitstrShiftRightEmpty() runs on bitstrOper_comptype
   x1:=''B;
   x2:=x1 >> 1;
   if (x2==''B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrShiftLeft1() runs on bitstrOper_comptype
@@ -494,7 +494,7 @@ testcase bitstrShiftLeft1() runs on bitstrOper_comptype
   x1:='01101'B;
   x2:=x1 << 1;
   if (x2=='11010'B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrShiftLeft2() runs on bitstrOper_comptype
@@ -502,7 +502,7 @@ testcase bitstrShiftLeft2() runs on bitstrOper_comptype
   x1:='01101'B;
   x2:=x1 << 2;
   if (x2=='10100'B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrShiftLeftSum() runs on bitstrOper_comptype
@@ -510,7 +510,7 @@ testcase bitstrShiftLeftSum() runs on bitstrOper_comptype
   x1:='01101'B;
   x2:=x1 << (1+1);
   if (x2=='10100'B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrShiftLeftEmpty() runs on bitstrOper_comptype
@@ -518,7 +518,7 @@ testcase bitstrShiftLeftEmpty() runs on bitstrOper_comptype
   x1:=''B;
   x2:=x1 << 1;
   if (x2==''B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrRotateRight1() runs on bitstrOper_comptype
@@ -526,7 +526,7 @@ testcase bitstrRotateRight1() runs on bitstrOper_comptype
   x1:='01101'B;
   x2:=x1 @> 1;
   if (x2=='10110'B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrRotateRight2() runs on bitstrOper_comptype
@@ -534,7 +534,7 @@ testcase bitstrRotateRight2() runs on bitstrOper_comptype
   x1:='01101'B;
   x2:=x1 @> 2;
   if (x2=='01011'B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrRotateRightSum() runs on bitstrOper_comptype
@@ -542,7 +542,7 @@ testcase bitstrRotateRightSum() runs on bitstrOper_comptype
   x1:='01101'B;
   x2:=x1 @> (1+1);
   if (x2=='01011'B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrRotateRightEmpty() runs on bitstrOper_comptype
@@ -550,7 +550,7 @@ testcase bitstrRotateRightEmpty() runs on bitstrOper_comptype
   x1:=''B;
   x2:=x1 @> 1;
   if (x2==''B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrRotateLeft1() runs on bitstrOper_comptype
@@ -558,7 +558,7 @@ testcase bitstrRotateLeft1() runs on bitstrOper_comptype
   x1:='01101'B;
   x2:=x1 <@ 1;
   if (x2=='11010'B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrRotateLeft2() runs on bitstrOper_comptype
@@ -566,23 +566,23 @@ testcase bitstrRotateLeft2() runs on bitstrOper_comptype
   x1:='01101'B;
   x2:=x1 <@ 2;
   if (x2=='10101'B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrRotateLeftSum() runs on bitstrOper_comptype
 { var bitstring x1,x2;
   x1:='01101'B;
- x2:=x1 <@ (1+1);
+  x2:=x1 <@ (1+1);
   if (x2=='10101'B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 testcase bitstrRotateLeftEmpty() runs on bitstrOper_comptype
 { var bitstring x1,x2;
   x1:=''B;
- x2:=x1 <@ 1;
+  x2:=x1 <@ 1;
   if (x2==''B) {setverdict(pass);}
-     else {setverdict(fail);}
+  else {setverdict(fail);}
 }
 
 type bitstring mybstr1
@@ -733,57 +733,144 @@ testcase tc_bitstrIndexMistakes() runs on bitstrOper_comptype {
     setverdict(pass, "Expected DTE: ", e)
   }
 }
-  control
-  {
-    const bitstring cl_1:='1000'B;
-    var bitstring vl_1;
-    execute(bitstrAssign());
-    execute(bitstrAssignElem10());
-    execute(bitstrAssignElem01());
-    execute(bitstrAssignElem00());
-    execute(bitstrAssignElem11());
-    execute(bitstrAssignElemAdd());
-    execute(bitstrLengthof());
-    execute(bitstrConst());
-    execute(bitstrComp_str_str());
-    execute(bitstrComp_el_str());
-    execute(bitstrComp_str_el());
-    execute(bitstrComp_el_el());
-    execute(bitstrConcat());
-    execute(bitstrNot_str());
-    execute(bitstrNot_el());
-    execute(bitstrAnd_str_str());
-    execute(bitstrAnd_el_str());
-    execute(bitstrAnd_str_el());
-    execute(bitstrAnd_el_el());
-    execute(bitstrOr_str_str());
-    execute(bitstrOr_el_str());
-    execute(bitstrOr_str_el());
-    execute(bitstrOr_el_el());
-    execute(bitstrXor_str_str());
-    execute(bitstrXor_el_str());
-    execute(bitstrXor_str_el());
-    execute(bitstrXor_el_el());
-    execute(bitstrShiftRight1());
-    execute(bitstrShiftRight2());
-    execute(bitstrShiftRightSum());
-    execute(bitstrShiftRightEmpty());
-    execute(bitstrShiftLeft1());
-    execute(bitstrShiftLeft2());
-    execute(bitstrShiftLeftSum());
-    execute(bitstrShiftLeftEmpty());
-    execute(bitstrRotateRight1());
-    execute(bitstrRotateRight2());
-    execute(bitstrRotateRightSum());
-    execute(bitstrRotateRightEmpty());
-    execute(bitstrRotateLeft1());
-    execute(bitstrRotateLeft2());
-    execute(bitstrRotateLeftSum());
-    execute(bitstrRotateLeftEmpty());
-    execute(bitstrSubtypes('0'B));
-    execute(bitstrIsvalue());
-    execute(bitstrIsbound());
-    execute(tc_bitstrUninit());
-    execute(tc_bitstrIndexMistakes());
+
+//=== String_Element tests ===
+
+type component CT{
+  port BSPort  BS
+  timer T
+}
+
+type port BSPort message {
+  inout bitstring
+} with { extension "internal" }
+
+function f_bs(in bitstring bs) return bitstring {
+  return bs;
+}
+
+testcase tc_bs() runs on CT {
+  var bitstring vl_bs1 := '01'B, vl_bs2;
+  vl_bs2 := f_bs(vl_bs1[0]);
+  if( vl_bs2 == '0'B) {setverdict(pass)} else { setverdict(fail)}
+}
+
+//bs in altstep
+
+altstep as_bs(in bitstring str) runs on CT {
+  var template bitstring vl_str := ?;
+  var bitstring r;
+  [] BS.receive(vl_str) -> value r { if ( r == str) { setverdict(pass) } }
+  [] T.timeout { setverdict(fail, "timeout")}
+}
+
+testcase tc_altstep_bs() runs on CT {
+  var bitstring vl_str := '01'B;
+  connect(self:BS, self:BS);
+  T.start(1.0);
+  BS.send(vl_str);
+  as_bs(vl_str);
+  T.stop;
+}
+
+testcase tc_altstep_bs_idx() runs on CT {
+  var bitstring vl_str := '01'B
+  connect(self:BS, self:BS);
+  T.start(1.0);
+  BS.send(vl_str[0]);
+  as_bs(vl_str[0]);
+  T.stop;
+}
+
+altstep as_bs_template(in template bitstring  str) runs on CT {
+  var template bitstring vl_str := ?;
+  var bitstring r;
+  [] BS.receive(vl_str) -> value r { if ( r == valueof(str)) { setverdict(pass) } }
+  [] T.timeout { setverdict(fail, "timeout")}
+}
+
+testcase tc_altstep_bs_template() runs on CT {
+  var template bitstring  vl_str := '01'B;
+  connect(self:BS, self:BS);
+  T.start(1.0);
+  BS.send(vl_str);
+  as_bs_template(vl_str);
+  T.stop;
+}
+
+testcase tc__value_list_bs() runs on CT {
+  var bitstring vl_cs1 := '01'B, vl_cs2
+  var template bitstring vlt_cs := (vl_cs1[0], vl_cs1[1]); 
+  vl_cs2 := '0'B;
+  if( match(vl_cs2,vlt_cs)) {setverdict(pass)} else { setverdict(fail)}
+  vl_cs2 := '1'B;
+  if( match(vl_cs2,vlt_cs)) {setverdict(pass)} else { setverdict(fail)}
+}
+
+testcase tc__match_bs_idx() runs on CT {
+  var bitstring vl_cs1 := '01'B;
+  var template bitstring vlt_cs := ('0'B,'1'B); 
+  if( match(vl_cs1[0],vlt_cs)) {setverdict(pass)} else { setverdict(fail)}
+}
+
+control
+{
+  const bitstring cl_1:='1000'B;
+  var bitstring vl_1;
+  execute(bitstrAssign());
+  execute(bitstrAssignElem10());
+  execute(bitstrAssignElem01());
+  execute(bitstrAssignElem00());
+  execute(bitstrAssignElem11());
+  execute(bitstrAssignElemAdd());
+  execute(bitstrLengthof());
+  execute(bitstrConst());
+  execute(bitstrComp_str_str());
+  execute(bitstrComp_el_str());
+  execute(bitstrComp_str_el());
+  execute(bitstrComp_el_el());
+  execute(bitstrConcat());
+  execute(bitstrNot_str());
+  execute(bitstrNot_el());
+  execute(bitstrAnd_str_str());
+  execute(bitstrAnd_el_str());
+  execute(bitstrAnd_str_el());
+  execute(bitstrAnd_el_el());
+  execute(bitstrOr_str_str());
+  execute(bitstrOr_el_str());
+  execute(bitstrOr_str_el());
+  execute(bitstrOr_el_el());
+  execute(bitstrXor_str_str());
+  execute(bitstrXor_el_str());
+  execute(bitstrXor_str_el());
+  execute(bitstrXor_el_el());
+  execute(bitstrShiftRight1());
+  execute(bitstrShiftRight2());
+  execute(bitstrShiftRightSum());
+  execute(bitstrShiftRightEmpty());
+  execute(bitstrShiftLeft1());
+  execute(bitstrShiftLeft2());
+  execute(bitstrShiftLeftSum());
+  execute(bitstrShiftLeftEmpty());
+  execute(bitstrRotateRight1());
+  execute(bitstrRotateRight2());
+  execute(bitstrRotateRightSum());
+  execute(bitstrRotateRightEmpty());
+  execute(bitstrRotateLeft1());
+  execute(bitstrRotateLeft2());
+  execute(bitstrRotateLeftSum());
+  execute(bitstrRotateLeftEmpty());
+  execute(bitstrSubtypes('0'B));
+  execute(bitstrIsvalue());
+  execute(bitstrIsbound());
+  execute(tc_bitstrUninit());
+  execute(tc_bitstrIndexMistakes());
+
+  execute(tc_bs());
+  execute(tc_altstep_bs());
+  execute(tc_altstep_bs_idx());
+  execute(tc_altstep_bs_template());
+  execute(tc__value_list_bs());
+  execute(tc__match_bs_idx());
 }
 }
