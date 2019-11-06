@@ -18,7 +18,10 @@ type component CT { }
 modulepar hexstring tsp_notChangedUninit
 modulepar hexstring tsp_notChangedInit := '12345'H
 modulepar hexstring tsp_changedInit := '1'H
-modulepar hexstring tsp_changedInitConcat := '1'H
+modulepar hexstring tsp_changedInitConcat1 := '1'H
+modulepar hexstring tsp_changedInitConcat2 := '1'H
+modulepar hexstring tsp_changedInitConcat3 := '1'H
+
 type hexstring myhstr0
 type hexstring myhstr1 length(1)
 type hexstring myhstr2 length(0..1)
@@ -307,12 +310,17 @@ testcase tc_hexstrModulepar() runs on CT {
   }
   if(  tsp_changedInit == '1234567890ABCDEF'H ) {setverdict(pass, tsp_changedInit)} else { setverdict(fail, tsp_changedInit) }
 
-  if(  tsp_changedInitConcat == '12345'H ) {
-    setverdict(pass, tsp_changedInitConcat)
+  if(  tsp_changedInitConcat1 == '12345'H ) {
+    setverdict(pass, tsp_changedInitConcat1)
   } else { 
-    setverdict(fail, tsp_changedInitConcat)
+    setverdict(fail, tsp_changedInitConcat1)
   }
-
+  
+  if(  tsp_changedInitConcat2 == '12345'H ) {
+    setverdict(pass, tsp_changedInitConcat2)
+  } else { 
+    setverdict(fail, tsp_changedInitConcat2)
+  }
 }
 
 testcase tc_hexstrConcat() runs on CT {
@@ -322,6 +330,7 @@ testcase tc_hexstrConcat() runs on CT {
   if( (x2 & x1) == '23112F'H) {setverdict(pass, x2,x2)} else { setverdict(fail, x1 and4b x2) }
 
 }
+
 //===== Older ===
 function f_hstr1() return myhstr6 {
   return substr(replace(int2hex(0, 1) & int2hex(1, 1), 0, 1, '1'H), 0, 1)
@@ -352,6 +361,7 @@ testcase hexstrIsvalue() runs on CT{
 
   if ( isvalue(hstr0) ) { setverdict(fail); } else { setverdict(pass); };
   if ( isvalue(hstr1) ) { setverdict(pass); } else { setverdict(fail); };
+  if ( isvalue(hstr1[0]) ) { setverdict(pass); } else { setverdict(fail); };
   if ( isvalue(thstr) ) { setverdict(fail); } else { setverdict(pass); };
   thstr := hstr1;
   if ( isvalue(thstr) ) { setverdict(pass); } else { setverdict(fail); };
@@ -359,6 +369,7 @@ testcase hexstrIsvalue() runs on CT{
   if ( isvalue(thstr) ) { setverdict(fail); } else { setverdict(pass); };
   thstr := ('123'H,'124'H);
   if ( isvalue(thstr) ) { setverdict(fail); } else { setverdict(pass); };
+
 }
 
 testcase hexstrIsbound() runs on CT {
@@ -369,6 +380,7 @@ testcase hexstrIsbound() runs on CT {
   if ( isbound(hstr0) ) { setverdict(fail); } else { setverdict(pass); };
   if ( isbound(hstr0[0]) ) { setverdict(fail); } else { setverdict(pass); };
   if ( isbound(hstr1) ) { setverdict(pass); } else { setverdict(fail); };
+  if ( isbound(hstr1[0]) ) { setverdict(pass); } else { setverdict(fail); };
   if ( isbound(thstr) ) { setverdict(fail); } else { setverdict(pass); };
 
   thstr := hstr1;
