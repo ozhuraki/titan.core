@@ -57,7 +57,7 @@ testcase tc_ucharstr_assign_comp1() runs on ucharstrOper_comptype {
   } else {
     setverdict(fail,"expected ", exp, " got ",u);
   }
-  //check side effect:
+   //check side effect:
   u:= "2";
   if (u == "2") {
     setverdict(pass)
@@ -600,6 +600,87 @@ testcase ucharstr_Bug520457() runs on ucharstrOper_comptype {
   setverdict(pass);
 }
 
+// === String_Element tests ===
+
+type component CT{
+  port UCSPort UCS
+  timer T
+}
+
+type port UCSPort message {
+  inout universal charstring
+} with { extension "internal" }
+
+// String_Element in func. arg.
+function f_ucs(in universal charstring ucs) return universal charstring {
+  return ucs;
+}
+
+testcase tc_ucs() runs on CT {
+	var universal charstring vl_ucs1 := char(0,0,0,1) & char(0,0,0,20), vl_ucs2
+	vl_ucs2 := f_ucs(vl_ucs1[1]);
+	if( vl_ucs2 == char(0,0,0,20)) {setverdict(pass)} else { setverdict(fail)}
+}
+
+//ucs / altstep
+
+altstep as_ucs(in universal charstring str) runs on CT {
+  var template universal charstring vl_str := ?
+  var universal charstring r;
+  [] UCS.receive(vl_str) -> value r { if ( r == str) { setverdict(pass) } }
+  [] T.timeout { setverdict(fail, "timeout")}
+}
+
+testcase tc_altstep_ucs() runs on CT {
+	var universal charstring vl_str := char(0,0,0,1) & char(0,0,0,20);
+	connect(self:UCS, self:UCS);
+	T.start(1.0);
+	UCS.send(vl_str);
+	as_ucs(vl_str);
+	T.stop;
+}
+
+testcase tc_altstep_ucs_idx() runs on CT {
+	var universal charstring vl_str := char(0,0,0,1) & char(0,0,0,20)
+	T.start(1.0);
+	connect(self:UCS, self:UCS);
+	UCS.send(vl_str[0]);
+	as_ucs(vl_str[0]);
+	T.stop;
+}
+
+altstep as_ucs_template(in template universal charstring str) runs on CT {
+  var template universal charstring vl_str := ?;
+  var universal charstring r;
+  [] UCS.receive(vl_str) -> value r { if ( r == valueof(str)) { setverdict(pass) } }
+  [] T.timeout { setverdict(fail, "timeout")}
+}
+
+testcase tc_altstep_ucs_template() runs on CT {
+	var template universal charstring  vl_str := char(0,0,0,1) & char(0,0,0,20);
+	connect(self:UCS, self:UCS);
+	T.start(1.0);
+	UCS.send(vl_str);
+	as_ucs_template(vl_str);
+	T.stop;
+}
+
+testcase tc__value_list_ucs() runs on CT {
+	var universal charstring vl_cs1 := char(0,0,0,1) & char(0,0,0,20), vl_cs2
+	var template universal charstring vlt_cs := (vl_cs1[0], vl_cs1[1],vl_cs1);
+	vl_cs2 := char(0,0,0,1);
+	if( match(vl_cs2,vlt_cs)) {setverdict(pass)} else { setverdict(fail)}
+	vl_cs2 := char(0,0,0,20);
+	if( match(vl_cs2,vlt_cs)) {setverdict(pass)} else { setverdict(fail)}
+}
+
+testcase tc__match_ucs_idx() runs on CT {
+	var universal charstring vl_cs1 := char(0,0,0,1) & char(0,0,0,20);
+	var template universal charstring vlt_cs := ( char(0,0,0,1), char(0,0,0,20)); //ok
+	if( match(vl_cs1[0],vlt_cs)) {setverdict(pass)} else { setverdict(fail)}
+}
+
+
 control {
   const universal charstring cl_1 := char(0, 0, 0, 0)
   const universal charstring cl_2 := "abcxyz"
@@ -635,5 +716,12 @@ control {
   execute(ucharstrIsbound());
   execute(CR_TR00018474());
   execute(ucharstr_Bug520457());
+
+  execute(tc_ucs());
+  execute(tc_altstep_ucs());
+  execute(tc_altstep_ucs_idx());
+  execute(tc_altstep_ucs_template());
+  execute(tc__value_list_ucs());
+  execute(tc__match_ucs_idx());
 }
 }
