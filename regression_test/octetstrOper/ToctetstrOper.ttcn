@@ -586,7 +586,7 @@ testcase tc_altstep_os_idx() runs on CT {
 	var octetstring vl_str := '0001'O
 	connect(self:OS, self:OS);
 	T.start(1.0);
-	OS.send(vl_str[0]); //<====== This is compiled for an erroneous code
+	OS.send(vl_str[0]);
 	as_os(vl_str[0]);
 	T.stop;
 }
