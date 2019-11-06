@@ -410,16 +410,6 @@ testcase tc_indexing_HT70680() runs on empty
 }
 
 
-function f_ucs(in universal charstring ucs) return universal charstring {
-  return ucs;
-}
-
-testcase tc_ucs() runs on empty {
-	var universal charstring vl_ucs1 := char(0,0,0,1) & char(0,0,0,20), vl_ucs2
-	vl_ucs2 := f_ucs(vl_ucs1[1]);
-	if( vl_ucs2 == char(0,0,0,20)) {setverdict(pass)} else { setverdict(fail)}
-}
-
 control {
   execute(tc_charstring_content());
   execute(tc_cpp_test());
@@ -431,7 +421,6 @@ control {
   execute(tc_unichar_utf8_mp2());
   execute(tc_unichar_utf8_template());
   execute(tc_indexing_HT70680());
-  execute(tc_ucs());
 }
 
 }
