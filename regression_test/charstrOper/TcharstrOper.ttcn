@@ -602,6 +602,88 @@ testcase tc_charstring_IndexMistakes() runs on charstrOper_comptype {
   }
 }
 
+// === String_Element tests ===
+
+type component CT{
+  port CSPort  CS
+  timer T
+}
+
+type port CSPort message {
+  inout charstring
+} with { extension "internal" }
+
+function f_cs(in charstring cs) return charstring {
+  return cs;
+}
+
+testcase tc_cs() runs on CT {
+	var charstring vl_cs1 := "Hi", vl_cs2
+	vl_cs2 := f_cs(vl_cs1[0]);
+	if( vl_cs2 == "H") {setverdict(pass)} else { setverdict(fail)}
+}
+
+//cs in altstep
+
+altstep as_cs(in charstring str) runs on CT {
+  var template charstring vl_str := ?
+  var charstring r;
+  [] CS.receive(vl_str) -> value r { if ( r == str) { setverdict(pass) } }
+  [] T.timeout { setverdict(fail, "timeout")}
+}
+
+testcase tc_altstep_cs() runs on CT {
+	var charstring vl_str := "Hi";
+	connect(self:CS, self:CS);
+	T.start(1.0);
+	CS.send(vl_str);
+	as_cs(vl_str);
+	T.stop;
+}
+
+testcase tc_altstep_cs_idx() runs on CT {
+	var charstring vl_str := "Hi"
+	connect(self:CS, self:CS);
+	T.start(1.0);
+	CS.send(vl_str[0]);
+	as_cs(vl_str[0]);
+	T.stop;
+}
+
+altstep as_cs_template(in template charstring str) runs on CT {
+  var template charstring vl_str := ?;
+  var charstring r;
+  [] CS.receive(vl_str) -> value r { if ( r == valueof(str)) { setverdict(pass) } }
+  [] T.timeout { setverdict(fail, "timeout")}
+}
+
+testcase tc_altstep_cs_template() runs on CT {
+	var template charstring  vl_str := "Hi";
+	connect(self:CS, self:CS);
+	T.start(1.0);
+	CS.send(vl_str);
+	as_cs_template(vl_str);
+	T.stop;
+}
+
+// cs in value list
+testcase tc__value_list_cs() runs on CT {
+	var charstring vl_cs1 := "ABab", vl_cs2
+	var template charstring vlt_cs := (vl_cs1[0], vl_cs1[1]);
+	vl_cs2 := "A";
+	if( match(vl_cs2,vlt_cs)) {setverdict(pass)} else { setverdict(fail)}
+	vl_cs2 := "B";
+	if( match(vl_cs2,vlt_cs)) {setverdict(pass)} else { setverdict(fail)}
+}
+
+testcase tc__match_cs_idx() runs on CT {
+	var charstring vl_cs1 := "ABab";
+	var template charstring vlt_cs := ("A","B"); //ok
+	if( match(vl_cs1[0],vlt_cs)) {setverdict(pass)} else { setverdict(fail)}
+}
+
+
+
 control {
   const charstring cl_1:="asd1";
   var charstring vl_1;
@@ -634,6 +716,13 @@ control {
   execute(tc_simple_charstring_template_pattern());
   execute(tc_charstring_Uninit());
   execute(tc_charstring_IndexMistakes());
+
+  execute(tc_cs());
+  execute(tc_altstep_cs());
+  execute(tc_altstep_cs_idx());
+  execute(tc_altstep_cs_template());
+  execute(tc__value_list_cs());
+  execute(tc__match_cs_idx());
 }
 
 }
