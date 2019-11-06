@@ -545,6 +545,83 @@ testcase tc_printable_octetstring_ttcn2string() runs on octetstrOper_comptype {
   }
 }
 
+// === String_Element tests ===
+
+type component CT{
+  port OSPort  OS
+  timer T
+}
+
+type port OSPort message {
+  inout octetstring
+} with { extension "internal" }
+
+function f_os(in octetstring os) return octetstring {
+  return os;
+}
+
+testcase tc_os() runs on CT {
+	var octetstring vl_os1 := '0102'O, vl_os2;
+	vl_os2 := f_os(vl_os1[0]);
+	if( vl_os2 == '01'O ) {setverdict(pass)} else { setverdict(fail)}
+}
+
+altstep as_os(in octetstring str) runs on CT {
+  var template octetstring vl_str := ?;
+  var octetstring r;
+  [] OS.receive(vl_str) -> value r { if ( r == str) { setverdict(pass) } }
+  [] T.timeout { setverdict(fail, "timeout")}
+}
+
+testcase tc_altstep_os() runs on CT {
+	var octetstring vl_str := '01'O;
+	connect(self:OS, self:OS);
+	T.start(1.0);
+	OS.send(vl_str);
+	as_os(vl_str);
+	T.stop;
+}
+
+testcase tc_altstep_os_idx() runs on CT {
+	var octetstring vl_str := '0001'O
+	connect(self:OS, self:OS);
+	T.start(1.0);
+	OS.send(vl_str[0]); //<====== This is compiled for an erroneous code
+	as_os(vl_str[0]);
+	T.stop;
+}
+
+altstep as_os_template(in template octetstring str) runs on CT {
+  var template octetstring vl_str := ?;
+  var octetstring r;
+  [] OS.receive(vl_str) -> value r { if ( r == valueof(str)) { setverdict(pass) } }
+  [] T.timeout { setverdict(fail, "timeout")}
+}
+
+testcase tc_altstep_os_template() runs on CT {
+	var template octetstring  vl_str := '0001'O;
+	connect(self:OS, self:OS);
+	T.start(1.0);
+	OS.send(vl_str);
+	as_os_template(vl_str);
+	T.stop;
+}
+
+testcase tc__value_list_os() runs on CT {
+	var octetstring vl_cs1 := '0001'O, vl_cs2
+	var template octetstring vlt_cs := (vl_cs1[0], vl_cs1[1]);
+	vl_cs2 := '00'O;
+	if( match(vl_cs2,vlt_cs)) {setverdict(pass)} else { setverdict(fail)}
+	vl_cs2 := '01'O;
+	if( match(vl_cs2,vlt_cs)) {setverdict(pass)} else { setverdict(fail)}
+}
+
+testcase tc__match_os_idx() runs on CT {
+	var octetstring vl_cs1 := '0001'O;
+	var template octetstring vlt_cs := ('00'O,'01'O); 
+	if( match(vl_cs1[0],vlt_cs)) {setverdict(pass)} else { setverdict(fail)}
+}
+
 control {
   const octetstring cl_1:='AA11'O;
   var octetstring vl_1;
@@ -594,5 +671,12 @@ control {
   execute(tc_simple_octetstring_unbound());
   execute(tc_printable_octetstring_log2str());
   execute(tc_printable_octetstring_ttcn2string());
+
+  execute(tc_os());
+  execute(tc_altstep_os());
+  execute(tc_altstep_os_idx());
+  execute(tc_altstep_os_template());
+  execute(tc__value_list_os());
+  execute(tc__match_os_idx());
 }
 }
