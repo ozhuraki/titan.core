@@ -390,6 +390,84 @@ testcase CR_TR00018474() runs on CT {
   if (match('BABBCCDDEE'H, vth1)) { setverdict(pass) } else { setverdict(fail) }
 }
 
+// === String_Element tests ===
+
+type component CT{
+  port HSPort  HS
+  timer T
+}
+
+type port HSPort message {
+  inout hexstring
+} with { extension "internal" }
+
+function f_hs(in hexstring hs) return hexstring {
+  return hs;
+}
+
+testcase tc_hs() runs on CT {
+	var hexstring vl_hs1 := '01'H, vl_hs2;
+	vl_hs2 := f_hs(vl_hs1[0]);
+	if( vl_hs2 == '0'H) {setverdict(pass)} else { setverdict(fail)}
+}
+
+altstep as_hs(in hexstring str) runs on CT {
+  var template hexstring vl_str := ?;
+  var hexstring r;
+  [] HS.receive(vl_str) -> value r { if ( r == str) { setverdict(pass) } }
+  [] T.timeout { setverdict(fail, "timeout")}
+}
+
+testcase tc_altstep_hs() runs on CT {
+	var hexstring vl_str := '01'H;
+	connect(self:HS, self:HS);
+	T.start(1.0);
+	HS.send(vl_str);
+	as_hs(vl_str);
+	T.stop;
+}
+
+testcase tc_altstep_hs_idx() runs on CT {
+	var hexstring vl_str := '01'H
+	connect(self:HS, self:HS);
+	T.start(1.0);
+	HS.send(vl_str[0]);
+	as_hs(vl_str[0]);
+	T.stop;
+}
+
+altstep as_hs_template(in template hexstring str) runs on CT {
+  var template hexstring vl_str := ?;
+  var hexstring r;
+  [] HS.receive(vl_str) -> value r { if ( r == valueof(str)) { setverdict(pass) } }
+  [] T.timeout { setverdict(fail, "timeout")}
+}
+
+testcase tc_altstep_hs_template() runs on CT {
+	var template hexstring  vl_str := '01'H;
+	connect(self:HS, self:HS);
+	T.start(1.0);
+	HS.send(vl_str);
+	as_hs_template(vl_str);
+	T.stop;
+}
+
+testcase tc__value_list_hs() runs on CT {
+	var hexstring vl_cs1 := '01'H, vl_cs2
+	var template hexstring vlt_cs := (vl_cs1[0], vl_cs1[1]);
+	vl_cs2 := '0'H;
+	if( match(vl_cs2,vlt_cs)) {setverdict(pass)} else { setverdict(fail)}
+	vl_cs2 := '1'H;
+	if( match(vl_cs2,vlt_cs)) {setverdict(pass)} else { setverdict(fail)}
+}
+
+testcase tc__match_hs_idx() runs on CT {
+	var hexstring vl_cs1 := '01'H;
+	var template hexstring vlt_cs := ('0'H,'1'H); 
+	if( match(vl_cs1[0],vlt_cs)) {setverdict(pass)} else { setverdict(fail)}
+}
+
+
 control {
   const hexstring cl_1 := '0'H
   var hexstring vl_1;
@@ -409,5 +487,12 @@ control {
   execute(hexstrIsvalue());
   execute(hexstrIsbound());
   execute(CR_TR00018474());
+
+  execute(tc_hs());
+  execute(tc_altstep_hs());
+  execute(tc_altstep_hs_idx());
+  execute(tc_altstep_hs_template());
+  execute(tc__value_list_hs());
+  execute(tc__match_hs_idx());
 }
 }
