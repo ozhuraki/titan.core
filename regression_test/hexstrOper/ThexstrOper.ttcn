@@ -13,7 +13,6 @@
  ******************************************************************************/
 module ThexstrOper
 {
-type component CT { }
 
 modulepar hexstring tsp_notChangedUninit
 modulepar hexstring tsp_notChangedInit := '12345'H
