@@ -556,7 +556,7 @@ namespace Ttcn {
   // =================================
 
   Reference::Reference(Identifier *p_id)
-    : Ref_base(), parlist(0)
+    : Ref_base(), parlist(0), gen_const_prefix(false)
   {
     subrefs.add(new FieldOrArrayRef(p_id));
   }
