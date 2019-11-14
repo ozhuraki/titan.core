@@ -32,6 +32,12 @@ testcase bitstrAssign() runs on bitstrOper_comptype
   else {setverdict(fail);}
   if (x4=='0101'B) {setverdict(pass);}		//change of size
   else {setverdict(fail);}
+  //The change does not change the original var:
+  x3 := x4;
+  x3 := '00000'B
+  if (x4=='0101'B) {setverdict(pass);} else {setverdict(fail,x4);}
+  if (x3=='00000'B) {setverdict(pass);} else {setverdict(fail,x3);}
+  
 }
 
 testcase bitstrAssignElem10() runs on bitstrOper_comptype
@@ -633,24 +639,38 @@ testcase bitstrSubtypes(in template mybstr3 p1) runs on bitstrOper_comptype {
 }
 
 testcase bitstrIsvalue() runs on bitstrOper_comptype{
-  var bitstring ostr0;
-  var bitstring ostr1 := '1111'B;
-  var template bitstring tostr;
+  var bitstring bstr0;
+  var bitstring bstr1 := '1111'B;
+  var template bitstring tbstr;
 
-  if ( isvalue(ostr0) ) { setverdict(fail); } else { setverdict(pass); };
-  if ( isvalue(ostr1) ) { setverdict(pass); } else { setverdict(fail); };
-  if ( isvalue(tostr) ) { setverdict(fail); } else { setverdict(pass); };
+  if ( isvalue(bstr0) ) { setverdict(fail); } else { setverdict(pass); };
+  if ( isvalue(bstr1) ) { setverdict(pass); } else { setverdict(fail); };
+  if ( isvalue(tbstr) ) { setverdict(fail); } else { setverdict(pass); };
+
+  tbstr := tbstr;
+  if ( isvalue(tbstr) ) { setverdict(pass); } else { setverdict(fail); };
+  tbstr := ?;
+  if ( isvalue(tbstr) ) { setverdict(fail); } else { setverdict(pass); };
+  tbstr := ('000'B,'111'B);
+  if ( isvalue(tbstr) ) { setverdict(fail); } else { setverdict(pass); };
 }
 
 testcase bitstrIsbound() runs on bitstrOper_comptype{
-  var bitstring ostr0;
-  var bitstring ostr1 := '1111'B;
-  var template bitstring tostr;
+  var bitstring bstr0;
+  var bitstring bstr1 := '1111'B;
+  var template bitstring tbstr;
 
-  if ( isbound(ostr0) ) { setverdict(fail); } else { setverdict(pass); };
-  if ( isbound(ostr0[0]) ) { setverdict(fail); } else { setverdict(pass); };
-  if ( isbound(ostr1) ) { setverdict(pass); } else { setverdict(fail); };
-  if ( isbound(tostr) ) { setverdict(fail); } else { setverdict(pass); };
+  if ( isbound(bstr0) ) { setverdict(fail); } else { setverdict(pass); };
+  if ( isbound(bstr0[0]) ) { setverdict(fail); } else { setverdict(pass); };
+  if ( isbound(bstr1) ) { setverdict(pass); } else { setverdict(fail); };
+  if ( isbound(tbstr) ) { setverdict(fail); } else { setverdict(pass); };
+
+  tbstr := bstr1;
+  if ( isbound(tbstr) ) { setverdict(pass); } else { setverdict(fail); };
+  tbstr := ?;
+  if (isbound(tbstr) ) { setverdict(pass); } else { setverdict(fail); };
+  tbstr := ('000'B,'111'B);
+  if ( isbound(tbstr) ) { setverdict(pass); } else { setverdict(fail); };
 }
 
 testcase tc_bitstrUninit() runs on bitstrOper_comptype{
