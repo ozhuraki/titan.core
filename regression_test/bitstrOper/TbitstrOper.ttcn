@@ -647,7 +647,7 @@ testcase bitstrIsvalue() runs on bitstrOper_comptype{
   if ( isvalue(bstr1) ) { setverdict(pass); } else { setverdict(fail); };
   if ( isvalue(tbstr) ) { setverdict(fail); } else { setverdict(pass); };
 
-  tbstr := tbstr;
+  tbstr := bstr1;
   if ( isvalue(tbstr) ) { setverdict(pass); } else { setverdict(fail); };
   tbstr := ?;
   if ( isvalue(tbstr) ) { setverdict(fail); } else { setverdict(pass); };
