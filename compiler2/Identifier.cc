@@ -698,7 +698,6 @@ namespace Common {
     {"INTEGER", "INTEGER", "integer"},
     {"ISO646String", "ISO646String", 0},
     {"NumericString", "NumericString", 0},
-    {"OBJECT", 0, "object"},
     {"OBJID", "OBJECT IDENTIFIER", "objid"},
     {"OCTETSTRING", "OCTET STRING", "octetstring"},
     {"ObjectDescriptor", "ObjectDescriptor", 0},
