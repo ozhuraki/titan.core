@@ -150,41 +150,41 @@ Examples:
 module elsewhere {
   type float money;
   type charstring greeting;
-  }
-  module local {
-    import from elsewhere all;
-    type integer money;
-type record MyRec {
-  integer i,
-  float f
 }
+module local {
+  import from elsewhere all;
+  type integer money;
+  type record MyRec {
+    integer i,
+    float f
+  }
 
 control {
   var anytype v_any;
   v_any.integer := 3;
   // ischosen(v_any.integer) == true
 
- v_any.charstring := "three";
- // ischosen(v_any.charstring) == true
+  v_any.charstring := "three";
+  // ischosen(v_any.charstring) == true
 
- v_any.greeting := "hello";
- // ischosen(v_any.charstring) == false
- // ischosen(v_any.greeting) == true
+  v_any.greeting := "hello";
+  // ischosen(v_any.charstring) == false
+  // ischosen(v_any.greeting) == true
 
- v_any.MyRec := { i := 42, f := 0.5 }
- // ischosen(v_any.MyRec) == true
+  v_any.MyRec := { i := 42, f := 0.5 }
+  // ischosen(v_any.MyRec) == true
 
- v_any.integer := v_any.MyRec.i – 2;
- // back to ischosen(v_any.integer) == true v_any.money := 0;
- // local money i.e. integer
- // not elsewhere.money (float)
- // ischosen(v_any.integer) == false
- // ischosen(v_any.money) == true
+  v_any.integer := v_any.MyRec.i – 2;
+  // back to ischosen(v_any.integer) == true v_any.money := 0;
+  // local money i.e. integer
+  // not elsewhere.money (float)
+  // ischosen(v_any.integer) == false
+  // ischosen(v_any.money) == true
 
- // error: no such field (not added explicitly)
- // v_any.float := 3.1;
+  // error: no such field (not added explicitly)
+  // v_any.float := 3.1;
 
- // error: v_any.elsewhere.money
+  // error: v_any.elsewhere.money
  }
 }
 
