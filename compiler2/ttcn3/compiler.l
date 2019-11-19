@@ -563,9 +563,9 @@ class {
     RETURN(ClassKeyword);
   }
   else {
-    Location loc(infile, yylloc);
+    /*Location loc(infile, yylloc);
     loc.warning("Keyword 'class' is treated as an identifier. Activate "
-      "compiler option '-k' to use object-oriented features.");
+      "compiler option '-k' to use object-oriented features.");*/
     yylval.id = new Identifier(Identifier::ID_TTCN, string(yyleng, yytext));
     RETURN_LVAL(IDentifier);
   }
@@ -575,9 +575,9 @@ finally {
     RETURN(FinallyKeyword);
   }
   else {
-    Location loc(infile, yylloc);
+    /*Location loc(infile, yylloc);
     loc.warning("Keyword 'finally' is treated as an identifier. Activate "
-      "compiler option '-k' to use object-oriented features.");
+      "compiler option '-k' to use object-oriented features.");*/
     yylval.id = new Identifier(Identifier::ID_TTCN, string(yyleng, yytext));
     RETURN_LVAL(IDentifier);
   }
