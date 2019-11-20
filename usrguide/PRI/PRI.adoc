@@ -1,13 +1,13 @@
 ---
 Author: Jenő Balaskó
-Version: 109 21-CRL 113 200/6-6, Rev. A
-Date: 2019-05-16
+Version: 109 21-CRL 113 200/6-6, Rev. B
+Date: 2019-11-29
 
 ---
 = Product Revision Information for TITAN
 :author: Jenő Balaskó
-:revnumber: 109 21-CRL 113 200/6-6, Rev. A
-:revdate: 2019-05-16
+:revnumber: 109 21-CRL 113 200/6-6, Rev. B
+:revdate: 2019-11-29
 :sectnums:
 :doctype: book
 :leveloffset: +1
@@ -20,7 +20,7 @@ Date: 2019-05-16
 [cols=",,,",options="header",]
 |===
 |Product number |Old Rev |New Rev |Function designation
-|CRL 113 200/6 |R5A |R6A |TTCN-3 Executor
+|CRL 113 200/6 |R6A |R6B |TTCN-3 Executor
 |===
 
 This release is done to deliver updated and improved TTCN related products to all customers within and outside Ericsson.
@@ -32,7 +32,7 @@ Legend: R = Revised, N = New, C = Cancelled, E = Equal
 [cols=",,,,",options="header",]
 |===
 |Name |Product |Old R-State |New R-State |Status
-|*Titan* |*CRL 113 200/6* |*R5A* |*R6A* |R
+|*Titan* |*CRL 113 200/6* |*R6A* |*R6B* |R
 |Editline Library (libedit) |2/CAX 105 4373 | |R1A |E
 |GNU C Library (glibc) |22/CAX 105 3195 | |R1A |E
 |LibXML2 |8/CAX 105 3282 | |R1A |E
@@ -59,8 +59,8 @@ Legend: R = Revised, N = New, C = Cancelled, E = Equal
 |link:https://github.com/eclipse/titan.core/blob/master/usrguide/apiguide/Apiguide.adoc[API Technical Reference for TITAN TTCN-3 Test Executor 6/198 17-CRL 113 200/6] |Cloud stored |Cloud stored |R
 |link:https://github.com/eclipse/titan.core/blob/master/titan_executor_api/doc/Titan_Executor_API_User_Guide.adoc[Titan Executor API user guide 8/198 17-CRL 113 200/6] |Cloud stored |Cloud stored |R
 |link:https://github.com/eclipse/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium/docs/Titanium_referenceguide/Titanium_referenceguide.adoc[Programmers Tech. Reference Guide for Titanium] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.core/blob/master/usrguide/java_referenceguide/JavaReferenceGuide.adoc[Programmers Tech. Reference Guide for the Java Codegenerator] | N/A |Cloud stored |R
-|link:https://github.com/eclipse/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium.refactoring/docs/Titanium_Refactoring_Description/Titanium_Refactoring_Description.adoc[Titanium Refactoring Description] | N/A |Cloud stored |R
+|link:https://github.com/eclipse/titan.core/blob/master/usrguide/java_referenceguide/JavaReferenceGuide.adoc[Programmers Tech. Reference Guide for the Java Codegenerator] | Cloud stored |Cloud stored |R
+|link:https://github.com/eclipse/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium.refactoring/docs/Titanium_Refactoring_Description/Titanium_Refactoring_Description.adoc[Titanium Refactoring Description] | Cloud stored |Cloud stored |R
 |link:https://github.com/eclipse/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium/docs/Titanium_Description/Titanium_Description.adoc[Titanium Description] |Cloud stored |Cloud stored |R
 |link:https://github.com/eclipse/titan.core/blob/master/usrguide/SoC_TITAN/SoC_TITAN.adoc[Statement of Compliance for Eclipse Titan] |Cloud stored |Cloud stored |R
 |link:https://github.com/eclipse/titan.core/blob/master/usrguide/SoC_XML_TITAN/SoC_XML_TITAN.adoc[Statement of Compliance for use of XML schema in Eclipse Titan] |Cloud stored |Cloud stored |R
@@ -87,5 +87,3 @@ See embedded document for details.
 === Not Implemented Trouble Reports
 
 === Embedded slide with details
-
-

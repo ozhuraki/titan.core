@@ -1,13 +1,13 @@
 ---
 Author: Elemér Lelik
-Version: 109 47-CRL 113 200/6 Uen, Rev. F
-Date: 2019-05-16
+Version: 109 47-CRL 113 200/6 Uen, Rev. G
+Date: 2019-11-29
 
 ---
 = Release Notes for TITAN TTCN-3 Test Executor
 :author: Elemér Lelik
-:revnumber: 109 47-CRL 113 200/6 Uen, Rev. F
-:revdate: 2019-05-16
+:revnumber: 109 47-CRL 113 200/6 Uen, Rev. G
+:revdate: 2019-11-29
 :title-logo-image: images/titan_logo.png
 :sectnums:
 :doctype: book
@@ -27,6 +27,21 @@ The document is organized as follows: <<what-s-new-in-this-version,What's new in
 [[what-s-new-in-this-version]]
 = What’s new in this version?
 
+[[version-6-6-crl-113-200-6-r6b]]
+== Version 6.6 (CRL 113 200/6 R6B)
+
+This a bugfix release, with the following new features:
+
+* Enhance performance of TIMER::get_min_expiration
+* Legitimize compiler option '-F'
+* Colorize compiler error/warning messages
+* change the internal representation of octetstring from char[] to byte[] for efficiency
+* CSN.1 L/H in the RAW codec
+* change in how xsd files with NoTargetNamespace should be mapped to TTCN-3
+* add support for structured type compatibility to the Java code generator
+* add support for module parameter handling to the Java side runtime
+
+
 [[version-6-6-crl-113-200-6-r6a]]
 == Version 6.6 (CRL 113 200/6 R6A)
 
@@ -45,7 +60,7 @@ Apart from the above,  this version has the following new features of the Titan 
 * Printing symbolic version in 'compiler -v’
 * Legitimized compiler option '-0’
 * New command line option '-p' implemented for TTCN binaries (both in single mode and parallel mode), which lists all module parameters
-* Support for real-time testing 
+* Support for real-time testing
 * Implementation of map param/unmap param
 * Extended 'default' JSON attribute for structured types
 * Colorized compiler error/warning messages
@@ -54,26 +69,26 @@ Apart from the above,  this version has the following new features of the Titan 
 [[version-6-5-crl-113-200-6-r5a]]
 == Version 6.5 (CRL 113 200/6 R5A)
 
-This release introduces real-time support according to 
+This release introduces real-time support according to
 TTCN-3 Language Extensions:
-TTCN-3 Performance and Real Time Testing  
-as a major new feature. 
+TTCN-3 Performance and Real Time Testing
+as a major new feature.
 
 This version has the following new features:
 
 * License upgrade to EPL 2.0
 * Documentation migrated to asciidoc
-* Bugfixes for core, ASN.1, XML, RAW, OER  codecs, XSD2TTCN 
+* Bugfixes for core, ASN.1, XML, RAW, OER  codecs, XSD2TTCN
 * New RAW coding instruction 'FORCEOMIT'
 * New JSON attribute 'as map'
 * Attribute 'text ... as ...' for JSON
 * Adopt Makefilegen for the Debian packaging
 * Support for real-time testing in TITAN
-Added compiler option '-I', which enables the real-time testing features mentioned here. 
-The features are disabled by default, and the new keywords ('now', 'realtime' and 'timestamp') 
+Added compiler option '-I', which enables the real-time testing features mentioned here.
+The features are disabled by default, and the new keywords ('now', 'realtime' and 'timestamp')
 can be used as identifiers again (for backward compatibility).
 
-Also added makefilegen option '-i', which activates this option for the compiler, 
+Also added makefilegen option '-i', which activates this option for the compiler,
 and the makefile setting 'enableRealtimeTesting' in the TPD, which does the same thing.
 
 * New flag for xsd2ttcn
@@ -646,6 +661,22 @@ Version 1.1 has the following new features:
 [[version-history]]
 = Version history
 
+[[version-crl-113-200-6-r6b]]
+== Version CRL 113 200/6 R6B
+
+This release has the following new features:
+
+* Enhance performance of TIMER::get_min_expiration
+* Legitimize compiler option '-F'
+* Colorize compiler error/warning messages
+* change the internal representation of octetstring from char[] to byte[] for efficiency
+* CSN.1 L/H in the RAW codec
+* change in how xsd files with NoTargetNamespace should be mapped to TTCN-3
+* add support for structured type compatibility to the Java code generator
+* add support for module parameter handling to the Java side runtime
+* Bug fixes
+
+
 [[version-crl-113-200-6-r6a]]
 == Version CRL 113 200/6 R6A
 
@@ -658,7 +689,7 @@ This release has the following new features:
 * Printing symbolic version in 'compiler -v’
 * Legitimized compiler option '-0’
 * New command line option '-p' implemented for TTCN binaries (both in single mode and parallel mode), which lists all module parameters
-* Support for real-time testing 
+* Support for real-time testing
 * Implementation of map param/unmap param
 * Extended 'default' JSON attribute for structured types
 * Colorized compiler error/warning messages
@@ -673,7 +704,7 @@ Release date: 7th of December 2018
 
 * License upgrade to EPL 2.0
 * Documentation migrated to asciidoc
-* Bugfixes for core, ASN.1, XML, RAW, OER  codecs, XSD2TTCN 
+* Bugfixes for core, ASN.1, XML, RAW, OER  codecs, XSD2TTCN
 * New RAW coding instruction 'FORCEOMIT'
 * New JSON attribute 'as map'
 * Attribute 'text ... as ...' for JSON

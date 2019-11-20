@@ -1,13 +1,13 @@
 ---
 Author: Jenő Balaskó
-Version: 2/198 17-CRL 113 200/6, Rev. F
-Date: 2019-05-17
+Version: 2/198 17-CRL 113 200/6, Rev. G
+Date: 2019-11-29
 
 ---
 = Programmers' Technical Reference Guide for the TITAN TTCN-3 Toolset
 :author: Jenő Balaskó
-:revnumber: 2/198 17-CRL 113 200/6, Rev. F
-:revdate: 2019-05-17
+:revnumber: 2/198 17-CRL 113 200/6, Rev. G
+:revdate: 2019-11-29
 :title-logo-image: images/titan_logo.png
 :sectnums:
 :doctype: book
