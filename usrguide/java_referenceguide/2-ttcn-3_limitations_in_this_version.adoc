@@ -12,6 +12,5 @@ When applicable, the relevant clause of the standard text (<<14-references.adoc#
 * Additionally the `@profiler.start`, `@profiler.stop`, `string2ttcn` TITAN extensions are also not yet supported on the Java side.
 * The `@profiler.running` TITAN extension is also not supported.
 * Concatenating template strings is not yet supported on the Java side.
-* Type compatibility is not yet supported on the Java side.footnote:[except record of/set of types for certain element types, see section 4.32.2]
 
 WARNING: The current version of the Java side of the Test Executor is just a prototype version. Please note that there might still be some changes in some of its APIs.

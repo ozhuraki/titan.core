@@ -303,4 +303,6 @@ XML encoding and decoding is not yet supported on the Java side.
 
 == JSON
 
-JSON encoding and decoding is not yet supported on the Java side.
+JSON encoding and decoding is not yet fully supported on the Java side.
+
+Semantic checks for checking that the JSON attribute is used consistently is available, but code generation and runtime support is still missing.
