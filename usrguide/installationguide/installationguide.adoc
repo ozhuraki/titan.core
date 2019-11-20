@@ -120,20 +120,37 @@ Libs: libexpat1 +
 Libs: libiconv, libiconv-devel, libiconv2
 .. To contribute to Titan, test port or protocol module development: Devel: git-review If, after selecting the required packages and clicking on the "Next" button, a "Resolving Dependencies" window lists further required packages, ensure that the "Select required packages (RECOMMENDED)" checkbox is checked and click on the "Next" button.
 
-. Select the ``Create'' icon on the Desktop checkbox
+. Select the ``Create`` icon on the Desktop checkbox
 
 . Optional +
-Your "unix" home directory, by default is: <your cygwin installation directory>/home/<yourUserId>. If you are (also) working in command line mode, it is a good practice to change this to the folder where your TTCN-3 projects are located. Edit the file <your cygwin installation directory>/etc/passw: In the line: ourUserId>:unused:<xxxxxx>:<yyyyy>:U-<yourDomain>&lt;yourUserId>, S-1-5-21-nnnnnn…nnnnnn:/home/<yourUserId>:/bin/bash replace ``/home/<yourUserId>'' with the folder of your preference.
+Your "unix" home directory, by default is: ``<your cygwin installation directory>/home/<yourUserId>``. +
+If you are (also) working in command line mode, it is a good practice to change this to the folder where your TTCN-3 projects are located. +
+In older ``cygwins``: +
+Edit the file ``<your cygwin installation directory>/etc/passw``: +
+In the line: 
+``<ourUserId>:unused:<xxxxxx>:<yyyyy>:U-<yourDomain><yourUserId>, S-1-5-21-nnnnnn…nnnnnn:/home/<yourUserId>:/bin/bash`` +
+replace ``/home/<yourUserId>`` with the folder of your preference. +
 +
-NOTE: you can access all Windows drives from Cygwin as /cygdrive/<windowsDriveLetter>. Example: to set your "unix" home directory to the "My_Home" folder within your Windows Documents folder, you should replace "/home/<yourUserId>" by /cygdrive/c/Users/<yourUserId>/Documents/My_Home''WARNING: The path of your "unix" home directory shall not contain any space! It is not a requirement, but is a kind of best practice to place Titan into a subfolder within your "unix" home directory.
+Starting with Cygwin 1.7.34 or later, set ``db_home`` in file ``/etc/nsswitch.conf``. +
+For example set: +
+``db_home:  /cygdrive/c/Users/<yourUserId>``.
++
+NOTE: You can access all Windows drives from Cygwin as ``/cygdrive/<windowsDriveLetter>``.
+Example: to set your "unix" home directory to the ``My_Home`` folder within your Windows Documents folder, 
+you should replace ``/home/<yourUserId>`` by ``/cygdrive/c/Users/<yourUserId>/Documents/My_Home``.
+
+WARNING: The path of your "unix" home directory shall not contain any space!
+It is not a requirement, but is a kind of best practice to place Titan into a subfolder within your "unix" home directory.
 
 . When installation is finished, add the +
-$CYGWIN_INSTALL_DIRECTORY\bin and +
-$CYGWIN_INSTALL_DIRECTORY\usr\bin directories to the PATH +
+``$CYGWIN_INSTALL_DIRECTORY\bin`` and +
+``$CYGWIN_INSTALL_DIRECTORY\usr\bin`` directories to the ``PATH`` +
 environment variable of Windows, so Eclipse will access the shell commands. +
-For example, if the cygwin root is ``C:64'' then ``Path'' should contain ``C:64;C:64''.
+For example, if the cygwin root is ``C:\cygwin64`` then ``Path`` should contain ``C:\cygwin64\bin;C:\cygwin64\usr\bin``.
 
-. To check if your installation is correct, open either a Cygwin shell (use the desktop icon created during Cygwin installation or start bash.exe from the Windows Start menu) or start cmd.exe from the Windows Start menu and type:bash.exe
+. To check if your installation is correct, open either a Cygwin shell 
+(use the desktop icon created during Cygwin installation or start ``bash.exe`` from the Windows ``Start`` menu) or 
+start ``cmd.exe`` from the Windows Start menu and type: ``bash.exe``.
 
 = Installing from a pre-built binary package
 
@@ -145,9 +162,11 @@ The Titan package can be installed from the provided download sites.
 
 Download the Titan package for your platform, OS and GCC version from the provided download sites:
 
-* For Ericsson users only: http://ttcn.ericsson.se/download. The usage of this version is conditioned by the presence of a license file and supported by the Titan support team.
+* For Ericsson users only: http://ttcn.ericsson.se/download.
+The usage of this version is conditioned by the presence of a license file and supported by the Titan support team.
 
-* For users outside Ericsson: https://projects.eclipse.org/projects/tools.titan/downloads. This version is licensed under the Eclipse Public License.
+* For users outside Ericsson: https://projects.eclipse.org/projects/tools.titan/downloads. 
+This version is licensed under the Eclipse Public License.
 
 A binary distribution, suitable for the used operating system (Solaris, Linux, FreeBSD), and for a {cpp} compiler, in a tar-gzip archive will be received. For Windowsfootnote:[For using TITAN on Windows platforms, installing the Cygwin programming environment is required see chapter 1.5 Installing Prerequisites on Cygwin (on Windows)] users there is no pre-built version, but compiling the open-source version is possible.
 

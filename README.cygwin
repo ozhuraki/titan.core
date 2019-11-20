@@ -83,12 +83,12 @@ Cygwin setup
        <your cygwin installation directory>/home/<yourUserId>
        If you are (also) working in command line mode, it is a good 
        practice to change this to the folder where your TTCN-3 projects 
-       are.       
+       are.
+       In older cygwins: 
        Edit the file <your cygwin installation directory>/etc/passw:
        In the line:
        <yourUserId>:unused:<xxxxxx>:<yyyyy>:U-<yourDomain>\<yourUserId>,
        S-1-5-21-nnnnnn...nnnnnn:/home/<yourUserId>:/bin/bash
-      
        replace "/home/<yourUserId>" with the folder of your preference.
        Note: you can access all Windows drives from Cygwin as
        /cygdrive/<windowsDriveLetter>".
@@ -96,11 +96,13 @@ Cygwin setup
        within your Windows Documents folder, you should replace 
        "/home/<yourUserId>" by 
        "/cygdrive/c/Users/<yourUserId>/Documents/My_Home"
+
+       Starting with Cygwin 1.7.34 or later, set "db_home" in file "/etc/nsswitch.conf".
+       Fore example set:
+       "db_home:  /cygdrive/c/Users/<yourUserId>/My_Home".
+       
        WARNING: The path of your "unix" home directory shall not contain
                 any space!
-       NOTE: If /etc/passwd does not exist, edit the /etc/nsswitch.conf file. Insert the line
-       db_home:  /cygdrive/c/Users/<yourUserId>/Documents/My_Home
-	   into that file (or edit that line).
 
     (I1)If you are working with Titan plugins for Eclipse or any Windows based program 
         using cygwin commands, insert the Windows equivalent path of cygwin folders "/bin" or/and "/usr/bin" 
