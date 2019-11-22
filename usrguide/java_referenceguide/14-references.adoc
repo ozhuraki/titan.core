@@ -58,7 +58,7 @@
 * [19] link:http://gask2web.ericsson.se/service/get?DocNo=1092-212&Lang=EN&Rev=N&Format=PDFV1R2[1092-212 Uen (EN/LZB 101 01/1D) Product Changes]
 
 [[_20]]
-* [20] link:https://www.itu.int/rec/T-REC-X.696-201508-I[ITU-T, X.696, Information TechnologyASN.1 encoding rules: Specification of Octet Encoding Rules (OERInternational Telecommunication Union, August 2015]
+* [20] link:https://www.itu.int/rec/T-REC-X.696-201508-I[ITU-T, X.696, Information Technology ASN.1 encoding rules: Specification of Octet Encoding Rules (OER) International Telecommunication Union, August 2015]
 
 [[_21]]
 * [21] link:https://www.etsi.org/deliver/etsi_es/202700_202799/202781/01.04.01_60/es_202781v010401p.pdf[ETSI ES 202 781 V1.4.1. (2015-06 Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: Configuration and Deployment Support)]

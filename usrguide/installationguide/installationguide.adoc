@@ -79,7 +79,10 @@ Titan is always built on the newest Cygwin version available.
 
 * If Cygwin hasn’t been installed yet:
 
-. Download and execute the latest Cygwin installer utility depending on your platform and the Titan package to be downloaded:32-bit version: https://cygwin.com/setup-x86.exe64-bit version: https://cygwin.com/setup-x86_64.exe
+. Download and execute the latest Cygwin installer utility depending on your platform and 
+the Titan package to be downloaded: +
+32-bit version: https://cygwin.com/setup-x86.exe +
+64-bit version: https://cygwin.com/setup-x86_64.exe
 
 . Select Install from Internet (recommended to save local disk place)
 
@@ -284,7 +287,7 @@ SOLARIS8_LIBS = -lxnet -lxml2 -lresolv -lnsl -lsocket
 LINUX_LIBS = -lxml2 -lpthread -lrt
 ....
 
-= Licensing
+= Licensing (Only for Ericsson users)
 
 This chapter describes how to obtain and install a TITAN license key.
 
@@ -333,34 +336,36 @@ Perform the following steps to install the license key:
 * Check the validity of the license by issuing `$TTCN3_DIR/bin/compiler -v`. The compiler will print its version and the information contained in the license file. Also it checks the validity of the license key. Example printout:
 
 ....
+$ compiler -v
 TTCN-3 and ASN.1 Compiler for the TTCN-3 Test Executor
-Product number: CRL 113 200/4 R2A
-Build date: Sep 19 2014 10:17:18
-Compiled with: GCC 4.8.2
+Product number: CRL 113 200/6 R6B
+Version: 6.6.pl1
+Build date: Nov 19 2019 15:46:24
+Compiled with: GCC 7.3.0
+Using OpenSSL 1.0.2p  14 Aug 2018
 
-Copyright Ericsson Telecom AB 2000-2014
+Copyright (c) 2000-2019 Ericsson Telecom AB
 
 License information:
---------------------------------------------------------
-License file : /home/ethbaat/license_98.dat
-Unique ID : 98
-Licensee : Attila Balasko
-E-mail : jeno.balasko@ericsson.com
-Company : Ericsson Hungary
-Department : ETH/XZR
-Valid from : Fri Sep 20 00:00:00 2002
-Valid until : Tue Aug 25 23:59:59 2015
-Limitation : USER
-Host ID : 00000000
-Login name : ethbaat
-Versions : from 1.1.pl0 until 1.99.pl99
-Languages : TTCN3 ASN1
-Encoders : RAW TEXT BER PER XER
+---------------------------------------------------------------
+License file : /cygdrive/c/Users/ethbaat/license_98.dat
+Unique ID    : 98
+Licensee     : Jeno Balasko
+E-mail       : jeno.balasko@ericsson.com
+Company      : Ericsson Hungary
+Department   : ETH/
+Valid from   : Fri Sep 20 00:00:00 2002
+Valid until  : Sat Mar 28 23:59:59 2020
+Limitation   : USER
+Host ID      : 00000000
+Login name   : ethbaat
+Versions     : from 1.1.pl0 until 1.99.pl99
+Languages    : TTCN3 ASN1
+Encoders     : RAW TEXT BER PER XER
 Applications : CODEGEN TPGEN SINGLE MCTR HC LOGFORMAT
-Max PTCs : 10000
---------------------------------------------------------
+Max PTCs     : 10000
+---------------------------------------------------------------
 The license key is valid.
-Using OpenSSL 1.0.1e 11 Feb 2013
 ....
 
 The last line of the printout indicates the success or the problems with the license key.

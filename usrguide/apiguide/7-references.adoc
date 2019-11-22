@@ -4,7 +4,7 @@
 * [1] link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187301/04.05.01_60/es_20187301v040501p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 1: Core Language European Telecommunications Standards Institute ES 201 873-1 Version 4.5.1, April 2013]
 
 [[_2]]
-* [2] link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187304/04.01.01_60/es_20187304v040101p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 4: TTCN–3 Operational SemanticsEuropean Telecommunications Standards Institute. ES 201 873-4 Version 4.1.1, June 2009]
+* [2] link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187304/04.01.01_60/es_20187304v040101p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 4: TTCN–3 Operational Semantics European Telecommunications Standards Institute. ES 201 873-4 Version 4.1.1, June 2009]
 
 [[_3]]
 * [3] link:https://pdfs.semanticscholar.org/33b5/877c85f7fd4f35c7f58c39121358c3652966.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 7: Using ASN.1 with TTCN–3 European Telecommunications Standards Institute. ES 201 873-7 Version 4.5.1, April 2013]

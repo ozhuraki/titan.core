@@ -3893,16 +3893,16 @@ No changes.
 
 = References
 
-1. link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187301/04.01.01_60/es_20187301v040101p.pdf[Methods for Testing and Specification (MTS);The Testing and Test Control Notation version 3.Part 1: Core LanguageEuropean Telecommunications Standards Institute. ES 201 873-1 Version 4.1.1, July 2009]
+1. link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187301/04.01.01_60/es_20187301v040101p.pdf[Methods for Testing and Specification (MTS);The Testing and Test Control Notation version 3.Part 1: Core Language European Telecommunications Standards Institute. ES 201 873-1 Version 4.1.1, July 2009]
 
 2. link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187304/04.01.01_60/es_20187304v040101p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 4: TTCN–3 Operational Semantics European Telecommunications Standards Institute. ES 201 873-4 Version 4.1.1, June 2009]
 
-3. link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187307/03.01.01_60/es_20187307v030101p.pdf[Methods for Testing and Specification (MTS);The Testing and Test Control Notation version 3.Part 7: Using ASN.1 with TTCN–3European Telecommunications Standards Institute.ES 201 873-7  Version 3.1.1, June 2005]
+3. link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187307/03.01.01_60/es_20187307v030101p.pdf[Methods for Testing and Specification (MTS);The Testing and Test Control Notation version 3.Part 7: Using ASN.1 with TTCN–3 European Telecommunications Standards Institute.ES 201 873-7  Version 3.1.1, June 2005]
 
-4. link:https://www.itu.int/rec/T-REC-X.680-200207-S[ITU-T, X.680, Information TechnologyAbstract Syntax Notation One (ASN.1): Specification of basic notationInternational Telecommunication Union, July 2002]
+4. link:https://www.itu.int/rec/T-REC-X.680-200207-S[ITU-T, X.680, Information Technology Abstract Syntax Notation One (ASN.1): Specification of basic notation International Telecommunication Union, July 2002]
 
 
-5. link:https://www.itu.int/rec/T-REC-X.682-200207-S[ITU-T, X.682, Information TechnologyAbstract Syntax Notation One (ASN.1): Constraint specificationInternational Telecommunication Union, July 2002]
+5. link:https://www.itu.int/rec/T-REC-X.682-200207-S[ITU-T, X.682, Information Technology Abstract Syntax Notation One (ASN.1): Constraint specification International Telecommunication Union, July 2002]
 
 6. link:https://github.com/eclipse/titan.core/blob/master/usrguide/installationguide/[Installation guide for TITAN TTCN-3 Test Executor]
 

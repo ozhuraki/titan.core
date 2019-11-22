@@ -34,7 +34,29 @@ The contents of this document are subject to revision without notice due to cont
 
 = Description
 
-The present document provides the Implementation Conformance Statement (ICS) proforma for the conformance test suite for the Eclipse Titan TTCN-3 implementation as defined in link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187301/04.07.01_60/es_20187301v040701p.pdf[ES 201 873-1] in compliance with the relevant guidance given in the proforma for TTCN-3 reference test suite link:https://www.etsi.org/deliver/etsi_ts/102900_102999/102995/01.01.01_60/ts_102995v010101p.pdf[TS 102 995]. In the present document only the core language features, specified in link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187301/04.07.01_60/es_20187301v040701p.pdf[ES 201 873 1] have been considered but not the tool implementation (see link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187305/04.08.01_60/es_20187305v040801p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Part 5: TTCN-3 Runtime Interface (TRI)] and link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187306/04.03.01_60/es_20187306v040301p.pdf[ETSI ES 201 873-6: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Part 6: TTCN-3 Control Interface (TCI).]), language mapping (see link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187307/04.03.01_60/es_20187307v040301p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Part 7: Using ASN.1 with TTCN-3], link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187308/04.05.01_60/es_20187308v040501p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Part 8: The IDL to TTCN-3 Mapping] and link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187309/04.08.01_60/es_20187309v040801p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Part 9: Using XML schema with TTCN-3]) and language extension (see e.g. link:https://www.etsi.org/deliver/etsi_es/202700_202799/202781/01.05.01_60/es_202781v010501p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: Configuration and Deployment Support.] , link:https://www.etsi.org/deliver/etsi_es/202700_202799/202784/01.06.01_60/es_202784v010601p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: Advanced Parameterization] and link:https://www.etsi.org/deliver/etsi_es/202700_202799/202785/01.05.01_60/es_202785v010501p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: Behaviour Types]) aspects.
+The present document provides the Implementation Conformance Statement (ICS) proforma for the conformance test suite 
+for the Eclipse Titan TTCN-3 implementation as defined in 
+link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187301/04.07.01_60/es_20187301v040701p.pdf[ES 201 873-1] in compliance 
+with the relevant guidance given in the proforma for TTCN-3 reference test suite 
+link:https://www.etsi.org/deliver/etsi_ts/102900_102999/102995/01.01.01_60/ts_102995v010101p.pdf[TS 102 995].
+
+In the present document only the core language features, specified in 
+link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187301/04.07.01_60/es_20187301v040701p.pdf[ES 201 873-1] 
+have been considered but not 
+
+* the tool implementation (see 
+link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187305/04.08.01_60/es_20187305v040801p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Part 5: TTCN-3 Runtime Interface (TRI)] +
+and
+link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187306/04.03.01_60/es_20187306v040301p.pdf[ETSI ES 201 873-6: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Part 6: TTCN-3 Control Interface (TCI).]), +
+* language mapping 
+(see link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187307/04.03.01_60/es_20187307v040301p.pdf[Methods for Testing and Specification (MTS);
+The Testing and Test Control Notation version 3; Part 7: Using ASN.1 with TTCN-3], +
+link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187308/04.05.01_60/es_20187308v040501p.pdf[Methods for Testing and Specification (MTS); 
+The Testing and Test Control Notation version 3; Part 8: The IDL to TTCN-3 Mapping] and 
+link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187309/04.08.01_60/es_20187309v040801p.pdf[Methods for Testing and Specification (MTS); 
+The Testing and Test Control Notation version 3; Part 9: Using XML schema with TTCN-3])
+* and language extension 
+(see e.g. link:https://www.etsi.org/deliver/etsi_es/202700_202799/202781/01.05.01_60/es_202781v010501p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: Configuration and Deployment Support.] , link:https://www.etsi.org/deliver/etsi_es/202700_202799/202784/01.06.01_60/es_202784v010601p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: Advanced Parameterization] and link:https://www.etsi.org/deliver/etsi_es/202700_202799/202785/01.05.01_60/es_202785v010501p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: Behaviour Types]) aspects.
 
 = References
 
@@ -42,35 +64,25 @@ The present document provides the Implementation Conformance Statement (ICS) pro
 
 The following referenced documents are necessary for the application of the present document.
 
-1.	link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187301/04.07.01_60/es_20187301v040701p.pdf[ETSI ES 201 873-1: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Part 1: TTCN-3 Core Language v4.7.1.]
-
-2. [[_2]]ISO/IEC 9646-7 (1994): Conformance testing methodology and framework -
+. [[_1]] link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187301/04.07.01_60/es_20187301v040701p.pdf[ETSI ES 201 873-1: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Part 1: TTCN-3 Core Language v4.7.1.]
+. [[_2]]ISO/IEC 9646-7 (1994): Conformance testing methodology and framework -
 Part 7: Implementation Conformance Statement.
-
-3. [[_3]]ISO/IEC 9646-1 (1992): Information Technology - Open Systems Interconnection - Conformance Testing Methodology and Framework - Part 1: General concepts.
-
-4.	link:https://www.etsi.org/deliver/etsi_ts/102900_102999/102995/01.01.01_60/ts_102995v010101p.pdf[ETSI TS 102 995: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Proforma for TTCN-3 reference test suite]
+. [[_3]]ISO/IEC 9646-1 (1992): Information Technology - Open Systems Interconnection - Conformance Testing Methodology and Framework - Part 1: General concepts.
+. [[_4]]link:https://www.etsi.org/deliver/etsi_ts/102900_102999/102995/01.01.01_60/ts_102995v010101p.pdf[ETSI TS 102 995: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Proforma for TTCN-3 reference test suite]
 
 
 == Informative references
 
 The following referenced documents are not necessary for the application of the present document but they assist the user with regard to a particular subject area.
 [start=5]
-5. link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187305/04.08.01_60/es_20187305v040801p.pdf[ETSI ES 201 873-5: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Part 5: TTCN-3 Runtime Interface (TRI).]
-
-6. link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187306/04.03.01_60/es_20187306v040301p.pdf[ETSI ES 201 873-6: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Part 6: TTCN-3 Control Interface (TCI).]
-
-7. link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187307/04.03.01_60/es_20187307v040301p.pdf[ETSI ES 201 873-7: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Part 7: Using ASN.1 with TTCN-3.]
-
-8. link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187308/04.05.01_60/es_20187308v040501p.pdf[ETSI ES 201 873-8: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Part 8: The IDL to TTCN-3 Mapping.]
-
-9. link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187309/04.08.01_60/es_20187309v040801p.pdf[ETSI ES 201 873-9: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Part 9: Using XML schema with TTCN-3.]
-
-10. link:https://www.etsi.org/deliver/etsi_es/202700_202799/202781/01.05.01_60/es_202781v010501p.pdf[ETSI ES 202 781: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: Configuration and Deployment Support.]
-
-11. link:https://www.etsi.org/deliver/etsi_es/202700_202799/202784/01.06.01_60/es_202784v010601p.pdf[ETSI ES 202 784: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: Advanced Parameterization.]
-
-12.	link:https://www.etsi.org/deliver/etsi_es/202700_202799/202785/01.05.01_60/es_202785v010501p.pdf[ETSI ES 202 785: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: Behaviour Types.]
+. link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187305/04.08.01_60/es_20187305v040801p.pdf[ETSI ES 201 873-5: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Part 5: TTCN-3 Runtime Interface (TRI).]
+. link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187306/04.03.01_60/es_20187306v040301p.pdf[ETSI ES 201 873-6: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Part 6: TTCN-3 Control Interface (TCI).]
+. link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187307/04.03.01_60/es_20187307v040301p.pdf[ETSI ES 201 873-7: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Part 7: Using ASN.1 with TTCN-3.]
+. link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187308/04.05.01_60/es_20187308v040501p.pdf[ETSI ES 201 873-8: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Part 8: The IDL to TTCN-3 Mapping.]
+. link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187309/04.08.01_60/es_20187309v040801p.pdf[ETSI ES 201 873-9: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; Part 9: Using XML schema with TTCN-3.]
+. link:https://www.etsi.org/deliver/etsi_es/202700_202799/202781/01.05.01_60/es_202781v010501p.pdf[ETSI ES 202 781: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: Configuration and Deployment Support.]
+. link:https://www.etsi.org/deliver/etsi_es/202700_202799/202784/01.06.01_60/es_202784v010601p.pdf[ETSI ES 202 784: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: Advanced Parameterization.]
+. link:https://www.etsi.org/deliver/etsi_es/202700_202799/202785/01.05.01_60/es_202785v010501p.pdf[ETSI ES 202 785: Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: Behaviour Types.]
 
 = Definitions and abbreviations
 
