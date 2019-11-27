@@ -664,6 +664,8 @@ Version 1.1 has the following new features:
 [[version-crl-113-200-6-r6b]]
 == Version CRL 113 200/6 R6B
 
+Release date: 29th of November 2019
+
 This release has the following new features:
 
 * Enhance performance of TIMER::get_min_expiration
