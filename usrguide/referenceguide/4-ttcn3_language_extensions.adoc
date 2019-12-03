@@ -5315,6 +5315,7 @@ This section covers the coding rules in general, the attributes controlling them
 === General rules and restrictions
 
 You can use the encoding rules defined in this section to encode and decode the following TTCN–3 types:
+
 * anytype
 * array
 * bitstring
@@ -5367,6 +5368,7 @@ Types imported from ASN.1 modules (from the list above) automatically have JSON 
 When using <<legacy-codec-handling, legacy codec handling>> the encode attribute can be omitted if the type has at least one JSON variant attribute (see <<attributes-2, here>>).
 
 Additional requirements for JSON encoding and decoding when using legacy codec handling:
+
 * in case of records, sets, unions and ASN.1 open types every field must also support JSON coding;
 * in case of array, record of and set of structures the element type must also support JSON coding.
 
