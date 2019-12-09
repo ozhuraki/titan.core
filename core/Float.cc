@@ -791,12 +791,10 @@ int FLOAT::RAW_decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& buff,
   double tmp = 0.0;
   unsigned char data[16];
   RAW_coding_par cp;
-  boolean orders = FALSE;
-  if (p_td.raw->bitorderinoctet == ORDER_MSB) orders = TRUE;
+  boolean orders = p_td.raw->bitorderinoctet == ORDER_MSB;
   if (p_td.raw->bitorderinfield == ORDER_MSB) orders = !orders;
   cp.bitorder = orders ? ORDER_MSB : ORDER_LSB;
-  orders = FALSE;
-  if (p_td.raw->byteorder       == ORDER_MSB) orders = TRUE;
+  orders = p_td.raw->byteorder == ORDER_MSB;
   if (p_td.raw->bitorderinfield == ORDER_MSB) orders = !orders;
   cp.byteorder = orders ? ORDER_MSB : ORDER_LSB;
   cp.fieldorder = p_td.raw->fieldorder;
