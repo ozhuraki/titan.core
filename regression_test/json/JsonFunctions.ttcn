@@ -10,10 +10,10 @@
  *   Baranyi, Botond
  *
  ******************************************************************************/
-module Functions
+module JsonFunctions
 {
 
-import from Types all;
+import from JsonTypes all;
 import from JsonData language "ASN.1" all;
 import from OtherTypes all;
 

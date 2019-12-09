@@ -12,8 +12,8 @@
  ******************************************************************************/
 module AttributeTestcases {
 
-import from Functions all;
-import from Types all;
+import from JsonFunctions all;
+import from JsonTypes all;
 
 
 

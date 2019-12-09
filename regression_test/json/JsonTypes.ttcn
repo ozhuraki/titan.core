@@ -10,7 +10,7 @@
  *   Baranyi, Botond
  *
  ******************************************************************************/
-module Types {
+module JsonTypes {
 
 import from JsonData all;
 

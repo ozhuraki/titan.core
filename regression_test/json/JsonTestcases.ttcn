@@ -10,10 +10,10 @@
  *   Baranyi, Botond
  *
  ******************************************************************************/
-module Testcases {
+module JsonTestcases {
 
-import from Functions all;
-import from Types all;
+import from JsonFunctions all;
+import from JsonTypes all;
 import from JsonData language "ASN.1" all;
 import from OtherTypes all;
 
