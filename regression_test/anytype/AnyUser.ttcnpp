@@ -18,7 +18,7 @@ type record of integer address;
 type float AT_integer; // there's an AT_integer in AnytypeTest
 type charstring universal_charstring;
 type record of anytype rof_any;
-type integer AT_INTEGER;
+type integer AT_INTEGER1;
 
 type component AU {}
 
@@ -74,7 +74,7 @@ with {
 extension "anytype rof_string, other_anytype" // both from AnytypeTest
 extension "anytype integer, universal charstring"
 extension "anytype AT_integer" // this is our (non-integer) AT_integer
-extension "anytype AT_INTEGER" // test that there is no clash with
+extension "anytype AT_INTEGER1" //TODO: test that there is no clash with
 //                                the generated field accessor for integer
 extension "anytype universal_charstring" // HM33256
 }
