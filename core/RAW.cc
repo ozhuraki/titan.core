@@ -157,7 +157,6 @@ const unsigned char BitMaskTable[9]={
 RAW_enc_tree::RAW_enc_tree(boolean is_leaf, RAW_enc_tree *par,
   RAW_enc_tr_pos *par_pos, int my_pos, const TTCN_RAWdescriptor_t *raw_attr)
 {
-  boolean orders = FALSE;
   isleaf = is_leaf;
   must_free = FALSE;
   data_ptr_used = FALSE;
@@ -182,11 +181,10 @@ RAW_enc_tree::RAW_enc_tree(boolean is_leaf, RAW_enc_tree *par,
   ext_bit = raw_attr->extension_bit;
   top_bit_order = raw_attr->top_bit_order;
   calc = CALC_NO;
-  if (raw_attr->byteorder == ORDER_MSB) orders = TRUE;
+  boolean orders = raw_attr->byteorder == ORDER_MSB;
   if (raw_attr->bitorderinfield == ORDER_MSB) orders = !orders;
   coding_par.byteorder = orders ? ORDER_MSB : ORDER_LSB;
-  orders = FALSE;
-  if (raw_attr->bitorderinoctet == ORDER_MSB) orders = TRUE;
+  orders = raw_attr->bitorderinoctet == ORDER_MSB;
   if (raw_attr->bitorderinfield == ORDER_MSB) orders = !orders;
   coding_par.bitorder = orders ? ORDER_MSB : ORDER_LSB;
   coding_par.hexorder = raw_attr->hexorder;
