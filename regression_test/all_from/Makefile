@@ -53,7 +53,7 @@ TTCN3_LIB = ttcn3$(RT2_SUFFIX)$(DYNAMIC_SUFFIX)
 #
 
 # TTCN-3 modules of this project:
-TTCN3_MODULES = $(wildcard all_from*.ttcn) types.ttcn  sapc.ttcn functions.ttcn imported_templates.ttcn
+TTCN3_MODULES = $(wildcard all_from*.ttcn) types.ttcn  sapc.ttcn functions.ttcn
 #TTCN3_MODULES = everything.ttcn
 
 

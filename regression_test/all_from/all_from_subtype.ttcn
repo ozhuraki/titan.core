@@ -15,7 +15,7 @@
 module all_from_subtype {
 
 import from types all;
-import from functions all;
+
 
 /* * * * integer * * * */
 template RoI t_RoI1 := { 1, 2, (6..9) };
