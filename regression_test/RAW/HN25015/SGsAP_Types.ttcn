@@ -23,7 +23,7 @@
 
 module SGsAP_Types
 {
- import from General_Types all;
+ import from General_Types1 all;
 
  external function enc_PDU_SGsAP(in PDU_SGsAP pdu) return octetstring
  with { extension "prototype(convert)" extension "encode(RAW)" }

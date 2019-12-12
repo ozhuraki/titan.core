@@ -21,7 +21,7 @@
 //  Reference:
 */
 
-module General_Types
+module General_Types1
 {
 
 group SimpleNativeTypes {

@@ -51,7 +51,7 @@ module AddressPortNegTest {
           setverdict(fail, "Send operation succeeded. Expected error.");
         }
         @catch (msg) {
-          if (match(msg, pattern "Dynamic test case error: Port p1 has neither connections nor mappings. Message cannot be sent on it.")) {
+          if (match(msg, pattern "*Dynamic test case error: Port p1 has neither connections nor mappings. Message cannot be sent on it.")) {
             setverdict(pass);
           }
           else {
@@ -75,7 +75,7 @@ module AddressPortNegTest {
           setverdict(fail, "Send operation succeeded. Expected error.");
         }
         @catch (msg) {
-          if (match(msg, pattern "Dynamic test case error: Port p1 has neither connections nor mappings. Message cannot be sent on it.")) {
+          if (match(msg, pattern "*Dynamic test case error: Port p1 has neither connections nor mappings. Message cannot be sent on it.")) {
             setverdict(pass);
           }
           else {
@@ -98,7 +98,7 @@ module AddressPortNegTest {
           setverdict(fail, "Send operation succeeded. Expected error.");
         }
         @catch (msg) {
-          if (match(msg, pattern "Dynamic test case error: Port p1 has neither connections nor mappings. Message cannot be sent on it.")) {
+          if (match(msg, pattern "*Dynamic test case error: Port p1 has neither connections nor mappings. Message cannot be sent on it.")) {
             setverdict(pass);
           }
           else {
@@ -116,7 +116,6 @@ module AddressPortNegTest {
     control {
         execute(tc_neg_address_port_not_mapped());
         execute(tc_neg_address_port_not_mapped_system());
-
         execute(tc_neg_port_not_mapped_system());
     }
 
