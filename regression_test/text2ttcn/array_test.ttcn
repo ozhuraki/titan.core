@@ -709,10 +709,15 @@ testcase tc_array_iifp_ModulePar_emb_ttcn2string() runs on MC {
 // string2ttcn testcases: 
 //=========================
 
-//expected result: DTE, setverdict->error
+//expected result: DTE
 testcase tc_array_string2ttcn_DTE_test() runs on MC {
 	var REC_BAI3 vl_result;
-	string2ttcn("{ b := true, ai3 := * }", vl_result);
+	@try {
+		string2ttcn("{ b := true, ai3 := * }", vl_result);
+		setverdict(fail)
+	} @catch(e) {
+		setverdict(pass, "Expected D T E")
+	}
 }
 
 //template string-> template, template string-> value
@@ -925,7 +930,7 @@ testcase tc_array_compl() runs on MyComp_CT {
 control {
   //array
   log("***array tests *******");
-  //execute(tc_array_string2ttcn_DTE_test());
+  execute(tc_array_string2ttcn_DTE_test());
   execute(tc_array_i_NoModulePar());
   execute(tc_array_i_ModulePar());
   execute(tc_array_i_v3p());
@@ -994,7 +999,7 @@ control {
 
   execute(tc_array_string2ttcn_i3_mod4aifp());
   execute(tc_array_string2ttcn_i3_mod4qifp());
-  //execute(tc_array_string2ttcn_i3_mod4v0ifp()); //TODO: check it!
+  execute(tc_array_string2ttcn_i3_mod4v0ifp());
   execute(tc_array_string2ttcn_i3_mod4v1ifp());
   execute(tc_array_string2ttcn_i3_mod4v2ifp());
   execute(tc_array_string2ttcn_i3_mod4v3vifp());
