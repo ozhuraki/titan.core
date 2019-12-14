@@ -49,7 +49,7 @@ TTCN3_LIB = ttcn3$(RT2_SUFFIX)$(DYNAMIC_SUFFIX)
 #
 
 # TTCN-3 modules of this project:
-TTCN3_MODULES = General_Types.ttcn SGsAP_Types.ttcn HN25015.ttcn
+TTCN3_MODULES = General_Types1.ttcn SGsAP_Types.ttcn HN25015.ttcn
 
 # ASN.1 modules of this project:
 ASN1_MODULES =
