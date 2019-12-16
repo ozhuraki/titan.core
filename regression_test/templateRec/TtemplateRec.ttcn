@@ -15,6 +15,7 @@
  *   Szabo, Janos Zoltan – initial implementation
  *
  ******************************************************************************/
+//it is working only the legacy flag
 module TtemplateRec {
 
 type record RP {
@@ -223,6 +224,24 @@ testcase MTTSM00015947() runs on templateRec_mycomp
   if (not match(cr, tRrec3)) { setverdict(fail); }
   if (ispresent(tr.str)) { setverdict(fail); }
   if (ispresent(trc.str)) { setverdict(fail); }
+  if (not ispresent(tr2.str)) { setverdict(fail); }
+  setverdict(pass);
+}
+
+testcase MTTSM00015947_dyn() runs on templateRec_mycomp
+{
+  var R vl_cr := cr;
+  var template R vt_tRrec1 := tRrec1;
+  var template R vt_tRrec2 := tRrec2;
+  var template R vt_tRrec3 := tRrec3;
+  var template R vt_tr := tr;
+  var template R vt_tr2 := tr2;
+  var template R vt_trc := trc;
+  if (not match(vl_cr, vt_tRrec1)) { setverdict(fail); }
+  if (match(vl_cr, vt_tRrec2)) { setverdict(fail); }
+  if ( not match(vl_cr, vt_tRrec3)) { setverdict(fail); }
+  if (ispresent(vt_tr.str)) { setverdict(fail); }
+  if (ispresent(vt_trc.str)) { setverdict(fail); }
   if (not ispresent(tr2.str)) { setverdict(fail); }
   setverdict(pass);
 }
@@ -653,6 +672,7 @@ control {
  execute(templateRecAnyorNone());
  execute(templateRecIfpresent());
  execute(MTTSM00015947());
+ execute(MTTSM00015947_dyn());
  execute(tc_HM39698());
  execute(tc_valueof_governor_segfault());
  execute(tc_HO49372());
