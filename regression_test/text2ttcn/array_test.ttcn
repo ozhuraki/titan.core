@@ -885,7 +885,7 @@ testcase tc_array_string2ttcn_i3_mod4field1ifp() runs on MC {
 }
 
 testcase tc_array_allfrom_perm1() runs on MyComp_CT {
-  var template integer vl_tcAI3literal[3], vl_tcAI3allFrom[3];
+  var template AI3 vl_tcAI3literal, vl_tcAI3allFrom;
   log ("component var v_AI3literal: ", v_AI3literal);
   log ("component var v_AI3allfrom: ", v_AI3allfrom);
   vl_tcAI3literal := { permutation(1,*,3) };
