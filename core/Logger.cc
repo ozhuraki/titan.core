@@ -458,11 +458,10 @@ char *TTCN_Logger::mputstr_timestamp(char *str,
     time_t tv_sec = tv->tv_sec;
     struct tm *lt = localtime(&tv_sec);
     if (lt == NULL) fatal_error("localtime() call failed.");
-    if (errno != 0) {
-      // HACK: 'localtime' may set the 'errno' on some systems (even though it
-      // succeeds); make sure this doesn't affect other code
-      errno = 0;
-    }
+    // HACK: 'localtime' may set the 'errno' on some systems (even though it
+    // succeeds)
+    // reset it, so it doesn't affect other code
+    errno = 0;
     if (p_timestamp_format == TIMESTAMP_TIME) {
       str = mputprintf(str, "%02d:%02d:%02d.%06ld",
                        lt->tm_hour, lt->tm_min, lt->tm_sec, tv->tv_usec);
