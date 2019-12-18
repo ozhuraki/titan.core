@@ -3019,7 +3019,6 @@ void TTCN_Runtime::wait_terminated_processes()
   // this function might be called from TCs too while returning from
   // TTCN_Communication::process_all_messages_hc() after fork()
   if (!is_hc()) return;
-  errno = 0;
   for ( ; ; ) {
     int statuscode;
 #ifdef __clang__
@@ -3028,6 +3027,7 @@ void TTCN_Runtime::wait_terminated_processes()
     struct rusage r_usage = {{0,0},{0,0},0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 #endif
 
+    errno = 0;
 #ifdef INTERIX
     pid_t child_pid = waitpid(-1, &statuscode, WNOHANG);
     getrusage(RUSAGE_CHILDREN, &r_usage);
