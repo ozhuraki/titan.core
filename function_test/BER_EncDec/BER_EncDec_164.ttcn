@@ -32,7 +32,7 @@ var BERPDU der_decoded, cer_decoded;
   dec_BER_PDU(der_encoded, der_decoded);
   if (der_decoded==myValue) {setverdict(pass);} else {setverdict(fail);}
 } @catch (msg) {
-  var template charstring msg_exp := pattern "*Dynamic test case error: While BER-decoding type '@BER_EncDec_164.BERPDU': While decoding REAL type: This is a reserved value: 0x4 (See X.690 8.5.7)*";
+  var template charstring msg_exp := pattern "*Dynamic test case error: While BER-decoding type '@BER_EncDec_164.BERPDU': While decoding REAL type: This is a reserved value: 0x4 \(See X.690 8.5.7\)*";
   if (not match(msg, msg_exp)) {
     setverdict(fail, "Invalid error message: ", msg);
   } else {
