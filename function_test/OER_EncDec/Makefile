@@ -115,7 +115,7 @@ OBJECTS = $(GENERATED_SOURCES:.cc=.o)
 # The name of the executable test suite:
 TARGET = Temp
 
-ifdef COVERAGE
+ifeq ($(COVERAGE), yes)
 CPPFLAGS += -fprofile-arcs -ftest-coverage -g
 CXXFLAGS += -fprofile-arcs -ftest-coverage -g
 LDFLAGS += -fprofile-arcs -ftest-coverage -g -lgcov
