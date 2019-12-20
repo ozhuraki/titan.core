@@ -65,8 +65,6 @@ Committing to git.eclipse.org/titan.* through gerrit code review
 
 # Related products:
 
-(Note: the git.eclipse.org links below are to be used in git operations only, not as http url's)
-
 ## Eclipse IDE plug-ins (Designer, Executor, LogViewer, Titanium):
 
 Source code:
