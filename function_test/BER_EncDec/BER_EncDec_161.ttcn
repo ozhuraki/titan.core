@@ -32,7 +32,7 @@ var BERPDU der_decoded, cer_decoded;
   dec_BER_PDU(der_encoded, der_decoded);
   if (der_decoded==myValue) {setverdict(pass);} else {setverdict(fail);}
 } @catch (msg) {
-  var template charstring msg_exp := pattern "*Internal error: While BER-decoding type '@BER_EncDec_161.BERPDU': No BER descriptor available for type '@BER_EncDec_161.BERPDU'*";
+  var template charstring msg_exp := pattern "*Dynamic test case error: While BER-decoding type '@BER_EncDec_161.BERPDU': While decoding REAL type: This decimal encoding does not conform to NR2 form*";
   if (not match(msg, msg_exp)) {
     setverdict(fail, "Invalid error message: ", msg);
   } else {
