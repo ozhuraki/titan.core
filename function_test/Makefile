@@ -77,7 +77,7 @@ RAW_EncDec:
 	cd $@; make -j; ./RAW_EncDec.exe RAW_EncDec.cfg
 
 Text_EncDec:
-	cd $@; make -j; ./TEXT_EncDec.exe TEXT_EncDec.cfg
+	cd $@; make -j; ./Text_EncDec.exe Text_EncDec.cfg
 
 XER_EncDec:
 	cd $@; make -j; ./XER_EncDec.exe XER_EncDec.cfg
