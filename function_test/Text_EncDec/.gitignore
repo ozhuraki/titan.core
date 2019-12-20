@@ -2,3 +2,5 @@
 *.cc
 *.o
 compile
+*.gcda
+*.gcno
