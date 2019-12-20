@@ -1,11 +1,6 @@
-*.report
-perl
-perl.lnk
-Temp.ttcn
-Temp.??
-Temp.gcda
-Temp.gcno
-Temp
-Temp.exe
 compile
-core
+*.hh
+*.cc
+*.o
+*.gcda
+*.gcno

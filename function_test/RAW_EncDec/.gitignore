@@ -2,3 +2,5 @@ compile
 *.o
 *.hh
 *.cc
+*.gcda
+*.gcno
