@@ -1,0 +1,66 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module BER_EncDec_3 {
+
+import from BER_EncDecA_3 all;
+
+external function enc_DER_PDU55(in BERPDU55 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU55(in BERPDU55 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU55(in octetstring stream) return BERPDU55 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU56(in BERPDU56 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU56(in BERPDU56 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU56(in octetstring stream) return BERPDU56 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU80(in BERPDU80 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU80(in BERPDU80 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU80(in octetstring stream) return BERPDU80 with { extension "prototype(convert) decode(BER)" }
+
+
+const BERPDU55 myValue_55 := {b :=  true,
+			 c := 5  }
+const BERPDU56 myValue_56 := {b :=  true,
+			 c := 5  }
+
+const BERPDU80 myValue_80 := {true, false }
+
+
+type component TempComp {}
+testcase TC() runs on TempComp {
+//===================================================
+//CER + DER encoding of SEQUENCE (both elements are used) IMPLICIT TAGS for elements, EXPLICIT TAGGING ENVIRONMENT
+//===================================================
+if ((enc_DER_PDU55(myValue_55) == '30079E01FF9F1F0105'O)and(enc_CER_PDU55(myValue_55) == '30809E01FF9F1F01050000'O)) {setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU55('30079E01FF9F1F0105'O) == myValue_55){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU55('30809E01FF9F1F01050000'O) == myValue_55){setverdict(pass);} else {setverdict(fail);}
+
+//===================================================
+// CER + DER encoding of TAGGED SEQUENCE (both elements are TAGGED and used), EXPLICIT TAGGING ENVIRONMENT
+//===================================================
+if ((enc_DER_PDU56(myValue_56) == 'A00C300AA0030101FFA103020105'O)and(enc_CER_PDU56(myValue_56) == 'A0803080A0800101FF0000A180020105000000000000'O)) {setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU56('A00C300AA0030101FFA103020105'O) == myValue_56){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU56('A0803080A0800101FF0000A180020105000000000000'O) == myValue_56){setverdict(pass);} else {setverdict(fail);}
+
+
+//===================================================
+// CER + DER encoding of TAGGED SEQUENCE OF BOOLEAN, EXPLICIT TAGGING (unified)
+//===================================================
+if ((enc_DER_PDU80(myValue_80) == 'A00830060101FF010100'O)and(enc_CER_PDU80(myValue_80) == 'A08030800101FF01010000000000'O)) {setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU80('A00830060101FF010100'O) == myValue_80){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU80('A08030800101FF01010000000000'O) == myValue_80){setverdict(pass);} else {setverdict(fail);}
+
+
+} 
+
+control { 
+execute (TC()) 
+}
+}

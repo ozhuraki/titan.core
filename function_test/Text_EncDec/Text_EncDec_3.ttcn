@@ -1,0 +1,41 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module Text_EncDec_3 {
+
+
+external function dec_text_sliding(inout charstring r, out myint5 s) return integer 
+  with { extension "prototype(sliding) decode(TEXT) errorbehavior(ALL:WARNING)" }
+
+type integer myint5 with { encode "TEXT"; variant "TEXT_CODING(length=25)" }
+
+
+type component TempComp {}
+testcase TC() runs on TempComp {
+  var myint5 decoded
+  var charstring encoded := "  12345678910111213141516    -11111111111111111111"
+  var integer ret_val
+  var template integer intt := 12345678910111213141516
+  ret_val := dec_text_sliding(encoded, decoded)
+  if (ret_val == 0 and decoded == 12345678910111213141516) {setverdict(pass)}
+  else {setverdict(fail)}
+  ret_val := dec_text_sliding(encoded, decoded)
+  if (ret_val == 0 and decoded == -11111111111111111111) {setverdict(pass)}
+  else {setverdict(fail)}
+  ret_val := dec_text_sliding(encoded, decoded)
+  if (match(12345678910111213141516, intt)) {setverdict(pass)}
+  else {setverdict(fail)}
+
+} 
+
+control { 
+execute (TC()) 
+}
+}

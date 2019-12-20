@@ -1,0 +1,77 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module BER_EncDec_61 {
+
+import from BER_EncDecA_61 all;
+
+external function enc_DER_PDU(in BERPDU pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU(in BERPDU pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU(in octetstring stream) return BERPDU with { extension "prototype(convert) decode(BER)" }
+
+const BERPDU myValue1 := {a :=  NULL}
+const BERPDU myValue2 := {b :=  true}
+const BERPDU myValue3 := {c :=  2}
+const BERPDU myValue4 := {d :=  first}
+const BERPDU myValue5 := {e :=  1.0}
+const BERPDU myValue6 := {f :=  '1'B}
+const BERPDU myValue7 := {g :=   'FFFF'O}
+
+const BERPDU myValue9 := {i :=   "ABC"}
+const BERPDU myValue10 := {j := {x1 := true   }  }
+const BERPDU myValue11 := {k := {x2 := NULL,
+                               y2  := true }    }
+const BERPDU myValue12 := {l := {y3 := 1.0 ,
+                               x3 := '1'B   }    }
+const BERPDU myValue13 := {m := 
+                             { 1 ,2 }    }
+const BERPDU myValue14 := {n := 
+                             { true, true }    }
+
+type component TempComp {}
+testcase TC() runs on TempComp {
+
+if ((enc_DER_PDU(myValue1) == '0500'O)and(enc_CER_PDU(myValue1) == '0500'O)) {setverdict(pass);} else {setverdict(fail);}
+if ((enc_DER_PDU(myValue2) == '0101FF'O)and(enc_CER_PDU(myValue2) == '0101FF'O)) {setverdict(pass);} else {setverdict(fail);}
+if ((enc_DER_PDU(myValue3) == '020102'O)and(enc_CER_PDU(myValue3) == '020102'O)) {setverdict(pass);} else {setverdict(fail);}
+if ((enc_DER_PDU(myValue4) == '0A0100'O)and(enc_CER_PDU(myValue4) == '0A0100'O)) {setverdict(pass);} else {setverdict(fail);}
+if ((enc_DER_PDU(myValue5) == '090603312E452B30'O)and(enc_CER_PDU(myValue5) == '090603312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+if ((enc_DER_PDU(myValue6) == '03020780'O)and(enc_CER_PDU(myValue6) == '03020780'O)) {setverdict(pass);} else {setverdict(fail);}
+if ((enc_DER_PDU(myValue7) == '0402FFFF'O)and(enc_CER_PDU(myValue7) == '0402FFFF'O)) {setverdict(pass);} else {setverdict(fail);}
+if ((enc_DER_PDU(myValue8) == '0603000203'O)and(enc_CER_PDU(myValue8) == '0603000203'O)) {setverdict(pass);} else {setverdict(fail);}
+if ((enc_DER_PDU(myValue9) == '1603414243'O)and(enc_CER_PDU(myValue9) == '1603414243'O)) {setverdict(pass);} else {setverdict(fail);}
+if ((enc_DER_PDU(myValue10) == 'A1030101FF'O)and(enc_CER_PDU(myValue10) == 'A1800101FF0000'O)) {setverdict(pass);} else {setverdict(fail);}
+if ((enc_DER_PDU(myValue11) == '300505000101FF'O)and(enc_CER_PDU(myValue11) == '308005000101FF0000'O)) {setverdict(pass);} else {setverdict(fail);}
+if ((enc_DER_PDU(myValue12) == '310C03020780090603312E452B30'O)and(enc_CER_PDU(myValue12) == '318003020780090603312E452B300000'O)) {setverdict(pass);} else {setverdict(fail);}
+if ((enc_DER_PDU(myValue13) == 'A3083006020101020102'O)and(enc_CER_PDU(myValue13) == 'A380308002010102010200000000'O)) {setverdict(pass);} else {setverdict(fail);}
+if ((enc_DER_PDU(myValue14) == 'A40831060101FF0101FF'O)and(enc_CER_PDU(myValue14) == 'A48031800101FF0101FF00000000'O)) {setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('0500'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('0101FF'O) == myValue2){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('020102'O) == myValue3){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('0A0100'O) == myValue4){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('03020780'O) == myValue6){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('0402FFFF'O) == myValue7){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('0603000203'O) == myValue8){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('1603414243'O) == myValue9){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('A1030101FF'O) == myValue10){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('A1800101FF0000'O) == myValue10){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('300505000101FF'O) == myValue11){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('308005000101FF0000'O) == myValue11){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('A3083006020101020102'O) == myValue13){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('A380308002010102010200000000'O) == myValue13){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('A40831060101FF0101FF'O) == myValue14){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('A48031800101FF0101FF00000000'O) == myValue14){setverdict(pass);} else {setverdict(fail);}
+
+} 
+
+control { 
+execute (TC()) 
+}
+}

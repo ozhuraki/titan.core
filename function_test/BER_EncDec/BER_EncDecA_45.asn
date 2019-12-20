@@ -1,0 +1,41 @@
+
+--/////////////////////////////////////////////////////////////////////////////
+-- Copyright (c) 2000-2019 Ericsson Telecom AB
+-- All rights reserved. This program and the accompanying materials
+-- are made available under the terms of the Eclipse Public License v2.0
+-- which accompanies this distribution, and is available at
+-- https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+--
+-- Contributors:
+--   Kristof, Szabados
+--
+--/////////////////////////////////////////////////////////////////////////////
+BER-EncDecA-45
+
+DEFINITIONS
+EXPLICIT TAGS
+::=
+BEGIN
+BERPDU ::= SET
+      {
+       a [3] INTEGER,
+       b [1] CHOICE
+          {
+	   c [2] INTEGER,
+	   d [4] INTEGER
+	  },
+       e CHOICE
+       	  {
+	   f CHOICE
+	   {
+	      g [5] INTEGER,
+	      h [6] INTEGER
+	   },
+           i CHOICE
+            {
+	      j  [0] INTEGER
+	    }
+	  }
+      }
+END
+

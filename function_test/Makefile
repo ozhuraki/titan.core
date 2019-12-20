@@ -13,6 +13,7 @@
 #   Kovacs, Ferenc
 #   Ormandi, Matyas
 #   Raduly, Csaba
+#   Kristof, Szabados
 #
 ##############################################################################
 # Makefile to run the non-interactive tests
@@ -70,16 +71,16 @@ all check run: $(DIRS)
 .PHONY: $(DIRS)
 
 BER_EncDec:
-	cd $@; ./run_test $(SCRIPTFLAGS)
+	cd $@; make -j; ./BER_EncDec.exe BER_EncDec.cfg
 
 RAW_EncDec:
-	cd $@; ./run_test $(SCRIPTFLAGS)
+	cd $@; make -j; ./RAW_EncDec.exe RAW_EncDec.cfg
 
 Text_EncDec:
-	cd $@; if [ ! -f perl ] ; then ln -s `which perl` perl; fi; ./run_test $(SCRIPTFLAGS)
+	cd $@; make -j; ./TEXT_EncDec.exe TEXT_EncDec.cfg
 
 XER_EncDec:
-	cd $@; ./run_test $(SCRIPTFLAGS)
+	cd $@; make -j; ./XER_EncDec.exe XER_EncDec.cfg
 
 Semantic_Analyser:
 	cd $@; if [ ! -f perl ] ; then ln -s `which perl` perl; fi; ./run_test_all $(SCRIPTFLAGS)

@@ -1,0 +1,54 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module XER_EncDec_4 {
+
+type component Test_CT{};
+
+
+type float MyFloat
+with {
+  encode "XML";
+  variant "XSD:decimal";
+};
+
+type record MyRec {
+  MyFloat myfloat
+} 
+with {
+  encode "XML";
+  variant (myfloat) "fractionDigits 0";
+  variant (myfloat) "attribute";
+};
+
+external function ef_xer_dec(in octetstring par) return MyRec
+  with { extension "prototype(convert) decode (XER:XER_EXTENDED) errorbehavior(ALL:ERROR)" }
+
+testcase tc_dec_fractiondigits_attr() runs on Test_CT {
+  var universal charstring xml := "<MyRec myfloat='1234567890.1'></MyRec>\n";
+@try {
+  ef_xer_dec(unichar2oct(xml));
+} @catch (msg) {
+  var template charstring msg_exp := pattern "*Dynamic test case error: While XER-decoding type '@XER_EncDec_4.MyRec': Component 'myfloat': The float value \(1234567890.1\) contains too many fractionDigits. Expected 0 or less*";
+  if (not match(msg, msg_exp)) {
+    setverdict(fail, "Invalid error message: ", msg);
+  } else {
+    setverdict(pass);
+  }
+}
+
+  setverdict(pass);
+}
+
+control {
+  execute(tc_dec_fractiondigits_attr());
+}
+
+}

@@ -1,0 +1,53 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module XER_EncDec_25 {
+
+type component Test_CT{};
+
+
+type record any_elem_rec {
+  integer not_used,
+  universal charstring any_elem
+} with {
+  encode "XML";
+  variant(any_elem) "anyElement except unqualified, 'http://www.somewhere.com', 'http://www.somewhereelse.com'";
+}
+
+external function ef_xer_dec(in octetstring par) return any_elem_rec
+  with { extension "prototype(convert) decode (XER:XER_EXTENDED) errorbehavior(ALL:ERROR)" }
+
+testcase tc_any_elem() runs on Test_CT {
+  var any_elem_rec v_res;
+
+  // encoded { 0, "<xyz:color xmlns:xyz=""http://www.someotherplace.com"">green</xyz:color>" };
+  var octetstring v_good := '3C616E795F656C656D5F7265633E0A093C6E6F745F757365643E303C2F6E6F745F757365643E0A093C78797A3A636F6C6F7220786D6C6E733A78797A3D22687474703A2F2F7777772E736F6D656F74686572706C6163652E636F6D223E677265656E3C2F78797A3A636F6C6F723E0A3C2F616E795F656C656D5F7265633E0A0A'O;
+  v_res := ef_xer_dec(v_good);
+
+@try {
+  // encoded { -5, "<xyz:color xmlns:xyz=""http://www.somewhere.com"">red</xyz:color>" };
+  var octetstring v_bad := '3C616E795F656C656D5F7265633E0A093C6E6F745F757365643E2D353C2F6E6F745F757365643E0A093C78797A3A636F6C6F7220786D6C6E733A78797A3D22687474703A2F2F7777772E736F6D6577686572652E636F6D223E7265643C2F78797A3A636F6C6F723E0A3C2F616E795F656C656D5F7265633E0A0A'O;
+  v_res := ef_xer_dec(v_bad);
+} @catch (msg) {
+  var template charstring msg_exp := pattern "*Dynamic test case error: While XER-decoding type '@XER_EncDec_25.any_elem_rec': Component 'any_elem': While checking anyElement: XML namespace ""http://www.somewhere.com"" is in the excluded namespace list*";
+  if (not match(msg, msg_exp)) {
+    setverdict(fail, "Invalid error message: ", msg);
+  } else {
+    setverdict(pass);
+  }
+}
+  setverdict(pass);
+}
+
+control {
+  execute(tc_any_elem());
+}
+
+}

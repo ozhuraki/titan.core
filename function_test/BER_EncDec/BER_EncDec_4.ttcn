@@ -1,0 +1,103 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module BER_EncDec_4 {
+
+import from BER_EncDecA_4 all;
+
+external function enc_DER_PDU52(in BERPDU52 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU52(in BERPDU52 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU52(in octetstring stream) return BERPDU52 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU53(in BERPDU53 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU53(in BERPDU53 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU53(in octetstring stream) return BERPDU53 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU57(in BERPDU57 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU57(in BERPDU57 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU57(in octetstring stream) return BERPDU57 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU81(in BERPDU81 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU81(in BERPDU81 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU81(in octetstring stream) return BERPDU81 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU88(in BERPDU88 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU88(in BERPDU88 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU88(in octetstring stream) return BERPDU88 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU89(in BERPDU89 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU89(in BERPDU89 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+//external function dec_BER_PDU89(in octetstring stream) return BERPDU89 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU90(in BERPDU90 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU90(in BERPDU90 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+//external function dec_BER_PDU90(in octetstring stream) return BERPDU90 with { extension "prototype(convert) decode(BER)" }
+
+const BERPDU52 myValue_52 := {b :=  true,c := 5  }
+const BERPDU53 myValue_53 := {b :=  true,c := 5  }
+const BERPDU57 myValue_57 := {b :=  true,c := 5  }
+const BERPDU81 myValue_81 := {true, false }
+const BERPDU88 myValue1_88 := {b :=  true, c := 5  }
+const BERPDU88 myValue2_88 := { c := 5, b :=  true  }
+const BERPDU89 myValue_89 := {b :=  true,c := 5  }
+const BERPDU90 myValue_90 := {b :=  true,c := 5  }
+
+
+type component TempComp {}
+testcase TC() runs on TempComp {
+//===========================================
+//CER + DER encoding of SEQUENCE (both elements are used) EXPLICIT TAGS for elements, IMPLICIT TAGGING ENVIRONMENT
+//===========================================
+if ((enc_DER_PDU52(myValue_52) == '300BBE030101FFBF1F03020105'O)and(enc_CER_PDU52(myValue_52) == '3080BE800101FF0000BF1F8002010500000000'O)) {setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU52('300BBE030101FFBF1F03020105'O) == myValue_52){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU52('3080BE800101FF0000BF1F8002010500000000'O) == myValue_52){setverdict(pass);} else {setverdict(fail);}
+//===========================================
+//CER + DER encoding of TAGGED SEQUENCE (both elements are used), IMPLICIT TAGGING ENVIRONMENT
+//===========================================
+if ((enc_DER_PDU53(myValue_53) == 'A0060101FF020105'O)and(enc_CER_PDU53(myValue_53) == 'A0800101FF0201050000'O)) {setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU53('A0060101FF020105'O) == myValue_53){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU53('A0800101FF0201050000'O) == myValue_53){setverdict(pass);} else {setverdict(fail);}
+
+//===========================================
+// CER + DER encoding of TAGGED SEQUENCE (both elements are TAGGED and used), IMPLICIT TAGGING ENVIRONMENT
+//===========================================
+if ((enc_DER_PDU57(myValue_57) == 'A0068001FF810105'O)and(enc_CER_PDU57(myValue_57) == 'A0808001FF8101050000'O)) {setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU57('A0068001FF810105'O) == myValue_57){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU57('A0808001FF8101050000'O) == myValue_57){setverdict(pass);} else {setverdict(fail);}
+//===========================================
+//  CER + DER encoding of TAGGED SEQUENCE OF BOOLEAN, IMPLICIT TAGGING (unified)
+//===========================================
+if ((enc_DER_PDU81(myValue_81) == 'A0060101FF010100'O)and(enc_CER_PDU81(myValue_81) == 'A0800101FF0101000000'O)) {setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU81('A0060101FF010100'O) == myValue_81){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU81('A0800101FF0101000000'O) == myValue_81){setverdict(pass);} else {setverdict(fail);}
+//===========================================
+//  CER + DER encoding of SET (both elements are used) IMPLICIT TAGS for elements (unified) 
+//===========================================
+if ((enc_DER_PDU88(myValue1_88) == '31079E01FF9F1F0105'O)and(enc_CER_PDU88(myValue1_88) == '31809E01FF9F1F01050000'O)) {setverdict(pass);} else {setverdict(fail);}
+if ((enc_DER_PDU88(myValue2_88) == '31079E01FF9F1F0105'O)and(enc_CER_PDU88(myValue2_88) == '31809E01FF9F1F01050000'O)) {setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU88('31079E01FF9F1F0105'O) == myValue1_88){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU88('31809E01FF9F1F01050000'O) == myValue1_88){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU88('31079F1F01059E01FF'O) == myValue1_88){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU88('31809F1F01059E01FF0000'O) == myValue1_88){setverdict(pass);} else {setverdict(fail);}
+//===========================================
+//  CER + DER encoding of SET (different order2) (both elements are used) IMPLICIT TAGS for elements 
+//===========================================
+if ((enc_DER_PDU89(myValue_89) == '31079E01FF9F1F0105'O)and(enc_CER_PDU89(myValue_89) == '31809E01FF9F1F01050000'O)) {setverdict(pass);} else {setverdict(fail);}
+//===========================================
+//   CER + DER encoding of SET (different order2)(both elements are used) EXPLICIT TAGS for elements, IMPLICIT TAGGING ENVIRONMENT 
+//===========================================
+if ((enc_DER_PDU90(myValue_90) == '310BBE030101FFBF1F03020105'O)and(enc_CER_PDU90(myValue_90) == '3180BE800101FF0000BF1F8002010500000000'O)) {setverdict(pass);} else {setverdict(fail);}
+
+} 
+
+control { 
+execute (TC()) 
+}
+}

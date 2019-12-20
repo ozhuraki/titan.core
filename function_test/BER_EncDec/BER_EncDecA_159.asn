@@ -1,0 +1,44 @@
+
+--/////////////////////////////////////////////////////////////////////////////
+-- Copyright (c) 2000-2019 Ericsson Telecom AB
+-- All rights reserved. This program and the accompanying materials
+-- are made available under the terms of the Eclipse Public License v2.0
+-- which accompanies this distribution, and is available at
+-- https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+--
+-- Contributors:
+--   Kristof, Szabados
+--
+--/////////////////////////////////////////////////////////////////////////////
+BER-EncDecA-159
+
+
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+BERPDU ::= INTEGER
+bi1 BERPDU ::= 5
+bi2 BERPDU ::= 0
+bi3 BERPDU ::= 127
+bi4 BERPDU ::= -128
+bi5 BERPDU ::= -5
+bi-6 BERPDU ::= 128
+bi7 BERPDU ::= -129
+
+BERPDU2 ::= REAL
+--b BERPDU2 ::= 12345678900
+
+Rec-ber ::= SEQUENCE {
+  int1 Number,
+  int2 Number
+}
+Rec-ber-literal ::= SEQUENCE {
+  int1 NumberLit,
+  int2 NumberLit
+}
+Number ::= INTEGER
+NumberLit ::= NumericString (SIZE (100))
+myNumber Number ::= 12345678910111213141516
+
+END
+

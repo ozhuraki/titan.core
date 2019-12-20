@@ -1,0 +1,45 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module XER_EncDec_1 {
+
+type component Test_CT{};
+
+
+type float MyFloat
+with {
+  encode "XML";
+  variant "fractionDigits 2";
+  variant "XSD:decimal";
+};
+
+external function ef_xer_dec(in octetstring par) return MyFloat
+  with { extension "prototype(convert) decode (XER:XER_EXTENDED) errorbehavior(ALL:ERROR)" }
+
+testcase tc_dec_fractiondigits() runs on Test_CT {
+  var universal charstring xml := "<MyFloat>1234567890.111</MyFloat>\n";
+@try {
+  ef_xer_dec(unichar2oct(xml));
+} @catch (msg) {
+  var template charstring msg_exp := pattern "*Dynamic test case error: While XER-decoding type '@XER_EncDec_1.MyFloat': The float value \(1234567890.111\) contains too many fractionDigits. Expected 2 or less.*";
+  if (not match(msg, msg_exp)) {
+    setverdict(fail, "Invalid error message: ", msg);
+  } else {
+    setverdict(pass);
+  }
+}
+  setverdict(pass);
+}
+
+control {
+  execute(tc_dec_fractiondigits());
+}
+
+}

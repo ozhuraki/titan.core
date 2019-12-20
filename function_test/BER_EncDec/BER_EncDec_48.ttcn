@@ -1,0 +1,52 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module BER_EncDec_48 {
+
+import from BER_EncDecA_48 all;
+
+
+external function dec_BER_PDU(in octetstring stream) return BERPDU with { extension "prototype(convert) decode(BER)" }
+
+const BERPDU myValue := {a :=  NULL,
+			 b := true,
+			 c := 2,
+			 d := first,
+			 e := NULL,
+			 f := '1'B,
+			 g := 'FFFF'O,
+			 h := myOBJID,
+			 i :=   "ABC",
+			 j := {x1 := true   } ,
+			 k := {x2 := NULL,
+			      y2  := true  }   ,
+			 l := {y3 := NULL ,
+			       x3 := '1'B   }  ,
+			 m := 
+                             { 1 ,2 }   ,
+			 n := 
+                             { true, true }
+			 }
+
+
+type component TempComp {}
+testcase TC() runs on TempComp {
+
+if (dec_BER_PDU('314380008101FF8201028301008400850207808602FFFF87030002038803414243A9038001FFAA0580008101FFAB06800207808100AC06020101020102AD060101FF0101FF'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('318080008101FF8201028301008400850207808602FFFF87030002038803414243A9808001FF0000AA8080008101FF0000AB808002078081000000AC800201010201020000AD800101FF0101FF00000000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('31438101FF8201028301008400850207808602FFFF87030002038803414243A9038001FFAA0580008101FFAB06800207808100AC06020101020102AD060101FF0101FF8000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('318080008201028101FF8301008400850207808602FFFF87030002038803414243A9808001FF0000AA8080008101FF0000AB808002078081000000AC800201010201020000AD800101FF0101FF00000000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+
+} 
+
+control { 
+execute (TC()) 
+}
+}

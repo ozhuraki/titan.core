@@ -1,0 +1,48 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module XER_EncDec_29 {
+
+type component Test_CT{};
+
+
+type record MyType
+{
+  universal charstring foo
+}
+with {
+  encode "XML";
+  variant "element";
+};
+
+external function ef_xer_enc(in MyType par) return octetstring
+  with { extension "prototype(convert) encode (XER:XER_EXTENDED) errorbehavior(ALL:ERROR)" }
+
+testcase tc_enc_explicitly_unspecified() runs on Test_CT {
+  template MyType myTemp := { foo := - };
+
+@try {
+  var octetstring v_res := ef_xer_enc(valueof(myTemp));
+} @catch (msg) {
+  var template charstring msg_exp := pattern "*Dynamic test case error: Performing a valueof or send operation on a non-specific template of type @XER_EncDec_29.MyType*";
+  if (not match(msg, msg_exp)) {
+    setverdict(fail, "Invalid error message: ", msg);
+  } else {
+    setverdict(pass);
+  }
+}
+  setverdict(pass);
+}
+
+control {
+  execute(tc_enc_explicitly_unspecified());
+}
+
+}

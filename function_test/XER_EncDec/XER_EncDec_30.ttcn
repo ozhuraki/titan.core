@@ -1,0 +1,53 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module XER_EncDec_30 {
+
+type component Test_CT{};
+
+
+type record MyRecord {
+  UntaggedUnion u
+} with {
+  encode "XML";
+}
+
+type union UntaggedUnion {
+  integer i,
+  UntaggedUnion u
+} with {
+  encode "XML";
+  variant "untagged";
+}
+
+external function ef_xer_dec(in octetstring par) return MyRecord
+  with { extension "prototype(convert) decode (XER:XER_EXTENDED) errorbehavior(ALL:ERROR)" }
+
+testcase tc_dec_self_recursive_untagged_field() runs on Test_CT {
+  var universal charstring bad_xml := "<MyRecord>\n\t<bad>44</bad>\n</MyRecord>\n\n";
+
+@try {
+  var MyRecord v_res := ef_xer_dec(unichar2oct(bad_xml));
+} @catch (msg) {
+  var template charstring msg_exp := pattern "*Dynamic test case error: While XER-decoding type '@XER_EncDec_30.MyRecord': Component 'u':  'bad' does not match any alternative*";
+  if (not match(msg, msg_exp)) {
+    setverdict(fail, "Invalid error message: ", msg);
+  } else {
+    setverdict(pass);
+  }
+}
+  setverdict(pass);
+}
+
+control {
+  execute(tc_dec_self_recursive_untagged_field());
+}
+
+}

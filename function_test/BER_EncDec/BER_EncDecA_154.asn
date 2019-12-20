@@ -1,0 +1,101 @@
+
+--/////////////////////////////////////////////////////////////////////////////
+-- Copyright (c) 2000-2019 Ericsson Telecom AB
+-- All rights reserved. This program and the accompanying materials
+-- are made available under the terms of the Eclipse Public License v2.0
+-- which accompanies this distribution, and is available at
+-- https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+--
+-- Contributors:
+--   Kristof, Szabados
+--
+--/////////////////////////////////////////////////////////////////////////////
+BER-EncDecA-154
+
+
+DEFINITIONS 
+
+
+::= 
+
+BEGIN
+
+
+--***************************************************************************************************
+--modified class taken from Gyuri ASN1
+--***************************************************************************************************
+MY-CLASS-1 ::= CLASS
+{
+&TypeField OPTIONAL,
+&fixedTypeValueField            ASN1-Type1   UNIQUE OPTIONAL
+
+}
+WITH SYNTAX
+{
+[TYPE FIELD	                &TypeField]		
+[FIXED VALUE TYPE FIELD		&fixedTypeValueField]
+}
+
+ASN1-Type1 ::= INTEGER                      
+
+ASN1-Type2 ::= BOOLEAN                    
+
+ASN1-Type3 ::= SEQUENCE {f1 INTEGER}                   
+
+ASN1-Type4 ::= OCTET STRING                
+
+
+--****************************************************************************************************
+-- OBJECTS using the class defined above 
+--****************************************************************************************************
+
+
+myObject-1 MY-CLASS-1 ::= 
+{
+TYPE FIELD               ASN1-Type3
+FIXED VALUE TYPE FIELD	 999 
+}
+
+              
+myObject-2 MY-CLASS-1 ::= 
+{
+TYPE FIELD			ASN1-Type2  
+FIXED VALUE TYPE FIELD		888
+}
+
+myObject-3 MY-CLASS-1 ::= 
+{
+TYPE FIELD			ASN1-Type4
+FIXED VALUE TYPE FIELD		555	
+}
+
+--****************************************************************************************************
+-- Defining Information Object sets
+--****************************************************************************************************
+
+MyInformationObjectSet1 MY-CLASS-1 ::= 
+{
+myObject-1|
+myObject-2,
+...
+}
+
+MyInformationObjectSet2 MY-CLASS-1 ::= 
+{
+MyInformationObjectSet1|
+myObject-3,
+...
+}
+
+
+
+BERPDU ::= SEQUENCE
+
+{
+field1 myObject-1.&TypeField ,               -- type from object   
+field2 MY-CLASS-1.&fixedTypeValueField       
+}
+
+END
+
+

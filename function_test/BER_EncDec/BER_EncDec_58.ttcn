@@ -1,0 +1,36 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module BER_EncDec_58 {
+
+import from BER_EncDecA_58 all;
+
+external function enc_DER_PDU(in BERPDU pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU(in BERPDU pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU(in octetstring stream) return BERPDU with { extension "prototype(convert) decode(BER)" }
+
+const BERPDU myValue := {true, false }
+
+
+type component TempComp {}
+testcase TC() runs on TempComp {
+
+if ((enc_DER_PDU(myValue) == 'A00831060101000101FF'O)and(enc_CER_PDU(myValue) == 'A08031800101000101FF00000000'O)) {setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('A00831060101000101FF'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('A08031800101000101FF00000000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('A00831060101FF010100'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('A08031800101FF01010000000000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+
+} 
+
+control { 
+execute (TC()) 
+}
+}

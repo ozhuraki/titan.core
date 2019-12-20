@@ -1,0 +1,410 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module BER_EncDec_2 {
+
+import from BER_EncDecA_2 all;
+
+
+type component Test_CT {} 
+external function enc_DER_PDU46(in BERPDU46 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU46(in BERPDU46 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU46(in octetstring stream) return BERPDU46 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU47(in BERPDU47 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU47(in BERPDU47 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU47(in octetstring stream) return BERPDU47 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU51(in BERPDU51 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU51(in BERPDU51 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU51(in octetstring stream) return BERPDU51 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU58(in BERPDU58 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU58(in BERPDU58 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU58(in octetstring stream) return BERPDU58 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU59(in BERPDU59 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU59(in BERPDU59 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU59(in octetstring stream) return BERPDU59 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU60(in BERPDU60 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU60(in BERPDU60 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU60(in octetstring stream) return BERPDU60 with { extension "prototype(convert) decode(BER)" }
+
+
+external function enc_DER_PDU61(in BERPDU61 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU61(in BERPDU61 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU61(in octetstring stream) return BERPDU61 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU62(in BERPDU62 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU62(in BERPDU62 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU62(in octetstring stream) return BERPDU62 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU63(in BERPDU63 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU63(in BERPDU63 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU63(in octetstring stream) return BERPDU63 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU64(in BERPDU64 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU64(in BERPDU64 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU64(in octetstring stream) return BERPDU64 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU66(in BERPDU66 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU66(in BERPDU66 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU66(in octetstring stream) return BERPDU66 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU68(in BERPDU68 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU68(in BERPDU68 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU68(in octetstring stream) return BERPDU68 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU70(in BERPDU70 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU70(in BERPDU70 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU70(in octetstring stream) return BERPDU70 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU85(in BERPDU85 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU85(in BERPDU85 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU85(in octetstring stream) return BERPDU85 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU86(in BERPDU86 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU86(in BERPDU86 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU86(in octetstring stream) return BERPDU86 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU87(in BERPDU87 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU87(in BERPDU87 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU87(in octetstring stream) return BERPDU87 with { extension "prototype(convert) decode(BER)" }
+
+external function enc_DER_PDU88(in BERPDU88 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU88(in BERPDU88 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU88(in octetstring stream) return BERPDU88 with { extension "prototype(convert) decode(BER)" }
+
+
+//*********************************************
+// TESTCASES
+//*********************************************
+
+//===========================================
+//  CER + DER encoding of  SEQUENCE (EMPTY), AUTOMATIC TAGGING (unified) 
+//===========================================
+testcase tc_CER_DER_encoding_of_SEQUENCE_empty_automaticTagging() runs on Test_CT {
+  const BERPDU46 myValue1 := {b :=  omit,
+			   c :=  omit  }
+  const BERPDU46 myValue2 := {b :=  true,
+			   c := omit  }
+  const BERPDU46 myValue3 := {b :=  true,
+			   c := 5  }
+
+  if ((enc_DER_PDU46(myValue1) == '3000'O)and(enc_CER_PDU46(myValue1) == '30800000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU46(myValue2) == '30038001FF'O)and(enc_CER_PDU46(myValue2) == '30808001FF0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU46(myValue3) == '30068001FF810105'O)and(enc_CER_PDU46(myValue3) == '30808001FF8101050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU46('3000'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU46('30800000'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU46('30038001FF'O) == myValue2){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU46('30808001FF0000'O) == myValue2){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU46('30068001FF810105'O) == myValue3){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU46('30808001FF8101050000'O) == myValue3){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//  CER + DER encoding of SEQUENCE (one element is equal to Default) AUTOMATIC TAGGING (unified)
+//===========================================
+testcase tc_CER_DER_encoding_of_SEQUENCE_oneElementIsEqualToDefault_automaticTagging() runs on Test_CT {
+
+  const BERPDU47 myValue1 := {b :=  true,
+			   c := 5  }
+  const BERPDU47 myValue2 := {b :=  false,
+			   c := 5  }
+  if ((enc_DER_PDU47(myValue1) == '3003810105'O)and(enc_CER_PDU47(myValue1) == '30808101050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU47(myValue2) == '3006800100810105'O)and(enc_CER_PDU47(myValue2) == '30808001008101050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU47('3003810105'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU47('30808101050000'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU47('3006800100810105'O) == myValue2){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU47('30808001008101050000'O) == myValue2){setverdict(pass);} else {setverdict(fail);}
+
+}
+
+//===========================================
+//  CER + DER encoding of TAGGED SEQUENCE (both elements are used), AUTOMATIC TAGGING ENVIRONMENT
+//===========================================
+testcase tc_CER_DER_encoding_of_taggedSEQUENCE_bothElementsAreUsed_automaticTagging() runs on Test_CT {
+  const BERPDU51 myValue := {b :=  true,
+			 c := 5  }
+  if ((enc_DER_PDU51(myValue) == 'A0068001FF810105'O)and(enc_CER_PDU51(myValue) == 'A0808001FF8101050000'O)) {setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//   CER + DER encoding of TAGGED SEQUENCE (both elements are TAGGED and used), AUTOMATIC TAGGING ENVIRONMENT
+//===========================================
+testcase tc_CER_DER_encoding_of_taggedSEQUENCE_bothElementsAreTaggedAndUsed_automaticTagging() runs on Test_CT {
+  const BERPDU58 myValue := {b :=  true,
+			 c := 5  }
+  if ((enc_DER_PDU58(myValue) == 'A0068001FF810105'O)and(enc_CER_PDU58(myValue) == 'A0808001FF8101050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU58('A0068001FF810105'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU58('A0808001FF8101050000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//    CER + DER encoding of SEQUENCE , one element is manually tagged, AUTOMATIC TAGGING ENVIRONMENT
+//===========================================
+testcase tc_CER_DER_encoding_of_SEQUENCE_oneElementisTaggedManually_automaticTagging() runs on Test_CT {
+  const BERPDU59 myValue := {b :=  true,
+			   c := 5  }
+  if ((enc_DER_PDU59(myValue) == '30068501FF020105'O)and(enc_CER_PDU59(myValue) == '30808501FF0201050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU59('30068501FF020105'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU59('30808501FF0201050000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//   CER + DER encoding of SEQUENCE ,COMPONENTS OF used, AUTOMATIC TAGS, no manual tags
+//===========================================
+testcase tc_CER_DER_encoding_of_SEQUENCE_COMPONENTSOFused_noManualTags_automaticTagging() runs on Test_CT {
+  const BERPDU60 myValue := {b :=  true,
+			 c := 5 ,
+			 x := 6,
+			 y := 'FF'O   }
+  if ((enc_DER_PDU60(myValue) == '300C8001FF8101058201068301FF'O)and(enc_CER_PDU60(myValue) == '30808001FF8101058201068301FF0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU60('300C8001FF8101058201068301FF'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU60('30808001FF8101058201068301FF0000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//  CER + DER encoding of SEQUENCE , one component element is manually tagged,COMPONENTS OF used, AUTOMATIC TAGS
+//===========================================
+testcase tc_CER_DER_encoding_of_SEQUENCE_oneComponentIsManuallyTagged_COMPONENTSOFused_noManualTags_automaticTagging() runs on Test_CT {
+  const BERPDU61 myValue := {b :=  true,
+			 c := 5 ,
+			 x := 6,
+			 y := 'FF'O   }
+  if ((enc_DER_PDU61(myValue) == '300C8001FF8101058201068301FF'O)and(enc_CER_PDU61(myValue) == '30808001FF8101058201068301FF0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU61('300C8001FF8101058201068301FF'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU61('30808001FF8101058201068301FF0000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+
+}
+
+//===========================================
+//   CER + DER encoding of SEQUENCE , one base element is manually tagged,COMPONENTS OF used, AUTOMATIC TAGS
+//===========================================
+testcase tc_CER_DER_encoding_of_SEQUENCE_oneBaseElementIsManuallyTagged_COMPONENTSOFused_automaticTagging() runs on Test_CT {
+  const BERPDU62 myValue := {b :=  true,
+			 c := '1'B ,
+			 x := 6,
+			 y := 'FF'O   }
+
+  if ((enc_DER_PDU62(myValue) == '300D8001FF030207800201060401FF'O)and(enc_CER_PDU62(myValue) == '30808001FF030207800201060401FF0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU62('300D8001FF030207800201060401FF'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU62('30808001FF030207800201060401FF0000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+
+
+}
+
+//===========================================
+//   CER + DER encoding of SEQUENCE , one base element and one component is manually tagged,COMPONENTS OF used, AUTOMATIC TAGS 
+//===========================================
+testcase tc_CER_DER_encoding_of_SEQUENCE_oneBaseElementAndOneComponentIsManuallyTagged_COMPONENTSOFused_automaticTagging() runs on Test_CT {
+  const BERPDU63 myValue := {b :=  true,
+			 c := '1'B ,
+			 x := 6,
+			 y := 'FF'O   }
+  if ((enc_DER_PDU63(myValue) == '300D8001FF030207808101060401FF'O)and(enc_CER_PDU63(myValue) == '30808001FF030207808101060401FF0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU63('300D8001FF030207808101060401FF'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU63('30808001FF030207808101060401FF0000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+
+}
+
+
+//===========================================
+//  CER + DER encoding of SEQUENCE with CHOICE element, AUTOMATIC TAGS 
+//===========================================
+testcase tc_CER_DER_encoding_of_SEQUENCE_withCHOICEelement_automaticTagging() runs on Test_CT {
+  const BERPDU64 myValue := {b := {x := true},
+			 c := 4 
+			   }
+  if ((enc_DER_PDU64(myValue) == '3008A0038001FF810104'O)and(enc_CER_PDU64(myValue) == '3080A0808001FF00008101040000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU64('3008A0038001FF810104'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU64('3080A0808001FF00008101040000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+
+}
+
+//===========================================
+//  CER + DER encoding of SEQUENCE with EXTENSION , AUTOMATIC TAGS
+//===========================================
+testcase tc_CER_DER_encoding_of_SEQUENCE_withExtension_automaticTagging() runs on Test_CT {
+  const BERPDU66 myValue := {
+			  a := 'FF'O,
+			  b := true,
+			  d := '1'B,
+			  c := 4 
+			}
+  if ((enc_DER_PDU66(myValue) == '300D8001FF8101FF83020780820104'O)and(enc_CER_PDU66(myValue) == '30808001FF8101FF830207808201040000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU66('300D8001FF8101FF83020780820104'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU66('30808001FF8101FF830207808201040000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU66('308300000D8001FF8101FF83020780820104'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+
+}
+
+//===========================================
+//   CER + DER encoding of SEQUENCE with fields of different types, AUTOMATIC TAGS
+//===========================================
+testcase tc_CER_DER_encoding_of_SEQUENCE_withfieldsOfDifferentTypes_automaticTagging() runs on Test_CT {
+const BERPDU68 myValue := {a :=  NULL,
+			 b := true,
+			 c := 2,
+			 d := first,
+			 e := 1.0,
+			 f := '1'B,
+			 g := 'FFFF'O,
+			 h := myOBJID_68,
+			 i :=   "ABC",
+			 j := {x1 := true   } ,
+			 k := {x2 := NULL,
+
+			      y2  := true  }   ,
+			 l := {y3 := 1.0 ,
+
+			       x3 := '1'B   }  , 
+			 m := 
+                             { 1 ,2 }   ,  
+			 n := 
+                             { true, true }  
+			 }
+  if ((enc_DER_PDU68(myValue) == '304F80008101FF820102830100840603312E452B30850207808602FFFF87030002038803414243A9038001FFAA0580008101FFAB0C80020780810603312E452B30AC06020101020102AD060101FF0101FF'O)
+and(enc_CER_PDU68(myValue) == '308080008101FF820102830100840603312E452B30850207808602FFFF87030002038803414243A9808001FF0000AA8080008101FF0000AB8080020780810603312E452B300000AC800201010201020000AD800101FF0101FF00000000'O)) 
+{setverdict(pass);} else {setverdict(fail);}
+
+
+}
+
+//===========================================
+//  DECODING , DER,  SEQUENCE with fields of different types , AUTOMATIC TAGS (unified)
+//===========================================
+testcase tc_DER_encoding_of_SEQUENCE_withFieldsOfDifferentTypes_automaticTagging() runs on Test_CT {
+  const BERPDU70 myValue := {a :=  NULL,
+			 b := true,
+			 c := 2,
+			 d := first,
+			 e := NULL,
+			 f := '1'B,
+			 g := 'FFFF'O,
+			 h := myOBJID_70,
+			 i :=   "ABC",
+			 j := {x1 := true   } ,
+			 k := {x2 := NULL,
+			      y2  := true  }   ,
+			 l := {y3 := NULL ,
+			       x3 := '1'B   }  , 
+			 m := 
+                             { 1 ,2 }   ,  
+			 n := 
+                             { true, true }  
+			 }         
+
+ 
+
+  if (dec_BER_PDU70('304380008101FF8201028301008400850207808602FFFF87030002038803414243A9038001FFAA0580008101FFAB06800207808100AC06020101020102AD060101FF0101FF'O) == myValue)
+  {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU70('308080008101FF8201028301008400850207808602FFFF87030002038803414243A9808001FF0000AA8080008101FF0000AB808002078081000000AC800201010201020000AD800101FF0101FF00000000'O) == myValue)
+  {setverdict(pass);} else {setverdict(fail);}
+
+}
+
+//===========================================
+//   CER + DER encoding of  SET (EMPTY), AUTOMATIC TAGGING (unified) 
+//===========================================
+testcase tc_CER_DER_encoding_of_SET_empty_automaticTagging() runs on Test_CT {
+  const BERPDU85 myValue1 := {b :=  omit,
+			   c :=  omit  }
+  const BERPDU85 myValue2 := {b :=  true,
+			   c := omit  }
+  const BERPDU85 myValue3 := {
+			   c := omit,
+			   b :=  true  }
+  const BERPDU85 myValue4 := {b :=  true,
+			   c := 5  }
+  const BERPDU85 myValue5 := {
+			   c := 5,
+			   b :=  true  }
+
+  if ((enc_DER_PDU85(myValue1) == '3100'O)and(enc_CER_PDU85(myValue1) == '31800000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU85(myValue2) == '31038001FF'O)and(enc_CER_PDU85(myValue2) == '31808001FF0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU85(myValue3) == '31038001FF'O)and(enc_CER_PDU85(myValue3) == '31808001FF0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU85(myValue4) == '31068001FF810105'O)and(enc_CER_PDU85(myValue4) == '31808001FF8101050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU85(myValue5) == '31068001FF810105'O)and(enc_CER_PDU85(myValue5) == '31808001FF8101050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU85('3100'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU85('31800000'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU85('31038001FF'O) == myValue2){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU85('31808001FF0000'O) == myValue2){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU85('31068001FF810105'O) == myValue4){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU85('31808001FF8101050000'O) == myValue4){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU85('31068101058001FF'O) == myValue4){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU85('31808101058001FF0000'O) == myValue4){setverdict(pass);} else {setverdict(fail);}  
+
+}
+//===========================================
+//   CER + DER encoding of SET (both elements are used)(different order2)  AUTOMATIC TAGGING  
+//===========================================
+testcase tc_CER_DER_encoding_of_SET_bothElementsUsed_diffOrder_automaticTagging() runs on Test_CT {
+  const BERPDU86 myValue := {b :=  true, c := 5  }
+  if ((enc_DER_PDU86(myValue) == '31068001058101FF'O)and(enc_CER_PDU86(myValue) == '31808001058101FF0000'O)) {setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//  CER + DER encoding of SET (one element is equal to Default) AUTOMATIC TAGGING (unified)  
+//===========================================
+testcase tc_CER_DER_encoding_of_SET_oneElementIsEqualToDefault_automaticTagging() runs on Test_CT {
+ const BERPDU87 myValue1 := {b :=  true,c := 5  }
+ const BERPDU87 myValue2 := {b :=  false,c := 5  }
+ const BERPDU87 myValue3 := {c := 5,b :=  false  }
+ const BERPDU87 myValue4 := {c := 5 , b :=  true }
+
+ if ((enc_DER_PDU87(myValue1) == '3103810105'O)and(enc_CER_PDU87(myValue1) == '31808101050000'O)) {setverdict(pass);} else {setverdict(fail);}
+ if ((enc_DER_PDU87(myValue2) == '3106800100810105'O)and(enc_CER_PDU87(myValue2) == '31808001008101050000'O)) {setverdict(pass);} else {setverdict(fail);}
+ if ((enc_DER_PDU87(myValue3) == '3106800100810105'O)and(enc_CER_PDU87(myValue3) == '31808001008101050000'O)) {setverdict(pass);} else {setverdict(fail);}
+ if ((enc_DER_PDU87(myValue4) == '3103810105'O)and(enc_CER_PDU87(myValue4) == '31808101050000'O)) {setverdict(pass);} else {setverdict(fail);}
+ if (dec_BER_PDU87('3103810105'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+ if (dec_BER_PDU87('31808101050000'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+ if (dec_BER_PDU87('31068001FF810105'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+ if (dec_BER_PDU87('31808101058001FF0000'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+ if (dec_BER_PDU87('3106800100810105'O) == myValue2){setverdict(pass);} else {setverdict(fail);}
+ if (dec_BER_PDU87('31808001008101050000'O) == myValue2){setverdict(pass);} else {setverdict(fail);}
+ if (dec_BER_PDU87('3106810105800100'O) == myValue2){setverdict(pass);} else {setverdict(fail);}
+ if (dec_BER_PDU87('31808101058001000000'O) == myValue2){setverdict(pass);} else {setverdict(fail);}
+
+}
+//===========================================
+//  CER + DER encoding of SET (different order2)(one element is not equal to Default) AUTOMATIC TAGGING 
+//===========================================
+testcase tc_CER_DER_encoding_of_SET_differentOrder_oneElementIsNotEqualToDefault_automaticTagging() runs on Test_CT {
+  const BERPDU88 myValue := {b :=  false, c := 5  }
+  if ((enc_DER_PDU88(myValue) == '3106800105810100'O)and(enc_CER_PDU88(myValue) == '31808001058101000000'O)) {setverdict(pass);} else {setverdict(fail);}
+}
+
+//*********************************************
+// CONTROL PART
+//*********************************************
+
+control {
+  execute(tc_CER_DER_encoding_of_SEQUENCE_empty_automaticTagging());
+  execute(tc_CER_DER_encoding_of_SEQUENCE_oneElementIsEqualToDefault_automaticTagging());
+  execute(tc_CER_DER_encoding_of_taggedSEQUENCE_bothElementsAreUsed_automaticTagging());
+  execute(tc_CER_DER_encoding_of_taggedSEQUENCE_bothElementsAreTaggedAndUsed_automaticTagging());
+  execute(tc_CER_DER_encoding_of_SEQUENCE_oneElementisTaggedManually_automaticTagging());
+  execute(tc_CER_DER_encoding_of_SEQUENCE_COMPONENTSOFused_noManualTags_automaticTagging());
+  execute(tc_CER_DER_encoding_of_SEQUENCE_oneComponentIsManuallyTagged_COMPONENTSOFused_noManualTags_automaticTagging());
+  execute(tc_CER_DER_encoding_of_SEQUENCE_oneBaseElementIsManuallyTagged_COMPONENTSOFused_automaticTagging());
+  execute(tc_CER_DER_encoding_of_SEQUENCE_oneBaseElementAndOneComponentIsManuallyTagged_COMPONENTSOFused_automaticTagging());
+  execute(tc_CER_DER_encoding_of_SEQUENCE_withCHOICEelement_automaticTagging());
+  execute(tc_CER_DER_encoding_of_SEQUENCE_withExtension_automaticTagging());
+  execute(tc_CER_DER_encoding_of_SEQUENCE_withfieldsOfDifferentTypes_automaticTagging());
+  execute(tc_DER_encoding_of_SEQUENCE_withFieldsOfDifferentTypes_automaticTagging())
+  execute(tc_CER_DER_encoding_of_SET_empty_automaticTagging());
+  execute(tc_CER_DER_encoding_of_SET_bothElementsUsed_diffOrder_automaticTagging());
+  execute(tc_CER_DER_encoding_of_SET_oneElementIsEqualToDefault_automaticTagging());
+  execute(tc_CER_DER_encoding_of_SET_differentOrder_oneElementIsNotEqualToDefault_automaticTagging());
+}
+
+}

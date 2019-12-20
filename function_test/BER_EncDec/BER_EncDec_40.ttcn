@@ -1,0 +1,71 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module BER_EncDec_40 {
+
+import from BER_EncDecA_40 all;
+
+external function enc_DER_PDU(in BERPDU pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU(in BERPDU pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+
+const BERPDU myValue1 := {a :=  NULL,
+			 b := true,
+			 c := 2,
+			 d := first,
+			 e := 1.0,
+			 f := '1'B,
+			 g := 'FFFF'O,
+			 h := myOBJID,
+			 i :=   "ABC",
+			 j := {x1 := true   } ,
+			 k := {x2 := NULL,
+			      y2  := true  }   ,
+			 l := {y3 := 1.0 ,
+			       x3 := '1'B   }  ,
+			 m := 
+                             { 1 ,2 }   ,
+			 n := 
+                             { true, true }
+			 }
+const BERPDU myValue2 := {a :=  NULL,
+			 c := 2,
+			 d := first,
+			 e := 1.0,
+			  b := true,
+			 f := '1'B,
+			 g := 'FFFF'O,
+			 i :=   "ABC",
+			 j := {x1 := true   } ,
+			 k := {x2 := NULL,
+			      y2  := true  }   ,
+			 l := {y3 := 1.0 ,
+			       x3 := '1'B   }  ,
+			 h := myOBJID,
+			 m := 
+                             { 1 ,2 }   ,
+			 n := 
+                             { true, true }
+			 }
+
+
+type component TempComp {}
+testcase TC() runs on TempComp {
+
+if ((enc_DER_PDU(myValue1) == '314F80008101FF820102830100840603312E452B30850207808602FFFF87030002038803414243A9038001FFAA0580008101FFAB0C80020780810603312E452B30AC06020101020102AD060101FF0101FF'O)
+  and(enc_CER_PDU(myValue1) == '318080008101FF820102830100840603312E452B30850207808602FFFF87030002038803414243A9808001FF0000AA8080008101FF0000AB8080020780810603312E452B300000AC800201010201020000AD800101FF0101FF00000000'O)) {setverdict(pass);} else {setverdict(fail);}
+if ((enc_DER_PDU(myValue2) == '314F80008101FF820102830100840603312E452B30850207808602FFFF87030002038803414243A9038001FFAA0580008101FFAB0C80020780810603312E452B30AC06020101020102AD060101FF0101FF'O)
+  and(enc_CER_PDU(myValue2) == '318080008101FF820102830100840603312E452B30850207808602FFFF87030002038803414243A9808001FF0000AA8080008101FF0000AB8080020780810603312E452B300000AC800201010201020000AD800101FF0101FF00000000'O)) {setverdict(pass);} else {setverdict(fail);}
+
+} 
+
+control { 
+execute (TC()) 
+}
+}

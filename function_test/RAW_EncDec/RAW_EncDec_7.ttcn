@@ -1,0 +1,90 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module RAW_EncDec_7 {
+
+  type component Test_CT{};
+
+
+  external function enc_PDU(in PDU pl_pdu) return octetstring 
+  with {
+    extension "prototype(convert)"
+    extension "encode(RAW)"
+  };
+  external function dec_PDU(in octetstring pl_octetstring) return PDU
+  with {
+    extension "prototype(convert)"
+    extension "decode(RAW)"
+  }
+    
+  type hexstring HEX1 length(1) with {encode "RAW";variant "FIELDLENGTH(1)"};
+  type hexstring HEX5 length(5) with {encode "RAW";variant "FIELDLENGTH(5)"};
+  type octetstring OCT1 length(1) with {encode "RAW";variant "FIELDLENGTH(1)"};
+
+  type record My_Type{
+    OCT1          id,
+    HEX1          spare,
+    HEX5          hex,
+    octetstring   o
+  } with {
+    encode "RAW";
+    variant(spare,hex) "FIELDORDER(msb)";
+  }
+  
+  type record PDU {
+    OCT1     msg_type,
+    U        u
+  } with {
+    encode "RAW";
+    variant (u) "CROSSTAG(h1,      msg_type = '01'O;
+                          h5,      msg_type = '02'O;
+                          my_type, msg_type = '03'O;
+                          unknown, OTHERWISE;)";
+  }
+  
+  type union U {
+    HEX1          h1,
+    HEX5          h5,
+    My_Type       my_type,
+    octetstring   unknown
+
+  } with {encode "RAW";}
+
+
+  
+testcase TC_02() runs on Test_CT{
+  var PDU vl_pdu := {
+      msg_type := '03'O,
+      u := {
+        my_type := {
+          id := '01'O,
+          spare := 'F'H,
+          hex := 'ABCDE'H,
+          o := '123456'O
+        }
+      }
+    }
+
+    var octetstring vl_encoded := enc_PDU(vl_pdu);
+    var PDU vl_decoded := dec_PDU(vl_encoded);
+    log("Encoded pdu:",vl_encoded); 
+    if(vl_pdu == vl_decoded){
+      setverdict(pass);  
+    } else {
+      setverdict(fail);
+      log(match(vl_pdu, vl_decoded));
+    }
+}
+
+control{
+  execute(TC_02());
+}
+
+}

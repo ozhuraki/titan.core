@@ -1,0 +1,103 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module Text_EncDec_4 {
+
+
+  type charstring Version (pattern "\d.\d") with {
+    encode "TEXT";
+    variant "BEGIN('ABCD ')"
+  }
+
+  type record Command {
+    charstring  code,
+    charstring  id,
+    charstring  string,
+    Version ver
+  } with {
+    encode "TEXT";
+    variant "SEPARATOR(' ', '[\t ]+')"
+    variant "END('\r\n', '([\r\n])|(\r\n)')"
+  }
+
+  type record Response {
+    charstring  code,
+    charstring  id,
+    charstring  string optional
+  } with {
+    encode "TEXT";
+    variant "SEPARATOR(' ', '[\t ]+')"
+    variant "END('\r\n', '([\r\n])|(\r\n)')"
+  }
+
+ 
+
+  type union Message {
+    Command command,
+    Response  response
+  } with {
+    encode "TEXT";
+    variant "BEGIN('')"
+  }
+
+  type record Whole {
+    integer i,
+    Message mess
+  } with {
+    encode "TEXT";
+    variant "SEPARATOR(' ', '[\t ]+')"
+    variant "BEGIN('')"
+  }
+
+
+  external function enc_Response(in Response id) return charstring
+    with { extension "prototype(convert) encode(TEXT)" };
+  external function dec_Response(in charstring  id) return Response
+    with { extension "prototype(convert) decode(TEXT)" };
+
+  external function enc_Message(in Message id) return charstring
+    with { extension "prototype(convert) encode(TEXT)" };
+  external function dec_Message(in charstring  id) return Message
+    with { extension "prototype(convert) decode(TEXT)" };
+
+  external function enc_Whole(in Whole id) return charstring
+    with { extension "prototype(convert) encode(TEXT)" };
+  external function dec_Whole(in charstring  id) return Whole
+    with { extension "prototype(convert) decode(TEXT)" };
+
+
+type component TempComp {}
+testcase TC() runs on TempComp {
+    var Response pdu := { code := "510", id := "23", string := "FAIL" }
+    var charstring cs :=  "510 23 FAIL\r\n";
+    if (not match(pdu, dec_Response(cs))) {
+      setverdict(fail);
+    }
+
+    var Message mess := { response := { code := "510", id := "23", string := "FAIL" } }
+    if (not match(mess, dec_Message(cs))) {
+      setverdict(fail);
+    }
+
+    var Whole wh := { i := 1,  mess := { response := { code := "510", id := "23", string := "FAIL" } } }
+    cs := "1 510 23 FAIL\r\n";
+    log(match(wh, dec_Whole(cs)))
+    if (not match(wh, dec_Whole(cs))) {
+      setverdict(fail);
+    }
+
+    setverdict(pass);
+
+} 
+
+control { 
+execute (TC()) 
+}
+}

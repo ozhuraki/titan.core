@@ -1,0 +1,45 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module RAW_EncDec_5 {
+
+external function enc_RAW_PDU(in RAW_PDU pdu) return octetstring with { extension "prototype(convert) encode(RAW)" }
+external function dec_RAW_PDU(in octetstring stream) return RAW_PDU with { extension "prototype(convert) decode(RAW)" }
+
+type integer RAW_PDU
+with { encode "RAW";
+       variant "FIELDLENGTH(8)" ;
+       variant "COMP( nosign ) "
+     };
+
+const RAW_PDU 		i := -2
+const octetstring 	o := '02'O
+
+
+type component TempComp {}
+testcase TC() runs on TempComp {
+
+@try {
+  if ((enc_RAW_PDU(i) == o)and(dec_RAW_PDU(o) == i)) {setverdict(pass);}
+  else {setverdict(fail);}
+} @catch (msg) {
+  var template charstring msg_exp := pattern "*While RAW-encoding type '@RAW_EncDec_5.RAW_PDU': Unsigned encoding of a negative number: @RAW_EncDec_5.RAW_PDU*";
+  if (not match(msg, msg_exp)) {
+    setverdict(fail, "Invalid error message: ", msg);
+  } else {
+    setverdict(pass);
+  }
+}
+} 
+
+control { 
+execute (TC()) 
+}
+}

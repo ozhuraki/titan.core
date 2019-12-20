@@ -1,0 +1,49 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module BER_EncDec_38 {
+
+import from BER_EncDecA_38 all;
+
+external function enc_DER_PDU(in BERPDU pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU(in BERPDU pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU(in octetstring stream) return BERPDU with { extension "prototype(convert) decode(BER)" }
+
+const BERPDU myValue1 := {
+			  a := 'FF'O,
+			  b := true,
+			  d := '1'B,
+			  c := 4 
+			   }
+const BERPDU myValue2 := {
+			  a := 'FF'O,  
+			  d := '1'B,
+			  b := true,
+			  c := 4 
+			   }
+
+type component TempComp {}
+testcase TC() runs on TempComp {
+
+if ((enc_DER_PDU(myValue1) == '310D8001FF8101FF82010483020780'O)and(enc_CER_PDU(myValue1) == '31808001FF8101FF820104830207800000'O)) {setverdict(pass);} else {setverdict(fail);}
+if ((enc_DER_PDU(myValue2) == '310D8001FF8101FF82010483020780'O)and(enc_CER_PDU(myValue2) == '31808001FF8101FF820104830207800000'O)) {setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('310D8001FF8101FF82010483020780'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('31808001FF8101FF820104830207800000'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('310D8001FF830207808101FF820104'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('31808001FF830207808101FF8201040000'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('318300000D8001FF8101FF82010483020780'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('318300000D8101FF820104830207808001FF'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+
+} 
+
+control { 
+execute (TC()) 
+}
+}

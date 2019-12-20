@@ -1,0 +1,39 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module BER_EncDec_56 {
+
+import from BER_EncDecA_56 all;
+
+external function enc_DER_PDU(in BERPDU pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU(in BERPDU pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function dec_BER_PDU(in octetstring stream) return BERPDU with { extension "prototype(convert) decode(BER)" }
+
+const BERPDU myValue := {
+				{5,6,7},
+				{1,2,3}
+                        };
+
+
+type component TempComp {}
+testcase TC() runs on TempComp {
+
+if ((enc_DER_PDU(myValue) == '311631090201010201020201033109020105020106020107'O)and(enc_CER_PDU(myValue) == '318031800201010201020201030000318002010502010602010700000000'O)) {setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('311631090201010201020201033109020105020106020107'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('318031800201010201020201030000318002010502010602010700000000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('311631090201050201060201073109020101020102020103'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU('318031800201050201060201070000318002010102010202010300000000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+
+} 
+
+control { 
+execute (TC()) 
+}
+}

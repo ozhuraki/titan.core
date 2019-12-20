@@ -1,0 +1,41 @@
+
+--/////////////////////////////////////////////////////////////////////////////
+-- Copyright (c) 2000-2019 Ericsson Telecom AB
+-- All rights reserved. This program and the accompanying materials
+-- are made available under the terms of the Eclipse Public License v2.0
+-- which accompanies this distribution, and is available at
+-- https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+--
+-- Contributors:
+--   Kristof, Szabados
+--
+--/////////////////////////////////////////////////////////////////////////////
+BER-EncDecA-48
+
+DEFINITIONS
+AUTOMATIC TAGS
+::=
+BEGIN
+BERPDU ::= SET
+      {
+        a   NULL,
+	b   BOOLEAN,
+	c   INTEGER,
+	d   ENUMERATED {first ,second ,third},
+	e   NULL,
+	f   BIT STRING,
+	g   OCTET STRING,
+	h   OBJECT IDENTIFIER,
+	i   IA5String,
+	j   CHOICE {x1  BOOLEAN,
+		    y1  OCTET STRING},
+	k   SEQUENCE{x2 NULL,
+		     y2 BOOLEAN},
+	l   SET { x3 BIT STRING,
+		  y3 NULL},
+	m    SEQUENCE OF INTEGER,
+	n    SET OF BOOLEAN
+       }
+myOBJID OBJECT IDENTIFIER  ::=   {itu-t(0) recommendation(0) a(2) b(3)}
+END
+

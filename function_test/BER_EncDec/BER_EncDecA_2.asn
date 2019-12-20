@@ -1,0 +1,196 @@
+
+--/////////////////////////////////////////////////////////////////////////////
+-- Copyright (c) 2000-2019 Ericsson Telecom AB
+-- All rights reserved. This program and the accompanying materials
+-- are made available under the terms of the Eclipse Public License v2.0
+-- which accompanies this distribution, and is available at
+-- https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+--
+-- Contributors:
+--   Kristof, Szabados
+--
+--/////////////////////////////////////////////////////////////////////////////
+BER-EncDecA-2
+
+
+DEFINITIONS
+AUTOMATIC TAGS
+::=
+BEGIN
+
+IMPORTS;
+
+BERPDU46 ::= SEQUENCE
+      {
+	b   BOOLEAN OPTIONAL,
+	c   INTEGER OPTIONAL
+      }
+
+BERPDU47 ::= SEQUENCE
+      {
+	b   BOOLEAN DEFAULT TRUE,
+	c   INTEGER OPTIONAL
+      }
+
+BERPDU51 ::= [0] SEQUENCE
+      {   
+	b   BOOLEAN OPTIONAL,
+	c   INTEGER OPTIONAL
+      }
+
+BERPDU58 ::= [0] SEQUENCE
+      {   
+	b  [0]  BOOLEAN OPTIONAL,
+	c  [1]  INTEGER OPTIONAL
+      }
+
+BERPDU59 ::= SEQUENCE
+      {   
+	b  [5] BOOLEAN OPTIONAL,
+	c   INTEGER OPTIONAL
+      }
+
+MySeq60 ::= SEQUENCE
+      {x INTEGER OPTIONAL,
+       y OCTET STRING}
+
+BERPDU60 ::= SEQUENCE
+      {   
+	b   BOOLEAN OPTIONAL,
+	c   INTEGER OPTIONAL,
+	COMPONENTS OF MySeq60
+      }
+
+MySeq61 ::= SEQUENCE
+      {x [0] INTEGER OPTIONAL,
+       y OCTET STRING}
+
+BERPDU61 ::= SEQUENCE
+      {   
+	b   BOOLEAN OPTIONAL,
+	c   INTEGER OPTIONAL,
+	COMPONENTS OF MySeq61
+      }
+
+MySeq62 ::= SEQUENCE
+      {x  INTEGER OPTIONAL,
+       y OCTET STRING}
+BERPDU62 ::= SEQUENCE
+      {   
+	b   [0]  BOOLEAN OPTIONAL,
+	c   BIT STRING OPTIONAL,
+	COMPONENTS OF MySeq62
+      }
+
+MySeq63 ::= SEQUENCE
+      {x  [1] INTEGER OPTIONAL,
+       y OCTET STRING}
+
+BERPDU63 ::= SEQUENCE
+      {   
+	b   [0]  BOOLEAN OPTIONAL,
+	c   BIT STRING OPTIONAL,
+	COMPONENTS OF MySeq63
+      }
+
+BERPDU64 ::= SEQUENCE
+      {   
+	b   CHOICE {
+			x BOOLEAN,
+			y OCTET STRING
+			}
+		    OPTIONAL,
+	c   INTEGER OPTIONAL
+	
+      }
+
+BERPDU66 ::= SEQUENCE
+      {
+	a   OCTET STRING,
+	b   BOOLEAN, 
+	...,
+	d   BIT STRING,
+	..., 
+	c   INTEGER OPTIONAL
+      }
+
+BERPDU68 ::= SEQUENCE
+      {
+        a   NULL,
+	b   BOOLEAN,
+	c   INTEGER,
+	d   ENUMERATED {first ,second ,third},
+	e   REAL,
+	f   BIT STRING,
+	g   OCTET STRING,
+	
+	h   OBJECT IDENTIFIER,
+	i   IA5String,
+	j   CHOICE {x1  BOOLEAN,
+		    y1  OCTET STRING},
+	
+	k   SEQUENCE{x2 NULL,
+		     y2 BOOLEAN},
+	
+	l   SET { x3 BIT STRING,
+		  y3 REAL},
+		  
+	m    SEQUENCE OF INTEGER,
+	n    SET OF BOOLEAN
+       }
+
+
+myOBJID-68 OBJECT IDENTIFIER  ::=   {itu-t(0) recommendation(0) a(2) b(3)}
+
+BERPDU70 ::= SEQUENCE
+      {
+        a   NULL,
+	b   BOOLEAN,
+	c   INTEGER,
+	d   ENUMERATED {first ,second ,third},
+	e   NULL,
+	f   BIT STRING,
+	g   OCTET STRING,
+	h   OBJECT IDENTIFIER,
+	i   IA5String,
+	j   CHOICE {x1  BOOLEAN,
+		    y1  OCTET STRING},
+	k   SEQUENCE{x2 NULL,
+		     y2 BOOLEAN},
+	l   SET { x3 BIT STRING,
+		  y3 NULL},
+	m    SEQUENCE OF INTEGER,
+	n    SET OF BOOLEAN	  
+       }
+
+BERPDU85 ::= SET
+      {   
+	b   BOOLEAN OPTIONAL,
+	c   INTEGER OPTIONAL
+      }
+
+BERPDU86 ::= SET
+      {
+	
+	c   INTEGER OPTIONAL,
+	b   BOOLEAN OPTIONAL
+      }
+
+BERPDU87 ::= SET
+      {
+	b   BOOLEAN DEFAULT TRUE,
+	c   INTEGER OPTIONAL
+      }
+
+BERPDU88 ::= SET
+      {
+	c   INTEGER OPTIONAL,
+	b   BOOLEAN DEFAULT TRUE
+      }
+
+myOBJID-70 OBJECT IDENTIFIER  ::=   {itu-t(0) recommendation(0) a(2) b(3)}
+
+
+
+END
+

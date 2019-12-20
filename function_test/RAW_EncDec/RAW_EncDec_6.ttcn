@@ -1,0 +1,41 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module RAW_EncDec_6 {
+
+type octetstring raw_pdu_octetstring with { encode "RAW"; variant "FIELDLENGTH(1)"};
+
+external function enc_raw_pdu_octetstring(in raw_pdu_octetstring pdu) return octetstring with { extension "prototype(convert) encode(RAW)" }
+external function dec_raw_pdu_octetstring(in octetstring stream) return raw_pdu_octetstring with { extension "prototype(convert) decode(RAW)" }
+
+
+type component TempComp {}
+testcase TC() runs on TempComp {
+
+  var raw_pdu_octetstring i;
+  const octetstring o := '0F'O;
+  @try {
+    if ((enc_raw_pdu_octetstring(i) == o)and(dec_raw_pdu_octetstring(o) == i)) {setverdict(pass);}
+    else {setverdict(fail,"enc_raw_pdu_octetstring(i)= ", enc_raw_pdu_octetstring(i), "; dec_raw_pdu_octetstring(o)= ", dec_raw_pdu_octetstring(o));}
+  } @catch (msg) {
+    var template charstring msg_exp := pattern "*While RAW-encoding type '@RAW_EncDec_6.raw_pdu_octetstring': Encoding an unbound value.*";
+    if (not match(msg, msg_exp)) {
+      setverdict(fail, "Invalid error message: ", msg);
+    } else {
+      setverdict(pass);
+    }
+  }
+
+}
+
+control { 
+execute (TC()) 
+}
+}

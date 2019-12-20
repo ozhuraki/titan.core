@@ -1,0 +1,51 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module XER_EncDec_11 {
+
+type component Test_CT{};
+
+
+type record any_elem_rec {
+  integer not_used,
+  universal charstring any_elem
+} with {
+  encode "XML";
+  variant(any_elem) "anyElement except unqualified";
+}
+
+external function ef_xer_enc(in any_elem_rec par) return octetstring 
+  with { extension "prototype(convert) encode (XER:XER_EXTENDED) errorbehavior(ALL:ERROR)" }
+
+testcase tc_any_elem() runs on Test_CT {
+  var octetstring os_enc; 
+   
+  var any_elem_rec v_good := { -5, "<xyz:color xmlns:xyz=""http://www.somewhere.com"">red</xyz:color>" };
+  os_enc := ef_xer_enc(v_good);
+
+@try {
+  var any_elem_rec v_bad := { 3, "<something>not very important</something>" };
+  os_enc := ef_xer_enc(v_bad); 
+} @catch (msg) {
+  var template charstring msg_exp := pattern "*Dynamic test case error: While XER-encoding type '@XER_EncDec_11.any_elem_rec': Component 'any_elem': While checking anyElement: The unqualified XML namespace is in the excluded namespace list*";
+  if (not match(msg, msg_exp)) {
+    setverdict(fail, "Invalid error message: ", msg);
+  } else {
+    setverdict(pass);
+  }
+}
+  setverdict(pass);
+}
+
+control {
+  execute(tc_any_elem());
+}
+
+}

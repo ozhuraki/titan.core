@@ -1,0 +1,135 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module Text_EncDec_2 {
+
+
+external function enc_text(in rec_text r) return charstring
+  with { extension "encode(TEXT) prototype(convert) errorbehavior(ALL:WARNING)" }
+external function dec_text(in charstring r) return rec_text
+  with { extension "decode(TEXT) prototype(convert) errorbehavior(ALL:WARNING)" }
+
+type integer myint1 with {
+  variant "BEGIN('<myint>')"
+  variant "END('</myint>')"
+  encode "TEXT" }
+
+type integer myint2 with {
+  variant "BEGIN('<myint_dummy>')"
+  variant "END('</myint_dummy>')"
+  variant "TEXT_CODING(length=128;leading0=true)"
+  encode "TEXT" }
+
+type integer myint3 with {
+  variant "BEGIN('<myint_super>')"
+  variant "END('</myint_super>')"
+  encode "TEXT" }
+
+type integer myint4 with {
+  variant "TEXT_CODING(length=256)"
+  variant "BEGIN('<myint_pad>')"
+  variant "END('</myint_pad>')"
+  encode "TEXT" }
+
+type record rec_text {
+  myint1 int1,
+  myint1 int2,
+  myint2 int3 optional,
+  myint3 int4 optional,
+  myint4 int5 optional
+} with {
+  variant "BEGIN('<rec_text>')"
+  // `variant "SEPARATOR(',')"' is not necessary if the fields can be found
+  // unambigously.
+  variant "END('</rec_text>')"
+  encode "TEXT" }
+
+
+type component TempComp {}
+testcase TC() runs on TempComp {
+  const integer a := 214748364799
+  const integer b := 214748364788
+  const integer c := 0
+  // Implicit `omit' would be great.
+  var rec_text myrec1 := {int1 := 214748364799, int2 := 214748364788, int3 := omit, int4 := omit, int5 := omit}
+  var rec_text myrec2 := {214748364799, 214748364788, omit, omit, omit}
+  var rec_text myrec3 := {214748364799, 0, omit, omit, omit}
+  var rec_text myrec4 := {int1 := 214748364799, int2 := 0, int3 := omit, int4 := omit, int5 := omit}
+  var rec_text myrec5 := {int1 := 0, int2 := 214748364788, int3 := omit, int4 := omit, int5 := omit}
+  var rec_text myrec6 := {0, 214748364788, omit, omit, omit}
+  var rec_text myrec7 := {0, 0, omit, omit, omit}
+  var rec_text myrec8 := {int1 := 0, int2 := 0, int3 := omit, int4 := omit, int5 := omit}
+  var rec_text myrec9 := {int1 := a, int2 := b, int3 := omit, int4 := omit, int5 := omit}
+  var rec_text myrec10 := {a, b, omit, omit, omit}  
+  // The original `sprintf' encoder encodes negative values `-' <padding>
+  // `0123456'.  We should work similarly.
+  var rec_text myrec11 := {
+    int1 := -11111111111111111111111111111,
+    int2 := 22222222222222222222222222222, 
+    int3 := -33333333333333333333333333333,
+    int4 := 2147483648,
+    int5 := -2147483648 }
+  var rec_text myrec12 := {int1 := 0, int2 := 0, int3 := 0, int4 := -1111111111111111111111111111111, int5 := -1234567891011121314151617181920}
+  var rec_text myrec13 := {-0, -0, -0, -0, -0}
+  var rec_text myrec14 := {-0, -1, 1234567891011121314151617181920, -1111111111111111111111111111111, -0}
+  var rec_text myrec15 := {int1 := 1111111111111111111111111111111, int2 := -1234567891011121314151617181920, int3 := 0, int4 := -0, int5 := -111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111}  
+  var charstring ret_val
+  ret_val := enc_text(myrec1)
+  if (dec_text(ret_val) == myrec1) { setverdict(pass) } else { setverdict(fail) }
+  if (dec_text(ret_val) == {int1 := 214748364799, int2 := 214748364788, int3 := omit, int4 := omit, int5 := omit}) { setverdict(pass) } else { setverdict(fail) }
+  ret_val := enc_text(myrec2)
+  if (dec_text(ret_val) == myrec2) { setverdict(pass) } else { setverdict(fail) }
+  if (dec_text(ret_val) == {214748364799, 214748364788, omit, omit, omit}) { setverdict(pass) } else { setverdict(fail) }
+  ret_val := enc_text(myrec3)
+  if (dec_text(ret_val) == myrec3) { setverdict(pass) } else { setverdict(fail) }
+  if (dec_text(ret_val) == {214748364799, 0, omit, omit, omit}) { setverdict(pass) } else { setverdict(fail) }
+  ret_val := enc_text(myrec4)
+  if (dec_text(ret_val) == myrec4) { setverdict(pass) } else { setverdict(fail) }
+  if (dec_text(ret_val) == {int1 := 214748364799, int2 := 0, int3 := omit, int4 := omit, int5 := omit}) { setverdict(pass) } else { setverdict(fail) }
+  ret_val := enc_text(myrec5)
+  if (dec_text(ret_val) == myrec5) { setverdict(pass) } else { setverdict(fail) }
+  if (dec_text(ret_val) == {int1 := 0, int2 := 214748364788, int3 := omit, int4 := omit, int5 := omit}) { setverdict(pass) } else { setverdict(fail) }
+  ret_val := enc_text(myrec6)
+  if (dec_text(ret_val) == myrec6) { setverdict(pass) } else { setverdict(fail) }
+  if (dec_text(ret_val) == {0, 214748364788, omit, omit, omit}) { setverdict(pass) } else { setverdict(fail) }
+  ret_val := enc_text(myrec7)
+  if (dec_text(ret_val) == myrec7) { setverdict(pass) } else { setverdict(fail) }
+  if (dec_text(ret_val) == {0, 0, omit, omit, omit}) { setverdict(pass) } else { setverdict(fail) }
+  ret_val := enc_text(myrec8)
+  if (dec_text(ret_val) == myrec8) { setverdict(pass) } else { setverdict(fail) }
+  if (dec_text(ret_val) == {int1 := 0, int2 := 0, int3 := omit, int4 := omit, int5 := omit}) { setverdict(pass) } else { setverdict(fail) }
+  ret_val := enc_text(myrec9)
+  if (dec_text(ret_val) == myrec9) { setverdict(pass) } else { setverdict(fail) }
+  if (dec_text(ret_val) == {int1 := a, int2 := b, int3 := omit, int4 := omit, int5 := omit}) { setverdict(pass) } else { setverdict(fail) }
+  ret_val := enc_text(myrec10)
+  if (dec_text(ret_val) == myrec10) { setverdict(pass) } else { setverdict(fail) }
+  if (dec_text(ret_val) == {a, b, omit, omit, omit}) { setverdict(pass) } else { setverdict(fail) }
+  ret_val := enc_text(myrec11)
+  if (dec_text(ret_val) == myrec11) { setverdict(pass) } else { setverdict(fail) }
+  if (dec_text(ret_val) == {int1 := -11111111111111111111111111111, int2 := 22222222222222222222222222222, int3 := -33333333333333333333333333333, int4 := 2147483648, int5 := -2147483648}) { setverdict(pass) } else { setverdict(fail) }
+  ret_val := enc_text(myrec12)
+  if (dec_text(ret_val) == myrec12) { setverdict(pass) } else { setverdict(fail) }
+  if (dec_text(ret_val) == {int1 := 0, int2 := 0, int3 := 0, int4 := -1111111111111111111111111111111, int5 := -1234567891011121314151617181920}) { setverdict(pass) } else { setverdict(fail) }
+  ret_val := enc_text(myrec13)
+  if (dec_text(ret_val) == myrec13) { setverdict(pass) } else { setverdict(fail) }
+  if (dec_text(ret_val) == {-0, -0, -0, -0, -0}) { setverdict(pass) } else { setverdict(fail) }
+  ret_val := enc_text(myrec14)
+  if (dec_text(ret_val) == myrec14) { setverdict(pass) } else { setverdict(fail) }
+  if (dec_text(ret_val) == {-0, -1, 1234567891011121314151617181920, -1111111111111111111111111111111, -0}) { setverdict(pass) } else { setverdict(fail) }
+  ret_val := enc_text(myrec15)
+  if (dec_text(ret_val) == myrec15) { setverdict(pass) } else { setverdict(fail) }
+  if (dec_text(ret_val) == {int1 := 1111111111111111111111111111111, int2 := -1234567891011121314151617181920, int3 := 0, int4 := -0, int5 := -111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111}) { setverdict(pass) } else { setverdict(fail) }
+
+} 
+
+control { 
+execute (TC()) 
+}
+}

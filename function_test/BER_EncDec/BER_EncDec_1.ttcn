@@ -1,0 +1,1605 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module BER_EncDec_1 {
+
+import from BER_EncDecA_1 all;
+
+
+
+type component Test_CT {}
+
+external function enc_DER_PDU1(in BERPDU1 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU1(in BERPDU1 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+
+external function enc_DER_PDU2(in BERPDU2 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU2(in BERPDU2 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU3(in BERPDU3 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU3(in BERPDU3 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU4(in BERPDU4 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU4(in BERPDU4 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU5(in BERPDU5 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU5(in BERPDU5 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU6(in BERPDU6 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU6(in BERPDU6 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU7(in BERPDU7 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU7(in BERPDU7 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU8(in BERPDU8 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU8(in BERPDU8 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU9(in BERPDU9 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU9(in BERPDU9 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU10(in BERPDU10 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU10(in BERPDU10 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU11(in BERPDU11 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU11(in BERPDU11 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU12(in BERPDU12 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU12(in BERPDU12 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU13(in BERPDU13 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU13(in BERPDU13 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU14(in BERPDU14 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU14(in BERPDU14 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU15(in BERPDU15 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU15(in BERPDU15 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU16(in BERPDU16 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU16(in BERPDU16 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU17(in BERPDU17 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU17(in BERPDU17 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU18(in BERPDU18 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU18(in BERPDU18 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU19(in BERPDU19 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU19(in BERPDU19 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU20(in BERPDU20 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU20(in BERPDU20 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU21(in BERPDU21 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU21(in BERPDU21 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU22(in BERPDU22 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU22(in BERPDU22 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU23(in BERPDU23 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU23(in BERPDU23 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU24(in BERPDU24 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU24(in BERPDU24 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU25(in BERPDU25 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU25(in BERPDU25 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU26(in BERPDU26 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU26(in BERPDU26 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU27(in BERPDU27 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU27(in BERPDU27 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU28(in BERPDU28 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU28(in BERPDU28 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU29(in BERPDU29 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU29(in BERPDU29 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU30(in BERPDU30 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU30(in BERPDU30 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU31(in BERPDU31 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU31(in BERPDU31 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU32(in BERPDU32 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU32(in BERPDU32 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU33(in BERPDU33 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU33(in BERPDU33 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU34(in BERPDU34 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU34(in BERPDU34 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU35(in BERPDU35 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU35(in BERPDU35 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU36(in BERPDU36 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU36(in BERPDU36 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU37(in BERPDU37 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU37(in BERPDU37 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU38(in BERPDU38 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU38(in BERPDU38 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU39(in BERPDU39 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU39(in BERPDU39 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU40(in BERPDU40 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU40(in BERPDU40 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU41(in BERPDU41 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU41(in BERPDU41 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU42(in BERPDU42 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU42(in BERPDU42 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU43(in BERPDU43 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU43(in BERPDU43 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU44(in BERPDU44 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU44(in BERPDU44 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU45(in BERPDU45 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU45(in BERPDU45 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU48(in BERPDU48 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU48(in BERPDU48 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU49(in BERPDU49 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU49(in BERPDU49 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU50(in BERPDU50 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU50(in BERPDU50 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU54(in BERPDU54 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU54(in BERPDU54 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU65(in BERPDU65 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU65(in BERPDU65 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU67(in BERPDU67 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU67(in BERPDU67 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU71(in BERPDU71 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU71(in BERPDU71 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU72(in BERPDU72 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU72(in BERPDU72 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU73(in BERPDU73 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU73(in BERPDU73 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU74(in BERPDU74 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU74(in BERPDU74 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU75(in BERPDU75 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU75(in BERPDU75 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU76(in BERPDU76 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU76(in BERPDU76 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU77(in BERPDU77 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU77(in BERPDU77 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU78(in BERPDU78 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU78(in BERPDU78 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU79(in BERPDU79 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU79(in BERPDU79 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU82(in BERPDU82 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU82(in BERPDU82 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU83(in BERPDU83 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU83(in BERPDU83 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+external function enc_DER_PDU84(in BERPDU84 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU84(in BERPDU84 pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+
+external function dec_BER_PDU1(in octetstring stream) return BERPDU1 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU2(in octetstring stream) return BERPDU2 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU3(in octetstring stream) return BERPDU3 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU4(in octetstring stream) return BERPDU4 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU5(in octetstring stream) return BERPDU5 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU6(in octetstring stream) return BERPDU6 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU7(in octetstring stream) return BERPDU7 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU8(in octetstring stream) return BERPDU8 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU9(in octetstring stream) return BERPDU9 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU10(in octetstring stream) return BERPDU10 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU11(in octetstring stream) return BERPDU11 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU12(in octetstring stream) return BERPDU12 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU13(in octetstring stream) return BERPDU13 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU14(in octetstring stream) return BERPDU14 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU15(in octetstring stream) return BERPDU15 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU16(in octetstring stream) return BERPDU16 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU17(in octetstring stream) return BERPDU17 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU18(in octetstring stream) return BERPDU18 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU19(in octetstring stream) return BERPDU19 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU20(in octetstring stream) return BERPDU20 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU21(in octetstring stream) return BERPDU21 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU22(in octetstring stream) return BERPDU22 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU23(in octetstring stream) return BERPDU23 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU24(in octetstring stream) return BERPDU24 with { extension "prototype(convert) decode(BER)" }
+//external function dec_BER_PDU25(in octetstring stream) return BERPDU25 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU26(in octetstring stream) return BERPDU26 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU27(in octetstring stream) return BERPDU27 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU28(in octetstring stream) return BERPDU28 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU29(in octetstring stream) return BERPDU29 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU30(in octetstring stream) return BERPDU30 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU31(in octetstring stream) return BERPDU31 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU32(in octetstring stream) return BERPDU32 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU33(in octetstring stream) return BERPDU33 with { extension "prototype(convert) decode(BER:BER_ACCEPT_ALL)" }
+external function dec_BER_PDU34(in octetstring stream) return BERPDU34 with { extension "prototype(convert) decode(BER:BER_ACCEPT_ALL)" }
+external function dec_BER_PDU35(in octetstring stream) return BERPDU35 with { extension "prototype(convert) decode(BER)" } 
+external function dec_BER_PDU36(in octetstring stream) return BERPDU36 with { extension "prototype(convert) decode(BER:BER_ACCEPT_ALL)" } 
+external function dec_BER_PDU37(in octetstring stream) return BERPDU37 with { extension "prototype(convert) decode(BER)" } 
+external function dec_BER_PDU38(in octetstring stream) return BERPDU38 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU39(in octetstring stream) return BERPDU39 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU40(in octetstring stream) return BERPDU40 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU41(in octetstring stream) return BERPDU41 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU42(in octetstring stream) return BERPDU42 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU43(in octetstring stream) return BERPDU43 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU44(in octetstring stream) return BERPDU44 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU45(in octetstring stream) return BERPDU45 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU48(in octetstring stream) return BERPDU48 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU49(in octetstring stream) return BERPDU49 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU50(in octetstring stream) return BERPDU50 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU54(in octetstring stream) return BERPDU54 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU65(in octetstring stream) return BERPDU65 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU67(in octetstring stream) return BERPDU67 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU69(in octetstring stream) return BERPDU69 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU71(in octetstring stream) return BERPDU71 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU72(in octetstring stream) return BERPDU72 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU73(in octetstring stream) return BERPDU73 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU74(in octetstring stream) return BERPDU74 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU75(in octetstring stream) return BERPDU75 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU76(in octetstring stream) return BERPDU76 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU77(in octetstring stream) return BERPDU77 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU78(in octetstring stream) return BERPDU78 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU79(in octetstring stream) return BERPDU79 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU82(in octetstring stream) return BERPDU82 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU83(in octetstring stream) return BERPDU83 with { extension "prototype(convert) decode(BER)" }
+external function dec_BER_PDU84(in octetstring stream) return BERPDU84 with { extension "prototype(convert) decode(BER)" }
+
+//*********************************************
+// TESTCASES
+//*********************************************
+
+//===========================================
+// DER + CER encoding of BOOLEAN TRUE, FALSE
+//===========================================
+testcase tc_DER_CER_encoding_of_BOOLEAN() runs on Test_CT {
+  const BERPDU1 b1 := true
+  const BERPDU1 b2 := false  
+  if ((enc_DER_PDU1(b1) == '0101FF'O)and(enc_CER_PDU1(b1) == '0101FF'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU1(b2) == '010100'O)and(enc_CER_PDU1(b2) == '010100'O)) {setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+// DER + CER encoding of BOOLEAN  with Context Specific TAG, EXPLICIT
+//===========================================
+testcase tc_DER_CER_encoding_of_BOOLEAN_with_ContextSpecTag_Explicit() runs on Test_CT {
+  const BERPDU2 b := true
+  if ((enc_DER_PDU2(b) == 'A0030101FF'O)and(enc_CER_PDU2(b) == 'A0800101FF0000'O)) {setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+// DER + CER encoding of BOOLEAN  with  PRIVATE  TAG, EXPLICIT
+//===========================================
+testcase tc_DER_CER_encoding_of_BOOLEAN_with_PrivateTag_Explicit() runs on Test_CT {
+  const BERPDU3 b := true
+
+ if ((enc_DER_PDU3(b) == 'E1030101FF'O)and(enc_CER_PDU3(b) == 'E1800101FF0000'O)) {setverdict(pass);} else {setverdict(fail);}
+
+}
+
+//===========================================
+// DER + CER encoding of BOOLEAN  with APPLICATION TAG, EXPLICIT
+//===========================================
+testcase tc_DER_CER_encoding_of_BOOLEAN_with_ApplicationTag_Explicit() runs on Test_CT {
+  const BERPDU4 b := true
+  if ((enc_DER_PDU4(b) == '62030101FF'O)and(enc_CER_PDU4(b) == '62800101FF0000'O)) {setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+// DER + CER encoding of BOOLEAN  with Context Specific TAG, IMPLICIT
+//===========================================
+testcase tc_DER_CER_encoding_of_BOOLEAN_with_ContextSpecTag_Implicit() runs on Test_CT {
+  const BERPDU5 b := false
+  if ((enc_DER_PDU5(b) == '800100'O)and(enc_CER_PDU5(b) == '800100'O)) {setverdict(pass);} else {setverdict(fail);}
+}
+//===========================================
+// DER + CER encoding of BOOLEAN  with Private TAG, IMPLICIT
+//===========================================
+testcase tc_DER_CER_encoding_of_BOOLEAN_with_PrivateTag_Implicit() runs on Test_CT {
+  const BERPDU6 b := false
+  if ((enc_DER_PDU6(b) == 'C10100'O)and(enc_CER_PDU6(b) == 'C10100'O)) {setverdict(pass);} else {setverdict(fail);}
+}
+//===========================================
+// DER + CER encoding of BOOLEAN  with Application TAG, IMPLICIT
+//===========================================
+testcase tc_DER_CER_encoding_of_BOOLEAN_with_ApplicationTag_Implicit() runs on Test_CT {
+  const BERPDU7 b := true
+  if ((enc_DER_PDU7(b) == '4201FF'O)and(enc_CER_PDU7(b) == '4201FF'O)) {setverdict(pass);} else {setverdict(fail);}
+}
+//===========================================
+// DECODING BOOLEAN, CER+DER, (unified test)
+//===========================================
+testcase tc_BER_decoding_of_BOOLEAN() runs on Test_CT {
+  if (dec_BER_PDU1('0101FF'O) == myBooleanValue1_1){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU1('010100'O) == myBooleanValue2_1){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU1('01810101'O) == myBooleanValue1_1){setverdict(pass);} else {setverdict(fail);} //(LENGTH OF LENGTH = 1)
+  if (dec_BER_PDU1('0182000100'O) == myBooleanValue2_1){setverdict(pass);} else {setverdict(fail);}//(LENGTH OF LENGTH = 2)
+}
+
+//===========================================
+// DECODING [0] EXPLICIT BOOLEAN, DER, (unified test)
+//===========================================
+testcase tc_DER_decoding_of_BOOLEAN_Explicit() runs on Test_CT {
+  if (dec_BER_PDU2('A0030101FF'O) == myBooleanValue1_2){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU2('A0800101FF0000'O) == myBooleanValue1_2){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU2('A081030101FF'O) == myBooleanValue1_2){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU2('A0810401810199'O) == myBooleanValue1_2){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+// DECODING  [PRIVATE 1] EXPLICIT BOOLEAN, DER-CER, (unified test)
+//===========================================
+testcase tc_BER_decoding_of_BOOLEAN_with_PrivateTag_Explicit() runs on Test_CT {
+  if (dec_BER_PDU3('E1030101FF'O) == myBooleanValue1_3){setverdict(pass);} else {setverdict(fail);}//DER
+  if (dec_BER_PDU3('E1800101FF0000'O) == myBooleanValue1_3){setverdict(pass);} else {setverdict(fail);}//CER
+  if (dec_BER_PDU3('E181030101FF'O) == myBooleanValue1_3){setverdict(pass);} else {setverdict(fail);} //long
+  if (dec_BER_PDU3('E1810401810199'O) == myBooleanValue1_3){setverdict(pass);} else {setverdict(fail);} //long
+}
+
+//===========================================
+// DER + CER decoding of BOOLEAN  with APPLICATION TAG, EXPLICIT
+//===========================================
+testcase tc_DER_CER_decoding_of_BOOLEAN_with_ApplicationTag_Explicit() runs on Test_CT {
+  if (dec_BER_PDU4('62030101FF'O) == myBooleanValue1_4){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU4('62800101FF0000'O) == myBooleanValue1_4){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU4('6281030101FF'O) == myBooleanValue1_4){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU4('62810401810199'O) == myBooleanValue1_4){setverdict(pass);} else {setverdict(fail);}
+}
+//===========================================
+// DECODING [0] IMPLICIT BOOLEAN ,(unified)
+//===========================================
+testcase tc_DER_CER_decoding_of_BOOLEAN_with_ContextSpecTag_Implicit() runs on Test_CT {
+  if (dec_BER_PDU5('8001FF'O) == myBooleanValue1_5){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU5('80810133'O) == myBooleanValue1_5){setverdict(pass);} else {setverdict(fail);}  
+}
+//===========================================
+// DECODING  [PRIVATE 1] IMPLICIT BOOLEAN,(unified)
+//===========================================
+testcase tc_DER_CER_decoding_of_BOOLEAN_with_PrivateTag_Implicit() runs on Test_CT {
+  if (dec_BER_PDU6('C10100'O) == myBooleanValue1_6){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU6('C1810105'O) == myBooleanValue2_6){setverdict(pass);} else {setverdict(fail);}
+}
+//===========================================
+// DECODING [APPLICATION 2] IMPLICIT BOOLEAN,(unified) 
+//===========================================
+testcase tc_DER_CER_decoding_of_BOOLEAN_with_ApplicationTag_Implicit() runs on Test_CT {
+  if (dec_BER_PDU7('420100'O) == myBooleanValue1_7){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU7('42810188'O) == myBooleanValue2_7){setverdict(pass);} else {setverdict(fail);}
+}
+
+
+
+//===========================================
+//  DER + CER coding of integer (unified) 
+//===========================================
+
+testcase tc_DER_CER_coding_of_INTEGER() runs on Test_CT {
+  const BERPDU8 b1_8 := 5
+  const BERPDU8 b2_8 := 0
+  const BERPDU8 b3_8 := 127
+  const BERPDU8 b4_8 := -128
+  const BERPDU8 b5_8 := -5
+  const BERPDU8 b6_8 := 128
+  const BERPDU8 b7_8 := -129
+  if ((enc_DER_PDU8(b1_8) == '020105'O)and(enc_CER_PDU8(b1_8) == '020105'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU8(b2_8) == '020100'O)and(enc_CER_PDU8(b2_8) == '020100'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU8(b3_8) == '02017F'O)and(enc_CER_PDU8(b3_8) == '02017F'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU8(b4_8) == '020180'O)and(enc_CER_PDU8(b4_8) == '020180'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU8(b5_8) == '0201FB'O)and(enc_CER_PDU8(b5_8) == '0201FB'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU8(b6_8) == '02020080'O)and(enc_CER_PDU8(b6_8) == '02020080'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU8(b7_8) == '0202FF7F'O)and(enc_CER_PDU8(b7_8) == '0202FF7F'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('020105'O) == b8_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('02810105'O) == b8_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('0282000105'O) == b8_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('020100'O) == b9_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('02810100'O) == b9_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('0282000100'O) == b9_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('02017F'O) == b10_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('0281017F'O) == b10_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('028200017F'O) == b10_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('020180'O) == b11_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('02810180'O) == b11_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('0282000180'O) == b11_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('0201FB'O) == b12_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('028101FB'O) == b12_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('02820001FB'O) == b12_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('02020080'O) == b13_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('0281020080'O) == b13_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('028200020080'O) == b13_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('0202FF7F'O) == b14_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('028102FF7F'O) == b14_8){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU8('02820002FF7F'O) == b14_8){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//  DER + CER coding of integer with Context Specific TAG, EXPLICIT (unified) 
+//===========================================
+testcase  tc_DER_CER_coding_of_INTEGER_with_ContextSpecTag_Explicit() runs on Test_CT {
+  const BERPDU9 b1_9 := 5
+  const BERPDU9 b2_9 := 0
+  const BERPDU9 b3_9 := 127
+  const BERPDU9 b4_9 := -128
+  const BERPDU9 b5_9 := -5
+  const BERPDU9 b6_9 := 128
+  const BERPDU9 b7_9 := -129
+  if ((enc_DER_PDU9(b1_9) == 'A003020105'O)and(enc_CER_PDU9(b1_9) == 'A0800201050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU9(b2_9) == 'A003020100'O)and(enc_CER_PDU9(b2_9) == 'A0800201000000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU9(b3_9) == 'A00302017F'O)and(enc_CER_PDU9(b3_9) == 'A08002017F0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU9(b4_9) == 'A003020180'O)and(enc_CER_PDU9(b4_9) == 'A0800201800000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU9(b5_9) == 'A0030201FB'O)and(enc_CER_PDU9(b5_9) == 'A0800201FB0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU9(b6_9) == 'A00402020080'O)and(enc_CER_PDU9(b6_9) == 'A080020200800000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU9(b7_9) == 'A0040202FF7F'O)and(enc_CER_PDU9(b7_9) == 'A0800202FF7F0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A003020105'O) == b8_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A0800201050000'O) == b8_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A003020105'O) == b8_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A08103020105'O) == b8_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A0810402810105'O) == b8_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A003020100'O) == b9_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A0800201000000'O) == b9_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A003020100'O) == b9_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A08103020100'O) == b9_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A0810402810100'O) == b9_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A00302017F'O) == b10_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A08002017F0000'O) == b10_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A00302017F'O) == b10_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A0810302017F'O) == b10_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A081040281017F'O) == b10_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A003020180'O) == b11_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A0800201800000'O) == b11_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A003020180'O) == b11_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A08103020180'O) == b11_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A0810402810180'O) == b11_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A0030201FB'O) == b12_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A0800201FB0000'O) == b12_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A0030201FB'O) == b12_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A081030201FB'O) == b12_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A08104028101FB'O) == b12_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A00402020080'O) == b13_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A080020200800000'O) == b13_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A00402020080'O) == b13_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A0810402020080'O) == b13_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A081050281020080'O) == b13_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A0040202FF7F'O) == b14_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A0800202FF7F0000'O) == b14_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A0040202FF7F'O) == b14_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A081040202FF7F'O) == b14_9){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU9('A08105028102FF7F'O) == b14_9){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//  DER + CER coding of integer with PRIVATE TAG, EXPLICIT (unified) 
+//===========================================
+testcase  tc_DER_CER_coding_of_INTEGER_with_PrivateTag_Explicit() runs on Test_CT {
+  const BERPDU10 b1_10 := 5
+  const BERPDU10 b2_10 := 0
+  const BERPDU10 b3_10 := 127
+  const BERPDU10 b4_10 := -128
+  const BERPDU10 b5_10 := -5
+  const BERPDU10 b6_10 := 128
+  const BERPDU10 b7_10 := -129
+  if ((enc_DER_PDU10(b1_10) == 'E103020105'O)and(enc_CER_PDU10(b1_10) == 'E1800201050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU10(b2_10) == 'E103020100'O)and(enc_CER_PDU10(b2_10) == 'E1800201000000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU10(b3_10) == 'E10302017F'O)and(enc_CER_PDU10(b3_10) == 'E18002017F0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU10(b4_10) == 'E103020180'O)and(enc_CER_PDU10(b4_10) == 'E1800201800000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU10(b5_10) == 'E1030201FB'O)and(enc_CER_PDU10(b5_10) == 'E1800201FB0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU10(b6_10) == 'E10402020080'O)and(enc_CER_PDU10(b6_10) == 'E180020200800000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU10(b7_10) == 'E1040202FF7F'O)and(enc_CER_PDU10(b7_10) == 'E1800202FF7F0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E103020105'O) == b8_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E10402810105'O) == b8_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E18103020105'O) == b8_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E1810402810105'O) == b8_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E1800201050000'O) == b8_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E103020100'O) == b9_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E10402810100'O) == b9_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E18103020100'O) == b9_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E1810402810100'O) == b9_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E1800201000000'O) == b9_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E10302017F'O) == b10_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E1040281017F'O) == b10_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E1810302017F'O) == b10_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E181040281017F'O) == b10_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E18002017F0000'O) == b10_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E103020180'O) == b11_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E10402810180'O) == b11_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E18103020180'O) == b11_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E1810402810180'O) == b11_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E1800201800000'O) == b11_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E1030201FB'O) == b12_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E104028101FB'O) == b12_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E181030201FB'O) == b12_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E18104028101FB'O) == b12_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E1800201FB0000'O) == b12_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E10402020080'O) == b13_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E1050281020080'O) == b13_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E1810402020080'O) == b13_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E181050281020080'O) == b13_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E180020200800000'O) == b13_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E1040202FF7F'O) == b14_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E105028102FF7F'O) == b14_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E181040202FF7F'O) == b14_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E18105028102FF7F'O) == b14_10){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU10('E1800202FF7F0000'O) == b14_10){setverdict(pass);} else {setverdict(fail);}
+
+}
+//===========================================
+//  DER + CER coding of integer with APPLICATION TAG, EXPLICIT (unified)  
+//===========================================
+testcase  tc_DER_CER_coding_of_INTEGER_with_ApplicationTag_Explicit() runs on Test_CT {
+  const BERPDU11 b1_11 := 5
+  const BERPDU11 b2_11 := 0
+  const BERPDU11 b3_11 := 127
+  const BERPDU11 b4_11 := -128
+  const BERPDU11 b5_11 := -5
+  const BERPDU11 b6_11 := 128
+  const BERPDU11 b7_11 := -129
+  if ((enc_DER_PDU11(b1_11) == '6203020105'O)and(enc_CER_PDU11(b1_11) == '62800201050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU11(b2_11) == '6203020100'O)and(enc_CER_PDU11(b2_11) == '62800201000000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU11(b3_11) == '620302017F'O)and(enc_CER_PDU11(b3_11) == '628002017F0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU11(b4_11) == '6203020180'O)and(enc_CER_PDU11(b4_11) == '62800201800000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU11(b5_11) == '62030201FB'O)and(enc_CER_PDU11(b5_11) == '62800201FB0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU11(b6_11) == '620402020080'O)and(enc_CER_PDU11(b6_11) == '6280020200800000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU11(b7_11) == '62040202FF7F'O)and(enc_CER_PDU11(b7_11) == '62800202FF7F0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('6203020105'O) == b8_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('620402810105'O) == b8_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('628103020105'O) == b8_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('62810402810105'O) == b8_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('62800201050000'O) == b8_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('6203020100'O) == b9_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('620402810100'O) == b9_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('628103020100'O) == b9_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('62810402810100'O) == b9_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('62800201000000'O) == b9_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('620302017F'O) == b10_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('62040281017F'O) == b10_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('62810302017F'O) == b10_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('6281040281017F'O) == b10_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('628002017F0000'O) == b10_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('6203020180'O) == b11_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('620402810180'O) == b11_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('628103020180'O) == b11_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('62810402810180'O) == b11_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('62800201800000'O) == b11_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('62030201FB'O) == b12_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('6204028101FB'O) == b12_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('6281030201FB'O) == b12_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('628104028101FB'O) == b12_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('62800201FB0000'O) == b12_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('620402020080'O) == b13_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('62050281020080'O) == b13_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('62810402020080'O) == b13_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('6281050281020080'O) == b13_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('6280020200800000'O) == b13_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('62040202FF7F'O) == b14_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('6205028102FF7F'O) == b14_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('6281040202FF7F'O) == b14_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('628105028102FF7F'O) == b14_11){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU11('62800202FF7F0000'O) == b14_11){setverdict(pass);} else {setverdict(fail);}
+}
+//===========================================
+//  DER + CER coding of integer with Context Specific TAG, IMPLICIT (unified)
+//===========================================
+testcase  tc_DER_CER_coding_of_INTEGER_with_ContextSpecTag_Implicit() runs on Test_CT {
+  const BERPDU11 b1_12 := 5
+  const BERPDU11 b2_12 := 0
+  const BERPDU11 b3_12 := 127
+  const BERPDU11 b4_12 := -128
+  const BERPDU11 b5_12 := -5
+  const BERPDU11 b6_12 := 128
+  const BERPDU11 b7_12 := -129
+  if ((enc_DER_PDU12(b1_12) == '800105'O)and(enc_CER_PDU12(b1_12) == '800105'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU12(b2_12) == '800100'O)and(enc_CER_PDU12(b2_12) == '800100'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU12(b3_12) == '80017F'O)and(enc_CER_PDU12(b3_12) == '80017F'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU12(b4_12) == '800180'O)and(enc_CER_PDU12(b4_12) == '800180'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU12(b5_12) == '8001FB'O)and(enc_CER_PDU12(b5_12) == '8001FB'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU12(b6_12) == '80020080'O)and(enc_CER_PDU12(b6_12) == '80020080'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU12(b7_12) == '8002FF7F'O)and(enc_CER_PDU12(b7_12) == '8002FF7F'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU12('800105'O) == b8_12){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU12('80810105'O) == b8_12){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU12('800100'O) == b9_12){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU12('80810100'O) == b9_12){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU12('8081017F'O) == b10_12){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU12('800180'O) == b11_12){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU12('80810180'O) == b11_12){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU12('8001FB'O) == b12_12){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU12('808101FB'O) == b12_12){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU12('80020080'O) == b13_12){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU12('8081020080'O) == b13_12){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU12('8002FF7F'O) == b14_12){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU12('808102FF7F'O) == b14_12){setverdict(pass);} else {setverdict(fail);}
+
+}
+
+//===========================================
+//  DER + CER coding of integer with PRIVATE TAG, IMPLICIT (unified)
+//===========================================
+testcase  tc_DER_CER_coding_of_INTEGER_with_PrivateTag_Implicit () runs on Test_CT {
+  const BERPDU13 b1_13 := 5
+  const BERPDU13 b2_13 := 0
+  const BERPDU13 b3_13 := 127
+  const BERPDU13 b4_13 := -128
+  const BERPDU13 b5_13 := -5
+  const BERPDU13 b6_13 := 128
+  const BERPDU13 b7_13 := -129
+  if ((enc_DER_PDU13(b1_13) == 'C10105'O)and(enc_CER_PDU13(b1_13) == 'C10105'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU13(b2_13) == 'C10100'O)and(enc_CER_PDU13(b2_13) == 'C10100'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU13(b3_13) == 'C1017F'O)and(enc_CER_PDU13(b3_13) == 'C1017F'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU13(b4_13) == 'C10180'O)and(enc_CER_PDU13(b4_13) == 'C10180'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU13(b5_13) == 'C101FB'O)and(enc_CER_PDU13(b5_13) == 'C101FB'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU13(b6_13) == 'C1020080'O)and(enc_CER_PDU13(b6_13) == 'C1020080'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU13(b7_13) == 'C102FF7F'O)and(enc_CER_PDU13(b7_13) == 'C102FF7F'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU13('C10105'O) == b8_13){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU13('C1810105'O) == b8_13){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU13('C10100'O) == b9_13){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU13('C1810100'O) == b9_13){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU13('C1017F'O) == b10_13){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU13('C181017F'O) == b10_13){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU13('C10180'O) == b11_13){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU13('C1810180'O) == b11_13){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU13('C101FB'O) == b12_13){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU13('C18101FB'O) == b12_13){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU13('C1020080'O) == b13_13){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU13('C181020080'O) == b13_13){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU13('C102FF7F'O) == b14_13){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU13('C18102FF7F'O) == b14_13){setverdict(pass);} else {setverdict(fail);} 
+}
+
+//===========================================
+//  DER + CER coding of integer with APPLICATION TAG, IMPLICIT (unified) 
+//===========================================
+testcase  tc_DER_CER_coding_of_INTEGER_with_ApplicationTag_Implicit() runs on Test_CT {
+  const BERPDU14 b1_14 := 5
+  const BERPDU14 b2_14 := 0
+  const BERPDU14 b3_14 := 127
+  const BERPDU14 b4_14 := -128
+  const BERPDU14 b5_14 := -5
+  const BERPDU14 b6_14 := 128
+  const BERPDU14 b7_14 := -129
+  if ((enc_DER_PDU14(b1_14) == '420105'O)and(enc_CER_PDU14(b1_14) == '420105'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU14(b2_14) == '420100'O)and(enc_CER_PDU14(b2_14) == '420100'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU14(b3_14) == '42017F'O)and(enc_CER_PDU14(b3_14) == '42017F'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU14(b4_14) == '420180'O)and(enc_CER_PDU14(b4_14) == '420180'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU14(b5_14) == '4201FB'O)and(enc_CER_PDU14(b5_14) == '4201FB'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU14(b6_14) == '42020080'O)and(enc_CER_PDU14(b6_14) == '42020080'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU14(b7_14) == '4202FF7F'O)and(enc_CER_PDU14(b7_14) == '4202FF7F'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU14('420105'O) == b8_14){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU14('42810105'O) == b8_14){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU14('420100'O) == b9_14){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU14('42810100'O) == b9_14){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU14('42017F'O) == b10_14){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU14('4281017F'O) == b10_14){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU14('420180'O) == b11_14){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU14('42810180'O) == b11_14){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU14('4201FB'O) == b12_14){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU14('428101FB'O) == b12_14){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU14('42020080'O) == b13_14){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU14('4281020080'O) == b13_14){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU14('4202FF7F'O) == b14_14){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU14('428102FF7F'O) == b14_14){setverdict(pass);} else {setverdict(fail);}   
+}
+//===========================================
+//  DER + CER coding of integer (5) with Context Specific TAG = 30, EXPLICIT (unified)) 
+//===========================================
+testcase  tc_DER_CER_coding_of_INTEGER_with_ContextSpecTag30_Explicit() runs on Test_CT {
+  const BERPDU15 b1_15 := 5
+  if ((enc_DER_PDU15(b1_15) == 'BE03020105'O)and(enc_CER_PDU15(b1_15) == 'BE800201050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU15('BE03020105'O) == b2_15){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU15('BE800201050000'O) == b2_15){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//  DER + CER coding of integer (5) with Context Specific TAG = 31, EXPLICIT (unified)) 
+//===========================================
+testcase  tc_DER_CER_coding_of_INTEGER_with_ContextSpecTag31_Explicit() runs on Test_CT {
+  const BERPDU16 b := 5
+  if ((enc_DER_PDU16(b) == 'BF1F03020105'O)and(enc_CER_PDU16(b) == 'BF1F800201050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU16('BF1F03020105'O) == b) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU16('BF1F800201050000'O) == b) {setverdict(pass);} else {setverdict(fail);} 
+}
+
+//===========================================
+//  DER + CER coding of integer (5) with Context Specific TAG = 127, EXPLICIT (unified)) 
+//===========================================
+testcase  tc_DER_CER_coding_of_INTEGER_with_ContextSpecTag127_Explicit() runs on Test_CT {
+  const BERPDU17 b := 5
+  if ((enc_DER_PDU17(b) == 'BF7F03020105'O)and(enc_CER_PDU17(b) == 'BF7F800201050000'O)) {setverdict(pass);} else {setverdict(fail);} 
+  if (dec_BER_PDU17('BF7F03020105'O) == b) {setverdict(pass);} else {setverdict(fail);} //DER
+  if (dec_BER_PDU17('BF7F800201050000'O) == b){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//  DER + CER coding of integer with Context Specific TAG = 128, EXPLICIT  
+//===========================================
+testcase  tc_DER_CER_coding_of_INTEGER_with_ContextSpecTag128_Explicit() runs on Test_CT {
+  const BERPDU18 b := 5
+  if ((enc_DER_PDU18(b) == 'BF810003020105'O)and(enc_CER_PDU18(b) == 'BF8100800201050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU18('BF8100800201050000'O) == b) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU18('BF810003020105'O) == b) {setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//  DER + CER coding of integer with Context Specific TAG = 16383, EXPLICIT (unified)  
+//===========================================
+testcase  tc_DER_CER_coding_of_INTEGER_with_ContextSpecTag16383_Explicit() runs on Test_CT {
+  const BERPDU19 b := 5
+  if ((enc_DER_PDU19(b) == 'BFFF7F03020105'O)and(enc_CER_PDU19(b) == 'BFFF7F800201050000'O)) {setverdict(pass);} else {setverdict(fail);} 
+  if (dec_BER_PDU19('BFFF7F03020105'O) == b){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU19('BFFF7F800201050000'O) == b) {setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//  DER + CER coding of integer with Context Specific TAG = 16384, EXPLICIT (unified)  
+//===========================================
+testcase  tc_DER_CER_coding_of_INTEGER_with_ContextSpecTag16384_Explicit() runs on Test_CT {
+  const BERPDU20 b := 5
+  if ((enc_DER_PDU20(b) == 'BF81800003020105'O)and(enc_CER_PDU20(b) == 'BF818000800201050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU20('BF81800003020105'O) == b){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU20('BF818000800201050000'O) == b) {setverdict(pass);} else {setverdict(fail);}  
+}
+//===========================================
+// DER + CER coding of ENUMERATED  hardcoded positive (unified) 
+//===========================================
+testcase  tc_DER_CER_coding_of_enumerated_hardcoded_positive() runs on Test_CT {
+  const BERPDU21 b1 := third
+  const BERPDU21 b2 := first
+  const BERPDU21 b3 := second
+  if ((enc_DER_PDU21(b1) == '0A0109'O)and(enc_CER_PDU21(b1) == '0A0109'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU21(b2) == '0A01FB'O)and(enc_CER_PDU21(b2) == '0A01FB'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU21(b3) == '0A0100'O)and(enc_CER_PDU21(b3) == '0A0100'O)) {setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//  DER + CER coding of ENUMERATED third, no hardcoding (unified)
+//===========================================
+testcase  tc_DER_CER_coding_of_enumerated_third_no_hardcoding() runs on Test_CT {
+  const BERPDU22 b1 := third
+  const BERPDU22 b2 := first
+  if ((enc_DER_PDU22(b1) == '0A0102'O)and(enc_CER_PDU22(b1) == '0A0102'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU22(b2) == '0A0100'O)and(enc_CER_PDU22(b2) == '0A0100'O)) {setverdict(pass);} else {setverdict(fail);}
+  
+}
+
+//===========================================
+//  DER + CER coding of ENUMERATED  first (unified)
+//===========================================
+testcase  tc_DER_CER_coding_of_enumerated_first1() runs on Test_CT {
+  const BERPDU23 b1 := first
+  const BERPDU23 b2 := second
+  const BERPDU23 b3 := third
+  if ((enc_DER_PDU23(b1) == '0A0101'O)and(enc_CER_PDU23(b1) == '0A0101'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU23(b2) == '0A0100'O)and(enc_CER_PDU23(b2) == '0A0100'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU23(b3) == '0A0102'O)and(enc_CER_PDU23(b3) == '0A0102'O)) {setverdict(pass);} else {setverdict(fail);}
+  
+}
+
+//===========================================
+//  DER + CER coding of ENUMERATED  first (unified)
+//===========================================
+testcase  tc_DER_CER_coding_of_enumerated_first2() runs on Test_CT {
+  const BERPDU24 b1 := first
+  const BERPDU24 b2 := second
+  const BERPDU24 b3 := third
+  const BERPDU24 b4 := fourth
+  const BERPDU24 b5 := fifth
+  const BERPDU24 b6 := sixth
+
+  if ((enc_DER_PDU24(b1) == '0A0101'O)and(enc_CER_PDU24(b1) == '0A0101'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU24(b2) == '0A0100'O)and(enc_CER_PDU24(b2) == '0A0100'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU24(b3) == '0A0102'O)and(enc_CER_PDU24(b3) == '0A0102'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU24(b4) == '0A0103'O)and(enc_CER_PDU24(b4) == '0A0103'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU24(b5) == '0A0105'O)and(enc_CER_PDU24(b5) == '0A0105'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU24(b6) == '0A0106'O)and(enc_CER_PDU24(b6) == '0A0106'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU24('0A0101'O) ==  b7_24){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU24('0A810101'O) ==  b7_24){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU24('0A0102'O) ==  b8_24){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU24('0A810102'O) ==  b8_24){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU24('0A0103'O) ==  b9_24){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU24('0A810103'O) ==  b9_24){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU24('0A0105'O) ==  b10_24){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU24('0A810105'O) ==  b10_24){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU24('0A0106'O) ==  b11_24){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU24('0A810106'O) ==  b11_24){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU24('0A0100'O) ==  b12_24){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU24('0A810100'O) ==  b12_24){setverdict(pass);} else {setverdict(fail);} 
+
+}
+//===========================================
+//  DER + CER coding of ENUMERATED , tagged, EXPLICIT 
+//===========================================
+testcase  tc_DER_CER_coding_of_enumerated_tagged_explicit_6() runs on Test_CT {
+  const BERPDU25 b := sixth
+  if ((enc_DER_PDU25(b) == 'B5030A0106'O)and(enc_CER_PDU25(b) == 'B5800A01060000'O)) {setverdict(pass);} else {setverdict(fail);}
+} 
+
+//===========================================
+//  DER + CER coding of ENUMERATED , tagged, IMPLICIT (unified)
+//===========================================
+testcase  tc_DER_CER_coding_of_enumerated_tagged_implicit() runs on Test_CT {
+  const BERPDU26 b1 := sixth
+  
+  if ((enc_DER_PDU26(b1) == '9F580106'O)and(enc_CER_PDU26(b1) == '9F580106'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU26('9F580101'O) ==  b2_26){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU26('9F58810101'O) ==  b2_26){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU26('9F580100'O) ==  b3_26){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU26('9F58810100'O) ==  b3_26){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU26('9F580102'O) ==  b4_26){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU26('9F58810102'O) ==  b4_26){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU26('9F580103'O) ==  b5_26){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU26('9F58810103'O) ==  b5_26){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU26('9F580105'O) ==  b6_26){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU26('9F58810105'O) ==  b6_26){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU26('9F580106'O) ==  b7_26){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU26('9F58810106'O) ==  b7_26){setverdict(pass);} else {setverdict(fail);}
+} 
+
+//===========================================
+//   DECODING OF EXPLICIT TAGGED ENUMERATED, (unified)
+//===========================================
+testcase  tc_decoding_of_explicit_tagged_enumerated() runs on Test_CT {
+   
+   if (dec_BER_PDU27('A0030A0101'O) ==  b1_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A0800A01010000'O) ==  b1_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A0040A810101'O) ==  b1_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A081040A810101'O) ==  b1_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A0030A0100'O) ==  b2_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A0800A01000000'O) ==  b2_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A0040A810100'O) ==  b2_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A081040A810100'O) ==  b2_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A0030A0102'O) ==  b3_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A0800A01020000'O) ==  b3_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A0040A810102'O) ==  b3_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A081040A810102'O) ==  b3_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A0030A0103'O) ==  b4_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A0800A01030000'O) ==  b4_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A0040A810103'O) ==  b4_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A081040A810103'O) ==  b4_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A0030A0105'O) ==  b5_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A0800A01050000'O) ==  b5_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A0040A810105'O) ==  b5_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A081040A810105'O) ==  b5_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A0030A0106'O) ==  b6_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A0800A01060000'O) ==  b6_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A0040A810106'O) ==  b6_27){setverdict(pass);} else {setverdict(fail);}
+   if (dec_BER_PDU27('A081040A810106'O) ==  b6_27){setverdict(pass);} else {setverdict(fail);}
+
+}
+
+//===========================================
+//  CER + DER coding of REAL, (unified)
+//===========================================
+testcase  tc_CER_DER_coding_of_real() runs on Test_CT {
+  if ((enc_DER_PDU28(b1_28) == '0900'O)and(enc_CER_PDU28(b1_28) == '0900'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b2_28) == '0900'O)and(enc_CER_PDU28(b2_28) == '0900'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b3_28) == '0900'O)and(enc_CER_PDU28(b3_28) == '0900'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b4_28) == '0900'O)and(enc_CER_PDU28(b4_28) == '0900'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b5_28) == '0900'O)and(enc_CER_PDU28(b5_28) == '0900'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b6_28) == '0900'O)and(enc_CER_PDU28(b6_28) == '0900'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b7_28) == '0900'O)and(enc_CER_PDU28(b7_28) == '0900'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b8_28) == '0900'O)and(enc_CER_PDU28(b8_28) == '0900'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b9_28) == '0900'O)and(enc_CER_PDU28(b9_28) == '0900'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b10_28) == '0900'O)and(enc_CER_PDU28(b10_28) == '0900'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b11_28) == '0900'O)and(enc_CER_PDU28(b11_28) == '0900'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b12_28) == '0900'O)and(enc_CER_PDU28(b12_28) == '0900'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b13_28) == '0900'O)and(enc_CER_PDU28(b13_28) == '0900'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b14_28) == '0900'O)and(enc_CER_PDU28(b14_28) == '0900'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b15_28) == '090603312E452B30'O)and(enc_CER_PDU28(b15_28) == '090603312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b16_28) == '090603312E452B30'O)and(enc_CER_PDU28(b16_28) == '090603312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b17_28) == '090603312E452B30'O)and(enc_CER_PDU28(b17_28) == '090603312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b18_28) == '090603312E452B30'O)and(enc_CER_PDU28(b18_28) == '090603312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b19_28) == '090603312E452B30'O)and(enc_CER_PDU28(b19_28) == '090603312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b20_28) == '090603312E452B30'O)and(enc_CER_PDU28(b20_28) == '090603312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b21_28) == '090603312E452B30'O)and(enc_CER_PDU28(b21_28) == '090603312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b22_28) == '090603312E452B30'O)and(enc_CER_PDU28(b22_28) == '090603312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b23_28) == '090603312E452B30'O)and(enc_CER_PDU28(b23_28) == '090603312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b24_28) == '090603312E452B30'O)and(enc_CER_PDU28(b24_28) == '090603312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b25_28) == '090603312E452B30'O)and(enc_CER_PDU28(b25_28) == '090603312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b26_28) == '090603312E452B30'O)and(enc_CER_PDU28(b26_28) == '090603312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b27_28) == '090603312E452B30'O)and(enc_CER_PDU28(b27_28) == '090603312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b28_28) == '090603322E452B30'O)and(enc_CER_PDU28(b28_28) == '090603322E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b29_28) == '090603322E452B30'O)and(enc_CER_PDU28(b29_28) == '090603322E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b30_28) == '0907032D312E452B30'O)and(enc_CER_PDU28(b30_28) == '0907032D312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b31_28) == '0907032D312E452B30'O)and(enc_CER_PDU28(b31_28) == '0907032D312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b32_28) == '0907032D312E452B30'O)and(enc_CER_PDU28(b32_28) == '0907032D312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b33_28) == '0907032D312E452B30'O)and(enc_CER_PDU28(b33_28) == '0907032D312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b34_28) == '0907032D312E452B30'O)and(enc_CER_PDU28(b34_28) == '0907032D312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b35_28) == '0907032D312E452B30'O)and(enc_CER_PDU28(b35_28) == '0907032D312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b36_28) == '0907032D312E452B30'O)and(enc_CER_PDU28(b36_28) == '0907032D312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b37_28) == '0907032D312E452B30'O)and(enc_CER_PDU28(b37_28) == '0907032D312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b38_28) == '0907032D312E452B30'O)and(enc_CER_PDU28(b38_28) == '0907032D312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b39_28) == '0907032D312E452B30'O)and(enc_CER_PDU28(b39_28) == '0907032D312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b40_28) == '0907032D312E452B30'O)and(enc_CER_PDU28(b40_28) == '0907032D312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b41_28) == '0907032D312E452B30'O)and(enc_CER_PDU28(b41_28) == '0907032D312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b42_28) == '0907032D312E452B30'O)and(enc_CER_PDU28(b42_28) == '0907032D312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b43_28) == '0907032D312E452B30'O)and(enc_CER_PDU28(b43_28) == '0907032D312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b44_28) == '090603312E452B30'O)and(enc_CER_PDU28(b44_28) == '090603312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b45_28) == '0907032D312E452B30'O)and(enc_CER_PDU28(b45_28) == '0907032D312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b46_28) == '09070331322E452B30'O)and(enc_CER_PDU28(b46_28) == '09070331322E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b47_28) == '09070331322E452B30'O)and(enc_CER_PDU28(b47_28) == '09070331322E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b48_28) == '09070331322E452B30'O)and(enc_CER_PDU28(b48_28) == '09070331322E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b49_28) == '09070331322E452B30'O)and(enc_CER_PDU28(b49_28) == '09070331322E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b50_28) == '09070331322E452B30'O)and(enc_CER_PDU28(b50_28) == '09070331322E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b51_28) == '09070331322E452B30'O)and(enc_CER_PDU28(b51_28) == '09070331322E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b52_28) == '09070331322E452B30'O)and(enc_CER_PDU28(b52_28) == '09070331322E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b53_28) == '09070333342E452D32'O)and(enc_CER_PDU28(b53_28) == '09070333342E452D32'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b54_28) == '0908033334342E452D33'O)and(enc_CER_PDU28(b54_28) == '0908033334342E452D33'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b55_28) == '0908033334352E452D33'O)and(enc_CER_PDU28(b55_28) == '0908033334352E452D33'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b56_28) == '09070333342E452D33'O)and(enc_CER_PDU28(b56_28) == '09070333342E452D33'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b57_28) == '09070333342E452D34'O)and(enc_CER_PDU28(b57_28) == '09070333342E452D34'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b58_28) == '0908033330342E452D33'O)and(enc_CER_PDU28(b58_28) == '0908033330342E452D33'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b59_28) == '090E033132333435363738392E452D39'O)and(enc_CER_PDU28(b59_28) == '090E033132333435363738392E452D39'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b60_28) == '090E033132333435363738392E452D39'O)and(enc_CER_PDU28(b60_28) == '090E033132333435363738392E452D39'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b61_28) == '090F033132333435363738392E452D3130'O)and(enc_CER_PDU28(b61_28) == '090F033132333435363738392E452D3130'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b62_28) == '090E033132333435363738392E452B30'O)and(enc_CER_PDU28(b62_28) == '090E033132333435363738392E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b63_28) == '090E033132333435363738392E452B30'O)and(enc_CER_PDU28(b63_28) == '090E033132333435363738392E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b64_28) == '090D033132333435363738392E4531'O)and(enc_CER_PDU28(b64_28) == '090D033132333435363738392E4531'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b65_28) == '090D033132333435363738392E4531'O)and(enc_CER_PDU28(b65_28) == '090D033132333435363738392E4531'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b66_28) == '090D033132333435363738392E4531'O)and(enc_CER_PDU28(b66_28) == '090D033132333435363738392E4531'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b67_28) == '090D033132333435363738392E4532'O)and(enc_CER_PDU28(b67_28) == '090D033132333435363738392E4532'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b68_28) == '090D033132333435363738392E4532'O)and(enc_CER_PDU28(b68_28) == '090D033132333435363738392E4532'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b69_28) == '090D033132333435363738392E4532'O)and(enc_CER_PDU28(b69_28) == '090D033132333435363738392E4532'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b70_28) == '0908032D31322E452B30'O)and(enc_CER_PDU28(b70_28) == '0908032D31322E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b71_28) == '0908032D31322E452B30'O)and(enc_CER_PDU28(b71_28) == '0908032D31322E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b72_28) == '0908032D31322E452B30'O)and(enc_CER_PDU28(b72_28) == '0908032D31322E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b73_28) == '0908032D31322E452B30'O)and(enc_CER_PDU28(b73_28) == '0908032D31322E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b74_28) == '0908032D31322E452B30'O)and(enc_CER_PDU28(b74_28) == '0908032D31322E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b75_28) == '0908032D31322E452B30'O)and(enc_CER_PDU28(b75_28) == '0908032D31322E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b76_28) == '0908032D31322E452B30'O)and(enc_CER_PDU28(b76_28) == '0908032D31322E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b77_28) == '0908032D33342E452D32'O)and(enc_CER_PDU28(b77_28) == '0908032D33342E452D32'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b78_28) == '0909032D3334342E452D33'O)and(enc_CER_PDU28(b78_28) == '0909032D3334342E452D33'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b79_28) == '0909032D3334352E452D33'O)and(enc_CER_PDU28(b79_28) == '0909032D3334352E452D33'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b80_28) == '0908032D33342E452D33'O)and(enc_CER_PDU28(b80_28) == '0908032D33342E452D33'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b81_28) == '0908032D33342E452D34'O)and(enc_CER_PDU28(b81_28) == '0908032D33342E452D34'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b82_28) == '0909032D3330342E452D33'O)and(enc_CER_PDU28(b82_28) == '0909032D3330342E452D33'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b83_28) == '090F032D3132333435363738392E452D39'O)and(enc_CER_PDU28(b83_28) == '090F032D3132333435363738392E452D39'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b84_28) == '090F032D3132333435363738392E452D39'O)and(enc_CER_PDU28(b84_28) == '090F032D3132333435363738392E452D39'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b85_28) == '0910032D3132333435363738392E452D3130'O)and(enc_CER_PDU28(b85_28) == '0910032D3132333435363738392E452D3130'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b86_28) == '090F032D3132333435363738392E452B30'O)and(enc_CER_PDU28(b86_28) == '090F032D3132333435363738392E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b87_28) == '090F032D3132333435363738392E452B30'O)and(enc_CER_PDU28(b87_28) == '090F032D3132333435363738392E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b88_28) == '090E032D3132333435363738392E4531'O)and(enc_CER_PDU28(b88_28) == '090E032D3132333435363738392E4531'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b89_28) == '090E032D3132333435363738392E4531'O)and(enc_CER_PDU28(b89_28) == '090E032D3132333435363738392E4531'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b90_28) == '090E032D3132333435363738392E4531'O)and(enc_CER_PDU28(b90_28) == '090E032D3132333435363738392E4531'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b91_28) == '090E032D3132333435363738392E4532'O)and(enc_CER_PDU28(b91_28) == '090E032D3132333435363738392E4532'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b92_28) == '090E032D3132333435363738392E4532'O)and(enc_CER_PDU28(b92_28) == '090E032D3132333435363738392E4532'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b93_28) == '090E032D3132333435363738392E4532'O)and(enc_CER_PDU28(b93_28) == '090E032D3132333435363738392E4532'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b94_28) == '090140'O)and(enc_CER_PDU28(b94_28) == '090140'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU28(b95_28) == '090141'O)and(enc_CER_PDU28(b95_28) == '090141'O)) {setverdict(pass);} else {setverdict(fail);} 
+}
+
+//===========================================
+//  CER + DER encoding of REAL, 1 , IMPLICIT TAG
+//===========================================
+testcase  tc_CER_DER_coding_of_real_1_implicit() runs on Test_CT {
+  if ((enc_DER_PDU29(b_29) == '800603312E452B30'O)and(enc_CER_PDU29(b_29) == '800603312E452B30'O)) {setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//  CER + DER encoding of REAL, 1 , EXPLICIT TAG
+//===========================================
+testcase  tc_CER_DER_coding_of_real_1_explicit() runs on Test_CT {
+  if ((enc_DER_PDU30(b_30) == 'A008090603312E452B30'O)and(enc_CER_PDU30(b_30) == 'A080090603312E452B300000'O)) {setverdict(pass);} else {setverdict(fail);}
+}
+//===========================================
+//   CER + DER coding of BIT STRING, (unified)
+//===========================================
+testcase  tc_CER_DER_coding_of_bitstring() runs on Test_CT {
+ const BERPDU31 b1 := ''B
+ const BERPDU31 b2 := '1'B
+ const BERPDU31 b3 := '1010101'B
+ const BERPDU31 b4 := '10101010'B
+ const BERPDU31 b5 := '111100001'B 
+   if ((enc_DER_PDU31(b1) == '030100'O)and(enc_CER_PDU31(b1) == '030100'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU31(b2) == '03020780'O)and(enc_CER_PDU31(b2) == '03020780'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU31(b3) == '030201AA'O)and(enc_CER_PDU31(b3) == '030201AA'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU31(b4) == '030200AA'O)and(enc_CER_PDU31(b4) == '030200AA'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU31(b5) == '030307F080'O)and(enc_CER_PDU31(b5) == '030307F080'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU31(b6_31) == '038203E800FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O)
+    and(enc_CER_PDU31(b6_31) == '038203E800FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU31(b7_31) == '038203E900FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O)
+    and(enc_CER_PDU31(b7_31) == '2380038203E800FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF030200FF0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('030100'O) == b8_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('2303030100'O) == b8_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('2306030100030100'O) == b8_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('23800301000000'O) == b8_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('03020780'O) == b9_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('0381020780'O) == b9_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('230403020780'O) == b9_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('23050381020780'O) == b9_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('2381050381020780'O) == b9_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('238003810207800000'O) == b9_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('23080302078003020780'O) == b10_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('2306230403020780'O) == b9_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('030201AA'O) == b11_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('03810201AA'O) == b11_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('2304030201AA'O) == b11_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('230503810201AA'O) == b11_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('23810503810201AA'O) == b11_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('238003810201AA0000'O) == b11_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('2308030201AA030201AA'O) == b12_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('23062304030201AA'O) == b11_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('030200AA'O) == b13_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('03810200AA'O) == b13_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('2304030200AA'O) == b13_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('230503810200AA'O) == b13_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('23810503810200AA'O) == b13_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('238003810200AA0000'O) == b13_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('2308030200AA030200AA'O) == b14_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('23062304030200AA'O) == b13_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31( '030307F080'O) == b15_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('03810307F080'O) == b15_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('2305030307F080'O) == b15_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('230603810307F080'O) == b15_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('23810603810307F080'O) == b15_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('238003810307F0800000'O) == b15_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('230A030307F080030307F080'O) == b16_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('23072305030307F080'O) == b15_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('038203E800FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O) == b17_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('03830003E800FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O) == b17_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('238203EC038203E800FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O) == b17_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('2380038203E800FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000'O) == b17_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('238207D8038203E800FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF038203E800FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O) == b18_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('038203E900FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O) == b19_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('238203F0038203E800FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF030200FF'O) == b19_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU31('238203ED038203E900FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O) == b19_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU33('A080030207800000'O) == b9_31){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU33('A00403020780'O) == b9_31){setverdict(pass);} else {setverdict(fail);}
+
+}
+//===========================================
+//  CER + DER coding of BIT STRING, length = 1, IMPLICIT TAG (primitive)
+//===========================================
+testcase  tc_CER_DER_coding_of_bitstring_length1_implicit() runs on Test_CT {
+  const BERPDU32 b := '1'B
+  if ((enc_DER_PDU32(b) == '80020780'O)and(enc_CER_PDU32(b) == '80020780'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU32('80020780'O) == b_32){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//  CER + DER encoding of BIT STRING, length = 1, EXPLICIT TAG (constructed)
+//===========================================
+testcase  tc_CER_DER_coding_of_bitstring_length1_explicit() runs on Test_CT {
+  const BERPDU33 b := '1'B
+  if ((enc_DER_PDU33(b) == 'A00403020780'O)and(enc_CER_PDU33(b) == 'A080030207800000'O)) {setverdict(pass);} else {setverdict(fail);}
+  
+}
+
+//===========================================
+//   CER + DER coding of OCTETSTRING, (unified)
+//===========================================
+testcase  tc_CER_DER_coding_of_OCTETSTRING() runs on Test_CT {
+  const BERPDU34 b1_34 := ''O
+  const BERPDU34 b2_34 := 'FFFF'O
+  const BERPDU34 b3_34 := 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O
+  const BERPDU34 b4_34 := 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O
+  if ((enc_DER_PDU34(b1_34) == '0400'O)and(enc_CER_PDU34(b1_34) == '0400'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU34(b2_34) == '0402FFFF'O)and(enc_CER_PDU34(b2_34) == '0402FFFF'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU34(b3_34) == '048203E8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O)
+  and(enc_CER_PDU34(b3_34) == '048203E8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O)) {setverdict(pass);} else {setverdict(fail);}
+if ((enc_DER_PDU34(b4_34) == '048203E9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O)
+  and(enc_CER_PDU34(b4_34) == '2480048203E8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0401FF0000'O)) {setverdict(pass);} else {setverdict(fail);}
+
+if (dec_BER_PDU34('0400'O) == b5_34){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU34('24020400'O) == b5_34){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU34('240404000400'O) == b5_34){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU34('248004000000'O) == b5_34){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU34('0402FFFF'O) == b6_34){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU34('048102FFFF'O) == b6_34){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU34('24040402FFFF'O) == b6_34){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU34('2405048102FFFF'O) == b6_34){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU34('248105048102FFFF'O) == b6_34){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU34('24800402FFFF0000'O) == b6_34){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU34('24080402FFFF0402FFFF'O) == b7_34){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU34('240624040402FFFF'O) == b6_34){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU34('048203E8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O) == b8_34){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU34('04830003E8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O) == b8_34){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU34('248203EC048203E8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O) == b8_34){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU34('2480048203E8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000'O) == b8_34){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU34('248207D8048203E8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF048203E8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O) == b9_34){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU34('2480048203E8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0401FF0000'O) == b10_34){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU34('048203E9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O) == b10_34){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU34('248203ED048203E9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'O) == b10_34){setverdict(pass);} else {setverdict(fail);}
+
+if (dec_BER_PDU36('A0040402FFFF'O) == myIntegerValue_36) {setverdict(pass);} else {setverdict(fail);}
+
+}//tc_
+
+//===========================================
+//  CER + DER encoding of OCTETSTRING, IMPLICIT TAG length = 2 (primitive)
+//===========================================
+testcase  tc_CER_DER_coding_of_OCTETSTRING_implicit_length_2() runs on Test_CT {
+  const BERPDU35 b := 'FFFF'O
+  if ((enc_DER_PDU35(b) == '8002FFFF'O)and(enc_CER_PDU35(b) == '8002FFFF'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU35('8002FFFF'O) == myIntegerValue_35) {setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//  CER + DER encoding of OCTETSTRING, EXPLICIT TAG length = 2 (primitive)
+//===========================================
+testcase  tc_CER_DER_coding_of_OCTETSTRING_explicit_length_2() runs on Test_CT {
+  const BERPDU36 b := 'FFFF'O
+  if ((enc_DER_PDU36(b) == 'A0040402FFFF'O)and(enc_CER_PDU36(b) == 'A0800402FFFF0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU36('A0800402FFFF0000'O) == myIntegerValue_36) {setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//   DER + CER coding of NULL (unified)
+//===========================================
+testcase  tc_CER_DER_coding_of_NULL() runs on Test_CT {
+  const BERPDU37 b := NULL;
+  if ((enc_DER_PDU37(b) == '0500'O)and(enc_CER_PDU37(b) == '0500'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU37('0500'O) == myNullValue_37){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU37('058100'O) == myNullValue_37){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU37('05820000'O) == myNullValue_37){setverdict(pass);} else {setverdict(fail);}
+}
+//===========================================
+//  DER + CER coding of NULL with Context Specific TAG, EXPLICIT (unified)
+//===========================================
+testcase tc_CER_DER_coding_of_NULL_with_ContextSpecificTag_Explicit() runs on Test_CT {
+  const BERPDU38 b := NULL;
+  if ((enc_DER_PDU38(b) == 'A0020500'O)and(enc_CER_PDU38(b) == 'A08005000000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU38('A0020500'O) == myNullValue_38){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU38('A08005000000'O) == myNullValue_38){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU38('A0020500'O) == myNullValue_38){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU38('A081020500'O) == myNullValue_38){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU38('A08103058100'O) == myNullValue_38){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//  DER + CER coding of NULL with PRIVATE  TAG, EXPLICIT (unified) 
+//===========================================
+testcase tc_CER_DER_coding_of_NULL_with_PrivateTag_Explicit() runs on Test_CT {
+  const BERPDU39 b := NULL;
+  if ((enc_DER_PDU39(b) == 'E1020500'O)and(enc_CER_PDU39(b) == 'E18005000000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU39('E1020500'O) == myNullValue_39){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU39('E18005000000'O) == myNullValue_39){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU39('E1020500'O) == myNullValue_39){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU39('E181020500'O) == myNullValue_39){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU39('E18103058100'O) == myNullValue_39){setverdict(pass);} else {setverdict(fail);}
+}
+//===========================================
+//  DER + CER coding of NULL with APPLICATION TAG, EXPLICIT (unified) 
+//===========================================
+testcase tc_CER_DER_coding_of_NULL_with_ApplicationTag_Explicit() runs on Test_CT {
+  const BERPDU40 b := NULL;
+  if ((enc_DER_PDU40(b) == '62020500'O)and(enc_CER_PDU40(b) == '628005000000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU40('62020500'O) == myNullValue_40){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU40('628005000000'O) == myNullValue_40){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU40('62020500'O) == myNullValue_40){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU40('6281020500'O) == myNullValue_40){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU40('628103058100'O) == myNullValue_40){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//  DER + CER encoding of NULL with Context Specific TAG, IMPLICIT (unified)
+//===========================================
+testcase tc_CER_DER_coding_of_NULL_with_ContextSpecificTag_Implicit() runs on Test_CT {
+  const BERPDU40 b := NULL;
+  if ((enc_DER_PDU41(b) == '8000'O)and(enc_CER_PDU41(b) == '8000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU41('8000'O) == myNullValue_41){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU41('808100'O) == myNullValue_41){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+// DER + CER encoding of NULL with PRIVATE TAG, IMPLICIT (unified)
+//===========================================
+testcase tc_CER_DER_coding_of_NULL_with_PrivateTag_Implicit() runs on Test_CT {
+  const BERPDU42 b := NULL;
+  if ((enc_DER_PDU42(b) == 'C100'O)and(enc_CER_PDU42(b) == 'C100'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU42('C100'O) == myNullValue_42){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU42('C18100'O) == myNullValue_42){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//  DER + CER encoding of NULL with APPLICATION TAG, IMPLICIT (unified)
+//===========================================
+testcase tc_CER_DER_coding_of_NULL_with_ApplicationTag_Implicit() runs on Test_CT {
+  const BERPDU43 b := NULL;
+  if ((enc_DER_PDU43(b) == '4200'O)and(enc_CER_PDU43(b) == '4200'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU43('4200'O) == myNullValue_43){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU43('428100'O) == myNullValue_43){setverdict(pass);} else {setverdict(fail);}
+}
+//===========================================
+//  CER + DER encoding of SEQUENCE (unified) 
+//===========================================
+testcase tc_CER_DER_encoding_of_SEQUENCE() runs on Test_CT {
+  const BERPDU44 myValue1 := {b :=  omit,
+			 c := omit  }
+  const BERPDU44 myValue2 := {b :=  true,
+			 c := omit  }
+  const BERPDU44 myValue3 := {b :=  true,
+			 c := 5  }
+  if ((enc_DER_PDU44(myValue1) == '3000'O)and(enc_CER_PDU44(myValue1) == '30800000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU44(myValue2) == '30030101FF'O)and(enc_CER_PDU44(myValue2) == '30800101FF0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU44(myValue3) == '30060101FF020105'O)and(enc_CER_PDU44(myValue3) == '30800101FF0201050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU44('3000'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU44('30800000'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU44('30030101FF'O) == myValue2){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU44('30800101FF0000'O) == myValue2){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU44('30060101FF020105'O) == myValue3){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU44('30800101FF0201050000'O) == myValue3){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//   CER + DER encoding of SEQUENCE (one element is equal to Default) (unified)
+//===========================================
+testcase tc_CER_DER_encoding_of_SEQUENCE_oneElementIsEqualToDefault() runs on Test_CT {
+  const BERPDU45 myValue1 := { b :=  true, c := 5  }
+  const BERPDU45 myValue2 := { b :=  false, c := 5  }
+
+  if ((enc_DER_PDU45(myValue1) == '3003020105'O)and(enc_CER_PDU45(myValue1) == '30800201050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU45(myValue2) == '3006010100020105'O)and(enc_CER_PDU45(myValue2) == '30800101000201050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU45('3003020105'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU45('30800201050000'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU45('3006010100020105'O) == myValue2){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU45('30800101000201050000'O) == myValue2){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//  CER + DER encoding of SEQUENCE (both elements are used) IMPLICIT TAGS for elements
+//===========================================
+testcase tc_CER_DER_encoding_of_SEQUENCE_bothElementsAreUsed_implicitTagsForElements() runs on Test_CT {
+  const BERPDU48 myValue := {b :=  true,
+			 c := 5  }
+  if ((enc_DER_PDU48(myValue) == '30079E01FF9F1F0105'O)and(enc_CER_PDU48(myValue) == '30809E01FF9F1F01050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU48('30079E01FF9F1F0105'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU48('30809E01FF9F1F01050000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+}
+//===========================================
+//  CER + DER encoding of SEQUENCE (both elements are used) EXPLICIT TAGS for elements
+//===========================================
+testcase tc_CER_DER_encoding_of_SEQUENCE_bothElementsAreUsed_explicitTagsForElements() runs on Test_CT {
+  const BERPDU49 myValue := {b :=  true,
+			 c := 5  }
+  if ((enc_DER_PDU49(myValue) == '300BBE030101FFBF1F03020105'O)and(enc_CER_PDU49(myValue) == '3080BE800101FF0000BF1F8002010500000000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU49('300BBE030101FFBF1F03020105'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU49('3080BE800101FF0000BF1F8002010500000000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+
+}
+
+//===========================================
+//   CER + DER encoding of TAGGED SEQUENCE (both elements are used)
+//===========================================
+testcase tc_CER_DER_coding_of_taggedSEQUENCE_bothElementsAreUsed() runs on Test_CT {
+  const BERPDU50 myValue := {b :=  true,
+			 c := 5  }
+  if ((enc_DER_PDU50(myValue) == 'A00830060101FF020105'O)and(enc_CER_PDU50(myValue) == 'A08030800101FF02010500000000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU50('A00830060101FF020105'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU50('A08030800101FF02010500000000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU50('A00830060101FF020105'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU50('A08030800101FF02010500000000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//   CER + DER encoding of TAGGED SEQUENCE (both elements are TAGGED and used)
+//===========================================
+testcase tc_CER_DER_coding_of_taggedSEQUENCE_bothElementsAreTaggedAndUsed() runs on Test_CT {
+  const BERPDU54 myValue := {b :=  true,
+			 c := 5  }
+  if ((enc_DER_PDU54(myValue) == 'A00C300AA0030101FFA103020105'O)and(enc_CER_PDU54(myValue) == 'A0803080A0800101FF0000A180020105000000000000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU54('A00C300AA0030101FFA103020105'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU54('A0803080A0800101FF0000A180020105000000000000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//  CER + DER encoding of SEQUENCE with CHOICE element
+//===========================================
+testcase tc_CER_DER_coding_of_SEQUENCE_withCHOICEelement() runs on Test_CT {
+  const BERPDU65 myValue := {b := {x := true},
+			 c := 4 
+			   }
+  if ((enc_DER_PDU65(myValue) == '30060101FF020104'O)and(enc_CER_PDU65(myValue) == '30800101FF0201040000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU65('30060101FF020104'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU65('30800101FF0201040000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+
+}
+
+//===========================================
+//  CER + DER encoding of SEQUENCE with fields of different types
+//===========================================
+testcase tc_CER_DER_encoding_of_SEQUENCE_withFieldsOfDifferentTypes() runs on Test_CT {
+  const BERPDU67 myValue_67 := {a :=  NULL,
+			 b := true,
+			 c := 2,
+			 d := first,
+			 e := 1.0,
+			 f := '1'B,
+			 g := 'FFFF'O,
+			 h := myOBJID_67,
+			 i :=   "ABC",
+			 j := {x1 := true   } ,
+			 k := {x2 := NULL,
+
+			      y2  := true  }   ,
+			 l := {y3 := 1.0 ,
+
+			       x3 := '1'B   }  , 
+			 m := 
+                             { 1 ,2 }   ,  
+			 n := 
+                             { true, true }  
+			 }         
+			 
+  if ((enc_DER_PDU67(myValue_67) == '305305000101FF0201020A0100090603312E452B30030207800402FFFF06030002031603414243A1030101FF300505000101FF310C03020780090603312E452B30A3083006020101020102A40831060101FF0101FF'O) and(enc_CER_PDU67(myValue_67) == '308005000101FF0201020A0100090603312E452B30030207800402FFFF06030002031603414243A1800101FF0000308005000101FF0000318003020780090603312E452B300000A380308002010102010200000000A48031800101FF0101FF000000000000'O)) 
+{setverdict(pass);} else {setverdict(fail);}
+
+}
+
+//===========================================
+//  DECODING , DER,  SEQUENCE with fields of different types , (unified)
+//===========================================
+testcase tc_DER_decoding_of_SEQUENCE_withFieldsOfDifferentTypes() runs on Test_CT {
+  const BERPDU69 myValue := {a :=  NULL,
+			 b := true,
+			 c := 2,
+			 d := first,
+			// e := 1.0,
+			 f := '1'B,
+			 g := 'FFFF'O,
+			 h := myOBJID_69,
+			 i :=   "ABC",
+			 j := {x1 := true   } ,
+			 k := {x2 := NULL,
+
+			      y2  := true  }   ,
+			 l := {y3 := NULL ,
+
+			       x3 := '1'B   }  , 
+			 m := 
+                             { 1 ,2 }   ,  
+			 n := 
+                             { true, true }  
+			 }
+  if (dec_BER_PDU69('304505000101FF0201020A0100030207800402FFFF06030002031603414243A1030101FF300505000101FF3106030207800500A3083006020101020102A40831060101FF0101FF'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+if (dec_BER_PDU69('308005000101FF0201020A0100030207800402FFFF06030002031603414243A1800101FF0000308005000101FF000031800302078005000000A380308002010102010200000000A48031800101FF0101FF000000000000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+
+}
+
+//===========================================
+//  CER + DER encoding of SEQUENCE OF INTEGER (empty) (unified)
+//===========================================
+testcase tc_CER_DER_coding_of_SEQUENCEOFinteger_empty() runs on Test_CT {
+  const BERPDU71 myValue := { }
+  if ((enc_DER_PDU71(myValue) == '3000'O)and(enc_CER_PDU71(myValue) == '30800000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU71('3000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU71('30800000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+
+}
+
+//===========================================
+//  CER + DER encoding of SEQUENCE OF BOOLEAN (unified)
+//===========================================
+testcase tc_CER_DER_coding_of_SEQUENCEOFBOOLEAN() runs on Test_CT {
+  const BERPDU72 myValue := {true, false }
+  if ((enc_DER_PDU72(myValue) == '30060101FF010100'O)and(enc_CER_PDU72(myValue) == '30800101FF0101000000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU72('30060101FF010100'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU72('30800101FF0101000000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//   CER + DER encoding of SEQUENCE OF OCTET STRING (unified)
+//===========================================
+testcase tc_CER_DER_coding_of_SEQUENCEOFOCTETSTRING() runs on Test_CT {
+  const BERPDU73 myValue := {'FFFF'O, 'AB'O };
+  if ((enc_DER_PDU73(myValue) == '30070402FFFF0401AB'O)and(enc_CER_PDU73(myValue) == '30800402FFFF0401AB0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU73('30070402FFFF0401AB'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU73('30800402FFFF0401AB0000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+}
+
+//===========================================
+//  CER + DER encoding of SEQUENCE OF SEQUENCE (unified)
+//===========================================
+testcase tc_CER_DER_coding_of_SEQUENCEOFSEQUENCE() runs on Test_CT {
+  const BERPDU74 myValue := {
+				{
+				  a := 5,
+				  b := true
+				},
+				{
+				  a := 3,
+				  b := false
+				}
+                       };
+
+  if ((enc_DER_PDU74(myValue) == '301030060201050101FF3006020103010100'O)and(enc_CER_PDU74(myValue) == '308030800201050101FF0000308002010301010000000000'O)) 
+  {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU74('301030060201050101FF3006020103010100'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU74('308030800201050101FF0000308002010301010000000000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+
+}
+
+//===========================================
+//  CER + DER encoding of SEQUENCE OF SET (unified)
+//===========================================
+testcase tc_CER_DER_coding_of_SEQUENCEOFSET() runs on Test_CT {
+  const BERPDU75 myValue := {
+				{
+				  a := 5,
+				  b := true
+				},
+				{
+				  a := 3,
+				  b := false
+				}
+                        };
+  if ((enc_DER_PDU75(myValue) == '301031060101FF0201053106010100020103'O)and(enc_CER_PDU75(myValue) == '308031800101FF0201050000318001010002010300000000'O)) 
+  {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU75('301031060101FF0201053106010100020103'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU75('308031800101FF0201050000318001010002010300000000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+
+}
+
+//===========================================
+//   CER + DER encoding of SEQUENCE OF SEQUENCE OF (unified)
+//===========================================
+testcase tc_CER_DER_coding_of_SEQUENCEOFSEQUENCEOF() runs on Test_CT {
+  const BERPDU76 myValue := {
+				{
+				5,
+				6,
+				7
+				},
+				{
+				 1,
+				 2,
+				 3
+				}
+                        };
+
+  if ((enc_DER_PDU76(myValue) == '301630090201050201060201073009020101020102020103'O)and(enc_CER_PDU76(myValue) == '308030800201050201060201070000308002010102010202010300000000'O)) 
+  {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU76('301630090201050201060201073009020101020102020103'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU76('308030800201050201060201070000308002010102010202010300000000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+
+
+}
+
+//===========================================
+//   CER + DER encoding of SEQUENCE OF CHOICE (unified)
+//===========================================
+testcase tc_CER_DER_coding_of_SEQUENCEOFCHOICE() runs on Test_CT {
+  const BERPDU77 myValue := {
+				{
+				  a := 5
+				},
+				{
+				  b := false
+				}
+                        };
+  if ((enc_DER_PDU77(myValue) == '3006020105010100'O)and(enc_CER_PDU77(myValue) == '30800201050101000000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU77('3006020105010100'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU77('30800201050101000000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+
+}
+
+
+//===========================================
+//   CER + DER encoding of SEQUENCE OF SETOF (unified)
+//===========================================
+testcase tc_CER_DER_coding_of_SEQUENCEOFSETOF() runs on Test_CT {
+  const BERPDU78 myValue := {
+				{
+				5,
+				6,
+				7
+				},
+				{
+				 1,
+				 2,
+				 3
+				}
+                        };
+   if ((enc_DER_PDU78(myValue) == '301631090201050201060201073109020101020102020103'O)and(enc_CER_PDU78(myValue) == '308031800201050201060201070000318002010102010202010300000000'O)) 
+  {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU78('301631090201050201060201073109020101020102020103'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU78('308031800201050201060201070000318002010102010202010300000000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+
+
+}
+
+//===========================================
+//   CER + DER encoding of TAGGED SEQUENCE OF BOOLEAN (unified) 
+//===========================================
+testcase tc_CER_DER_coding_of_TAGGEDSEQUENCEOFBOOLEAN() runs on Test_CT {
+  const BERPDU79 myValue := {true, false }
+  if ((enc_DER_PDU79(myValue) == 'A00830060101FF010100'O)and(enc_CER_PDU79(myValue) == 'A08030800101FF01010000000000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU79('A00830060101FF010100'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU79('A08030800101FF01010000000000'O) == myValue){setverdict(pass);} else {setverdict(fail);}
+
+}
+
+//===========================================
+//   CER + DER encoding of SET (EMPTY) (unified)
+//===========================================
+testcase tc_CER_DER_coding_of_SET_empty() runs on Test_CT {
+  const BERPDU82 myValue1 := {b :=  omit,
+			 c := omit  }
+  const BERPDU82 myValue2 := {b :=  true,
+			 c := omit  }
+  const BERPDU82 myValue3 := {b :=  true,
+			 c := 5  }
+  const BERPDU82 myValue4 := { c := 5,
+			  b := true  }
+  if ((enc_DER_PDU82(myValue1) == '3100'O)and(enc_CER_PDU82(myValue1) == '31800000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU82(myValue2) == '31030101FF'O)and(enc_CER_PDU82(myValue2) == '31800101FF0000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU82(myValue3) == '31060101FF020105'O)and(enc_CER_PDU82(myValue3) == '31800101FF0201050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU82(myValue4) == '31060101FF020105'O)and(enc_CER_PDU82(myValue4) == '31800101FF0201050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU82(myValue3) == '31060101FF020105'O)and(enc_CER_PDU82(myValue3) == '31800101FF0201050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU82('3100'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU82('31800000'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU82('31030101FF'O) == myValue2){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU82('31800101FF0000'O) == myValue2){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU82('31060101FF020105'O) == myValue3){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU82('31800101FF0201050000'O) == myValue3){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU82('31060201050101FF'O) == myValue3){setverdict(pass);} else {setverdict(fail);}
+}
+//===========================================
+//  CER + DER encoding of SET (one element is equal to Default) (unified)
+//===========================================
+testcase tc_CER_DER_coding_of_SET_one_element_is_equal_to_Default() runs on Test_CT {
+  const BERPDU83 myValue1 := {b :=  true, c := 5  }
+  const BERPDU83 myValue2 := {c := 5, b :=  true }
+  const BERPDU83 myValue3 := {b :=  false, c := 5  }
+  const BERPDU83 myValue4 := {c := 5, b :=  false  }
+  if ((enc_DER_PDU83(myValue1) == '3103020105'O)and(enc_CER_PDU83(myValue1) == '31800201050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU83(myValue2) == '3103020105'O)and(enc_CER_PDU83(myValue2) == '31800201050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU83(myValue3) == '3106010100020105'O)and(enc_CER_PDU83(myValue3) == '31800101000201050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if ((enc_DER_PDU83(myValue4) == '3106010100020105'O)and(enc_CER_PDU83(myValue4) == '31800101000201050000'O)) {setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU83('3103020105'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU83('31800201050000'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU83('31060201050101FF'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU83('31800101FF0201050000'O) == myValue1){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU83('3106010100020105'O) == myValue3){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU83('31800101000201050000'O) == myValue3){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU83('3106020105010100'O) == myValue3){setverdict(pass);} else {setverdict(fail);}
+  if (dec_BER_PDU83('31800201050101000000'O) == myValue3){setverdict(pass);} else {setverdict(fail);}
+}
+//===========================================
+//   encoding of SET (different order2) (one element is not equal to Default)
+//===========================================
+testcase tc_CER_DER_coding_of_SET_diffOrder_one_element_is_equal_to_Default() runs on Test_CT {
+  const BERPDU84 myValue:= {c := 5, b :=  false  }
+  if ((enc_DER_PDU84(myValue) == '3106010100020105'O)and(enc_CER_PDU84(myValue) == '31800101000201050000'O)) {setverdict(pass);} else {setverdict(fail)};
+}
+
+//*********************************************
+// CONTROL PART
+//*********************************************
+
+control {
+  execute(tc_DER_CER_encoding_of_BOOLEAN());
+  execute(tc_DER_CER_encoding_of_BOOLEAN_with_ContextSpecTag_Explicit());
+  execute(tc_DER_CER_encoding_of_BOOLEAN_with_PrivateTag_Explicit());
+  execute(tc_DER_CER_encoding_of_BOOLEAN_with_ApplicationTag_Explicit());
+  execute(tc_DER_CER_encoding_of_BOOLEAN_with_ContextSpecTag_Implicit());
+  execute(tc_DER_CER_encoding_of_BOOLEAN_with_PrivateTag_Implicit());
+  execute(tc_DER_CER_encoding_of_BOOLEAN_with_ApplicationTag_Implicit());
+  execute(tc_BER_decoding_of_BOOLEAN());
+  execute(tc_DER_decoding_of_BOOLEAN_Explicit());
+  execute(tc_BER_decoding_of_BOOLEAN_with_PrivateTag_Explicit());  
+  execute(tc_DER_CER_decoding_of_BOOLEAN_with_ApplicationTag_Explicit());
+  execute(tc_DER_CER_decoding_of_BOOLEAN_with_ContextSpecTag_Implicit());
+  execute(tc_DER_CER_decoding_of_BOOLEAN_with_PrivateTag_Implicit());
+  execute(tc_DER_CER_decoding_of_BOOLEAN_with_ApplicationTag_Implicit());
+  execute(tc_DER_CER_coding_of_INTEGER());
+  execute(tc_DER_CER_coding_of_INTEGER_with_ContextSpecTag_Explicit());
+  execute(tc_DER_CER_coding_of_INTEGER_with_PrivateTag_Explicit());
+  execute(tc_DER_CER_coding_of_INTEGER_with_ApplicationTag_Explicit());
+  execute(tc_DER_CER_coding_of_INTEGER_with_ContextSpecTag_Implicit());
+  execute(tc_DER_CER_coding_of_INTEGER_with_PrivateTag_Implicit());
+  execute(tc_DER_CER_coding_of_INTEGER_with_ApplicationTag_Implicit());
+  execute(tc_DER_CER_coding_of_INTEGER_with_ContextSpecTag30_Explicit());
+  execute(tc_DER_CER_coding_of_INTEGER_with_ContextSpecTag31_Explicit());
+  execute(tc_DER_CER_coding_of_INTEGER_with_ContextSpecTag127_Explicit());
+  execute(tc_DER_CER_coding_of_INTEGER_with_ContextSpecTag128_Explicit());
+  execute(tc_DER_CER_coding_of_INTEGER_with_ContextSpecTag16383_Explicit());
+  execute(tc_DER_CER_coding_of_INTEGER_with_ContextSpecTag16384_Explicit());
+  execute(tc_DER_CER_coding_of_enumerated_hardcoded_positive());
+  execute(tc_DER_CER_coding_of_enumerated_third_no_hardcoding());
+  execute(tc_DER_CER_coding_of_enumerated_first1());
+  execute(tc_DER_CER_coding_of_enumerated_first2());
+  execute(tc_DER_CER_coding_of_enumerated_tagged_explicit_6());
+  execute(tc_DER_CER_coding_of_enumerated_tagged_implicit());
+  execute(tc_decoding_of_explicit_tagged_enumerated());
+  execute(tc_CER_DER_coding_of_real());
+  execute(tc_CER_DER_coding_of_real_1_implicit());
+  execute(tc_CER_DER_coding_of_real_1_explicit());
+  execute(tc_CER_DER_coding_of_bitstring());
+  execute(tc_CER_DER_coding_of_bitstring_length1_implicit());
+  execute(tc_CER_DER_coding_of_bitstring_length1_explicit());
+  execute(tc_CER_DER_coding_of_OCTETSTRING());
+  execute(tc_CER_DER_coding_of_OCTETSTRING_implicit_length_2());
+  execute(tc_CER_DER_coding_of_OCTETSTRING_explicit_length_2());
+  execute(tc_CER_DER_coding_of_NULL());
+  execute(tc_CER_DER_coding_of_NULL_with_ContextSpecificTag_Explicit());
+  execute(tc_CER_DER_coding_of_NULL_with_PrivateTag_Explicit());
+  execute(tc_CER_DER_coding_of_NULL_with_ApplicationTag_Explicit());
+  execute(tc_CER_DER_coding_of_NULL_with_ContextSpecificTag_Implicit());
+  execute(tc_CER_DER_coding_of_NULL_with_PrivateTag_Implicit());
+  execute(tc_CER_DER_coding_of_NULL_with_ApplicationTag_Implicit());
+  execute(tc_CER_DER_encoding_of_SEQUENCE());
+  execute(tc_CER_DER_encoding_of_SEQUENCE_oneElementIsEqualToDefault());
+  execute(tc_CER_DER_encoding_of_SEQUENCE_bothElementsAreUsed_implicitTagsForElements());
+  execute(tc_CER_DER_encoding_of_SEQUENCE_bothElementsAreUsed_explicitTagsForElements());
+  execute(tc_CER_DER_coding_of_taggedSEQUENCE_bothElementsAreUsed());
+  execute(tc_CER_DER_coding_of_taggedSEQUENCE_bothElementsAreTaggedAndUsed());
+  execute(tc_CER_DER_coding_of_SEQUENCE_withCHOICEelement());
+  execute(tc_CER_DER_encoding_of_SEQUENCE_withFieldsOfDifferentTypes());
+  execute(tc_DER_decoding_of_SEQUENCE_withFieldsOfDifferentTypes());
+  execute(tc_CER_DER_coding_of_SEQUENCEOFinteger_empty())
+  execute(tc_CER_DER_coding_of_SEQUENCEOFBOOLEAN());
+  execute(tc_CER_DER_coding_of_SEQUENCEOFOCTETSTRING());
+  execute(tc_CER_DER_coding_of_SEQUENCEOFSEQUENCE());
+  execute(tc_CER_DER_coding_of_SEQUENCEOFSET());
+  execute(tc_CER_DER_coding_of_SEQUENCEOFSEQUENCEOF());
+  execute(tc_CER_DER_coding_of_SEQUENCEOFCHOICE());
+  execute(tc_CER_DER_coding_of_SEQUENCEOFSETOF());
+  execute(tc_CER_DER_coding_of_TAGGEDSEQUENCEOFBOOLEAN());
+  execute(tc_CER_DER_coding_of_SET_empty());
+  execute(tc_CER_DER_coding_of_SET_one_element_is_equal_to_Default());
+  execute(tc_CER_DER_coding_of_SET_diffOrder_one_element_is_equal_to_Default());
+
+}
+
+}

@@ -1,0 +1,56 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module BER_EncDec_39 {
+
+import from BER_EncDecA_39 all;
+
+external function enc_DER_PDU(in BERPDU pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_DER)" }
+external function enc_CER_PDU(in BERPDU pdu) return octetstring with { extension "prototype(convert) encode(BER:BER_ENCODE_CER)" }
+
+const BERPDU myValue := {a :=  NULL,
+			 b := true,
+			 c := 2,
+			 d := first,
+			 e := 1.0,
+			 f := '1'B,
+			 g := 'FFFF'O,
+			 h := myOBJID,
+			 i :=   "ABC",
+			 j := {x1 := true   } ,
+			 k := {x2 := NULL,
+
+			      y2  := true  }   ,
+			 l := {y3 := 1.0 ,
+
+			       x3 := '1'B   }  , 
+			 m := 
+                             { 1 ,2 }   ,  
+			 n := 
+                             { true, true }  
+			 }         
+			 
+
+
+
+type component TempComp {}
+testcase TC() runs on TempComp {
+
+
+
+
+if ((enc_DER_PDU(myValue) == '31530101FF020102030207800402FFFF05000603000203090603312E452B300A0100300505000101FF310C03020780090603312E452B301603414243A1030101FFA3083006020101020102A40831060101FF0101FF'O)and(enc_CER_PDU(myValue) == '31800101FF020102030207800402FFFF05000603000203090603312E452B300A0100308005000101FF0000318003020780090603312E452B3000001603414243A1800101FF0000A380308002010102010200000000A48031800101FF0101FF000000000000'O)) {setverdict(pass);} else {setverdict(fail);}
+
+} 
+
+control { 
+execute (TC()) 
+}
+}

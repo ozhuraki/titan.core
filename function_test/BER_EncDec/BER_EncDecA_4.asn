@@ -1,0 +1,63 @@
+
+--/////////////////////////////////////////////////////////////////////////////
+-- Copyright (c) 2000-2019 Ericsson Telecom AB
+-- All rights reserved. This program and the accompanying materials
+-- are made available under the terms of the Eclipse Public License v2.0
+-- which accompanies this distribution, and is available at
+-- https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+--
+-- Contributors:
+--   Kristof, Szabados
+--
+--/////////////////////////////////////////////////////////////////////////////
+BER-EncDecA-4
+
+
+DEFINITIONS
+IMPLICIT TAGS
+::=
+BEGIN
+
+IMPORTS;
+
+BERPDU52 ::= SEQUENCE
+      {   
+	b [30] EXPLICIT BOOLEAN OPTIONAL,
+	c [31] EXPLICIT INTEGER OPTIONAL
+      }
+
+BERPDU53 ::= [0] SEQUENCE
+      {   
+	b   BOOLEAN OPTIONAL,
+	c   INTEGER OPTIONAL
+      }
+
+BERPDU57 ::= [0] SEQUENCE
+      {   
+	b  [0]  BOOLEAN OPTIONAL,
+	c  [1]  INTEGER OPTIONAL
+      }
+
+BERPDU81 ::= [0] SEQUENCE OF BOOLEAN
+
+BERPDU88 ::= SET
+      {
+	b [30] IMPLICIT BOOLEAN OPTIONAL,
+	c [31] IMPLICIT INTEGER OPTIONAL
+      }
+
+BERPDU89 ::= SET
+      {   	
+	c [31] IMPLICIT INTEGER OPTIONAL,
+	b [30] IMPLICIT BOOLEAN OPTIONAL
+      }
+
+BERPDU90 ::= SET
+      { 
+        c [31] EXPLICIT INTEGER OPTIONAL,
+	b [30] EXPLICIT BOOLEAN OPTIONAL
+	
+      }
+
+END
+

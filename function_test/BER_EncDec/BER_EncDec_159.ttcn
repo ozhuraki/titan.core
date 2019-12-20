@@ -1,0 +1,125 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Szabados, Kristof *
+ ******************************************************************************/
+module BER_EncDec_159 {
+
+import from BER_EncDecA_159 all;
+
+external function enc_ber1(in Rec_ber r) return octetstring
+  with { extension "encode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" }
+external function dec_ber1(in octetstring r) return Rec_ber
+  with { extension "decode(BER:BER_ACCEPT_ALL) prototype(convert) errorbehavior(ALL:WARNING)" }
+external function enc_ber2(in integer r) return octetstring
+  with { extension "encode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" }
+// Attributes are not checked in the compiler.
+external function dec_ber2(in octetstring r) return integer
+  with { extension "decode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" }
+external function dec_ber3(inout octetstring r, out Rec_ber s) return integer
+  with { extension "decode(BER:BER_ACCEPT_ALL) prototype(sliding) errorbehavior(ALL:WARNING)" }
+
+type component comp_ber { }
+
+
+type component TempComp {}
+testcase TC() runs on TempComp {
+
+  const integer a := 2147483647
+  const integer b := 2147483648
+  const integer c := 2147483649
+  const integer d := 128
+  const integer e := myNumber
+  const integer f := 12147483648
+  var Rec_ber myrec1 := {int1 := a, int2 := b}
+  var Rec_ber myrec2 := {int1 := c, int2 := d}
+  var Rec_ber myrec3 := {int1 := 1048576, int2 := 321768}
+  var Rec_ber myrec4 := {65536, 131072}
+  var Rec_ber myrec5 := {4294967296, 8388608}
+  var Rec_ber myrec6 := {12345678910111213141516, 11111111111111111111}
+  var Rec_ber myrec7 := {8589934592, 1099511627776}
+  var Rec_ber myrec8 := {int1 := a, int2 := b}
+  var Rec_ber myrec9 := {int1 := 12345678910111213141516, int2 := -1234}
+  var Rec_ber myrec10 := {int1 := -12345678910111213141516, int2 := -1234}
+  var Rec_ber myrec11 := {2147483648, -2147483648}
+  var Rec_ber myrec12 := {-2147483647, 2147483647}
+  var Rec_ber myrec13 := {2147483649, -2147483649}
+  var Rec_ber myrec14 := {-4294967296, 4294967296}
+  var Rec_ber myrec15 := {4294967295, -4294967295}
+  var Rec_ber myrec16 := {-4294967297, 4294967297}
+  var Rec_ber pdu1 := {12345678910111213141516, -2147483648}
+  var Rec_ber pdu2 := {123, 456}
+  var octetstring encoded_pdu
+  var Rec_ber decoded_pdu
+  var integer ret_val  
+  encoded_pdu := enc_ber1(pdu2)
+  ret_val := dec_ber3(encoded_pdu, decoded_pdu)
+  if (ret_val == 0 and decoded_pdu == pdu2) {setverdict(pass)} else {setverdict(fail)}
+  encoded_pdu := '800100'O
+  ret_val := dec_ber3(encoded_pdu, decoded_pdu)
+  if (ret_val == 2) {setverdict(pass)} else {setverdict(fail)}
+  encoded_pdu := substr(enc_ber1(pdu1), 0, 4)
+  ret_val := dec_ber3(encoded_pdu, decoded_pdu)
+  if (ret_val == 2) {setverdict(pass)} else {setverdict(fail)}
+  encoded_pdu := enc_ber2(-2147483648)
+  if (encoded_pdu == '020480000000'O) {setverdict(pass)} else {setverdict(fail)}
+  encoded_pdu := enc_ber1(myrec1)
+  if (myrec1 == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  if ({int1 := a, int2 := b} == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  encoded_pdu := enc_ber1(myrec2)
+  if (myrec2 == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  if ({int1 := c, int2 := d} == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  encoded_pdu := enc_ber1(myrec3)
+  if (myrec3 == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  if ({int1 := 1048576, int2 := 321768} == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  encoded_pdu := enc_ber1(myrec4)
+  if (myrec4 == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  if ({65536, 131072} == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  encoded_pdu := enc_ber1(myrec5)
+  if (myrec5 == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  if ({4294967296, 8388608} == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  encoded_pdu := enc_ber1(myrec6)
+  if (myrec6 == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  if ({12345678910111213141516, 11111111111111111111} == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  encoded_pdu := enc_ber1(myrec7)
+  if (myrec7 == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  if ({8589934592, 1099511627776} == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  encoded_pdu := enc_ber1(myrec8)
+  if (myrec8 == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  if ({int1 := a, int2 := b} == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  encoded_pdu := enc_ber1(myrec9)
+  if (myrec9 == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  if ({int1 := 12345678910111213141516, int2 := -1234} == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  encoded_pdu := enc_ber1(myrec10)
+  if (myrec10 == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  if ({int1 := -12345678910111213141516, int2 := -1234} == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  encoded_pdu := enc_ber1(myrec11)
+  if (myrec11 == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  if ({2147483648, -2147483648} == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  encoded_pdu := enc_ber1(myrec12)
+  if (myrec12 == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  if ({-2147483647, 2147483647} == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  encoded_pdu := enc_ber1(myrec13)
+  if (myrec13 == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  if ({2147483649, -2147483649} == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  encoded_pdu := enc_ber1(myrec14)
+  if (myrec14 == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  if ({-4294967296, 4294967296} == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  encoded_pdu := enc_ber1(myrec15)
+  if (myrec15 == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  if ({4294967295, -4294967295} == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  encoded_pdu := enc_ber1(myrec16)
+  if (myrec16 == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+  if ({-4294967297, 4294967297} == dec_ber1(encoded_pdu)) {setverdict(pass)} else {setverdict(fail)}
+
+} 
+
+control { 
+execute (TC()) 
+}
+}
