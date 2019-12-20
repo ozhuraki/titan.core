@@ -111,7 +111,7 @@ USER_OBJECTS =
 # The name of the executable test suite:
 TARGET = RAW_EncDec.exe
 
-ifdef COVERAGE
+ifeq ($(COVERAGE), yes)
 CPPFLAGS += -fprofile-arcs -ftest-coverage -g
 CXXFLAGS += -fprofile-arcs -ftest-coverage -g
 LDFLAGS += -fprofile-arcs -ftest-coverage -g -lgcov
