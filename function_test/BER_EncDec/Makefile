@@ -39,6 +39,7 @@
 TOP := ../../
 include   $(TOP)/Makefile.cfg
 
+.PHONY: run
 
 # The path of your TTCN-3 Test Executor installation:
 # Uncomment this line to override the environment variable.
@@ -117,7 +118,7 @@ USER_OBJECTS =
 # The name of the executable test suite:
 TARGET = BER_EncDec.exe
 
-ifeq ($(COVERAGE), yes)
+ifdef COVERAGE
 CPPFLAGS += -fprofile-arcs -ftest-coverage -g
 CXXFLAGS += -fprofile-arcs -ftest-coverage -g
 LDFLAGS += -fprofile-arcs -ftest-coverage -g -lgcov
@@ -151,6 +152,9 @@ compile: $(TTCN3_MODULES) $(ASN1_MODULES)
 	$(TTCN3_DIR)/bin/compiler $(COMPILER_FLAGS) $(TTCN3_MODULES) \
 	$(ASN1_MODULES) - $?
 	touch $@
+
+run: $(TARGET) BER_EncDec.cfg
+	./$^
 
 clean:
 	-$(RM) $(TARGET) $(OBJECTS) $(GENERATED_HEADERS) \

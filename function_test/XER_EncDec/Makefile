@@ -30,6 +30,7 @@
 TOP := ../../
 include   $(TOP)/Makefile.cfg
 
+.PHONY: run
 
 # The path of your TTCN-3 Test Executor installation:
 # Uncomment this line to override the environment variable.
@@ -141,6 +142,9 @@ compile: $(TTCN3_MODULES) $(ASN1_MODULES)
 	$(TTCN3_DIR)/bin/compiler $(COMPILER_FLAGS) $(TTCN3_MODULES) \
 	$(ASN1_MODULES) - $?
 	touch $@
+
+run: $(TARGET) XER_EncDec.cfg
+	./$^
 
 clean:
 	-$(RM) $(TARGET) $(OBJECTS) $(GENERATED_HEADERS) \

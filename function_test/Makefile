@@ -71,16 +71,16 @@ all check run: $(DIRS)
 .PHONY: $(DIRS)
 
 BER_EncDec:
-	cd $@; make -j; ./BER_EncDec.exe BER_EncDec.cfg
+	cd $@; make -j; make run
 
 RAW_EncDec:
-	cd $@; make -j; ./RAW_EncDec.exe RAW_EncDec.cfg
+	cd $@; make -j; make run
 
 Text_EncDec:
-	cd $@; make -j; ./Text_EncDec.exe Text_EncDec.cfg
+	cd $@; make -j; make run
 
 XER_EncDec:
-	cd $@; make -j; ./XER_EncDec.exe XER_EncDec.cfg
+	cd $@; make -j; make run
 
 Semantic_Analyser:
 	cd $@; if [ ! -f perl ] ; then ln -s `which perl` perl; fi; ./run_test_all $(SCRIPTFLAGS)
