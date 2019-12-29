@@ -154,11 +154,13 @@ compile: $(TTCN3_MODULES) $(ASN1_MODULES)
 	touch $@
 
 run: $(TARGET) BER_EncDec.cfg
-	./$^
+	./$^ 2> result.txt
+	cat result.txt
+	grep "Overall verdict: pass" result.txt
 
 clean:
 	-$(RM) $(TARGET) $(OBJECTS) $(GENERATED_HEADERS) \
-	$(GENERATED_SOURCES) compile *.log *.gcda *.gcno
+	$(GENERATED_SOURCES) compile *.log *.gcda *.gcno  result.txt
 
 dep: $(GENERATED_SOURCES)
 	makedepend $(CPPFLAGS) $(USER_SOURCES) $(GENERATED_SOURCES)

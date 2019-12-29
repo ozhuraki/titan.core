@@ -4,3 +4,4 @@ compile
 *.cc
 *.gcda
 *.gcno
+result.txt
