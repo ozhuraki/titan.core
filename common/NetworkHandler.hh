@@ -93,7 +93,7 @@ public:
 
   bool operator==(const IPAddress& p_addr) const;
   bool operator!=(const IPAddress& p_addr) const;
-  IPAddress& operator=(const IPAddress& p_addr);
+  IPv4Address& operator=(const IPAddress& p_addr);
   void push_raw(Text_Buf& p_buf) const;
   void pull_raw(Text_Buf& p_buf);
   void clean_up();
@@ -126,7 +126,7 @@ public:
 
   bool operator==(const IPAddress& p_addr) const;
   bool operator!=(const IPAddress& p_addr) const;
-  IPAddress& operator=(const IPAddress& p_addr);
+  IPv6Address& operator=(const IPAddress& p_addr);
   void push_raw(Text_Buf& p_buf) const;
   void pull_raw(Text_Buf& p_buf);
   void clean_up();

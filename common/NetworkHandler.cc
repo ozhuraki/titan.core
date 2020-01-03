@@ -249,7 +249,7 @@ bool IPv4Address::operator!=(const IPAddress& p_addr) const
   return !(*this == p_addr);
 }
 
-IPAddress& IPv4Address::operator=(const IPAddress& p_addr)
+IPv4Address& IPv4Address::operator=(const IPAddress& p_addr)
 {
   clean_up();
   memcpy(&m_addr, &(static_cast<const IPv4Address&>(p_addr)).m_addr, sizeof(m_addr));
@@ -390,7 +390,7 @@ bool IPv6Address::operator!=(const IPAddress& p_addr) const
   return !(*this == p_addr);
 }
 
-IPAddress& IPv6Address::operator=(const IPAddress& p_addr)
+IPv6Address& IPv6Address::operator=(const IPAddress& p_addr)
 {
   clean_up();
   memcpy(&m_addr, &(static_cast<const IPv6Address&>(p_addr)).m_addr, sizeof(m_addr));
