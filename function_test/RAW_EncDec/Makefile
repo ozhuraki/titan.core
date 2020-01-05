@@ -103,11 +103,9 @@ USER_SOURCES =
 USER_HEADERS =
 
 # All object files needed for the executable test suite:
-OBJECTS = $(GENERATED_OBJECTS) $(USER_OBJECTS)
+OBJECTS = $(GENERATED_OBJECTS)
 
 GENERATED_OBJECTS = RAW_EncDec_1.o RAW_EncDec_2.o RAW_EncDec_3.o RAW_EncDec_4.o RAW_EncDec_5.o RAW_EncDec_6.o RAW_EncDec_7.o RAW_EncDec_8.o
-
-USER_OBJECTS =
 
 # The name of the executable test suite:
 TARGET = RAW_EncDec.exe

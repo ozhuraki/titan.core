@@ -99,11 +99,9 @@ USER_SOURCES =
 USER_HEADERS =
 
 # All object files needed for the executable test suite:
-OBJECTS = $(GENERATED_OBJECTS) $(USER_OBJECTS)
+OBJECTS = $(GENERATED_OBJECTS)
 
 GENERATED_OBJECTS = XER_EncDec_1.o XER_EncDec_10.o XER_EncDec_11.o XER_EncDec_12.o XER_EncDec_13.o XER_EncDec_14.o XER_EncDec_15.o XER_EncDec_16.o XER_EncDec_17.o XER_EncDec_18.o XER_EncDec_19.o XER_EncDec_2.o XER_EncDec_20.o XER_EncDec_21.o XER_EncDec_22.o XER_EncDec_23.o XER_EncDec_24.o XER_EncDec_25.o XER_EncDec_26.o XER_EncDec_27.o XER_EncDec_28.o XER_EncDec_29.o XER_EncDec_3.o XER_EncDec_30.o XER_EncDec_4.o XER_EncDec_5.o XER_EncDec_6.o XER_EncDec_7.o XER_EncDec_8.o XER_EncDec_9.o
-
-USER_OBJECTS =
 
 # The name of the executable test suite:
 TARGET = XER_EncDec.exe

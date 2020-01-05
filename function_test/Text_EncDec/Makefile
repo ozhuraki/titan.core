@@ -100,11 +100,9 @@ USER_SOURCES =
 USER_HEADERS =
 
 # Object files of this project that are needed for the executable test suite:
-OBJECTS = $(GENERATED_OBJECTS) $(USER_OBJECTS)
+OBJECTS = $(GENERATED_OBJECTS)
 
 GENERATED_OBJECTS = Text_EncDec_1.o Text_EncDec_2.o Text_EncDec_3.o Text_EncDec_4.o
-
-USER_OBJECTS =
 
 # The name of the executable test suite:
 TARGET = Text_EncDec.exe
