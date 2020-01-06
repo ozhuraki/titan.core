@@ -13,7 +13,6 @@
 module ver_OK {
 }
 with {
-  // FIXME: this should be accepted: extension "version R99ZZ";
   extension "version R0A";
 }
 
