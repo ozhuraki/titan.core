@@ -142,7 +142,7 @@ compile: $(TTCN3_MODULES) $(ASN1_MODULES)
 	$(ASN1_MODULES) - $?
 	touch $@
 
-run: $(TARGET) BER_EncDec.cfg
+run: $(TARGET) Text_EncDec.cfg
 	./$^ 2> result.txt
 	cat result.txt
 	grep "Overall verdict: pass" result.txt
