@@ -1,6 +1,0 @@
-#!/bin/sh
-
-# Script parameters are coming from ../Makefile.
-../Tools/SAtester $* ./OER_EncDec_ITSPKI.script
-rm Temp.ttcn
-rm TempA.asn
