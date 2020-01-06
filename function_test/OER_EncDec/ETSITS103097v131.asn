@@ -1,0 +1,14 @@
+ETSITS103097v131 DEFINITIONS ::=
+
+BEGIN
+
+IMPORTS
+  Certificate, Ieee1609Dot2Data FROM IEEE1609dot2 {
+    iso(1) identified-organization(3) ieee(111)
+    standards-association-numbered-series-standards(2) wave-stds(1609)
+    dot2(2) base(1) schema(1) major-version-2(2)
+  };
+
+  TestIeee1609Dot2Data ::= Ieee1609Dot2Data
+  TestCertificate ::= Certificate
+END

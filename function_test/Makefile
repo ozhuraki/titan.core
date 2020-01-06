@@ -17,7 +17,7 @@
 #
 ##############################################################################
 # Makefile to run the non-interactive tests
-DIRS := BER_EncDec RAW_EncDec Text_EncDec XER_EncDec Semantic_Analyser Semantic_Analyser_Csaba Config_Parser
+DIRS := BER_EncDec RAW_EncDec Text_EncDec XER_EncDec OER_EncDec Semantic_Analyser Semantic_Analyser_Csaba Config_Parser
 
 SCRIPTFLAGS :=
 
@@ -80,6 +80,9 @@ Text_EncDec:
 	cd $@; make -j; make run
 
 XER_EncDec:
+	cd $@; make -j; make run
+	
+OER_EncDec:
 	cd $@; make -j; make run
 
 Semantic_Analyser:

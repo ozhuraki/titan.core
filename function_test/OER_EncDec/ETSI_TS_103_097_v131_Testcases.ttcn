@@ -1,128 +1,40 @@
-.******************************************************************************
-.* Copyright (c) 2000-2019 Ericsson Telecom AB
-.* All rights reserved. This program and the accompanying materials
-.* are made available under the terms of the Eclipse Public License v2.0
-.* which accompanies this distribution, and is available at
-.* https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
-.*
-.* Contributors:
-.*   Balasko, Jeno
-.*   Beres, Szabolcs
-.*   Delic, Adam
-.*   Kovacs, Ferenc
-.*   Szabados, Kristof
-.*
-.******************************************************************************/
-:text.
-:lang eng.
-.*
-:docname.Test Description
-:docno.8/152 91-CRL 113 200/5 Uen
-:rev.C
-:date.2015-04-27
-.*
-:prep.ETH/XZR Kristof Szabados (+36 1 437 7256)
-:appr.ETH/XZ (Roland Gecse)
-:checked.ETHBAAT
-.*
-:title.Test Description - OER coder
-:contents level=3.
-.*---------------------------------------------------------------------*
-:h1.PREREQUISITES AND PREPARATIONS
-.*---------------------------------------------------------------------*
-.*---------------------------------------------------------------------*
-:h2.Scope of the Test Object
-.*---------------------------------------------------------------------*
-:xmp tab=1 nokeep.
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Balasko, Jeno
+ *   Beres, Szabolcs
+ *   Delic, Adam
+ *   Kovacs, Ferenc
+ *   Szabados, Kristof
+ *
+ ******************************************************************************/
+//The target of these test cases are the basic data types from specification
+//'ISO/IEC 8825-7:2015 -- Information technology – ASN.1 encoding rules:
+//Specification of Octet Encoding Rules'
+//
+//The target data types are used in the following technical specification:
+// 'ETSI TS 103 097 V1.3.1 (2017-10)'
+//Intelligent Transport Systems (ITS); Security;
+//Security header and certificate formats and certificate formats 
+//
+// 'IEEE Std 1609.2-2016 IEEE Standard'
+//Wireless Access in Vehicular Environments—Security Services for
+//Applications and Management Messages
+module ETSI_TS_103_097_v131_Testcases {
 
-This TD contains unified test cases related to TTCN3 Executor's OER coder function.
-
-The target of these test cases are the basic data types from specification
-'ISO/IEC 8825-7:2015 -- Information technology – ASN.1 encoding rules:
-Specification of Octet Encoding Rules'
-
-The target data types are used in the following technical specification:
- 'ETSI TS 103 097 V1.3.1 (2017-10)'
-Intelligent Transport Systems (ITS); Security;
-Security header and certificate formats and certificate formats 
-
- 'IEEE Std 1609.2-2016 IEEE Standard'
-Wireless Access in Vehicular Environments—Security Services for
-Applications and Management Messages
-
-:exmp.
-
-:p.:us.Revision Information:eus.
-
-:xmp nokeep.
-:us.History:eus.
-
-REV   DATE         PREPARED   CHANGE
-===   ==========   ========   ======
-A     2003-10-31   ETHEKR     New document
-B     2007-03-06   EDMDELI    Implicit message encoding
-C     2007-03-21   EJNOSZA    Bugfix in a testcase for implicit msg. enc.
-D     2008-10-01   EFERKOV    Big integers
-E     2010-01-18   EKRISZA    Updated for TITAN R8C
-F     2011-06-18   EKRISZA    Added tests for errors
-A     2011-12-12   EKRISZA     Updated for release
-PB1   2011-01-30   ETHBAAT    Editorial changes
-
-:exmp.
-
-
-.*---------------------------------------------------------------------*
-:h2.Test Tools
-.*---------------------------------------------------------------------*
-:p.:us.Software Tools:eus.
-:xmp tab=2 nokeep.
-
-	SAtester
-
-:exmp.
-:np.
-.*---------------------------------------------------------------------*
-:h1.REQUIREMENT-BASED TESTS
-.*---------------------------------------------------------------------*
-.*---------------------------------------------------------------------*
-:h2.Testing OER encoding of the basic types
-.*---------------------------------------------------------------------*
-.*---------------------------------------------------------------------*
-:h3. OER encoding
-.*---------------------------------------------------------------------*
-:xmp tab=0.
-
-<TC - OER encoding (unified tests)>
-
-<STATIC:ASN>
-
-TempA
-
-DEFINITIONS ::=
-
-BEGIN
-
-IMPORTS
-  Certificate, Ieee1609Dot2Data FROM IEEE1609dot2 {
-    iso(1) identified-organization(3) ieee(111)
-    standards-association-numbered-series-standards(2) wave-stds(1609)
-    dot2(2) base(1) schema(1) major-version-2(2)
-  };
-
-  TestIeee1609Dot2Data ::= Ieee1609Dot2Data
-  TestCertificate ::= Certificate
-
-END
-
-<STATIC>
-
-
+import from ETSITS103097v131 all;
 type component Test_CT {}
-
-<TTCN_TC:PURE_EXEC>
-
-import from TempA all;
-
+//---------------------------------------------------------------------*
+// Testing OER encoding of the basic types
+//---------------------------------------------------------------------*
+//---------------------------------------------------------------------*
+// OER encoding
+//---------------------------------------------------------------------*
 external function enc_Ieee1609Dot2Data(in TestIeee1609Dot2Data pdu) return octetstring with { extension "prototype(convert) encode(OER)" }
 external function dec_Ieee1609Dot2Data(in octetstring stream) return TestIeee1609Dot2Data with { extension "prototype(convert) decode(OER)" }
 
@@ -349,9 +261,4 @@ control {
   execute(tc_Ieee1609Dot2Data_SignedWithCertificate());
 }
 
-<RESULT>
-
-Overall verdict: pass
-
-<END_TC>
-
+}

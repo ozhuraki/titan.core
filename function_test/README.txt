@@ -35,10 +35,12 @@ make clean
 
 4. Which scripts will be executed in the function test?
 
-function_test/Tools/SAtester for:
+Obsolete: function_test/Tools/SAtester for:
 BER_EncDec
 RAW_EncDec
 Text_EncDec
+OER_EncDec
+(These tests do not use any script anymore.)
 
 function_test/Tools/SAtester.pl for:
 Config_Parser

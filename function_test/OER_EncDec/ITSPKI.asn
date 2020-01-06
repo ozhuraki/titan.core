@@ -1,0 +1,152 @@
+ITSPKI DEFINITIONS ::=
+
+BEGIN
+
+  IMPORTS;
+
+  Null ::= NULL
+
+  Bool ::= BOOLEAN
+
+  Uint   ::= INTEGER (0..MAX)
+  Uint8  ::= INTEGER (0..255)
+  Uint16 ::= INTEGER (0..65535) 
+  Uint32 ::= INTEGER (0..4294967295)
+  Uint64 ::= INTEGER (0..18446744073709551615)
+
+  Int    ::= INTEGER
+  Sint8  ::= INTEGER (-128..127)
+  Sint16 ::= INTEGER (-32768..32767)
+  Sint32 ::= INTEGER (-2147483648..2147483647)
+  Sint64 ::= INTEGER (-9223372036854775808..9223372036854775807)
+
+  Enum ::= ENUMERATED {zero(0), one(1), two(2)}
+  EnumM ::= ENUMERATED {zero(0), one(1), two(2), numM(18)}
+  EnumP ::= ENUMERATED {zero(0), one(1), two(2), numP(1234)}
+  EnumB ::= ENUMERATED {zero(0), one(1), two(2), numB(65261)}
+  EnumNM ::= ENUMERATED {zero(0), one(1), two(2), numNM(-275)}
+  EnumNB ::= ENUMERATED {zero(0), one(1), two(2), numNB(-64302)}
+
+  BitStr ::= BIT STRING
+  BitStrEmpty ::= BIT STRING (SIZE(0))
+  BitStrRandom ::= BIT STRING (SIZE(54))
+  BitStrAligned ::= BIT STRING (SIZE(48))
+
+  OctetStr ::= OCTET STRING
+  OctetStrEmpty ::= OCTET STRING (SIZE(0))
+  OctetStrRandom ::= OCTET STRING (SIZE(6))
+
+  SequenceEmpty ::= SEQUENCE {}
+  SequenceEmptyExtendable ::= SEQUENCE {
+    ... 
+  }
+  SequenceSimple ::= SEQUENCE {
+    f1 OCTET STRING (SIZE (2)),
+    f2 OCTET STRING (SIZE (2)),
+    f3 OCTET STRING (SIZE (2))
+  }
+  SequenceSimpleExtendable ::= SEQUENCE {
+    f1 OCTET STRING (SIZE (2)),
+    f2 OCTET STRING (SIZE (2)),
+    f3 OCTET STRING (SIZE (2)),
+    ...
+  }
+  SequenceSimpleExtended ::= SEQUENCE {
+    f1 OCTET STRING (SIZE (2)),
+    f2 OCTET STRING (SIZE (2)),
+    f3 OCTET STRING (SIZE (2)),
+    ...,
+    e1 OCTET STRING (SIZE (2)),
+    e2 OCTET STRING (SIZE (2)),
+    e3 OCTET STRING (SIZE (2))
+
+  }
+  SequenceSomeOptional ::= SEQUENCE {
+    f1 OCTET STRING (SIZE (2)),
+    f2 [2] OCTET STRING (SIZE (2)) OPTIONAL,
+    f3 [3] OCTET STRING (SIZE (2)) OPTIONAL
+  }
+  SequenceAllOptional ::= SEQUENCE {
+    f1 OCTET STRING (SIZE (2)) OPTIONAL,
+    f2 [2] OCTET STRING (SIZE (2)) OPTIONAL,
+    f3 [3] OCTET STRING (SIZE (2)) OPTIONAL
+  }
+  SequenceOptionalExtendable ::= SEQUENCE {
+    f1 OCTET STRING (SIZE (2)) OPTIONAL,
+    f2 [2] OCTET STRING (SIZE (2)),
+    f3 [3] OCTET STRING (SIZE (2)) OPTIONAL,
+    ...
+  }
+  SequenceLongOptionalExtendable ::= SEQUENCE {
+    f1 OCTET STRING (SIZE (2)) OPTIONAL,
+    f2 [2] OCTET STRING (SIZE (2)) OPTIONAL,
+    f3 [3] OCTET STRING (SIZE (2)) OPTIONAL,
+    f4 [4] OCTET STRING (SIZE (2)) OPTIONAL,
+    f5 [5] OCTET STRING (SIZE (2)) OPTIONAL,
+    f6 [6] OCTET STRING (SIZE (2)) OPTIONAL,
+    f7 [7] OCTET STRING (SIZE (2)) OPTIONAL,
+    f8 [8] OCTET STRING (SIZE (2)) OPTIONAL,
+    f9 [9] OCTET STRING (SIZE (2)) OPTIONAL,
+    f10 [10] OCTET STRING (SIZE (2)) OPTIONAL,
+    ...
+  }
+  SequenceOptionalExtended ::= SEQUENCE {
+    f1 OCTET STRING (SIZE (2)) OPTIONAL,
+    f2 [2] OCTET STRING (SIZE (2)),
+    f3 [3] OCTET STRING (SIZE (2)) OPTIONAL,
+    ...,
+    e1 [4] OCTET STRING (SIZE (2)) OPTIONAL,
+    e2 [5] OCTET STRING (SIZE (2)),
+    e3 [6] OCTET STRING (SIZE (2)) OPTIONAL
+  }
+  SequenceLongOptionalExtended ::= SEQUENCE {
+    f1 OCTET STRING (SIZE (2)) OPTIONAL,
+    f2 [2] OCTET STRING (SIZE (2)),
+    f3 [3] OCTET STRING (SIZE (2)) OPTIONAL,
+    ...,
+    e1 [4] OCTET STRING (SIZE (2)) OPTIONAL,
+    e2 [5] OCTET STRING (SIZE (2)),
+    e3 [6] OCTET STRING (SIZE (2)) OPTIONAL,
+    e4 [7] OCTET STRING (SIZE (2)) OPTIONAL,
+    e5 [8] OCTET STRING (SIZE (2)),
+    e6 [9] OCTET STRING (SIZE (2)) OPTIONAL,
+    e7 [10] OCTET STRING (SIZE (2)) OPTIONAL,
+    e8 [11] OCTET STRING (SIZE (2)),
+    e9 [12] OCTET STRING (SIZE (2)) OPTIONAL
+  }
+  SequenceUnknownExtended ::= SEQUENCE {
+    f1 OCTET STRING (SIZE (2)) OPTIONAL,
+    f2 [2] OCTET STRING (SIZE (2)),
+    f3 [3] OCTET STRING (SIZE (2)) OPTIONAL,
+    ...,
+    e1 [4] OCTET STRING (SIZE (2)) OPTIONAL,
+    e2 [5] OCTET STRING (SIZE (2)),
+    e3 [6] OCTET STRING (SIZE (2)) OPTIONAL,
+    e4 [7] OCTET STRING (SIZE (2)) OPTIONAL
+  }
+
+  SequenceOfOctetString ::= SEQUENCE OF OCTET STRING (SIZE (2))
+
+  Choice ::= CHOICE {
+    f [0] OCTET STRING (SIZE (2)),
+    s [1] NULL
+  }
+  ChoiceBis ::= CHOICE {
+    f [42] OCTET STRING (SIZE (2)),
+    s [99] NULL
+  }
+  ChoiceTer ::= CHOICE {
+    f [123456] OCTET STRING (SIZE (2)),
+    s [999999] NULL
+  }
+  ChoiceQuatro ::= CHOICE {
+    f [0] NULL,
+    ...,
+    s [42] OCTET STRING (SIZE (2)),
+    t [99] NULL
+  }
+
+  Utf8 ::= UTF8String
+
+END
+
