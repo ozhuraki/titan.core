@@ -11,7 +11,7 @@
  *   Beres, Szabolcs
  *
  ******************************************************************************/
-module concat {
+module concat1 {
 
 type record of integer ROI;
 type record of ROI ROROI;
