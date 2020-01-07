@@ -10,7 +10,7 @@
  *   Raduly, Csaba
  *
  ******************************************************************************/
-module concat
+module concat1
 {
 type component C {}
 
