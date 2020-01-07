@@ -10,7 +10,7 @@
  *
  ******************************************************************************/
 
-module DeprecatedCompat_SE { //^In TTCN-3 module//
+module Deterministic_OK { //^In TTCN-3 module//
 
 function @deterministic f1() return integer { //In function definition// //Please ensure that the \`f1\' function complies with the requirements in clause//
   return 1;
