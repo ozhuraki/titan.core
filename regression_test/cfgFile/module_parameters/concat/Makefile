@@ -17,7 +17,7 @@ TOPDIR := ../../../
 include   $(TOPDIR)/Makefile.regression
 
 FILES := concat1.ttcn concat.cfg
-RUNNABLE := concat
+RUNNABLE := concat1
 CFG := concat.cfg
 DIR_SINGLE := dir_single_mode
 DIR_PARALLEL := dir_parallel_mode
