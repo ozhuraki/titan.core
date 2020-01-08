@@ -447,7 +447,7 @@ testcase floatComparison() runs on floatOper_comptype {
   if (NaN > NaN) { setverdict(fail, __LINE__, ": not_a_number<not_a_number:NotOK") }
 }
 
-testcase constFloatComparison() runs on floatOper_comptype {
+testcase tc_floatComparison_const() runs on floatOper_comptype {
   // 
   const float minus_zero := -0.0;
   const float plus_zero  :=  0.0;
@@ -495,6 +495,69 @@ testcase constFloatComparison() runs on floatOper_comptype {
   if (NaN > NaN) { setverdict(fail, __LINE__, ": not_a_number<not_a_number:NotOK") }
 }
 
+
+//runtime evaluation
+testcase tc_floatComparison_var() runs on floatOper_comptype {
+  // 
+  var float minus_zero := -0.0;
+  var float plus_zero  :=  0.0;
+
+  //----------------
+
+  if (minus_zero == -0.0) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -0.0 NOT == -0.0") } 
+  if (minus_zero <=  0.0) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -0.0 NOT <= 0.0") }
+  if (minus_zero <   0.0) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -0.0 NOT < 0.0") }
+  if (minus_zero <=  plus_zero) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -0.0 NOT <= 0.0") }
+  if (minus_zero <   plus_zero) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -0.0 NOT < 0.0") }
+  if (plus_zero >=  minus_zero) { setverdict(pass); } else { setverdict(fail, __LINE__, ": 0.0 NOT >= -0.0") }
+  if (plus_zero >   minus_zero) { setverdict(pass); } else { setverdict(fail, __LINE__, ": 0.0 NOT > -0.0") }
+  
+  if (-infinity <  minus_zero ) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -infinity NOT < -0.0") }
+  if (-infinity <= minus_zero ) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -infinity NOT <= -0.0") }
+  if (minus_zero <  infinity) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -0.0 NOT < infinity") }
+  if (minus_zero <= infinity) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -0.0 NOT <= infinity") }
+  if (minus_zero <  not_a_number) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -0.0 NOT < not_a_number") }
+  if (minus_zero <= not_a_number) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -0.0 NOT <= not_a_number") }
+  if (not_a_number >  minus_zero) { setverdict(pass); } else { setverdict(fail, __LINE__, ": not_a_number NOT > -0.0") }
+  if (not_a_number >= minus_zero) { setverdict(pass); } else { setverdict(fail, __LINE__, ": notc_floatComparison_const.0") }
+
+  //----------------
+
+  var float plus_inf := infinity;
+  if (plus_inf == infinity) { setverdict(pass); } else { setverdict(fail, __LINE__, ": infinity==infinity:NotOK") }
+  if (-infinity <  plus_inf ) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -infinity<infinity:NotOK") }
+  if (-infinity <= plus_inf ) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -infinity<=infinity:NotOK") }
+  if (plus_inf <  not_a_number) { setverdict(pass); } else { setverdict(fail, __LINE__, ": infinity<not_a_number:NotOK") }
+  if (plus_inf <= not_a_number) { setverdict(pass); } else { setverdict(fail, __LINE__, ": infinity<=not_a_number:NotOK") }
+
+  //----------------
+
+  var float minus_inf := -infinity;
+  if (minus_inf == -infinity) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -infinity==-infinity:NotOK") }
+  if (minus_inf < not_a_number) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -infinity<not_a_number:NotOK") }
+  if (minus_inf <= not_a_number) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -infinity<=not_a_number:NotOK") }
+
+  //----------------
+
+  var float NaN := not_a_number;
+  if (NaN == NaN) { setverdict(pass); } else { setverdict(fail, __LINE__, ": not_a_number != not_a_number:NotOK") }
+  if (NaN != NaN) { setverdict(fail, __LINE__, ": not_a_number==not_a_number:NotOK") }
+  if (NaN != not_a_number) { setverdict(fail, __LINE__, ": not_a_number==not_a_number:NotOK") }
+  if (NaN < NaN) { setverdict(fail, __LINE__, ": not_a_number<not_a_number:NotOK") }
+  if (NaN > NaN) { setverdict(fail, __LINE__, ": not_a_number<not_a_number:NotOK") }
+  if (minus_inf < NaN) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -infinity<not_a_number:NotOK") }
+  if (minus_inf <= NaN) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -infinity<=not_a_number:NotOK") }
+  if (NaN > minus_inf) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -infinity<not_a_number:NotOK") }
+  if (NaN >= minus_inf) { setverdict(pass); } else { setverdict(fail, __LINE__, ": -infinity<not_a_number:NotOK") }
+  if (NaN < minus_inf) { setverdict(fail, __LINE__, ": -infinity>not_a_number:NotOK") } else { setverdict(pass); }
+  if (NaN <= minus_inf) { setverdict(fail, __LINE__, ": -infinity<not_a_number:NotOK") } else { setverdict(pass); }
+  if (plus_inf <  NaN) { setverdict(pass); } else { setverdict(fail, __LINE__, ": infinity<not_a_number failed") }
+  if (plus_inf <= NaN) { setverdict(pass); } else { setverdict(fail, __LINE__, ": infinity<=not_a_number failed") }
+  if (plus_inf > NaN) { setverdict(fail, __LINE__, ": infinity>not_a_number failed") } else { setverdict(pass); }
+  if (plus_inf >= NaN) { setverdict(fail, __LINE__, ": infinity>=not_a_number failed") } else { setverdict(pass); }
+
+}
+
 testcase tc_float_modulepars() runs on floatOper_comptype {
   if (tsp_f_unchanged == 3.0 ) {
     setverdict(pass)
@@ -502,12 +565,12 @@ testcase tc_float_modulepars() runs on floatOper_comptype {
     setverdict(fail, "Expected: 3.0, got ",tsp_f_unchanged);
   }
   if (tsp_f_changed1 == 3.0 ) {
-    setverdict(pass)
+    setverdict(pass, tsp_f_changed1)
   } else {
     setverdict(fail, "Expected: 3.0, got ",tsp_f_changed1);
   }
   if (tsp_f_changed2 == -1.3 ) {
-    setverdict(pass)
+    setverdict(pass, tsp_f_changed2)
   } else {
     setverdict(fail, "Expected: -1.3, got ",tsp_f_changed2);
   }
@@ -553,7 +616,8 @@ control {
   execute(floatIsvalue());
   execute(floatIsbound());
   execute(floatComparison());
-  execute(constFloatComparison());
+  execute(tc_floatComparison_const());
+  execute(tc_floatComparison_var());
   execute(tc_float_modulepars());
   execute(tc_float_log2str());
 }
