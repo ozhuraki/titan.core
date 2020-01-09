@@ -83,7 +83,7 @@ void JUnitLogger2::set_parameter(const char *parameter_name, const char *paramet
       Free(filename_stem_);
     filename_stem_ = mcopystr(parameter_value);
   } else if (!strcmp("testsuite_name", parameter_name)) {
-    if (filename_stem_ != NULL)
+    if (testsuite_name_ != NULL)
       Free(testsuite_name_);
     testsuite_name_ = mcopystr(parameter_value);
   } else {
@@ -234,13 +234,6 @@ void TestCase::writeTestCase(FILE* file_stream_) const{
     case Error:  {
       fprintf(file_stream_, "  <testcase classname='%s' name='%s' time='%f'>\n", module_name.data(), tc_name.data(), time);
       fprintf(file_stream_, "    <error type='DTE'>%s</error>\n", dte_reason.data());
-      fprintf(file_stream_, "  </testcase>\n");
-      break; }
-    case Inconc:  {
-      fprintf(file_stream_, "  <testcase classname='%s' name='%s' time='%f'>\n", module_name.data(), tc_name.data(), time);
-      fprintf(file_stream_, "    <failure type='inconclusive-verdict'>%s\n", reason.data());
-      fprintf(file_stream_, "%s\n", stack_trace.data());
-      fprintf(file_stream_, "    </failure>\n");
       fprintf(file_stream_, "  </testcase>\n");
       break; }
     default: 

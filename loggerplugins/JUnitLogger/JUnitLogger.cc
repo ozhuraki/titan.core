@@ -86,7 +86,7 @@ void JUnitLogger::set_parameter(
       Free(filename_stem_);
     filename_stem_ = mcopystr(parameter_value);
   } else if (!strcmp("testsuite_name", parameter_name)) {
-    if (filename_stem_ != NULL)
+    if (testsuite_name_ != NULL)
       Free(testsuite_name_);
     testsuite_name_ = mcopystr(parameter_value);
   } else {
