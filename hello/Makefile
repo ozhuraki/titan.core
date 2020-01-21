@@ -37,7 +37,7 @@ else
 	cp $(DEMOFILES) $(DEMODIR)
 	cd $(DEMODIR) && $(BINDIR)/ttcn3_makefilegen $(MAKEFILEGENFLAGS) $(DEMOFILES) && \
 	$(MAKE) CXX='$(CXX)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' && \
-	(sleep 5 && echo 'Hello, TTCN-3!') | ttcn3_start MyExample MyExample.cfg && \
+	(sleep 5 && echo 'Hello, TTCN-3!') | ttcn3_start -ip "127.0.0.1" MyExample MyExample.cfg && \
 	logformat -o MyExample_merged.log *.log
 	cd $(DEMODIR) && make clean
 endif
