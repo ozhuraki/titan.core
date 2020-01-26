@@ -4878,7 +4878,7 @@ void defRecordClass1(const struct_def *sdef, output_struct *output)
       }
     }
     int bits = opt_elements+(sdef->oerExtendable == TRUE);
-    int needed_bytes = bits / 8 + (bits % 8 == 0 ? 0 : 1);
+    int needed_bytes;
 
     int pos = 8;
     if (opt_elements != 0 || sdef->oerExtendable) {
