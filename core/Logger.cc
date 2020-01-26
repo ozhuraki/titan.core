@@ -88,8 +88,6 @@ struct TTCN_Logger::log_mask_struct
 
 /** @} */
 
-class LogEventType;
-
 /* Static members */
 
 LoggerPluginManager *TTCN_Logger::plugins_ = NULL;
