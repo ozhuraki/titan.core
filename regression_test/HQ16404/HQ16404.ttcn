@@ -1,15 +1,20 @@
 /******************************************************************************
- * Copyright (c) 2000-2019 Ericsson Telecom AB
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v2.0
- * which accompanies this distribution, and is available at
- * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
- *
- * Contributors:
- *   Balasko, Jeno
- *   Raduly, Csaba
- *
- ******************************************************************************/
+* Copyright (c) 2000-2020 Ericsson Telecom AB
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v2.0
+* which accompanies this distribution, and is available at
+* https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+*
+* Contributors:
+*   Balasko, Jeno
+*   Raduly, Csaba
+*
+******************************************************************************/
+//HQ16404 (mhweb): Dynamic test case error: Copying an uninitialized/unsupported integer template.
+//This trouble report contans testcases notOK() and OK()
+//The test then checks another cases when the same variable can be found on lhs and rhs
+//TODO: ReassigTest would be better name for this test
+//13 pass
 module HQ16404 {
 
 type port dummyport message { inout integer } with { extension "internal" }
@@ -29,25 +34,34 @@ type union UU
   boolean boo
 };
 
-
+//HQ16404
 testcase notOK() runs on CT { // TYPE 1: template change type
-  var template integer  a;
+  var template integer  a, expected;
   a:=?;
-  a:=(a, 1); //Dynamic test case error: Copying an
-             // uninitialized/unsupported integer template.
+  a:=(a, 1); //Fixed: Dynamic test case error: Copying an
+  // uninitialized/unsupported integer template.
   // DTE happens because in preparation to transforming itself from AnyValue
   // to value list template, the variable "a" has already been freed
   // when the time comes to assign it as the first element of the value list.
   log(a);
-  setverdict(pass);
+  expected := (?, 1);
+  if (log2str(a) == log2str(expected)) {
+    setverdict(pass);
+  } else {
+    setverdict(pass);
+  }
 }
 
 testcase permut() runs on CT { // no error
   var template integer a := *;
   var template RI aa := { permutation (1,2) }
   aa := { 1, aa[0], 2 };
-  log(aa);
-  setverdict(pass);
+  var RI expected := {1,1,2}
+  if (valueof(aa) == expected) {
+    setverdict(pass);
+  } else {
+    setverdict(fail)
+  }
 }
 
 testcase choice() runs on CT { // TYPE 2: union change alternative
@@ -64,14 +78,14 @@ testcase choice() runs on CT { // TYPE 2: union change alternative
   //
   // Note that when compiled with clang, UU::b() is called *before* UU::a() const,
   // which means that UU::a() throws a DTE (because a is not the selected alternative anymore).
-  
+
   if (ischosen(vu.b)) { setverdict(pass); }
   else                { setverdict(fail, "b should be chosen"); }
   if (isvalue (vu.b)) { setverdict(pass); }
   else                { setverdict(fail, "b should be bound"); }
   if (vu.b == 42)     { setverdict(pass); }
   else                { setverdict(fail, match(vu.b, 42)); }
-  
+
   vu := { s := log2str(vu.b) };
   if (ischosen(vu.s)) { setverdict(pass); }
   else                { setverdict(fail, "s should be chosen"); }
@@ -79,7 +93,7 @@ testcase choice() runs on CT { // TYPE 2: union change alternative
   else                { setverdict(fail, "s should be bound"); }
   if (vu.s == "42")   { setverdict(pass); }
   else                { setverdict(fail, match(vu.s, "42")); }
-  
+
   vu := { b := 42 } // reset again to 42
   vu := { s := log2str(vu.b + 1) }; // now try it with an expression instead of a reference
   if (ischosen(vu.s)) { setverdict(pass); }
@@ -88,7 +102,7 @@ testcase choice() runs on CT { // TYPE 2: union change alternative
   else                { setverdict(fail, "s should be bound"); }
   if (vu.s == "43")   { setverdict(pass); }
   else                { setverdict(fail, match(vu.s, "43")); }
-  
+
   vu := { boo := ischosen(vu.s) }
   if (ischosen(vu.boo)) { setverdict(pass); }
   else                  { setverdict(fail, "boo should be chosen"); }
@@ -121,14 +135,14 @@ testcase choice_template() runs on CT { // TYPE 2: union change alternative
   //
   // Note that when compiled with clang, UU::b() is called *before* UU::a() const,
   // which means that UU::a() throws a DTE (because a is not the selected alternative anymore).
-  
+
   if (ischosen(vtu.b)) { setverdict(pass); }
   else                 { setverdict(fail, "b should be chosen"); }
   if (isvalue (vtu.b)) { setverdict(pass); }
   else                 { setverdict(fail, "b should be bound"); }
   if (valueof(vtu.b) == 42)     { setverdict(pass); }
   else                 { setverdict(fail, match(valueof(vtu.b), 42)); }
-  
+
   vtu := { s := log2str(vtu.b) };
   if (ischosen(vtu.s)) { setverdict(pass); }
   else                 { setverdict(fail, "s should be chosen"); }
@@ -136,7 +150,7 @@ testcase choice_template() runs on CT { // TYPE 2: union change alternative
   else                 { setverdict(fail, "s should be bound"); }
   if (valueof(vtu.s) == "42")   { setverdict(pass); }
   else                 { setverdict(fail, match(valueof(vtu.s), "42")); }
-  
+
   vtu := { b := 42 } // reset again to 42
   vtu := { s := log2str(valueof(vtu.b) + 1) }; // now try it with an expression instead of a reference
   if (ischosen(vtu.s)) { setverdict(pass); }
@@ -145,7 +159,7 @@ testcase choice_template() runs on CT { // TYPE 2: union change alternative
   else                 { setverdict(fail, "s should be bound"); }
   if (valueof(vtu.s) == "43")   { setverdict(pass); }
   else                 { setverdict(fail, match(valueof(vtu.s), "43")); }
-  
+
   vtu := { boo := ischosen(vtu.s) }
   if (ischosen(vtu.boo)) { setverdict(pass); }
   else                   { setverdict(fail, "boo should be chosen"); }
@@ -191,7 +205,7 @@ testcase naked_loop() runs on CT { // TYPE 2: union change alternative
     else {
       if   (ischosen(vu.b)) { // we passed the init statement
         if (isvalue (vu.b)) { setverdict(pass); }
-        else                { setverdict(fail, "b shoudl be bound"); }
+        else                { setverdict(fail, "b should be bound"); }
       }
       else if (ischosen(vu.s)) {
         // we passed the "increment" statement
@@ -237,7 +251,7 @@ testcase naked_loop_template() runs on CT { // TYPE 2: union change alternative
     else {
       if   (ischosen(vtu.b)) { // we passed the init statement
         if (isvalue (vtu.b)) { setverdict(pass); }
-        else                 { setverdict(fail, "b shoudl be bound"); }
+        else                 { setverdict(fail, "b should be bound"); }
       }
       else if (ischosen(vtu.s)) {
         // we passed the "increment" statement
@@ -259,14 +273,14 @@ testcase stringy() runs on CT { // TYPE 2: union change alternative
   else                    { setverdict(fail, "z should be chosen"); }
   if (vu.z == "laughter") { setverdict(pass); }
   else                    { setverdict(fail, "You can't have manslaughter without the laughter"); }
-  
+
   vu.s := "manslaughter";
   vu := { z := replace(vu.s, 0, 4, "") }; // self-ref in the first argument
   if (ischosen(vu.z))     { setverdict(pass); }
   else                    { setverdict(fail, "z should be chosen"); }
   if (vu.z == "laughter") { setverdict(pass); }
   else                    { setverdict(fail, "You can't have manslaughter without the laughter"); }
-  
+
   vu.s := "";
   vu := { z := replace("manslaughter", 0, 4, vu.s) }; // self-ref in the fourth argument
   if (ischosen(vu.z))     { setverdict(pass); }
@@ -366,7 +380,7 @@ control
   execute(naked_loop_template());
   execute(stringy());
   execute(named_tlist());
-//  execute(patterned());
+  execute(patterned());
   execute(actimel());
   execute(recoff());
 }
