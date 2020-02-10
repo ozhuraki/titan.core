@@ -792,7 +792,8 @@ local_fieldorder==ORDER_MSB?"M":"L"
   size_t new_bit_pos=(bit_pos+len)%8;
   if (new_size > buf_len) increase_size(new_size - buf_len);
   else copy_memory();
-  unsigned char *data_ptr = buf_ptr != NULL ? buf_ptr->data_ptr : NULL;
+  // 'buf_ptr' will always be initialized, if 'len' is not null 
+  unsigned char *data_ptr = buf_ptr->data_ptr;
 //printf("buf_len:%d bit_pos:%d\r\n",buf_len,bit_pos);
 //printf("new_size:%d new_bit_pos:%d\r\n",new_size,new_bit_pos);
   if(coding_par.hexorder==ORDER_MSB){
