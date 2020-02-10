@@ -5740,7 +5740,7 @@ error:
   Type *Statement::chk_signature_ref(Reference *p_ref)
   {
     if (!p_ref) FATAL_ERROR("Statement::chk_signature_ref()");
-    Error_Context(p_ref, "In signature");
+    Error_Context cntxt(p_ref, "In signature");
     Common::Assignment *t_ass = p_ref->get_refd_assignment();
     if (!t_ass) return 0;
     if (t_ass->get_asstype() != Common::Assignment::A_TYPE) {
