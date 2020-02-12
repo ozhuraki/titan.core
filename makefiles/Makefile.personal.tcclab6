@@ -12,6 +12,7 @@
 #
 ##############################################################################
 # Based on /etc/autotest/titan_builder_cfg.py
+# tcclab6 has clang
 
 # DEBUG can not be changed here
 
@@ -29,6 +30,7 @@ endif
 
 CC  := /usr/bin/gcc
 CXX := /usr/bin/g++
+CXXFLAGS +=
 
 OPENSSL_DIR := default
 
