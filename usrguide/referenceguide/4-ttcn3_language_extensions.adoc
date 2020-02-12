@@ -5408,7 +5408,7 @@ Unions, anytypes and ASN.1 open types are encoded as JSON objects. The object wi
 
 The following sections describe the TTCN-3 attributes that influence JSON coding (only affects TTCN-3 types, ASN.1 types cannot have attributes that influence JSON coding).
 
-All JSON attributes begin with the word `JSON' followed by a colon (`JSON:<attribute>`). Any number of white spaces (spaces and tabs only) can be added between each word or identifier in the attribute syntax, but at least one is necessary if the syntax does not specify a separator (a comma or a colon). The attribute can also start and end with white spaces.
+All JSON attributes begin with the word `JSON` followed by a colon (`JSON:<attribute>`). Any number of white spaces (spaces and tabs only) can be added between each word or identifier in the attribute syntax, but at least one is necessary if the syntax does not specify a separator (a comma or a colon). The attribute can also start and end with white spaces.
 
 Alternatively the syntaxes defined in <<13-references.adoc#_25, [25]>> can also be used, for the supported attributes (without the need for the `JSON`: prefix).
 
