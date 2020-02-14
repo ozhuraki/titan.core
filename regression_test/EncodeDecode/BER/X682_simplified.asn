@@ -11,7 +11,7 @@
 --   Szabados, Kristof
 --
 --/////////////////////////////////////////////////////////////////////////////
-X682
+X682-simplified
 DEFINITIONS
 
 AUTOMATIC TAGS
@@ -58,9 +58,9 @@ ErrorReturn ::= SEQUENCE
     errorInfo	[99] CHOICE
     {
       iNTEGER [1] INTEGER,
-      visibleString [1] VisibleString,
-      printableString [1] PrintableString,
-      bOOLEAN [1] BOOLEAN
+      visibleString [2] VisibleString,
+      printableString [3] PrintableString,
+      bOOLEAN [4] BOOLEAN
     }
     /*#asn1_compiler#
       OPENTYPE
@@ -89,6 +89,6 @@ errorReturn1 ErrorReturn ::=
   }
 }
 
-  ber-errorReturn1 OCTET STRING ::= '304D800141A148300C020101BF6306810401317DEC3038020102BF63328130496620552063616E206465636F646520746869732C20552063616E2062652068617070792E20536D696C6521203A2D29'H
+  ber-errorReturn1 OCTET STRING ::= '304D800141A148300C020101BF6306810401317DEC3038020102BF63328230496620552063616E206465636F646520746869732C20552063616E2062652068617070792E20536D696C6521203A2D29'H
 
 END

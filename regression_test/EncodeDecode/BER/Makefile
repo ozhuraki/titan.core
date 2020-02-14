@@ -9,26 +9,26 @@
 #   Balasko, Jeno
 #   Delic, Adam
 #   Forstner, Matyas
+#   Koppany, Csaba
 #   Kovacs, Ferenc
 #   Raduly, Csaba
-#   Szabados, Kristof
 #   Szabo, Bence Janos
 #   Szabo, Janos Zoltan – initial implementation
 #
 ##############################################################################
-TOPDIR := ..
-include   ../Makefile.regression
+TOPDIR := ../..
+include $(TOPDIR)/Makefile.regression
 
 .SUFFIXES: .ttcn .asn .hh
 .PHONY: all clean dep run
 
 TTCN3_LIB = ttcn3$(RT2_SUFFIX)$(DYNAMIC_SUFFIX)
 
-TTCN3_MODULES = X.ttcn
-ASN1_MODULES = x682.asn
+TTCN3_MODULES = BERTest.ttcn X682_Test.ttcn X682_simplified_Test.ttcn
+ASN1_MODULES = BER1.asn BER2.asn X682.asn X682_simplified.asn
 
-GENERATED_SOURCES = $(ASN1_MODULES:.asn=.cc) $(TTCN3_MODULES:.ttcn=.cc)
-GENERATED_HEADERS = $(ASN1_MODULES:.asn=.hh) $(TTCN3_MODULES:.ttcn=.hh)
+GENERATED_SOURCES = $(TTCN3_MODULES:.ttcn=.cc) $(ASN1_MODULES:.asn=.cc)
+GENERATED_HEADERS = $(TTCN3_MODULES:.ttcn=.hh) $(ASN1_MODULES:.asn=.hh)
 ifdef CODE_SPLIT
 GENERATED_SOURCES := $(foreach file, $(GENERATED_SOURCES:.cc=), $(addprefix $(file), .cc _seq.cc _set.cc  _seqof.cc _setof.cc _union.cc))
 else ifdef SPLIT_TO_SLICES
@@ -38,34 +38,33 @@ GENERATED_SOURCES2 := $(foreach file, $(GENERATED_SOURCES:.cc=), $(addprefix $(f
 GENERATED_SOURCES += $(GENERATED_SOURCES2)
 endif
 
-USER_SOURCES = MyPort1.cc MyPort2.cc
-USER_HEADERS = MyPort1.hh MyPort2.hh
+# Source & header files of Test Ports and your other modules:
+USER_SOURCES =
+USER_HEADERS =
 
 OBJECTS = $(GENERATED_SOURCES:.cc=.o) $(USER_SOURCES:.cc=.o)
 
-TARGET = X
+TARGET = BER$(EXESUFFIX)
 
 all: $(TARGET)
 
 $(TARGET): $(GENERATED_SOURCES) $(USER_SOURCES)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ -L$(TTCN3_DIR)/lib -l$(TTCN3_LIB) \
-	-L$(OPENSSL_DIR)/lib -lcrypto $($(PLATFORM)_LIBS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ -L$(TTCN3_DIR)/lib -l$(TTCN3_LIB) -L$(OPENSSL_DIR)/lib -lcrypto $($(PLATFORM)_LIBS)
 
-.ttcn.cc .ttcn.hh:
-	$(TTCN3_COMPILER) $<
-
-.asn.cc .asn.hh:
-	$(TTCN3_COMPILER) $<
+$(GENERATED_SOURCES) $(GENERATED_HEADERS): $(TTCN3_MODULES) $(ASN1_MODULES)
+	$(TTCN3_COMPILER) $^
 
 clean distclean:
 	-rm -f $(TARGET) $(OBJECTS) $(GENERATED_HEADERS) \
-	$(GENERATED_SOURCES) *.log Makefile.bak
+	$(GENERATED_SOURCES) *.log *~ Makefile.bak core
 
 dep: $(GENERATED_SOURCES)
 	makedepend $(CPPFLAGS) $(USER_SOURCES) $(GENERATED_SOURCES)
 
-run: $(TARGET)
-	./$(TARGET) X.cfg
+run: $(TARGET) BER.cfg
+	./$^
 
-.NOTPARALLEL:
+ifdef SRCDIR
+$(foreach src, $(USER_SOURCES), $(eval vpath $(src) $(ABS_SRC)))
+endif
 

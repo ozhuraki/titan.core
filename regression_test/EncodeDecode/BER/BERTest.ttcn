@@ -1,0 +1,705 @@
+/******************************************************************************
+* Copyright (c) 2000-2020 Ericsson Telecom AB
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v2.0
+* which accompanies this distribution, and is available at
+* https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+*
+* Contributors:
+*   Balasko, Jeno
+*   Beres, Szabolcs
+*   Forstner, Matyas
+*   Koppany, Csaba
+*   Kovacs, Ferenc
+*   Szabados, Kristof
+*   Szabo, Janos Zoltan – initial implementation
+*
+******************************************************************************/
+//This file replaces the old Regr.ttcn. 
+//It applies explicit encodin-decoding functions instead of send-recv mechanism with implicit encoding.
+module BERTest
+{
+import from BER1 language "ASN.1:1997" all
+with {encode "DER:1997"};
+import from BER2 language "ASN.1:1997" all
+with {encode "DER:1997"};
+
+//=== encoding functions ====
+
+external function enc_ber_int(in integer r) return octetstring
+with { extension "encode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" }
+
+external function enc_ber_T0(in T0 r) return octetstring
+with { extension "encode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" };
+
+external function enc_ber_T1(in T1 r) return octetstring
+with { extension "encode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" };
+
+external function enc_ber_T2(in T2 r) return octetstring
+with { extension "encode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" };
+
+external function enc_ber_T3(in T3 r) return octetstring
+with { extension "encode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" };
+
+external function enc_ber_T4(in T4 r) return octetstring
+with { extension "encode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" };
+
+external function enc_ber_T5(in T5 r) return octetstring
+with { extension "encode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" };
+
+external function enc_ber_T6(in T6 r) return octetstring
+with { extension "encode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" };
+
+external function enc_ber_T7(in T7 r) return octetstring
+with { extension "encode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" };
+
+external function enc_ber_T8(in T8 r) return octetstring
+with { extension "encode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" };
+
+external function enc_ber_T10(in T10 r) return octetstring
+with { extension "encode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" };
+
+external function enc_ber_T11(in T11 r) return octetstring
+with { extension "encode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" };
+
+//=== decoding functions ====
+external function dec_ber_int(in octetstring r) return integer
+with { extension "decode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" }
+
+external function dec_ber_T0(in octetstring r) return T0
+with { extension "decode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" }
+
+external function dec_ber_T1(in octetstring r) return T1
+with { extension "decode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" }
+
+external function dec_ber_T2(in octetstring r) return T2
+with { extension "decode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" }
+
+external function dec_ber_T3(in octetstring r) return T3
+with { extension "decode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" }
+
+external function dec_ber_T4(in octetstring r) return T4
+with { extension "decode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" }
+
+external function dec_ber_T5(in octetstring r) return T5
+with { extension "decode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" }
+
+external function dec_ber_T6(in octetstring r) return T6
+with { extension "decode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" }
+
+external function dec_ber_T7(in octetstring r) return T7
+with { extension "decode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" }
+
+external function dec_ber_T8(in octetstring r) return T8
+with { extension "decode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" }
+
+external function dec_ber_T10(in octetstring r) return T10
+with { extension "decode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" }
+
+external function dec_ber_T11(in octetstring r) return T11
+with { extension "decode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" }
+//=== functions ====
+function f_compare_octetstring(in octetstring pl_val, in octetstring pl_expected) {
+  if ( pl_val == pl_expected ){
+    setverdict(pass);
+  } else {
+    setverdict( fail, "expected:", pl_expected, " got: ", pl_val)
+  }
+} with { extension "transparent"}
+//==== types
+type component CT { }
+
+//==== Testcases =====
+testcase TC0a() runs on CT {
+  var octetstring encoded;
+  encoded := enc_ber_T0(c0a);
+  log(encoded);
+  f_compare_octetstring(encoded,d0a);
+
+  var T0 decoded := dec_ber_T0(encoded);
+  log(decoded);
+  if ( decoded == c0a ) {
+    setverdict(pass)
+  } else {
+    setverdict(fail, "Expected: ", c0a, " got: ",decoded);
+  }
+}
+
+testcase TC1a() runs on CT {
+  var octetstring encoded;
+  encoded := enc_ber_T1(c1a); 
+  log(encoded);
+  f_compare_octetstring(encoded,d1a);
+
+  var T1 decoded := dec_ber_T1(encoded);
+  log(decoded);
+  if ( decoded == c1a ) {
+    setverdict(pass)
+  } else {
+    setverdict(fail, "Expected: ", c1a, " got: ",decoded);
+  }
+}
+testcase TC2a() runs on CT {
+  var octetstring encoded;
+  encoded := enc_ber_T2(c2a); 
+  log(encoded);
+  f_compare_octetstring(encoded,d2a);
+
+  var T2 decoded := dec_ber_T2(encoded);
+  log(decoded);
+  if ( decoded == c2a ) {
+    setverdict(pass)
+  } else {
+    setverdict(fail, "Expected: ", c2a, " got: ",decoded);
+  }
+}
+
+testcase TC2b() runs on CT {
+  var octetstring encoded;
+  encoded := enc_ber_T2(c2b); 
+  log(encoded);
+  f_compare_octetstring(encoded,d2b);
+
+  var T2 decoded := dec_ber_T2(encoded);
+  log(decoded);
+  if ( decoded == c2b ) {
+    setverdict(pass)
+  } else {
+    setverdict(fail, "Expected: ", c2b, " got: ",decoded);
+  }
+}
+
+testcase TC3a() runs on CT {
+  var octetstring encoded, expected;
+  encoded := enc_ber_T3(c3a); 
+  log(encoded);
+  f_compare_octetstring(encoded,d3a);
+
+  var T3 decoded := dec_ber_T3(encoded);
+  log(decoded);
+  if ( decoded == c3a ) {
+    setverdict(pass)
+  } else {
+    setverdict(fail, "Expected: ", c3a, " got: ",decoded);
+  }
+}
+
+testcase TC3b() runs on CT {
+  var octetstring encoded;
+  encoded := enc_ber_T3(c3b); 
+  log(encoded);
+  f_compare_octetstring(encoded,d3b);
+
+  var T3 decoded := dec_ber_T3(encoded);
+  log(decoded);
+  if ( decoded == c3b ) {
+    setverdict(pass)
+  } else {
+    setverdict(fail, "Expected: ", c3b, " got: ",decoded);
+  }
+}
+
+
+type record of T3 RoT3;
+type record of octetstring RoOS;
+
+testcase TC3c() runs on CT {
+  var octetstring encoded;
+  var T3 decoded;
+  const RoT3 c3list := { c3c, c3d, c3e, c3f, c3g, c3h, c3i, c3j, c3k, c3l, c3m, c3n, c3o, c3p, c3q }
+  const RoOS d3list := { d3c, d3d, d3e, d3f, d3g, d3h, d3i, d3j, d3k, d3l, d3m, d3n, d3o, d3p, d3q }
+  const integer N := sizeof(c3list);
+  for( var integer i := 0; i<N; i:=i+1){
+    encoded := enc_ber_T3(c3list[i]);
+    log(encoded);
+    f_compare_octetstring(encoded,d3list[i]);
+
+    decoded := dec_ber_T3(encoded);
+    log(decoded);
+    if ( decoded == c3list[i] ) {
+      setverdict(pass)
+    } else {
+      setverdict(fail, "Expected: ", c3list[i], " got: ",decoded);
+    }
+  }
+}
+
+type record of T4 RoT4;
+testcase TC4() runs on CT {
+  var octetstring encoded;
+  var T4 decoded;
+  const RoT4 c4list := { c4a, c4b, c4c, c4d }
+  const RoOS d4list := { d4a, d4b, d4c, d4d }
+  const integer N := sizeof(c4list);
+  for( var integer i := 0; i<N; i:=i+1){
+    encoded := enc_ber_T4(c4list[i]);
+    log(encoded);
+    f_compare_octetstring(encoded,d4list[i]);
+
+    decoded := dec_ber_T4(encoded);
+    log(decoded);
+    if ( decoded == c4list[i] ) {
+      setverdict(pass)
+    } else {
+      setverdict(fail, "Expected: ", c4list[i], " got: ",decoded);
+    }
+  }
+}
+
+type record of T5 RoT5;
+testcase TC5() runs on CT {
+  var octetstring encoded;
+  var T5 decoded;
+  const RoT5 c5list := { c5a, c5b, c5c, c5d, c5e, c5f }
+  const RoOS d5list := { d5a, d5b, d5c, d5d, d5e, d5f }
+  const integer N := sizeof(c5list);
+  for( var integer i := 0; i<N; i:=i+1){
+    encoded := enc_ber_T5(c5list[i]);
+    log(encoded);
+    f_compare_octetstring(encoded,d5list[i]);
+
+    decoded := dec_ber_T5(encoded);
+    log(decoded);
+    if ( decoded == c5list[i] ) {
+      setverdict(pass)
+    } else {
+      setverdict(fail, "Expected: ", c5list[i], " got: ",decoded);
+    }
+  }
+}
+
+type record of T6 RoT6;
+testcase TC6() runs on CT {
+  var octetstring encoded;
+  var T6 decoded;
+  const RoT6 c6list := { c6a, c6b, c6c, c6d, c6e }
+  const RoOS d6list := { d6a, d6b, d6c, d6d, d6e }
+  const integer N := sizeof(c6list);
+  for( var integer i := 0; i<N; i:=i+1){
+    encoded := enc_ber_T6(c6list[i]);
+    log(encoded);
+    f_compare_octetstring(encoded,d6list[i]);
+
+    decoded := dec_ber_T6(encoded);
+    log(decoded);
+    if ( decoded == c6list[i] ) {
+      setverdict(pass)
+    } else {
+      setverdict(fail, "Expected: ", c6list[i], " got: ",decoded);
+    }
+  }
+}
+
+type record of T7 RoT7;
+testcase TC7() runs on CT {
+  var octetstring encoded;
+  var T7 decoded;
+  const RoT7 c7list := { c7a, c7b, c7c, c7d, c7e }
+  const RoOS d7list := { d7a, d7b, d7c, d7d, d7e }
+  const integer N := sizeof(c7list);
+  for( var integer i := 0; i<N; i:=i+1){
+    encoded := enc_ber_T7(c7list[i]);
+    log(encoded);
+    f_compare_octetstring(encoded,d7list[i]);
+
+    decoded := dec_ber_T7(encoded);
+    log(decoded);
+    if ( decoded == c7list[i] ) {
+      setverdict(pass)
+    } else {
+      setverdict(fail, "Expected: ", c7list[i], " got: ",decoded);
+    }
+  }
+}
+
+type record of T8 RoT8;
+testcase TC8() runs on CT {
+  var octetstring encoded;
+  var T8 decoded;
+  const RoT8 c8list := { c8a, c8b }
+  const RoOS d8list := { d8a, d8b }
+  const integer N := sizeof(c8list);
+  for( var integer i := 0; i<N; i:=i+1){
+    encoded := enc_ber_T8(c8list[i]);
+    log(encoded);
+    f_compare_octetstring(encoded,d8list[i]);
+
+    decoded := dec_ber_T8(encoded);
+    log(decoded);
+    if ( decoded == c8list[i] ) {
+      setverdict(pass)
+    } else {
+      setverdict(fail, "Expected: ", c8list[i], " got: ",decoded);
+    }
+  }
+}
+
+type record of T10 RoT10;
+testcase TC10() runs on CT {
+  var octetstring encoded;
+  var T10 decoded;
+  const RoT10 c10list := { c10a, c10b }
+  const RoOS d10list := { d10a, d10b }
+  const integer N := sizeof(c10list);
+  for( var integer i := 0; i<N; i:=i+1){
+    encoded := enc_ber_T10(c10list[i]);
+    log(encoded);
+    f_compare_octetstring(encoded,d10list[i]);
+
+    decoded := dec_ber_T10(encoded);
+    log(decoded);
+    if ( decoded == c10list[i] ) {
+      setverdict(pass)
+    } else {
+      setverdict(fail, "Expected: ", c10list[i], " got: ",decoded);
+    }
+  }
+}
+
+type record of T11 RoT11;
+testcase TC11_12() runs on CT {
+  var octetstring encoded;
+  var T11 decoded;
+  const RoT11 c11list := { c11_12a }
+  const RoOS d11list := { d11_12a }
+  const integer N := sizeof(c11list);
+  for( var integer i := 0; i<N; i:=i+1){
+    encoded := enc_ber_T11(c11list[i]);
+    log(encoded);
+    f_compare_octetstring(encoded,d11list[i]);
+
+    decoded := dec_ber_T11(encoded);
+    log(decoded);
+    if ( decoded == c11list[i] ) {
+      setverdict(pass)
+    } else {
+      setverdict(fail, "Expected: ", c11list[i], " got: ",decoded);
+    }
+  }
+}
+
+testcase TC11_13() runs on CT {
+  var octetstring encoded;
+  var T11 decoded;
+  const RoT11 c11list := { c11_13a, c11_13b }
+  const RoOS d11list := { d11_13a, d11_13b }
+  const integer N := sizeof(c11list);
+  for( var integer i := 0; i<N; i:=i+1){
+    encoded := enc_ber_T11(c11list[i]);
+    log(encoded);
+    f_compare_octetstring(encoded,d11list[i]);
+
+    decoded := dec_ber_T11(encoded);
+    log(decoded);
+    if ( decoded == c11list[i] ) {
+      setverdict(pass)
+    } else {
+      setverdict(fail, "Expected: ", c11list[i], " got: ",decoded);
+    }
+  }
+}
+
+testcase TC11_14() runs on CT {
+  var octetstring encoded;
+  var T11 decoded;
+  const RoT11 c11list := { c11_14a, c11_14b }
+  const RoOS d11list := { d11_14a, d11_14b }
+  const integer N := sizeof(c11list);
+  for( var integer i := 0; i<N; i:=i+1){
+    encoded := enc_ber_T11(c11list[i]);
+    log(encoded);
+    f_compare_octetstring(encoded,d11list[i]);
+
+    decoded := dec_ber_T11(encoded);
+    log(decoded);
+    if ( decoded == c11list[i] ) {
+      setverdict(pass)
+    } else {
+      setverdict(fail, "Expected: ", c11list[i], " got: ",decoded);
+    }
+  }
+}
+
+testcase TC11_15() runs on CT {
+  var octetstring encoded;
+  var T11 decoded;
+  const RoT11 c11list := { c11_15a }
+  const RoOS d11list := { d11_15a }
+  const integer N := sizeof(c11list);
+  for( var integer i := 0; i<N; i:=i+1){
+    encoded := enc_ber_T11(c11list[i]);
+    log(encoded);
+    f_compare_octetstring(encoded,d11list[i]);
+
+    decoded := dec_ber_T11(encoded);
+    log(decoded);
+    if ( decoded == c11list[i] ) {
+      setverdict(pass)
+    } else {
+      setverdict(fail, "Expected: ", c11list[i], " got: ",decoded);
+    }
+  }
+}
+
+testcase TC11_16() runs on CT {
+  var octetstring encoded;
+  var T11 decoded;
+  const RoT11 c11list := { c11_16a, c11_16b }
+  const RoOS d11list := { d11_16a, d11_16b }
+  const integer N := sizeof(c11list);
+  for( var integer i := 0; i<N; i:=i+1){
+    encoded := enc_ber_T11(c11list[i]);
+    log(encoded);
+    f_compare_octetstring(encoded,d11list[i]);
+
+    decoded := dec_ber_T11(encoded);
+    log(decoded);
+    if ( decoded == c11list[i] ) {
+      setverdict(pass)
+    } else {
+      setverdict(fail, "Expected: ", c11list[i], " got: ",decoded);
+    }
+  }
+}
+
+testcase TC11_17() runs on CT {
+  var octetstring encoded;
+  var T11 decoded;
+  const RoT11 c11list := { c11_17a }
+  const RoOS d11list := { d11_17a }
+  const integer N := sizeof(c11list);
+  for( var integer i := 0; i<N; i:=i+1){
+    encoded := enc_ber_T11(c11list[i]);
+    log(encoded);
+    f_compare_octetstring(encoded,d11list[i]);
+
+    decoded := dec_ber_T11(encoded);
+    log(decoded);
+    if ( decoded == c11list[i] ) {
+      setverdict(pass)
+    } else {
+      setverdict(fail, "Expected: ", c11list[i], " got: ",decoded);
+    }
+  }
+}
+
+testcase TC11_18() runs on CT {
+  var octetstring encoded;
+  var T11 decoded;
+  const RoT11 c11list := { c11_18a }
+  const RoOS d11list := { d11_18a }
+  const integer N := sizeof(c11list);
+  for( var integer i := 0; i<N; i:=i+1){
+    encoded := enc_ber_T11(c11list[i]);
+    log(encoded);
+    f_compare_octetstring(encoded,d11list[i]);
+
+    decoded := dec_ber_T11(encoded);
+    log(decoded);
+    if ( decoded == c11list[i] ) {
+      setverdict(pass)
+    } else {
+      setverdict(fail, "Expected: ", c11list[i], " got: ",decoded);
+    }
+  }
+}
+
+testcase TC11_19() runs on CT {
+  var octetstring encoded;
+  var T11 decoded;
+  const RoT11 c11list := { c11_19a, c11_19b, c11_19c }
+  const RoOS d11list := { d11_19a, d11_19b, d11_19c }
+  const integer N := sizeof(c11list);
+  for( var integer i := 0; i<N; i:=i+1){
+    encoded := enc_ber_T11(c11list[i]);
+    log(encoded);
+    f_compare_octetstring(encoded,d11list[i]);
+
+    decoded := dec_ber_T11(encoded);
+    log(decoded);
+    if ( decoded == c11list[i] ) {
+      setverdict(pass)
+    } else {
+      setverdict(fail, "Expected: ", c11list[i], " got: ",decoded);
+    }
+  }
+}
+
+testcase TC11_20() runs on CT {
+  var octetstring encoded;
+  var T11 decoded;
+  const RoT11 c11list := { c11_20a }
+  const RoOS d11list := { d11_20a }
+  const integer N := sizeof(c11list);
+  for( var integer i := 0; i<N; i:=i+1){
+    encoded := enc_ber_T11(c11list[i]);
+    log(encoded);
+    f_compare_octetstring(encoded,d11list[i]);
+
+    decoded := dec_ber_T11(encoded);
+    log(decoded);
+    if ( decoded == c11list[i] ) {
+      setverdict(pass)
+    } else {
+      setverdict(fail, "Expected: ", c11list[i], " got: ",decoded);
+    }
+  }
+}
+
+testcase TC11_21() runs on CT {
+  var octetstring encoded;
+  var T11 decoded;
+  const RoT11 c11list := { c11_21a, c11_21b }
+  const RoOS d11list := { d11_21a, d11_21b }
+  const integer N := sizeof(c11list);
+  for( var integer i := 0; i<N; i:=i+1){
+    encoded := enc_ber_T11(c11list[i]);
+    log(encoded);
+    f_compare_octetstring(encoded,d11list[i]);
+
+    decoded := dec_ber_T11(encoded);
+    log(decoded);
+    if ( decoded == c11list[i] ) {
+      setverdict(pass)
+    } else {
+      setverdict(fail, "Expected: ", c11list[i], " got: ",decoded);
+    }
+  }
+}
+
+testcase TC11_22() runs on CT {
+  var octetstring encoded;
+  var T11 decoded;
+  const RoT11 c11list := { c11_22a }
+  const RoOS d11list := { d11_22a }
+  const integer N := sizeof(c11list);
+  for( var integer i := 0; i<N; i:=i+1){
+    encoded := enc_ber_T11(c11list[i]);
+    log(encoded);
+    f_compare_octetstring(encoded,d11list[i]);
+
+    decoded := dec_ber_T11(encoded);
+    log(decoded);
+    if ( decoded == c11list[i] ) {
+      setverdict(pass)
+    } else {
+      setverdict(fail, "Expected: ", c11list[i], " got: ",decoded);
+    }
+  }
+}
+
+function check_enc_dec(integer int, octetstring expected) {
+  var octetstring encoded_pdu := enc_ber_int(int);
+  if (encoded_pdu == expected) {setverdict(pass);}
+  else {setverdict(fail, "Encoding failed, encoded_pdu is ", log2str(encoded_pdu));}
+  var integer decoded :=  dec_ber_int(encoded_pdu);
+  if (int == decoded) { setverdict(pass); }
+  else {setverdict(fail, "decoding failed, decoded is ", decoded);}
+} with {
+  extension "transparent"
+}
+
+testcase tc_int_enc_dec() runs on CT {
+
+  check_enc_dec( 0, '020100'O);
+
+  check_enc_dec(-1, '0201FF'O);
+  check_enc_dec( 1, '020101'O);
+
+  check_enc_dec(-2, '0201FE'O);
+  check_enc_dec( 2, '020102'O);
+  check_enc_dec(-5, '0201FB'O);
+  check_enc_dec( 5, '020105'O);
+
+  check_enc_dec(-254, '0202FF02'O);
+  check_enc_dec( 254, '020200FE'O);
+  check_enc_dec(-255, '0202FF01'O);
+  check_enc_dec( 255, '020200FF'O);
+  check_enc_dec(-256, '0202FF00'O);
+  check_enc_dec( 256, '02020100'O);
+
+  check_enc_dec(-1234, '0202FB2E'O);
+
+  // 2^16
+  check_enc_dec(-65534, '0203FF0002'O);
+  check_enc_dec( 65534, '020300FFFE'O);
+  check_enc_dec(-65535, '0203FF0001'O);
+  check_enc_dec( 65535, '020300FFFF'O);
+  check_enc_dec(-65536, '0203FF0000'O);
+  check_enc_dec( 65536, '0203010000'O);
+
+  // 2^24
+  check_enc_dec(-16777215, '0204FF000001'O);
+  check_enc_dec( 16777215, '020400FFFFFF'O);
+  check_enc_dec(-16777216, '0204FF000000'O);
+  check_enc_dec( 16777216, '020401000000'O);
+  check_enc_dec(-16777217, '0204FEFFFFFF'O);
+  check_enc_dec( 16777217, '020401000001'O);
+
+  // 2^32 
+  check_enc_dec(-4294967295, '0205FF00000001'O);
+  check_enc_dec( 4294967295, '020500FFFFFFFF'O);
+  check_enc_dec(-4294967296, '0205FF00000000'O);
+  check_enc_dec( 4294967296, '02050100000000'O);
+  check_enc_dec(-4294967297, '0205FEFFFFFFFF'O);
+  check_enc_dec( 4294967297, '02050100000001'O);
+
+  // 8 bit min,max
+  check_enc_dec(-128, '020180'O);
+  check_enc_dec( 127, '02017F'O);
+
+  // 32 bit min,max 
+  check_enc_dec(-2147483648, '020480000000'O);
+  check_enc_dec( 2147483647, '02047FFFFFFF'O);
+
+  // 40 bit min,max 
+  check_enc_dec(-549755813888, '02058000000000'O);
+  check_enc_dec( 549755813887, '02057FFFFFFFFF'O);
+
+  // 48 bit min,max 
+  check_enc_dec(-140737488355328, '0206800000000000'O);
+  check_enc_dec( 140737488355327, '02067FFFFFFFFFFF'O);
+
+  // 56 bit min,max 
+  check_enc_dec(-36028797018963968, '020780000000000000'O);
+  check_enc_dec( 36028797018963967, '02077FFFFFFFFFFFFF'O);
+
+  // 64 bit min,max 
+  check_enc_dec(-9223372036854775808,  '02088000000000000000'O);
+  check_enc_dec( 9223372036854775807, '02087FFFFFFFFFFFFFFF'O);
+
+  check_enc_dec(-12345678910111213141516, '020AFD62BD49A976CD7441F4'O);
+  check_enc_dec( 12345678910111213141516, '020A029D42B65689328BBE0C'O);
+
+}
+
+control
+{
+  execute(TC0a());
+  execute(TC1a());
+  execute(TC2a());
+  execute(TC2b());
+  execute(TC3a());
+  execute(TC3b());
+  execute(TC3c());
+  execute(TC4());
+  execute(TC5());
+  execute(TC6());
+  execute(TC7());
+  execute(TC8());
+  execute(TC10());
+  execute(TC11_12());
+  execute(TC11_13());
+  execute(TC11_14());
+  execute(TC11_15());
+  execute(TC11_16());
+  execute(TC11_17());
+  execute(TC11_18());
+  execute(TC11_19());
+  execute(TC11_20());
+  execute(TC11_21());
+  execute(TC11_22());
+  execute(tc_int_enc_dec());
+}
+
+}

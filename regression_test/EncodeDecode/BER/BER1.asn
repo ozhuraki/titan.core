@@ -1,5 +1,5 @@
 --/////////////////////////////////////////////////////////////////////////////
--- Copyright (c) 2000-2019 Ericsson Telecom AB
+-- Copyright (c) 2000-2020 Ericsson Telecom AB
 -- All rights reserved. This program and the accompanying materials
 -- are made available under the terms of the Eclipse Public License v2.0
 -- which accompanies this distribution, and is available at
@@ -13,7 +13,7 @@
 --   Szabo, Janos Zoltan – initial implementation
 --
 --/////////////////////////////////////////////////////////////////////////////
-Regr1
+BER1
 DEFINITIONS
 
 AUTOMATIC TAGS
@@ -36,8 +36,7 @@ d1a OCTET STRING ::= '0101FF'H
 c1b T1 ::= FALSE
 d1b OCTET STRING ::= '010100'H
 
-T2 ::= [APPLICATION 1] EXPLICIT [PRIVATE v2] [APPLICATION 3] EXPLICIT
-  [PRIVATE 20021018] T1
+T2 ::= [APPLICATION 1] EXPLICIT [PRIVATE v2] [APPLICATION 3] EXPLICIT [PRIVATE 20021018] T1
 c2a T2 ::= c1a
 d2a OCTET STRING ::= '6109E307DF89C5FE1A01FF'H
 c2b T2 ::= c1b

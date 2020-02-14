@@ -1,5 +1,5 @@
 --/////////////////////////////////////////////////////////////////////////////
--- Copyright (c) 2000-2019 Ericsson Telecom AB
+-- Copyright (c) 2000-2020 Ericsson Telecom AB
 -- All rights reserved. This program and the accompanying materials
 -- are made available under the terms of the Eclipse Public License v2.0
 -- which accompanies this distribution, and is available at
@@ -12,7 +12,7 @@
 --   Szabados, Kristof
 --
 --/////////////////////////////////////////////////////////////////////////////
-Regr2
+BER2
 DEFINITIONS
 
 AUTOMATIC TAGS
@@ -23,7 +23,7 @@ EXTENSIBILITY IMPLIED
 BEGIN
 
 EXPORTS ;
-IMPORTS c6a, T4, c4e FROM Regr1;
+IMPORTS c6a, T4, c4e FROM BER1;
 
 T10 ::= CHOICE {
   f1 BOOLEAN,
