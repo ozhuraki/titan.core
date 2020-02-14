@@ -316,6 +316,18 @@ static const string anyname("anytype");
     Identifier *modid;
     Identifier *id;
   } templateref;
+  
+  struct {
+    Identifier *modid;
+    Identifier *id;
+    bool has_objid;
+  } functionref;
+  
+  struct {
+    bool is_method;
+    Identifier* id;
+    ParsedActualParameters* params;
+  } fieldormethod;
 
   struct {
     Ttcn::Ref_pard *ref_pard;
@@ -486,11 +498,6 @@ static const string anyname("anytype");
     Ttcn::Reference *mtcref;
     Ttcn::Reference *systemref;
   } alt_tc_configspec;
-
-  struct {
-    Value *name;
-    Value *loc;
-  } createpar;
 
   struct {
     Value *value;
@@ -949,8 +956,9 @@ static const string anyname("anytype");
   optExtKeyword optFinalModifier optAbstractModifier
 %type <str> FreeText optLanguageSpec PatternChunk PatternChunkList
 %type <uchar_val> Group Plane Row Cell
-%type <id> FieldIdentifier FieldReference GlobalModuleId
+%type <id> FieldReference GlobalModuleId
   IdentifierOrAddressKeyword StructFieldRef PredefOrIdentifier
+%type <fieldormethod> FieldOrMethod
 %type <string_val> CstringList
 %type <ustring_val> Quadruple
 %type <uid_list> USI UIDlike
@@ -1100,7 +1108,8 @@ AllOrTypeListWithTo TypeListWithFrom TypeListWithTo
 %type <ischosenarg> IschosenArg
 %type <extramatchingattrs> optExtraMatchingAttributes
 %type <basetemplate> BaseTemplate
-%type <templateref> TemplateRef TestcaseRef FunctionRef
+%type <templateref> TemplateRef TestcaseRef
+%type <functionref> FunctionRef
 %type <testcaseinst> TestcaseInstance
 %type <portsendop> PortSendOp
 %type <calltimerval> CallTimerValue
@@ -1125,7 +1134,6 @@ AllOrTypeListWithTo TypeListWithFrom TypeListWithTo
 %type <initial> Initial
 %type <configspec> ConfigSpec
 %type <alt_tc_configspec> AltOrTcConfigSpec
-%type <createpar> optCreateParameter
 %type <applyop> ApplyOp
 %type <identifier_list> IdentifierList IdentifierListOrPredefType
 %type <singlevarinst> SingleConstDef SingleVarInstance
@@ -1269,7 +1277,6 @@ ExceptionTypeList
 Expression
 FieldExpressionList
 FieldExpressionSpec
-FieldIdentifier
 FieldOrArrayReference
 FieldReference
 FieldSpec
@@ -1626,6 +1633,12 @@ TemplateRef
 TestcaseRef
 
 %destructor {
+  delete $$.id;
+  delete $$.params;
+}
+FieldOrMethod
+
+%destructor {
   delete $$.ref_pard;
   delete $$.derefered_value;
   delete $$.ap_list;
@@ -1810,12 +1823,6 @@ ConfigSpec
   delete $$.systemref;
 }
 AltOrTcConfigSpec
-
-%destructor {
-  delete $$.name;
-  delete $$.loc;
-}
-optCreateParameter
 
 %destructor {
   delete $$.value;
@@ -4671,7 +4678,7 @@ FunctionInstance: /* refpard */ // 181
   /* templateref  templinsts */
   {
     $3->set_location(infile, @2, @4);
-    $$ = new Ttcn::Ref_pard($1.modid, $1.id, $3);
+    $$ = new Ttcn::Ref_pard($1.modid, $1.id, $3, $1.has_objid);
     $$->set_location(infile, @$);
   }
 ;
@@ -4681,16 +4688,19 @@ FunctionRef: // 182
   {
     $$.modid = 0;
     $$.id = $1;
+    $$.has_objid = false;
   }
   | IDentifier '.' IDentifier
   {
     $$.modid = $1;
     $$.id = $3;
+    $$.has_objid = false;
   }
   | IDentifier '.' ObjectIdentifierValue '.' IDentifier
   {
     $$.modid = $1;
     $$.id = $5;
+    $$.has_objid = true;
     delete $3;
   }
 ;
@@ -6065,38 +6075,16 @@ ConfigurationOps: // 314
 ;
 
 CreateOp: // 315
-  VariableRef DotCreateKeyword optCreateParameter optAliveKeyword
+  VariableRef DotCreateKeyword optAliveKeyword
   {
-    $$ = new Value(Value::OPTYPE_COMP_CREATE, $1, $3.name, $3.loc, $4);
+    $$ = new Value(Value::OPTYPE_UNDEF_CREATE, $1,
+      new ParsedActualParameters, $3);
     $$->set_location(infile, @$);
   }
-;
-
-optCreateParameter:
-  /* empty */
+| VariableRef DotCreateKeyword '(' optFunctionActualParList ')' optAliveKeyword
   {
-    $$.name=0;
-    $$.loc=0;
-  }
-| '(' optError Expression optError ')'
-  {
-    $$.name = $3;
-    $$.loc = 0;
-  }
-| '(' optError Expression optError ',' optError Expression optError ')'
-  {
-    $$.name = $3;
-    $$.loc = $7;
-  }
-| '(' optError NotUsedSymbol optError ',' optError Expression optError ')'
-  {
-    $$.name = 0;
-    $$.loc = $7;
-  }
-| '(' error ')'
-  {
-    $$.name = 0;
-    $$.loc = 0;
+    $$ = new Value(Value::OPTYPE_UNDEF_CREATE, $1, $4, $6);
+    $$->set_location(infile, @$);
   }
 ;
 
@@ -8209,7 +8197,10 @@ ReadTimerOp: // 444
 RunningTimerOp: // 446
   TimerRef DotRunningKeyword
   {
-    $$ = new Value(Value::OPTYPE_UNDEF_RUNNING, $1, NULL, false);
+    // must specify the type of the null pointer, so it doesn't clash with
+    // another Value constructor
+    Ref_base* null_ptr = NULL;
+    $$ = new Value(Value::OPTYPE_UNDEF_RUNNING, $1, null_ptr, false);
     $$->set_location(infile, @$);
   }
 | AnyKeyword TimerKeyword DotRunningKeyword
@@ -8219,7 +8210,10 @@ RunningTimerOp: // 446
   }
 | AnyKeyword FromKeyword TimerRef DotRunningKeyword
   {
-    $$ = new Value(Value::OPTYPE_UNDEF_RUNNING, $3, NULL, true);
+    // must specify the type of the null pointer, so it doesn't clash with
+    // another Value constructor
+    Ref_base* null_ptr = NULL;
+    $$ = new Value(Value::OPTYPE_UNDEF_RUNNING, $3, null_ptr, true);
     $$->set_location(infile, @$);
   }
 | AnyKeyword FromKeyword TimerRef DotRunningKeyword PortRedirectSymbol IndexSpec
@@ -8712,6 +8706,20 @@ Reference: // 490 ValueReference
     Free($3.elements);
     $$.ref->set_location(infile, @$);
   }
+/*| IDentifier '.' IDentifier '(' optFunctionActualParList ')'
+  optExtendedFieldReference
+  {
+    $$.is_ref = true;
+    $$.ref = new Ttcn::Reference($1);
+    FieldOrArrayRef* method_ref = new FieldOrArrayRef($3, $5);
+    method_ref->set_location(infile, @3, @6);
+    $$.ref->add(method_ref);
+    for (size_t i = 0; i < $7.nElements; i++) {
+      $$.ref->add($7.elements[i]);
+    }
+    Free($7.elements);
+    $$.ref->set_location(infile, @$);
+  }*/
 | IDentifier '[' NotUsedSymbol ']'
 {
   $$.is_ref = true;
@@ -10065,22 +10073,27 @@ optExtendedFieldReference:
 ;
 
 FieldOrArrayReference:
-  '.' FieldIdentifier
+  '.' FieldOrMethod
   {
-    $$ = new FieldOrArrayRef($2);
+    $$ = new FieldOrArrayRef($2.id, $2.params);
     $$->set_location(infile, @$);
   }
   | ArrayOrBitRefOrDash { $$ = $1; }
 ;
 
-FieldIdentifier:
-  PredefOrIdentifier { $$ = $1; }
-| IDentifier /* maybe PredefOrIdentifier here too */ TypeActualParList
-  {
+FieldOrMethod:
+  PredefOrIdentifier { $$.id = $1; $$.params = NULL; }
+//| IDentifier /* maybe PredefOrIdentifier here too */ TypeActualParList
+/*  {
     Location loc(infile, @$);
     loc.error("Reference to a parameterized field of type `anytype' is "
       "not currently supported");
     $$ = $1;
+  }*/
+| IDentifier '(' optFunctionActualParList ')'
+  {
+    $$.id = $1;
+    $$.params = $3;
   }
 ;
 

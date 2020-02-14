@@ -682,10 +682,7 @@ int main(int argc, char *argv[])
         break;
       case 'k':
         SET_FLAG(k);
-        //oop_features = TRUE;
-        // disabled for the release
-        errflag = true;
-        print_usage = true;
+        oop_features = TRUE;
         break;
       case 'K':
         SET_FLAG(K);

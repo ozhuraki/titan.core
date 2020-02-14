@@ -111,7 +111,15 @@ namespace Ttcn {
   {
     switch (p.ref_type) {
     case FIELD_REF:
-      u.id = p.u.id->clone();
+    case FUNCTION_REF:
+      u.ff.id = p.u.ff.id->clone();
+      u.ff.checked = p.u.ff.checked;
+      if (u.ff.checked) {
+        u.ff.ap_list = p.u.ff.ap_list != NULL ? p.u.ff.ap_list->clone() : NULL;
+      }
+      else {
+        u.ff.parsed_pars = p.u.ff.parsed_pars != NULL ? p.u.ff.parsed_pars->clone() : NULL;
+      }
       break;
     case ARRAY_REF:
       u.arp = p.u.arp->clone();
@@ -121,11 +129,14 @@ namespace Ttcn {
     }
   }
 
-  FieldOrArrayRef::FieldOrArrayRef(Identifier *p_id)
-    : Node(), Location(), ref_type(FIELD_REF)
+  FieldOrArrayRef::FieldOrArrayRef(Identifier *p_id,
+                                   ParsedActualParameters* p_params /* = NULL */)
+    : Node(), Location(), ref_type(p_params != NULL ? FUNCTION_REF : FIELD_REF)
   {
     if (!p_id) FATAL_ERROR("FieldOrArrayRef::FieldOrArrayRef()");
-    u.id = p_id;
+    u.ff.id = p_id;
+    u.ff.parsed_pars = p_params;
+    u.ff.checked = false;
   }
 
   FieldOrArrayRef::FieldOrArrayRef(Value *p_arp)
@@ -139,7 +150,14 @@ namespace Ttcn {
   {
     switch (ref_type) {
     case FIELD_REF:
-      delete u.id;
+    case FUNCTION_REF:
+      delete u.ff.id;
+      if (u.ff.checked) {
+        delete u.ff.ap_list;
+      }
+      else {
+        delete u.ff.parsed_pars;
+      }
       break;
     case ARRAY_REF:
       delete u.arp;
@@ -159,17 +177,33 @@ namespace Ttcn {
     Node::set_fullname(p_fullname);
     if (ref_type == ARRAY_REF)
       u.arp->set_fullname(p_fullname + ".<array_index>");
+    else if (ref_type == FUNCTION_REF) {
+      if (u.ff.checked) {
+        u.ff.ap_list->set_fullname(p_fullname + ".<parameterlist>");
+      }
+      else {
+        u.ff.parsed_pars->set_fullname(p_fullname + ".<parameterlist>");
+      }
+    }
   }
 
   void FieldOrArrayRef::set_my_scope(Scope *p_scope)
   {
     if (ref_type == ARRAY_REF) u.arp->set_my_scope(p_scope);
+    else if (ref_type == FUNCTION_REF) {
+      if (u.ff.checked) {
+        u.ff.ap_list->set_my_scope(p_scope);
+      }
+      else {
+        u.ff.parsed_pars->set_my_scope(p_scope);
+      }
+    }
   }
 
   const Identifier* FieldOrArrayRef::get_id() const
   {
-    if (ref_type != FIELD_REF) FATAL_ERROR("FieldOrArrayRef::get_id()");
-    return u.id;
+    if (ref_type == ARRAY_REF) FATAL_ERROR("FieldOrArrayRef::get_id()");
+    return u.ff.id;
   }
 
   Value *FieldOrArrayRef::get_val() const
@@ -177,13 +211,67 @@ namespace Ttcn {
     if (ref_type != ARRAY_REF) FATAL_ERROR("FieldOrArrayRef::get_val()");
     return u.arp;
   }
+  
+  ParsedActualParameters* FieldOrArrayRef::get_parsed_pars() const
+  {
+    if (ref_type != FUNCTION_REF || u.ff.checked) {
+      FATAL_ERROR("FieldOrArrayRef::get_parsed_pars()");
+    }
+    return u.ff.parsed_pars;
+  }
+  
+  bool FieldOrArrayRef::parameters_checked() const
+  {
+    if (ref_type != FUNCTION_REF) {
+      FATAL_ERROR("FieldOrArrayRef::parameters_checked()");
+    }
+    return u.ff.checked;
+  }
+  
+  ActualParList* FieldOrArrayRef::get_actual_par_list() const
+  {
+    if (ref_type != FUNCTION_REF || !u.ff.checked) {
+      FATAL_ERROR("FieldOrArrayRef::get_actual_par_list()");
+    }
+    return u.ff.ap_list;
+  }
+  
+  void FieldOrArrayRef::set_actual_par_list(ActualParList* p_ap_list)
+  {
+    if (ref_type != FUNCTION_REF || u.ff.checked) {
+      FATAL_ERROR("FieldOrArrayRef::set_actual_par_list()");
+    }
+    u.ff.checked = true;
+    delete u.ff.parsed_pars;
+    u.ff.ap_list = p_ap_list;
+  }
 
   void FieldOrArrayRef::append_stringRepr(string& str) const
   {
     switch (ref_type) {
     case FIELD_REF:
+    case FUNCTION_REF:
       str += '.';
-      str += u.id->get_dispname();
+      str += u.ff.id->get_dispname();
+      if (ref_type == FUNCTION_REF) {
+        size_t nof_pars = u.ff.checked ? u.ff.ap_list->get_nof_pars() :
+          u.ff.parsed_pars->get_nof_tis();
+        if (nof_pars > 0) {
+          str += '(';
+          for (size_t i = 0; i < nof_pars; ++i) {
+            if (i > 0) {
+              str += ", ";
+            }
+            if (u.ff.checked) {
+              u.ff.ap_list->get_par(i)->append_stringRepr(str);
+            }
+            else {
+              u.ff.parsed_pars->get_ti_byIndex(i)->append_stringRepr(str);
+            }
+          }
+          str += ')';
+        }
+      }
       break;
     case ARRAY_REF:
       str += '[';
@@ -198,7 +286,7 @@ namespace Ttcn {
   void FieldOrArrayRef::set_field_name_to_lowercase()
   {
     if (ref_type != FIELD_REF) FATAL_ERROR("FieldOrArrayRef::set_field_name_to_lowercase()");
-    string new_name = u.id->get_name();
+    string new_name = u.ff.id->get_name();
     if (isupper(new_name[0])) {
       new_name[0] = static_cast<char>( tolower(new_name[0] ));
       if (new_name[new_name.size() - 1] == '_') {
@@ -209,8 +297,8 @@ namespace Ttcn {
         // starts with a lowercase letter
         new_name.replace(new_name.size() - 1, 1, "");
       }
-      delete u.id;
-      u.id = new Identifier(Identifier::ID_NAME, new_name);
+      delete u.ff.id;
+      u.ff.id = new Identifier(Identifier::ID_NAME, new_name);
     }
   }
 
@@ -290,7 +378,8 @@ namespace Ttcn {
   }
 
   void FieldOrArrayRefs::generate_code(expression_struct *expr,
-    Common::Assignment *ass, size_t nof_subrefs /* = UINT_MAX*/)
+    Common::Assignment *ass, Common::Scope* ref_scope, 
+    bool const_ref /* = false */, size_t nof_subrefs /* = UINT_MAX*/)
   {
     Type *type = 0;
     bool is_template = false;
@@ -333,13 +422,19 @@ namespace Ttcn {
       FATAL_ERROR("FieldOrArrayRefs::generate_code()");
       type = 0;
     }
-    generate_code(expr, type, is_template, nof_subrefs);
+    generate_code(expr, type, ref_scope, const_ref, is_template, nof_subrefs);
   }
   
   void FieldOrArrayRefs::generate_code(expression_struct* expr, Type* type,
+                                       Common::Scope* ref_scope,
+                                       bool const_ref, /* = false */
                                        bool is_template, /* = false */
                                        size_t nof_subrefs /* = UINT_MAX */)
   {
+    // ensure everything is checked
+    // TODO: incorporate this into the semantic analysis somehow...
+    if (type) type->get_field_type(this, Common::Type::EXPECTED_DYNAMIC_VALUE);
+    
     size_t n_refs = (nof_subrefs != UINT_MAX) ? nof_subrefs : refs.size();
     for (size_t i = 0; i < n_refs; i++) {
       if (type) type = type->get_type_refd_last();
@@ -351,21 +446,61 @@ namespace Ttcn {
         // Template::generate_code_init_se, TypeConv::gen_conv_func_choice_anytype,
         // defUnionClass and defUnionTemplate.
         const Identifier& id = *ref->get_id();
-        expr->expr = mputprintf(expr->expr, ".%s%s()",
+        expr->expr = mputprintf(expr->expr, "%s%s%s%s",
+          (type != NULL && type->get_typetype() == Type::T_CLASS) ? "->" : ".",
           ((type!=0 && type->get_typetype()==Type::T_ANYTYPE) ? "AT_" : ""),
-          id.get_name().c_str());
+          id.get_name().c_str(),
+          (type != NULL && type->get_typetype() == Type::T_CLASS) ? "" : "()");
         if (type) {
-          CompField *cf = type->get_comp_byName(id);
-          // If the field is optional, the return type of the accessor is an
-          // OPTIONAL<T>. Write a call to OPTIONAL<T>::operator(),
-          // which "reaches into" the OPTIONAL to get the contained type T.
-          // Don't do this at the end of the reference chain.
-          // Accessor methods for a foo_template return a bar_template
-          // and OPTIONAL<> is not involved, hence no "()".
-          if (!is_template && i < n_refs - 1 && cf->get_is_optional())
-            expr->expr = mputstr(expr->expr, "()");
-          // Follow the field type.
-          type = cf->get_type();
+          if (type->get_type_refd_last()->get_typetype() != Type::T_CLASS) {
+            CompField *cf = type->get_comp_byName(id);
+            // If the field is optional, the return type of the accessor is an
+            // OPTIONAL<T>. Write a call to OPTIONAL<T>::operator(),
+            // which "reaches into" the OPTIONAL to get the contained type T.
+            // Don't do this at the end of the reference chain.
+            // Accessor methods for a foo_template return a bar_template
+            // and OPTIONAL<> is not involved, hence no "()".
+            if (!is_template && i < n_refs - 1 && cf->get_is_optional())
+              expr->expr = mputstr(expr->expr, "()");
+            // Follow the field type.
+            type = cf->get_type();
+          }
+          else { // class
+            type = type->get_class_type_body()->
+              get_local_ass_byId(*ref->get_id())->get_Type();
+          }
+        }
+      } else if (ref->get_type() == FieldOrArrayRef::FUNCTION_REF) {
+        if (type == NULL) {
+          FATAL_ERROR("FieldOrArrayRefs::generate_code");
+        }
+        ClassTypeBody* class_ = type->get_class_type_body();
+        if (const_ref && i > 0 &&
+            refs[i - 1]->get_type() != FieldOrArrayRef::FUNCTION_REF) {
+          // all class methods are non-const, have to convert the current object
+          // to non-const
+          char* prev_expr = expr->expr;
+          expr->expr = mprintf("const_cast< %s&>(%s)",
+            type->get_genname_value(ref_scope).c_str(), prev_expr);
+          Free(prev_expr);
+        }
+        const Identifier& id = *ref->get_id();
+        Common::Assignment* ass = class_->get_local_ass_byId(id);
+        expr->expr = mputprintf(expr->expr, "->%s(", id.get_name().c_str());
+        ref->get_actual_par_list()->generate_code_noalias(expr, ass->get_FormalParList());
+        expr->expr = mputc(expr->expr, ')');
+        Def_Function_Base* def_func = dynamic_cast<Def_Function_Base*>(ass);
+        type = def_func->get_return_type();
+        if (const_ref && i < n_refs - 1 &&
+            refs[i + 1]->get_type() != FieldOrArrayRef::FUNCTION_REF) {
+          // the next subreference is a field name or array index, have to
+          // convert the resulting object back to const
+          // (use static_cast, since methods return temporary objects, not
+          // references)
+          char* prev_expr = expr->expr;
+          expr->expr = mprintf("static_cast<const %s>(%s)",
+            type->get_genname_value(ref_scope).c_str(), prev_expr);
+          Free(prev_expr);
         }
       } else {
         // Generate code for array reference.
@@ -636,7 +771,7 @@ namespace Ttcn {
     if (!id) detect_modid();
     return modid;
   }
-
+  
   const Identifier* Reference::get_id()
   {
     if (!id) detect_modid();
@@ -772,7 +907,7 @@ namespace Ttcn {
         LazyFuzzyParamData::add_ref_genname(ass, my_scope).c_str() :
         (const_prefix + ass->get_genname_from_scope(my_scope)).c_str());
     }
-    if (subrefs.get_nof_refs() > 0) subrefs.generate_code(expr, ass);
+    if (subrefs.get_nof_refs() > 0) subrefs.generate_code(expr, ass, my_scope);
   }
 
   void Reference::generate_code_const_ref(expression_struct_t *expr)
@@ -813,32 +948,53 @@ namespace Ttcn {
        return;
     }
 
+    // use a separate expression struct for this reference in case any of the 
+    // subreferences need to convert the object further
+    expression_struct_t this_expr;
+    Code::init_expr(&this_expr);
     Type *refd_gov = ass->get_Type();
     if (is_template) {
-      expr->expr = mputprintf(expr->expr, "const_cast< const %s&>(",
+      this_expr.expr = mputprintf(this_expr.expr, "const_cast< const %s&>(",
         refd_gov->get_genname_template(get_my_scope()).c_str() );
     } else {
-      expr->expr = mputprintf(expr->expr, "const_cast< const %s&>(",
-        refd_gov->get_genname_value(get_my_scope()).c_str());
+      // don't convert to const object if the first subreference is a method call
+      if (t_subrefs->get_ref(0)->get_type() != FieldOrArrayRef::FUNCTION_REF) {
+        string type_str = refd_gov->get_genname_value(get_my_scope());
+        if (refd_gov->get_type_refd_last()->get_typetype() == Common::Type::T_CLASS) {
+          type_str = string("OBJECT_REF<") + type_str + string(">");
+        }
+        this_expr.expr = mputprintf(this_expr.expr, "const_cast< const %s&>(",
+          type_str.c_str());
+      }
     }
     if (parlist) {
       // reference without parameters to a template that has only default formal parameters.
       // if @lazy: nothing to do, it's a C++ function call just like in case of Ref_pard::generate_code()
-      expr->expr = mputprintf(expr->expr, "%s(",
+      this_expr.expr = mputprintf(this_expr.expr, "%s(",
         ass->get_genname_from_scope(my_scope).c_str());
       parlist->generate_code_alias(expr, ass->get_FormalParList(),
           ass->get_RunsOnType(), false);
-      expr->expr = mputc(expr->expr, ')');
+      this_expr.expr = mputc(this_expr.expr, ')');
     } else {
-      expr->expr = mputstr(expr->expr,
+      this_expr.expr = mputstr(this_expr.expr,
         LazyFuzzyParamData::in_lazy_or_fuzzy() ?
         LazyFuzzyParamData::add_ref_genname(ass, my_scope).c_str() :
         ass->get_genname_from_scope(my_scope).c_str());
     }
-    expr->expr = mputstr(expr->expr, ")");
+    if (t_subrefs->get_ref(0)->get_type() != FieldOrArrayRef::FUNCTION_REF) {
+      this_expr.expr = mputstr(this_expr.expr, ")");
+    }
 
-    if (t_subrefs && t_subrefs->get_nof_refs() > 0)
-      t_subrefs->generate_code(expr, ass);
+    t_subrefs->generate_code(&this_expr, ass, my_scope, true);
+    
+    expr->expr = mputstr(expr->expr, this_expr.expr);
+    if (this_expr.preamble != NULL) {
+      expr->preamble = mputstr(expr->preamble, this_expr.preamble);
+    }
+    if (this_expr.postamble != NULL) {
+      expr->postamble = mputstr(expr->postamble, this_expr.postamble);
+    }
+    Code::free_expr(&this_expr);
   }
 
   void Reference::generate_code_portref(expression_struct_t *expr,
@@ -849,7 +1005,7 @@ namespace Ttcn {
     if (!ass) FATAL_ERROR("Reference::generate_code_portref()");
     expr->expr = mputstr(expr->expr,
       ass->get_genname_from_scope(p_scope).c_str());
-    if (subrefs.get_nof_refs() > 0) subrefs.generate_code(expr, ass);
+    if (subrefs.get_nof_refs() > 0) subrefs.generate_code(expr, ass, my_scope);
   }
 
   //FIXME quick hack
@@ -974,14 +1130,17 @@ namespace Ttcn {
   // =================================
 
   Ref_pard::Ref_pard(const Ref_pard& p)
-    : Ref_base(p), parlist(p.parlist), expr_cache(0)
+    : Ref_base(p), parlist(p.parlist), expr_cache(0), has_objid(p.has_objid),
+    truncated(p.truncated)
   {
     params = p.params ? p.params->clone() : 0;
+    truncated_ref = p.truncated_ref != NULL ? p.truncated_ref->clone() : NULL;
   }
 
   Ref_pard::Ref_pard(Identifier *p_modid, Identifier *p_id,
-    ParsedActualParameters *p_params)
-    : Ref_base(p_modid, p_id), parlist(), params(p_params), expr_cache(0)
+    ParsedActualParameters *p_params, bool p_has_objid)
+    : Ref_base(p_modid, p_id), parlist(), params(p_params), expr_cache(0),
+    has_objid(p_has_objid), truncated(false), truncated_ref(NULL)
   {
     if (!p_params)
       FATAL_ERROR("Ttcn::Ref_pard::Ref_pard(): NULL parameter");
@@ -991,6 +1150,7 @@ namespace Ttcn {
   {
     delete params;
     Free(expr_cache);
+    delete truncated_ref;
   }
 
   Ref_pard *Ref_pard::clone() const
@@ -1003,6 +1163,11 @@ namespace Ttcn {
     Ref_base::set_fullname(p_fullname);
     parlist.set_fullname(p_fullname);
     if (params) params->set_fullname(p_fullname);
+    if (truncated) {
+      // this function should always be called before the reference is truncated
+      FATAL_ERROR("Ref_pard::set_fullname");
+      //truncated_ref->set_fullname(p_fullname);
+    }
   }
 
   void Ref_pard::set_my_scope(Scope *p_scope)
@@ -1010,10 +1175,18 @@ namespace Ttcn {
     Ref_base::set_my_scope(p_scope);
     parlist.set_my_scope(p_scope);
     if (params) params->set_my_scope(p_scope);
+    if (truncated) {
+      // this function should always be called before the reference is truncated
+      FATAL_ERROR("Ref_pard::set_my_scope");
+      //truncated_ref->set_my_scope(p_scope);
+    }
   }
 
   string Ref_pard::get_dispname()
   {
+    if (truncated) {
+      return truncated_ref->get_dispname();
+    }
     if (is_erroneous) return string("erroneous");
     string ret_val;
     if (modid) {
@@ -1042,6 +1215,31 @@ namespace Ttcn {
 
   Common::Assignment* Ref_pard::get_refd_assignment(bool check_parlist)
   {
+    if (!has_objid && modid != NULL && oop_features && !truncated &&
+        (my_scope->has_ass_withId(*modid) || !my_scope->is_valid_moduleid(*modid))) {
+      // 'x.y(...)' could refer to (ordered by priority):
+      // - method 'y' in local class object 'x' (if OOP features are enabled), or
+      // - function 'y' in module 'x', or
+      // - method 'y' in imported class object 'x' (if OOP features are enabled).
+      truncated = true;
+      truncated_ref = new Ttcn::Reference(modid);
+      //truncated_ref->set_location();
+      FieldOrArrayRef* method = new FieldOrArrayRef(id, params);
+      //method->set_location();
+      truncated_ref->add(method);
+      for (size_t i = 0; i < subrefs.get_nof_refs(); ++i) {
+        truncated_ref->add(subrefs.get_ref(i)->clone());
+      }
+      truncated_ref->set_my_scope(my_scope);
+      truncated_ref->set_fullname(get_fullname());
+      subrefs.remove_refs(subrefs.get_nof_refs());
+      params = NULL;
+      modid = NULL;
+      id = NULL;
+    }
+    if (truncated) {
+      return truncated_ref->get_refd_assignment(check_parlist);
+    }
     Common::Assignment *ass = Ref_base::get_refd_assignment(check_parlist);
     if (ass && check_parlist && !params_checked) {
       params_checked = true;
@@ -1078,17 +1276,24 @@ namespace Ttcn {
 
   const Identifier* Ref_pard::get_modid()
   {
+    if (truncated) {
+      return truncated_ref->get_modid();
+    }
     return modid;
   }
 
   const Identifier* Ref_pard::get_id()
   {
+    if (truncated) {
+      return truncated_ref->get_id();
+    }
     return id;
   }
 
   ActualParList *Ref_pard::get_parlist()
   {
-    if (!params_checked) FATAL_ERROR("Ref_pard::get_parlist()");
+    // TODO: fatal error if truncated? (for now it just returns an empty parlist)
+    if (!params_checked && !truncated) FATAL_ERROR("Ref_pard::get_parlist()");
     return &parlist;
   }
 
@@ -1096,6 +1301,7 @@ namespace Ttcn {
   {
     Common::Assignment *t_ass = get_refd_assignment();
     if (!t_ass) return false;
+    // TODO: handle truncated case
     if (t_ass->get_asstype() != Common::Assignment::A_ALTSTEP) {
       error("Reference to an altstep was expected in the argument instead of "
         "%s", t_ass->get_description().c_str());
@@ -1113,6 +1319,9 @@ namespace Ttcn {
 
   bool Ref_pard::has_single_expr()
   {
+    if (truncated) {
+      return truncated_ref->has_single_expr();
+    }
     if (!Ref_base::has_single_expr()) return false;
     Common::Assignment *ass = get_refd_assignment();
     const FormalParList *fplist = (ass != NULL) ? ass->get_FormalParList() : NULL;
@@ -1133,22 +1342,32 @@ namespace Ttcn {
   void Ref_pard::set_code_section(
     GovernedSimple::code_section_t p_code_section)
   {
-    Ref_base::set_code_section(p_code_section);
-    for (size_t i = 0; i < parlist.get_nof_pars(); i++)
-      parlist.get_par(i)->set_code_section(p_code_section);
+    if (truncated) {
+      truncated_ref->set_code_section(p_code_section);
+    }
+    else {
+      Ref_base::set_code_section(p_code_section);
+      for (size_t i = 0; i < parlist.get_nof_pars(); i++)
+        parlist.get_par(i)->set_code_section(p_code_section);
+    }
   }
 
   void Ref_pard::generate_code(expression_struct_t *expr)
   {
-    Common::Assignment *ass = get_refd_assignment();
-    // C++ function reference with actual parameter list
-    expr->expr = mputprintf(expr->expr, "%s(",
-      ass->get_genname_from_scope(my_scope).c_str());
-    parlist.generate_code_alias(expr, ass->get_FormalParList(),
-      ass->get_RunsOnType(),false);
-    expr->expr = mputc(expr->expr, ')');
-    // subreferences
-    if (subrefs.get_nof_refs() > 0) subrefs.generate_code(expr, ass);
+    if (truncated) {
+      truncated_ref->generate_code(expr);
+    }
+    else {
+      Common::Assignment *ass = get_refd_assignment();
+      // C++ function reference with actual parameter list
+      expr->expr = mputprintf(expr->expr, "%s(",
+        ass->get_genname_from_scope(my_scope).c_str());
+      parlist.generate_code_alias(expr, ass->get_FormalParList(),
+        ass->get_RunsOnType(),false);
+      expr->expr = mputc(expr->expr, ')');
+      // subreferences
+      if (subrefs.get_nof_refs() > 0) subrefs.generate_code(expr, ass, my_scope);
+    }
   }
 
   void Ref_pard::generate_code_cached(expression_struct_t *expr)
@@ -1164,6 +1383,10 @@ namespace Ttcn {
 
   void Ref_pard::generate_code_const_ref(expression_struct_t *expr)
   {
+    if (truncated) {
+      truncated_ref->generate_code_const_ref(expr);
+      return;
+    }
     FieldOrArrayRefs *t_subrefs = get_subrefs();
     if (!t_subrefs || t_subrefs->get_nof_refs() == 0) {
       generate_code(expr);
@@ -1219,22 +1442,35 @@ namespace Ttcn {
       return;
     }
 
+    // use a separate expression struct for this reference in case any of the 
+    // subreferences need to convert the object further
+    expression_struct_t this_expr;
+    Code::init_expr(&this_expr);
     if (is_template) {
-      expr->expr = mputprintf(expr->expr, "const_cast< const %s&>(",
+      this_expr.expr = mputprintf(this_expr.expr, "const_cast< const %s&>(",
         refd_gov->get_genname_template(get_my_scope()).c_str() );
     } else {
-      expr->expr = mputprintf(expr->expr, "const_cast< const %s%s&>(",
+      this_expr.expr = mputprintf(this_expr.expr, "const_cast< const %s%s&>(",
         refd_gov->get_genname_value(get_my_scope()).c_str(),
           is_template ? "_template":"");
     }
 
-    expr->expr = mputprintf(expr->expr, "%s(",
+    this_expr.expr = mputprintf(this_expr.expr, "%s(",
         ass->get_genname_from_scope(my_scope).c_str());
-    parlist.generate_code_alias(expr, ass->get_FormalParList(),
+    parlist.generate_code_alias(&this_expr, ass->get_FormalParList(),
           ass->get_RunsOnType(), false);
-    expr->expr = mputstr(expr->expr, "))");
+    this_expr.expr = mputstr(this_expr.expr, "))");
 
-    t_subrefs->generate_code(expr, ass);
+    t_subrefs->generate_code(&this_expr, ass, my_scope);
+    
+    expr->expr = mputstr(expr->expr, this_expr.expr);
+    if (this_expr.preamble != NULL) {
+      expr->preamble = mputstr(expr->preamble, this_expr.preamble);
+    }
+    if (this_expr.postamble != NULL) {
+      expr->postamble = mputstr(expr->postamble, this_expr.postamble);
+    }
+    Code::free_expr(&this_expr);
   }
 
   // =================================
@@ -5150,16 +5386,19 @@ namespace Ttcn {
   {
     const string& t_genname = get_genname();
     const char *genname_str = t_genname.c_str();
+    string type_name = type->get_genname_value(my_scope);
+    if (type->get_type_refd_last()->get_typetype() == Common::Type::T_CLASS) {
+      type_name = string("OBJECT_REF<") + type_name + string(">");
+    }
     if (initial_value && initial_value->has_single_expr()) {
       // the initial value can be represented by a single C++ expression
       // the object is initialized by the constructor
       str = mputprintf(str, "%s %s(%s);\n",
-        type->get_genname_value(my_scope).c_str(), genname_str,
-        initial_value->get_single_expr().c_str());
+        type_name.c_str(), genname_str, initial_value->get_single_expr().c_str());
     } else {
       // use the default constructor
       str = mputprintf(str, "%s %s;\n",
-        type->get_genname_value(my_scope).c_str(), genname_str);
+        type_name.c_str(), genname_str);
       if (initial_value) {
         // the initial value is assigned using subsequent statements
         str = initial_value->generate_code_init(str, genname_str);
@@ -11228,7 +11467,7 @@ namespace Ttcn {
                 LazyFuzzyParamData::add_ref_genname(ass, ref->get_my_scope()).c_str() :
                 ass->get_genname_from_scope(ref->get_my_scope()).c_str());
               if (ref_i > 0) {
-                subrefs->generate_code(&array_expr, ass, ref_i);
+                subrefs->generate_code(&array_expr, ass, ref->get_my_scope(), false, ref_i);
               }
               expression_struct index_expr;
               Code::init_expr(&index_expr);

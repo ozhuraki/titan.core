@@ -4097,7 +4097,7 @@ end:
                 if (subrefs) {
                   expression_struct expr;
                   Code::init_expr(&expr);
-                  subrefs->generate_code(&expr, ass);
+                  subrefs->generate_code(&expr, ass, my_scope);
                   str_set_size = mputprintf(str_set_size, "%s", expr.expr);
                   Code::free_expr(&expr);
                 }
@@ -4209,7 +4209,7 @@ end:
                     if (subrefs) {
                       expression_struct expr;
                       Code::init_expr(&expr);
-                      subrefs->generate_code(&expr, ass);
+                      subrefs->generate_code(&expr, ass, my_scope);
                       str_set_size = mputprintf(str_set_size, "%s", expr.expr);
                       Code::free_expr(&expr);
                     }
@@ -4782,7 +4782,7 @@ compile_time:
             expression_struct expr;
             Code::init_expr(&expr);
 
-            subrefs->generate_code(&expr, ass);
+            subrefs->generate_code(&expr, ass, my_scope);
             str_set_type = mputprintf(str_set_type, "%s", expr.expr);
 
             Code::free_expr(&expr);

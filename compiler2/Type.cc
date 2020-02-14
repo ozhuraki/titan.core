@@ -1709,6 +1709,7 @@ namespace Common {
         case T_SET_A:
         case T_SET_T:
         case T_ANYTYPE:
+        case T_CLASS:
           break;
 	case T_COMPONENT:
 	  ref->error("Referencing fields of a component is not allowed");
@@ -1719,15 +1720,108 @@ namespace Common {
             t->get_typename().c_str());
           return 0;
         }
-        if (!t->has_comp_withName(id)) {
-          ref->error("Reference to non-existent field `%s' in type `%s'",
-            id.get_dispname().c_str(),
+        if (t->typetype == T_CLASS) {
+          Ttcn::ClassTypeBody* class_ = t->get_class_type_body();
+          if (!class_->has_local_ass_withId(id)) {
+            ref->error("Reference to non-existent member `%s' in class type `%s'",
+              id.get_dispname().c_str(), t->get_typename().c_str());
+            return 0;
+          }
+          Assignment* ass = class_->get_local_ass_byId(id);
+          switch (ass->get_asstype()) {
+          case Assignment::A_VAR:
+          case Assignment::A_VAR_TEMPLATE:
+          case Assignment::A_CONST:
+          case Assignment::A_TEMPLATE:
+            t = ass->get_Type();
+            break;
+          case Assignment::A_FUNCTION: // ???
+          case Assignment::A_FUNCTION_RVAL:
+          case Assignment::A_FUNCTION_RTEMP:
+          case Assignment::A_EXT_FUNCTION: // ???
+          case Assignment::A_EXT_FUNCTION_RVAL:
+          case Assignment::A_EXT_FUNCTION_RTEMP:
+            // TODO: check if the function can be called without parameters
+            ref->error("Invalid reference to method `%s' in class type `%s', "
+              "reference to a member was expected instead",
+              id.get_dispname().c_str(), t->get_typename().c_str());
+            return 0;
+          default:
+            FATAL_ERROR("Type::get_field_type - %s shouldn't be in a class",
+              ass->get_assname());
+          }
+        }
+        else {
+          if (!t->has_comp_withName(id)) {
+            ref->error("Reference to non-existent field `%s' in type `%s'",
+              id.get_dispname().c_str(),
+              t->get_typename().c_str());
+            return 0;
+          }
+          CompField* cf = t->get_comp_byName(id);
+          if (interrupt_if_optional && cf->get_is_optional()) return 0;
+          t = cf->get_type();
+        }
+        break; }
+      case Ttcn::FieldOrArrayRef::FUNCTION_REF: {
+        const Identifier& id = *ref->get_id();
+        if (t->typetype != T_CLASS) {
+          ref->error("Invalid function reference `%s': type `%s' "
+            "does not have methods", id.get_dispname().c_str(),
             t->get_typename().c_str());
           return 0;
         }
-        CompField* cf = t->get_comp_byName(id);
-        if (interrupt_if_optional && cf->get_is_optional()) return 0;
-        t = cf->get_type();
+        Ttcn::ClassTypeBody* class_ = t->get_class_type_body();
+        if (!class_->has_local_ass_withId(id)) {
+          ref->error("Reference to non-existent method `%s' in class type `%s'",
+            id.get_dispname().c_str(), t->get_typename().c_str());
+          return 0;
+        }
+        Assignment* ass = class_->get_local_ass_byId(id);
+        switch (ass->get_asstype()) {
+        case Assignment::A_VAR:
+        case Assignment::A_VAR_TEMPLATE:
+        case Assignment::A_CONST:
+        case Assignment::A_TEMPLATE:
+          ref->error("Invalid reference to member `%s' in class type `%s', "
+            "reference to a method was expected instead",
+            id.get_dispname().c_str(), t->get_typename().c_str());
+          return 0;
+        case Assignment::A_FUNCTION:
+        case Assignment::A_EXT_FUNCTION:
+          // TODO: are these handled elsewhere? in some kind of statement?
+          ref->error("Invalid reference to method `%s' with no return type in "
+            "class type `%s'",
+            id.get_dispname().c_str(), t->get_typename().c_str());
+          return 0;
+        case Assignment::A_FUNCTION_RVAL:
+        case Assignment::A_FUNCTION_RTEMP:
+        case Assignment::A_EXT_FUNCTION_RVAL:
+        case Assignment::A_EXT_FUNCTION_RTEMP: {
+          Ttcn::Def_Function_Base* def_func =
+            dynamic_cast<Ttcn::Def_Function_Base*>(ass);
+          if (def_func == NULL) {
+            FATAL_ERROR("Type::get_field_type");
+          }
+          t = def_func->get_return_type();
+          if (!ref->parameters_checked()) {
+            Ttcn::FormalParList* fp_list = ass->get_FormalParList();
+            Ttcn::ParsedActualParameters* parsed_pars = ref->get_parsed_pars();
+            Ttcn::ActualParList* ap_list = new Ttcn::ActualParList;
+            bool is_erroneous = fp_list->fold_named_and_chk(parsed_pars, ap_list);
+            if (is_erroneous) {
+              delete ap_list;
+              return 0;
+            }
+            ap_list->set_fullname(parsed_pars->get_fullname());
+            ap_list->set_my_scope(parsed_pars->get_my_scope());
+            ref->set_actual_par_list(ap_list);
+          }
+          break; }
+        default:
+          FATAL_ERROR("Type::get_field_type - %s shouldn't be in a class",
+            ass->get_assname());
+        }
         break; }
       case Ttcn::FieldOrArrayRef::ARRAY_REF: {
         Type *embedded_type = 0;
@@ -4330,12 +4424,15 @@ namespace Common {
     case T_FUNCTION:
     case T_ALTSTEP:
     case T_TESTCASE:
-    case T_CLASS:
       // TODO: Compatibility.
       is_type_comp = ( t1 == t2 );
       break;
     case T_ANY:
       is_type_comp = ( t2->typetype == T_ANY || t2->typetype == T_OSTR );
+      break;
+    case T_CLASS:
+      is_type_comp = t2->typetype == T_CLASS &&
+        t2->get_class_type_body()->is_parent_class(t1->get_class_type_body());
       break;
     default:
       FATAL_ERROR("Type::is_compatible()");

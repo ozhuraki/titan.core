@@ -10782,7 +10782,7 @@ error:
         Code::init_expr(&subrefs_expr);
         const char* opt_suffix = "";
         if (v[i]->get_subrefs() != NULL) {
-          v[i]->get_subrefs()->generate_code(&subrefs_expr, value_type);
+          v[i]->get_subrefs()->generate_code(&subrefs_expr, value_type, scope);
           if (redir_type->get_ownertype() == Type::OT_COMP_FIELD) {
             CompField* cf = static_cast<CompField*>( redir_type->get_owner() );
             if (cf->get_is_optional()) {
