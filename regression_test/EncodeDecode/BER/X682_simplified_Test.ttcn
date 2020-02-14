@@ -1,0 +1,57 @@
+/******************************************************************************
+ * Copyright (c) 2000-2020 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Balasko, Jeno
+ *   Forstner, Matyas
+ *
+ ******************************************************************************/
+module X682_simplified_Test {
+
+import from X682_simplified language "ASN.1:1997" all
+
+//=== functions ====
+function f_compare_octetstring(in octetstring pl_val, in octetstring pl_expected) {
+  if ( pl_val == pl_expected ){
+    setverdict(pass);
+  } else {
+    setverdict( fail, "expected:", pl_expected, " got: ", pl_val)
+  }
+} with { extension "transparent"}
+//==== types ===
+type component CT { }
+
+//=== external functions ====
+external function enc_ber_ErrorReturn(in ErrorReturn r) return octetstring
+with { extension "encode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" }
+
+external function dec_ber_ErrorReturn(in octetstring r) return ErrorReturn
+with { extension "decode(BER:BER_ENCODE_DER) prototype(convert) errorbehavior(ALL:WARNING)" }
+
+//=== Testcases ===
+testcase TC0a() runs on CT {
+  var octetstring d := enc_ber_ErrorReturn(errorReturn1);
+  f_compare_octetstring(d,ber_errorReturn1);
+  
+  
+}
+
+testcase TC0b() runs on CT {
+  var ErrorReturn d := dec_ber_ErrorReturn(ber_errorReturn1);
+  if ( d==errorReturn1) {
+    setverdict(pass)
+  } else {
+    setverdict(fail, "expected: ", errorReturn1, " got: ", d);
+  }
+}
+control
+{
+  execute(TC0a());
+  execute(TC0b());
+}
+
+}

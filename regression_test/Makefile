@@ -40,7 +40,7 @@ enumOper arrayOper anytypeOper templateInt templateBool templateFloat templateBi
 templateHexstr templateOctetstr templateChar templateCharstr templateUnicharstr \
 templateRec templateRec_nolegacy templateRecof templateSet templateSetof templateUnion templateEnum modifiedTemplate \
 basicStatem configOper commMessage commProcedure lostTimer controlTimer \
-BER BER_x682 ASN1 predefFunction ERC preCompilerFlags functionReference \
+EncodeDecode ASN1 predefFunction ERC preCompilerFlags functionReference \
 nonMandatoryPar logFiles logger_control namedActualParameters \
 assignmentNotation omitdef anytype RAW implicitMsgEncoding pattern_quadruples \
 macros visibility hexstrOper ucharstrOper objidOper CRTR00015758 slider \
