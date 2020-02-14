@@ -373,6 +373,7 @@ namespace Ttcn {
   class ParsedActualParameters : public Node, public Location {
     TemplateInstances *unnamedpart; ///< the "classic" unnamed parameters
     NamedParams       *namedpart; ///< the named parameters
+    Scope* my_scope;
 
     ParsedActualParameters(const ParsedActualParameters& p);
     /** Copy assignment disabled. */
@@ -386,6 +387,7 @@ namespace Ttcn {
     // @{
     virtual void set_fullname(const string& p_fullname);
     virtual void set_my_scope(Scope *p_scope);
+    Scope* get_my_scope() const { return my_scope; }
     void set_location(const char *p_filename, int p_lineno=0);
     void set_location(const char *p_filename, const YYLTYPE& p_yyloc);
     void set_location(const char *p_filename, const YYLTYPE& p_firstloc,

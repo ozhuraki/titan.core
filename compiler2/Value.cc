@@ -57,6 +57,7 @@
 #include "ttcn3/JsonAST.hh"
 #include "../common/JSON_Tokenizer.hh"
 #include "ttcn3/Ttcn2Json.hh"
+#include "ttcn3/Ttcnstuff.hh"
 
 #include <regex.h>
 #include <limits.h>
@@ -334,6 +335,20 @@ namespace Common {
         u.expr.r1=p.u.expr.r1?p.u.expr.r1->clone():0;
         u.expr.v2=p.u.expr.v2->clone();
         break;
+      case OPTYPE_UNDEF_CREATE:
+      case OPTYPE_CLASS_CREATE:
+        u.expr.r1 = p.u.expr.r1->clone();
+        if (p.u.expr.state != EXPR_CHECKED) {
+          u.expr.t_list2 = p.u.expr.t_list2->clone();
+        }
+        else {
+          u.expr.ap_list2 = p.u.expr.ap_list2->clone();
+          u.expr.state = EXPR_CHECKED;
+        }
+        if (u.expr.v_optype == OPTYPE_UNDEF_CREATE) {
+          u.expr.b4 = p.u.expr.b4;
+        }
+        break;
       case OPTYPE_COMP_CREATE: // r1 [v2] [v3]
         u.expr.r1=p.u.expr.r1->clone();
         u.expr.v2=p.u.expr.v2?p.u.expr.v2->clone():0;
@@ -559,6 +574,8 @@ namespace Common {
           case OPTYPE_COMP_MTC:
           case OPTYPE_COMP_SYSTEM:
           case OPTYPE_COMP_SELF:
+          case OPTYPE_UNDEF_CREATE:
+          case OPTYPE_CLASS_CREATE: // todo
           case OPTYPE_COMP_CREATE: // r1 [v2] [v3] b4
             break;
           case OPTYPE_COMP_RUNNING: // v1 [r2] b4
@@ -923,6 +940,16 @@ namespace Common {
     case OPTYPE_CHECKSTATE_ALL:
       delete u.expr.r1;
       delete u.expr.v2;
+      break;
+    case OPTYPE_UNDEF_CREATE:
+    case OPTYPE_CLASS_CREATE:
+      delete u.expr.r1;
+      if (u.expr.state != EXPR_CHECKED) {
+        delete u.expr.t_list2;
+      }
+      else {
+        delete u.expr.ap_list2;
+      }
       break;
     case OPTYPE_COMP_CREATE: // r1 [v2] [v3] b4
       delete u.expr.r1;
@@ -1409,20 +1436,19 @@ namespace Common {
     } // switch
   }
 
-  // r1 [v2] [v3] b4
+  // r1 t_list2 b4
   Value::Value(operationtype_t p_optype, Ttcn::Ref_base *p_r1,
-               Value *p_v2, Value *p_v3, bool p_b4)
+               Ttcn::ParsedActualParameters* p_t_list2, bool p_b4)
     : GovernedSimple(S_V), valuetype(V_EXPR), my_governor(0), in_brackets(false)
   {
     u.expr.v_optype = p_optype;
     u.expr.state = EXPR_NOT_CHECKED;
     switch(p_optype) {
-    case OPTYPE_COMP_CREATE:
+    case OPTYPE_UNDEF_CREATE:
       if(!p_r1) FATAL_ERROR("Value::Value()");
-      u.expr.r1=p_r1;
-      u.expr.v2=p_v2;
-      u.expr.v3=p_v3;
-      u.expr.b4=p_b4;
+      u.expr.r1 = p_r1;
+      u.expr.t_list2 = p_t_list2;
+      u.expr.b4 = p_b4;
       break;
     default:
       FATAL_ERROR("Value::Value()");
@@ -2173,6 +2199,10 @@ namespace Common {
       if(u.expr.v2) u.expr.v2->set_fullname(p_fullname+".<operand2>");
       if(u.expr.v3) u.expr.v3->set_fullname(p_fullname+".<operand3>");
       break;
+    case OPTYPE_UNDEF_CREATE: // r1 t_list2 b4
+      u.expr.r1->set_fullname(p_fullname+".<operand1>");
+      u.expr.t_list2->set_fullname(p_fullname+".<parameterlist>");
+      break;
     case OPTYPE_MATCH: // v1 t2
       u.expr.v1->set_fullname(p_fullname+".<operand1>");
       u.expr.t2->set_fullname(p_fullname+".<operand2>");
@@ -2434,6 +2464,16 @@ namespace Common {
     case OPTYPE_CHECKSTATE_ALL:
       if(u.expr.r1) u.expr.r1->set_my_scope(p_scope);
       u.expr.v2->set_my_scope(p_scope);
+      break;
+    case OPTYPE_UNDEF_CREATE: // r1 t_list2 b4
+    case OPTYPE_CLASS_CREATE: // r1 t_list2
+      u.expr.r1->set_my_scope(p_scope);
+      if (u.expr.state != EXPR_CHECKED) {
+        u.expr.t_list2->set_my_scope(p_scope);
+      }
+      else {
+        u.expr.ap_list2->set_my_scope(p_scope);
+      }
       break;
     case OPTYPE_COMP_CREATE: // r1 [v2] [v3]
       u.expr.r1->set_my_scope(p_scope);
@@ -2807,6 +2847,19 @@ namespace Common {
       case OPTYPE_CHECKSTATE_ALL:
         if(u.expr.r1) u.expr.r1->set_code_section(p_code_section);
         u.expr.v2->set_code_section(p_code_section);
+        break;
+      case OPTYPE_UNDEF_CREATE: // r1 t_list2 b4
+      case OPTYPE_CLASS_CREATE: // r1 t_list2
+        u.expr.r1->set_code_section(p_code_section);
+        if (u.expr.state != EXPR_CHECKED) {
+          u.expr.t_list2->set_code_section(p_code_section);
+        }
+        else {
+          for (size_t i = 0; i < u.expr.ap_list2->get_nof_pars(); ++i) {
+            u.expr.ap_list2->get_par(i)->set_code_section(p_code_section);
+          }
+          u.expr.state = EXPR_CHECKED;
+        }
         break;
       case OPTYPE_COMP_CREATE: // r1 [v2] [v3] b4
         u.expr.r1->set_code_section(p_code_section);
@@ -3559,6 +3612,10 @@ namespace Common {
       return Type::T_TESTCASE;
     case V_EXPR:
       switch(u.expr.v_optype) {
+      case OPTYPE_UNDEF_CREATE:
+        return Type::T_UNDEF;
+      case OPTYPE_CLASS_CREATE:
+        return Type::T_CLASS;
       case OPTYPE_COMP_NULL:
       case OPTYPE_COMP_MTC:
       case OPTYPE_COMP_SYSTEM:
@@ -4044,8 +4101,8 @@ namespace Common {
 	  if (t_ros) return t_ros->get_component_type();
 	  else return 0;
 	} else return 0;
-      case OPTYPE_COMP_CREATE:
-	return chk_expr_operand_comptyperef_create();
+      case OPTYPE_UNDEF_CREATE:
+	return chk_expr_operand_undef_create();
       case OPTYPE_GET_PORT_REF:
         chk_expr_operands(NULL, exp_val); // calculate the port type
         return u.expr.type;
@@ -4301,7 +4358,9 @@ namespace Common {
       return "valueof()";
     case OPTYPE_UNDEF_RUNNING:
       return "<timer or component> running";
+    case OPTYPE_UNDEF_CREATE:
     case OPTYPE_COMP_CREATE: // r1 [v2] [v3] b4
+    case OPTYPE_CLASS_CREATE:
       return "create()";
     case OPTYPE_COMP_RUNNING: // v1
       return "component running";
@@ -4905,10 +4964,12 @@ namespace Common {
     set_valuetype(V_ERROR);
   }
 
-  Type *Value::chk_expr_operand_comptyperef_create()
+  Type *Value::chk_expr_operand_undef_create()
   {
-    if (valuetype != V_EXPR || u.expr.v_optype != OPTYPE_COMP_CREATE)
-      FATAL_ERROR("Value::chk_expr_operand_comptyperef_create()");
+    if (valuetype != V_EXPR || (u.expr.v_optype != OPTYPE_UNDEF_CREATE &&
+        u.expr.v_optype != OPTYPE_CLASS_CREATE &&
+        u.expr.v_optype != OPTYPE_COMP_CREATE))
+      FATAL_ERROR("Value::chk_expr_operand_undef_create()");
     Assignment *t_ass = u.expr.r1->get_refd_assignment();
     if (!t_ass) goto error;
     if (t_ass->get_asstype() == Assignment::A_TYPE) {
@@ -4916,28 +4977,77 @@ namespace Common {
         Type::EXPECTED_DYNAMIC_VALUE);
       if (!t_type) goto error;
       t_type = t_type->get_type_refd_last();
-      if (t_type->get_typetype() == Type::T_COMPONENT) {
+      if (t_type->get_typetype() == Type::T_COMPONENT ||
+          t_type->get_typetype() == Type::T_CLASS) {
         if (my_governor) {
           Type *my_governor_last = my_governor->get_type_refd_last();
-          if (my_governor_last->get_typetype() == Type::T_COMPONENT &&
+          if (my_governor_last->get_typetype() == t_type->get_typetype() &&
               !my_governor_last->is_compatible(t_type, NULL, NULL)) {
-                u.expr.r1->error("Incompatible component types: operation "
-                                 "`create' should refer to `%s' instead of "
-                                 "`%s'",
-                                 my_governor_last->get_typename().c_str(),
-                                 t_type->get_typename().c_str());
-                goto error;
+            u.expr.r1->error("Incompatible %s types: operation "
+                             "`create' should refer to `%s' instead of "
+                             "`%s'",
+                             t_type->get_typetype() == Type::T_CLASS ? "class" : "component",
+                             my_governor_last->get_typename().c_str(),
+                             t_type->get_typename().c_str());
+            goto error;
+          }
+        }
+        if (u.expr.v_optype == OPTYPE_UNDEF_CREATE) {
+          if (t_type->get_typetype() == Type::T_COMPONENT) {
+            // convert the parameter list to component 'create' parameters
+            size_t nof_pars = u.expr.t_list2->get_nof_tis();
+            if (nof_pars > 2) {
+              // error
+            }
+            else {
+              Value* name_val = NULL;
+              Value* loc_val = NULL;
+              if (nof_pars >= 1) {
+                Ttcn::TemplateInstance* name_par = u.expr.t_list2->get_ti_byIndex(0);
+                if (name_par->get_Template()->get_templatetype() !=
+                    Ttcn::Template::TEMPLATE_NOTUSED) {
+                  if (name_par->get_Template()->is_Value()) {
+                    name_val = name_par->get_Template()->get_Value();
+                  }
+                  else {
+                    // error
+                  }
+                }
+                if (nof_pars == 2) {
+                  Ttcn::TemplateInstance* loc_par = u.expr.t_list2->get_ti_byIndex(1);
+                  if (loc_par->get_Template()->get_templatetype() !=
+                      Ttcn::Template::TEMPLATE_NOTUSED) {
+                    if (loc_par->get_Template()->is_Value()) {
+                      loc_val = loc_par->get_Template()->get_Value();
+                    }
+                    else {
+                      // error
+                    }
+                  }
+                }
+              }
+              delete u.expr.t_list2;
+              u.expr.v_optype = OPTYPE_COMP_CREATE;
+              u.expr.v2 = name_val;
+              u.expr.v3 = loc_val;
+            }
+          }
+          else { // T_CLASS
+            if (u.expr.b4) { // 'alive' keyword is set
+              // error
+            }
+            u.expr.v_optype = OPTYPE_CLASS_CREATE;
           }
         }
         return t_type;
       } else {
-        u.expr.r1->error("Type mismatch: reference to a component type was "
-                         "expected in operation `create' instead of `%s'",
+        u.expr.r1->error("Type mismatch: reference to a component or class type "
+                         "was expected in operation `create' instead of `%s'",
                          t_type->get_typename().c_str());
       }
     } else {
-      u.expr.r1->error("Operation `create' should refer to a component type "
-                       "instead of %s", t_ass->get_description().c_str());
+      u.expr.r1->error("Operation `create' should refer to a component or class "
+                       "type instead of %s", t_ass->get_description().c_str());
     }
   error:
     set_valuetype(V_ERROR);
@@ -8082,8 +8192,32 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       chk_expr_operand_execute(u.expr.r1, u.expr.v2, the, opname);
       chk_expr_dynamic_part(exp_val, true, false, false);
       break;
+    case OPTYPE_UNDEF_CREATE: // r1 t_list2 b4
+    case OPTYPE_CLASS_CREATE: { // r1 t_list2
+      Type* t = chk_expr_operand_undef_create();
+      if (u.expr.v_optype == OPTYPE_CLASS_CREATE) {
+        Ttcn::FormalParList* fp_list = t->get_class_type_body()->get_constructor()
+          ->get_FormalParList();
+        Ttcn::ActualParList* parlist = new Ttcn::ActualParList;
+        bool is_erroneous = fp_list->chk_actual_parlist(u.expr.t_list2->get_tis(), parlist);
+        if (is_erroneous) {
+          delete parlist;
+          parlist = 0;
+          set_valuetype(V_ERROR);
+        }
+        else {
+          parlist->set_fullname(get_fullname());
+          parlist->set_my_scope(get_my_scope());
+          delete u.expr.t_list2;
+          u.expr.ap_list2 = parlist;
+        }
+        chk_expr_dynamic_part(exp_val, true);
+      }
+      if (u.expr.v_optype != OPTYPE_COMP_CREATE) {
+        break;
+      } }
+      // else fall through
     case OPTYPE_COMP_CREATE: // r1 [v2] [v3] b4
-      chk_expr_operand_comptyperef_create();
       v2=u.expr.v2;
       if(v2) {
         Error_Context cntxt(this, "In the first operand of operation `%s'", opname);
@@ -8251,6 +8385,8 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case OPTYPE_ACTIVATE_REFD:
     case OPTYPE_EXECUTE: // r1 [v2]
     case OPTYPE_EXECUTE_REFD: // v1 t_list2 [v3]
+    case OPTYPE_UNDEF_CREATE: // r1 t_list2 b4
+    case OPTYPE_CLASS_CREATE: // r1 t_list2
     case OPTYPE_COMP_CREATE: // r1 [v2] [v3] b4
     case OPTYPE_MATCH: // v1 t2
     case OPTYPE_ISCHOSEN_T:
@@ -9579,6 +9715,8 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       case OPTYPE_ACTIVATE_REFD:
       case OPTYPE_EXECUTE: // r1 [v2]
       case OPTYPE_EXECUTE_REFD:
+      case OPTYPE_UNDEF_CREATE: // r1 t_list2 b4
+      case OPTYPE_CLASS_CREATE: // r1 t_list2
       case OPTYPE_COMP_CREATE: // r1 [v2] [v3] b4
       case OPTYPE_ISCHOSEN:
       case OPTYPE_ISCHOSEN_T:
@@ -11407,6 +11545,9 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       }
       goto label_r1;
       break; }
+    case OPTYPE_UNDEF_CREATE: // r1 t_list2 b4
+    case OPTYPE_CLASS_CREATE: // r1 t_list2
+      // no self-ref?
     case OPTYPE_COMP_CREATE: // r1 [v2] [v3] b4
       // component.create -- assume no self-ref
     case OPTYPE_ACTIVATE: // r1
@@ -12007,6 +12148,24 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         return string("system");
       case OPTYPE_COMP_SELF:
         return string("self");
+      case OPTYPE_UNDEF_CREATE:
+      case OPTYPE_CLASS_CREATE: {
+        string ret_val(u.expr.r1->get_dispname());
+        ret_val += ".create";
+        if (u.expr.t_list2->get_nof_tis() != 0) {
+          ret_val += '(';
+          for (size_t i = 0; i < u.expr.t_list2->get_nof_tis(); ++i) {
+            if (i > 0) {
+              ret_val += ", ";
+            }
+            u.expr.t_list2->get_ti_byIndex(i)->append_stringRepr(ret_val);
+          }
+          ret_val += ')';
+        }
+        if (u.expr.v_optype == OPTYPE_UNDEF_CREATE && u.expr.b4) {
+          ret_val += " alive";
+        }
+        return ret_val; }
       case OPTYPE_COMP_CREATE: {
         string ret_val(u.expr.r1->get_dispname());
 	ret_val += ".create";
@@ -13565,7 +13724,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       expr->expr = mputstr(expr->expr, ".valueof()");
       if (u.expr.subrefs2 != NULL) {
         u.expr.subrefs2->generate_code(expr,
-          u.expr.ti1->get_expr_governor(Type::EXPECTED_DYNAMIC_VALUE));
+          u.expr.ti1->get_expr_governor(Type::EXPECTED_DYNAMIC_VALUE), my_scope);
       }
       break;
     case OPTYPE_ISTEMPLATEKIND: // ti1 v2
@@ -13596,8 +13755,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case OPTYPE_COMP_SELF: // -
       expr->expr=mputstr(expr->expr, "self");
       break;
+    case OPTYPE_CLASS_CREATE: // r1 ap_list2
+      generate_code_expr_class_create(expr, u.expr.r1, u.expr.ap_list2);
+      break;
     case OPTYPE_COMP_CREATE: // r1 [v2] [v3] b4
-      generate_code_expr_create(expr, u.expr.r1, u.expr.v2, u.expr.v3,
+      generate_code_expr_comp_create(expr, u.expr.r1, u.expr.v2, u.expr.v3,
 	u.expr.b4);
       break;
     case OPTYPE_COMP_RUNNING: // v1 [r2] b4
@@ -14006,18 +14168,32 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       expr->expr = mputc(expr->expr, ')');
     }
   }
+  
+  void Value::generate_code_expr_class_create(expression_struct* expr,
+    Ttcn::Ref_base* type, Ttcn::ActualParList* ap_list)
+  {
+    expr->expr = mputstr(expr->expr, "new ");
+    type->generate_code(expr);
+    expr->expr = mputc(expr->expr, '(');
+    Assignment* t_ass = type->get_refd_assignment();
+    if (t_ass == NULL || t_ass->get_asstype() != Assignment::A_TYPE) {
+      FATAL_ERROR("Value::generate_code_expr_class_create()");
+    }
+    ap_list->generate_code_noalias(expr, t_ass->get_FormalParList());
+    expr->expr = mputc(expr->expr, ')');
+  }
 
-  void Value::generate_code_expr_create(expression_struct *expr,
+  void Value::generate_code_expr_comp_create(expression_struct *expr,
     Ttcn::Ref_base *type, Value *name, Value *location, bool alive)
   {
     expr->expr = mputstr(expr->expr, "TTCN_Runtime::create_component(");
     // first two arguments: component type
     Assignment *t_ass = type->get_refd_assignment();
     if (!t_ass || t_ass->get_asstype() != Assignment::A_TYPE)
-      FATAL_ERROR("Value::generate_code_expr_create()");
+      FATAL_ERROR("Value::generate_code_expr_comp_create()");
     Type *comptype = t_ass->get_Type()->get_field_type(type->get_subrefs(),
       Type::EXPECTED_DYNAMIC_VALUE);
-    if (!comptype) FATAL_ERROR("Value::generate_code_expr_create()");
+    if (!comptype) FATAL_ERROR("Value::generate_code_expr_comp_create()");
     comptype = comptype->get_type_refd_last();
     expr->expr = comptype->get_CompBody()
       ->generate_code_comptype_name(expr->expr);
@@ -15535,6 +15711,17 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case OPTYPE_MATCH: // v1 t2
       return u.expr.v1->has_single_expr() &&
              u.expr.t2->has_single_expr();
+    case OPTYPE_CLASS_CREATE: { // r1 ap_list2
+      Type* t = u.expr.r1->get_refd_assignment()->get_Type()->get_field_type(
+        u.expr.r1->get_subrefs(), Type::EXPECTED_CONSTANT)->get_type_refd_last();
+      Ttcn::FormalParList* fp_list = t->get_class_type_body()->get_constructor()
+        ->get_FormalParList();
+      for (size_t i = 0; i < u.expr.ap_list2->get_nof_pars(); ++i) {
+        if (!u.expr.ap_list2->get_par(i)->has_single_expr(fp_list->get_fp_byIndex(i))) {
+          return false;
+        }
+      }
+      return true; }
     case OPTYPE_COMP_CREATE: // r1 [v2] [v3] b4
       return (!u.expr.v2 || u.expr.v2->has_single_expr()) &&
              (!u.expr.v3 || u.expr.v3->has_single_expr());
@@ -15570,7 +15757,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
           fplist != NULL ? fplist->get_fp_byIndex(i) : NULL)) return false;
     return true;
   }
-
+  
   string Value::get_single_expr_enum()
   {
     string ret_val(my_governor->get_genname_value(my_scope));
