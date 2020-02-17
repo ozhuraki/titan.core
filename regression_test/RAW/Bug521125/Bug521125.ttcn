@@ -10,7 +10,15 @@
  *
  ******************************************************************************/
 module Bug521125 {
-
+//The compiler crashes with fatal error, when attempting to generate code for the attached TTCN-3 module.
+//Notify: Parsing TTCN-3 module `DIAMETER_Types.ttcn'...
+//Notify: Parsing modules took 0.027209 sec
+//Notify: Checking modules...
+//Notify: Semantic check took 0.033406 sec
+//Notify: Generating code...
+//Type.cc:1945: error: Type::get_raw_length()
+//Aborted (core dumped)
+//Status: fixed, Wrong reference usage
 type component EmptyCT {
 
 }
