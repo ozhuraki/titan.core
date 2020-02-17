@@ -9,8 +9,8 @@
 #   Botond, Baranyi
 #
 ##############################################################################
-TOPDIR := ../..
-include   ../../Makefile.regression
+TOPDIR := ../../..
+include $(TOPDIR)/Makefile.regression
 
 # WARNING! This Makefile can be used with GNU make only.
 # Other versions of make may report syntax errors in it.

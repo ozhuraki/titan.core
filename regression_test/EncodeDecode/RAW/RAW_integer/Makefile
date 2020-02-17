@@ -9,7 +9,7 @@
 #   Balasko, Jeno
 #
 ##############################################################################
-TOPDIR := ../..
+TOPDIR := ../../..
 include $(TOPDIR)/Makefile.regression
 
 .PHONY: all clean dep run
