@@ -1,7 +1,0 @@
-compile
-*.hh
-*.cc
-*.o
-*.gcda
-*.gcno
-result.txt
