@@ -195,20 +195,27 @@ namespace Ttcn {
   /** Helper class for the Ttcn::Reference */
   class FieldOrArrayRef : public Node, public Location {
   public:
-    enum reftype { FIELD_REF, ARRAY_REF };
+    enum reftype { FIELD_REF, ARRAY_REF, FUNCTION_REF };
   private:
     reftype ref_type; ///< reference type
     /** The stored reference. Owned and destroyed by FieldOrArrayRef */
     union {
-       Identifier *id; ///< name of the field, used by FIELD_REF
-       Value *arp; ///< value of the index, used by ARRAY_REF
+      struct {
+        Identifier *id; ///< name of the field, used by FIELD_REF and FUNCTION_REF
+        bool checked;
+        union {
+          ParsedActualParameters* parsed_pars; ///< parsed function parameters, used by FUNCTION_REF
+          ActualParList* ap_list; ///< actual parameter list (after semantic analysis), used by FUNCTION_REF
+        };
+      } ff; ///< field or function
+      Value *arp; ///< value of the index, used by ARRAY_REF
     } u;
     /** Copy constructor for clone() only */
     FieldOrArrayRef(const FieldOrArrayRef& p);
     /** %Assignment disabled */
     FieldOrArrayRef& operator=(const FieldOrArrayRef& p);
   public:
-    FieldOrArrayRef(Identifier *p_id);
+    FieldOrArrayRef(Identifier *p_id, ParsedActualParameters* p_params = NULL);
     FieldOrArrayRef(Value *p_arp);
     ~FieldOrArrayRef();
     virtual FieldOrArrayRef* clone() const;
@@ -221,6 +228,10 @@ namespace Ttcn {
     /** Returns the value.
      * @pre reftype is ARRAY_REF, or else FATAL_ERROR */
     Value* get_val() const;
+    ParsedActualParameters* get_parsed_pars() const;
+    ActualParList* get_actual_par_list() const;
+    bool parameters_checked() const;
+    void set_actual_par_list(ActualParList* p_ap_list);
     /** Appends the string representation of the sub-reference to \a str. */
     void append_stringRepr(string& str) const;
     /** Sets the first letter in the name of the field to lowercase if it's an
@@ -255,14 +266,18 @@ namespace Ttcn {
     Identifier *remove_last_field();
     /** Generates the C++ sub-expression that accesses
      * the given sub-references of definition \a ass. 
+     * @param ref_scope scope of the main reference object
      * @param nof_subrefs indicates the number of sub-references
      * to generate code from (UINT_MAX means all of them) */
-    void generate_code(expression_struct *expr, Common::Assignment *ass, size_t nof_subrefs = UINT_MAX);
+    void generate_code(expression_struct *expr, Common::Assignment *ass,
+      Common::Scope* ref_scope, bool const_ref = false, size_t nof_subrefs = UINT_MAX);
     /** Generates the C++ sub-expression that could access the
       * sub-references of a reference of type \a type
+      * @param ref_scope scope of the main reference object
       * @param nof_subrefs indicates the number of sub-references
       * to generate code from (UINT_MAX means all of them) */
-    void generate_code(expression_struct *expr, Type *type, bool is_template = false, size_t nof_subrefs = UINT_MAX);
+    void generate_code(expression_struct *expr, Type *type, Common::Scope* ref_scope,
+      bool const_ref = false, bool is_template = false, size_t nof_subrefs = UINT_MAX);
     /** Appends the string representation of sub-references to \a str. */
     void append_stringRepr(string &str) const;
     bool refers_to_string_element() const { return refs_str_element; }
@@ -376,6 +391,17 @@ namespace Ttcn {
     /** Used by generate_code_cached(). Stores the generated expression string, 
       * so it doesn't get regenerated every time. */
     char* expr_cache;
+    /** Set if the module identifier also had an object identifier.
+      * (This ensures that the module identifier refers to a module, and not a
+      * possible local class object variable.) */
+    bool has_objid;
+    /** Set if this object was incorrectly created as a parameterized reference
+      * by the parser, and is actually a non-parameterized reference with a
+      * method call as its first subref (only if OOP features are enabled) */
+    bool truncated;
+    /** Points to the truncated reference, if the 'truncated' flag is set.
+      * Otherwise null. */
+    Ttcn::Reference* truncated_ref;
     /** Copy constructor. Private, used by Ref_pard::clone() only */
     Ref_pard(const Ref_pard& p);
     /// %Assignment disabled
@@ -388,7 +414,7 @@ namespace Ttcn {
      * for the actual parameters.
      * */
     Ref_pard(Identifier *p_modid, Identifier *p_id,
-             ParsedActualParameters *p_params);
+             ParsedActualParameters *p_params, bool p_has_objid = true);
     ~Ref_pard();
     virtual Ref_pard *clone() const;
     virtual void set_fullname(const string& p_fullname);
@@ -1394,6 +1420,7 @@ namespace Ttcn {
     void chk_prototype();
     Type *get_input_type();
     Type *get_output_type();
+    Type* get_return_type() const { return return_type; }
     template_restriction_t get_template_restriction()
       { return template_restriction; }
   };

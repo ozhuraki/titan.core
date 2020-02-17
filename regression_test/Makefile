@@ -50,7 +50,7 @@ customEncoding makefilegen uidChars checkstate hostid templateIstemplatekind \
 selectUnion templateExclusiveRange any_from templatePatternRef indexWithRecofArray \
 connectMapOperTest fuzzy portTranslation ischosen OER functionSubref done \
 nondeterministicDefaultParam predefFunction2 realtime portTranslationCentralStorage \
-locale
+locale oop
 
 ifdef DYN
 DIRS += loggerplugin junitlogger 

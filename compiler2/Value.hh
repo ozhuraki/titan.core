@@ -243,10 +243,12 @@ namespace Common {
 
       /** cannot distinguish during parsing; can be COMP or TMR */
       OPTYPE_UNDEF_RUNNING, // r1 [r2] b4                   86
+      OPTYPE_UNDEF_CREATE, // r1 t_list2 b4
+      OPTYPE_CLASS_CREATE, // r1 t_list2
       OPTYPE_COMP_NULL, // - (from V_TTCN3_NULL)
-      OPTYPE_COMP_MTC, // -
+      OPTYPE_COMP_MTC, // -                    90
       OPTYPE_COMP_SYSTEM, // -
-      OPTYPE_COMP_SELF, // -                    90
+      OPTYPE_COMP_SELF, // -
       OPTYPE_COMP_CREATE, // r1 [v2] [v3] b4
       OPTYPE_COMP_RUNNING, // v1 [r2] b4
       OPTYPE_COMP_RUNNING_ANY, // -
@@ -254,9 +256,9 @@ namespace Common {
       OPTYPE_COMP_ALIVE, // v1
       OPTYPE_COMP_ALIVE_ANY, // -
       OPTYPE_COMP_ALIVE_ALL, // -
-      OPTYPE_TMR_READ, // r1
+      OPTYPE_TMR_READ, // r1     100
       OPTYPE_TMR_RUNNING, // r1 [r2] b4
-      OPTYPE_TMR_RUNNING_ANY, // -     100
+      OPTYPE_TMR_RUNNING_ANY, // -
       OPTYPE_GETVERDICT, // -
       OPTYPE_ACTIVATE, // r1
       OPTYPE_ACTIVATE_REFD, //v1 t_list2
@@ -264,12 +266,12 @@ namespace Common {
       OPTYPE_EXECUTE_REFD, // v1 t_list2 [v3]
 
       OPTYPE_LOG2STR, // logargs
-      OPTYPE_PROF_RUNNING, // -     107
+      OPTYPE_PROF_RUNNING, //
       
-      OPTYPE_ENCVALUE_UNICHAR, // ti1 [v2] [v3] [v4]
+      OPTYPE_ENCVALUE_UNICHAR, // ti1 [v2] [v3] [v4]       110
       OPTYPE_DECVALUE_UNICHAR, // r1 r2 [v3] [v4] [v5]
       
-      OPTYPE_ANY2UNISTR, // logarg, length = 1       110
+      OPTYPE_ANY2UNISTR, // logarg, length = 1
       OPTYPE_CHECKSTATE_ANY, // [r1] v2, port or any
       OPTYPE_CHECKSTATE_ALL, // [r1] v2, port or all
       OPTYPE_HOSTID, // [v1]
@@ -282,7 +284,7 @@ namespace Common {
       
       OPTYPE_GET_PORT_REF, // -
 
-      NUMBER_OF_OPTYPES // must be last              120
+      NUMBER_OF_OPTYPES // must be last              122
     };
 
     enum macrotype_t {
@@ -344,7 +346,7 @@ namespace Common {
           Value *v1;
           Template *t1;
           TemplateInstance *ti1;
-          Ttcn::Ref_base *r1; /**< timer or component */
+          Ttcn::Ref_base *r1; /**< timer, component or class */
           LogArguments *logargs; /**< arguments of log2str() */
           Type* type;
         };
@@ -441,9 +443,9 @@ namespace Common {
       Ttcn::ParsedActualParameters *p_t_list2, Value *p_v3);
     /** Constructor used by V_EXPR "r1 [v2]": EXECUTE or [r1] v2 */
     Value(operationtype_t p_optype, Ttcn::Ref_base *p_r1, Value *v2);
-    /** Constructor used by V_EXPR "r1 [v2] [v3] b4": COMP_CREATE */
-    Value(operationtype_t p_optype, Ttcn::Ref_base *p_r1, Value *p_v2,
-      Value *p_v3, bool p_b4);
+    /** Constructor used by V_EXPR "r1 t_list2 b4": UNDEF_CREATE */
+    Value(operationtype_t p_optype, Ttcn::Ref_base *p_r1,
+      Ttcn::ParsedActualParameters* p_t_list2, bool p_b4);
     /** Constructor used by V_EXPR "v1 v2" */
     Value(operationtype_t p_optype, Value *p_v1, Value *p_v2);
     /** Constructor used by V_EXPR "v1 v2 v3" */
@@ -615,8 +617,8 @@ namespace Common {
                                         Ttcn::Ref_base *ref, bool any_from,
                                         Ttcn::Ref_base* index_ref,
                                         const char *opnum, const char *opname);
-    /** Returns the referred component type if it is correct. */
-    Type *chk_expr_operand_comptyperef_create();
+    /** Returns the referred component or class type if it is correct. */
+    Type *chk_expr_operand_undef_create();
     /** Checks whether the special component references mtc, system and self
      * have the correct component types (compatible with \a my_governor). */
     void chk_expr_comptype_compat();
@@ -953,8 +955,12 @@ namespace Common {
     static void generate_code_expr_rnd(expression_struct *expr,
                                        Value *v1);
     /** Helper function for \a generate_code_expr_expr(). It handles
-     *  create(). */
-    static void generate_code_expr_create(expression_struct *expr,
+     *  create() for classes. */
+    static void generate_code_expr_class_create(expression_struct* expr,
+      Ttcn::Ref_base* type, Ttcn::ActualParList* ap_list);
+    /** Helper function for \a generate_code_expr_expr(). It handles
+     *  create() for components. */
+    static void generate_code_expr_comp_create(expression_struct *expr,
       Ttcn::Ref_base *type, Value *name, Value *location, bool alive);
     /** Helper function for \a generate_code_expr_expr(). It handles
      *  activate(). */

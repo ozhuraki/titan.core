@@ -1023,13 +1023,13 @@ namespace Ttcn {
 
   ParsedActualParameters::ParsedActualParameters(TemplateInstances *p_ti,
                                                  NamedParams *p_np)
-  : Node(), Location(), unnamedpart(p_ti ? p_ti : new TemplateInstances), namedpart(p_np)
+  : Node(), Location(), unnamedpart(p_ti ? p_ti : new TemplateInstances), namedpart(p_np), my_scope(NULL)
   {
   }
 
   ParsedActualParameters::ParsedActualParameters(const ParsedActualParameters& p)
   : Node(p), Location(p), unnamedpart(p.unnamedpart->clone()),
-    namedpart (p.namedpart ? p.namedpart->clone() : 0)
+    namedpart (p.namedpart ? p.namedpart->clone() : 0), my_scope(p.my_scope)
   {
   }
 
@@ -1067,6 +1067,7 @@ namespace Ttcn {
 
   void ParsedActualParameters::set_my_scope(Common::Scope *p_scope)
   {
+    my_scope = p_scope;
     unnamedpart->set_my_scope(p_scope);
     if (namedpart) {
       namedpart->set_my_scope(p_scope);
