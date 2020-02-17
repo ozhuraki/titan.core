@@ -1,5 +1,5 @@
 ******************************************************************************
-* Copyright (c) 2000-2019 Ericsson Telecom AB
+* Copyright (c) 2000-2020 Ericsson Telecom AB
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
 * which accompanies this distribution, and is available at
@@ -12,7 +12,9 @@
 
 Please be aware that due to the incompatibility of EPL and GPL licenses, one may not link EPL and GPL code together 
 and distribute the result. ( see https://mmilinkov.wordpress.com/2010/04/06/epl-gpl-commentary/). However 
-from pure tehnical standpoint Titan can be compiled on GPL-licensed Cygwin as detailed below. 
+from pure technical standpoint Titan can be compiled on GPL-licensed Cygwin as detailed below.
+
+Last tested cygwin version: 3.1.2
 
 Cygwin setup
     - If Cygwin is installed already, refresh your Cygwin installation
@@ -56,14 +58,14 @@ Cygwin setup
     Devel: gcc-g++
     Devel: make
     Libs: libxml2-devel
-    Net: openssl-devel
+    Net: libssl-devel ( instead of openssl-devel - obsolete!!! )
   c) To compile your own Titan Cygwin binary: in addition to the
            above, select the following packages:
     Devel: bison
     Devel: ctags
-    Lib: libexpat1
+    Lib: libexpat1 (installed by default)
     Lib: libiconv-devel
-    Lib: libiconv2
+    Lib: libiconv2  (installed by default)
     Devel: diffstat
     Devel: flex
     Devel: gcc-core
