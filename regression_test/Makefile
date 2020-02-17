@@ -42,7 +42,7 @@ templateRec templateRec_nolegacy templateRecof templateSet templateSetof templat
 basicStatem configOper commMessage commProcedure lostTimer controlTimer \
 EncodeDecode ASN1 predefFunction ERC preCompilerFlags functionReference \
 nonMandatoryPar logFiles logger_control namedActualParameters \
-assignmentNotation omitdef anytype RAW implicitMsgEncoding pattern_quadruples \
+assignmentNotation omitdef anytype implicitMsgEncoding pattern_quadruples \
 macros visibility hexstrOper ucharstrOper objidOper CRTR00015758 slider \
 XML ipv6 implicitOmit testcase_defparam transparent HQ16404 cfgFile \
 all_from lazyEval tryCatch text2ttcn json ttcn2json profiler templateOmit \

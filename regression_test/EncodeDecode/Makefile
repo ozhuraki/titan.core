@@ -15,7 +15,7 @@ include $(TOPDIR)/Makefile.regression
 unexport ABS_SRC
 unexport SRCDIR
 
-DIRS := BER
+DIRS := BER RAW
 
 # List of fake targets:
 .PHONY: all dep clean run $(DIRS) $(addsuffix /, $(DIRS)) profile
