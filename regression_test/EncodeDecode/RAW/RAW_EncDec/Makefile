@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2000-2019 Ericsson Telecom AB
+# Copyright (c) 2000-2020 Ericsson Telecom AB
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v2.0
 # which accompanies this distribution, and is available at
@@ -26,13 +26,9 @@
 # - make clean           Removes all generated files.
 # - make dep             Creates/updates dependency list.
 # - make archive         Archives all source files.
-
-#
-# Set these variables...
-#
-
-TOP := ../../
-include   $(TOP)/Makefile.cfg
+# - make run             Runs the test with RAW_EncDec.cfg
+TOPDIR := ../../..
+include $(TOPDIR)/Makefile.regression
 
 .PHONY: run
 
