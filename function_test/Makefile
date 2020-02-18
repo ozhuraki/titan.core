@@ -17,7 +17,7 @@
 #
 ##############################################################################
 # Makefile to run the non-interactive tests
-DIRS := RAW_EncDec Text_EncDec XER_EncDec OER_EncDec Semantic_Analyser Semantic_Analyser_Csaba Config_Parser
+DIRS := Semantic_Analyser Semantic_Analyser_Csaba Config_Parser
 
 SCRIPTFLAGS :=
 

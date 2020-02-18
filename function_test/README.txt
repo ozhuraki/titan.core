@@ -18,7 +18,7 @@ make
 2. Ho to start function test for one subfolder?
 Do it with the subfolder name,
 e.g:
-make Text_EncDec
+make Text_EncDec (obsolete, moved)
 make Semantic_Analyser
 
 or 

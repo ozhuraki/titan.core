@@ -22,13 +22,13 @@
 # - make clean           Removes all generated files.
 # - make dep             Creates/updates dependency list.
 # - make archive         Archives all source files.
-
+# - make run             runs the test with XER_EncDec.cfg
 #
 # Set these variables...
 #
 
-TOP := ../../
-include   $(TOP)/Makefile.cfg
+TOPDIR := ../..
+include $(TOPDIR)/Makefile.regression
 
 .PHONY: run
 
