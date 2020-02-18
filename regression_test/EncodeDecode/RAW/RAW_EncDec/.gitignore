@@ -5,3 +5,4 @@ compile
 *.gcda
 *.gcno
 result.txt
+*.log
