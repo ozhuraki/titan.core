@@ -146,7 +146,7 @@ run: $(TARGET) XER_EncDec.cfg
 	cat result.txt
 	grep "Overall verdict: pass" result.txt
 
-clean:
+clean distclean:
 	-$(RM) $(TARGET) $(OBJECTS) $(GENERATED_HEADERS) \
 	$(GENERATED_SOURCES) compile *.log *.gcda *.gcno  result.txt
 
