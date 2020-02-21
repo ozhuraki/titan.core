@@ -1,0 +1,559 @@
+// The testcases checks if the encode and decode funcions run and checks the result.
+// The return value of the encoding functions is octetstring
+// Anytype is out of scope
+// Status: cpp: compiled and run with 14 pass
+//         java 14 pass
+module JsonBasicEncDecTest_os {
+
+import from JsonBasicTypes all;
+import from JsonEncDecFunctions all;
+
+type component CT {}
+
+function f_compare_octetstring(in octetstring pl_val, in octetstring pl_expected) {
+  if ( pl_val == pl_expected ){
+    setverdict(pass);
+  } else {
+    setverdict( fail, "expected:", pl_expected, " got: ", pl_val)
+  }
+} with { extension "transparent"}
+
+//========================
+//===== Testcases ========
+//========================
+//JSON can represent four primitive types (strings, numbers, booleans, and null) 
+//and two structured types (objects and arrays).
+
+//==== Numbers====
+testcase tc_jsonBasic_encdec_os_integer() runs on CT {
+  const I_json x := 234;
+  var I_json y := 234, z;
+  var octetstring os;
+  var octetstring expected :=  char2oct("234");
+  log("expected:",expected);
+  os := f_json_enc_i2os(x);
+  f_compare_octetstring(os,expected);
+  
+  os := f_json_enc_i2os(y);
+  f_compare_octetstring(os,expected);
+
+  //decode test:
+  z := f_json_dec_os2i(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+//  //Whitespace test
+//  expected := char2oct("  2 3  4 ");
+//  log(expected);
+//  
+//  //decode test:
+//  z := f_json_dec_os2i(expected);
+//  if ( y ==z ) {
+//    setverdict(pass);
+//  } else {
+//    setverdict(fail);
+//  }
+}
+
+testcase tc_jsonBasic_encdec_os_float() runs on CT {
+  const F_json x := 2.0;
+  var F_json y := 2.0, z;
+  var octetstring os;
+  //var octetstring expected := '00110010'B;
+  var octetstring expected := char2oct("2.000000");
+  log("expected:",expected);
+  os := f_json_enc_f2os(x);
+  f_compare_octetstring(os,expected);
+  
+  os := f_json_enc_f2os(y);
+  f_compare_octetstring(os,expected);
+  
+  //decode test:
+  z := f_json_dec_os2f(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+}
+
+testcase tc_jsonBasic_encdec_os_enum() runs on CT {
+  const E_json x := first;
+  var E_json y := first, z;
+  var octetstring os;
+  //var octetstring expected := '00100010011001100110100101110010011100110111010000100010'B
+  var octetstring expected := char2oct("\"first\"");
+  log("expected:",expected);
+  os := f_json_enc_e2os(x);
+  log("os:",os);
+  f_compare_octetstring(os,expected);
+  
+  os := f_json_enc_e2os(y);
+  f_compare_octetstring(os,expected);
+
+  //decode test:
+  z := f_json_dec_os2e(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+//=== Strings ====
+//"A string is a sequence of zero or more Unicode characters" RFC 7159
+
+testcase tc_jsonBasic_encdec_os_bitstring() runs on CT {
+  const BS_json x := '1'B;
+  var BS_json y := '1'B, z;
+  var octetstring os;
+  var octetstring expected := char2oct("\"1\"");
+
+  log("expected:",expected);
+  os := f_json_enc_bs2os(x);
+  f_compare_octetstring(os,expected);
+  
+  os := f_json_enc_bs2os(y);
+  f_compare_octetstring(os,expected);
+
+
+  //decode test:
+  z := f_json_dec_os2bs(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+testcase tc_jsonBasic_encdec_os_charstring() runs on CT {
+  const CS_json x := "1";
+  var CS_json y := "1", z;
+  var octetstring os;
+  var octetstring expected := char2oct("\"1\"");
+  log("expected:",expected);
+  os := f_json_enc_cs2os(x);
+  f_compare_octetstring(os,expected);
+  
+  os := f_json_enc_cs2os(y);
+  f_compare_octetstring(os,expected);
+  
+  //decode test:
+  z := f_json_dec_os2cs(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+testcase tc_jsonBasic_encdec_os_hexstring() runs on CT {
+  const HS_json x := '1'H;
+  var HS_json y := '1'H, z;
+  var octetstring os;
+  var octetstring expected := char2oct("\"1\"");
+  log("expected:",expected);
+  os := f_json_enc_hs2os(x);
+  f_compare_octetstring(os,expected);
+  
+  os := f_json_enc_hs2os(y);
+  f_compare_octetstring(os,expected);
+  
+  //decode test:
+  z := f_json_dec_os2hs(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+testcase tc_jsonBasic_encdec_os_octetstring() runs on CT {
+  const OS_json x := 'F1'O;
+  var OS_json y := 'F1'O, z;
+  var octetstring os;
+  var octetstring expected := char2oct("\"F1\"");
+  log("expected:",expected);
+  os := f_json_enc_os2os(x);
+  f_compare_octetstring(os,expected);
+  
+  os := f_json_enc_os2os(y);
+  f_compare_octetstring(os,expected);
+  
+  //decode test:
+  z := f_json_dec_os2os(expected);
+  if ( y==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+
+
+testcase tc_jsonBasic_encdec_os_ucharstring() runs on CT {
+  const UCS_json x := char(0,0,0,1);
+  var UCS_json y := char(0,0,0,1), z;
+  var octetstring os;
+  //var octetstring expected := '00100010 00000001 00100010'B; //"x01"    ok, too
+  var octetstring expected := unichar2oct("\"" & char(0, 0, 0, 1) & "\""); //ok
+  log("expected:",expected);
+  os := f_json_enc_ucs2os(x);
+  log(os);
+  log(oct2char(os)); // "\"" & char(0, 0, 0, 1) & "\""
+  f_compare_octetstring(os,expected);
+  
+  os := f_json_enc_ucs2os(y);
+  f_compare_octetstring(os,expected);
+  
+  //decode test:
+  z := f_json_dec_os2ucs(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+//===== Verdict ====
+
+//V (verdict)
+testcase tc_jsonBasic_encdec_os_verdict() runs on CT {
+  const V_json x := pass;
+  var V_json y := pass;
+  var octetstring bs;
+  var octetstring expected := char2oct("\"pass\"");
+  log("expected:",expected );
+  bs := f_json_enc_v2os(x);
+  f_compare_octetstring(bs, expected);
+  
+  bs := f_json_enc_v2os(y);
+  f_compare_octetstring(bs, expected);
+
+  //decode test:
+  var V_json z := f_json_dec_os2v(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+
+
+
+//====  JSON objects : record, set
+//"An object is an unordered collection of zero or more name/value   pairs, 
+// where a name is a string and a value is a string, number,   boolean, null, object, or array."
+
+testcase tc_jsonBasic_encdec_os_record() runs on CT {
+  const R_json x := {
+    i := 1,
+    bs := '1'B,
+    cs := "1",
+    hs :='1'H,
+    os :='01'O,
+    ucs := char(0,0,0,1),
+    e := first
+  };
+  var R_json y := {
+    i := 1,
+    bs := '1'B,
+    cs := "1",
+    hs :='1'H,
+    os :='01'O,
+    ucs := char(0,0,0,1),
+    e := first
+  },
+  z;
+  var octetstring os;
+  var octetstring expected :=  unichar2oct("{\"i\":1,\"bs\":\"1\",\"cs\":\"1\",\"hs\":\"1\",\"os\":\"01\",\"ucs\":\"" & char(0, 0, 0, 1) & "\",\"e\":\"first\"}");
+  log("expected:",expected);
+  os := f_json_enc_r2os(x);
+  log(os);
+  log(oct2char(os));
+  f_compare_octetstring(os,expected);
+  
+  os := f_json_enc_r2os(y);
+  log(oct2unichar(os));
+  f_compare_octetstring(os,expected);
+
+  //decode test:
+  z := f_json_dec_os2r(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+
+testcase tc_jsonBasic_encdec_os_set() runs on CT {
+  const S_json x := {
+    i := 1,
+    bs := '1'B,
+    cs := "1",
+    hs :='1'H,
+    os :='01'O,
+    ucs := char(0,0,0,1),
+    e := first
+  };
+  var S_json y := {
+    i := 1,
+    bs := '1'B,
+    cs := "1",
+    hs :='1'H,
+    os :='01'O,
+    ucs := char(0,0,0,1),
+    e := first
+  };
+  var octetstring os;
+  var octetstring expected :=  unichar2oct("{\"i\":1,\"bs\":\"1\",\"cs\":\"1\",\"hs\":\"1\",\"os\":\"01\",\"ucs\":\"" & char(0, 0, 0, 1) & "\",\"e\":\"first\"}");// ???
+  log("expected:",expected);
+  os := f_json_enc_s2os(x); 
+  log(os);
+  f_compare_octetstring(os,expected);
+  
+  os := f_json_enc_s2os(y);
+  log(os);
+  f_compare_octetstring(os,expected);
+
+  //encvalue- returns bitstring
+
+  //decode test:
+  var S_json z := f_json_dec_os2s(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+}
+
+//==== JSON arrays: ttcn arrays, record of, set of
+//"An array is an ordered sequence of zero or more values"
+
+
+//AI3
+testcase tc_jsonBasic_encdec_os_AI3() runs on CT {
+  const AI3_json x := { 0,1,-1234 };
+  var   AI3_json y :=  { 0,1,-1234 };
+  var octetstring bs;
+  var octetstring expected :=   unichar2oct("[0,1,-1234]");// ???
+  log("expected:",expected);
+  bs := f_json_enc_ai3toos(x);
+  log(bs);
+  log(oct2char(bs));
+  f_compare_octetstring(bs, expected);
+  
+  bs := f_json_enc_ai3toos(y);
+  log(bs);  
+  f_compare_octetstring(bs, expected);
+
+  //decode test:
+  var AI3_json z := f_json_dec_ostoai3(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+testcase tc_jsonBasic_encdec_os_roi1() runs on CT {
+  const RoI_json x := {};
+  var RoI_json y := {} ;
+  var octetstring os;
+  var octetstring expected :=  unichar2oct("[]");// ???
+  log("expected:",expected);
+  os := f_json_enc_roi2os(x);
+  log(os);
+  log( (os));  
+  f_compare_octetstring(os,expected);
+  
+  os := f_json_enc_roi2os(y);
+  log(os);  
+  f_compare_octetstring(os,expected);
+
+//  //encvalue - retval is bitstring
+
+  //decode test:
+  var RoI_json z := f_json_dec_os2roi(expected);
+  if ( y==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+}
+testcase tc_jsonBasic_encdec_os_roi2() runs on CT {
+  const RoI_json x := { 100 };
+  var RoI_json y := { 100 };
+  var octetstring os;
+  var octetstring expected :=  unichar2oct("[100]");// ???
+  log("expected:",expected);
+  os := f_json_enc_roi2os(x);
+  log(os);
+  log( (os));  
+  f_compare_octetstring(os,expected);
+  
+  os := f_json_enc_roi2os(y);
+  log(os);  
+  f_compare_octetstring(os,expected);
+
+//  //encvalue - retval is bitstring
+
+  //decode test:
+  var RoI_json z := f_json_dec_os2roi(expected);
+  if ( y==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+}
+testcase tc_jsonBasic_encdec_os_roi3() runs on CT {
+  const RoI_json x := { 0,1,9,10,123456789, -1, -1234567890123 };
+  var RoI_json y := { 0,1,9,10,123456789, -1, -1234567890123 };
+  var octetstring os;
+  var octetstring expected :=  unichar2oct("[0,1,9,10,123456789,-1,-1234567890123]");// ???
+  log("expected:",expected);
+  os := f_json_enc_roi2os(x);
+  log(os);
+  log( (os));  
+  f_compare_octetstring(os,expected);
+  
+  os := f_json_enc_roi2os(y);
+  log(os);  
+  f_compare_octetstring(os,expected);
+
+//  //encvalue - retval is bitstring
+
+  //decode test:
+  var RoI_json z := f_json_dec_os2roi(expected);
+  if ( y==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+}
+
+testcase tc_jsonBasic_encdec_os_soi() runs on CT {
+  const SoI_json x := { 0,1,9,10,123456789, -1, -1234567890123 };
+  var SoI_json y := { 0,1,9,10,123456789, -1, -1234567890123 };
+  var octetstring os;
+  var octetstring expected := unichar2oct("[0,1,9,10,123456789,-1,-1234567890123]");// ???
+  log("expected:",expected);
+  os := f_json_enc_soi2os(x);
+  log(os);
+  f_compare_octetstring(os,expected);
+  
+  os := f_json_enc_soi2os(y);
+  log(os);  
+  f_compare_octetstring(os,expected);
+
+  //encvalue returns bitstring
+
+  //decode test:
+  var SoI_json z := f_json_dec_os2soi(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+testcase tc_jsonBasic_encdec_os_union_const() runs on CT {
+  const U_json x := { i := 1 };
+  var octetstring os;
+  var octetstring expected :=  unichar2oct("{\"i\":1}");
+  log("expected:",expected);
+  os := f_json_enc_u2os(x);
+  log(os);
+  log(oct2char(os));
+  f_compare_octetstring(os,expected);
+
+}
+
+type record of U_json RoU;
+type record of octetstring RoOS;
+
+testcase tc_jsonBasic_encdec_os_union() runs on CT {
+
+  //input union possibilities:
+  var RoU rou :={ 
+    { i := 1 },
+    { bs := '1'B },
+    { cs := "1"},
+    { hs :='1'H },
+    { os :='01'O },
+    { ucs := char(0,0,0,1) },
+    {  e:= first }
+  }
+  var U_json z; //decoded value
+  //expected strings:
+  var RoOS es := {
+    unichar2oct("{\"i\":1}"),
+    unichar2oct("{\"bs\":\"1\"}"),
+    unichar2oct("{\"cs\":\"1\"}"),
+    unichar2oct("{\"hs\":\"1\"}"),
+    unichar2oct("{\"os\":\"01\"}"),
+    unichar2oct("{\"ucs\":\"" & char(0, 0, 0, 1) & "\"}"),
+    unichar2oct("{\"e\":\"first\"}")
+  }
+  var octetstring os;
+  var integer N:= sizeof(rou);
+  for( var integer i:=0; i<N;i:=i+1) {
+    log("expected:", es[i]);
+    os := f_json_enc_u2os(rou[i]);
+    log(os);
+    log(oct2char(os));
+    f_compare_octetstring(os,es[i]);
+    
+    // z = encvalue(rou[i]); // it would be a octetstring value
+    //decode test:
+    z := f_json_dec_os2u(es[i]);
+    if ( rou[i]==z ) {
+      setverdict(pass);
+    } else {
+      setverdict(fail);
+    }
+  }
+}
+
+//== anytype ===
+//not ready
+testcase tc_jsonBasic_encdec_os_anytype_i() runs on CT {
+  var anytype a1 := { I_json := 1 }
+  log(a1);
+}
+
+
+control {
+  execute( tc_jsonBasic_encdec_os_integer() );
+  execute( tc_jsonBasic_encdec_os_float() );
+  execute( tc_jsonBasic_encdec_os_enum() );
+  execute( tc_jsonBasic_encdec_os_bitstring() );
+  execute( tc_jsonBasic_encdec_os_charstring() );
+  execute( tc_jsonBasic_encdec_os_hexstring() );
+  execute( tc_jsonBasic_encdec_os_octetstring() );
+  execute( tc_jsonBasic_encdec_os_ucharstring() );
+//  execute( tc_jsonBasic_encdec_os_AI3() );  //TODO:bugfix this!
+//  execute( tc_jsonBasic_encdec_os_verdict() ); //TODO:bugfix this!
+  execute( tc_jsonBasic_encdec_os_record() );
+  execute( tc_jsonBasic_encdec_os_roi1() );
+  execute( tc_jsonBasic_encdec_os_roi2() );
+  execute( tc_jsonBasic_encdec_os_roi3() );
+  execute( tc_jsonBasic_encdec_os_set() );
+  execute( tc_jsonBasic_encdec_os_soi() );
+  execute( tc_jsonBasic_encdec_os_union_const() );
+  execute( tc_jsonBasic_encdec_os_union() );
+}
+
+} with {
+encode "JSON";
+extension "anytype I_json, E_json"
+}

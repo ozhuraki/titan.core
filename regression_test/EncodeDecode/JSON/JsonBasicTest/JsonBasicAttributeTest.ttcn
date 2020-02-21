@@ -1,0 +1,149 @@
+module JsonBasicAttributeTest {
+
+type component CT {}
+
+function f_compare_bitstring(in bitstring pl_val, in bitstring pl_expected) {
+  if ( pl_val == pl_expected ){
+    setverdict(pass);
+  } else {
+    setverdict( fail, "expected: ", pl_expected, " got: ", pl_val)
+  }
+} with { extension "transparent"}
+
+//=======================================
+//============= Types ===================
+//=======================================
+
+//======= Record with one field =========
+//no other attr than JSON
+type record R0_json {
+  integer i optional
+} with { encode "JSON" }
+
+type record R1_json {
+  integer i optional
+} with { encode "JSON"; variant(i) "JSON: omit as null"; }
+
+type record R2_json {
+  integer i optional
+} with { encode "JSON"; variant(i) "JSON: name as Integer"; }
+
+type record R3_json {
+  integer i optional
+} with { encode "JSON"; variant(i) "JSON: name as Integer"; variant(i) "JSON: omit as null";}
+
+type record R4_json {
+  integer i optional
+} with { encode "JSON"; variant "JSON: as value";}
+
+//======= Record with more field =========
+
+//==== Testcases ====
+
+//No attribute
+testcase tc_attr0_0() runs on CT {
+  var R0_json x := { i:=omit }
+  var bitstring expected := oct2bit(char2oct("{}"));
+  var bitstring encoded := encvalue(x);
+  log(x);
+  log(bit2oct(encoded));
+  f_compare_bitstring(expected,encoded);
+}
+
+testcase tc_attr0_1() runs on CT {
+  var R0_json x := { i:= 1 }
+  var bitstring expected := oct2bit(char2oct("{\"i\":1}"));
+  var bitstring encoded := encvalue(x);
+  log(x);
+  log(bit2oct(encoded));
+  f_compare_bitstring(expected,encoded);
+}
+
+//Attribute: omit as null
+testcase tc_attr1_0() runs on CT {
+  var R1_json x := { i:=omit }
+  var bitstring expected := oct2bit(char2oct("{\"i\":null}"));
+  var bitstring encoded := encvalue(x);
+  log(x);
+  log(bit2oct(encoded));
+  f_compare_bitstring(expected,encoded);
+}
+
+testcase tc_attr1_1() runs on CT {
+  var R1_json x := { i:= 1 }
+  var bitstring expected := oct2bit(char2oct("{\"i\":1}"));
+  var bitstring encoded := encvalue(x);
+  log(x);
+  log(bit2oct(encoded));
+  f_compare_bitstring(expected,encoded);
+}
+
+//Attribute: name as
+testcase tc_attr2_0() runs on CT {
+  var R2_json x := { i:=omit }
+  var bitstring expected := oct2bit(char2oct("{}"));
+  var bitstring encoded := encvalue(x);
+  log(x);
+  log(bit2oct(encoded));
+  f_compare_bitstring(expected,encoded);
+}
+
+testcase tc_attr2_1() runs on CT {
+  var R2_json x := { i:= 1 }
+  var bitstring expected := oct2bit(char2oct("{\"Integer\":1}"));
+  var bitstring encoded := encvalue(x);
+  log(x);
+  log(bit2oct(encoded));
+  f_compare_bitstring(expected,encoded);
+}
+
+//Attribute: name as & omit as null
+testcase tc_attr3_0() runs on CT {
+  var R3_json x := { i:=omit }
+  var bitstring expected := oct2bit(char2oct("{\"Integer\":null}")); 
+  var bitstring encoded := encvalue(x);
+  log(x);
+  log(bit2oct(encoded));
+  f_compare_bitstring(expected,encoded);
+}
+
+testcase tc_attr3_1() runs on CT {
+  var R3_json x := { i:= 1 }
+  var bitstring expected := oct2bit(char2oct("{\"Integer\":1}"));
+  var bitstring encoded := encvalue(x);
+  log(x);
+  log(bit2oct(encoded));
+  f_compare_bitstring(expected,encoded);
+}
+
+//Attribute: as value & omit as null
+testcase tc_attr4_0() runs on CT {
+  var R4_json x := { i:= omit } 
+  var bitstring expected := oct2bit(char2oct("null")); 
+  var bitstring encoded := encvalue(x);
+  log(bit2oct(encoded));
+  f_compare_bitstring(expected,encoded);
+}
+
+testcase tc_attr4_1() runs on CT {
+  var R4_json x := { i:= 1 }
+  var bitstring expected := oct2bit(char2oct("1"));
+  var bitstring encoded := encvalue(x);
+  log(x);
+  log(bit2oct(encoded));
+  f_compare_bitstring(expected,encoded);
+}
+control {
+  execute(tc_attr0_0());
+  execute(tc_attr0_1());
+  execute(tc_attr1_0());
+  execute(tc_attr1_1());
+  execute(tc_attr2_0());
+  execute(tc_attr2_1());
+  execute(tc_attr3_0());
+  execute(tc_attr3_1());
+  execute(tc_attr4_0());
+  execute(tc_attr4_1());
+}
+
+}

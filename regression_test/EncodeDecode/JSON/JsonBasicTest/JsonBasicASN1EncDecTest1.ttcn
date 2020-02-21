@@ -1,0 +1,146 @@
+module JsonBasicASN1EncDecTest1 {
+
+import from JsonBasicASN1Types all;
+
+type component CT {}
+
+//===== Encode ====
+//x->bs
+external function f_json_enc_abs2bs(in Asn1_bs p) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_abool2bs(in Asn1_bool p) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_abmpstr2bs(in Asn1_bmpstr p) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_anumber2bs(in Asn1_Number p) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+//===
+external function f_json_enc_ai2bs(in Asn1_i p) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_af2bs(in Asn1_f p) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_ao2bs(in Asn1_os p) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+
+// x->os
+//external function f_json_enc_aos2os(in Asn1_os p) return octetstring
+//with { extension "prototype(convert) encode(JSON)" };
+
+//==== Decode ======
+
+external function f_json_dec_bs2abs(in bitstring p ) return  Asn1_bs
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bs2abool(in bitstring p ) return  Asn1_bool
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bs2abmpstr(in bitstring p ) return  Asn1_bmpstr
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bs2anumber(in bitstring p ) return  Asn1_Number
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bs2ai(in bitstring p ) return  Asn1_i
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bs2af(in bitstring p ) return  Asn1_f
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bs2ao(in bitstring p ) return  Asn1_os
+with { extension "prototype(convert) decode(JSON)" };
+
+//==== compare =====
+function f_compare_bitstring(in bitstring pl_val, in bitstring pl_expected) {
+  if ( pl_val == pl_expected ){
+    setverdict(pass);
+  } else {
+    setverdict( fail, "expected: ", pl_expected, " got: ", pl_val)
+  }
+} with { extension "transparent"}
+
+//========================
+//===== Testcases ========
+//========================
+
+//testcase tc_asn1_bs2bs_bug() runs on CT {
+//  var Asn1_bs x := '01'B, d;
+//  var bitstring encoded2 :=  encvalue(x, "", "JSON");
+//  var bitstring expected := '0010 0010 00110000 00110001 0010 0010'B;// "01"
+//  f_compare_bitstring(encoded2,expected);
+//}
+
+// " = ascii x22 = 0010 0010
+// ' = ascii x27 = 0010 0111
+// 0 = ascii x30 = 00110000
+// 1 = ascii x31 = 00110001
+// 
+testcase tc_asn1_bs2bs() runs on CT{
+  var Asn1_bs x := '01'B, d;
+  var bitstring encoded1 := f_json_enc_abs2bs(x);
+  log("encoded1:", encoded1);
+  var bitstring expected := '0010 0010 00110000 00110001 0010 0010'B;// "01"
+//  var bitstring encoded2 :=  encvalue(x, "", "JSON"); //semantic error: No coding rule specified for type `bitstring' TODO: this shall be accepted!!!
+//  log("encoded2:", encoded2);
+  f_compare_bitstring(encoded1,expected);
+//  f_compare_bitstring(encoded2,expected);
+  //dec:
+  d := f_json_dec_bs2abs(encoded1);
+  if ( d==x ){
+    setverdict(pass);
+  } else {
+    setverdict( fail, "expected: ", x, " got: ", d)
+  }
+}
+
+//t = ascii x74 = 01110100
+//r = ascii x72 = 01110010
+//u = ascii x75 = 01110101
+//e = ascii x65 = 01100101
+testcase tc_asn1_bool2bs() runs on CT {
+  var Asn1_bool x := true, d;
+  var bitstring encoded1 := f_json_enc_abool2bs(x);
+  log("encoded1:", encoded1);
+  var bitstring expected := '01110100 01110010 01110101 01100101'B; //true
+  //  var bitstring encoded2 := encvalue(x); //semantic error: No coding rule specified for type `bitstring' TODO: this shall be accepted!!!
+  //  log("encoded2:", encoded2);
+  f_compare_bitstring(encoded1,expected);
+  //dec:
+  d :=   f_json_dec_bs2abool(encoded1);
+  if ( d==x ){
+    setverdict(pass);
+  } else {
+    setverdict( fail, "expected: ", x, " got: ", d)
+  }
+}
+
+
+// 0 = ascii x30 = 00110000
+// 1 = ascii x31 = 00110001
+// 2 = ascii x32 = 00110010
+testcase tc_asn1_i2bs() runs on CT {
+  var Asn1_i x := 12, y;
+  var bitstring encoded1 := f_json_enc_ai2bs(x);
+  log("encoded1:", encoded1);
+  var bitstring expected :=  '00110001 00110010'B
+//    var bitstring encoded2 := encvalue(x); //semantic error: No coding rule specified for type `integer' TODO: this shall be accepted!!!
+//    log("encoded2:", encoded2);
+  f_compare_bitstring(encoded1,expected);
+
+  //decode:
+  //y := 
+}
+
+control {
+//  execute(tc_asn1_bs2bs_bug());
+  execute( tc_asn1_i2bs());
+ // execute( tc_asn1_bs2bs()); //TODO: runtime fails in java
+  execute( tc_asn1_bool2bs());
+}
+
+} with { encode "JSON"}

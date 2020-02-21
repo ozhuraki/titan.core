@@ -1,0 +1,14 @@
+//The goal of this module is to check if all necessary import is present
+//Status: no error
+module JsonTypeAny2 {
+
+type integer I;
+type float F;
+
+type record of anytype rat2
+
+}  with {
+encode "JSON";
+extension "anytype I, F";
+}
+
