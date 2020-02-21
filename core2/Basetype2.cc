@@ -6421,7 +6421,7 @@ int Record_Type::OER_encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_bu
     if (is_default_field) {
       next_default_idx++;
     }
-    if (get_at(p_td.oer->p[i])->is_present() &&
+    if ((!get_at(p_td.oer->p[i])->is_optional() || get_at(p_td.oer->p[i])->is_present()) &&
         (!is_default_field || !get_at(p_td.oer->p[i])->is_equal(default_value))) {
       get_at(p_td.oer->p[i])->OER_encode(*fld_descr(p_td.oer->p[i]), p_buf);
     }
@@ -6543,7 +6543,7 @@ int Record_Type::OER_encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_bu
             if (is_default_field) {
               next_default_idx++;
             }
-            if (get_at(p_td.oer->p[j])->is_present() &&
+            if ((!get_at(p_td.oer->p[j])->is_optional() || get_at(p_td.oer->p[j])->is_present()) &&
                 (!is_default_field || !get_at(p_td.oer->p[j])->is_equal(default_value))) {
               get_at(p_td.oer->p[j])->OER_encode(*fld_descr(p_td.oer->p[j]), tmp_buf);
             }
