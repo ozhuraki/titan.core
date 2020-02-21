@@ -278,6 +278,37 @@ testcase tc_SelectUnionMultipleBranchesAnyType() runs on EmptyCT {
 }
 
 
+type set SetWithOptionalUnion
+{
+  OptionalUnion u optional
+}
+
+type union OptionalUnion
+{
+  integer int,
+  charstring str
+}
+
+testcase tc_SelectUnionForOptionalField() runs on EmptyCT {
+  var SetWithOptionalUnion x := {
+    u := {
+      int := 3
+    }
+  };
+  select union (x.u) {
+    case (int) {
+      setverdict(pass);
+    }
+    case (str) {
+      setverdict(fail, "Wrong alternative selected!");
+    }
+    case else {
+      setverdict(fail, "Invalid alternative selected!");
+    }
+  }
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -311,6 +342,7 @@ control {
   execute(tc_SelectUnionAnyType());
   execute(tc_SelectUnionMultipleBranches());
   execute(tc_SelectUnionMultipleBranchesAnyType());
+  execute(tc_SelectUnionForOptionalField());
 }
 }
 

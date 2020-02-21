@@ -6962,7 +6962,7 @@ error:
   {
     expression_struct expr;
     Code::init_expr(&expr);
-    select_union.expr->generate_code_expr(&expr);
+    select_union.expr->generate_code_expr_mandatory(&expr);
     if (expr.preamble) {
       str = mputstr(str, expr.preamble);
     }
