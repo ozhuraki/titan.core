@@ -1,0 +1,5 @@
+module JsonBasicTypeI {
+type integer I_json;
+} with {
+  encode "JSON";
+} 

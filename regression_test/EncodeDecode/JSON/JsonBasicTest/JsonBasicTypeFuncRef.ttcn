@@ -1,0 +1,15 @@
+module JsonBasicTypeFuncRef {
+
+//function foonction(in charstring input) return charstring
+//{
+//  var integer e := lengthof(input);
+//
+//  return input;
+//}
+//with { extension override "" }
+
+type function fooref(in charstring input) return charstring;
+
+
+} with {
+extension "anytype fooref";}

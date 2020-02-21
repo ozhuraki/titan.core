@@ -1,0 +1,204 @@
+module JsonEncDecFunctions {
+
+import from JsonBasicTypes all;
+
+//+++++++ ENCODING ++++++++++++++++++++
+
+//======= return value: bitstring =====
+external function f_json_enc_i2bs(in I_json i) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_f2bs(in F_json f) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_e2bs(in E_json f) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_b2bs(in B_json f) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_bs2bs(in BS_json f) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_hs2bs(in HS_json f) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_os2bs(in OS_json f) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_cs2bs(in CS_json f) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_ucs2bs(in UCS_json f) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_ai3tobs(in AI3_json f) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_v2bs(in V_json f) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_r2bs(in R_json f) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_roi2bs(in RoI_json f) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_s2bs(in S_json f) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_soi2bs(in SoI_json f) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_u2bs(in U_json f) return bitstring
+with { extension "prototype(convert) encode(JSON)" };
+
+//======= return value: octetstring =====
+
+external function f_json_enc_i2os(in I_json i) return octetstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_f2os(in F_json f) return octetstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_e2os(in E_json f) return octetstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_b2os(in B_json f) return octetstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_bs2os(in BS_json f) return octetstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_hs2os(in HS_json f) return octetstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_os2os(in OS_json f) return octetstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_cs2os(in CS_json f) return octetstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_ucs2os(in UCS_json f) return octetstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_ai3toos(in AI3_json f) return octetstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_v2os(in V_json f) return octetstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_r2os(in R_json f) return octetstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_roi2os(in RoI_json f) return octetstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_s2os(in S_json f) return octetstring 
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_soi2os(in SoI_json f) return octetstring
+with { extension "prototype(convert) encode(JSON)" };
+
+external function f_json_enc_u2os(in U_json f) return octetstring
+with { extension "prototype(convert) encode(JSON)" };
+
+
+//+++++++ DECODING ++++++++++++++++++++
+//======= arg type: bitstring =====
+external function f_json_dec_bs2i(in bitstring p ) return  I_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bs2f(in bitstring p ) return  F_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bs2e(in bitstring p ) return  E_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bs2b(in bitstring p ) return  B_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bs2bs(in bitstring p ) return  BS_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bs2hs(in bitstring p ) return  HS_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bs2os(in bitstring p ) return  OS_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bs2cs(in bitstring p ) return  CS_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bs2ucs(in bitstring p ) return  UCS_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bstoai3(in bitstring p ) return  AI3_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bs2v(in bitstring p ) return  V_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bs2r(in bitstring p ) return  R_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bs2roi(in bitstring p ) return  RoI_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bs2s(in bitstring p ) return  S_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_bs2soi(in bitstring p ) return  SoI_json
+with { extension "prototype(convert) decode(JSON)" };
+external function f_json_dec_bs2u(in bitstring p ) return  U_json
+with { extension "prototype(convert) decode(JSON)" };
+
+//======= arg type: octetstring =====
+external function f_json_dec_os2i(in octetstring p ) return  I_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_os2f(in octetstring p ) return  F_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_os2e(in octetstring p ) return  E_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_os2b(in octetstring p ) return  B_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_os2bs(in octetstring p ) return  BS_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_os2hs(in octetstring p ) return  HS_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_os2os(in octetstring p ) return  OS_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_os2cs(in octetstring p ) return  CS_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_os2ucs(in octetstring p ) return  UCS_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_ostoai3(in octetstring p ) return  AI3_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_os2v(in octetstring p ) return  V_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_os2r(in octetstring p ) return  R_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_os2roi(in octetstring p ) return  RoI_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_os2s(in octetstring p ) return  S_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_os2soi(in octetstring p ) return  SoI_json
+with { extension "prototype(convert) decode(JSON)" };
+
+external function f_json_dec_os2u(in octetstring p ) return  U_json
+with { extension "prototype(convert) decode(JSON)" };
+}

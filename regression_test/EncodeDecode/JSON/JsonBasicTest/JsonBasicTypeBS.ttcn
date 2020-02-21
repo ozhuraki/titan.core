@@ -1,0 +1,5 @@
+module JsonBasicTypeBS {
+type bitstring BS_json;
+}  with {
+  encode "JSON";
+} 

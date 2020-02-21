@@ -1,0 +1,8 @@
+module JsonTypeRec {
+	type record R {
+	  integer i,
+	  charstring j optional
+	}
+} with {
+encode "JSON";
+}

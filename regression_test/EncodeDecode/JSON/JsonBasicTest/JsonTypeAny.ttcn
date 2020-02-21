@@ -1,0 +1,9 @@
+//The goal of this module is to check if all necessary import is present
+module JsonTypeAny {
+
+type record of anytype rat;
+
+
+} with {
+extension "anytype integer, float"
+}

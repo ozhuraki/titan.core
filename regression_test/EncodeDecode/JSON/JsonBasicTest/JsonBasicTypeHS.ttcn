@@ -1,0 +1,5 @@
+module JsonBasicTypeHS {
+type hexstring HS_json;
+} with {
+  encode "JSON";
+}

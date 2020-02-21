@@ -1,0 +1,16 @@
+module JsonBasicTypeAltstep {
+
+//altstep as() {
+//  [] any timer.timeout {
+//    setverdict(pass, "altstep called"); // called in a rather roundabout way
+//  }
+//}
+
+type altstep altstepref()
+
+type union aref {
+  altstepref a,
+  default d
+}
+
+}

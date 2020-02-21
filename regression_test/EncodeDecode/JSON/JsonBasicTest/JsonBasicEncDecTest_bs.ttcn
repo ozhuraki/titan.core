@@ -1,0 +1,966 @@
+// The testcases checks if the encode funcions run and checks the result.
+// The return value of encoding functions is bitstring
+// Anytype is out of scope
+//Status: cpp: compiled and run with 21 pass
+//       java: 19 pass, 2 errors if any is commented out
+
+module JsonBasicEncDecTest_bs {
+
+import from JsonBasicTypes all;
+import from JsonEncDecFunctions all;
+
+type component CT {}
+
+function f_compare_bitstring(in bitstring pl_val, in bitstring pl_expected) {
+  if ( pl_val == pl_expected ){
+    setverdict(pass);
+  } else {
+    setverdict( fail, "expected: ", pl_expected, " got: ", pl_val)
+  }
+} with { extension "transparent"}
+
+//========================
+//===== Testcases ========
+//========================
+//JSON can represent four primitive types (strings, numbers, booleans,   and null) 
+//and two structured types (objects and arrays).
+
+testcase tc_jsonBasic_encdec_integer() runs on CT {
+  const I_json x := 2;
+  var I_json y := 2;
+  var bitstring bs;
+  var bitstring expected := '00110010'B; //oct2bit(char2oct("2"));
+  log("expected:",expected);
+  bs := f_json_enc_i2bs(x);
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_i2bs(y);
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var I_json z := f_json_dec_bs2i(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+}
+
+testcase tc_jsonBasic_encdec_float1() runs on CT {
+  const F_json x := 2.0;
+  var F_json y := 2.0;
+  var bitstring bs;
+  var bitstring expected := oct2bit(char2oct("2.000000"));
+  log("expected:",expected);
+  bs := f_json_enc_f2bs(x);
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_f2bs(y);
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var F_json z := f_json_dec_bs2f(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+//Reference Guide: "The special float values
+//infinity, -infinity and not_a_number are encoded as JSON strings."
+testcase tc_jsonBasic_encdec_float2() runs on CT {
+  const F_json x := infinity;
+  var F_json y := infinity;
+  var bitstring bs;
+  var bitstring expected := oct2bit(char2oct("\"infinity\""));
+  log("expected:",expected, " oct: ", char2oct("\"infinity\""));
+  bs := f_json_enc_f2bs(x);
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_f2bs(y);
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var F_json z := f_json_dec_bs2f(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+testcase tc_jsonBasic_encdec_float3() runs on CT {
+  const F_json x := -infinity;
+  var F_json y := -infinity;
+  var bitstring bs;
+  var bitstring expected := oct2bit(char2oct("\"-infinity\""));
+  log("expected:",expected, " oct: ", char2oct("\"-infinity\""));
+  bs := f_json_enc_f2bs(x);
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_f2bs(y);
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var F_json z := f_json_dec_bs2f(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+testcase tc_jsonBasic_encdec_float4() runs on CT {
+  const F_json x := not_a_number;
+  var F_json y := not_a_number;
+  var bitstring bs;
+  var bitstring expected := oct2bit(char2oct("\"not_a_number\""));
+  log("expected:",expected, " oct: ", char2oct("\"not_a_number\""));
+  bs := f_json_enc_f2bs(x);
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_f2bs(y);
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var F_json z := f_json_dec_bs2f(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+testcase tc_jsonBasic_encdec_enum() runs on CT {
+  const E_json x := second;
+  var E_json y := second;
+  var bitstring bs;
+  var bitstring expected := oct2bit(char2oct("\"second\""));
+  log("expected:",expected);
+  bs := f_json_enc_e2bs(x);
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_e2bs(y);
+  if ( bs == expected ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var E_json z := f_json_dec_bs2e(expected);
+  if ( y == z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+}
+
+testcase tc_jsonBasic_encdec_bool1() runs on CT {
+  const B_json x := true;
+  var B_json y := true;
+  var bitstring bs;
+  var bitstring expected := oct2bit(char2oct("true"));
+  log("expected:",expected);
+  bs := f_json_enc_b2bs(x);
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_b2bs(y);
+  if ( bs == expected ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var B_json z := f_json_dec_bs2b(expected);
+  if ( y == z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+}
+
+testcase tc_jsonBasic_encdec_bool2() runs on CT {
+  const B_json x := false;
+  var B_json y := false;
+  var bitstring bs;
+  var bitstring expected := oct2bit(char2oct("false"));
+  log("expected:",expected);
+  bs := f_json_enc_b2bs(x);
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_b2bs(y);
+  if ( bs == expected ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var B_json z := f_json_dec_bs2b(expected);
+  if ( y == z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+}
+testcase tc_jsonBasic_encdec_bitstring() runs on CT {
+  const BS_json x := '1'B;
+  var BS_json y := '1'B;
+  var bitstring bs;
+  var bitstring expected := oct2bit(char2oct("\"1\""));
+
+  log("expected:",expected);
+  bs := f_json_enc_bs2bs(x);
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_bs2bs(y);
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var BS_json z := f_json_dec_bs2bs(expected);
+  if ( y == z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+testcase tc_jsonBasic_encdec_charstring() runs on CT {
+  const CS_json x := "1";
+  var CS_json y := "1";
+  var bitstring bs;
+  var bitstring expected := oct2bit(char2oct("\"1\""));
+  log("expected:",expected);
+  bs := f_json_enc_cs2bs(x);
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_cs2bs(y);
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var CS_json z := f_json_dec_bs2cs(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail, "Decode input: ", expected, " output: ", z, "expected: ", y);
+  }
+
+  log("Encoded before decoding: ", expected);
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail,"input: ",expected," expected: ", y, " got: ", z, " r: ", r);
+  }
+}
+
+testcase tc_jsonBasic_encdec_hexstring() runs on CT {
+  const HS_json x := '1'H;
+  var HS_json y := '1'H;
+  var bitstring bs;
+  var bitstring expected := oct2bit(char2oct("\"1\""));
+  log("expected:",expected);
+  bs := f_json_enc_hs2bs(x);
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_hs2bs(y);
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var HS_json z := f_json_dec_bs2hs(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+testcase tc_jsonBasic_encdec_octetstring() runs on CT {
+  const OS_json x := 'F1'O;
+  var OS_json y := 'F1'O;
+  var bitstring bs;
+  var bitstring expected := oct2bit(char2oct("\"F1\""));
+  log("expected:",expected);
+  bs := f_json_enc_os2bs(x);
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_os2bs(y);
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var OS_json z := f_json_dec_bs2os(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+testcase tc_jsonBasic_encdec_ucharstring() runs on CT {
+  const UCS_json x := char(0,0,0,1);
+  var UCS_json y := char(0,0,0,1);
+  var bitstring bs;
+  //var bitstring expected := '00100010 00000001 00100010'B; //"x01"    ok, too
+  var bitstring expected := oct2bit(unichar2oct("\"" & char(0, 0, 0, 1) & "\"")); //ok
+  log("expected:",expected);
+  bs := f_json_enc_ucs2bs(x);
+//  log(bs);
+//  log(bit2oct(bs)); //'220122'O = "01"
+//  log(oct2char(bit2oct(bs))); // "\"" & char(0, 0, 0, 1) & "\""
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_ucs2bs(y);
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var UCS_json z := f_json_dec_bs2ucs(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+//===== Verdict ====
+
+//V (verdict)
+testcase tc_jsonBasic_encdec_verdict() runs on CT {
+  const V_json x := pass;
+  var V_json y := pass;
+  var bitstring bs;
+  var bitstring expected := oct2bit(char2oct("\"pass\""));
+  log("expected:",expected, " oct: ", char2oct("\"pass\"") );
+  bs := f_json_enc_v2bs(x);
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_v2bs(y);
+  f_compare_bitstring(bs, expected);
+
+//encvalue is prohibited TODO: check this
+//  bs := encvalue(y);
+//  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var V_json z := f_json_dec_bs2v(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+//  decvalue is prohibited TODO: check this
+//  var integer r := decvalue(expected, z);
+//  if (r==0 and y==z){
+//    setverdict(pass);
+//  } else {
+//    setverdict(fail);
+//  }
+
+}
+
+
+
+//====  JSON objects : record, set
+//"An object is an unordered collection of zero or more name/value   pairs, 
+// where a name is a string and a value is a string, number,   boolean, null, object, or array."
+//R
+testcase tc_jsonBasic_encdec_record() runs on CT {
+  const R_json x := {
+    i := 1,
+    bs := '1'B,
+    cs := "1",
+    hs :='1'H,
+    os :='01'O,
+    ucs := char(0,0,0,1),
+    e := first
+  };
+  var R_json y := {
+    i := 1,
+    bs := '1'B,
+    cs := "1",
+    hs :='1'H,
+    os :='01'O,
+    ucs := char(0,0,0,1),
+    e := first
+  };
+  var bitstring bs;
+  var bitstring expected :=  oct2bit(unichar2oct("{\"i\":1,\"bs\":\"1\",\"cs\":\"1\",\"hs\":\"1\",\"os\":\"01\",\"ucs\":\"" & char(0, 0, 0, 1) & "\",\"e\":\"first\"}"));// ???
+  log("expected:",expected);
+  bs := f_json_enc_r2bs(x);
+  log(bs);
+  log(bit2oct(bs));  
+  log(oct2char(bit2oct(bs)));
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_r2bs(y);
+  log(bit2oct(bs));  
+  if ( bs == expected ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var R_json z := f_json_dec_bs2r(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+testcase tc_jsonBasic_encdec_set() runs on CT {
+  const S_json x := {
+    i := 1,
+    bs := '1'B,
+    cs := "1",
+    hs :='1'H,
+    os :='01'O,
+    ucs := char(0,0,0,1),
+    e := first
+  };
+  var S_json y := {
+    i := 1,
+    bs := '1'B,
+    cs := "1",
+    hs :='1'H,
+    os :='01'O,
+    ucs := char(0,0,0,1),
+    e := first
+  };
+  var bitstring bs;
+  var bitstring expected :=  oct2bit(unichar2oct("{\"i\":1,\"bs\":\"1\",\"cs\":\"1\",\"hs\":\"1\",\"os\":\"01\",\"ucs\":\"" & char(0, 0, 0, 1) & "\",\"e\":\"first\"}"));// ???
+  log("expected:",expected);
+  bs := f_json_enc_s2bs(x);
+//  log(bs);
+//  log(bit2oct(bs));  
+//  log(oct2char(bit2oct(bs)));
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_s2bs(y);
+  log(bit2oct(bs));  
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+  
+  //decode test:
+  var S_json z := f_json_dec_bs2s(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+//==== JSON arrays: ttcn arrays, record of, set of
+//"An array is an ordered sequence of zero or more values"
+
+//AI3
+testcase tc_jsonBasic_encdec_AI3() runs on CT {
+  const AI3_json x := { 0,1,-1234 };
+  var   AI3_json y :=  { 0,1,-1234 };
+  var bitstring bs;
+  var bitstring expected :=  oct2bit(unichar2oct("[0,1,-1234]"));// ???
+  log("expected:",expected);
+  bs := f_json_enc_ai3tobs(x);
+  log(bs);
+  log(bit2oct(bs));  
+  log(oct2char(bit2oct(bs)));
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_ai3tobs(y);
+  log(bit2oct(bs));  
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var AI3_json z := f_json_dec_bstoai3(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+testcase tc_jsonBasic_encdec_roi1() runs on CT {
+  const RoI_json x := {};
+  var RoI_json y := {};
+  var bitstring bs;
+  var bitstring expected :=  oct2bit(unichar2oct("[]"));
+  log("expected:",expected);
+  bs := f_json_enc_roi2bs(x);
+  log(bs);
+  log(bit2oct(bs));  
+  log(oct2char(bit2oct(bs)));
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_roi2bs(y);
+  log(bit2oct(bs));  
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var RoI_json z := f_json_dec_bs2roi(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+testcase tc_jsonBasic_encdec_roi2() runs on CT {
+  const RoI_json x := { 0,1,9,10,123456789, -1, -1234567890123 };
+  var RoI_json y := { 0,1,9,10,123456789, -1, -1234567890123 };
+  var bitstring bs;
+  var bitstring expected :=  oct2bit(unichar2oct("[0,1,9,10,123456789,-1,-1234567890123]"));// ???
+  log("expected:",expected);
+  bs := f_json_enc_roi2bs(x);
+  log(bs);
+  log(bit2oct(bs));  
+  log(oct2char(bit2oct(bs)));
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_roi2bs(y);
+  log(bit2oct(bs));  
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var RoI_json z := f_json_dec_bs2roi(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+
+testcase tc_jsonBasic_encdec_soi1() runs on CT {
+  const SoI_json x := { };
+  var SoI_json y := {};
+  var bitstring bs;
+  var bitstring expected :=  oct2bit(unichar2oct("[]"));// ???
+  log("expected:",expected);
+  bs := f_json_enc_soi2bs(x);
+  log(bs);
+  log(bit2oct(bs));  
+  log(oct2char(bit2oct(bs)));
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_soi2bs(y);
+  log(bit2oct(bs));  
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+  
+  //decode test:
+  var SoI_json z := f_json_dec_bs2soi(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+testcase tc_jsonBasic_encdec_soi2() runs on CT {
+  const SoI_json x := { 0 };
+  var SoI_json y := { 0 };
+  var bitstring bs;
+  var bitstring expected :=  oct2bit(unichar2oct("[0]"));// ???
+  log("expected:",expected);
+  bs := f_json_enc_soi2bs(x);
+  log(bs);
+  log(bit2oct(bs));  
+  log(oct2char(bit2oct(bs)));
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_soi2bs(y);
+  log(bit2oct(bs));  
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+  
+  //decode test:
+  var SoI_json z := f_json_dec_bs2soi(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+
+testcase tc_jsonBasic_encdec_soi3() runs on CT {
+  const SoI_json x := { 0,1,9,10,123456789, -1, -1234567890123 };
+  var SoI_json y := { 0,1,9,10,123456789, -1, -1234567890123 };
+  var bitstring bs;
+  var bitstring expected :=  oct2bit(unichar2oct("[0,1,9,10,123456789,-1,-1234567890123]"));// ???
+  log("expected:",expected);
+  bs := f_json_enc_soi2bs(x);
+  log(bs);
+  log(bit2oct(bs));  
+  log(oct2char(bit2oct(bs)));
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_soi2bs(y);
+  log(bit2oct(bs));  
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+  
+  //decode test:
+  var SoI_json z := f_json_dec_bs2soi(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+//============ Union =======
+
+testcase tc_jsonBasic_encdec_union_const() runs on CT {
+  const U_json x := { i := 1 };
+  var bitstring bs;
+  var bitstring expected :=  oct2bit(unichar2oct("{\"i\":1}"));// ???
+  log("expected:",expected);
+  bs := f_json_enc_u2bs(x);
+//  log(bs);
+//  log(bit2oct(bs));  
+//  log(oct2char(bit2oct(bs)));
+  f_compare_bitstring(bs, expected);
+  
+  //TODO: finish
+}
+
+
+type record of U_json RoU;
+type record of bitstring RoBS;
+
+
+testcase tc_jsonBasic_encdec_union() runs on CT {
+
+  //input union possibilities:
+  var RoU rou :={ 
+    { i := 1 },
+    { bs := '1'B },
+    { cs := "1"},
+    { hs :='1'H },
+    { os :='01'O },
+    { ucs := char(0,0,0,1) },
+    {  e:= first }
+  }
+  //expected strings:
+  var RoBS es := {
+    oct2bit(unichar2oct("{\"i\":1}")),
+    oct2bit(unichar2oct("{\"bs\":\"1\"}")),
+    oct2bit(unichar2oct("{\"cs\":\"1\"}")),
+    oct2bit(unichar2oct("{\"hs\":\"1\"}")),
+    oct2bit(unichar2oct("{\"os\":\"01\"}")),
+    oct2bit(unichar2oct("{\"ucs\":\"" & char(0, 0, 0, 1) & "\"}")),
+    oct2bit(unichar2oct("{\"e\":\"first\"}"))
+  }
+  var bitstring bs;
+  var integer N:= sizeof(rou);
+  for( var integer i:=0; i<N;i:=i+1) {
+    log("expected:", es[i]);
+    bs := f_json_enc_u2bs(rou[i]);
+    log(bs);
+    log(bit2oct(bs)); 
+    log(oct2char(bit2oct(bs)));
+    f_compare_bitstring(bs, es[i]);
+
+    //encvalue
+    bs := encvalue(rou[i]);
+    f_compare_bitstring(bs, es[i]);
+
+    //decode test:
+    var U_json z := f_json_dec_bs2u(bs);
+    if ( rou[i] == z ) {
+      setverdict(pass);
+    } else {
+      setverdict(fail);
+    }
+
+    var integer r := decvalue(bs, z);
+    if (r==0 and rou[i]==z){
+      setverdict(pass);
+    } else {
+      setverdict(fail);
+    }
+  }
+
+}
+
+//== anytype ===
+
+
+//not ready
+type integer I;
+type charstring CS;
+testcase tc_jsonBasic_encdec_anytype_i() runs on CT {
+  var anytype a1 := { I := 1 };
+  log(a1);
+  var bitstring expected := oct2bit(unichar2oct("{\"I\":1}"))
+  var bitstring bs;
+    bs:=  encvalue( a1 );
+    if ( bs == expected ) {
+      setverdict(pass);
+    } else {
+      setverdict(fail, "expected: ", expected, " got: ",bs, " oct: ", bit2oct(bs));
+    }
+}
+
+
+control {
+  execute( tc_jsonBasic_encdec_integer() );
+  execute( tc_jsonBasic_encdec_float1() );
+  execute( tc_jsonBasic_encdec_float2() );
+  execute( tc_jsonBasic_encdec_float3() );
+  execute( tc_jsonBasic_encdec_float4() );
+  execute( tc_jsonBasic_encdec_enum() );
+  execute( tc_jsonBasic_encdec_bool1() );
+  execute( tc_jsonBasic_encdec_bool2() );
+  execute( tc_jsonBasic_encdec_bitstring() );
+  execute( tc_jsonBasic_encdec_charstring() );
+  execute( tc_jsonBasic_encdec_hexstring() );
+  execute( tc_jsonBasic_encdec_octetstring() );
+  execute( tc_jsonBasic_encdec_ucharstring() );
+//  execute( tc_jsonBasic_encdec_verdict()); //TODO: error in java
+  //JSON objects:
+  execute( tc_jsonBasic_encdec_record() );
+  execute( tc_jsonBasic_encdec_set() );
+  execute( tc_jsonBasic_encdec_roi1() );
+  execute( tc_jsonBasic_encdec_roi2() );
+  //  execute( tc_jsonBasic_encdec_AI3()); //TODO: error in java
+  execute( tc_jsonBasic_encdec_soi1() );
+  execute( tc_jsonBasic_encdec_soi2() );
+  execute( tc_jsonBasic_encdec_soi3() );
+  execute( tc_jsonBasic_encdec_union_const() );
+  execute( tc_jsonBasic_encdec_union() );
+  execute( tc_jsonBasic_encdec_anytype_i());
+}
+
+} with {
+encode "JSON";
+extension "anytype I, CS";
+}

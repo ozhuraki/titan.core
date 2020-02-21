@@ -1,0 +1,54 @@
+module JsonBasicTypes {
+
+type integer I_json;
+type float F_json;
+type enumerated E_json {first, second}
+type boolean B_json;
+type bitstring BS_json;
+type charstring CS_json;
+type hexstring HS_json;
+type octetstring OS_json;
+type universal charstring UCS_json;
+
+type integer AI3_json[3]; //array
+//type integer AI2_json [2]
+
+type verdicttype V_json;
+
+type record R_json {
+	I_json i,
+	BS_json bs,
+	CS_json cs,
+	HS_json hs,
+	OS_json os,
+	UCS_json ucs,
+	E_json e
+}
+
+type record of integer RoI_json;
+
+type set S_json {
+	I_json i,
+	BS_json bs,
+	CS_json cs,
+	HS_json hs,
+	OS_json os,
+	UCS_json ucs,
+	E_json e
+}
+
+type set of integer SoI_json;
+
+type union U_json {
+	I_json i,
+	BS_json bs,
+	CS_json cs,
+	HS_json hs,
+	OS_json os,
+	UCS_json ucs,
+	E_json e
+}
+
+} with {
+  encode "JSON";
+} 

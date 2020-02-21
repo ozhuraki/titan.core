@@ -1,0 +1,35 @@
+JsonBasicASN1Types DEFINITIONS
+
+  AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS ;
+
+Asn1-bs ::= BIT STRING
+Asn1-bool ::= BOOLEAN
+Asn1-bmpstr ::= BMPString
+Asn1-Number ::= CHOICE {
+  decimal INTEGER,
+  binary BIT STRING,
+  hexadecimal OCTET STRING
+}
+
+Asn1-genstr ::= GeneralString
+Asn1-graphstr ::= GraphicString
+Asn1-ia5str ::= IA5String
+Asn1-i ::= INTEGER
+Asn1-f ::= REAL
+Asn1-null ::= NULL
+Asn1-numstr ::= NumericString
+Asn1-oid ::= OBJECT IDENTIFIER
+Asn1-os ::= OCTET STRING
+Asn1-pstr ::= PrintableString
+Asn1-seqofI ::= SEQUENCE OF INTEGER
+Asn1-setofI ::= SET OF INTEGER
+Asn1-teletexstr ::= TeletexString
+Asn1-utf8str ::= UTF8String
+Asn1-videotexstr ::= VideotexString
+Asn1-visiblestr ::= VisibleString
+
+END

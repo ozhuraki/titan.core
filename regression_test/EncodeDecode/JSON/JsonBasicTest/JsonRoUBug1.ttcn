@@ -1,0 +1,18 @@
+//Bug: Erroneous generated code
+//Status: fixed. 
+module JsonRoUBug1 {
+type component CT {}
+
+type integer I_json;
+type bitstring BS_json;
+type record of U_json RoU;
+type union U_json {
+	I_json i,
+	BS_json bs
+}
+
+type record of I_json RoI_json;
+
+} with {
+  encode "JSON";
+} 

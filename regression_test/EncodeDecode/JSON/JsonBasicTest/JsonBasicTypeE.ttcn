@@ -1,0 +1,5 @@
+module JsonBasicTypeE {
+type enumerated E_json {first, second}
+}  with {
+  encode "JSON";
+}

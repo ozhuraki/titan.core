@@ -1,0 +1,5 @@
+module JsonBasicTypeOS {
+type octetstring OS_json;
+} with {
+  encode "JSON";
+} 
