@@ -58,6 +58,39 @@ testcase tc_jsonBasic_encdec_integer() runs on CT {
 
 }
 
+testcase tc_jsonBasic_encdec_integer_big() runs on CT {
+  const I_json x := 2222222222222222222222222222222222;
+  var I_json y := 2222222222222222222222222222222222;
+  var bitstring bs;
+  var bitstring expected := oct2bit(char2oct("2222222222222222222222222222222222"));
+  log("expected:",expected);
+  bs := f_json_enc_i2bs(x);
+  f_compare_bitstring(bs, expected);
+  
+  bs := f_json_enc_i2bs(y);
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var I_json z := f_json_dec_bs2i(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+}
+
 testcase tc_jsonBasic_encdec_float1() runs on CT {
   const F_json x := 2.0;
   var F_json y := 2.0;
@@ -933,6 +966,7 @@ testcase tc_jsonBasic_encdec_anytype_i() runs on CT {
 
 control {
   execute( tc_jsonBasic_encdec_integer() );
+  execute( tc_jsonBasic_encdec_integer_big() );
   execute( tc_jsonBasic_encdec_float1() );
   execute( tc_jsonBasic_encdec_float2() );
   execute( tc_jsonBasic_encdec_float3() );

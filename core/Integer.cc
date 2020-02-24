@@ -1773,6 +1773,7 @@ int INTEGER::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_to
   }
   else if (JSON_TOKEN_NUMBER == token || use_default) {
     char* number = mcopystrn(value, value_len);
+    clean_up();
     if (from_string(number) && (int)value_len == get_nof_digits() + ('-' == value[0] ? 1 : 0)) {
       bound_flag = TRUE;
     } else {
