@@ -37,7 +37,7 @@
 # Set these variables...
 #
 
-TOPDIR := ../..
+TOPDIR := ../../..
 include $(TOPDIR)/Makefile.regression
 
 # The path of your TTCN-3 Test Executor installation:

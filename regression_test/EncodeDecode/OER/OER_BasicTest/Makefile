@@ -9,7 +9,7 @@
 #   Szabo, Bence Janos
 #
 ##############################################################################
-TOPDIR := ..
+TOPDIR := ../../../
 include $(TOPDIR)/Makefile.regression
 
 .SUFFIXES: .ttcn .asn .hh
