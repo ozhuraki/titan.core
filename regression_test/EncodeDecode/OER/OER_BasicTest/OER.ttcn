@@ -11,7 +11,7 @@
  ******************************************************************************/
  module OER {
 
- 	import from Types all;
+ 	import from OERTypes all;
 
  	type component EmptyCT {
 
