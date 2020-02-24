@@ -1381,6 +1381,7 @@ int OCTETSTRING::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& 
         }
       }
       if (!error) {
+        clean_up();
         init_struct(nibbles / 2);
         if (value_len != 0) {
           int octet_index = 0;
