@@ -54,4 +54,6 @@ dep: $(GENERATED_SOURCES)
 	makedepend $(CPPFLAGS) $(GENERATED_SOURCES)
 
 run: $(TARGET)
-	./$(TARGET) OER.cfg
+	./$(TARGET) OER.cfg 2> result.txt
+	cat result.txt
+	grep "Overall verdict: pass" result.txt
