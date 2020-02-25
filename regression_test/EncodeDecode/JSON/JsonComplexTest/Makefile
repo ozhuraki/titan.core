@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2000-2019 Ericsson Telecom AB
+# Copyright (c) 2000-2020 Ericsson Telecom AB
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v2.0
 # which accompanies this distribution, and is available at
@@ -27,7 +27,7 @@ endif
 
 ASN1_MODULES = JsonData.asn
 
-GENERATED_SOURCES = $(TTCN3_MODULES:.ttcn=.cc) $(ASN1_MODULES:.asn=.cc)
+GENERATED_SOURCES = $(ASN1_MODULES:.asn=.cc) $(TTCN3_MODULES:.ttcn=.cc)
 GENERATED_HEADERS = $(GENERATED_SOURCES:.cc=.hh)
 ifdef CODE_SPLIT
 GENERATED_SOURCES := $(foreach file, $(GENERATED_SOURCES:.cc=), $(addprefix $(file), .cc _seq.cc _set.cc  _seqof.cc _setof.cc _union.cc))
@@ -38,9 +38,7 @@ GENERATED_SOURCES2 := $(foreach file, $(GENERATED_SOURCES:.cc=), $(addprefix $(f
 GENERATED_SOURCES += $(GENERATED_SOURCES2)
 endif
 
-USER_SOURCES =  
-
-OBJECTS = $(GENERATED_SOURCES:.cc=.o) $(USER_SOURCES:.cc=.o)
+OBJECTS = $(GENERATED_SOURCES:.cc=.o)
 
 TARGET = json$(EXESUFFIX)
 
@@ -49,29 +47,23 @@ all: $(TARGET)
 $(TARGET): $(GENERATED_SOURCES) $(USER_SOURCES)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ -L$(TTCN3_DIR)/lib -l$(TTCN3_LIB) -L$(OPENSSL_DIR)/lib -lcrypto $($(PLATFORM)_LIBS)
 
-	
-#.ttcn.cc .ttcn.hh:
-#	$(TTCN3_COMPILER) $<
-
 $(GENERATED_SOURCES) $(GENERATED_HEADERS): compile
-	@if [ ! -f $@ ]; then $(RM) compile; $(MAKE) compile; fi
 
 compile: $(TTCN3_MODULES) $(ASN1_MODULES)
-	$(filter-out -Nold -E, $(TTCN3_COMPILER)) $(COMPILER_FLAGS) $^ 
-	touch compile
+	$(TTCN3_COMPILER) $(COMPILER_FLAGS) $^
+
+#???:
+#compile: $(TTCN3_MODULES) $(ASN1_MODULES)
+#	$(filter-out -Nold -E, $(TTCN3_COMPILER)) $(COMPILER_FLAGS) $^ 
+#	touch compile
 	
 clean distclean:
-	-rm -rf $(TARGET) $(OBJECTS) $(GENERATED_HEADERS) \
-	$(GENERATED_SOURCES) *.log Makefile.bak compile logs
+	$(RM) $(TARGET) $(GENERATED_HEADERS) $(GENERATED_SOURCES) $(OBJECTS) *.log Makefile.bak compile
 
 dep: $(GENERATED_SOURCES)
 	makedepend $(CPPFLAGS) $(GENERATED_SOURCES)
 
-run: $(TARGET) JSON.cfg
-	./$^
-
-.NOTPARALLEL:
-
-ifdef SRCDIR
-$(foreach src, $(USER_SOURCES), $(eval vpath $(src) $(ABS_SRC)))
-endif
+run: $(TARGET)
+	./$(TARGET) JSON.cfg 2> result.txt
+	cat result.txt
+	grep "Overall verdict: pass" result.txt
