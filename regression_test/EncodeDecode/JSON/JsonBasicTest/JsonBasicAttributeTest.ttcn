@@ -1,3 +1,14 @@
+/******************************************************************************
+* Copyright (c) 2000-2020 Ericsson Telecom AB
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v2.0
+* which accompanies this distribution, and is available at
+* https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+*
+* Contributors:
+*   Balasko, Jeno
+*
+******************************************************************************/
 module JsonBasicAttributeTest {
 
 type component CT {}
@@ -13,6 +24,16 @@ function f_compare_bitstring(in bitstring pl_val, in bitstring pl_expected) {
 //=======================================
 //============= Types ===================
 //=======================================
+
+type enumerated E { e1,e2,e3 }
+
+type enumerated Etext { One, Two, Three} 
+with {
+  variant "text 'One' as '1'"
+  variant "text 'Two' as '2'"
+  variant "text 'Three' as '3'"
+}
+
 
 //======= Record with one field =========
 //no other attr than JSON
@@ -38,10 +59,53 @@ type record R4_json {
 
 //======= Record with more field =========
 
-//==== Testcases ====
+//type record R10_json {
+//  integer i optional,
+//  float    f,
+//  E       e
+//} with { encode "JSON" }
+//
+//type record R11_json {
+//  integer i optional
+//} with { encode "JSON"; variant(i) "JSON: omit as null"; }
+//
+//type record R12_json {
+//  integer i optional
+//} with { encode "JSON"; variant(i) "JSON: name as Integer"; }
+//
+//type record R13_json {
+//  integer i optional
+//} with { encode "JSON"; variant(i) "JSON: name as Integer"; variant(i) "JSON: omit as null";}
+//
+//type record R14_json {
+//  integer i optional
+//} with { encode "JSON"; variant "JSON: as value";}
 
+//=================================
+//======= Testcases ===============
+//=================================
+
+//=== Enum ====
+
+testcase tc_attr_enum_no_attr() runs on CT {
+  var E x := e2;
+  var bitstring expected := oct2bit(char2oct("\"e2\""));
+  var bitstring encoded := encvalue(x);
+  log(x);
+  log(bit2oct(encoded));
+  f_compare_bitstring(expected,encoded);
+}
+
+testcase tc_attr_enum_text_attr() runs on CT {
+  var Etext x := One;
+  var bitstring expected := oct2bit(char2oct("\"1\""));
+  var bitstring encoded := encvalue(x);
+  log(x);
+  log(bit2oct(encoded));
+  f_compare_bitstring(expected,encoded);
+}
 //No attribute
-testcase tc_attr0_0() runs on CT {
+testcase tc_rec_attr_no_attr_omit() runs on CT {
   var R0_json x := { i:=omit }
   var bitstring expected := oct2bit(char2oct("{}"));
   var bitstring encoded := encvalue(x);
@@ -50,7 +114,7 @@ testcase tc_attr0_0() runs on CT {
   f_compare_bitstring(expected,encoded);
 }
 
-testcase tc_attr0_1() runs on CT {
+testcase tc_rec_attr_no_attr_int() runs on CT {
   var R0_json x := { i:= 1 }
   var bitstring expected := oct2bit(char2oct("{\"i\":1}"));
   var bitstring encoded := encvalue(x);
@@ -60,7 +124,7 @@ testcase tc_attr0_1() runs on CT {
 }
 
 //Attribute: omit as null
-testcase tc_attr1_0() runs on CT {
+testcase tc_rec_attr_omit_as_null_omitvalue() runs on CT {
   var R1_json x := { i:=omit }
   var bitstring expected := oct2bit(char2oct("{\"i\":null}"));
   var bitstring encoded := encvalue(x);
@@ -69,7 +133,7 @@ testcase tc_attr1_0() runs on CT {
   f_compare_bitstring(expected,encoded);
 }
 
-testcase tc_attr1_1() runs on CT {
+testcase tc_rec_attr_omit_as_null_intvalue() runs on CT {
   var R1_json x := { i:= 1 }
   var bitstring expected := oct2bit(char2oct("{\"i\":1}"));
   var bitstring encoded := encvalue(x);
@@ -79,7 +143,7 @@ testcase tc_attr1_1() runs on CT {
 }
 
 //Attribute: name as
-testcase tc_attr2_0() runs on CT {
+testcase tc_rec_attr_name_as_omitvalue() runs on CT {
   var R2_json x := { i:=omit }
   var bitstring expected := oct2bit(char2oct("{}"));
   var bitstring encoded := encvalue(x);
@@ -88,7 +152,7 @@ testcase tc_attr2_0() runs on CT {
   f_compare_bitstring(expected,encoded);
 }
 
-testcase tc_attr2_1() runs on CT {
+testcase tc_rec_attr_name_as_intvalue() runs on CT {
   var R2_json x := { i:= 1 }
   var bitstring expected := oct2bit(char2oct("{\"Integer\":1}"));
   var bitstring encoded := encvalue(x);
@@ -98,7 +162,7 @@ testcase tc_attr2_1() runs on CT {
 }
 
 //Attribute: name as & omit as null
-testcase tc_attr3_0() runs on CT {
+testcase tc_rec_attr_name_as_and_omit_as_null_omitvalue() runs on CT {
   var R3_json x := { i:=omit }
   var bitstring expected := oct2bit(char2oct("{\"Integer\":null}")); 
   var bitstring encoded := encvalue(x);
@@ -107,7 +171,7 @@ testcase tc_attr3_0() runs on CT {
   f_compare_bitstring(expected,encoded);
 }
 
-testcase tc_attr3_1() runs on CT {
+testcase tc_rec_attr_name_as_and_omit_as_null_intvalue() runs on CT {
   var R3_json x := { i:= 1 }
   var bitstring expected := oct2bit(char2oct("{\"Integer\":1}"));
   var bitstring encoded := encvalue(x);
@@ -117,7 +181,7 @@ testcase tc_attr3_1() runs on CT {
 }
 
 //Attribute: as value & omit as null
-testcase tc_attr4_0() runs on CT {
+testcase tc_rec_attr_as_value_and_omit_as_null_omitvalue() runs on CT {
   var R4_json x := { i:= omit } 
   var bitstring expected := oct2bit(char2oct("null")); 
   var bitstring encoded := encvalue(x);
@@ -125,7 +189,7 @@ testcase tc_attr4_0() runs on CT {
   f_compare_bitstring(expected,encoded);
 }
 
-testcase tc_attr4_1() runs on CT {
+testcase tc_rec_attr_as_value_and_omit_as_null_intvalue() runs on CT {
   var R4_json x := { i:= 1 }
   var bitstring expected := oct2bit(char2oct("1"));
   var bitstring encoded := encvalue(x);
@@ -134,16 +198,20 @@ testcase tc_attr4_1() runs on CT {
   f_compare_bitstring(expected,encoded);
 }
 control {
-  execute(tc_attr0_0());
-  execute(tc_attr0_1());
-  execute(tc_attr1_0());
-  execute(tc_attr1_1());
-  execute(tc_attr2_0());
-  execute(tc_attr2_1());
-  execute(tc_attr3_0());
-  execute(tc_attr3_1());
-  execute(tc_attr4_0());
-  execute(tc_attr4_1());
+  execute(tc_attr_enum_no_attr());
+  execute(tc_attr_enum_text_attr());
+  execute(tc_rec_attr_no_attr_omit());
+  execute(tc_rec_attr_no_attr_int());
+  execute(tc_rec_attr_omit_as_null_omitvalue());
+  execute(tc_rec_attr_omit_as_null_intvalue());
+  execute(tc_rec_attr_name_as_omitvalue());
+  execute(tc_rec_attr_name_as_intvalue());
+  execute(tc_rec_attr_name_as_and_omit_as_null_omitvalue());
+  execute(tc_rec_attr_name_as_and_omit_as_null_intvalue());
+  execute(tc_rec_attr_as_value_and_omit_as_null_omitvalue());
+  execute(tc_rec_attr_as_value_and_omit_as_null_intvalue());
 }
 
+} with {
+encode "JSON";
 }

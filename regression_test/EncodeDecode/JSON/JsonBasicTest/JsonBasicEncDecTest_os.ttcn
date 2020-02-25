@@ -1,4 +1,15 @@
-// The testcases checks if the encode and decode funcions run and checks the result.
+/******************************************************************************
+ * Copyright (c) 2000-2020 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Balasko, Jeno
+ *
+ ******************************************************************************/
+// The testcases check if the encode and decode funcions run and check the result.
 // The return value of the encoding functions is octetstring
 // Anytype is out of scope
 // Status: cpp: compiled and run with 14 pass
@@ -30,6 +41,38 @@ testcase tc_jsonBasic_encdec_os_integer() runs on CT {
   var I_json y := 234, z;
   var octetstring os;
   var octetstring expected :=  char2oct("234");
+  log("expected:",expected);
+  os := f_json_enc_i2os(x);
+  f_compare_octetstring(os,expected);
+  
+  os := f_json_enc_i2os(y);
+  f_compare_octetstring(os,expected);
+
+  //decode test:
+  z := f_json_dec_os2i(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+//  //Whitespace test
+//  expected := char2oct("  2 3  4 ");
+//  log(expected);
+//  
+//  //decode test:
+//  z := f_json_dec_os2i(expected);
+//  if ( y ==z ) {
+//    setverdict(pass);
+//  } else {
+//    setverdict(fail);
+//  }
+}
+
+testcase tc_jsonBasic_encdec_os_integer_big() runs on CT {
+  const I_json x := 2222222222222222222222222222222222;
+  var I_json y := 2222222222222222222222222222222222, z;
+  var octetstring os;
+  var octetstring expected :=  char2oct("2222222222222222222222222222222222");
   log("expected:",expected);
   os := f_json_enc_i2os(x);
   f_compare_octetstring(os,expected);
@@ -534,6 +577,7 @@ testcase tc_jsonBasic_encdec_os_anytype_i() runs on CT {
 
 control {
   execute( tc_jsonBasic_encdec_os_integer() );
+  execute( tc_jsonBasic_encdec_os_integer_big() );
   execute( tc_jsonBasic_encdec_os_float() );
   execute( tc_jsonBasic_encdec_os_enum() );
   execute( tc_jsonBasic_encdec_os_bitstring() );
