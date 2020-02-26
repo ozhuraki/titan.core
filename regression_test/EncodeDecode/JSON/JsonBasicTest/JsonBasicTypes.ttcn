@@ -28,12 +28,24 @@ type verdicttype V_json;
 
 type record R_json {
 	I_json i,
+	F_json f,
 	BS_json bs,
 	CS_json cs,
 	HS_json hs,
 	OS_json os,
 	UCS_json ucs,
 	E_json e
+}
+
+type record Ropt_json {
+	I_json i optional,
+	F_json f optional,
+	BS_json bs optional,
+	CS_json cs optional,
+	HS_json hs optional,
+	OS_json os optional,
+	UCS_json ucs optional,
+	E_json e optional
 }
 
 type record of integer RoI_json;

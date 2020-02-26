@@ -295,6 +295,7 @@ testcase tc_jsonBasic_encdec_os_verdict() runs on CT {
 testcase tc_jsonBasic_encdec_os_record() runs on CT {
   const R_json x := {
     i := 1,
+    f:=2.0,
     bs := '1'B,
     cs := "1",
     hs :='1'H,
@@ -304,6 +305,7 @@ testcase tc_jsonBasic_encdec_os_record() runs on CT {
   };
   var R_json y := {
     i := 1,
+    f:=2.0,
     bs := '1'B,
     cs := "1",
     hs :='1'H,
@@ -313,7 +315,7 @@ testcase tc_jsonBasic_encdec_os_record() runs on CT {
   },
   z;
   var octetstring os;
-  var octetstring expected :=  unichar2oct("{\"i\":1,\"bs\":\"1\",\"cs\":\"1\",\"hs\":\"1\",\"os\":\"01\",\"ucs\":\"" & char(0, 0, 0, 1) & "\",\"e\":\"first\"}");
+  var octetstring expected :=  unichar2oct("{\"i\":1,\"f\":2.000000,\"bs\":\"1\",\"cs\":\"1\",\"hs\":\"1\",\"os\":\"01\",\"ucs\":\"" & char(0, 0, 0, 1) & "\",\"e\":\"first\"}");
   log("expected:",expected);
   os := f_json_enc_r2os(x);
   log(os);
