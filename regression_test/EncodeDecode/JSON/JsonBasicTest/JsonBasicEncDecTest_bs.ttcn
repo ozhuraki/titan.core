@@ -292,6 +292,104 @@ testcase tc_jsonBasic_encdec_float1() runs on CT {
   }
 }
 
+testcase tc_jsonBasic_encdec_float1a() runs on CT {
+  const F_json x := 2.0e5;
+  var F_json y := 2.0e5;
+  var bitstring bs;
+  var bitstring expected := oct2bit(char2oct("200000.000000"));
+  log("expected:",expected);
+  bs := f_json_enc_f2bs(x);
+  log(bit2oct(bs));
+  f_compare_bitstring(bs, expected);
+
+  bs := f_json_enc_f2bs(y);
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var F_json z := f_json_dec_bs2f(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+testcase tc_jsonBasic_encdec_float1b() runs on CT {
+  const F_json x := 2.0e9;
+  var F_json y := 2.0e9;
+  var bitstring bs;
+  var bitstring expected := oct2bit(char2oct("2000000000.000000"));
+  log("expected:",expected);
+  bs := f_json_enc_f2bs(x);
+  log(bit2oct(bs));
+  f_compare_bitstring(bs, expected);
+
+  bs := f_json_enc_f2bs(y);
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var F_json z := f_json_dec_bs2f(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
+
+testcase tc_jsonBasic_encdec_float1c() runs on CT {
+  const F_json x := 2.0e10;
+  var F_json y := 2.0e10;
+  var bitstring bs;
+  var bitstring expected := oct2bit(char2oct("2.000000e+10"));
+  log("expected:",expected);
+  bs := f_json_enc_f2bs(x);
+  log(bit2oct(bs));
+  f_compare_bitstring(bs, expected);
+
+  bs := f_json_enc_f2bs(y);
+  f_compare_bitstring(bs, expected);
+
+  //encvalue
+  bs := encvalue(y);
+  f_compare_bitstring(bs, expected);
+
+  //decode test:
+  var F_json z := f_json_dec_bs2f(expected);
+  if ( y ==z ) {
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+
+  var integer r := decvalue(expected, z);
+  if (r==0 and y==z){
+    setverdict(pass);
+  } else {
+    setverdict(fail);
+  }
+}
 //Reference Guide: "The special float values
 //infinity, -infinity and not_a_number are encoded as JSON strings."
 testcase tc_jsonBasic_encdec_float2() runs on CT {
@@ -400,7 +498,7 @@ testcase tc_jsonBasic_encdec_float_unbound() runs on CT {
     setverdict(fail, "DTE expected")
   } @catch(e) {
 
-    if( match(e,t_unbound)){ 
+    if( match(e,t_unbound)){
       setverdict(pass)
     } else {
       setverdict(fail, match(e,t_unbound))
@@ -413,7 +511,7 @@ testcase tc_jsonBasic_encdec_float_unbound() runs on CT {
     setverdict(fail, "DTE expected")
   } @catch(e) {
 
-    if( match(e,t_unbound)){ 
+    if( match(e,t_unbound)){
       setverdict(pass)
     } else {
       setverdict(fail, match(e,t_unbound))
@@ -423,10 +521,10 @@ testcase tc_jsonBasic_encdec_float_unbound() runs on CT {
   var bitstring encoded; //intentionally unbound
   template charstring t_unbound2 := pattern "*The argument of function bit2oct\(\) is an unbound bitstring value.*"
   @try {
-    var I_json z := f_json_dec_bs2i(encoded);
+    var F_json z := f_json_dec_bs2f(encoded);
     setverdict(fail, "DTE expected")
   } @catch(e) {
-    if( match(e,t_unbound2)){ 
+    if( match(e,t_unbound2)){       
       setverdict(pass)
     } else {
       setverdict(fail, match(e,t_unbound2)); //TODO: got: Dynamic test case error: The argument of function bit2oct() is an unbound bitstring value
@@ -435,11 +533,11 @@ testcase tc_jsonBasic_encdec_float_unbound() runs on CT {
 
   template charstring tl_unbound2 := pattern "*The argument of function bit2oct\(\) is an unbound bitstring value.*"
   @try {
-    var I_json z ;
+    var F_json z ;
     var integer r := decvalue(encoded, z);
     setverdict(fail, "DTE expected")
   } @catch(e) {
-    if( match(e,t_unbound2)){ 
+    if( match(e,t_unbound2)){
       setverdict(pass)
     } else {
       setverdict(fail, match(e,t_unbound2)); //got: Dynamic test case error: The argument of function bit2oct() is an unbound bitstring value
@@ -1303,6 +1401,9 @@ control {
   execute(tc_jsonBasic_encdec_integer_field_optional());
   execute(tc_jsonBasic_encdec_integer_field_optional_omit());
   execute( tc_jsonBasic_encdec_float1() );
+  execute( tc_jsonBasic_encdec_float1a() );
+  execute( tc_jsonBasic_encdec_float1b() );
+  execute( tc_jsonBasic_encdec_float1c() );
   execute( tc_jsonBasic_encdec_float2() );
   execute( tc_jsonBasic_encdec_float3() );
   execute( tc_jsonBasic_encdec_float4() );
