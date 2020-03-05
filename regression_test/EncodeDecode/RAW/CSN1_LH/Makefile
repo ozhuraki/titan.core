@@ -58,6 +58,8 @@ dep: $(GENERATED_SOURCES)
 	makedepend $(CPPFLAGS) $(USER_SOURCES) $(GENERATED_SOURCES)
 
 run: $(TARGET) CSN1_LH.cfg
-	./$^
+	./$^ 2> result.txt
+	cat result.txt
+	grep "Overall verdict: pass" result.txt
 
 # DO NOT DELETE

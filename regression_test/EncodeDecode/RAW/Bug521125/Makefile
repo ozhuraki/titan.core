@@ -144,4 +144,6 @@ diag:
 #
 
 run: $(TARGET) ./config.cfg
-	./$^
+	./$^ 2> result.txt
+	cat result.txt
+	grep "Overall verdict: pass" result.txt

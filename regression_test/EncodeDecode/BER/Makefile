@@ -65,7 +65,9 @@ dep: $(GENERATED_SOURCES)
 	makedepend $(CPPFLAGS) $(USER_SOURCES) $(GENERATED_SOURCES)
 
 run: $(TARGET) BER.cfg
-	./$^
+	./$^ 2> result.txt
+	cat result.txt
+	grep "Overall verdict: pass" result.txt
 
 ifdef SRCDIR
 $(foreach src, $(USER_SOURCES), $(eval vpath $(src) $(ABS_SRC)))
