@@ -5477,7 +5477,7 @@ var persionIDs pids := { { numericID := 189249214 }, { email := “jdoe@mail.com
 
 Attribute syntax: as value
 
-Applicable to (TTCN-3): Unions, the anytype, or records or sets with one field
+Applicable to (TTCN-3): Unions, the anytype, or records or sets with one mandatory field
 
 Description: The union, record, set or anytype will be encoded as a JSON value instead of as a JSON object with one name-value pair (the name of the selected field in case of unions and the anytype, or the name of the one field in case of records and sets will be omitted, as well as the surrounding braces). This allows the creation of heterogenous arrays in the JSON document (e.g. ["text",10,true,null]).Since the field name no longer appears in the JSON document, the decoder will determine the selected field (in case of unions and the anytype) based on the type of the value. The first field (in the order of declaration) that can successfully decode the value will be the selected one.
 
@@ -5787,6 +5787,58 @@ type record of EnumNumber EnumNumberList;
 const EnumNumberList c_numbers := { One, Two, Three };
 // is encoded into: [ "1", "2", "3" ]
 ----
+
+
+*Escape as*
+
+Attribute syntax: escape as ( short | usi | transparent )
+
+Default value: short
+
+Applicable to (TTCN-3): charstrings and universal charstrings
+
+Description: This attribute changes the method of escaping characters when encoding charstrings and universal charstrings.
+
+* `short` - Uses the JSON short escape sequences for any characters that have them (i.e. '\n', '\t', '\r', '\f', '\b', '\"', '\\' and '\/'), and uses USI-like escape sequences (i.e. '\u' followed by 4 hex digits containing the character's ASCII code) for all other characters between char(U0) and char(U1F), and for char(U7F).
+
+* `usi` - Uses USI-like escape sequences for all characters between char(U0) and char(U20), and for the characters '\"', '\\' and char(U7F). Does not escape the character '/'.
+
+* `transparent` - Identical to the `short` escaping method, except that the characters '\\' and '/' are not escaped.
+
+Example:
+The universal charstring "a\\b" & char(U7) & "c\td/e" is encoded as:
+
+* `short`: "\"a\\\\b\\u0007c\\td\\/e\"",
+* `usi`: "\"a\\u005Cb\\u0007c\\u0009d/e\"",
+* `transparent`: "\"a\\b\\u0007c\\td/e\"".
+
+Note: Certain specifics of how the `usi` escaping method should work are not defined clearly in the TTCN-3 standard for using JSON in TTCN-3 (<<_25, [25]>>). (See http://oldforge.etsi.org/mantis/view.php?id=7913 and http://oldforge.etsi.org/mantis/view.php?id=7914 for more details.)
+TITAN currently does not escape the solidus character ('/'), and only uses the USI-like escape sequences for the characters listed in the JSON module (in Annex A of <<_25, [25]>>), with the exception of the solidus character.
+
+
+*Type indicators*
+
+Attribute syntax: JSON: ( integer | number | string | array | object | objectMember | literal )
+
+Applicable to (TTCN-3):
+
+* `JSON:integer`: integers, 
+* `JSON:number`: floats, 
+* `JSON:string`: universal charstrings,
+* `JSON:array`: record ofs
+* `JSON:object`: records or sets with one optional field of record of/set of type, whose element type has (or is valid for) the `JSON:objectMember` attribute;
+* `JSON:objectMember`: records with two fields, the first one being a universal charstring;
+* `JSON:literal`: booleans or enumerated types with one enumerated item.
+
+Description: These attributes indicate which JSON schema types are represented by the TTCN-3 types they are set for.
+They are only meant to be used in the JSON module from Annex A of the standard for using JSON in TTCN-3 (<<_25, [25]>>). Most of them don't change anything in the encoding or decoding of values, with the exceptions of `JSON:object` and `JSON:literal` (for enumerated types).
+
+* `JSON:object` allows the creation of any valid JSON object, with user-defined field names and values. The TTCN-3 value is a `record` or `set` with one optional field of `record of` or `set of` type. Each of its elements represents one field in the JSON object.
+The empty JSON object (`{}`) is represented by the omitted field of the top-level record/set. The encoding and decoding of every other value functions as if the top-level record/set had the attribute `as value`, and its field had the attribute `as map`.
+
+* `JSON:literal`, when applied to an enumerated type with one enumerated item, changes the encoding of its one value to the JSON literal 'null'. Similarly, the decoder will only accept the JSON value 'null'.
+This attribute does not change the encoding or decoding of booleans.
+
 
 [[external-functions-0]]
 === External functions
