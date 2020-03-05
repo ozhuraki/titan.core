@@ -2,7 +2,7 @@
 # of the TTCN-3 Test Executor version CRL 113 200/5 R5B01
 # for ebensza (ebensza@ebensza-VirtualBox) on Mon Aug 29 15:21:25 2016
 
-# Copyright (c) 2000-2019 Ericsson Telecom AB
+# Copyright (c) 2000-2020 Ericsson Telecom AB
 
 # The following make commands are available:
 # - make, make all      Builds the executable test suite.

@@ -189,7 +189,7 @@ The `Makefile` generator creates the `Makefile` with the following content:
 # for Adam Delic (edmdeli@ehubuux110)
 # on Tue Oct 10 13:53:04 2006
 
-# Copyright Ericsson Telecom AB 2000-2014
+# Copyright (c) 2000-2020 Ericsson Telecom AB
 
 # The following make commands are available:
 # - make, make all Builds the executable test suite.

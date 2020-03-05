@@ -2,7 +2,7 @@
 // TTCN-3 Compiler of the TTCN-3 Test Executor version CRL 113 200/6 R5A
 // for ebotbar (ebotbar@ebotbarVB) on Thu Jan 10 15:59:28 2019
 
-// Copyright (c) 2000-2019 Ericsson Telecom AB
+// Copyright (c) 2000-2020 Ericsson Telecom AB
 
 // You may modify this file. Add your attributes and prototypes of your
 // member functions here.

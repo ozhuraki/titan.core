@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * Copyright (c) 2000-2020 Ericsson Telecom AB
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,7 @@
 // Author:                Vilmos Varga
 // mail:                  ethvva@eth.ericsson.se
 //
-// Copyright (c) 2000-2019 Ericsson Telecom AB
+// Copyright (c) 2000-2020 Ericsson Telecom AB
 //
 //----------------------------------------------------------------------------
 
