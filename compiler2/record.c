@@ -3236,7 +3236,7 @@ char* generate_json_decoder(char* src, const struct_def* sdef)
 {
   src = mputprintf(src,
     "int %s::JSON_decode(const TTCN_Typedescriptor_t&%s, JSON_Tokenizer& p_tok, "
-    "boolean p_silent, int)\n"
+    "boolean p_silent, boolean p_parent_is_map, int)\n"
     "{\n", sdef->name,
     ((sdef->nElements == 1 && !sdef->jsonAsValue) || sdef->jsonAsMapPossible) ? " p_td" : "");
 
@@ -3244,8 +3244,31 @@ char* generate_json_decoder(char* src, const struct_def* sdef)
     if (!sdef->jsonAsValue) {
       src = mputstr(src, "  if (NULL != p_td.json && p_td.json->as_value) {\n");
     }
-    src = mputprintf(src, "  %sreturn field_%s.JSON_decode(%s_descr_, p_tok, p_silent);\n",
-      sdef->jsonAsValue ? "" : "  ", sdef->elements[0].name, sdef->elements[0].typedescrname);
+    if (sdef->elements[0].isOptional) {
+      // can only happen if the record has the 'JSON:object' attribute;
+      // in this case the optional class must not be allowed to decode the
+      // JSON literal 'null', since it's not a JSON object;
+      // furthermore, the empty JSON object should be decoded as 'omit'
+      src = mputprintf(src, 
+        "   json_token_t j_token = JSON_TOKEN_NONE;\n"
+        "   size_t buf_pos = p_tok.get_buf_pos();\n"
+        "   size_t dec_len = p_tok.get_next_token(&j_token, NULL, NULL);\n"
+        "   if (j_token == JSON_TOKEN_LITERAL_NULL) {\n"
+        "     return JSON_ERROR_FATAL;\n"
+        "   }\n"
+        "   else if (j_token == JSON_TOKEN_OBJECT_START) {\n"
+        "     dec_len += p_tok.get_next_token(&j_token, NULL, NULL);\n"
+        "     if (j_token == JSON_TOKEN_OBJECT_END) {\n"
+        "       field_%s = OMIT_VALUE;\n"
+        "       return dec_len;\n"
+        "     }\n"
+        "   }\n"
+        // otherwise rewind the buffer and decode normally
+        "   p_tok.set_buf_pos(buf_pos);\n",
+        sdef->elements[0].name);
+    }
+    src = mputprintf(src, "   return field_%s.JSON_decode(%s_descr_, p_tok, p_silent, FALSE);\n",
+      sdef->elements[0].name, sdef->elements[0].typedescrname);
     if (!sdef->jsonAsValue) {
       src = mputstr(src, "  }\n");
     }
@@ -3255,7 +3278,7 @@ char* generate_json_decoder(char* src, const struct_def* sdef)
   }
   if (sdef->jsonAsMapPossible) {
     src = mputprintf(src,
-      "  if (p_td.json->as_map) {\n"
+      "  if (p_parent_is_map) {\n"
       "    char* fld_name = NULL;\n"
       "    size_t name_len = 0;\n"
       "    size_t buf_pos = p_tok.get_buf_pos();\n"
@@ -3269,7 +3292,7 @@ char* generate_json_decoder(char* src, const struct_def* sdef)
       "      return JSON_ERROR_INVALID_TOKEN;\n"
       "    }\n"
       "    field_%s.decode_utf8(name_len, (unsigned char*) fld_name);\n"
-      "    return field_%s.JSON_decode(%s_descr_, p_tok, p_silent) + dec_len;\n"
+      "    return field_%s.JSON_decode(%s_descr_, p_tok, p_silent, FALSE) + dec_len;\n"
       "  }\n", sdef->elements[0].name,
       sdef->elements[1].name, sdef->elements[1].typedescrname);
   }
@@ -3290,7 +3313,7 @@ char* generate_json_decoder(char* src, const struct_def* sdef)
         // initialize fields with their default values (they will be overwritten
         // later, if the JSON document contains data for these fields)
         src = mputprintf(src,
-          "  field_%s.JSON_decode(%s_descr_, DUMMY_BUFFER, p_silent);\n"
+          "  field_%s.JSON_decode(%s_descr_, DUMMY_BUFFER, p_silent, FALSE);\n"
           , sdef->elements[i].name, sdef->elements[i].typedescrname);
       }
       else {
@@ -3419,7 +3442,7 @@ char* generate_json_decoder(char* src, const struct_def* sdef)
         }
       }
       src = mputprintf(src,
-        "         int ret_val = field_%s.JSON_decode(%s_descr_, p_tok, p_silent%s);\n"
+        "         int ret_val = field_%s.JSON_decode(%s_descr_, p_tok, p_silent, FALSE%s);\n"
         "         if (0 > ret_val) {\n"
         "           if (JSON_ERROR_INVALID_TOKEN == ret_val) {\n"
         , sdef->elements[i].name, sdef->elements[i].typedescrname
@@ -4775,7 +4798,7 @@ void defRecordClass1(const struct_def *sdef, output_struct *output)
   if (json_needed) {
     // JSON encode, RT1
     src = mputprintf(src,
-      "int %s::JSON_encode(const TTCN_Typedescriptor_t&%s, JSON_Tokenizer& p_tok) const\n"
+      "int %s::JSON_encode(const TTCN_Typedescriptor_t&%s, JSON_Tokenizer& p_tok, boolean p_parent_is_map) const\n"
       "{\n"
       "  if (!is_bound()) {\n"
       "    TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_UNBOUND,\n"
@@ -4787,21 +4810,30 @@ void defRecordClass1(const struct_def *sdef, output_struct *output)
       if (!sdef->jsonAsValue) {
         src = mputstr(src, "  if (NULL != p_td.json && p_td.json->as_value) {\n");
       }
-      src = mputprintf(src, "  %sreturn field_%s.JSON_encode(%s_descr_, p_tok);\n",
-        sdef->jsonAsValue ? "" : "  ", sdef->elements[0].name, sdef->elements[0].typedescrname);
+      if (sdef->elements[0].isOptional) {
+        // can only happen if the record has the 'JSON:object' attribute;
+        // in this case 'omit' is the same as if the field was an empty record of
+        src = mputprintf(src,
+          "   if (field_%s == OMIT_VALUE) {\n"
+          "     return p_tok.put_next_token(JSON_TOKEN_OBJECT_START, NULL) + \n"
+          "       p_tok.put_next_token(JSON_TOKEN_OBJECT_END, NULL);\n"
+          "   }\n", sdef->elements[0].name);
+      }
+      src = mputprintf(src, "   return field_%s.JSON_encode(%s_descr_, p_tok, FALSE);\n",
+        sdef->elements[0].name, sdef->elements[0].typedescrname);
       if (!sdef->jsonAsValue) {
         src = mputstr(src, "  }\n");
       }
     }
     if (sdef->jsonAsMapPossible) {
       src = mputprintf(src,
-        "  if (p_td.json->as_map) {\n"
+        "  if (p_parent_is_map) {\n"
         "    TTCN_Buffer key_buf;\n"
         "    field_%s.encode_utf8(key_buf);\n"
         "    CHARSTRING key_str;\n"
         "    key_buf.get_string(key_str);\n"
         "    return p_tok.put_next_token(JSON_TOKEN_NAME, (const char*) key_str) + \n"
-        "      field_%s.JSON_encode(%s_descr_, p_tok);\n"
+        "      field_%s.JSON_encode(%s_descr_, p_tok, FALSE);\n"
         "  }\n", sdef->elements[0].name,
         sdef->elements[1].name, sdef->elements[1].typedescrname);
     }
@@ -4830,7 +4862,7 @@ void defRecordClass1(const struct_def *sdef, output_struct *output)
             , sdef->elements[i].jsonAlias ? sdef->elements[i].jsonAlias : sdef->elements[i].dispname);
         }
         src = mputprintf(src,
-          "enc_len += field_%s.JSON_encode(%s_descr_, p_tok);\n"
+          "enc_len += field_%s.JSON_encode(%s_descr_, p_tok, FALSE);\n"
           "  }\n\n"
           , sdef->elements[i].name, sdef->elements[i].typedescrname);
       }
@@ -6818,7 +6850,7 @@ static void defEmptyRecordClass(const struct_def *sdef,
   if (json_needed) {
     // JSON encode, RT1
     src = mputprintf(src,
-      "int %s::JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer& p_tok) const\n"
+      "int %s::JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer& p_tok, boolean) const\n"
       "{\n"
       "  if (!is_bound()) {\n"
       "    TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_UNBOUND,\n"
@@ -6832,7 +6864,7 @@ static void defEmptyRecordClass(const struct_def *sdef,
     
     // JSON decode, RT1
     src = mputprintf(src,
-      "int %s::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, int)\n"
+      "int %s::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, boolean, int)\n"
       "{\n"
       "  if (NULL != p_td.json->default_value && 0 == p_tok.get_buffer_length()) {\n"
       // use the default value
@@ -7814,7 +7846,7 @@ check_generate_end:
              otherwise Record_Type::JSON_decode is enough */
           def = mputprintf(def,
             "int JSON_decode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, "
-            "boolean, int p_chosen_field = CHOSEN_FIELD_UNSET);\n");
+            "boolean, boolean, int p_chosen_field = CHOSEN_FIELD_UNSET);\n");
           src = generate_json_decoder(src, sdef);
           break;
         }

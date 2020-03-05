@@ -81,9 +81,9 @@ void def_encdec(const char *p_classname,
     );
   if(json) {
     def = mputprintf(def,
-      "int JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&) const;\n"
+      "int JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean) const;\n"
       "int JSON_decode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean, "
-      "int p_chosen_field = CHOSEN_FIELD_UNSET);\n");
+      "boolean, int p_chosen_field = CHOSEN_FIELD_UNSET);\n");
   }
   if(oer) {
     def = mputprintf(def,
@@ -147,7 +147,7 @@ void def_encdec(const char *p_classname,
      "      TTCN_EncDec_ErrorContext::error_internal\n"
      "        (\"No JSON descriptor available for type '%%s'.\", p_td.name);\n"
      "    JSON_Tokenizer tok(va_arg(pvar, int) != 0);\n"
-     "    JSON_encode(p_td, tok);\n"
+     "    JSON_encode(p_td, tok, FALSE);\n"
      "    p_buf.put_s(tok.get_buffer_length(), (const unsigned char*)tok.get_buffer());\n"
      "    break;}\n"
      "  case TTCN_EncDec::CT_OER: {\n"
@@ -265,7 +265,7 @@ void def_encdec(const char *p_classname,
      "      TTCN_EncDec_ErrorContext::error_internal\n"
      "        (\"No JSON descriptor available for type '%%s'.\", p_td.name);\n"
      "    JSON_Tokenizer tok((const char*)p_buf.get_data(), p_buf.get_len());\n"
-     "    if(JSON_decode(p_td, tok, FALSE)<0)\n"
+     "    if(JSON_decode(p_td, tok, FALSE, FALSE)<0)\n"
      "      ec.error(TTCN_EncDec::ET_INCOMPL_MSG,"
      "\"Can not decode type '%%s', because invalid or incomplete"
      " message was received\", p_td.name);\n"

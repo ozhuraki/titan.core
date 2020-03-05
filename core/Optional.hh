@@ -329,18 +329,18 @@ public:
   int TEXT_decode(const TTCN_Typedescriptor_t&, TTCN_Buffer&, Limit_Token_List&,
                   boolean no_err=FALSE, boolean first_call=TRUE);
   int JSON_encode_negtest(const Erroneous_descriptor_t*,
-                          const TTCN_Typedescriptor_t&, JSON_Tokenizer&) const;
+                          const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean) const;
   int OER_encode_negtest(const Erroneous_descriptor_t*,
                           const TTCN_Typedescriptor_t&, TTCN_Buffer&) const;
 #endif
   
   /** Encodes accordingly to the JSON encoding rules.
     * Returns the length of the encoded data. */
-  int JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&) const;
+  int JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean) const;
   
   /** Decodes accordingly to the JSON encoding rules.
     * Returns the length of the decoded data. */
-  int JSON_decode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean, int p_chosen_field = CHOSEN_FIELD_UNSET);
+  int JSON_decode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean, boolean, int p_chosen_field = CHOSEN_FIELD_UNSET);
   
   /** Encodes accordingly to the OER encoding rules.
     * Returns the length of the encoded data. */
@@ -831,7 +831,7 @@ void OPTIONAL<T_type>::decode_text(Text_Buf& text_buf)
 }
 
 template<typename T_type>
-int OPTIONAL<T_type>::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok) const
+int OPTIONAL<T_type>::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean) const
 {
 #ifdef TITAN_RUNTIME_2
   switch(get_selection()) {
@@ -839,7 +839,7 @@ int OPTIONAL<T_type>::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokeni
   switch(optional_selection) {
 #endif
   case OPTIONAL_PRESENT:
-    return optional_value->JSON_encode(p_td, p_tok);
+    return optional_value->JSON_encode(p_td, p_tok, FALSE);
   case OPTIONAL_OMIT:
     return p_tok.put_next_token(JSON_TOKEN_LITERAL_NULL, NULL);
   case OPTIONAL_UNBOUND:
@@ -853,12 +853,12 @@ int OPTIONAL<T_type>::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokeni
 #ifdef TITAN_RUNTIME_2
 template<typename T_type>
 int OPTIONAL<T_type>::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
-                                        const TTCN_Typedescriptor_t& p_td,
-                                        JSON_Tokenizer& p_tok) const 
+                                          const TTCN_Typedescriptor_t& p_td,
+                                          JSON_Tokenizer& p_tok, boolean) const 
 {
   switch (get_selection()) {
   case OPTIONAL_PRESENT:
-    return optional_value->JSON_encode_negtest(p_err_descr, p_td, p_tok);
+    return optional_value->JSON_encode_negtest(p_err_descr, p_td, p_tok, FALSE);
   case OPTIONAL_OMIT:
     return p_tok.put_next_token(JSON_TOKEN_LITERAL_NULL, NULL);
   case OPTIONAL_UNBOUND:
@@ -871,7 +871,8 @@ int OPTIONAL<T_type>::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_de
 #endif
 
 template<typename T_type>
-int OPTIONAL<T_type>::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, int p_chosen_field)
+int OPTIONAL<T_type>::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent,
+                                  boolean, int p_chosen_field)
 {
   // try the optional value first
   set_to_present();

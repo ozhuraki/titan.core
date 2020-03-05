@@ -994,11 +994,11 @@ public:
   
   /** Encodes accordingly to the JSON encoding rules.
     * Returns the length of the encoded data. */
-  int JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&) const;
+  int JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean) const;
   
   /** Decodes accordingly to the JSON encoding rules.
     * Returns the length of the decoded data. */
-  int JSON_decode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean, int p_chosen_field = CHOSEN_FIELD_UNSET);
+  int JSON_decode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean, boolean, int p_chosen_field = CHOSEN_FIELD_UNSET);
   
   // alt-status priority: ALT_YES (return immediately) > ALT_REPEAT > ALT_MAYBE > ALT_NO
   alt_status done(VERDICTTYPE* value_redirect, Index_Redirect* index_redirect) const
@@ -1324,7 +1324,7 @@ void VALUE_ARRAY<T_type,array_size,index_offset>::encode(
     if(!p_td.json) TTCN_EncDec_ErrorContext::error_internal
                      ("No JSON descriptor available for type '%s'.", p_td.name);
     JSON_Tokenizer tok(va_arg(pvar, int) != 0);
-    JSON_encode(p_td, tok);
+    JSON_encode(p_td, tok, FALSE);
     p_buf.put_s(tok.get_buffer_length(), (const unsigned char*)tok.get_buffer());
     break;}
   default:
@@ -1343,7 +1343,7 @@ void VALUE_ARRAY<T_type,array_size,index_offset>::decode(
     if(!p_td.json) TTCN_EncDec_ErrorContext::error_internal
                      ("No JSON descriptor available for type '%s'.", p_td.name);
     JSON_Tokenizer tok((const char*)p_buf.get_data(), p_buf.get_len());
-    if(JSON_decode(p_td, tok, FALSE)<0)
+    if(JSON_decode(p_td, tok, FALSE, FALSE)<0)
       ec.error(TTCN_EncDec::ET_INCOMPL_MSG,"Can not decode type '%s', "
         "because invalid or incomplete message was received", p_td.name);
     p_buf.set_pos(tok.get_buf_pos());
@@ -1355,7 +1355,7 @@ void VALUE_ARRAY<T_type,array_size,index_offset>::decode(
 
 template <typename T_type, unsigned int array_size, int index_offset>
 int VALUE_ARRAY<T_type,array_size,index_offset>::JSON_encode(
-  const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok) const
+  const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean) const
 {
   if (!is_bound() && (NULL == p_td.json || !p_td.json->metainfo_unbound)) {
     TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_UNBOUND,
@@ -1374,7 +1374,7 @@ int VALUE_ARRAY<T_type,array_size,index_offset>::JSON_encode(
       enc_len += p_tok.put_next_token(JSON_TOKEN_OBJECT_END, NULL);
     }
     else {
-      int ret_val = array_elements[i].JSON_encode(*get_elem_descr(), p_tok);
+      int ret_val = array_elements[i].JSON_encode(*get_elem_descr(), p_tok, FALSE);
       if (0 > ret_val) break;
       enc_len += ret_val;
     }
@@ -1386,7 +1386,7 @@ int VALUE_ARRAY<T_type,array_size,index_offset>::JSON_encode(
 
 template <typename T_type, unsigned int array_size, int index_offset>
 int VALUE_ARRAY<T_type,array_size,index_offset>::JSON_decode(
-  const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, int)
+  const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, boolean, int)
 {
   json_token_t token = JSON_TOKEN_NONE;
   size_t dec_len = p_tok.get_next_token(&token, NULL, NULL);
@@ -1424,7 +1424,7 @@ int VALUE_ARRAY<T_type,array_size,index_offset>::JSON_decode(
       // metainfo object not found, jump back and let the element type decode it
       p_tok.set_buf_pos(buf_pos);
     }
-    int ret_val2 = array_elements[i].JSON_decode(*get_elem_descr(), p_tok, p_silent);
+    int ret_val2 = array_elements[i].JSON_decode(*get_elem_descr(), p_tok, p_silent, FALSE);
     if (JSON_ERROR_INVALID_TOKEN == ret_val2) {
       JSON_ERROR(TTCN_EncDec::ET_INVAL_MSG, JSON_DEC_ARRAY_ELEM_TOKEN_ERROR,
         array_size - i, (array_size - i > 1) ? "s" : "");

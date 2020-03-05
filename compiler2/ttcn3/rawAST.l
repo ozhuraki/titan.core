@@ -470,6 +470,12 @@ metainfo      RETURN(XKWmetainfo);
 for           RETURN(XKWfor);
 unbound       RETURN(XKWunbound);
 number        RETURN(XKWnumber);
+integer       RETURN(XKWinteger);
+string        RETURN(XKWstring);
+array         RETURN(XKWarray);
+object        RETURN(XKWobject);
+objectMember  RETURN(XKWobjectMember);
+literal       RETURN(XKWliteral);
 [(]           { BEGIN(jsonvalue); RETURN(XJsonValueStart); }
 {IDENTIFIER}  { yylval.str = mcopystr(yytext); RETURN(XAliasToken); }
 [^: \t]       { rawAST_error("invalid JSON token"); }
@@ -502,6 +508,9 @@ unbound       RETURN(XKWunbound);
 chosen        RETURN(XChosenKeyword);
 otherwise     RETURN(XJsonOtherwise);
 map           RETURN(XJsonMap);
+escape        RETURN(XKWescape);
+usi           RETURN(XKWusi);
+transparent   RETURN(XKWtransparent);
 }
 
 <INITIAL>{

@@ -1,0 +1,370 @@
+/******************************************************************************
+ * Copyright (c) 2000-2019 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+
+// This module contains tests for the JSON module from Annex A of the 11th part of the
+// TTCN-3 standard's ('Using JSON with TTCN-3'). 
+module JsonModuleTest {
+
+import from JSON all;
+
+type component CT {}
+
+external function f_enc_value(in Values x) return octetstring
+  with { extension "prototype(convert) encode(JSON) printing(pretty)" }
+  
+external function f_dec_value(in octetstring x) return Values
+  with { extension "prototype(convert) decode(JSON)" }
+
+external function f_enc_ustr_short(in String_short x) return octetstring
+  with { extension "prototype(convert) encode(JSON)" }
+  
+external function f_enc_ustr_usi(in String_usi x) return octetstring
+  with { extension "prototype(convert) encode(JSON)" }
+
+external function f_enc_ustr_tr(in String_tr x) return octetstring
+  with { extension "prototype(convert) encode(JSON)" }
+  
+type record of String_short List_String_short;
+type record of String_usi List_String_usi;
+type record of String_tr List_String_tr;
+
+type record of octetstring List_Octetstring;
+
+
+testcase tc_json_module_types() runs on CT {
+  var Values val := {
+    object := {
+      memberList := {
+        {
+          name := "number",
+          value_ := {
+            num := 12.345
+          }
+        },
+        {
+          name := "integer",
+          value_ := {
+            int := -51
+          }
+        },
+        {
+          name := "string",
+          value_ := {
+            str := "xy"
+          }
+        },
+        {
+          name := "boolean literal",
+          value_ := {
+            bool := false
+          }
+        },
+        {
+          name := "literal null",
+          value_ := {
+            null_ := null_
+          }
+        },
+        {
+          name := "array",
+          value_ := {
+            array := {
+              {
+                num := 0.1
+              },
+              {
+                int := 5
+              },
+              {
+                str := "abc"
+              },
+              {
+                boolArray := { true }
+              }
+            }
+          }
+        },
+        {
+          name := "string array",
+          value_ := {
+            strArray := { "val1", "val2" }
+          }
+        },
+        {
+          name := "number array",
+          value_ := {
+            numArray := { -1.0, 1.0 }
+          }
+        },
+        {
+          name := "integer array",
+          value_ := {
+            intArray := { 1, 2, 3 }
+          }
+        },
+        {
+          name := "object array",
+          value_ := {
+            objArray := {
+              {
+                memberList := {
+                  {
+                    name := "field1",
+                    value_ := {
+                      int := 10
+                    }
+                  },
+                  {
+                    name := "field2",
+                    value_ := {
+                      str := "ten"
+                    }
+                  }
+                }
+              },
+              {
+                memberList := omit
+              }
+            }
+          }
+        },
+        {
+          name := "object",
+          value_ := {
+            object := {
+              memberList := {
+                {
+                  name := "field1",
+                  value_ := {
+                    int := 2
+                  }
+                },
+                {
+                  name := "field2",
+                  value_ := {
+                    str := "two"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+  
+  var octetstring enc_exp := char2oct(
+    "{\n" &
+    "\t\"number\" : 12.345000,\n" &
+    "\t\"integer\" : -51,\n" &
+    "\t\"string\" : \"xy\",\n" &
+    "\t\"boolean literal\" : false,\n" &
+    "\t\"literal null\" : null,\n" &
+    "\t\"array\" : [\n" &
+    "\t\t0.100000,\n" &
+    "\t\t5,\n" &
+    "\t\t\"abc\",\n" &
+    "\t\t[\n" &
+    "\t\t\ttrue\n" &
+    "\t\t]\n" &
+    "\t],\n" &
+    "\t\"string array\" : [\n" &
+    "\t\t\"val1\",\n" &
+    "\t\t\"val2\"\n" &
+    "\t],\n" &
+    "\t\"number array\" : [\n" &
+    "\t\t-1.000000,\n" &
+    "\t\t1.000000\n" &
+    "\t],\n" &
+    "\t\"integer array\" : [\n" &
+    "\t\t1,\n" &
+    "\t\t2,\n" &
+    "\t\t3\n" &
+    "\t],\n" &
+    "\t\"object array\" : [\n" &
+    "\t\t{\n" &
+    "\t\t\t\"field1\" : 10,\n" &
+    "\t\t\t\"field2\" : \"ten\"\n" &
+    "\t\t},\n" &
+    "\t\t{\n" &
+    "\t\t}\n" &
+    "\t],\n" &
+    "\t\"object\" : {\n" &
+    "\t\t\"field1\" : 2,\n" &
+    "\t\t\"field2\" : \"two\"\n" &
+    "\t}\n" &
+    "}");
+  
+  var octetstring enc := f_enc_value(val);
+  if (enc != enc_exp) {
+    setverdict(fail, "Expected: ", enc_exp, ", got: ", enc);
+  }
+
+  var Values dec := f_dec_value(enc_exp);
+  if (dec != val) {
+    setverdict(fail, "Expected: ", val, ", got: ", dec);
+  }
+  setverdict(pass);
+}
+
+
+testcase tc_json_module_escape_as_short() runs on CT {
+  var List_String_short str_list := {
+    "abcd",
+    "ab\\cd",
+    "ab/cd",
+    "ab" & char(U7) & "cd",
+    "ab" & char(U7) & cu_ht & "cd"
+  };
+  var List_Octetstring exp_list := {
+    char2oct("\"abcd\""),
+    char2oct("\"ab\\\\cd\""),
+    char2oct("\"ab\\/cd\""),
+    char2oct("\"ab\\u0007cd\""),
+    char2oct("\"ab\\u0007\\tcd\"")
+  };
+  for (var integer i := 0; i < sizeof(str_list); i := i + 1) {
+    var octetstring enc := f_enc_ustr_short(str_list[i]);
+    if (enc != exp_list[i]) {
+      setverdict(fail, "#", i, " failed. Expected: ", exp_list[i], ", got: ", enc);
+    }
+  }
+  setverdict(pass);
+}
+
+
+testcase tc_json_module_escape_as_usi() runs on CT {
+  var List_String_usi str_list := {
+    "abcd",
+    "ab\\cd",
+    "ab/cd",
+    "ab" & char(U7) & "cd",
+    "ab" & char(U7) & cs_ht & "cd"
+  };
+  var List_Octetstring exp_list := {
+    char2oct("\"abcd\""),
+    char2oct("\"ab\\u005Ccd\""),
+    char2oct("\"ab/cd\""),
+    char2oct("\"ab\\u0007cd\""),
+    char2oct("\"ab\\u0007\\u0009cd\"")
+  };
+  for (var integer i := 0; i < sizeof(str_list); i := i + 1) {
+    var octetstring enc := f_enc_ustr_usi(str_list[i]);
+    if (enc != exp_list[i]) {
+      setverdict(fail, "#", i, " failed. Expected: ", exp_list[i], ", got: ", enc);
+    }
+  }
+  setverdict(pass);
+}
+
+
+testcase tc_json_module_escape_as_transparent() runs on CT {
+  var List_String_tr str_list := {
+    "abcd",
+    "ab\\cd",
+    "ab/cd",
+    "ab" & char(U7) & cs_ht & "cd"
+  };
+  var List_Octetstring exp_list := {
+    char2oct("\"abcd\""),
+    char2oct("\"ab\\cd\""),
+    char2oct("\"ab/cd\""),
+    char2oct("\"ab\\u0007\\tcd\"")
+  };
+  for (var integer i := 0; i < sizeof(str_list); i := i + 1) {
+    var octetstring enc := f_enc_ustr_tr(str_list[i]);
+    if (enc != exp_list[i]) {
+      setverdict(fail, "#", i, " failed. Expected: ", exp_list[i], ", got: ", enc);
+    }
+  }
+  setverdict(pass);
+}
+
+
+testcase tc_json_module_string_short_values() runs on CT {
+  var List_String_short str_list := {
+    cs_bs,
+    cs_ht,
+    cs_lf,
+    cs_ff,
+    cs_cr,
+    cs_quot,
+    cs_sol,
+    cs_rs
+  };
+  var List_Octetstring exp_list := {
+    char2oct("\"\\b\""),
+    char2oct("\"\\t\""),
+    char2oct("\"\\n\""),
+    char2oct("\"\\f\""),
+    char2oct("\"\\r\""),
+    char2oct("\"\\\"\""),
+    char2oct("\"\\/\""),
+    char2oct("\"\\\\\"")
+  };
+  for (var integer i := 0; i < sizeof(str_list); i := i + 1) {
+    var octetstring enc := f_enc_ustr_short(str_list[i]);
+    if (enc != exp_list[i]) {
+      setverdict(fail, "#", i, " failed. Expected: ", exp_list[i], ", got: ", enc);
+    }
+  }
+  setverdict(pass);
+}
+
+
+testcase tc_json_module_string_usi_values() runs on CT {
+  var List_String_usi str_list := {
+    cu_nul, cu_soh, cu_stx, cu_etx,
+    cu_eot, cu_enq, cu_ack, cu_bel,
+    cu_bs,  cu_ht,  cu_lf,  cu_vt,
+    cu_ff,  cu_cr,  cu_so,  cu_si,
+    cu_dle, cu_dc1, cu_dc2, cu_dc3,
+    cu_dc4, cu_nak, cu_syn, cu_etb,
+    cu_can, cu_em,  cu_sub, cu_esc,
+    cu_fs,  cu_gs,  cu_rs,  cu_us,
+    cu_sp,  cu_quot,cu_sol, cu_revs,
+    cu_del
+  };
+  var List_Octetstring exp_list := {
+    char2oct("\"\\u0000\""), char2oct("\"\\u0001\""), char2oct("\"\\u0002\""), char2oct("\"\\u0003\""),
+    char2oct("\"\\u0004\""), char2oct("\"\\u0005\""), char2oct("\"\\u0006\""), char2oct("\"\\u0007\""),
+    char2oct("\"\\u0008\""), char2oct("\"\\u0009\""), char2oct("\"\\u000A\""), char2oct("\"\\u000B\""),
+    char2oct("\"\\u000C\""), char2oct("\"\\u000D\""), char2oct("\"\\u000E\""), char2oct("\"\\u000F\""),
+    char2oct("\"\\u0010\""), char2oct("\"\\u0011\""), char2oct("\"\\u0012\""), char2oct("\"\\u0013\""),
+    char2oct("\"\\u0014\""), char2oct("\"\\u0015\""), char2oct("\"\\u0016\""), char2oct("\"\\u0017\""),
+    char2oct("\"\\u0018\""), char2oct("\"\\u0019\""), char2oct("\"\\u001A\""), char2oct("\"\\u001B\""),
+    char2oct("\"\\u001C\""), char2oct("\"\\u001D\""), char2oct("\"\\u001E\""), char2oct("\"\\u001F\""),
+    char2oct("\"\\u0020\""), char2oct("\"\\u0022\""), char2oct("\"/\""),       char2oct("\"\\u005C\""),
+    char2oct("\"\\u007F\"")
+  };
+  // note: the standard has conflicting examples about whether to escape '/' or not with 'escape as usi',
+  // TITAN does not escape it
+  for (var integer i := 0; i < sizeof(str_list); i := i + 1) {
+    var octetstring enc := f_enc_ustr_usi(str_list[i]);
+    if (enc != exp_list[i]) {
+      setverdict(fail, "#", i, " failed. Expected: ", exp_list[i], ", got: ", enc);
+    }
+  }
+  setverdict(pass);
+}
+
+
+control {
+  execute(tc_json_module_types());
+  execute(tc_json_module_escape_as_short());
+  execute(tc_json_module_escape_as_usi());
+  execute(tc_json_module_escape_as_transparent());
+  execute(tc_json_module_string_short_values());
+  execute(tc_json_module_string_usi_values());
+}
+
+}

@@ -100,7 +100,7 @@ void Base_Type::encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
       TTCN_EncDec_ErrorContext::error_internal
         ("No JSON descriptor available for type '%s'.", p_td.name);
     JSON_Tokenizer tok(va_arg(pvar, int) != 0);
-    JSON_encode(p_td, tok);
+    JSON_encode(p_td, tok, FALSE);
     p_buf.put_s(tok.get_buffer_length(), (const unsigned char*)tok.get_buffer());
     break;}
   case TTCN_EncDec::CT_OER: {
@@ -189,7 +189,7 @@ void Base_Type::decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
       TTCN_EncDec_ErrorContext::error_internal
         ("No JSON descriptor available for type '%s'.", p_td.name);
     JSON_Tokenizer tok((const char*)p_buf.get_data(), p_buf.get_len());
-    if(JSON_decode(p_td, tok, FALSE)<0)
+    if(JSON_decode(p_td, tok, FALSE, FALSE)<0)
       ec.error(TTCN_EncDec::ET_INCOMPL_MSG,
                "Can not decode type '%s', because invalid or incomplete"
                " message was received"
@@ -1028,14 +1028,14 @@ int Base_Type::XER_decode(const XERdescriptor_t& p_td, XmlReaderWrap&,
   return 0;
 }
 
-int Base_Type::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer&) const
+int Base_Type::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer&, boolean) const
 {
   TTCN_error("JSON encoding requested for type '%s' which has no"
              " JSON encoding method.", p_td.name);
   return 0;
 }
 
-int Base_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer&, boolean, int) 
+int Base_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer&, boolean, boolean, int) 
 {
   TTCN_error("JSON decoding requested for type '%s' which has no"
              " JSON decoding method.", p_td.name);

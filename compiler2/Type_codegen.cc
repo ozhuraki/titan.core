@@ -1113,7 +1113,7 @@ void Type::generate_code_jsondescriptor(output_struct *target)
   if (NULL == jsonattrib) {
     target->source.global_vars = mputprintf(target->source.global_vars,
       "const TTCN_JSONdescriptor_t %s_json_ = { FALSE, NULL, FALSE, NULL, "
-      "FALSE, FALSE, %s, 0, NULL };\n"
+      "FALSE, FALSE, %s, 0, NULL, FALSE, ESCAPE_AS_SHORT };\n"
       , get_genname_own().c_str(), as_map ? "TRUE" : "FALSE");
   } else {
     char* alias = jsonattrib->alias ? mputprintf(NULL, "\"%s\"", jsonattrib->alias) : NULL;
@@ -1139,7 +1139,7 @@ void Type::generate_code_jsondescriptor(output_struct *target)
     
     target->source.global_vars = mputprintf(target->source.global_vars,
       "const TTCN_JSONdescriptor_t %s_json_ = { %s, %s, %s, %s, %s, %s, %s, "
-      "%d, %s };\n"
+      "%d, %s, %s, %s };\n"
       , get_genname_own().c_str() 
       , jsonattrib->omit_as_null ? "TRUE" : "FALSE"
       , alias ? alias : "NULL"
@@ -1149,7 +1149,9 @@ void Type::generate_code_jsondescriptor(output_struct *target)
       , jsonattrib->as_number ? "TRUE" : "FALSE"
       , as_map ? "TRUE" : "FALSE"
       , static_cast<int>(jsonattrib->enum_texts.size())
-      , enum_texts_name);
+      , enum_texts_name
+      , jsonattrib->use_null ? "TRUE" : "FALSE"
+      , jsonattrib->get_escaping_gen_str());
     Free(alias);
     Free(def_val);
     Free(enum_texts_name);
@@ -1411,6 +1413,9 @@ void Type::generate_code_Choice(output_struct *target)
       case T_NULL:
         sdef.elements[i].jsonValueType = JSON_NULL;
         break;
+      case T_ENUM_T:
+        sdef.elements[i].jsonValueType = JSON_STRING | JSON_NULL;
+        break;
       case T_BSTR:
       case T_BSTR_A:
       case T_HSTR:
@@ -1429,7 +1434,6 @@ void Type::generate_code_Choice(output_struct *target)
       case T_UNIVERSALSTRING:
       case T_BMPSTRING:
       case T_VERDICT:
-      case T_ENUM_T:
       case T_ENUM_A:
       case T_OID:
       case T_ROID:

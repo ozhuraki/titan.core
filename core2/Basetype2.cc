@@ -219,7 +219,8 @@ int Base_Type::RAW_encode_negtest(const Erroneous_descriptor_t *,
 }
 
 int Base_Type::JSON_encode_negtest(const Erroneous_descriptor_t* /*p_err_descr*/,
-  const TTCN_Typedescriptor_t& /*p_td*/, JSON_Tokenizer& /*p_tok*/) const
+  const TTCN_Typedescriptor_t& /*p_td*/, JSON_Tokenizer& /*p_tok*/,
+  boolean /*p_parent_is_map*/) const
 {
   TTCN_error("Internal error: calling Base_Type::JSON_encode_negtest().");
   return 0;
@@ -1464,10 +1465,10 @@ int Record_Of_Type::RAW_encode_negtest(const Erroneous_descriptor_t *p_err_descr
   return myleaf.length = encoded_length;
 }
 
-int Record_Of_Type::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok) const
+int Record_Of_Type::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean) const
 {
   if (err_descr) {
-	  return JSON_encode_negtest(err_descr, p_td, p_tok);
+	  return JSON_encode_negtest(err_descr, p_td, p_tok, FALSE);
   }
   
   if (!is_bound()) {
@@ -1488,7 +1489,7 @@ int Record_Of_Type::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenize
       enc_len += p_tok.put_next_token(JSON_TOKEN_OBJECT_END, NULL);
     }
     else {
-      int ret_val = get_at(i)->JSON_encode(*p_td.oftype_descr, p_tok);
+      int ret_val = get_at(i)->JSON_encode(*p_td.oftype_descr, p_tok, p_td.json->as_map);
       if (0 > ret_val) break;
       enc_len += ret_val;
     }
@@ -1501,7 +1502,7 @@ int Record_Of_Type::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenize
 
 int Record_Of_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
                                         const TTCN_Typedescriptor_t& p_td,
-                                        JSON_Tokenizer& p_tok) const 
+                                        JSON_Tokenizer& p_tok, boolean) const 
 {
   if (!is_bound()) {
     TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_UNBOUND,
@@ -1533,7 +1534,7 @@ int Record_Of_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_desc
         if (NULL == err_vals->before->type_descr) {
           TTCN_error("internal error: erroneous before typedescriptor missing");
         }
-        enc_len += err_vals->before->errval->JSON_encode(*(err_vals->before->type_descr), p_tok);
+        enc_len += err_vals->before->errval->JSON_encode(*(err_vals->before->type_descr), p_tok, p_td.json->as_map);
       }
     }
     
@@ -1545,7 +1546,7 @@ int Record_Of_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_desc
           if (NULL == err_vals->value->type_descr) {
             TTCN_error("internal error: erroneous before typedescriptor missing");
           }
-          enc_len += err_vals->value->errval->JSON_encode(*(err_vals->value->type_descr), p_tok);
+          enc_len += err_vals->value->errval->JSON_encode(*(err_vals->value->type_descr), p_tok, p_td.json->as_map);
         }
       }
     }
@@ -1559,9 +1560,9 @@ int Record_Of_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_desc
     else {
       int ret_val;
       if (NULL != emb_descr) {
-        ret_val = get_at(i)->JSON_encode_negtest(emb_descr, *p_td.oftype_descr, p_tok);
+        ret_val = get_at(i)->JSON_encode_negtest(emb_descr, *p_td.oftype_descr, p_tok, p_td.json->as_map);
       } else {
-        ret_val = get_at(i)->JSON_encode(*p_td.oftype_descr, p_tok);
+        ret_val = get_at(i)->JSON_encode(*p_td.oftype_descr, p_tok, p_td.json->as_map);
       }
       if (0 > ret_val) break;
       enc_len += ret_val;
@@ -1577,7 +1578,7 @@ int Record_Of_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_desc
         if (NULL == err_vals->after->type_descr) {
           TTCN_error("internal error: erroneous before typedescriptor missing");
         }
-        enc_len += err_vals->after->errval->JSON_encode(*(err_vals->after->type_descr), p_tok);
+        enc_len += err_vals->after->errval->JSON_encode(*(err_vals->after->type_descr), p_tok, p_td.json->as_map);
       }
     }
     
@@ -1591,7 +1592,8 @@ int Record_Of_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_desc
   return enc_len;
 }
 
-int Record_Of_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, int)
+int Record_Of_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok,
+                                boolean p_silent, boolean, int)
 {
   if (NULL != p_td.json->default_value && 0 == p_tok.get_buffer_length()) {
     // use the default value (currently only the empty array can be set as
@@ -1638,7 +1640,7 @@ int Record_Of_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenize
       p_tok.set_buf_pos(buf_pos);
     }
     Base_Type* val = create_elem();
-    int ret_val2 = val->JSON_decode(*p_td.oftype_descr, p_tok, p_silent);
+    int ret_val2 = val->JSON_decode(*p_td.oftype_descr, p_tok, p_silent, p_td.json->as_map);
     if (JSON_ERROR_INVALID_TOKEN == ret_val2) {
       // undo the last action on the buffer
       p_tok.set_buf_pos(buf_pos);
@@ -1858,7 +1860,7 @@ void Record_Of_Type::encode(const TTCN_Typedescriptor_t& p_td,
     if(!p_td.json) TTCN_EncDec_ErrorContext::error_internal
                      ("No JSON descriptor available for type '%s'.", p_td.name);
     JSON_Tokenizer tok(va_arg(pvar, int) != 0);
-    JSON_encode(p_td, tok);
+    JSON_encode(p_td, tok, FALSE);
     p_buf.put_s(tok.get_buffer_length(), (const unsigned char*)tok.get_buffer());
     break;}
   case TTCN_EncDec::CT_OER: {
@@ -1943,7 +1945,7 @@ void Record_Of_Type::decode(const TTCN_Typedescriptor_t& p_td,
     if(!p_td.json) TTCN_EncDec_ErrorContext::error_internal
                      ("No JSON descriptor available for type '%s'.", p_td.name);
     JSON_Tokenizer tok((const char*)p_buf.get_data(), p_buf.get_len());
-    if(JSON_decode(p_td, tok, FALSE)<0)
+    if(JSON_decode(p_td, tok, FALSE, FALSE)<0)
       ec.error(TTCN_EncDec::ET_INCOMPL_MSG,"Can not decode type '%s', "
         "because invalid or incomplete message was received", p_td.name);
     p_buf.set_pos(tok.get_buf_pos());
@@ -3054,7 +3056,7 @@ void Record_Type::encode(const TTCN_Typedescriptor_t& p_td,
     if(!p_td.json) TTCN_EncDec_ErrorContext::error_internal
                      ("No JSON descriptor available for type '%s'.", p_td.name);
     JSON_Tokenizer tok(va_arg(pvar, int) != 0);
-    JSON_encode(p_td, tok);
+    JSON_encode(p_td, tok, FALSE);
     p_buf.put_s(tok.get_buffer_length(), (const unsigned char*)tok.get_buffer());
     break;}
   case TTCN_EncDec::CT_OER: {
@@ -3155,7 +3157,7 @@ void Record_Type::decode(const TTCN_Typedescriptor_t& p_td,
     if(!p_td.json) TTCN_EncDec_ErrorContext::error_internal
                      ("No JSON descriptor available for type '%s'.", p_td.name);
     JSON_Tokenizer tok((const char*)p_buf.get_data(), p_buf.get_len());
-    if(JSON_decode(p_td, tok, FALSE)<0)
+    if(JSON_decode(p_td, tok, FALSE, FALSE)<0)
       ec.error(TTCN_EncDec::ET_INCOMPL_MSG,
         "Can not decode type '%s', because invalid or incomplete"
         " message was received", p_td.name);
@@ -5961,10 +5963,10 @@ int Record_Type::XER_decode(const XERdescriptor_t& p_td, XmlReaderWrap& reader,
   return 1; // decode successful
 }
 
-int Record_Type::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok) const
+int Record_Type::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_parent_is_map) const
 {
   if (err_descr) {		
-    return JSON_encode_negtest(err_descr, p_td, p_tok);		
+    return JSON_encode_negtest(err_descr, p_td, p_tok, p_parent_is_map);		
   }
 
   if (!is_bound()) {
@@ -5974,12 +5976,20 @@ int Record_Type::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& 
   }
   
   if (NULL != p_td.json && p_td.json->as_value) {
+    if (get_at(0)->is_optional()) {
+      // can only happen if the record has the 'JSON:object' attribute;
+      // in this case 'omit' is the same as if the field was an empty record of
+      if (get_at(0)->is_bound() && !get_at(0)->is_present()) {
+        return p_tok.put_next_token(JSON_TOKEN_OBJECT_START, NULL) + 
+          p_tok.put_next_token(JSON_TOKEN_OBJECT_END, NULL);
+      }
+    }
     // if 'as value' is set, then the record/set has only one field,
     // encode that without any brackets or field names
-    return get_at(0)->JSON_encode(*fld_descr(0), p_tok);
+    return get_at(0)->JSON_encode(*fld_descr(0), p_tok, FALSE);
   }
   
-  if (p_td.json->as_map) {
+  if (p_parent_is_map) {
     const UNIVERSAL_CHARSTRING* key_ustr = dynamic_cast<
       const UNIVERSAL_CHARSTRING*>(get_at(0));
     if (NULL == key_ustr) {
@@ -5991,7 +6001,7 @@ int Record_Type::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& 
     CHARSTRING key_str;
     key_buf.get_string(key_str);
     return p_tok.put_next_token(JSON_TOKEN_NAME, (const char*) key_str) +
-      get_at(1)->JSON_encode(*fld_descr(1), p_tok);
+      get_at(1)->JSON_encode(*fld_descr(1), p_tok, FALSE);
   }
   
   int enc_len = p_tok.put_next_token(JSON_TOKEN_OBJECT_START, NULL);
@@ -6012,7 +6022,7 @@ int Record_Type::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& 
         enc_len += p_tok.put_next_token(JSON_TOKEN_STRING, "\"unbound\"");
       }
       else {
-        enc_len += get_at(i)->JSON_encode(*fld_descr(i), p_tok);
+        enc_len += get_at(i)->JSON_encode(*fld_descr(i), p_tok, FALSE);
       }
     }
   }
@@ -6023,7 +6033,8 @@ int Record_Type::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& 
 
 int Record_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
                                      const TTCN_Typedescriptor_t& p_td,
-                                     JSON_Tokenizer& p_tok) const 
+                                     JSON_Tokenizer& p_tok,
+                                     boolean p_parent_is_map) const 
 {
   if (!is_bound()) {
     TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_UNBOUND,
@@ -6032,9 +6043,8 @@ int Record_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
   }
   
   boolean as_value = NULL != p_td.json && p_td.json->as_value;
-  boolean as_map = NULL != p_td.json && p_td.json->as_map;
   
-  int enc_len = (as_value || as_map) ? 0 : p_tok.put_next_token(JSON_TOKEN_OBJECT_START, NULL);
+  int enc_len = (as_value || p_parent_is_map) ? 0 : p_tok.put_next_token(JSON_TOKEN_OBJECT_START, NULL);
   
   int values_idx = 0;
   int edescr_idx = 0;
@@ -6048,7 +6058,7 @@ int Record_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
     const Erroneous_values_t* err_vals = p_err_descr->next_field_err_values(i, values_idx);
     const Erroneous_descriptor_t* emb_descr = p_err_descr->next_field_emb_descr(i, edescr_idx);
     
-    if (!as_value && !as_map && NULL != err_vals && NULL != err_vals->before) {
+    if (!as_value && !p_parent_is_map && NULL != err_vals && NULL != err_vals->before) {
       if (NULL == err_vals->before->errval) {
         TTCN_error("internal error: erroneous before value missing");
       }
@@ -6060,7 +6070,7 @@ int Record_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
         }
         // it's an extra field, so use the erroneous type's name as the field name
         enc_len += p_tok.put_next_token(JSON_TOKEN_NAME, err_vals->before->type_descr->name);
-        enc_len += err_vals->before->errval->JSON_encode(*(err_vals->before->type_descr), p_tok);
+        enc_len += err_vals->before->errval->JSON_encode(*(err_vals->before->type_descr), p_tok, FALSE);
       }
     }
     
@@ -6074,7 +6084,7 @@ int Record_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
           if (NULL == err_vals->value->type_descr) {
             TTCN_error("internal error: erroneous before typedescriptor missing");
           }
-          if (as_map && 0 == i) {
+          if (p_parent_is_map && 0 == i) {
             const UNIVERSAL_CHARSTRING* key_ustr = dynamic_cast<
               const UNIVERSAL_CHARSTRING*>(err_vals->value->errval);
             if (NULL == key_ustr) {
@@ -6090,10 +6100,10 @@ int Record_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
           }
           else {
             // only replace the field's value, keep the field name
-            if (!as_value && !as_map) {
+            if (!as_value && !p_parent_is_map) {
               enc_len += p_tok.put_next_token(JSON_TOKEN_NAME, field_name);
             }
-            enc_len += err_vals->value->errval->JSON_encode(*(err_vals->value->type_descr), p_tok);
+            enc_len += err_vals->value->errval->JSON_encode(*(err_vals->value->type_descr), p_tok, FALSE);
           }
         }
       }
@@ -6101,17 +6111,17 @@ int Record_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
       boolean metainfo_unbound = NULL != fld_descr(i)->json && fld_descr(i)->json->metainfo_unbound;
       if ((NULL != fld_descr(i)->json && fld_descr(i)->json->omit_as_null) || 
           get_at(i)->is_present() || metainfo_unbound || as_value) {
-        if (!as_value && !as_map) {
+        if (!as_value && !p_parent_is_map) {
           enc_len += p_tok.put_next_token(JSON_TOKEN_NAME, field_name);
         }
-        if (!as_value && !as_map && metainfo_unbound && !get_at(i)->is_bound()) {
+        if (!as_value && !p_parent_is_map && metainfo_unbound && !get_at(i)->is_bound()) {
           enc_len += p_tok.put_next_token(JSON_TOKEN_LITERAL_NULL);
           char* metainfo_str = mprintf("metainfo %s", field_name);
           enc_len += p_tok.put_next_token(JSON_TOKEN_NAME, metainfo_str);
           Free(metainfo_str);
           enc_len += p_tok.put_next_token(JSON_TOKEN_STRING, "\"unbound\"");
         }
-        else if (as_map && 0 == i) {
+        else if (p_parent_is_map && 0 == i) {
           const UNIVERSAL_CHARSTRING* key_ustr = dynamic_cast<
             const UNIVERSAL_CHARSTRING*>(get_at(0));
           if (NULL == key_ustr) {
@@ -6124,15 +6134,29 @@ int Record_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
           key_buf.get_string(key_str);
           enc_len += p_tok.put_next_token(JSON_TOKEN_NAME, (const char*) key_str);
         }
-        else if (NULL != emb_descr) {
-          enc_len += get_at(i)->JSON_encode_negtest(emb_descr, *fld_descr(i), p_tok);
-        } else {
-          enc_len += get_at(i)->JSON_encode(*fld_descr(i), p_tok);
+        else {
+          boolean skip_field = FALSE;
+          if (i == 0 && as_value && get_at(0)->is_optional()) {
+            // can only happen if the record has the 'JSON:object' attribute;
+            // in this case 'omit' is the same as if the field was an empty record of
+            if (get_at(0)->is_bound() && !get_at(0)->is_present()) {
+              enc_len += p_tok.put_next_token(JSON_TOKEN_OBJECT_START, NULL) + 
+                p_tok.put_next_token(JSON_TOKEN_OBJECT_END, NULL);
+              skip_field = TRUE;
+            }
+          }
+          if (!skip_field) {
+            if (NULL != emb_descr) {
+              enc_len += get_at(i)->JSON_encode_negtest(emb_descr, *fld_descr(i), p_tok, FALSE);
+            } else {
+              enc_len += get_at(i)->JSON_encode(*fld_descr(i), p_tok, FALSE);
+            }
+          }
         }
       }
     }
     
-    if (!as_value && !as_map && NULL != err_vals && NULL != err_vals->after) {
+    if (!as_value && !p_parent_is_map && NULL != err_vals && NULL != err_vals->after) {
       if (NULL == err_vals->after->errval) {
         TTCN_error("internal error: erroneous after value missing");
       }
@@ -6144,7 +6168,7 @@ int Record_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
         }
         // it's an extra field, so use the erroneous type's name as the field name
         enc_len += p_tok.put_next_token(JSON_TOKEN_NAME, err_vals->after->type_descr->name);
-        enc_len += err_vals->after->errval->JSON_encode(*(err_vals->after->type_descr), p_tok);
+        enc_len += err_vals->after->errval->JSON_encode(*(err_vals->after->type_descr), p_tok, FALSE);
       }
     }
     
@@ -6153,23 +6177,45 @@ int Record_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
     }
   }
   
-  if (!as_value && !as_map) {
+  if (!as_value && !p_parent_is_map) {
     enc_len += p_tok.put_next_token(JSON_TOKEN_OBJECT_END, NULL);
   }
   return enc_len;
 }
 
-int Record_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, int)
+int Record_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok,
+                             boolean p_silent, boolean p_parent_is_map, int)
 {
   if (NULL != p_td.json && p_td.json->as_value) {
+    if (get_at(0)->is_optional()) {
+      // can only happen if the record has the 'JSON:object' attribute;
+      // in this case the optional class must not be allowed to decode the
+      // JSON literal 'null', since it's not a JSON object;
+      // furthermore, the empty JSON object should be decoded as 'omit'
+      json_token_t token = JSON_TOKEN_NONE;
+      size_t buf_pos = p_tok.get_buf_pos();
+      size_t dec_len = p_tok.get_next_token(&token, NULL, NULL);
+      if (token == JSON_TOKEN_LITERAL_NULL) {
+        return JSON_ERROR_FATAL;
+      }
+      else if (token == JSON_TOKEN_OBJECT_START) {
+        dec_len += p_tok.get_next_token(&token, NULL, NULL);
+        if (token == JSON_TOKEN_OBJECT_END) {
+          get_at(0)->set_to_omit();
+          return dec_len;
+        }
+      }
+      // otherwise rewind the buffer and decode normally
+      p_tok.set_buf_pos(buf_pos);
+    }
     // if 'as value' is set, then the record/set has only one field,
     // decode that without the need of any brackets or field names 
-    return get_at(0)->JSON_decode(*fld_descr(0), p_tok, p_silent);
+    return get_at(0)->JSON_decode(*fld_descr(0), p_tok, p_silent, FALSE);
   }
   
   json_token_t token = JSON_TOKEN_NONE;
   
-  if (p_td.json->as_map) {
+  if (p_parent_is_map) {
     UNIVERSAL_CHARSTRING* key_ustr = dynamic_cast<
       UNIVERSAL_CHARSTRING*>(get_at(0));
     if (NULL == key_ustr) {
@@ -6190,7 +6236,7 @@ int Record_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& 
     }
     key_ustr->decode_utf8(name_len, (unsigned char*) name);
     
-    return get_at(1)->JSON_decode(*fld_descr(1), p_tok, p_silent) + dec_len;
+    return get_at(1)->JSON_decode(*fld_descr(1), p_tok, p_silent, FALSE) + dec_len;
   }
   
   size_t dec_len = p_tok.get_next_token(&token, NULL, NULL);
@@ -6292,7 +6338,7 @@ int Record_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& 
       }
       else {
         buf_pos = p_tok.get_buf_pos();
-        int ret_val2 = get_at(field_idx)->JSON_decode(*fld_descr(field_idx), p_tok, p_silent);
+        int ret_val2 = get_at(field_idx)->JSON_decode(*fld_descr(field_idx), p_tok, p_silent, FALSE);
         if (0 > ret_val2) {
           if (JSON_ERROR_INVALID_TOKEN == ret_val2) {
             // undo the last action on the buffer, check if the invalid token was a null token 
@@ -6338,7 +6384,7 @@ int Record_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& 
     }
     else if (!field_found[field_idx]) {
       if (NULL != fld_descr(field_idx)->json && NULL != fld_descr(field_idx)->json->default_value) {
-        get_at(field_idx)->JSON_decode(*fld_descr(field_idx), DUMMY_BUFFER, p_silent);
+        get_at(field_idx)->JSON_decode(*fld_descr(field_idx), DUMMY_BUFFER, p_silent, FALSE);
       }
       else if (field->is_optional()) {
         field->set_to_omit();
@@ -7272,7 +7318,7 @@ void Empty_Record_Type::encode(const TTCN_Typedescriptor_t& p_td,
     if(!p_td.json) TTCN_EncDec_ErrorContext::error_internal
                      ("No JSON descriptor available for type '%s'.", p_td.name);
     JSON_Tokenizer tok(va_arg(pvar, int) != 0);
-    JSON_encode(p_td, tok);
+    JSON_encode(p_td, tok, FALSE);
     p_buf.put_s(tok.get_buffer_length(), (const unsigned char*)tok.get_buffer());
     break;}
   case TTCN_EncDec::CT_OER: {
@@ -7360,7 +7406,7 @@ void Empty_Record_Type::decode(const TTCN_Typedescriptor_t& p_td,
     if(!p_td.json) TTCN_EncDec_ErrorContext::error_internal
                      ("No JSON descriptor available for type '%s'.", p_td.name);
     JSON_Tokenizer tok((const char*)p_buf.get_data(), p_buf.get_len());
-    if(JSON_decode(p_td, tok, FALSE)<0)
+    if(JSON_decode(p_td, tok, FALSE, FALSE)<0)
       ec.error(TTCN_EncDec::ET_INCOMPL_MSG,
         "Can not decode type '%s', because invalid or incomplete"
         " message was received", p_td.name);
@@ -7512,7 +7558,7 @@ int Empty_Record_Type::XER_decode(const XERdescriptor_t& p_td,
   return 1; // decode successful
 }
 
-int Empty_Record_Type::JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer& p_tok) const
+int Empty_Record_Type::JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer& p_tok, boolean) const
 {
   if (!is_bound()) {
     TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_UNBOUND,
@@ -7524,7 +7570,7 @@ int Empty_Record_Type::JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&
     p_tok.put_next_token(JSON_TOKEN_OBJECT_END, NULL);
 }
 
-int Empty_Record_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, int)
+int Empty_Record_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, boolean, int)
 {
   if (NULL != p_td.json->default_value && 0 == p_tok.get_buffer_length()) {
     // use the default value

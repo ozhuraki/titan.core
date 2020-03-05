@@ -2040,11 +2040,11 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
   if (json_needed) {
     // JSON encode
     src = mputprintf(src,
-      "int %s::JSON_encode(const TTCN_Typedescriptor_t&%s, JSON_Tokenizer& p_tok) const\n"
+      "int %s::JSON_encode(const TTCN_Typedescriptor_t&%s, JSON_Tokenizer& p_tok, boolean) const\n"
       "{\n", name, (sdef->nElements > 0) && (use_runtime_2 || !sdef->jsonAsValue) ? " p_td" : "");
     if (sdef->nElements > 0) {
       if (use_runtime_2) {
-        src = mputstr(src, "  if (err_descr) return JSON_encode_negtest(err_descr, p_td, p_tok);\n");
+        src = mputstr(src, "  if (err_descr) return JSON_encode_negtest(err_descr, p_td, p_tok, FALSE);\n");
       }
       if (!sdef->jsonAsValue) {
         // 'as value' is not set for the base type, but it might still be set in
@@ -2068,7 +2068,7 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
             , sdef->elements[i].jsonAlias ? sdef->elements[i].jsonAlias : sdef->elements[i].dispname);
         }
         src = mputprintf(src, 
-          "    enc_len += field_%s->JSON_encode(%s_descr_, p_tok);\n"
+          "    enc_len += field_%s->JSON_encode(%s_descr_, p_tok, FALSE);\n"
           "    break;\n"
           , sdef->elements[i].name, sdef->elements[i].typedescrname);
       }
@@ -2101,10 +2101,10 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
       // JSON encode for negative testing
       def = mputstr(def,
         "int JSON_encode_negtest(const Erroneous_descriptor_t*, "
-        "const TTCN_Typedescriptor_t&, JSON_Tokenizer&) const;\n");
+        "const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean) const;\n");
       src = mputprintf(src,
         "int %s::JSON_encode_negtest(const Erroneous_descriptor_t*%s, "
-        "const TTCN_Typedescriptor_t&%s, JSON_Tokenizer& p_tok) const\n"
+        "const TTCN_Typedescriptor_t&%s, JSON_Tokenizer& p_tok, boolean) const\n"
         "{\n", name, sdef->nElements > 0 ? " p_err_descr" : "",
         (sdef->nElements > 0 && !sdef->jsonAsValue) ? " p_td" : "");
       if (sdef->nElements > 0) {
@@ -2145,7 +2145,7 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
               , sdef->elements[i].jsonAlias ? sdef->elements[i].jsonAlias : sdef->elements[i].dispname);
           }
           src = mputstr(src,
-            "          enc_len += err_vals->value->errval->JSON_encode(*err_vals->value->type_descr, p_tok);\n"
+            "          enc_len += err_vals->value->errval->JSON_encode(*err_vals->value->type_descr, p_tok, FALSE);\n"
             "        }\n"
             "      }\n"
             "    } else {\n");
@@ -2158,9 +2158,9 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
           }
           src = mputprintf(src,
             "      if (NULL != emb_descr) {\n"
-            "        enc_len += field_%s->JSON_encode_negtest(emb_descr, %s_descr_, p_tok);\n"
+            "        enc_len += field_%s->JSON_encode_negtest(emb_descr, %s_descr_, p_tok, FALSE);\n"
             "      } else {\n"
-            "        enc_len += field_%s->JSON_encode(%s_descr_, p_tok);\n"
+            "        enc_len += field_%s->JSON_encode(%s_descr_, p_tok, FALSE);\n"
             "      }\n"
             "    }\n"
             "    break;\n"
@@ -2196,7 +2196,7 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
     // JSON decode
     src = mputprintf(src,
       "int %s::JSON_decode(const TTCN_Typedescriptor_t&%s, JSON_Tokenizer& p_tok, "
-      "boolean p_silent, int p_chosen_field)\n"
+      "boolean p_silent, boolean, int p_chosen_field)\n"
       "{\n"
       , name, sdef->nElements > 0 && !sdef->jsonAsValue ? " p_td" : "");
     if (sdef->nElements > 0) {
@@ -2207,7 +2207,7 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
       for (i = 0; i < sdef->nElements; ++i) {
         src = mputprintf(src,
           "    case %d:\n"
-          "      return %s%s().JSON_decode(%s_descr_, p_tok, TRUE);\n"
+          "      return %s%s().JSON_decode(%s_descr_, p_tok, TRUE, FALSE);\n"
           , (int)i, at_field, sdef->elements[i].name
           , sdef->elements[i].typedescrname);
       }
@@ -2229,7 +2229,7 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
         if (JSON_NUMBER & sdef->elements[i].jsonValueType) {
           src = mputprintf(src,
             "    p_tok.set_buf_pos(buf_pos);\n"
-            "    ret_val = %s%s().JSON_decode(%s_descr_, p_tok, TRUE);\n"
+            "    ret_val = %s%s().JSON_decode(%s_descr_, p_tok, TRUE, FALSE);\n"
             "    if (0 <= ret_val) {\n"
             "      return ret_val;\n"
             "    }\n"
@@ -2246,7 +2246,7 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
         if (JSON_STRING & sdef->elements[i].jsonValueType) {
           src = mputprintf(src,
             "    p_tok.set_buf_pos(buf_pos);\n"
-            "    ret_val = %s%s().JSON_decode(%s_descr_, p_tok, TRUE);\n"
+            "    ret_val = %s%s().JSON_decode(%s_descr_, p_tok, TRUE, FALSE);\n"
             "    if (0 <= ret_val) {\n"
             "      return ret_val;\n"
             "    }\n"
@@ -2264,7 +2264,7 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
         if (JSON_BOOLEAN & sdef->elements[i].jsonValueType) {
           src = mputprintf(src,
             "    p_tok.set_buf_pos(buf_pos);\n"
-            "    ret_val = %s%s().JSON_decode(%s_descr_, p_tok, TRUE);\n"
+            "    ret_val = %s%s().JSON_decode(%s_descr_, p_tok, TRUE, FALSE);\n"
             "    if (0 <= ret_val) {\n"
             "      return ret_val;\n"
             "    }\n"
@@ -2290,7 +2290,7 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
         if (JSON_ARRAY & sdef->elements[i].jsonValueType) {
           src = mputprintf(src,
             "    p_tok.set_buf_pos(buf_pos);\n"
-            "    ret_val = %s%s().JSON_decode(%s_descr_, p_tok, TRUE);\n"
+            "    ret_val = %s%s().JSON_decode(%s_descr_, p_tok, TRUE, FALSE);\n"
             "    if (0 <= ret_val) {\n"
             "      return ret_val;\n"
             "    }\n"
@@ -2307,7 +2307,7 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
         if (JSON_OBJECT & sdef->elements[i].jsonValueType) {
           src = mputprintf(src,
             "    p_tok.set_buf_pos(buf_pos);\n"
-            "    ret_val = %s%s().JSON_decode(%s_descr_, p_tok, TRUE);\n"
+            "    ret_val = %s%s().JSON_decode(%s_descr_, p_tok, TRUE, FALSE);\n"
             "    if (0 <= ret_val) {\n"
             "      return ret_val;\n"
             "    }\n"
@@ -2324,7 +2324,7 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
         if (JSON_NULL & sdef->elements[i].jsonValueType) {
           src = mputprintf(src,
             "    p_tok.set_buf_pos(buf_pos);\n"
-            "    ret_val = %s%s().JSON_decode(%s_descr_, p_tok, TRUE);\n"
+            "    ret_val = %s%s().JSON_decode(%s_descr_, p_tok, TRUE, FALSE);\n"
             "    if (0 <= ret_val) {\n"
             "      return ret_val;\n"
             "    }\n"
@@ -2366,7 +2366,7 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
         for (i = 0; i < sdef->nElements; ++i) {
           src = mputprintf(src,
             "if (%d == name_len && 0 == strncmp(fld_name, \"%s\", name_len)) {\n"
-            "      int ret_val = %s%s().JSON_decode(%s_descr_, p_tok, p_silent);\n"
+            "      int ret_val = %s%s().JSON_decode(%s_descr_, p_tok, p_silent, FALSE);\n"
             "      if (0 > ret_val) {\n"
             "        if (JSON_ERROR_INVALID_TOKEN == ret_val) {\n"
             "          JSON_ERROR(TTCN_EncDec::ET_INVAL_MSG, JSON_DEC_FIELD_TOKEN_ERROR, %lu, \"%s\");\n"

@@ -2983,7 +2983,7 @@ namespace Common {
     if (json_checked) return;
     json_checked = true;
     if ((NULL == jsonattrib && !hasEncodeAttr(get_encoding_name(CT_JSON))) || !enable_json()) return;
-
+    
     switch (typetype) {
     case T_ANYTYPE:
     case T_CHOICE_T:
@@ -3020,13 +3020,14 @@ namespace Common {
           break; // OK
         case T_SEQ_T:
         case T_SET_T:
-          if (last->get_nof_comps() == 1) {
+          if (last->get_nof_comps() == 1 &&
+              !last->get_comp_byIndex(0)->get_is_optional()) {
             break; // OK
           }
           // else fall through
         default:
           error("Invalid attribute, 'as value' is only allowed for unions, "
-            "the anytype, or records or sets with one field");
+            "the anytype, or records or sets with one mandatory field");
         }
       }
 
@@ -3164,7 +3165,10 @@ namespace Common {
         chk_json_tag_list();
       }
       
-      if (jsonattrib->as_map) {
+      if (jsonattrib->as_map || (ownertype == OT_COMP_FIELD &&
+          parent_type->jsonattrib != NULL &&
+          parent_type->jsonattrib->type_indicator == JsonAST::JSON_OBJECT)) {
+        jsonattrib->as_map = true;
         Type* last = get_type_refd_last();
         if (T_SEQOF != last->typetype && T_SETOF != last->typetype) {
           error("Invalid attribute, 'as map' requires record of or set of");
@@ -3218,6 +3222,74 @@ namespace Common {
               }
             }
           }
+        }
+      }
+      if (jsonattrib->type_indicator != JsonAST::JSON_NO_TYPE) {
+        Type* last = get_type_refd_last();
+        switch (jsonattrib->type_indicator) {
+        case JsonAST::JSON_NUMBER:
+          if (last->typetype != T_REAL) {
+            error("Invalid attribute, 'JSON:number' requires a float type");
+          }
+          break;
+        case JsonAST::JSON_INTEGER:
+          if (last->typetype != T_INT) {
+            error("Invalid attribute, 'JSON:integer' requires an integer type");
+          }
+          break;
+        case JsonAST::JSON_STRING:
+          if (last->typetype != T_USTR) {
+            error("Invalid attribute, 'JSON:string' requires a universal charstring type");
+          }
+          break;
+        case JsonAST::JSON_ARRAY:
+          if (last->typetype != T_SEQOF) {
+            error("Invalid attribute, 'JSON:array' requires a record of type");
+          }
+          break;
+        case JsonAST::JSON_OBJECT_MEMBER:
+          if (last->typetype != T_SEQ_T) {
+            error("Invalid attribute, 'JSON:objectMember' requires a record type");
+          }
+          break;
+        case JsonAST::JSON_OBJECT:
+          if ((last->typetype == T_SEQ_T || last->typetype == T_SET_T) &&
+              last->get_nof_comps() == 1 && last->get_comp_byIndex(0)->get_is_optional()) {
+            jsonattrib->as_value = true;
+            // the field type's chk_json will set the 'as map' flag for itself
+            // note: normally the 'as value' attribute doesn't allow the one field
+            // in the record to be optional; this is used at runtime to differentiate
+            // between a regular 'as value' attribute and 'JSON:object'
+          }
+          else {
+            error("Invalid attribute, 'JSON:object' requires a record or set type "
+              "with one optional field");
+          }
+          break;
+        case JsonAST::JSON_LITERAL:
+          if (last->typetype == T_ENUM_T) {
+            if (last->u.enums.eis->get_nof_eis() == 1) {
+              jsonattrib->use_null = true;
+            }
+            else {
+              error("Invalid attribute, 'JSON:object' requires the type to have "
+                "only one enumerated item");
+            }
+          }
+          else if (last->typetype != T_BOOL) {
+            error("Invalid attribute, 'JSON:literal' requires a boolean or "
+              "enumerated type");
+          }
+          break;
+        default:
+          FATAL_ERROR("Type::chk_json");
+        }
+      }
+      if (jsonattrib->string_escaping != JsonAST::ESCAPING_UNSET) {
+        Type* last = get_type_refd_last();
+        if (last->typetype != T_USTR && last->typetype != T_CSTR) {
+          error("Invalid attribute, 'escape as ...' requires a charstring or "
+            "universal charstring type");
         }
       }
     }

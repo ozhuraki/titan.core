@@ -1,0 +1,8 @@
+JsonModuleTest
+JsonModuleTest.exe
+JsonModuleTest*.cc
+JsonModuleTest*.hh
+JSON*.cc
+JSON*.hh
+compile
+*.log

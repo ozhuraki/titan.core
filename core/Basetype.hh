@@ -599,7 +599,7 @@ public:
   /** Encode JSON.
    * @return encoded length
    * @note Basetype::JSON_encode throws an error. */
-  VIRTUAL_IF_RUNTIME_2 int JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer&) const;
+  VIRTUAL_IF_RUNTIME_2 int JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer&, boolean) const;
   
 #ifdef TITAN_RUNTIME_2
   /** Encode with JSON encoding negative test.
@@ -607,15 +607,17 @@ public:
     * @param p_err_descr erroneous type descriptor
     * @param p_td type descriptor
     * @param p_tok JSON tokenizer for the encoded data
+    * @param p_parent_is_map the parent record of type has the 'as map' attribute (only relevant for records)
     * @note Basetype::JSON_encode_negtest throws an error. */
   virtual int JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr, const TTCN_Typedescriptor_t& p_td,
-          JSON_Tokenizer& p_tok) const;
+          JSON_Tokenizer& p_tok, boolean p_parent_is_map) const;
 #endif
   
   /** Decode JSON.
    * @return decoded length
    * @note Basetype::JSON_decode throws an error. */
-  VIRTUAL_IF_RUNTIME_2 int JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer&, boolean, int p_chosen_field = CHOSEN_FIELD_UNSET);
+  VIRTUAL_IF_RUNTIME_2 int JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer&, boolean,
+    boolean, int p_chosen_field = CHOSEN_FIELD_UNSET);
   
   /** Encode OER.
    * @return encoded length
@@ -631,11 +633,7 @@ public:
    
    #ifdef TITAN_RUNTIME_2
   /** Encode with OER encoding negative test.
-    * @return the length of the encoding
-    * @param p_err_descr erroneous type descriptor
-    * @param p_td type descriptor
-    * @param p_tok JSON tokenizer for the encoded data
-    * @note Basetype::JSON_encode_negtest throws an error. */
+    * @note Basetype::OER_encode_negtest throws an error. */
   virtual int OER_encode_negtest(const Erroneous_descriptor_t* p_err_descr, const TTCN_Typedescriptor_t& p_td,
           TTCN_Buffer& p_buf) const;
 #endif
@@ -858,16 +856,16 @@ public:
   
   /** Encodes accordingly to the JSON encoding rules.
     * Returns the length of the encoded data. */
-  int JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&) const;
+  int JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean) const;
   
   /** Negative testing for the JSON encoder
     * Encodes this value according to the JSON encoding rules, but with the
     * modifications (errors) specified in the erroneous descriptor parameter. */
-  int JSON_encode_negtest(const Erroneous_descriptor_t*, const TTCN_Typedescriptor_t&, JSON_Tokenizer&) const;
+  int JSON_encode_negtest(const Erroneous_descriptor_t*, const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean) const;
   
   /** Decodes accordingly to the JSON encoding rules.
     * Returns the length of the decoded data. */
-  int JSON_decode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean, int p_chosen_field = CHOSEN_FIELD_UNSET);
+  int JSON_decode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean, boolean, int p_chosen_field = CHOSEN_FIELD_UNSET);
   
   /** Encodes accordingly to the OER encoding rules.
     * Returns the length of the encoded data. */
@@ -1022,16 +1020,16 @@ public:
   
   /** Encodes accordingly to the JSON encoding rules.
     * Returns the length of the encoded data. */
-  int JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&) const;
+  int JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean) const;
   
   /** Negative testing for the JSON encoder
     * Encodes this value according to the JSON encoding rules, but with the
     * modifications (errors) specified in the erroneous descriptor parameter. */
-  int JSON_encode_negtest(const Erroneous_descriptor_t*, const TTCN_Typedescriptor_t&, JSON_Tokenizer&) const;
+  int JSON_encode_negtest(const Erroneous_descriptor_t*, const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean) const;
   
   /** Decodes accordingly to the JSON encoding rules.
     * Returns the length of the decoded data. */
-  int JSON_decode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean, int p_chosen_field = CHOSEN_FIELD_UNSET);
+  int JSON_decode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean, boolean, int p_chosen_field = CHOSEN_FIELD_UNSET);
   
   /** Encodes accordingly to the JSON encoding rules.
     * Returns the length of the encoded data. */
@@ -1107,11 +1105,11 @@ public:
   
   /** Encodes accordingly to the JSON encoding rules.
     * Returns the length of the encoded data. */
-  virtual int JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&) const;
+  virtual int JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean) const;
   
   /** Decodes accordingly to the JSON encoding rules.
     * Returns the length of the decoded data. */
-  virtual int JSON_decode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean, int p_chosen_field = CHOSEN_FIELD_UNSET);
+  virtual int JSON_decode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean, boolean, int p_chosen_field = CHOSEN_FIELD_UNSET);
   
   /** Encodes accordingly to the OER encoding rules.
     * Returns the length of the encoded data. */

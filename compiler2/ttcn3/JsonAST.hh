@@ -38,29 +38,53 @@ struct JsonEnumText {
 };
 
 class JsonAST {
-  private:
-    void init_JsonAST();
-    JsonAST(const JsonAST&);
-    JsonAST& operator=(const JsonAST&);
-  public:
-    boolean omit_as_null;
-    char* alias;
-    boolean as_value;
-    char* default_value;
-    vector<JsonSchemaExtension> schema_extensions;
-    boolean metainfo_unbound;
-    boolean as_number;
-    rawAST_tag_list* tag_list;
-    boolean as_map;
-    vector<JsonEnumText> enum_texts;
-  
-    JsonAST() { init_JsonAST(); }
-    JsonAST(const JsonAST *other_val);
-    ~JsonAST();
-    
-    boolean empty() const;
-    
-    void print_JsonAST() const;
+public:
+  enum json_type_indicator {
+    JSON_NO_TYPE,
+    JSON_NUMBER,
+    JSON_INTEGER,
+    JSON_STRING,
+    JSON_ARRAY,
+    JSON_OBJECT,
+    JSON_OBJECT_MEMBER,
+    JSON_LITERAL
+  };
+  enum json_string_escaping {
+    ESCAPING_UNSET, // no escaping attribute was set (equivalent with ESCAPE_AS_SHORT at runtime)
+    ESCAPE_AS_SHORT, // attribute "escape as short" was set explicitly
+    ESCAPE_AS_USI,
+    ESCAPE_AS_TRANSPARENT
+  };
+private:
+  void init_JsonAST();
+  JsonAST(const JsonAST&);
+  JsonAST& operator=(const JsonAST&);
+public:
+  boolean omit_as_null;
+  char* alias;
+  boolean as_value;
+  char* default_value;
+  vector<JsonSchemaExtension> schema_extensions;
+  boolean metainfo_unbound;
+  boolean as_number;
+  rawAST_tag_list* tag_list;
+  boolean as_map;
+  boolean use_null;
+  vector<JsonEnumText> enum_texts;
+  json_type_indicator type_indicator;
+  json_string_escaping string_escaping;
+
+  JsonAST() { init_JsonAST(); }
+  JsonAST(const JsonAST *other_val);
+  ~JsonAST();
+
+  const char* get_type_str() const;
+  const char* get_escaping_str() const;
+  const char* get_escaping_gen_str() const;
+
+  boolean empty() const;
+
+  void print_JsonAST() const;
 };
 
 #endif	/* JSONAST_HH_ */

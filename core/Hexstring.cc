@@ -691,7 +691,7 @@ void HEXSTRING::encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
       TTCN_EncDec_ErrorContext::error_internal
         ("No JSON descriptor available for type '%s'.", p_td.name);
     JSON_Tokenizer tok(va_arg(pvar, int) != 0);
-    JSON_encode(p_td, tok);
+    JSON_encode(p_td, tok, FALSE);
     p_buf.put_s(tok.get_buffer_length(), (const unsigned char*)tok.get_buffer());
     break;}
   default:
@@ -744,7 +744,7 @@ void HEXSTRING::decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
       TTCN_EncDec_ErrorContext::error_internal
         ("No JSON descriptor available for type '%s'.", p_td.name);
     JSON_Tokenizer tok((const char*)p_buf.get_data(), p_buf.get_len());
-    if(JSON_decode(p_td, tok, FALSE)<0)
+    if(JSON_decode(p_td, tok, FALSE, FALSE)<0)
       ec.error(TTCN_EncDec::ET_INCOMPL_MSG,
                "Can not decode type '%s', because invalid or incomplete"
                " message was received"
@@ -1051,7 +1051,7 @@ finished:
   return 1; // decode successful
 }
 
-int HEXSTRING::JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer& p_tok) const
+int HEXSTRING::JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer& p_tok, boolean) const
 {
   if (!is_bound()) {
     TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_UNBOUND,
@@ -1075,7 +1075,7 @@ int HEXSTRING::JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer& p_tok) 
   return enc_len;
 }
 
-int HEXSTRING::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, int)
+int HEXSTRING::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, boolean, int)
 {
   json_token_t token = JSON_TOKEN_NONE;
   char* value = 0;

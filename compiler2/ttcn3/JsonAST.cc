@@ -43,6 +43,9 @@ void JsonAST::init_JsonAST()
   as_number = false;
   tag_list = NULL;
   as_map = false;
+  use_null = false;
+  type_indicator = JSON_NO_TYPE;
+  string_escaping = ESCAPING_UNSET;
 }
 
 JsonAST::JsonAST(const JsonAST *other_val)
@@ -63,6 +66,9 @@ JsonAST::JsonAST(const JsonAST *other_val)
       enum_texts.add(new JsonEnumText(mcopystr(other_val->enum_texts[i]->from),
         mcopystr(other_val->enum_texts[i]->to)));
     }
+    use_null = other_val->use_null;
+    type_indicator = other_val->type_indicator;
+    string_escaping = other_val->string_escaping;
   }
 }
 
@@ -88,7 +94,63 @@ boolean JsonAST::empty() const
 {
   return omit_as_null == false && alias == NULL && as_value == false &&
     default_value == NULL && metainfo_unbound == false && as_number == false &&
-    tag_list == NULL && as_map == false && enum_texts.size() == 0;
+    tag_list == NULL && as_map == false && enum_texts.size() == 0 &&
+    use_null == false && type_indicator != JSON_OBJECT &&
+    type_indicator != JSON_OBJECT_MEMBER && type_indicator != JSON_LITERAL &&
+    (string_escaping == ESCAPING_UNSET || string_escaping == ESCAPE_AS_SHORT);
+}
+
+const char* JsonAST::get_type_str() const
+{
+  switch (type_indicator) {
+  case JSON_NO_TYPE:
+    return "<none>";
+  case JSON_NUMBER:
+    return "JSON:number";
+  case JSON_INTEGER:
+    return "JSON:integer";
+  case JSON_STRING:
+    return "JSON:string";
+  case JSON_ARRAY:
+    return "JSON:array";
+  case JSON_OBJECT:
+    return "JSON:object";
+  case JSON_OBJECT_MEMBER:
+    return "JSON:objectMember";
+  case JSON_LITERAL:
+    return "JSON:literal";
+  default:
+    FATAL_ERROR("JsonAST::get_type_str");
+  }
+}
+
+const char* JsonAST::get_escaping_str() const
+{
+  switch (string_escaping) {
+  case ESCAPE_AS_SHORT:
+    return "escape as short";
+  case ESCAPE_AS_USI:
+    return "escape as usi";
+  case ESCAPE_AS_TRANSPARENT:
+    return "escape as transparent";
+  default:
+    FATAL_ERROR("JsonAST::get_escaping_str");
+  }
+}
+
+const char* JsonAST::get_escaping_gen_str() const
+{
+  switch (string_escaping) {
+  case ESCAPING_UNSET:
+  case ESCAPE_AS_SHORT:
+    return "ESCAPE_AS_SHORT";
+  case ESCAPE_AS_USI:
+    return "ESCAPE_AS_USI";
+  case ESCAPE_AS_TRANSPARENT:
+    return "ESCAPE_AS_TRANSPARENT";
+  default:
+    FATAL_ERROR("JsonAST::get_escaping_gen_str");
+  }
 }
 
 void JsonAST::print_JsonAST() const
@@ -140,6 +202,10 @@ void JsonAST::print_JsonAST() const
         }
         printf("\n\r");
       }
+    }
+    printf("Type: %s\n\r", get_type_str());
+    if (string_escaping != ESCAPING_UNSET) {
+      printf("%s\n\r", get_escaping_str());
     }
   }
   if (as_map) {

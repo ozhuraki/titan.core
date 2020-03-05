@@ -795,15 +795,18 @@ void defEnumClass(const enum_def *edef, output_struct *output)
   if (json_needed) {
     // JSON encode
     src = mputprintf(src,
-      "int %s::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok) const\n"
+      "int %s::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean) const\n"
       "{\n"
       "  if (enum_value == %s) {\n"
       "    TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_UNBOUND,\n"
       "      \"Encoding an unbound value of enumerated type %s.\");\n"
       "    return -1;\n"
       "  }\n\n"
+      "  if (p_td.json->use_null) {\n"
+      "    return p_tok.put_next_token(JSON_TOKEN_LITERAL_NULL);\n"
+      "  }\n"
       "  char* tmp_str;\n"
-      "  if (p_td.json->as_number) {"
+      "  if (p_td.json->as_number) {\n"
       "    tmp_str = mprintf(\"%%d\", enum_value);\n"
       "  }\n"
       "  else {\n"
@@ -828,7 +831,7 @@ void defEnumClass(const enum_def *edef, output_struct *output)
     
     // JSON decode
     src = mputprintf(src,
-      "int %s::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, int)\n"
+      "int %s::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, boolean, int)\n"
       "{\n"
       "  json_token_t token = JSON_TOKEN_NONE;\n"
       "  char* value = 0;\n"
@@ -847,7 +850,10 @@ void defEnumClass(const enum_def *edef, output_struct *output)
       "    JSON_ERROR(TTCN_EncDec::ET_INVAL_MSG, JSON_DEC_BAD_TOKEN_ERROR, \"\");\n"
       "    return JSON_ERROR_FATAL;\n"
       "  }\n"
-      "  else if ((JSON_TOKEN_STRING == token && !p_td.json->as_number) || use_default) {\n"
+      "  else if (JSON_TOKEN_LITERAL_NULL == token && p_td.json->use_null) {\n"
+      "    enum_value = %s;\n"
+      "  }\n"
+      "  else if (!p_td.json->use_null && ((JSON_TOKEN_STRING == token && !p_td.json->as_number) || use_default)) {\n"
       "    if (use_default || (value_len > 2 && value[0] == '\\\"' && value[value_len - 1] == '\\\"')) {\n"
       "      if (!use_default) value[value_len - 1] = 0;\n"
       "      boolean text_found = false;\n"
@@ -869,7 +875,7 @@ void defEnumClass(const enum_def *edef, output_struct *output)
       "      error = TRUE;\n"
       "    }\n"
       "  }\n"
-      "  else if (JSON_TOKEN_NUMBER == token && p_td.json->as_number) {\n"
+      "  else if (!p_td.json->use_null && JSON_TOKEN_NUMBER == token && p_td.json->as_number) {\n"
       "    char* value_str = mcopystrn(value, value_len);\n"
       "    int number = atoi(value_str);\n"
       "    if (strchr(value_str, '.') != NULL || strchr(value_str, 'e') != NULL "
@@ -896,7 +902,8 @@ void defEnumClass(const enum_def *edef, output_struct *output)
       "  }\n"
       "  return (int)dec_len;\n"
       "}\n\n"
-      , name, enum_type, unknown_value, enum_type, unbound_value, unbound_value);
+      , name, edef->elements[0].name, enum_type, unknown_value, enum_type
+      , unbound_value, unbound_value);
   }
   
   if (oer_needed) {

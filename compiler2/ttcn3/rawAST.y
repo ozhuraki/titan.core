@@ -293,6 +293,12 @@ static void yyprint(FILE *file, int type, const YYSTYPE& value);
 %token XKWfor             "for"
 %token XKWunbound         "unbound"
 %token XKWnumber          "number"
+%token XKWinteger         "JSON:integer"
+%token XKWstring          "JSON:string"
+%token XKWarray           "JSON:array"
+%token XKWobject          "JSON:object"
+%token XKWobjectMember    "JSON:object member"
+%token XKWliteral         "JSON:literal"
 %token XJsonValueStart    "("
 %token XJsonValueEnd      ")"
 %token XJsonValueSegment  "JSON value"
@@ -300,6 +306,9 @@ static void yyprint(FILE *file, int type, const YYSTYPE& value);
 %token XChosenKeyword     "chosen"
 %token XJsonOtherwise     "otherwise"
 %token XJsonMap           "map"
+%token XKWescape          "escape"
+%token XKWusi             "usi"
+%token XKWtransparent     "transparent"
 
 
 %type <enumval>
@@ -1798,7 +1807,7 @@ xsddata: /* XSD:something */
 
 ;
 
-// JSON attributes, with 'JSON:' prefix (legacy attributes)
+// JSON attributes, with 'JSON:' prefix (legacy attributes and type indicators)
 XJsonDef:
   XOptSpaces XKWjson XOptSpaces ':' XOptSpaces XJsonAttribute XOptSpaces
 ;
@@ -1811,6 +1820,7 @@ XJsonAttribute:
 | XExtend
 | XMetainfoForUnbound
 | XAsNumber
+| XTypeIndicator
 ;
 
 XOmitAsNull:
@@ -1868,6 +1878,16 @@ XMetainfoForUnbound:
 XAsNumber:
   XKWas XOptSpaces XKWnumber { jsonstruct->as_number = true; }
 
+XTypeIndicator:
+  XKWnumber       { jsonstruct->type_indicator = JsonAST::JSON_NUMBER; }
+| XKWinteger      { jsonstruct->type_indicator = JsonAST::JSON_INTEGER; }
+| XKWstring       { jsonstruct->type_indicator = JsonAST::JSON_STRING; }
+| XKWarray        { jsonstruct->type_indicator = JsonAST::JSON_ARRAY; }
+| XKWobject       { jsonstruct->type_indicator = JsonAST::JSON_OBJECT; }
+| XKWobjectMember { jsonstruct->type_indicator = JsonAST::JSON_OBJECT_MEMBER; }
+| XKWliteral      { jsonstruct->type_indicator = JsonAST::JSON_LITERAL; }
+;
+
 XOptSpaces:
   /* Empty */
 | XSpaces
@@ -1899,6 +1919,7 @@ JSONattribute:
 | JAsNumber
 | JChosen
 | JAsMap
+| JEscapeAs
 ;
 
 JOmitAsNull:
@@ -1941,6 +1962,12 @@ JChosen:
 
 JAsMap:
   XKWas XJsonMap { jsonstruct->as_map = true; }
+;
+
+JEscapeAs:
+  XKWescape XKWas XKWshort       { jsonstruct->string_escaping = JsonAST::ESCAPE_AS_SHORT; }
+| XKWescape XKWas XKWusi         { jsonstruct->string_escaping = JsonAST::ESCAPE_AS_USI; }
+| XKWescape XKWas XKWtransparent { jsonstruct->string_escaping = JsonAST::ESCAPE_AS_TRANSPARENT; }
 ;
 
 %%

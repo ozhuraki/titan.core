@@ -32,55 +32,55 @@
 #include <sys/types.h>
 
 // JSON descriptors for base types
-const TTCN_JSONdescriptor_t INTEGER_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t INTEGER_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t FLOAT_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t FLOAT_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t BOOLEAN_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t BOOLEAN_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t BITSTRING_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t BITSTRING_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t HEXSTRING_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t HEXSTRING_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t OCTETSTRING_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t OCTETSTRING_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t CHARSTRING_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t CHARSTRING_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t UNIVERSAL_CHARSTRING_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t UNIVERSAL_CHARSTRING_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t VERDICTTYPE_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t VERDICTTYPE_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t GeneralString_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t GeneralString_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t NumericString_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t NumericString_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t UTF8String_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t UTF8String_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t PrintableString_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t PrintableString_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t UniversalString_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t UniversalString_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t BMPString_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t BMPString_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t GraphicString_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t GraphicString_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t IA5String_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t IA5String_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t TeletexString_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t TeletexString_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t VideotexString_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t VideotexString_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t VisibleString_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t VisibleString_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t ASN_NULL_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t ASN_NULL_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t OBJID_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t OBJID_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t ASN_ROID_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t ASN_ROID_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t ASN_ANY_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t ASN_ANY_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
-const TTCN_JSONdescriptor_t ENUMERATED_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL };
+const TTCN_JSONdescriptor_t ENUMERATED_json_ = { FALSE, NULL, FALSE, NULL, FALSE, FALSE, FALSE, 0, NULL, FALSE, ESCAPE_AS_SHORT };
 
 
 
@@ -514,7 +514,7 @@ void cbor2json_coding(TTCN_Buffer& buff, JSON_Tokenizer& tok, bool in_object) {
           else val = mant == 0 ? PLUS_INFINITY : NOT_A_NUMBER;
           val = half & 0x8000 ? -val : val;
           FLOAT f = val;
-          f.JSON_encode(cbor_float_descr_, tok);
+          f.JSON_encode(cbor_float_descr_, tok, FALSE);
           break;
         }
         case 26: { // Single precision float 32bit
@@ -530,7 +530,7 @@ void cbor2json_coding(TTCN_Buffer& buff, JSON_Tokenizer& tok, bool in_object) {
           my_union.num = i.get_long_long_val();
           float f2 = my_union.fnum;
           FLOAT f = f2;
-          f.JSON_encode(cbor_float_descr_, tok);
+          f.JSON_encode(cbor_float_descr_, tok, FALSE);
           break;
         }
         case 27: { // Double precision float 64bit
@@ -540,7 +540,7 @@ void cbor2json_coding(TTCN_Buffer& buff, JSON_Tokenizer& tok, bool in_object) {
           INTEGER i = oct2int(os);
           if (i.get_long_long_val() != 0x7FF8000000000000ULL) { // NAN    
             f.decode(FLOAT_descr_, buff, TTCN_EncDec::CT_RAW);
-            f.JSON_encode(cbor_float_descr_, tok);
+            f.JSON_encode(cbor_float_descr_, tok, FALSE);
           } else {
             tok.put_next_token(JSON_TOKEN_STRING, "\"not_a_number\"");
             buff.increase_pos(8);
@@ -1302,7 +1302,7 @@ void bson2json_coding(TTCN_Buffer& buff, JSON_Tokenizer& tok, bool in_object, bo
         FLOAT f;
         check_and_get_buffer_bson(buff, 8);
         f.decode(bson_float_descr_, buff, TTCN_EncDec::CT_RAW);
-        f.JSON_encode(bson_float_descr_, tok);
+        f.JSON_encode(bson_float_descr_, tok, FALSE);
         break;
       }
       case 13: // Javascript code. Decoded as string

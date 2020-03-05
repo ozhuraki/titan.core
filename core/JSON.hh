@@ -27,6 +27,13 @@ struct JsonEnumText {
   const char* text;
 };
 
+/** Helper enumerated type for storing the different methods of escaping in character strings */
+enum json_string_escaping {
+  ESCAPE_AS_SHORT, /* use short escapes wherever possible (e.g. '\n', '\\', etc.)*/
+  ESCAPE_AS_USI, /* use USI escapes in all cases (i.e. '\u' followed by 4 hex nibbles) */
+  ESCAPE_AS_TRANSPARENT /* do not escape anything, except control characters */
+};
+
 /** Descriptor for JSON encoding/decoding during runtime */
 struct TTCN_JSONdescriptor_t 
 {
@@ -85,6 +92,12 @@ struct TTCN_JSONdescriptor_t
   
   /** List of enumerated values whose texts are changed. */
   const JsonEnumText* enum_texts;
+  
+  /** If set, encodes this value as the JSON literal 'null'. */
+  boolean use_null;
+  
+  /** Setting for escaping of special characters in character strings */
+  json_string_escaping escaping;
 };
 
 /** This macro makes sure that coding errors will only be displayed if the silent

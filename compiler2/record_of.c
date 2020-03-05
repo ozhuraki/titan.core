@@ -1538,7 +1538,7 @@ void defRecordOfClass1(const struct_of_def *sdef, output_struct *output)
   if (json_needed) {
     // JSON encode, RT1
     src = mputprintf(src,
-      "int %s::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok) const\n"
+      "int %s::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean) const\n"
       "{\n"
       "  if (!is_bound()) {\n"
       "    TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_UNBOUND,\n"
@@ -1556,7 +1556,7 @@ void defRecordOfClass1(const struct_of_def *sdef, output_struct *output)
       "      enc_len += p_tok.put_next_token(JSON_TOKEN_OBJECT_END, NULL);\n"
       "    }\n"
       "    else {\n"
-      "      int ret_val = (*this)[i].JSON_encode(*p_td.oftype_descr, p_tok);\n"
+      "      int ret_val = (*this)[i].JSON_encode(*p_td.oftype_descr, p_tok, p_td.json->as_map);\n"
       "      if (0 > ret_val) break;\n"
       "      enc_len += ret_val;\n"
       "    }\n"
@@ -1569,7 +1569,7 @@ void defRecordOfClass1(const struct_of_def *sdef, output_struct *output)
     
     // JSON decode, RT1
     src = mputprintf(src,
-      "int %s::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, int)\n"
+      "int %s::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, boolean, int)\n"
       "{\n"
       "  if (NULL != p_td.json->default_value && 0 == p_tok.get_buffer_length()) {\n"
       // use the default value (currently only the empty array can be set as
@@ -1615,7 +1615,7 @@ void defRecordOfClass1(const struct_of_def *sdef, output_struct *output)
       "      p_tok.set_buf_pos(buf_pos);\n"
       "    }\n"
       "    %s* val = new %s;\n"
-      "    int ret_val2 = val->JSON_decode(*p_td.oftype_descr, p_tok, p_silent);\n"
+      "    int ret_val2 = val->JSON_decode(*p_td.oftype_descr, p_tok, p_silent, p_td.json->as_map);\n"
       "    if (JSON_ERROR_INVALID_TOKEN == ret_val2) {\n"
       "      p_tok.set_buf_pos(buf_pos);\n"
       "      delete val;\n"
@@ -3058,7 +3058,7 @@ void defRecordOfClassMemAllocOptimized(const struct_of_def *sdef, output_struct 
   if (json_needed) {
     // JSON encode, RT1, mem. alloc. optimised
     src = mputprintf(src,
-      "int %s::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok) const\n"
+      "int %s::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean) const\n"
       "{\n"
       "  if (!is_bound()) {\n"
       "    TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_UNBOUND,\n"
@@ -3075,7 +3075,7 @@ void defRecordOfClassMemAllocOptimized(const struct_of_def *sdef, output_struct 
       "      enc_len += p_tok.put_next_token(JSON_TOKEN_OBJECT_END, NULL);\n"
       "    }\n"
       "    else {\n"
-      "      int ret_val = value_elements[i].JSON_encode(*p_td.oftype_descr, p_tok);\n"
+      "      int ret_val = value_elements[i].JSON_encode(*p_td.oftype_descr, p_tok, p_td.json->as_map);\n"
       "      if (0 > ret_val) break;\n"
       "      enc_len += ret_val;\n"
       "    }\n"
@@ -3087,7 +3087,7 @@ void defRecordOfClassMemAllocOptimized(const struct_of_def *sdef, output_struct 
     
     // JSON decode, RT1, mem. alloc. optimised
     src = mputprintf(src,
-      "int %s::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, int)\n"
+      "int %s::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, boolean, int)\n"
       "{\n"
       "  json_token_t token = JSON_TOKEN_NONE;\n"
       "  size_t dec_len = p_tok.get_next_token(&token, NULL, NULL);\n"
@@ -3126,7 +3126,7 @@ void defRecordOfClassMemAllocOptimized(const struct_of_def *sdef, output_struct 
       "      p_tok.set_buf_pos(buf_pos);\n"
       "    }\n"
       "    %s val;\n"
-      "    int ret_val2 = val.JSON_decode(*p_td.oftype_descr, p_tok, p_silent);\n"
+      "    int ret_val2 = val.JSON_decode(*p_td.oftype_descr, p_tok, p_silent, p_td.json->as_map);\n"
       "    if (JSON_ERROR_INVALID_TOKEN == ret_val2) {\n"
       "      p_tok.set_buf_pos(buf_pos);\n"
       "      break;\n"

@@ -1148,7 +1148,7 @@ void UNIVERSAL_CHARSTRING::encode(const TTCN_Typedescriptor_t& p_td,
       TTCN_EncDec_ErrorContext::error_internal
         ("No JSON descriptor available for type '%s'.", p_td.name);
     JSON_Tokenizer tok(va_arg(pvar, int) != 0);
-    JSON_encode(p_td, tok);
+    JSON_encode(p_td, tok, FALSE);
     p_buf.put_s(tok.get_buffer_length(), (const unsigned char*)tok.get_buffer());
     break; }
   case TTCN_EncDec::CT_OER: {
@@ -1243,7 +1243,7 @@ void UNIVERSAL_CHARSTRING::decode(const TTCN_Typedescriptor_t& p_td,
       TTCN_EncDec_ErrorContext::error_internal
         ("No JSON descriptor available for type '%s'.", p_td.name);
     JSON_Tokenizer tok((const char*)p_buf.get_data(), p_buf.get_len());
-    if(JSON_decode(p_td, tok, FALSE)<0)
+    if(JSON_decode(p_td, tok, FALSE, FALSE)<0)
       ec.error(TTCN_EncDec::ET_INCOMPL_MSG,
                "Can not decode type '%s', because invalid or incomplete"
                " message was received"
@@ -2309,45 +2309,64 @@ fini:
   return 1; // decode successful
 }
 
-char* UNIVERSAL_CHARSTRING::to_JSON_string(const TTCN_Buffer& p_buf) const
+char* UNIVERSAL_CHARSTRING::to_JSON_string(const TTCN_Buffer& p_buf, json_string_escaping mode) const
 {
   const unsigned char* ustr = p_buf.get_data();
   const size_t ustr_len = p_buf.get_len();
   
-  // Need at least 3 more characters (the double quotes around the string and the terminating zero)
-  char* json_str = (char*)Malloc(ustr_len + 3);
-  
-  json_str[0] = 0;
-  json_str = mputc(json_str, '\"');
+  char* json_str = mprintf("\"");
   
   for (size_t i = 0; i < ustr_len; ++i) {
-    // Increase the size of the buffer if it's not big enough to store the
-    // characters remaining in the universal charstring
-    switch(ustr[i]) {
-    case '\\':
-      json_str = mputstrn(json_str, "\\\\", 2);
-      break;
-    case '\n':
-      json_str = mputstrn(json_str, "\\n", 2);
-      break;
-    case '\t':
-      json_str = mputstrn(json_str, "\\t", 2);
-      break;
-    case '\r':
-      json_str = mputstrn(json_str, "\\r", 2);
-      break;
-    case '\f':
-      json_str = mputstrn(json_str, "\\f", 2);
-      break;
-    case '\b':
-      json_str = mputstrn(json_str, "\\b", 2);
-      break;
-    case '\"':
-      json_str = mputstrn(json_str, "\\\"", 2);
-      break;
-    default:
-      json_str = mputc(json_str, (char)ustr[i]);
-      break;
+    if (mode != ESCAPE_AS_USI) {
+      switch(ustr[i]) {
+      case '\n':
+        json_str = mputstrn(json_str, "\\n", 2);
+        break;
+      case '\t':
+        json_str = mputstrn(json_str, "\\t", 2);
+        break;
+      case '\r':
+        json_str = mputstrn(json_str, "\\r", 2);
+        break;
+      case '\f':
+        json_str = mputstrn(json_str, "\\f", 2);
+        break;
+      case '\b':
+        json_str = mputstrn(json_str, "\\b", 2);
+        break;
+      case '\"':
+        json_str = mputstrn(json_str, "\\\"", 2);
+        break;
+      case '\\':
+        if (mode == ESCAPE_AS_SHORT) {
+          json_str = mputstrn(json_str, "\\\\", 2);
+          break;
+        }
+        // fall through (to the default branch) if ESCAPE_AS_TRANSPARENT
+      case '/':
+        if (mode == ESCAPE_AS_SHORT) {
+          json_str = mputstrn(json_str, "\\/", 2);
+          break;
+        }
+        // fall through if ESCAPE_AS_TRANSPARENT
+      default:
+        if (ustr[i] <= 0x1F || ustr[i] == 0x7F) {
+          // C0 control characters use USI-like escape sequences
+          json_str = mputprintf(json_str, "\\u00%X%X", ustr[i] / 16, ustr[i] % 16);
+        }
+        else {
+          json_str = mputc(json_str, (char)ustr[i]);
+        }
+        break;
+      }
+    }
+    else { // ESCAPE_AS_USI
+      if (ustr[i] <= 0x20 || ustr[i] == '\"' || ustr[i] == '\\' || ustr[i] == 0x7F) {
+        json_str = mputprintf(json_str, "\\u00%X%X", ustr[i] / 16, ustr[i] % 16);
+      }
+      else {
+        json_str = mputc(json_str, (char)ustr[i]);
+      }
     }
   }
   
@@ -2550,7 +2569,7 @@ boolean UNIVERSAL_CHARSTRING::from_JSON_string(boolean check_quotes)
   return !error;
 }
 
-int UNIVERSAL_CHARSTRING::JSON_encode(const TTCN_Typedescriptor_t& /*p_td*/, JSON_Tokenizer& p_tok) const
+int UNIVERSAL_CHARSTRING::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean) const
 {
   if (!is_bound()) {
     TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_UNBOUND,
@@ -2560,18 +2579,18 @@ int UNIVERSAL_CHARSTRING::JSON_encode(const TTCN_Typedescriptor_t& /*p_td*/, JSO
   
   char* tmp_str = 0;
   if (charstring) {
-    tmp_str = cstr.to_JSON_string();
+    tmp_str = cstr.to_JSON_string(p_td.json->escaping);
   } else {
     TTCN_Buffer tmp_buf;
     encode_utf8(tmp_buf);
-    tmp_str = to_JSON_string(tmp_buf);
+    tmp_str = to_JSON_string(tmp_buf, p_td.json->escaping);
   }
   int enc_len = p_tok.put_next_token(JSON_TOKEN_STRING, tmp_str);
   Free(tmp_str);
   return enc_len;
 }
 
-int UNIVERSAL_CHARSTRING::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, int)
+int UNIVERSAL_CHARSTRING::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, boolean, int)
 {
   json_token_t token = JSON_TOKEN_NONE;
   char* value = 0;

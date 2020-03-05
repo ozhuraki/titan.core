@@ -156,11 +156,11 @@ public:
   
   /** Encodes accordingly to the JSON encoding rules.
     * Returns the length of the encoded data. */
-  int JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&) const;
+  int JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean) const;
   
   /** Decodes accordingly to the JSON encoding rules.
     * Returns the length of the decoded data. */
-  int JSON_decode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean, int p_chosen_field = CHOSEN_FIELD_UNSET);
+  int JSON_decode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean, boolean, int p_chosen_field = CHOSEN_FIELD_UNSET);
 };
 
 class HEXSTRING_ELEMENT {

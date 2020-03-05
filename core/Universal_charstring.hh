@@ -292,9 +292,9 @@ private:
     * @param p_buf The buffer containing the universal charstring in UTF-8 encoding
     * 
     * Example: "He said\nhis name was \"Al\"." -> "\"He said\\nhis name was \\\"Al\\\".\""
-    * Example2: char(0, 0, 1, 113) in TTCN-3 -> "\u0171"
+    * Example2: char(0, 0, 0, 3) in TTCN-3 -> "\u0003"
     * @note The returned character buffer needs to be freed after use. */
-  char* to_JSON_string(const TTCN_Buffer& p_buf) const;
+  char* to_JSON_string(const TTCN_Buffer& p_buf, json_string_escaping mode) const;
   
   /** Converts the universal charstring from JSON string format to normal format. 
     * The double quotation marks from the beginning and end of the JSON string are
@@ -394,11 +394,11 @@ public:
     * Returns the length of the encoded data.  
     * @note Since JSON has its own set of escaped characters, the ones in the
     * universal charstring need to be double-escaped. */
-  int JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&) const;
+  int JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean) const;
   
   /** Decodes accordingly to the JSON encoding rules.
     * Returns the length of the decoded data. */
-  int JSON_decode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean, int p_chosen_field = CHOSEN_FIELD_UNSET);
+  int JSON_decode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&, boolean, boolean, int p_chosen_field = CHOSEN_FIELD_UNSET);
   
   int OER_encode(const TTCN_Typedescriptor_t&, TTCN_Buffer&) const;
   
