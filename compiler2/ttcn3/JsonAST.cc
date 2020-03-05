@@ -96,7 +96,7 @@ boolean JsonAST::empty() const
     default_value == NULL && metainfo_unbound == false && as_number == false &&
     tag_list == NULL && as_map == false && enum_texts.size() == 0 &&
     use_null == false && type_indicator != JSON_OBJECT &&
-    type_indicator != JSON_OBJECT_MEMBER && type_indicator != JSON_LITERAL &&
+    type_indicator != JSON_LITERAL &&
     (string_escaping == ESCAPING_UNSET || string_escaping == ESCAPE_AS_SHORT);
 }
 

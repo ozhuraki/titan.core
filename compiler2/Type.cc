@@ -3272,7 +3272,7 @@ namespace Common {
               jsonattrib->use_null = true;
             }
             else {
-              error("Invalid attribute, 'JSON:object' requires the type to have "
+              error("Invalid attribute, 'JSON:literal' requires the type to have "
                 "only one enumerated item");
             }
           }
