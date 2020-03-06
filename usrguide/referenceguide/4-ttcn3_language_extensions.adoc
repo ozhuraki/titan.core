@@ -1427,12 +1427,12 @@ external function f_enc(in ReferenceType x) return octetstring
 
 function f() {
   var ReferenceType val := { field1 := 3, field2 := "abc" };
-  
+
   var charstring res1 := oct2char(bit2oct(encvalue(val)));
   // "<baseType>\n\t<field>3</field>\n</baseType>\n\n"
   // it's encoded as if it were a value of type 'BaseType',
   // the name and attributes of type 'ReferenceType' are ignored
-  
+
   var charstring res2 := oct2char(f_enc(val));
   // "<referenceType>\n\t<field>3</field>\n</referenceType>\n\n"
   // it's encoded correctly, as a value of type 'ReferenceType'
@@ -5812,7 +5812,7 @@ The universal charstring "a\\b" & char(U7) & "c\td/e" is encoded as:
 * `usi`: "\"a\\u005Cb\\u0007c\\u0009d/e\"",
 * `transparent`: "\"a\\b\\u0007c\\td/e\"".
 
-Note: Certain specifics of how the `usi` escaping method should work are not defined clearly in the TTCN-3 standard for using JSON in TTCN-3 (<<_25, [25]>>). (See http://oldforge.etsi.org/mantis/view.php?id=7913 and http://oldforge.etsi.org/mantis/view.php?id=7914 for more details.)
+IMPORTANT: Certain specifics of how the `usi` escaping method should work are not defined clearly in the TTCN-3 standard for using JSON in TTCN-3 (<<_25, [25]>>), depending on how these issue get resolved in the standard we might be forced to change our implementation. (See http://oldforge.etsi.org/mantis/view.php?id=7913 and http://oldforge.etsi.org/mantis/view.php?id=7914 for more details.)
 TITAN currently does not escape the solidus character ('/'), and only uses the USI-like escape sequences for the characters listed in the JSON module (in Annex A of <<_25, [25]>>), with the exception of the solidus character.
 
 
@@ -5822,8 +5822,8 @@ Attribute syntax: JSON: ( integer | number | string | array | object | objectMem
 
 Applicable to (TTCN-3):
 
-* `JSON:integer`: integers, 
-* `JSON:number`: floats, 
+* `JSON:integer`: integers,
+* `JSON:number`: floats,
 * `JSON:string`: universal charstrings,
 * `JSON:array`: record ofs
 * `JSON:object`: records or sets with one optional field of record of/set of type, whose element type has (or is valid for) the `JSON:objectMember` attribute;
@@ -8906,15 +8906,15 @@ type component CT {
 // timestamp redirects on a mapped user-defined port
 testcase tc() runs on CT {
   map(self:pt, system:pt);
-  
+
   var float time_start := now, time_send, time_receive;
-  
+
   pt.send(1) -> timestamp time_send;
   // time_send is set in the user-defined code of port type PT
   if (time_send - time_start > 1.0) {
     setverdict(fail);
   }
-  
+
   alt {
     [] pt.receive(integer: ?) -> timestamp time_receive {
       // time_receive is set in the user-defined code of port type PT
@@ -8928,12 +8928,12 @@ testcase tc() runs on CT {
 // timestamp redirects on a connected internal port
 testcase tc2() runs on CT {
   connect(self:pt, self:pt);
-  
+
   var float time_start := now, time_send, time_receive;
-  
+
   pt_int.send(1) -> timestamp time_send;
   // time_send is unbound
-  
+
   alt {
     [] pt.receive(integer: ?) -> timestamp time_receive {
       // time_receive is unbound
@@ -8955,9 +8955,8 @@ void PT::outgoing_send(const INTEGER& send_par, FLOAT* timestamp_redirect)
   if (timestamp_redirect != NULL) {
     *timestamp_redirect = TTCN_Runtime::now();
   }
-  
+
   // the message is redirected to the port's input
   incoming_message(send_par, TTCN_Runtime::now());
 }
 ----
-
