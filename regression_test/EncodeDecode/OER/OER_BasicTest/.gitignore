@@ -1,8 +1,9 @@
 OER
 OER.exe
-OER.hh
-OER.cc
+OER*.hh
+OER*.cc
 *.log
 *.o
-OERTypes.cc
-OERTypes.hh
+OERTypes*.cc
+OERTypes*.hh
+result.txt
