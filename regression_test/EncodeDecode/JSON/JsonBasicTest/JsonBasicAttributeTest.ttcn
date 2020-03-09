@@ -9,6 +9,8 @@
 *   Balasko, Jeno
 *
 ******************************************************************************/
+//cpp: 12 pass
+//java:
 module JsonBasicAttributeTest {
 
 type component CT {}
@@ -54,7 +56,7 @@ type record R3_json {
 } with { encode "JSON"; variant(i) "JSON: name as Integer"; variant(i) "JSON: omit as null";}
 
 type record R4_json {
-  integer i optional
+  integer i
 } with { encode "JSON"; variant "JSON: as value";}
 
 //======= Record with more field =========
@@ -111,7 +113,7 @@ testcase tc_rec_attr_no_attr_omit() runs on CT {
   var bitstring encoded := encvalue(x);
   log(x);
   log(bit2oct(encoded));
-  f_compare_bitstring(expected,encoded);
+  f_compare_bitstring(expected,encoded);//TODO fail
 }
 
 testcase tc_rec_attr_no_attr_int() runs on CT {
@@ -182,8 +184,8 @@ testcase tc_rec_attr_name_as_and_omit_as_null_intvalue() runs on CT {
 
 //Attribute: as value & omit as null
 testcase tc_rec_attr_as_value_and_omit_as_null_omitvalue() runs on CT {
-  var R4_json x := { i:= omit } 
-  var bitstring expected := oct2bit(char2oct("null")); 
+  var R4_json x := { i:= 1 }
+  var bitstring expected := oct2bit(char2oct("1")); 
   var bitstring encoded := encvalue(x);
   log(bit2oct(encoded));
   f_compare_bitstring(expected,encoded);

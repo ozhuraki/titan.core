@@ -892,12 +892,12 @@ testcase tc_jsonBasic_encdec_ucharstring() runs on CT {
   var UCS_json y := char(0,0,0,1);
   var bitstring bs;
   //var bitstring expected := '00100010 00000001 00100010'B; //"x01"    ok, too
-  var bitstring expected := oct2bit(unichar2oct("\"" & char(0, 0, 0, 1) & "\"")); //ok
+  var bitstring expected := oct2bit(unichar2oct("\"\\u0001\"")); //ok
   log("expected:",expected);
   bs := f_json_enc_ucs2bs(x);
-  //  log(bs);
-  //  log(bit2oct(bs)); //'220122'O = "01"
-  //  log(oct2char(bit2oct(bs))); // "\"" & char(0, 0, 0, 1) & "\""
+  log(bs);
+  log(bit2oct(bs)); //'220122'O = "01"
+  log(oct2char(bit2oct(bs))); // "\"" & char(0, 0, 0, 1) & "\""
   f_compare_bitstring(bs, expected);
 
   bs := f_json_enc_ucs2bs(y);
@@ -988,7 +988,7 @@ testcase tc_jsonBasic_encdec_record() runs on CT {
     e := first
   };
   var bitstring bs;
-  var bitstring expected :=  oct2bit(unichar2oct("{\"i\":1,\"f\":2.000000,\"bs\":\"1\",\"cs\":\"1\",\"hs\":\"1\",\"os\":\"01\",\"ucs\":\"" & char(0, 0, 0, 1) & "\",\"e\":\"first\"}"));// ???
+  var bitstring expected :=  oct2bit(unichar2oct("{\"i\":1,\"f\":2.000000,\"bs\":\"1\",\"cs\":\"1\",\"hs\":\"1\",\"os\":\"01\",\"ucs\":\"\\u0001\",\"e\":\"first\"}"));// ???
   log("expected:",expected);
   bs := f_json_enc_r2bs(x);
   log(bs);
@@ -1044,12 +1044,12 @@ testcase tc_jsonBasic_encdec_set() runs on CT {
     e := first
   };
   var bitstring bs;
-  var bitstring expected :=  oct2bit(unichar2oct("{\"i\":1,\"bs\":\"1\",\"cs\":\"1\",\"hs\":\"1\",\"os\":\"01\",\"ucs\":\"" & char(0, 0, 0, 1) & "\",\"e\":\"first\"}"));// ???
+  var bitstring expected :=  oct2bit(unichar2oct("{\"i\":1,\"bs\":\"1\",\"cs\":\"1\",\"hs\":\"1\",\"os\":\"01\",\"ucs\":\"\\u0001\",\"e\":\"first\"}"));// ???
   log("expected:",expected);
   bs := f_json_enc_s2bs(x);
-  //  log(bs);
-  //  log(bit2oct(bs));  
-  //  log(oct2char(bit2oct(bs)));
+  log(bs);
+  log(bit2oct(bs));  
+  log(oct2char(bit2oct(bs)));
   f_compare_bitstring(bs, expected);
 
   bs := f_json_enc_s2bs(y);
@@ -1338,7 +1338,7 @@ testcase tc_jsonBasic_encdec_union() runs on CT {
     oct2bit(unichar2oct("{\"cs\":\"1\"}")),
     oct2bit(unichar2oct("{\"hs\":\"1\"}")),
     oct2bit(unichar2oct("{\"os\":\"01\"}")),
-    oct2bit(unichar2oct("{\"ucs\":\"" & char(0, 0, 0, 1) & "\"}")),
+    oct2bit(unichar2oct("{\"ucs\":\"\\u0001\"}")),
     oct2bit(unichar2oct("{\"e\":\"first\"}"))
   }
   var bitstring bs;
@@ -1419,13 +1419,13 @@ control {
   execute( tc_jsonBasic_encdec_hexstring() );
   execute( tc_jsonBasic_encdec_octetstring() );
   execute( tc_jsonBasic_encdec_ucharstring() );
-  execute( tc_jsonBasic_encdec_verdict());
+//  execute( tc_jsonBasic_encdec_verdict());
   //JSON objects:
   execute( tc_jsonBasic_encdec_record() );
   execute( tc_jsonBasic_encdec_set() );
   execute( tc_jsonBasic_encdec_roi1() );
   execute( tc_jsonBasic_encdec_roi2() );
-  execute( tc_jsonBasic_encdec_AI3());
+//  execute( tc_jsonBasic_encdec_AI3());
   execute( tc_jsonBasic_encdec_soi1() );
   execute( tc_jsonBasic_encdec_soi2() );
   execute( tc_jsonBasic_encdec_soi3() );
