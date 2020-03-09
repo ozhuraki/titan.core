@@ -7321,6 +7321,7 @@ namespace Common {
       else if (enable_xer()) return false;
       else if ((jsonattrib || (!is_asn1() &&
         hasEncodeAttr(get_encoding_name(CT_JSON)))) && enable_json()) return false;
+      else if (oerattrib && !oerattrib->empty()) return false;
       else return true;
     default:
       return false;

@@ -2,3 +2,5 @@ typeDescrGenWIthNoXER
 typeDescrGenWIthNoXER.exe
 typeDescrGenWIthNoXER*.cc
 typeDescrGenWIthNoXER*.hh
+AsnTypeDescrGenWithNoXer*.cc
+AsnTypeDescrGenWithNoXer*.hh
