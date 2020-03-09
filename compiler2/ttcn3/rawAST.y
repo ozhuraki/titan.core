@@ -1847,6 +1847,13 @@ XJsonAlias: // include all keywords, so they can be used as aliases for fields, 
 | XKWfor      { $$ = mcopystr("for"); }
 | XKWunbound  { $$ = mcopystr("unbound"); }
 | XKWnumber   { $$ = mcopystr("number"); }
+| XKWstring   { $$ = mcopystr("string"); }
+| XKWinteger  { $$ = mcopystr("integer"); }
+| XKWarray    { $$ = mcopystr("array"); }
+| XKWobject   { $$ = mcopystr("object"); }
+| XKWobjectMember { $$ = mcopystr("objectMember"); }
+| XKWliteral  { $$ = mcopystr("literal"); }
+;
 
 XAsValue:
   XKWas XSpaces XKWvalue { jsonstruct->as_value = true; }
