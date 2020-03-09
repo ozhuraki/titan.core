@@ -1132,6 +1132,7 @@ int HEXSTRING::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_
           set_nibble(nibble_index, char_to_hexdigit(value[i]));
           ++nibble_index;
         }
+        clear_unused_nibble();
       }
     } else {
       error = TRUE;

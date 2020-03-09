@@ -1253,6 +1253,7 @@ int BITSTRING::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_
             ++bit_index;
           }
         }
+        clear_unused_bits();
       }
     } else {
       error = TRUE;
