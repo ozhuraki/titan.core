@@ -143,7 +143,7 @@ testcase tc_jsonBasic_encdec_integer_unbound() runs on CT {
     if( match(e,t_unbound2)){ 
       setverdict(pass)
     } else {
-      setverdict(fail, match(e,t_unbound2)); //TODO: got: Dynamic test case error: The argument of function bit2oct() is an unbound bitstring value
+      setverdict(fail, match(e,t_unbound2)); 
     }
   }
 
@@ -527,7 +527,7 @@ testcase tc_jsonBasic_encdec_float_unbound() runs on CT {
     if( match(e,t_unbound2)){       
       setverdict(pass)
     } else {
-      setverdict(fail, match(e,t_unbound2)); //TODO: got: Dynamic test case error: The argument of function bit2oct() is an unbound bitstring value
+      setverdict(fail, match(e,t_unbound2));
     }
   }
 
@@ -540,7 +540,7 @@ testcase tc_jsonBasic_encdec_float_unbound() runs on CT {
     if( match(e,t_unbound2)){
       setverdict(pass)
     } else {
-      setverdict(fail, match(e,t_unbound2)); //got: Dynamic test case error: The argument of function bit2oct() is an unbound bitstring value
+      setverdict(fail, match(e,t_unbound2));
     }
   }
 }
@@ -891,13 +891,11 @@ testcase tc_jsonBasic_encdec_ucharstring() runs on CT {
   const UCS_json x := char(0,0,0,1);
   var UCS_json y := char(0,0,0,1);
   var bitstring bs;
-  //var bitstring expected := '00100010 00000001 00100010'B; //"x01"    ok, too
   var bitstring expected := oct2bit(unichar2oct("\"\\u0001\"")); //ok
   log("expected:",expected);
   bs := f_json_enc_ucs2bs(x);
   log(bs);
-  log(bit2oct(bs)); //'220122'O = "01"
-  log(oct2char(bit2oct(bs))); // "\"" & char(0, 0, 0, 1) & "\""
+  log(bit2oct(bs));
   f_compare_bitstring(bs, expected);
 
   bs := f_json_enc_ucs2bs(y);
@@ -988,7 +986,8 @@ testcase tc_jsonBasic_encdec_record() runs on CT {
     e := first
   };
   var bitstring bs;
-  var bitstring expected :=  oct2bit(unichar2oct("{\"i\":1,\"f\":2.000000,\"bs\":\"1\",\"cs\":\"1\",\"hs\":\"1\",\"os\":\"01\",\"ucs\":\"\\u0001\",\"e\":\"first\"}"));// ???
+  var bitstring expected :=  
+	oct2bit(unichar2oct("{\"i\":1,\"f\":2.000000,\"bs\":\"1\",\"cs\":\"1\",\"hs\":\"1\",\"os\":\"01\",\"ucs\":\"\\u0001\",\"e\":\"first\"}"));
   log("expected:",expected);
   bs := f_json_enc_r2bs(x);
   log(bs);
@@ -1044,7 +1043,7 @@ testcase tc_jsonBasic_encdec_set() runs on CT {
     e := first
   };
   var bitstring bs;
-  var bitstring expected :=  oct2bit(unichar2oct("{\"i\":1,\"bs\":\"1\",\"cs\":\"1\",\"hs\":\"1\",\"os\":\"01\",\"ucs\":\"\\u0001\",\"e\":\"first\"}"));// ???
+  var bitstring expected :=  oct2bit(unichar2oct("{\"i\":1,\"bs\":\"1\",\"cs\":\"1\",\"hs\":\"1\",\"os\":\"01\",\"ucs\":\"\\u0001\",\"e\":\"first\"}"));
   log("expected:",expected);
   bs := f_json_enc_s2bs(x);
   log(bs);
@@ -1084,7 +1083,7 @@ testcase tc_jsonBasic_encdec_AI3() runs on CT {
   const AI3_json x := { 0,1,-1234 };
   var   AI3_json y :=  { 0,1,-1234 };
   var bitstring bs;
-  var bitstring expected :=  oct2bit(unichar2oct("[0,1,-1234]"));// ???
+  var bitstring expected :=  oct2bit(unichar2oct("[0,1,-1234]"));
   log("expected:",expected);
   bs := f_json_enc_ai3tobs(x);
   log(bs);
@@ -1156,7 +1155,7 @@ testcase tc_jsonBasic_encdec_roi2() runs on CT {
   const RoI_json x := { 0,1,9,10,123456789, -1, -1234567890123 };
   var RoI_json y := { 0,1,9,10,123456789, -1, -1234567890123 };
   var bitstring bs;
-  var bitstring expected :=  oct2bit(unichar2oct("[0,1,9,10,123456789,-1,-1234567890123]"));// ???
+  var bitstring expected :=  oct2bit(unichar2oct("[0,1,9,10,123456789,-1,-1234567890123]"));
   log("expected:",expected);
   bs := f_json_enc_roi2bs(x);
   log(bs);
@@ -1419,13 +1418,13 @@ control {
   execute( tc_jsonBasic_encdec_hexstring() );
   execute( tc_jsonBasic_encdec_octetstring() );
   execute( tc_jsonBasic_encdec_ucharstring() );
-//  execute( tc_jsonBasic_encdec_verdict());
+  execute( tc_jsonBasic_encdec_verdict());
   //JSON objects:
   execute( tc_jsonBasic_encdec_record() );
   execute( tc_jsonBasic_encdec_set() );
   execute( tc_jsonBasic_encdec_roi1() );
   execute( tc_jsonBasic_encdec_roi2() );
-//  execute( tc_jsonBasic_encdec_AI3());
+  execute( tc_jsonBasic_encdec_AI3());
   execute( tc_jsonBasic_encdec_soi1() );
   execute( tc_jsonBasic_encdec_soi2() );
   execute( tc_jsonBasic_encdec_soi3() );

@@ -182,16 +182,7 @@ testcase tc_rec_attr_name_as_and_omit_as_null_intvalue() runs on CT {
   f_compare_bitstring(expected,encoded);
 }
 
-//Attribute: as value & omit as null
-testcase tc_rec_attr_as_value_and_omit_as_null_omitvalue() runs on CT {
-  var R4_json x := { i:= 1 }
-  var bitstring expected := oct2bit(char2oct("1")); 
-  var bitstring encoded := encvalue(x);
-  log(bit2oct(encoded));
-  f_compare_bitstring(expected,encoded);
-}
-
-testcase tc_rec_attr_as_value_and_omit_as_null_intvalue() runs on CT {
+testcase tc_rec_attr_as_value_intvalue() runs on CT {
   var R4_json x := { i:= 1 }
   var bitstring expected := oct2bit(char2oct("1"));
   var bitstring encoded := encvalue(x);
@@ -199,6 +190,7 @@ testcase tc_rec_attr_as_value_and_omit_as_null_intvalue() runs on CT {
   log(bit2oct(encoded));
   f_compare_bitstring(expected,encoded);
 }
+
 control {
   execute(tc_attr_enum_no_attr());
   execute(tc_attr_enum_text_attr());
@@ -210,8 +202,7 @@ control {
   execute(tc_rec_attr_name_as_intvalue());
   execute(tc_rec_attr_name_as_and_omit_as_null_omitvalue());
   execute(tc_rec_attr_name_as_and_omit_as_null_intvalue());
-  execute(tc_rec_attr_as_value_and_omit_as_null_omitvalue());
-  execute(tc_rec_attr_as_value_and_omit_as_null_intvalue());
+  execute(tc_rec_attr_as_value_intvalue());
 }
 
 } with {

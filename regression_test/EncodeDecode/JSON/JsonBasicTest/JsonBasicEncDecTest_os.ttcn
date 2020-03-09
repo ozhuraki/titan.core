@@ -147,8 +147,6 @@ template charstring t_using_omit := pattern "*Dynamic test case error: Using the
 testcase tc_jsonBasic_encdec_os_integer_field_optional_omit() runs on CT {
   var Ropt_json y := { i:= omit, f:= 2.0, bs := '1'B, cs :="1",hs:='1'H,os :='01'O,ucs:="1", e:= first }
   var octetstring os;
-  var octetstring expected :=  char2oct("2");
-  log("expected:",expected);
 
   @try {
     os := f_json_enc_i2os(y.i);
@@ -340,7 +338,7 @@ testcase tc_jsonBasic_encdec_os_float_unbound() runs on CT {
     if( match(e,t_unbound2)){ 
       setverdict(pass)
     } else {
-      setverdict(fail, match(e,t_unbound2)); //TODO: got: Dynamic test case error: The argument of function bit2oct() is an unbound bitstring value
+      setverdict(fail, match(e,t_unbound2)); 
     }
   }
 }
@@ -966,8 +964,8 @@ control {
   execute( tc_jsonBasic_encdec_os_hexstring_unbound() );
   execute( tc_jsonBasic_encdec_os_octetstring() );
   execute( tc_jsonBasic_encdec_os_ucharstring() );
-  //  execute( tc_jsonBasic_encdec_os_AI3() );
-  //  execute( tc_jsonBasic_encdec_os_verdict() );
+  execute( tc_jsonBasic_encdec_os_AI3() );
+  execute( tc_jsonBasic_encdec_os_verdict() );
   execute( tc_jsonBasic_encdec_os_record() );
   execute( tc_jsonBasic_encdec_os_roi1() );
   execute( tc_jsonBasic_encdec_os_roi2() );
