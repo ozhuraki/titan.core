@@ -1664,7 +1664,8 @@ char* CHARSTRING::to_JSON_string(json_string_escaping mode) const
         }
         // fall through if ESCAPE_AS_TRANSPARENT
       default:
-        if (val_ptr->chars_ptr[i] <= 0x1F || val_ptr->chars_ptr[i] == 0x7F) {
+        if ((val_ptr->chars_ptr[i] >= 0 && val_ptr->chars_ptr[i] <= 0x1F) ||
+            val_ptr->chars_ptr[i] == 0x7F) {
           // C0 control characters use USI-like escape sequences
           json_str = mputprintf(json_str, "\\u00%X%X",
             val_ptr->chars_ptr[i] / 16, val_ptr->chars_ptr[i] % 16);

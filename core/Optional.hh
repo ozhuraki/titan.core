@@ -893,7 +893,7 @@ int OPTIONAL<T_type>::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokeni
       p_tok.set_buf_pos(buf_pos);
     }
   }
-  dec_len = optional_value->JSON_decode(p_td, p_tok, p_silent, p_chosen_field);
+  dec_len = optional_value->JSON_decode(p_td, p_tok, p_silent, FALSE, p_chosen_field);
   if (JSON_ERROR_FATAL == dec_len) {
     if (p_silent) {
       clean_up();

@@ -153,7 +153,7 @@ testcase tc_charstring_ascii_basic_escapes() runs on MTC{
     "\r","\t","\f","\b"
   };
   var RoOS os_expected := {
-    '225C5C22'O, '222F22'O,'225C6E22'O,
+    '225C5C22'O, '225C2F22'O,'225C6E22'O,
     '225C7222'O,'225C7422'O,'225C6622'O, '225C6222'O
   };
   var integer len:=lengthof(cs);
@@ -259,7 +259,7 @@ testcase tc_ucharstring_higherplanes() runs on MTC{
     char(0,3,0,0) & char(0,3,0,175) & char(0,3,255,255),
     char(0,15,0,0)& char(0,15,0,175)& char(0,15,255,255),
     char(0,16,0,0)& char(0,16,0,175)& char(0,16,255,255),
-    char(0,16,0,0) & char(0,0,0,1) & " "
+    char(0,16,0,0) & " "
   };
   var octetstring os;
   var integer len:=lengthof(us);
