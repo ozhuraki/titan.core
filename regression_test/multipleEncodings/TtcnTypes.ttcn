@@ -91,4 +91,23 @@ type component CT {
   port PT2 pt2;
 }
 
+type record BitAndHex {
+  bitstring b1,
+  bitstring b2,
+  bitstring b3,
+  hexstring h1,
+  hexstring h2,
+  hexstring h3
+}
+with {
+  encode "JSON";
+  encode "RAW";
+  variant (b1) "RAW"."FIELDLENGTH(4)";
+  variant (b2) "RAW"."FIELDLENGTH(4)";
+  variant (b3) "RAW"."FIELDLENGTH(8)";
+  variant (h1) "RAW"."FIELDLENGTH(1)";
+  variant (h2) "RAW"."FIELDLENGTH(1)";
+  variant (h3) "RAW"."FIELDLENGTH(2)";
+}
+
 }

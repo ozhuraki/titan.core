@@ -508,6 +508,25 @@ testcase tc_ttcn_multi_attrib() runs on CT {
   setverdict(pass);
 }
 
+// Test for Bug 560937 - Bitstrings don't clear unused bits after JSON decoding
+testcase tc_ttcn_multi_bug_560937() runs on CT {
+  // the fault could not be reproduced for hexstrings, only for bitstrings, but the bugfix is tested for hexstrings, too
+  var universal charstring buff := "{ \"b1\" : \"0010\", \"b2\" : \"0011\", \"b3\" : \"01000001\", \"h1\" : \"1\", \"h2\" : \"7\", \"h3\" : \"AC\" }";
+  var BitAndHex dec_exp := { b1 := '0010'B, b2 := '0011'B, b3 := '01000001'B, h1 := '1'H, h2 := '7'H, h3 := 'AC'H };
+  var BitAndHex dec;
+  var integer res := decvalue_unichar(buff, dec, "UTF-8", "", "JSON");
+  if (res != 0 or log2str(dec_exp) != log2str(dec)) { // compare with log2str, since '!=' also clears unused bits
+    setverdict(fail, "JSON decoding failed. Result: ", res, ", value: ", dec, ", expected: ", dec_exp);
+  }
+  var octetstring enc := bit2oct(encvalue(dec, "", "RAW"));
+  var octetstring enc_exp := '324171CA'O;
+  if (enc != enc_exp) {
+    setverdict(fail, "RAW encoding failed. Expected: ", enc_exp, ", got: ", enc);
+  }
+  setverdict(pass);
+}
+
+
 control {
   execute(tc_ttcn_encvalue());
   execute(tc_ttcn_encvalue_negtest());
@@ -528,6 +547,7 @@ control {
   execute(tc_asn_setencode_negtest());
   execute(tc_ttcn_codec_switch());
   execute(tc_ttcn_multi_attrib());
+  execute(tc_ttcn_multi_bug_560937());
 }
 
 }
