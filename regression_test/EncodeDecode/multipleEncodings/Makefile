@@ -9,7 +9,7 @@
 #   Baranyi, Botond
 #
 ##############################################################################
-TOPDIR := ..
+TOPDIR := ../..
 include $(TOPDIR)/Makefile.regression
 
 .SUFFIXES: .ttcn .hh
