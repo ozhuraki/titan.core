@@ -64,10 +64,6 @@ ifeq (LTTNGUSTLOGGER, yes)
 DIRS += LTTngUSTLogger
 endif
 
-ifndef LEGACY_CODEC_HANDLING
-DIRS += multipleEncodings
-endif
-
 # List of fake targets:
 .PHONY: all dep clean run $(DIRS) $(addsuffix /, $(DIRS)) coverage compileonly
 

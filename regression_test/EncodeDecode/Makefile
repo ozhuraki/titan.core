@@ -15,7 +15,11 @@ include $(TOPDIR)/Makefile.regression
 unexport ABS_SRC
 unexport SRCDIR
 
-DIRS := BER OER JSON RAW Text_EncDec XER_EncDec multipleEncodings
+DIRS := BER OER JSON RAW Text_EncDec XER_EncDec
+
+ifndef LEGACY_CODEC_HANDLING
+DIRS += multipleEncodings
+endif
 
 # List of fake targets:
 .PHONY: all dep clean run $(DIRS) $(addsuffix /, $(DIRS)) profile
