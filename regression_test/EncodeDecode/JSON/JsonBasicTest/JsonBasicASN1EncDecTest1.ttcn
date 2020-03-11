@@ -79,26 +79,20 @@ function f_compare_bitstring(in bitstring pl_val, in bitstring pl_expected) {
 //===== Testcases ========
 //========================
 
-//testcase tc_asn1_bs2bs_bug() runs on CT {
-//  var Asn1_bs x := '01'B, d;
-//  var bitstring encoded2 :=  encvalue(x, "", "JSON");
-//  var bitstring expected := '0010 0010 00110000 00110001 0010 0010'B;// "01"
-//  f_compare_bitstring(encoded2,expected);
-//}
-
 // " = ascii x22 = 0010 0010
 // ' = ascii x27 = 0010 0111
 // 0 = ascii x30 = 00110000
 // 1 = ascii x31 = 00110001
 // 
+//===== BIT STRING =====
 testcase tc_asn1_bs2bs() runs on CT{
   var Asn1_bs x := '01'B, d;
   var bitstring encoded1 := f_json_enc_abs2bs(x);
   log("encoded1:", encoded1);
-  var bitstring expected := '0010 0010 00110000 00110001 0010 0010'B;// "01"
+  var bitstring expected := '0010 0010 00110000 00110001 0010 0010'B; // "01"
+  f_compare_bitstring(encoded1,expected);
 //  var bitstring encoded2 :=  encvalue(x, "", "JSON"); //semantic error: No coding rule specified for type `bitstring' TODO: this shall be accepted!!!
 //  log("encoded2:", encoded2);
-  f_compare_bitstring(encoded1,expected);
 //  f_compare_bitstring(encoded2,expected);
   //dec:
   d := f_json_dec_bs2abs(encoded1);
@@ -113,15 +107,17 @@ testcase tc_asn1_bs2bs() runs on CT{
 //r = ascii x72 = 01110010
 //u = ascii x75 = 01110101
 //e = ascii x65 = 01100101
+//===== BOOLEAN ======
 testcase tc_asn1_bool2bs() runs on CT {
   var Asn1_bool x := true, d;
   var bitstring encoded1 := f_json_enc_abool2bs(x);
   log("encoded1:", encoded1);
   var bitstring expected := '01110100 01110010 01110101 01100101'B; //true
-  //  var bitstring encoded2 := encvalue(x); //semantic error: No coding rule specified for type `bitstring' TODO: this shall be accepted!!!
-  //  log("encoded2:", encoded2);
+  var bitstring encoded2 := encvalue(x,"","JSON"); //semantic error: No coding rule specified for type `bitstring'
+  log("encoded2:", encoded2);
   f_compare_bitstring(encoded1,expected);
-  //dec:
+  
+  //decoding:
   d :=   f_json_dec_bs2abool(encoded1);
   if ( d==x ){
     setverdict(pass);
@@ -130,28 +126,75 @@ testcase tc_asn1_bool2bs() runs on CT {
   }
 }
 
+//===== BMPString ======
 
+testcase tc_asn1_bmpstr2bs() runs on CT {
+  var Asn1_bmpstr x := "Laci", d;
+  var bitstring encoded1 := f_json_enc_abmpstr2bs(x); //Dynamic test case error: Internal error: No JSON descriptor available for type 'BMPString'
+  log("encoded1:", encoded1, bit2oct(encoded1));
+  var bitstring expected := oct2bit(char2oct("\"Laci\"")); //true
+  var bitstring encoded2 := encvalue(x,"","JSON"); //semantic error: No coding rule specified for type `bitstring'; Dynamic test case error: Missing dynamic encoding string or default encoding string
+  log("encoded2:", encoded2, bit2oct(encoded2));
+  f_compare_bitstring(encoded1,expected);
+  
+  //decoding:
+  d :=   f_json_dec_bs2abmpstr(encoded1);
+  if ( d==x ){
+    setverdict(pass);
+  } else {
+    setverdict( fail, "expected: ", x, " got: ", d)
+  }
+}
+
+//===== Number ======
+//not ready yet !!!
+testcase tc_asn1_number2bs() runs on CT {
+  var Asn1_Number x := { decimal := 1234567890 }, d;
+  var bitstring encoded1 := f_json_enc_anumber2bs(x); //Dynamic test case error: Internal error: No JSON descriptor available for type 'BMPString'
+  log("encoded1:", encoded1, bit2oct(encoded1));
+  var bitstring expected := oct2bit(char2oct("{\"decimal\":1234567890}")); //true
+  var bitstring encoded2 := encvalue(x,"","JSON"); //semantic error: No coding rule specified for type `bitstring'
+  log("encoded2:", encoded2, bit2oct(encoded2));
+  f_compare_bitstring(encoded1,expected);
+  
+  //decoding:
+  d :=   f_json_dec_bs2anumber(encoded1);
+  if ( d==x ){
+    setverdict(pass);
+  } else {
+    setverdict( fail, "expected: ", x, " got: ", d)
+  }
+}
 // 0 = ascii x30 = 00110000
 // 1 = ascii x31 = 00110001
 // 2 = ascii x32 = 00110010
+//===== INTEGER ======
 testcase tc_asn1_i2bs() runs on CT {
-  var Asn1_i x := 12, y;
+  var Asn1_i x := 12, d;
   var bitstring encoded1 := f_json_enc_ai2bs(x);
   log("encoded1:", encoded1);
   var bitstring expected :=  '00110001 00110010'B
-//    var bitstring encoded2 := encvalue(x); //semantic error: No coding rule specified for type `integer' TODO: this shall be accepted!!!
-//    log("encoded2:", encoded2);
   f_compare_bitstring(encoded1,expected);
+  
+  //var bitstring encoded2 := encvalue(x); //semantic error: No coding rule specified for type `integer' TODO: fix it!!!
+  //f_compare_bitstring(encoded2,expected);
 
   //decode:
-  //y := 
+  d := f_json_dec_bs2ai(encoded1);
+  if ( d==x ){
+    setverdict(pass);
+  } else {
+    setverdict( fail, "expected: ", x, " got: ", d)
+  }
 }
 
 control {
-//  execute(tc_asn1_bs2bs_bug());
   execute( tc_asn1_i2bs());
- // execute( tc_asn1_bs2bs()); //TODO: runtime fails in java
+  execute( tc_asn1_bs2bs());
   execute( tc_asn1_bool2bs());
+  execute(tc_asn1_bmpstr2bs());
+  execute(tc_asn1_number2bs());
+  execute(tc_asn1_i2bs());
 }
 
 } with { encode "JSON"}
