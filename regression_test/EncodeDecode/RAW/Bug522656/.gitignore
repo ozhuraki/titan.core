@@ -5,3 +5,4 @@ Bug522656*.hh
 compile
 Bug522656*.log
 *.d
+result.txt

@@ -5,3 +5,4 @@ Bug521125
 Bug521125-rt2
 *.log
 *.d
+result.txt

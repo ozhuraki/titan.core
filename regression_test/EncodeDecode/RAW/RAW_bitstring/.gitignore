@@ -4,3 +4,4 @@ RAW_bitstring_test*.cc
 RAW_bitstring_test*.hh
 RAW_bitstring_test*.log
 compile
+result.txt

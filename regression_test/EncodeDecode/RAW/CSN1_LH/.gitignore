@@ -5,3 +5,4 @@ CSN1_LH*.hh
 *.o
 compile
 CSN1_LH*.log
+result.txt

@@ -4,3 +4,4 @@ Annex_E_variants*.cc
 Annex_E_variants*.hh
 Annex_E_variants.log
 compile
+result.txt
