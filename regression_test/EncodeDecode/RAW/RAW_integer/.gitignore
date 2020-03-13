@@ -4,3 +4,4 @@ RAW_integer_test*.cc
 RAW_integer_test*.hh
 RAW_integer_test*.log
 compile
+result.txt
