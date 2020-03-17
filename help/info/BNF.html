@@ -11,6 +11,7 @@
   Farkas, Laszlo
   Feher, Csaba
   Szabados, Kristof
+  Nagy, Lenard
 -->
 <HTML>
 <HEAD>
@@ -623,10 +624,41 @@ This ABNF browser was generated from file &lt;mockup_bnf.txt&gt; on Tue Jul 20 1
   </TR>
   <TR VALIGN=TOP>
     <TD>
-    <P><A NAME="portdefbody"></a><A HREF="#Xref.PortDefBody">PortDefBody</A>
+      <P>
+        <A NAME="portdefbody"></A>
+        <A HREF="#Xref.PortDefBody">PortDefBody</A>
+      </P>
+    </TD>
     <TD VALIGN=TOP>=</TD>
-    <TD><A HREF="#porttypeidentifier">PortTypeIdentifier</A> <A HREF="#portdefattribs">PortDefAttribs</A></TD>
+    <TD>
+      <A HREF="#porttypeidentifier">PortTypeIdentifier</A> 
+      <A HREF="#portdefattribs">PortDefAttribs</A>
+      [<A HREF="#portmaptoport">PortMapToPort</A>]
+    </TD>
   </TR>
+  <TR>
+    <TD>
+      <P>
+        <A NAME="portmaptoport"></A>
+        <A HREF="#Xref.PortMapToPort">PortMapToPort</A>
+        </P>
+    </TD>
+    <TD VALIGN=TOP>=</TD>
+    <TD><A HREF="#portmaptokeyword">PortMapToKeyword</A> 
+        <A HREF="#porttypeidentifier">PortTypeIdentifier</A></TD>
+  </TR>
+  <TR VALIGN=TOP>
+    <TD>
+      <P>
+        <A NAME="portmaptokeyword"></A>
+        <A HREF="#Xref.PortMapToKeyword">PortMapToKeyword</A>
+      </P>
+    </TD>
+    <TD VALIGN=TOP>=</TD>
+    <TD>"<FONT COLOR="black">map to</FONT>"</TD>
+  </TR>
+  
+
   <TR VALIGN=TOP>
     <TD></TD>
     <TD></TD>
@@ -723,10 +755,19 @@ This ABNF browser was generated from file &lt;mockup_bnf.txt&gt; on Tue Jul 20 1
   </TR>
   <TR VALIGN=TOP>
     <TD>
-    <P><A NAME="typelist"></a><A HREF="#Xref.TypeList">TypeList</A>
+      <A NAME="typelist"></a><A HREF="#Xref.TypeList">TypeList</A>
     <TD VALIGN=TOP>=</TD>
-    <TD><A HREF="#type">Type</A> *( "<FONT COLOR="black">,</FONT>" <A HREF="#type">Type</A> )</TD>
+    <TD><A HREF="#transportedtype">TransportedType</A> *( "<FONT COLOR="black">,</FONT>" <A HREF="#transportedtype">TransportedType</A> )</TD>
   </TR>
+  <TR>
+    <TD>
+      <A NAME="transportedtype"></a><A HREF="#Xref.TransportedType">TransportedType</A>
+    </TD>
+    <TD VALIGN=TOP>=</TD>
+    <TD><A HREF="#type">Type</A> ([<A HREF="#tokeyword">ToKeyword</A>|<A HREF="#fromkeyword">FromKeyword</A>] <A HREF="#type">Type</A> <A HREF="#withkeyword">WithKeyword</A> <A HREF="#functionidentifier">FunctionIdentifier</A>)</TD>
+
+  </TR>
+
   <TR VALIGN=TOP>
     <TD></TD>
     <TD></TD>
@@ -6491,6 +6532,14 @@ This ABNF browser was generated from file &lt;mockup_bnf.txt&gt; on Tue Jul 20 1
     <TD><A HREF="#portdef">PortDef</A></TD>
   </TR>
   <TR VALIGN=TOP>
+    <TD><A NAME="Xref.PortMapToPort"></a><A HREF="#portmaptoport">PortMapToPort</A></TD>
+    <TD><A HREF="#portdef">PortDef</A></TD>
+  </TR>
+  <TR VALIGN=TOP>
+    <TD><A NAME="Xref.PortMapToKeyword"></a><A HREF="#portmaptokeyword">PortMapToKeyword</A></TD>
+    <TD><A HREF="#portdef">PortDef</A></TD>
+  </TR>
+  <TR VALIGN=TOP>
     <TD><A NAME="Xref.PortElement"></a><A HREF="#portelement">PortElement</A></TD>
     <TD><A HREF="#portinstance">PortInstance</A>, <A HREF="#portinstance">PortInstance</A></TD>
   </TR>
@@ -7241,6 +7290,10 @@ This ABNF browser was generated from file &lt;mockup_bnf.txt&gt; on Tue Jul 20 1
   <TR VALIGN=TOP>
     <TD><A NAME="Xref.TypeList"></a><A HREF="#typelist">TypeList</A></TD>
     <TD><A HREF="#allortypelist">AllOrTypeList</A></TD>
+  </TR>
+  <TR VALIGN=TOP>
+    <TD><A NAME="Xref.TransportedType"></a><A HREF="#transportedtype">TransportedType</A></TD>
+    <TD><A HREF="#portdef">PortDef</A></TD>
   </TR>
   <TR VALIGN=TOP>
     <TD><A NAME="Xref.TypeRefList"></a><A HREF="#typereflist">TypeRefList</A></TD>

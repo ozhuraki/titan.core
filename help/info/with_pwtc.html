@@ -1,0 +1,91 @@
+<!--
+ Copyright (c) 2000-2020 Ericsson Telecom AB
+ All rights reserved. This program and the accompanying materials
+ are made available under the terms of the Eclipse Public License v2.0
+ which accompanies this distribution, and is available at
+ https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+
+ Contributors:
+  Nagy, Lenard
+-->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Language" content="en-us">
+<title>with (PWTC)</title>
+</head>
+<body bgcolor="#DAD3C5" vlink="#0094D2" link="#003258">
+<table align="left" border="0" cellspacing="0" cellpadding="0" valign=top>
+  <tr>
+    <td width=105 height=40><a href="https://projects.eclipse.org/projects/tools.titan"><img src="../images/titan_transparent.gif" border=0 width=105 height=40 align="left" alt="Titan"></a></td>
+  </tr>
+</table>
+<table border="0" align="right" cellpadding="0" cellspacing="0">
+  <tr>
+    <td><a href="../titan_main.html" alt="contents"><img border="0" src="../images/ao.jpg" width="53" height="40"></a></td>
+    <td><a href="../titan_index.html" alt="index"><img border="0" src="../images/up.jpg" width="53" height="40"></a></td>
+    <td><a href="with.html" alt="previous"><img border="0" src="../images/left.jpg" width="53" height="40"></a></td>
+    <td><a href="xor.html" alt="next"><img border="0" src="../images/right.jpg" width="53" height="40"></a></td>
+  </tr>
+</table>
+<p><br clear="all">
+</p>
+<hr>
+<h1>with (Port with translation capabilitiy)</h1>
+<hr align="left" width="75%">
+<p>
+    The function identifyer after the with keyword specifies the translation function which converts the types of the inner and outer ports.
+</p>
+<p>Related keywords:</p>
+<ul>
+  <li><a href="port.html"><b><font face="Courier New" color="#003258" size="4">port</font></b></a></li>
+  <li><a href="map_to.html"><b><font face="Courier New" color="#003258" size="4">map to</font></b></a></li>
+</ul>
+<hr align="left" width="50%">
+<div align="center">
+<center>
+<table border="0" width="90%" bgcolor="#FFB599" cellpadding="4">
+  <tr>
+    <td width="100%">
+        <h3>type port PortTypeId message [ map to { OuterPortType [ "," ] }+ ] { </br>
+            &ensp;( in { InnerInType [ from { OuterInType <font face="Courier New" color="#003258" size="5"><b>with</b></font> InFunction "(" ")" [ "," ] }+ ] [ "," ] }+ |</br>
+            &emsp;out { InnerOutType [ to { OuterOutType <font face="Courier New" color="#003258" size="5"><b>with</b></font> OutFunction "(" ")" [ "," ]}+ ] [ "," ] }+ |</br>
+            &emsp;inout { InOutType [ "," ] }+ |</br>
+            &emsp;address AddrType [ to { OuterAddrTypewith AddrOutFunction "(" ")" [ "," ] }+ ] }</h3>
+    </td>
+  </tr>
+</table>
+</center>
+</div>
+<ul>
+  <li>
+    <p>the <b><font face="Courier New">InFunction</font></b> will convert the outgoing <b><font face="Courier New">InnerOutType</font></b> to <b><font face="Courier New">OuterOutType</font></b> before sending it out on the OuterPortType</p>
+  </li>
+  <li>
+    <p>the <b><font face="Courier New">InFunction</font></b> will convert the incoming <b><font face="Courier New">OuterInType</font></b> to <b><font face="Courier New">InnerInType</font></b> after receiving it on the OuterPortType </p>
+  </li>
+</ul>
+<hr align="left" width="50%">
+<p>Example:
+    <p><font face="Courier New">
+        type port OneM2MPort message map to IPL4asp_PT {</br>
+            &ensp;out</br>
+            &ensp;&ensp;MsgOut to ASP_Send with f_enc_M2MPrimitive_to_ASPSend()</br>
+            &ensp;in</br>
+            &ensp;&ensp;MsgIn from ASP_RecvFrom with f_dec_ASPRecvFrom_to_M2MPrimitive(),</br>
+            &ensp;&ensp;ASP_Event</br>
+        }</font></p>
+    <p>If a MsgOut type message is being sent on the OneM2MPort
+       it will automatically be translated to ASP_Send type to be 
+       sent out on the IPL4 port using f_enc_M2MPrimitive_to_ASPSend function.</br>
+       The same applies in the incoming direction: if an ASP_RecvFrom type message is received
+       on the IPL4asp_PT the f_dec_ASPRecvFrom_to_M2MPrimitive function will convert it to 
+       MsgIn type.</br>
+       In this example ASP_Event is an incoming type, which will be received in OneM2MPort 
+       unconverted, as it has no conversion function specified in this mapping.</p>
+</p>
+<hr align="left" width="50%">
+<p>
+    <a HREF="BNF.html#transportedtype">BNF definition</a> of <font face="Courier New"> with (PWTC)</font></p>
+</body>
+</html>
