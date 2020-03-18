@@ -1,0 +1,368 @@
+/******************************************************************************
+* Copyright (c) 2000-2020 Ericsson Telecom AB
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v2.0
+* which accompanies this distribution, and is available at
+* https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+*
+* Contributors:
+*   Botond Baranyi – initial implementation
+*   Jeno Balasko - rework for JSON
+*
+******************************************************************************/
+
+module JsonBasicTest_ucharstring {
+
+type component CT {}
+
+type record Rec {
+  integer num,
+  universal charstring ustr
+}
+
+external function f_enc_rec(in Rec x) return octetstring
+with { extension "prototype(convert) encode(JSON)" }
+
+external function f_dec_rec(in octetstring x) return Rec
+with { extension "prototype(convert) decode(JSON)" }
+
+external function f_enc_ustr(in universal charstring x) return octetstring
+with { extension "prototype(convert) encode(JSON)" }
+
+external function f_dec_ustr(in octetstring x) return universal charstring
+with { extension "prototype(convert) decode(JSON)" }
+
+const universal charstring c_ustr := "árvíztűrő tükörfúrógép"; // 31 UTF-8 characters
+const octetstring c_enc_ustr := '22C3A17276C3AD7A74C5B172C5912074C3BC6BC3B67266C3BA72C3B367C3A97022'O
+//================================  
+//local constant, var:
+testcase tc_JSON_ustr_local1() runs on CT {
+  //local const:
+  const universal charstring cl_ustr := char(0,0,0,1);
+  const octetstring cl_enc_ustr := '225C753030303122'O; //("\"\\u0001\"")
+  var octetstring v_enc := f_enc_ustr(cl_ustr);
+  log("Expected: ", cl_enc_ustr, " unichar: ", oct2unichar(v_enc))
+  if (v_enc != cl_enc_ustr) {
+    setverdict(fail, "Encoding failed. Expected: ", cl_enc_ustr, ", got: ", v_enc);
+  }
+  //var:
+  var universal charstring v_ustr := char(0,0,0,1);
+  var octetstring v_enc1 := f_enc_ustr(v_ustr);
+  log("Expected: ", cl_enc_ustr, " unichar: ", oct2unichar(v_enc1))
+  if (v_enc1 != cl_enc_ustr) {
+    setverdict(fail, "Encoding failed. Expected: ", cl_enc_ustr, ", got: ", v_enc);
+  }
+
+  //decode
+  var universal charstring v_dec := f_dec_ustr(cl_enc_ustr);
+  if (v_dec != cl_ustr) {
+    setverdict(fail, "Decoding failed. Expected: ", cl_ustr, ", got: ", v_dec);
+  }
+  setverdict(pass);
+}
+
+//TODO: Perhaps this is not the correct behavior, too big input!
+testcase tc_JSON_ustr_too_big_char() runs on CT {
+  //local const:
+  const universal charstring cl_ustr := char(1,0,0,0); // max:1FFFFF - illegal input for Json encoder !!!
+  const octetstring cl_enc_ustr := '22F98080808022'O //got:'22F98080808022'O , code point: 01 00 00 00 
+  var octetstring v_enc := f_enc_ustr(cl_ustr); // max:1FFFFF - illegal input for Json encoder !!!
+  log("Expected: ", cl_enc_ustr, " unichar: ", oct2unichar(v_enc))
+  if (v_enc != cl_enc_ustr) {
+    setverdict(fail, "Encoding failed. Expected: ", cl_enc_ustr, ", got: ", v_enc);
+  }
+  //var:
+  var universal charstring v_ustr := char(1,0,0,0);
+  var octetstring v_enc1 := f_enc_ustr(v_ustr);
+  log("Expected: ", cl_enc_ustr, " unichar: ", oct2unichar(v_enc1))
+  if (v_enc1 != cl_enc_ustr) {
+    setverdict(fail, "Encoding failed. Expected: ", cl_enc_ustr, ", got: ", v_enc);
+  }
+
+  //decode
+  var universal charstring v_dec := f_dec_ustr(cl_enc_ustr);
+  if (v_dec != cl_ustr) {
+    setverdict(fail, "Decoding failed. Expected: ", cl_ustr, ", got: ", v_dec);
+  }
+  setverdict(pass);
+}
+//==
+//local constant, var:
+testcase tc_JSON_ustr_local3() runs on CT {
+  //local const:
+  const universal charstring cl_ustr := char(0,0,0,128);
+  const octetstring cl_enc_ustr := '225C753030383022'O; //("\"\\u0080\"")
+  var octetstring v_enc := f_enc_ustr(cl_ustr);
+  log("Expected: ", cl_enc_ustr, " unichar: ", oct2unichar(v_enc))
+  if (v_enc != cl_enc_ustr) {
+    setverdict(fail, "Encoding failed. Expected: ", cl_enc_ustr, ", got: ", v_enc);//'22C28022'O = "128" in utf-8
+  }
+  //var:
+  var universal charstring v_ustr := char(0,0,0,128);
+  var octetstring v_enc1 := f_enc_ustr(v_ustr);
+  log("Expected: ", cl_enc_ustr, " unichar: ", oct2unichar(v_enc1))
+  if (v_enc1 != cl_enc_ustr) {
+    setverdict(fail, "Encoding failed. Expected: ", cl_enc_ustr, ", got: ", v_enc);
+  }
+
+  //decode
+  var universal charstring v_dec := f_dec_ustr(cl_enc_ustr);
+  if (v_dec != cl_ustr) {
+    setverdict(fail, "Decoding failed. Expected: ", cl_ustr, ", got: ", v_dec);
+  }
+  setverdict(pass);
+}
+
+
+//===== Bulk processing =====
+//short:"Uses the JSON short escape sequences for any characters that have them (i.e. '\n', '\t', '\r',
+//'\f', '\b', '\"', '\\' and '\/'), and uses USI-like escape sequences (i.e. '\u' followed by 4 hex digits
+//containing the character’s ASCII code) for all other characters between char(U0) and char(U1F),
+//and for char(U7F)."
+
+//Encoding data record
+type record E {
+  universal charstring u, //data to be encoded
+  octetstring o // expected output
+}
+
+// record of input-output data for encoding
+type record of E RoE;
+
+//
+testcase tc_JSON_ustr_local_char1() runs on CT {
+  //local const:
+  const RoE cl_data := {
+    [0]:= { u := char(0,0,0,0), o:= '225C753030303022'O}, // ("\"\\u0000\"")
+    [1]:= { u := char(0,0,0,1), o:= '225C753030303122'O}, // ("\"\\u0001\"")
+    [2]:= { u := char(0,0,0,2), o:= '225C753030303222'O}, // ("\"\\u0002\"")
+    [3]:= { u := char(0,0,0,3), o:= '225C753030303322'O}, // ("\"\\u0003\"")
+    [4]:= { u := char(0,0,0,8), o:= '225C6222'O }, //("\"\\b\"") backspace, \b
+    [5]:= { u := char(0,0,0,9), o:= '225C7422'O }, //("\"\\t\""), horizontal tab \t
+    [6]:= { u := char(0,0,0,10), o:= '225C6E22'O }, //("\"\\n\"") line feed \n
+    [7]:= { u := char(0,0,0,11), o:= '225C753030304222'O}, //("\"\\u000B\"")" vertical tab \v -Not applied
+    [8]:= { u := char(0,0,0,12), o:= '225C6622'O}, //form feed, \f
+    [9]:= { u := char(0,0,0,13), o:= '225C7222'O}, //carriage return,\r
+    [10]:= { u := char(0,0,0,31), o:= '225C753030314622'O}, // //("\"\\u001F\""), unit separator
+
+    //from this point, UTF-8 applied, perhaps with escape
+    [11]:= { u := char(0,0,0,32), o:= '222022'O}, //'222022'O space, got: '222022'O
+    [12]:= { u := char(0,0,0,34), o:= '225C2222'O }, // ("\"\\\"\"")  quotation mark, escaped
+    [13]:= { u := char(0,0,0,47), o:= '225C2F22'O },// ("\"\\/\"") slash
+    [14]:= { u := char(0,0,0,92), o:= '225C5C22'O }, //("\"\\\\\"") back slash
+    [15]:= { u := char(0,0,0,125), o:= '227D22'O }, // }
+    [16]:= { u := char(0,0,0,126), o:= '227E22'O }, // ~
+    [17]:= { u := char(0,0,0,127), o:= '225C753030374622'O } //[DEL], ("\"\\u007F\"")
+
+  }
+  const integer N := sizeof(cl_data);
+  for(var integer i:= 0; i<N;i:=i+1 ) {
+    var octetstring v_enc := f_enc_ustr(cl_data[i].u);
+    log(i,": Expected: ", cl_data[i].o, " unichar: ", oct2unichar(cl_data[i].o))
+    if (v_enc != cl_data[i].o) {
+      setverdict(fail, "Encoding failed. Expected: ", cl_data[i].o, ", got: ", v_enc);
+    }
+    //var:
+    var universal charstring v_ustr := cl_data[i].u;
+    var octetstring v_enc1 := f_enc_ustr(v_ustr);
+    log("Expected: ", cl_data[i].o, " unichar: ", oct2unichar(cl_data[i].o))
+    if (v_enc1 != cl_data[i].o) {
+      setverdict(fail, "Encoding failed. Expected: ", cl_data[i].o, ", got: ", v_enc1);
+    }
+
+    //decode
+    var universal charstring v_dec := f_dec_ustr(v_enc1);
+    if (v_dec != cl_data[i].u) {
+      setverdict(fail, "Decoding failed. Expected: ", cl_data[i].u, ", got: ", v_dec);
+    }
+  }
+  setverdict(pass);
+}
+
+testcase tc_JSON_ustr_local_char2() runs on CT {
+  //local const:
+  const RoE cl_data := {
+    //one byte is not enough:
+    //2 bytes utf8 length:
+    [0]:= { u := char(0,0,0,128), o:= '22C28022'O }, //First case upper 7bit
+    [1]:= { u := char(0,0,0,193), o:= '22C38122'O }, //Á, 00C1, utf8:C381
+    [2]:= { u := char(0,0,0,201), o:= '22C38922'O }, //É, 00C9, utf8:C389
+    [3]:= { u := char(0,0,0,205), o:= '22C38D22'O }, //Í, 00CD, utf8:C38D
+    [4]:= { u := char(0,0,0,211), o:= '22C39322'O }, //Ó, 00D3, utf8:C393
+    [5]:= { u := char(0,0,0,214), o:= '22C39622'O }, //Ö, 00D6, utf8:C396
+    [6]:= { u := char(0,0,0,255), o:= '22C3BF22'O }, //Latin Small Letter Y with Diaeresis "ÿ" //07ff
+	[7]:= { u := char(0,0,1,0),   o:= '22C48022'O }, //Latin Capital Letter a with Macron, 256dec=0100 utf8:C480
+	[8]:= { u := char(0,0,7,255), o:= '22DFBF22'O },  //2047dec=07FF, utf8:DFBF  (last 2bytes utf8)
+	
+	[9]:= { u := char(0,0,8,0),   o:= '22E0A08022'O }, //Samaritan Letter Alaf, 0800
+	[10]:= { u := char(0,0,255,255), o:= '22EFBFBF22'O }, //very last 3 bytes code
+	
+	//utf8 length: 4 bytes
+	[11]:= { u := char(0,1,0,0), o:= '22F090808022'O } //first 4 bytes utf8
+	
+  }
+  const integer N := sizeof(cl_data);
+  for(var integer i:= 0; i<N;i:=i+1 ) {
+    var octetstring v_enc := f_enc_ustr(cl_data[i].u);
+    log(i,": Expected: ", cl_data[i].o, " unichar: ", oct2unichar(cl_data[i].o))
+    if (v_enc != cl_data[i].o) {
+      setverdict(fail, "Encoding failed. Expected: ", cl_data[i].o, ", got: ", v_enc);
+    }
+    //var:
+    var universal charstring v_ustr := cl_data[i].u;
+    var octetstring v_enc1 := f_enc_ustr(v_ustr);
+    log("Expected: ", cl_data[i].o, " unichar: ", oct2unichar(cl_data[i].o))
+    if (v_enc1 != cl_data[i].o) {
+      setverdict(fail, "Encoding failed. Expected: ", cl_data[i].o, ", got: ", v_enc1);
+    }
+
+    //decode
+    var universal charstring v_dec := f_dec_ustr(v_enc1);
+    if (v_dec != cl_data[i].u) {
+      setverdict(fail, "Decoding failed. Expected: ", cl_data[i].u, ", got: ", v_dec);
+    }
+  }
+  setverdict(pass);
+}
+
+//TODO: Check Higher plane codepoints !
+
+testcase tc_JSON_ustr_local_char3() runs on CT {
+  //max number encodable in UTF-8 is '00011111 11111111 11111111'B='1F FF FF'O=char(0,31,255,255)
+  //https://hu.wikipedia.org/wiki/UTF-8
+  //local const:
+  const RoE cl_data := {
+	//utf8 length: 4 bytes
+	[0]:= { u := char(0,1,0,0), o:= '22F090808022'O }, //first 4 bytes utf8
+	[1]:= { u := char(0,1,1,1), o:= '22F090848122'O }, // Aegean Word Separator Dot, U+10101, utf8: F0908481
+	[2]:= { u := char(0,1,1,127), o:= '22F09085BF22'O }, //Greek Four Obols Sign, U+1017F, utf-8:
+	[3]:= { u := char(0,1,1,255), o:= '22F09087BF22'O }, //Phaistos Disc. last char U+101FF, utf-8:F0 90 87 BF
+	[4]:= { u := char(0,1,1,255), o:= '22F09087BF22'O },
+	[5]:= { u := char(0,15,1,239), o:= '22F3B087AF22'O }, //last defined unicode point, U+F01EF  utf-8:F3B087AF ok, manually tested
+	[6]:= { u := char(0,31,255,255), o:= '22F7BFBFBF22'O} //'1F FF FF'O very last code point permitted in UTF-8, manually checked
+  }
+  const integer N := sizeof(cl_data);
+  for(var integer i:= 0; i<N;i:=i+1 ) {
+    log("==== i=",i,"========================================================");
+    var octetstring v_enc := f_enc_ustr(cl_data[i].u);
+    log(i,": Expected: ", cl_data[i].o, " unichar: ", oct2unichar(cl_data[i].o))
+    if (v_enc != cl_data[i].o) {
+      setverdict(fail, "Encoding failed. Expected: ", cl_data[i].o, ", got: ", v_enc);
+    }
+    //var:
+    var universal charstring v_ustr := cl_data[i].u;
+    var octetstring v_enc1 := f_enc_ustr(v_ustr);
+    log("Expected: ", cl_data[i].o, " unichar: ", oct2unichar(cl_data[i].o))
+    if (v_enc1 != cl_data[i].o) {
+      setverdict(fail, "Encoding failed. Expected: ", cl_data[i].o, ", got: ", v_enc1);
+    }
+
+    //decode
+    var universal charstring v_dec := f_dec_ustr(v_enc1);
+    if (v_dec != cl_data[i].u) {
+      setverdict(fail, "Decoding failed. Expected: ", cl_data[i].u, ", got: ", v_dec);
+    }
+  }
+  setverdict(pass);
+}
+
+//================================
+//global constant:
+testcase tc_JSON_ustr_gc() runs on CT {
+  var octetstring v_enc := f_enc_ustr(c_ustr);
+  log("Expected: ", c_enc_ustr, oct2unichar(v_enc))
+  if (v_enc != c_enc_ustr) {
+    setverdict(fail, "Encoding failed. Expected: ", c_enc_ustr, ", got: ", v_enc);
+  }
+
+  //var:
+  var universal charstring v_ustr := "árvíztűrő tükörfúrógép";
+  var octetstring v_enc1 := f_enc_ustr(v_ustr);
+  log("Expected: ", c_enc_ustr, oct2unichar(v_enc1))
+  if (v_enc1 != c_enc_ustr) {
+    setverdict(fail, "Encoding failed. Expected: ", c_enc_ustr, ", got: ", v_enc);
+  }
+  var universal charstring v_dec := f_dec_ustr(c_enc_ustr);
+  if (v_dec != c_ustr) {
+    setverdict(fail, "Decoding failed. Expected: ", c_ustr, ", got: ", v_dec);
+  }
+  setverdict(pass);
+}
+
+//local constant:
+testcase tc_JSON_ustr_lc() runs on CT {
+  const universal charstring cl_ustr := "árvíztűrő tükörfúrógép"; // 31 UTF-8 characters
+  const octetstring cl_enc_ustr := '22C3A17276C3AD7A74C5B172C5912074C3BC6BC3B67266C3BA72C3B367C3A97022'O  
+  var octetstring v_enc := f_enc_ustr(cl_ustr);
+  //cpp log: DEBUG ../src/JsonBasicTest_ucharstring.ttcn:39(testcase:tc_JSON_ustr) f_enc_ustr(): Encoding universal charstring: char(0, 0, 0, 225) & "rv" & char(0, 0, 0, 237) & "zt" & char(0, 0, 1, 113) & "r" & char(0, 0, 1, 81) & " t" & char(0, 0, 0, 252) & "k" & char(0, 0, 0, 246) & "rf" & char(0, 0, 0, 250) & "r" & char(0, 0, 0, 243) & "g" & char(0, 0, 0, 233) & "p"
+  log("Expected: ", cl_enc_ustr, oct2unichar(v_enc))
+  if (v_enc != c_enc_ustr) {
+    setverdict(fail, "Encoding failed. Expected: ", c_enc_ustr, ", got: ", v_enc);
+  }
+  //var:
+  var universal charstring v_ustr := "árvíztűrő tükörfúrógép";
+  var octetstring v_enc1 := f_enc_ustr(v_ustr);
+  log("Expected: ", cl_enc_ustr, oct2unichar(v_enc1))
+  if (v_enc1 != cl_enc_ustr) {
+    setverdict(fail, "Encoding failed. Expected: ", cl_enc_ustr, ", got: ", v_enc);
+  }
+
+  //decode
+  var universal charstring v_dec := f_dec_ustr(c_enc_ustr);
+  if (v_dec != cl_ustr) {
+    setverdict(fail, "Decoding failed. Expected: ", cl_ustr, ", got: ", v_dec);
+  }
+  setverdict(pass);
+}
+
+//expected value calculated
+testcase tc_JSON_ustr_in_rec1() runs on CT {
+  var Rec v_rec := { 10, c_ustr };
+  var octetstring v_enc_expected := unichar2oct("{\"num\":10,\"ustr\":\"" & char(0, 0, 0, 225) & "rv" & char(0, 0, 0, 237) & "zt" & char(0, 0, 1, 113) & "r" & char(0, 0, 1, 81) & " t" & char(0, 0, 0, 252) & "k" & char(0, 0, 0, 246) & "rf" & char(0, 0, 0, 250) & "r" & char(0, 0, 0, 243) & "g" & char(0, 0, 0, 233) & "p\"}");
+  var octetstring v_enc := f_enc_rec(v_rec);
+  log("Expected:", v_enc_expected, " char: ", oct2unichar(v_enc_expected));
+  if (v_enc != v_enc_expected) {
+    setverdict(fail, "Encoding failed. Expected: ", v_enc_expected, ", got: ", v_enc, oct2unichar(v_enc));
+  }
+  var Rec v_dec := f_dec_rec(v_enc_expected);
+  var Rec v_dec_rec := { 10, c_ustr };
+  if (v_dec != v_dec_rec) {
+    setverdict(fail, "Decoding failed. Expected: ", v_dec_rec, ", got: ", v_dec);
+  }
+  setverdict(pass);
+}
+
+//expected value with octetstring
+testcase tc_JSON_ustr_in_rec2() runs on CT {
+  var Rec v_rec := { 10, c_ustr };
+  var octetstring v_enc_expected := '7B226E756D223A31302C2275737472223A22C3A17276C3AD7A74C5B172C5912074C3BC6BC3B67266C3BA72C3B367C3A970227D'O //{xxx}
+  var octetstring v_enc := f_enc_rec(v_rec);
+  log("Expected:", v_enc_expected, " char: ",oct2unichar(v_enc_expected));
+  if (v_enc != v_enc_expected) {
+    setverdict(fail, "Encoding failed. Expected: ", v_enc_expected, ", got: ", v_enc, oct2unichar(v_enc));
+  }
+  var Rec v_dec := f_dec_rec(v_enc_expected);
+  var Rec v_dec_rec := { 10, c_ustr };
+  if (v_dec != v_dec_rec) {
+    setverdict(fail, "Decoding failed. Expected: ", v_dec_rec, ", got: ", v_dec);
+  }
+  setverdict(pass);
+}
+
+
+control {
+  execute(tc_JSON_ustr_local1());
+  execute(tc_JSON_ustr_too_big_char());
+  execute(tc_JSON_ustr_local_char1());
+  execute(tc_JSON_ustr_local_char2());
+  execute(tc_JSON_ustr_local_char3());
+  execute(tc_JSON_ustr_gc());
+  execute(tc_JSON_ustr_lc());
+//  execute(tc_JSON_ustr_in_rec1());
+//  execute(tc_JSON_ustr_in_rec2());
+}
+
+}
+with {
+encode "JSON"
+}

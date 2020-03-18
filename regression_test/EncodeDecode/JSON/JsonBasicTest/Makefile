@@ -20,9 +20,9 @@ TTCN3_LIB = ttcn3$(RT2_SUFFIX)$(DYNAMIC_SUFFIX)
 
 TTCN3_MODULES = JsonBasicASN1EncDecTest1.ttcn JsonBasicEncDecTest_os.ttcn JsonBasicTypeF.ttcn\
 	JsonBasicTypeOS.ttcn JsonTypeAny.ttcn JsonBasicTypeAltstep.ttcn JsonBasicTypeFuncRef.ttcn\
-	JsonBasicTypes.ttcn       JsonTypeAny2.ttcn JsonBasicAttributeTest.ttcn JsonBasicTypeBS.ttcn  JsonBasicTypeHS.ttcn \
+	JsonBasicTypes.ttcn JsonTypeAny2.ttcn JsonBasicAttributeTest.ttcn JsonBasicTypeBS.ttcn  JsonBasicTypeHS.ttcn \
 	JsonEncDecFunctions.ttcn  JsonTypeRec.ttcn\
-	JsonBasicEncDecTest_bs.ttcn JsonBasicTypeE.ttcn JsonBasicTypeI.ttcn JsonRoUBug1.ttcn
+	JsonBasicEncDecTest_bs.ttcn JsonBasicTypeE.ttcn JsonBasicTypeI.ttcn JsonRoUBug1.ttcn JsonBasicTest_ucharstring.ttcn
 
 ASN1_MODULES = JsonBasicASN1Types.asn
 
