@@ -68,7 +68,7 @@ The standard does not specify clearly some of the encoding rules.
 
 * The encoding of fields in `record`, `set` and `union` types is supported.
 * The order of attributes of the same type in a `with` statement is important. The second variant might override the first, or an overriding attribute will override all the following attributes of the same type.
-* Encode attributes are an exception to this as they are not really attributes, but "contexts". It cannot be determined to which encode "contexts" the variants of the same `with` statement should belong if there are several. As having several encode "contexts" in the same `with` statement would be a bad coding practice, a warning is generated and the last encode is used as the statement’s encode "contexts".
+* Encode attributes are an exception to this as they are not really attributes, but "contexts". It cannot be determined to which encode "contexts" the variants of the same `with` statement should belong if there are several. As having several encode "contexts" in the same `with` statement would be a bad coding practice, a warning is generated and the last encode is used as the statement's encode "contexts".
 * As encodes are contexts, an encode is only overridden if the overriding context is not the same.
 * The order of attributes of different type in a `with` statement is not important, they do not affect each other.
 * In case of structured types, the encode context of the type is the encode context of its fields too, if the fields do not override this attribute. The other attribute types are handled separately for the structured type and its fields. Attributes inherited from higher level (module/group/structured type) might change the encoding of a record and that of its fields.
@@ -170,9 +170,9 @@ This isn't the case in the TITAN runtime. Values only have 2 states: _bound_ and
 * `record` / `set`: unbound = uninitialized, bound = at least partially initialized, meaning that a `record` / `set` is bound if at least one of its fields is boundfootnote:[The bound state of fields or elements is also determined by using the isbound operation on the field or element.];
 * `record of` / `set of`: unbound = uninitialized, bound = at least partially initialized, meaning that the record of is only unbound if it has never received an initial value (even initializing with {} creates a bound `record of` / `set of` value);
 * `array`: unbound = uninitialized or partially initialized, bound = fully initialized, meaning that the array is only bound if all of its elements are bound;
-* `unions` can't be partially initialized, so TITAN stores their bound state correctly (although it’s still possible to create `union` values, where the selected alternative is unbound, with the legacy command line option `–B`; these values would be considered bound by TITAN).
+* `unions` can't be partially initialized, so TITAN stores their bound state correctly (although it's still possible to create `union` values, where the selected alternative is unbound, with the legacy command line option `–B`; these values would be considered bound by TITAN).
 
-There is a workaround in TITAN’s implementation of `records` / `sets` to allow the copying of partially initialized values (`union` values with unbound selected alternatives can also be copied when the compiler option `–B` is set). In all other cases the user is responsible for making sure the value is usable on the right hand side of an operation. The `isbound` function is usually not enough to ensure, that the value is usable.
+There is a workaround in TITAN's implementation of `records` / `sets` to allow the copying of partially initialized values (`union` values with unbound selected alternatives can also be copied when the compiler option `–B` is set). In all other cases the user is responsible for making sure the value is usable on the right hand side of an operation. The `isbound` function is usually not enough to ensure, that the value is usable.
 
 == Concatenation of templates
 
@@ -206,5 +206,5 @@ var IntList vl_myList := { 1, 2, 3 };
 var IntList vl_emptyList := {};
 replace(vl_myList, 1, 2, vl_emptyList); // returns { 1 }
 replace("abcdef", 2, 1, ""); // returns "abdef"
-replace(‘12FFF’H, 3, 2, ‘’H); // returns ‘12F’H
+replace('12FFF'H, 3, 2, ''H); // returns '12F'H
 ----
