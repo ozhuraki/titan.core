@@ -26,10 +26,11 @@ Cygwin setup
    (A) Download and execute the latest cygwin installer utility, 
        please use the 64-bit version installer:
        https://cygwin.com/setup-x86_64.exe
+       Latest setup version 2.900 (64 bit)
   
    (B) Select Install from Internet (recommended to save local disk space)
    
-   (C) Choose Cygwin installation root directory (C:\cygwin is recommended)
+   (C) Choose Cygwin installation root directory (C:\cygwin64 is recommended)
        Select All Users, or Just Me.
    
    (D) Select "Local Package Directory" (typically the same directory,  

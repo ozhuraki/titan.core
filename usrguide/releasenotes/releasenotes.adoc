@@ -3593,27 +3593,27 @@ This section gives you a summary of changes on the Test Port API between the dif
 
 WARNING: The classes of data types or the Test Port base class may have some member functions that are not described in this document. These functions are written or generated only for internal purposes of the test executor. You should not use the undocumented functions because improper calls may cause the instability of your ETS. In addition, the interface of these functions may change in future releases without notice.
 
-[[version-1-8-pl6]]
+[[test-port-version-1-8-pl6]]
 == Version 1.8.pl6
 
 No changes
 
-[[version-1-8-pl5]]
+[[test-port-version-1-8-pl5]]
 == Version 1.8.pl5
 
 No changes
 
-[[version-1-8-pl4]]
+[[test-port-version-1-8-pl4]]
 == Version 1.8.pl4
 
 No changes
 
-[[version-1-8-pl3]]
+[[test-port-version-1-8-pl3]]
 == Version 1.8.pl3
 
 No changes
 
-[[version-1-8-pl2]]
+[[test-port-version-1-8-pl2]]
 == Version 1.8.pl2
 
 Although there were no direct changes done to the testport API, the version handling feature introduced some ways for testport writers to constrain the use of their testports by:
@@ -3624,37 +3624,37 @@ Although there were no direct changes done to the testport API, the version hand
 
 For more information please consult section 4.23.2 of the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN programmers reference guide].
 
-[[version-1-8-pl1]]
+[[test-port-version-1-8-pl1]]
 == Version 1.8.pl1
 
 No changes
 
-[[version-1-8-pl0]]
+[[test-port-version-1-8-pl0]]
 == Version 1.8.pl0
 
 No changes
 
-[[version-1-7-pl4]]
+[[test-port-version-1-7-pl4]]
 == Version 1.7.pl4
 
 The Test Port was enhanced with the handling of the epoll system call present on recent linux systems, making it possible to handle connections in a much more efficient way. The already existing Test Port interface was kept, but it is no longer a direct interface, but a mapping to the new interface, which provides several new functions, that can be used to handle connections in a simplier manner (for example there are specific callback functions to handle new data appearing on a registered port connection).
 
-[[version-1-7-pl3]]
+[[test-port-version-1-7-pl3]]
 == Version 1.7.pl3
 
 No changes.
 
-[[version-1-7-pl2]]
+[[test-port-version-1-7-pl2]]
 == Version 1.7.pl2
 
 No changes.
 
-[[version-1-7-pl1]]
+[[test-port-version-1-7-pl1]]
 == Version 1.7.pl1
 
 Log event subtypes were introduced and the generated codes were updated to use the new log events by default. The logger was enhanced to log the actual logging options. Some log messages were moved to other log event categories. (INCOMPATIBLE)
 
-[[version-1-7-pl0]]
+[[test-port-version-1-7-pl0]]
 == Version 1.7.pl0
 
 * Test Port classes as well as {cpp} classes of user defined data types are put into a {cpp} namespace that corresponds to the TTCN–3 module. (INCOMPATIBLE)
@@ -3673,89 +3673,89 @@ Log event subtypes were introduced and the generated codes were updated to use t
 
 * New API was introduced for provider port types. (ADDITION)
 
-[[version-1-6-pl5]]
+[[test-port-version-1-6-pl5]]
 == Version 1.6.pl5
 
 No changes.
 
-[[version-1-6-pl4]]
+[[test-port-version-1-6-pl4]]
 == Version 1.6.pl4
 
 * {cpp} representation of external function parameters without the in keyword has been changed. (INCOMPATIBLE)
 
-[[version-1-6-pl3]]
+[[test-port-version-1-6-pl3]]
 == Version 1.6.pl3
 
 * Array types were introduced. (ADDITION)
 
-[[version-1-6-pl2]]
+[[test-port-version-1-6-pl2]]
 == Version 1.6.pl2
 
 No changes.
 
-[[version-1-6-pl1]]
+[[test-port-version-1-6-pl1]]
 == Version 1.6.pl1
 
 No changes.
 
-[[version-1-6-pl0]]
+[[test-port-version-1-6-pl0]]
 == Version 1.6.pl0
 
 * The constructor of test port classes now has a default argument, which is a NULL pointer. In the newly created skeletons the default argument is already present, but it has to be added to the existing test port header files manually. Otherwise, if the port type is used in a port array the generated {cpp} code will not compile. The updated and newly created test ports also work with older versions. (INCOMPATIBLE)
 
 * The member function `set size()` was added to the {cpp} equivalents of record of and set of types. (ADDITION)
 
-[[version-1-5-pl8]]
+[[test-port-version-1-5-pl8]]
 == Version 1.5.pl8
 
 No changes.
 
-[[version-1-5-pl7]]
+[[test-port-version-1-5-pl7]]
 == Version 1.5.pl7
 
 No changes.
 
-[[version-1-5-pl6]]
+[[test-port-version-1-5-pl6]]
 == Version 1.5.pl6
 
 The global C-like functions for the conversion of enumerated values were moved into the class scope. They became static members of the value class. The old function names are still preserved for backward compatibility. (ADDITION)
 
-[[version-1-5-pl5]]
+[[test-port-version-1-5-pl5]]
 == Version 1.5.pl5
 
 No changes.
 
-[[version-1-5-pl4]]
+[[test-port-version-1-5-pl4]]
 == Version 1.5.pl4
 
 No changes.
 
-[[version-1-5-pl3]]
+[[test-port-version-1-5-pl3]]
 == Version 1.5.pl3
 
 * Type universal charstring is now supported. Its equivalent {cpp} class named UNIVERSAL CHARSTRING was introduced. (ADDITION)
 
-[[version-1-5-pl2]]
+[[test-port-version-1-5-pl2]]
 == Version 1.5.pl2
 
 No changes.
 
-[[version-1-5-pl1]]
+[[test-port-version-1-5-pl1]]
 == Version 1.5.pl1
 
 No changes.
 
-[[version-1-5-pl0]]
+[[test-port-version-1-5-pl0]]
 == Version 1.5.pl0
 
 * The {cpp} API for invoking the RAW and BER encoding/decoding functions has significantly changed. The purpose of changes was to provide a common, unified and more flexible interface for both encoding methods. See the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN TTCN–3 Programmer´s Technical Reference] for more details. (INCOMPATIBLE)
 
-[[version-1-4-pl5]]
+[[test-port-version-1-4-pl5]]
 == Version 1.4.pl5
 
 No changes.
 
-[[version-1-4-pl4]]
+[[test-port-version-1-4-pl4]]
 == Version 1.4.pl4
 
 * The procedure based ports are now supported with an enhanced Test Port API. (ADDITION)
@@ -3764,58 +3764,58 @@ No changes.
 
 * The parameter type and/or return type of some helper functions used for enumerated types has been changed from `int` to `enum`. This may require explicit casting in some Test Ports. (INCOMPATIBLE)
 
-[[version-1-4-pl3]]
+[[test-port-version-1-4-pl3]]
 == Version 1.4.pl3
 
 * The interrupt signal is handled in single mode. (ADDITION)
 
-[[version-1-4-pl2]]
+[[test-port-version-1-4-pl2]]
 == Version 1.4.pl2
 
 No changes.
 
-[[version-1-4-pl1]]
+[[test-port-version-1-4-pl1]]
 == Version 1.4.pl1
 
 * Class CHAR, which was the {cpp} equivalent of the obsolete TTCN–3 type char was removed. The compiler substitutes all occurrences of type char with charstring and CHAR is now a typedef alias to class CHARSTRING, which provides partial backward compatibility. (INCOMPATIBLE)
 
 * Hexstring related conversion functions were added. (ADDITION)
 
-[[version-1-4-pl0]]
+[[test-port-version-1-4-pl0]]
 == Version 1.4.pl0
 
 No changes.
 
-[[version-1-3-pl0]]
+[[test-port-version-1-3-pl0]]
 == Version 1.3.pl0
 
 * The symbolic constants NULL ADDRESS, MTC ADDRESS and SYSTEM ADDRESS were renamed to NULL COMPREF, MTC COMPREF and SYSTEM COMPREF, respectively. (INCOMPATIBLE)
 
 * Usage of TTCN–3 `address` type is now supported. See the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN TTCN–3 Programmer´s Technical Reference]. (ADDITION)
 
-[[version-1-2-pl4]]
+[[test-port-version-1-2-pl4]]
 == Version 1.2.pl4
 
 No changes.
 
-[[version-1-2-pl3]]
+[[test-port-version-1-2-pl3]]
 == Version 1.2.pl3
 
 * TTCN–3 type hexstring is now supported. Its {cpp} equivalent is class HEXSTRING. (ADDITION)
 
-[[version-1-2-pl2]]
+[[test-port-version-1-2-pl2]]
 == Version 1.2.pl2
 
 No changes.
 
-[[version-1-2-pl1]]
+[[test-port-version-1-2-pl1]]
 == Version 1.2.pl1
 
 * System related Test Port parameters were introduced. Their value is passed to the Test Port during test run when executing a map statement. (ADDITION)
 
 * The set of type construct is now supported. The API is exactly the same as in case of record of. (ADDITION)
 
-[[version-1-2-pl0]]
+[[test-port-version-1-2-pl0]]
 == Version 1.2.pl0
 
 * The new OBJID built-in type was added. (ADDITION) It is not compatible with CHARSTRING, which was OBJID aliased to before. (INCOMPATIBLE)
@@ -3824,7 +3824,7 @@ No changes.
 
 * Member functions VERDICTTYPE::set and VERDICTTYPE::get were removed. Use the functions `TTCN Runtime::setverdict` and `TTCN Runtime::getverdict` to modify or get the local verdict. (INCOMPATIBLE)
 
-[[version-1-1-pl10]]
+[[test-port-version-1-1-pl10]]
 == Version 1.1.pl10
 
 * The CHAR built-in type was added. (ADDITION)
@@ -3833,56 +3833,56 @@ No changes.
 
 NOTE: You should not upgrade a Test Port developed for version 1.1.pl8 or earlier directly to 1.1.pl10 because operator `&` meant concatenation in older versions but it means now bitwise and operation. You should upgrade these old Test Ports to 1.1.pl9 first and after the successful compilation you can proceed to 1.1.pl10.
 
-[[version-1-1-pl9]]
+[[test-port-version-1-1-pl9]]
 == Version 1.1.pl9
 
 * The concatenation operator has been changed from `&` to `+` for all string types. (INCOMPATIBLE)
 
 * The modulo division overloaded operator has been removed from the class INTEGER. The `mod` and `rem` TTCN–3 operations can be performed by polymorphic global functions called `mod` and `rem`, respectively. (INCOMPATIBLE)
 
-[[version-1-1-pl8]]
+[[test-port-version-1-1-pl8]]
 == Version 1.1.pl8
 
 No changes.
 
-[[version-1-1-pl7]]
+[[test-port-version-1-1-pl7]]
 == Version 1.1.pl7
 
 No changes.
 
-[[version-1-1-pl6]]
+[[test-port-version-1-1-pl6]]
 == Version 1.1.pl6
 
 No changes.
 
-[[version-1-1-pl5]]
+[[test-port-version-1-1-pl5]]
 == Version 1.1.pl5
 
 No changes.
 
-[[version-1-1-pl4]]
+[[test-port-version-1-1-pl4]]
 == Version 1.1.pl4
 
 No changes.
 
-[[version-1-1-pl3]]
+[[test-port-version-1-1-pl3]]
 == Version 1.1.pl3
 
 * Member function set parameter was introduced. (ADDITION)
 
 * The enumerated types are provided with a _value ) string_ and _string ) value_ conversion functions, i.e. `<enum type>` to `str` and `str` to `<enum type>`. (ADDITION)
 
-[[version-1-1-pl2]]
+[[test-port-version-1-1-pl2]]
 == Version 1.1.pl2
 
 No changes.
 
-[[version-1-1-pl1]]
+[[test-port-version-1-1-pl1]]
 == Version 1.1.pl1
 
 No changes.
 
-[[version-1-1-pl0]]
+[[test-port-version-1-1-pl0]]
 == Version 1.1.pl0
 
 * The constructors of Test Port base classes take the port name as a parameter. In version 1.0 the port name was directly assigned in the constructor of the user code, but now it has to be passed to the constructor of base class. (INCOMPATIBLE)
