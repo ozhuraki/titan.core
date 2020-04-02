@@ -5923,13 +5923,13 @@ NOTE: the names of ASN.1 modules, types and fields will appear in TTCN-3 form (a
 
 ==== Usage
 
-The compiler option `–-ttcn2json` shall be used for the conversion, followed by JSON schema generator specific options and the list of TTCN-3 and ASN.1 file names.
+The compiler option `--ttcn2json` shall be used for the conversion, followed by JSON schema generator specific options and the list of TTCN-3 and ASN.1 file names.
 
-The option `–j` restricts the TTCN-3 types used in the conversion: only those that have JSON coding enabled will be converted. By default all TTCN-3 types that can be converted will be used. This option does not affect ASN.1 types, these will always be converted.
+The option `-j` restricts the TTCN-3 types used in the conversion: only those that have JSON coding enabled will be converted. By default all TTCN-3 types that can be converted will be used. This option does not affect ASN.1 types, these will always be converted.
 
-If option `–f` is set, then the schema will only validate types that have JSON encoding and/or decoding functions, otherwise all types it will validate all types included in the schema.
+If option `-f` is set, then the schema will only validate types that have JSON encoding and/or decoding functions, otherwise all types it will validate all types included in the schema.
 
-The options `-A` and `–T` can be used before each input file to specify its type (`-A` for ASN.1 files and `–T` for TTCN-3 files). If a file is not preceeded by either of these option, then the compiler will attempt to determine its type based on its contents.
+The options `-A` and `-T` can be used before each input file to specify its type (`-A` for ASN.1 files and `–T` for TTCN-3 files). If a file is not preceeded by either of these option, then the compiler will attempt to determine its type based on its contents.
 
 The last parameter specifies the name of the JSON schema file if it is preceded by a dash (-). Otherwise the name of the schema will be created using the first input file name (its `.asn` or `.ttcn` extension will be replaced by `.json`, or, if it doesn't have either of these extension, then `.json` will simply be appended to its end).
 
