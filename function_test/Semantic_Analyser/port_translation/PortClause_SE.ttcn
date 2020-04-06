@@ -25,8 +25,8 @@ module PortClause_SE { //^In TTCN-3 module//
 		extension "provider"
 	}
 
-	type port P2 message map to P1 { //^In type definition \`P2\'\:// //^In type mapping\:// //^In \`function\' mapping\:// //^In translation capability\:// //^error\: The function function \`\@PortClause_SE\.int_to_int\' has a port clause of \`P2\' but referenced in another port \`P3\'//
-		in integer from integer with int_to_int();
+	type port P2 message map to P1 { //^In type definition \`P2\'\:// //^In type mapping\:// //^In \`function\' mapping\:// //^In translation capability\://
+		in integer from integer with int_to_int(); //^error\: The function function \`\@PortClause_SE\.int_to_int\' has a port clause of \`P2\' but referenced in another port \`P3\'//
 		var integer i := 6;  //^Previous definition with identifier \`i\' in higher scope unit is here//
 	}
 

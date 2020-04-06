@@ -4386,7 +4386,7 @@ control {
 (?is)\berror: at or before token `refers': syntax error, unexpected RefersKeyword, expecting Identifier or Cstring
 <END_RESULT>
 <RESULT COUNT 6>
-(?is)\berror: at or before token `\(': syntax error, unexpected '\('
+(?is)\berror: Invalid reference expression
 <END_RESULT>
 <END_TC>
 :exmp.

@@ -157,7 +157,7 @@ testcase tc_members_and_methods() runs on CT {
   log(v_final.get_var());
   log(v_final.f2(3).list[1]);
   
-  /*if (v_base.f(6) != 6) {
+  if (v_base.f(6) != 6) {
     setverdict(fail, "v_base.f(6) = ", v_base.f(6));
   }
   if (v_sub.f(6) != 5) {
@@ -165,7 +165,7 @@ testcase tc_members_and_methods() runs on CT {
   }
   if (v_final.f(6) != 7) {
     setverdict(fail, "v_final.f(6) = ", v_final.f(6));
-  }*/
+  }
   
   if (log2str(v_base.f(6)) != "6") {
     setverdict(fail, "log2str(v_base.f(6)) = ", log2str(v_base.f(6)));
@@ -177,12 +177,12 @@ testcase tc_members_and_methods() runs on CT {
   if (log2str(v_sub.m_var_temp) != "(0.000000 .. 10.000000)") {
     setverdict(fail, "v_sub.m_var_temp = ", v_sub.m_var_temp);
   }
-  /*if (v_final.get_var() != "ax66") {
+  if (v_final.get_var() != "ax66") {
     setverdict(fail, "v_final.get_var() = ", v_final.get_var());
   }
   if (v_final.f2(3).list[1] != 1) {
     setverdict(fail, "v_final.f2(3).list[1] = ", v_final.f2(3).list[1]);
-  }*/
+  }
   setverdict(pass);
 }
 

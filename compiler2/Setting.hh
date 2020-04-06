@@ -705,6 +705,7 @@ public:
     /** Returns whether the reference can be represented by an in-line C++
      *  expression. */
     virtual bool has_single_expr() = 0;
+    virtual bool has_parameters() const { return false; }
     /** Sets the code section of embedded values (parameters, array indices). */
     virtual void set_code_section(
       GovernedSimple::code_section_t p_code_section);

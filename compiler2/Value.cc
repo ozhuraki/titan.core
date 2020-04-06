@@ -430,7 +430,7 @@ namespace Common {
   void Value::chk_expr_immutability() {
     switch (valuetype) {
       case V_REFD: {/**< referenced */
-        Ttcn::Ref_base* ttcn_ref = dynamic_cast<Ttcn::Ref_base*>(u.ref.ref);
+        Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(u.ref.ref);
         if (ttcn_ref != NULL) {
           ttcn_ref->chk_immutability();
         }
@@ -1267,7 +1267,7 @@ namespace Common {
   }
   
   // v1 [r2] b4
-  Value::Value(operationtype_t p_optype, Value* p_v1, Ttcn::Ref_base *p_r2,
+  Value::Value(operationtype_t p_optype, Value* p_v1, Ttcn::Reference *p_r2,
                bool p_b4)
     : GovernedSimple(S_V), valuetype(V_EXPR), my_governor(0), in_brackets(false)
   {
@@ -1339,7 +1339,7 @@ namespace Common {
   }
 
   // r1
-  Value::Value(operationtype_t p_optype, Ttcn::Ref_base *p_r1)
+  Value::Value(operationtype_t p_optype, Ttcn::Reference *p_r1)
     : GovernedSimple(S_V), valuetype(V_EXPR), my_governor(0), in_brackets(false)
   {
     u.expr.v_optype = p_optype;
@@ -1356,7 +1356,7 @@ namespace Common {
   }
   
   // r1 [r2] b4
-  Value::Value(operationtype_t p_optype, Ttcn::Ref_base* p_r1, Ttcn::Ref_base* p_r2,
+  Value::Value(operationtype_t p_optype, Ttcn::Reference* p_r1, Ttcn::Reference* p_r2,
                bool p_b4)
     : GovernedSimple(S_V), valuetype(V_EXPR), my_governor(0), in_brackets(false)
   {
@@ -1414,7 +1414,7 @@ namespace Common {
   }
 
   // r1 [v2] or [r1] v2
-  Value::Value(operationtype_t p_optype, Ttcn::Ref_base *p_r1, Value *p_v2)
+  Value::Value(operationtype_t p_optype, Ttcn::Reference *p_r1, Value *p_v2)
     : GovernedSimple(S_V), valuetype(V_EXPR), my_governor(0), in_brackets(false)
   {
     u.expr.v_optype = p_optype;
@@ -1437,7 +1437,7 @@ namespace Common {
   }
 
   // r1 t_list2 b4
-  Value::Value(operationtype_t p_optype, Ttcn::Ref_base *p_r1,
+  Value::Value(operationtype_t p_optype, Ttcn::Reference *p_r1,
                Ttcn::ParsedActualParameters* p_t_list2, bool p_b4)
     : GovernedSimple(S_V), valuetype(V_EXPR), my_governor(0), in_brackets(false)
   {
@@ -1768,7 +1768,7 @@ namespace Common {
     u.verdict = p_verdict;
   }
 
-  Value::Value(operationtype_t p_optype, Ttcn::Ref_base *p_r1, Ttcn::Ref_base *p_r2)
+  Value::Value(operationtype_t p_optype, Ttcn::Reference *p_r1, Ttcn::Reference *p_r2)
     : GovernedSimple(S_V), valuetype(V_EXPR), my_governor(0), in_brackets(false)
   {
     u.expr.v_optype = p_optype;
@@ -1790,7 +1790,7 @@ namespace Common {
   }
   
   // r1 r2 [v3]
-  Value::Value(operationtype_t p_optype, Ttcn::Ref_base *p_r1, Ttcn::Ref_base *p_r2,
+  Value::Value(operationtype_t p_optype, Ttcn::Reference *p_r1, Ttcn::Reference *p_r2,
           Value *p_v3)
     : GovernedSimple(S_V), valuetype(V_EXPR), my_governor(0), in_brackets(false)
   {
@@ -1813,7 +1813,7 @@ namespace Common {
   }
   
   // r1 r2 [v3] [v4]
-  Value::Value(operationtype_t p_optype, Ttcn::Ref_base* p_r1, Ttcn::Ref_base* p_r2,
+  Value::Value(operationtype_t p_optype, Ttcn::Reference* p_r1, Ttcn::Reference* p_r2,
                Value* p_v3, Value* p_v4)
     : GovernedSimple(S_V), valuetype(V_EXPR), my_governor(0), in_brackets(false)
   {
@@ -1838,7 +1838,7 @@ namespace Common {
   }
   
   // r1 r2 [v3] [v4] [v5]
-  Value::Value(operationtype_t p_optype, Ttcn::Ref_base* p_r1, Ttcn::Ref_base* p_r2,
+  Value::Value(operationtype_t p_optype, Ttcn::Reference* p_r1, Ttcn::Reference* p_r2,
                Value* p_v3, Value* p_v4, Value* p_v5)
     : GovernedSimple(S_V), valuetype(V_EXPR), my_governor(0), in_brackets(false)
   {
@@ -4409,7 +4409,7 @@ namespace Common {
   void Value::chk_expr_ref_ischosen()
   {
     Error_Context cntxt(this, "In the operand of operation `%s'", get_opname());
-    Ttcn::Ref_base *tmpref=u.expr.r1;
+    Ttcn::Reference *tmpref=u.expr.r1;
     Assignment *ass=tmpref->get_refd_assignment();
     if (!ass) {
       set_valuetype(V_ERROR);
@@ -4899,7 +4899,7 @@ namespace Common {
   }
 
   void Value::chk_expr_operand_undef_running(Type::expected_value_t exp_val,
-    Ttcn::Ref_base *ref, bool any_from, Ttcn::Ref_base* index_ref,
+    Ttcn::Reference *ref, bool any_from, Ttcn::Reference* index_ref,
     const char *opnum, const char *opname)
   {
     if(valuetype==V_ERROR) return;
@@ -5198,7 +5198,7 @@ namespace Common {
     return NULL;
   }
 
-  void Value::chk_expr_operand_tmrref(Ttcn::Ref_base *ref,
+  void Value::chk_expr_operand_tmrref(Ttcn::Reference *ref,
                                       const char *opnum,
                                       const char *opname,
                                       bool any_from)
@@ -5250,16 +5250,14 @@ namespace Common {
     set_valuetype(V_ERROR);
   }
 
-  void Value::chk_expr_operand_activate(Ttcn::Ref_base *ref,
+  void Value::chk_expr_operand_activate(Ttcn::Reference *ref,
                                         const char *,
                                         const char *opname)
   {
     if(valuetype==V_ERROR) return;
     // if(u.expr.state==EXPR_CHECKING_ERR) return;
-    Ttcn::Ref_pard *t_ref_pard = dynamic_cast<Ttcn::Ref_pard*>(ref);
-    if (!t_ref_pard) FATAL_ERROR("Value::chk_expr_operand_activate()");
     Error_Context cntxt(this, "In `%s' operation", opname);
-    if (!t_ref_pard->chk_activate_argument()) set_valuetype(V_ERROR);
+    if (!ref->chk_activate_argument()) set_valuetype(V_ERROR);
   }
 
   void Value::chk_expr_operand_activate_refd(Value *val,
@@ -5299,7 +5297,7 @@ namespace Common {
     } else set_valuetype(V_ERROR);
   }
 
-  void Value::chk_expr_operand_execute(Ttcn::Ref_base *ref, Value *val,
+  void Value::chk_expr_operand_execute(Ttcn::Reference *ref, Value *val,
                                        const char *,
                                        const char *opname)
   {
@@ -6485,7 +6483,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     Type* t_type = 0;
     {
       Error_Context cntxt(this, "In the parameters of %s()", opname);
-      Ttcn::Ref_base* ref = u.expr.r1;
+      Ttcn::Reference* ref = u.expr.r1;
       Ttcn::FieldOrArrayRefs* t_subrefs = ref->get_subrefs();
       Type* t_type_last = 0;
       Assignment* t_ass = ref->get_refd_assignment();
@@ -10799,18 +10797,10 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
 
   Ttcn::Reference* Value::steal_ttcn_ref()
   {
-    Ttcn::Reference *ret_val =
-      dynamic_cast<Ttcn::Reference*>(steal_ttcn_ref_base());
-    if(!ret_val) FATAL_ERROR("Value::steal_ttcn_ref()");
-    return ret_val;
-  }
-
-  Ttcn::Ref_base* Value::steal_ttcn_ref_base()
-  {
-    Ttcn::Ref_base *t_ref;
+    Ttcn::Reference *t_ref;
     if(valuetype==V_REFD) {
-      t_ref=dynamic_cast<Ttcn::Ref_base*>(u.ref.ref);
-      if(!t_ref) FATAL_ERROR("Value::steal_ttcn_ref_base()");
+      t_ref=dynamic_cast<Ttcn::Reference*>(u.ref.ref);
+      if(!t_ref) FATAL_ERROR("Value::steal_ttcn_ref()");
       u.ref.ref=0;
     }
     else if(valuetype==V_UNDEF_LOWERID) {
@@ -10821,7 +10811,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       u.val_id=0;
     }
     else {
-      FATAL_ERROR("Value::steal_ttcn_ref_base()");
+      FATAL_ERROR("Value::steal_ttcn_ref()");
       t_ref = 0;
     }
     set_valuetype(V_ERROR);
@@ -11208,7 +11198,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     } // switch
   }
 
-  void Value::chk_recursions_expr_decode(Ttcn::Ref_base* ref,
+  void Value::chk_recursions_expr_decode(Ttcn::Reference* ref,
       ReferenceChain& refch) {
     Error_Context cntxt(this, "In the operand of operation `%s'", get_opname());
     Assignment *ass = ref->get_refd_assignment();
@@ -11266,7 +11256,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
           INCOMPLETE_NOT_ALLOWED, OMIT_ALLOWED, NO_SUB_CHK, NOT_IMPLICIT_OMIT, NOT_STR_ELEM);
       break; }
     case Ttcn::Template::TEMPLATE_REFD: {
-      Ttcn::Ref_base *refb = t->get_reference();
+      Ttcn::Reference *refb = t->get_reference();
       Common::Assignment *ass = refb->get_refd_assignment();
       self_ref |= (ass == lhs);
       break; }
@@ -11573,7 +11563,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
           break;
 
         case Ttcn::LogArgument::L_REF: {
-          Ttcn::Ref_base *ref = la->get_ref();
+          Ttcn::Reference *ref = la->get_ref();
           Common::Assignment *ass = ref->get_refd_assignment();
           self_ref |= (ass == lhs);
           break; }
@@ -13657,7 +13647,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         if (specific_value->get_valuetype() == Value::V_REFD) {
           Ttcn::Reference* reference =
               dynamic_cast<Ttcn::Reference*>(specific_value->get_reference());
-          if (reference) {
+          if (reference != NULL && !reference->has_parameters()) {
             reference->generate_code_ispresentboundchosen(expr, false,
               u.expr.v_optype, NULL);
             break;
@@ -13667,7 +13657,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
           Ttcn::Reference* reference =
             dynamic_cast<Ttcn::Reference*>(u.expr.ti1->get_Template()
               ->get_reference());
-          if (reference) {
+          if (reference != NULL && !reference->has_parameters()) {
             reference->generate_code_ispresentboundchosen(expr, true,
               u.expr.v_optype, NULL);
             break;
@@ -13704,7 +13694,8 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         expr->expr=mputstr(expr->expr, ".is_bound()");
         break;
       case OPTYPE_ISPRESENT:
-        expr->expr=mputprintf(expr->expr, ".is_present()");
+        expr->expr=mputprintf(expr->expr, ".is_present(%s)",
+          !u.expr.ti1->is_only_specific_value() && omit_in_value_list ? "TRUE" : "");
         break;
       case OPTYPE_SIZEOF:
         expr->expr=mputstr(expr->expr, ".size_of()");
@@ -14170,7 +14161,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
   }
   
   void Value::generate_code_expr_class_create(expression_struct* expr,
-    Ttcn::Ref_base* type, Ttcn::ActualParList* ap_list)
+    Ttcn::Reference* type, Ttcn::ActualParList* ap_list)
   {
     expr->expr = mputstr(expr->expr, "new ");
     type->generate_code(expr);
@@ -14184,7 +14175,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
   }
 
   void Value::generate_code_expr_comp_create(expression_struct *expr,
-    Ttcn::Ref_base *type, Value *name, Value *location, bool alive)
+    Ttcn::Reference *type, Value *name, Value *location, bool alive)
   {
     expr->expr = mputstr(expr->expr, "TTCN_Runtime::create_component(");
     // first two arguments: component type
@@ -16356,7 +16347,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       expr->expr = mputprintf(expr->expr, "%s", param_id.c_str());
     }
 
-    void LazyFuzzyParamData::generate_code_ap_default_ref(expression_struct *expr, Ttcn::Ref_base* ref, Scope* scope, boolean lazy) {
+    void LazyFuzzyParamData::generate_code_ap_default_ref(expression_struct *expr, Ttcn::Reference* ref, Scope* scope, boolean lazy) {
       expression_struct ref_expr;
       Code::init_expr(&ref_expr);
       ref->generate_code(&ref_expr);

@@ -79,7 +79,7 @@ namespace Ttcn {
     union {
       Value *val; ///< Value for AP_VALUE. Owned by ActualPar
       TemplateInstance *temp; ///< %Template for AP_TEMPLATE. Owned by ActualPar
-      Ref_base  *ref; ///< %Reference for AP_REF. Owned by ActualPar
+      Reference *ref; ///< %Reference for AP_REF. Owned by ActualPar
       ActualPar *act; ///< For AP_DEFAULT. \b Not owned by ActualPar
     };
     Scope *my_scope; ///< %Scope. Not owned
@@ -105,7 +105,7 @@ namespace Ttcn {
     /// Actual par for an in template parameter
     ActualPar(TemplateInstance *t);
     /// Actual par for an {out or inout} {value or template} parameter
-    ActualPar(Ref_base *r);
+    ActualPar(Reference *r);
     /// Created from the default value of a formal par, at the call site,
     ///
     ActualPar(ActualPar *a);
@@ -117,7 +117,7 @@ namespace Ttcn {
     ap_selection_t get_selection() const { return selection; }
     Value *get_Value() const;
     TemplateInstance *get_TemplateInstance() const;
-    Ref_base *get_Ref() const;
+    Reference *get_Ref() const;
     ActualPar *get_ActualPar() const;
     /** Checks the embedded recursions within the value or template instance. */
     void chk_recursions(ReferenceChain& refch);
@@ -339,19 +339,33 @@ namespace Ttcn {
    * module name or not.
    */
   class Reference : public Ref_base {
-    ActualParList *parlist;
+    /** "Processed" parameter list, after the semantic check. */
+    ActualParList* parlist;
+    /** "Raw" parameter list, before the semantic check. */
+    Ttcn::ParsedActualParameters* params;
     bool gen_const_prefix;
+    /** Used by generate_code_cached(). Stores the generated expression string, 
+      * so it doesn't get regenerated every time. */
+    char* expr_cache;
+    
+    /** Copy constructor. Private, used by Reference::clone() only */
+    Reference(const Reference& p);
   public:
     Reference(Identifier *p_id);
     Reference(Identifier *p_modid, Identifier *p_id)
-      : Ref_base(p_modid, p_id), parlist(0), gen_const_prefix(false) { }
+      : Ref_base(p_modid, p_id), parlist(NULL), params(NULL), gen_const_prefix(false), expr_cache(NULL) { }
+    Reference(Identifier *p_modid, Identifier *p_id,
+              ParsedActualParameters *p_params);
     ~Reference();
+    virtual bool has_parameters() const;
     virtual Reference *clone() const;
+    virtual void set_fullname(const string& p_fullname);
     virtual void set_my_scope(Scope* p_scope);
     virtual string get_dispname();
     virtual Common::Assignment *get_refd_assignment(bool check_parlist = true);
     virtual const Identifier* get_modid();
     virtual const Identifier* get_id();
+    virtual ActualParList *get_parlist();
     void set_gen_const_prefix() { gen_const_prefix = true; }
     /** Checks whether \a this points to a variable or value parameter.
      * Returns the type of the respective variable or variable field or NULL
@@ -360,7 +374,9 @@ namespace Ttcn {
     /** Checks if \a this points to a component.
      *  Returns the type of the component if so or NULL in case of error. */
     Type *chk_comptype_ref();
+    bool chk_activate_argument();
     virtual bool has_single_expr();
+    virtual void set_code_section(GovernedSimple::code_section_t p_code_section);
     virtual void generate_code(expression_struct_t *expr);
     /** Generates the C++ equivalent of port references within
      * connect/disconnect/map/unmap statements into \a expr.
@@ -372,70 +388,6 @@ namespace Ttcn {
      * and the referred objects are bound or not.*/
     void generate_code_ispresentboundchosen(expression_struct_t *expr,
       bool is_template, const Value::operationtype_t optype, const char* field);
-    /** Lets the referenced assignment object know, that the reference is used
-      * at least once (only relevant for formal parameters and external constants). */
-    void ref_usage_found();
-  private:
-    /** Detects whether the first identifier in subrefs is a module id */
-    void detect_modid();
-  };
-
-  /**
-   * Parameterized TTCN-3 reference
-   */
-  class Ref_pard : public Ref_base {
-    /** "Processed" parameter list, after the semantic check. */
-    ActualParList parlist;
-    /** "Raw" parameter list, before the semantic check. */
-    Ttcn::ParsedActualParameters *params;
-    /** Used by generate_code_cached(). Stores the generated expression string, 
-      * so it doesn't get regenerated every time. */
-    char* expr_cache;
-    /** Set if the module identifier also had an object identifier.
-      * (This ensures that the module identifier refers to a module, and not a
-      * possible local class object variable.) */
-    bool has_objid;
-    /** Set if this object was incorrectly created as a parameterized reference
-      * by the parser, and is actually a non-parameterized reference with a
-      * method call as its first subref (only if OOP features are enabled) */
-    bool truncated;
-    /** Points to the truncated reference, if the 'truncated' flag is set.
-      * Otherwise null. */
-    Ttcn::Reference* truncated_ref;
-    /** Copy constructor. Private, used by Ref_pard::clone() only */
-    Ref_pard(const Ref_pard& p);
-    /// %Assignment disabled
-    Ref_pard& operator=(const Ref_pard& p);
-  public:
-    /** Constructor
-     * \param p_modid the module in which it resides
-     * \param p_id the identifier
-     * \param p_params parameters. For a function, this is the list constructed
-     * for the actual parameters.
-     * */
-    Ref_pard(Identifier *p_modid, Identifier *p_id,
-             ParsedActualParameters *p_params, bool p_has_objid = true);
-    ~Ref_pard();
-    virtual Ref_pard *clone() const;
-    virtual void set_fullname(const string& p_fullname);
-    virtual void set_my_scope(Scope *p_scope);
-    string get_dispname();
-    virtual Common::Assignment *get_refd_assignment(bool check_parlist = true);
-    virtual const Identifier *get_modid();
-    virtual const Identifier *get_id();
-    virtual ActualParList *get_parlist();
-    /** Checks whether \a this is a correct argument of an activate operation
-     * or statement. The reference shall point to an altstep with proper
-     * `runs on' clause and the actual parameters that are passed by reference
-     * shall not point to local definitions. The function returns true if the
-     * altstep reference is correct and false in case of any error. */
-    bool chk_activate_argument();
-    virtual bool has_single_expr();
-    virtual void set_code_section(
-      GovernedSimple::code_section_t p_code_section);
-    virtual void generate_code          (expression_struct_t *expr);
-    virtual void generate_code_const_ref(expression_struct_t *expr);
-    
     /** Used when an 'all from' is called on a function or parametrised template,
       * generate_code would generate new temporaries for the function's parameters
       * each call. This method makes sure the same temporaries are used every time
@@ -444,6 +396,12 @@ namespace Ttcn {
       * is cached, since the preamble is only needed after the first call). 
       * On further runs the cached expression is returned.*/
     virtual void generate_code_cached (expression_struct_t *expr);
+    /** Lets the referenced assignment object know, that the reference is used
+      * at least once (only relevant for formal parameters and external constants). */
+    void ref_usage_found();
+  private:
+    /** Detects whether the first identifier in subrefs is a module id */
+    void detect_modid();
   };
 
   /**
@@ -1776,7 +1734,7 @@ namespace Ttcn {
      * the constructor has no parameters. */
     FormalParList* fp_list;
     
-    Ref_pard* base_call;
+    Reference* base_call;
     
     StatementBlock* block;
     
@@ -1787,14 +1745,14 @@ namespace Ttcn {
     /// %Assignment disabled
     Def_Constructor& operator=(const Def_Constructor& p);
   public:
-    Def_Constructor(FormalParList* p_fp_list, Ref_pard* p_base_call,
+    Def_Constructor(FormalParList* p_fp_list, Reference* p_base_call,
       StatementBlock* p_block);
     virtual ~Def_Constructor();
     virtual Def_Constructor* clone() const;
     virtual void set_fullname(const string& p_fullname);
     virtual void set_my_scope(Scope* p_scope);
     virtual FormalParList* get_FormalParList();
-    virtual Ref_pard* get_base_call() const { return base_call; }
+    virtual Reference* get_base_call() const { return base_call; }
     virtual void chk();
     virtual void generate_code(output_struct *target, bool clean_up = false);
     virtual void set_parent_path(WithAttribPath* p_path);

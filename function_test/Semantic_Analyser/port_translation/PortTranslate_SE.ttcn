@@ -116,14 +116,14 @@ module PortTranslate_SE { //^In TTCN-3 module//
 	}
 
 
-	type port PT9 message map to P8 { //^In translation capability\:// //^In type definition \`PT9\'\:// //^In type mapping\:// //^In \`function\' mapping\:// //error\: The referenced function \`\@PortTranslate_SE\.bad_int_to_char\' does not have \`prototype\' fast attribute//
-		in charstring from integer with bad_int_to_char() : integer with int_to_char()
+	type port PT9 message map to P8 { //^In translation capability\:// //^In type definition \`PT9\'\:// //^In type mapping\:// //^In \`function\' mapping\://
+		in charstring from integer with bad_int_to_char() : integer with int_to_char() //error\: The referenced function \`\@PortTranslate_SE\.bad_int_to_char\' does not have \`prototype\' fast attribute//
 		out integer
 	}
 
-	type port PT10 message map to P8 { //^In translation capability\:// //^In type definition \`PT10\'\:// //^In type mapping\:// //^In \`function\' mapping\:// //error\: The referenced function \`\@PortTranslate_SE\.bad_int_to_char\' does not have \`prototype\' fast attribute//
+	type port PT10 message map to P8 { //^In translation capability\:// //^In type definition \`PT10\'\:// //^In type mapping\:// //^In \`function\' mapping\://
 		in charstring
-		out integer to charstring with bad_int_to_char() : charstring with int_to_char()
+		out integer to charstring with bad_int_to_char() : charstring with int_to_char() //error\: The referenced function \`\@PortTranslate_SE\.bad_int_to_char\' does not have \`prototype\' fast attribute//
 	}
 
 	function bad_int_to_char(in integer a, out charstring b) {
@@ -172,8 +172,8 @@ module PortTranslate_SE { //^In TTCN-3 module//
 	}
 
 
-	type port PT13 message map to P8 { //^In translation capability\:// //^In type definition \`PT13\'\:// //^In type mapping\:// //^In \`function\' mapping\:// //^error\: Reference to a function was expected instead of external function \`\@PortTranslate_SE\.bad_char_to_int6\'//
-		in charstring from integer with bad_char_to_int6() 
+	type port PT13 message map to P8 { //^In translation capability\:// //^In type definition \`PT13\'\:// //^In type mapping\:// //^In \`function\' mapping\://                                                                                                                                
+		in charstring from integer with bad_char_to_int6() //^error\: Reference to a function was expected instead of external function \`\@PortTranslate_SE\.bad_char_to_int6\'//
 		out integer
 	}
 
@@ -182,9 +182,9 @@ module PortTranslate_SE { //^In TTCN-3 module//
 		extension "prototype(fast)"
 	}
 
-	type port PT14 message map to P8 { //^In translation capability\:// //^In type definition \`PT14\'\:// //^In type mapping\:// //^In \`function\' mapping\:// //^error\: Reference to a function was expected instead of external function \`\@PortTranslate_SE\.bad_int_to_char6\'//
+	type port PT14 message map to P8 { //^In translation capability\:// //^In type definition \`PT14\'\:// //^In type mapping\:// //^In \`function\' mapping\://
 		in charstring
-		out integer to charstring with bad_int_to_char6()
+		out integer to charstring with bad_int_to_char6() //^error\: Reference to a function was expected instead of external function \`\@PortTranslate_SE\.bad_int_to_char6\'//
 	}
 
 	external function bad_int_to_char6(in charstring a, out integer b)

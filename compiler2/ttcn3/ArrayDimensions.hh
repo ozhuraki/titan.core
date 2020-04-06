@@ -30,8 +30,6 @@ namespace Ttcn {
 
   using namespace Common;
 
-  class Ref_base;
-
   /**
    * Class to represent the index set of a TTCN-3 array dimension.
    */

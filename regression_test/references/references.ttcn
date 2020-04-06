@@ -1,0 +1,149 @@
+/******************************************************************************
+ * Copyright (c) 2000-2020 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+
+// this module tests the compiler's handling of references
+// (requires object oriented features to be enabled)
+module references {
+
+import from imp all;
+
+type component CT {}
+
+function f() return integer {
+  return 3;
+}
+
+type class Class {
+  public function f() return integer {
+    return 6;
+  }
+}
+
+// case <id>, local reference
+testcase tc_ref_simple_local() runs on CT {
+  var integer a := 1;
+  if (a == 1) {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, a);
+  }
+}
+
+// case <id>, imported reference
+testcase tc_ref_simple_imported() runs on CT {
+  if (a == 2) {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, a);
+  }
+}
+
+// case <id>(<params>), function reference
+testcase tc_ref_simple_pard() runs on CT {
+  if (f() == 3) {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, f());
+  }
+}
+
+// case <id>.<id>, field of a local record
+testcase tc_ref_double_local() runs on CT {
+  var Rec imp := { a := 4 };
+  if (imp.a == 4) {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, imp.a);
+  }
+}
+
+// case <id>.<id>, reference from a specific module
+testcase tc_ref_double_specific() runs on CT {
+  if (imp.a == 2) {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, imp.a);
+  }
+}
+
+// case <id>.<id>, field of an imported record
+testcase tc_ref_double_imported() runs on CT {
+  if (r.a == 5) {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, r.a);
+  }
+}
+
+// case <id>.objid{...}.<id>, reference from a specific module
+testcase tc_ref_double_with_objid() runs on CT {
+  var Rec imp := { a := 4 };
+  if (imp.objid{ 0 1 }.a == 2) { // note: the actual components of the objid are ignored
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, imp.objid{ 0 1 }.a);
+  }
+}
+
+// case <id>.<id>(<params>), method of a local class object
+testcase tc_ref_double_pard_local() runs on CT {
+  var Class imp := Class.create;
+  if (imp.f() == 6) {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, imp.f());
+  }
+}
+
+// case <id>.<id>(<params>), function reference from a specific module
+testcase tc_ref_double_pard_specific() runs on CT {
+  if (imp.f() == 7) {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, imp.f());
+  }
+}
+
+// case <id>.objid{...}.<id>(<params>), function reference from a specific module
+testcase tc_ref_double_pard_with_objid() runs on CT {
+  var Class imp := Class.create;
+  if (imp.objid{ 0 1 }.f() == 7) { // note: the actual components of the objid are ignored
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, imp.objid{ 0 1 }.f());
+  }
+}
+
+control {
+  execute(tc_ref_simple_local());
+  execute(tc_ref_simple_imported());
+  execute(tc_ref_simple_pard());
+  execute(tc_ref_double_local());
+  execute(tc_ref_double_specific());
+  execute(tc_ref_double_imported());
+  execute(tc_ref_double_with_objid());
+  execute(tc_ref_double_pard_local());
+  execute(tc_ref_double_pard_specific());
+  execute(tc_ref_double_pard_with_objid());
+}
+
+}

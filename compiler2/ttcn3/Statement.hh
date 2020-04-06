@@ -370,7 +370,7 @@ namespace Ttcn {
             TemplateInstance *donematch;
             ValueRedirect *redirect;
           } donereturn; /**< used if S_DONE and compref!=0 */
-          Ref_base *funcinstref; /**< used if S_START_COMP */
+          Reference *funcinstref; /**< used if S_START_COMP */
           struct {/** used if S_START_COMP_REFD */
             Value *value;
             union {
@@ -391,7 +391,7 @@ namespace Ttcn {
       AltGuards *ags;    ///< used by S_ALT and S_INTERLEAVE
 
       struct {
-        Ref_pard *tcref;
+        Reference *tcref;
         Value *timerval;
       } testcase_inst;
 
@@ -404,7 +404,7 @@ namespace Ttcn {
         Value *timerval;
       } execute_refd;
 
-      Ref_pard *ref_pard;
+      Reference *ref_pard;
 
       struct {
         Value *value;
@@ -480,7 +480,7 @@ namespace Ttcn {
       } brk_cnt; // break or continue
 
       struct {
-        Ref_base *ref;
+        Reference *ref;
         Value *val;
       } undefstartstop;
 
@@ -513,11 +513,12 @@ namespace Ttcn {
     /** Constructor used by S_ERROR, S_STOP_EXEC and S_REPEAT, S_BREAK,
      *  S_CONTINUE, S_START_PROFILER and S_STOP_PROFILER */
     Statement(statementtype_t p_st);
-    /** Constructor used by S_START_UNDEF and S_STOP_UNDEF */
-    Statement(statementtype_t p_st, Ref_base *p_ref, Value *p_val);
+    /** Constructor used by S_START_UNDEF S_STOP_UNDEF and S_TESTCASE_INSTANCE */
+    Statement(statementtype_t p_st, Reference *p_ref, Value *p_val);
     /** Constructor used by S_FUNCTION_INSTANCE, S_ALTSTEP_INSTANCE,
-     *  S_UNKNOWN_INSTANCE, S_ACTIVATE */
-    Statement(statementtype_t p_st, Ref_pard *p_ref);
+     *  S_UNKNOWN_INSTANCE, S_ACTIVATE, S_CLEAR, S_START_PORT and S_STOP_PORT.
+     *  p_ref==0 means all port. S_STOP_TIMER (p_ref==0: all timer) */
+    Statement(statementtype_t p_st, Reference *p_ref);
     /** S_ACTIVATE_REFD , S_FUNCTION_INSTANCE_REFD */
     Statement(statementtype_t p_st, Value *p_derefered_value,
               ParsedActualParameters *p_ap_list);
@@ -603,14 +604,9 @@ namespace Ttcn {
     Statement(statementtype_t p_st, Reference *p_ref, bool p_anyfrom,
               TemplateInstance *p_fromclause, Reference *p_redirectsender,
               Reference* p_redirectindex, Reference* p_timestamp_redirect);
-    /** Constructor used by S_CLEAR, S_START_PORT and S_STOP_PORT.
-     *  p_ref==0 means all port. S_STOP_TIMER (p_ref==0: all timer). */
-    Statement(statementtype_t p_st, Reference *p_ref);
     /** Constructor used by S_TIMEOUT (p_ref==0: any timer)*/
     Statement(statementtype_t p_st, Reference *p_ref, bool p_any_from,
               Reference* p_redirectindex);
-    /** Constructor used by S_START_COMP */
-    Statement(statementtype_t p_st, Value *p_compref, Ref_pard *p_funcinst);
     /** Constructor used by S_START_COMP_REFD */
     Statement(statementtype_t p_st, Value *p_compref, Value *p_derefered_value,
               ParsedActualParameters *p_ap_list);
@@ -625,12 +621,10 @@ namespace Ttcn {
               Value *p_compref1, Reference *p_portref1,
               Value *p_compref2, Reference *p_portref2,
               ParsedActualParameters* p_params);
-    /** Constructor used by S_TESTCASE_INSTANCE */
-    Statement(statementtype_t p_st, Ref_pard *p_ref, Value *p_val);
     /** Constructor used by S_ACTIVATE_REFD */
     Statement(statementtype_t p_st, Value *p_derefered_value,
                TemplateInstances *p_ap_list, Value *p_val);
-    /** Constructor used by S_STRING2TTCN, S_INT2ENUM */
+    /** Constructor used by S_STRING2TTCN, S_INT2ENUM and S_START_COMP */
     Statement(statementtype_t p_st, Value* p_val, Reference* p_ref);
     /** Constructor used by S_UPDATE */
     Statement(statementtype_t p_st, Reference* p_ref, MultiWithAttrib* p_attrib);
@@ -1268,7 +1262,7 @@ namespace Ttcn {
     union {
       TemplateInstance *ti; ///< used by L_UNDEF and L_TI
       Value *val;           ///< used by L_VAL, L_MATCH, L_MACRO
-      Ref_base *ref;        ///< used by L_REF
+      Reference *ref;        ///< used by L_REF
       string *cstr;         ///< used by L_STR
     };
 
@@ -1283,7 +1277,7 @@ namespace Ttcn {
     logargtype_t get_type() const { return logargtype; }
     const string&     get_str() const;
     Value            *get_val() const;
-    Ref_base         *get_ref() const;
+    Reference        *get_ref() const;
     TemplateInstance *get_ti () const;
     /** Appends the string \a p_str to \a cstr. Applicable only if
      * \a logargtype is L_STR. */
@@ -1591,7 +1585,7 @@ namespace Ttcn {
     altguardtype_t altguardtype;
     Value *expr; /**< conditional expression */
     union {
-      Ref_pard *ref;
+      Reference *ref;
       Statement *stmt;
       void *dummy;
       struct {
@@ -1608,7 +1602,7 @@ namespace Ttcn {
     /** Constructor used by AG_OP */
     AltGuard(Value *p_expr, Statement *p_stmt, StatementBlock *p_block);
     /** Constructor used by AG_REF */
-    AltGuard(Value *p_expr, Ref_pard *p_ref, StatementBlock *p_block);
+    AltGuard(Value *p_expr, Reference *p_ref, StatementBlock *p_block);
     /** Constructor used by AG_INVOKE */
     AltGuard(Value *p_expr,  Value *p_v,
       Ttcn::TemplateInstances *p_t_list, StatementBlock *p_block);
@@ -1621,7 +1615,7 @@ namespace Ttcn {
     virtual void set_fullname(const string& p_fullname);
     altguardtype_t get_type() const { return altguardtype; }
     Value *get_guard_expr() const;
-    Ref_pard *get_guard_ref() const;
+    Reference *get_guard_ref() const;
     Statement *get_guard_stmt() const;
     StatementBlock *get_block() const { return block; }
     void set_my_def(Definition *p_def);

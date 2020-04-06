@@ -3224,7 +3224,7 @@ namespace Ttcn {
     
     if (constructor == NULL) {
       // create a default constructor
-      Ref_pard* base_call = NULL;
+      Reference* base_call = NULL;
       FormalParList* fp_list = NULL;
       if (base_type != NULL) {
         ClassTypeBody* base_class = base_type->get_type_refd_last()->
@@ -3243,7 +3243,7 @@ namespace Ttcn {
           TemplateInstance* ti = new TemplateInstance(NULL, NULL, temp);
           parsed_ap_list->add_ti(ti);
         }
-        base_call = new Ref_pard(base_class->get_scope_mod()->get_modid().clone(),
+        base_call = new Reference(base_class->get_scope_mod()->get_modid().clone(),
           base_class->get_id()->clone(), parsed_ap_list);
       }
       else {
@@ -3318,7 +3318,7 @@ namespace Ttcn {
       char* formal_par_list_str = NULL;
       expression_struct_t base_call_expr;
       Code::init_expr(&base_call_expr);
-      Ref_pard* base_call = constructor->get_base_call();
+      Reference* base_call = constructor->get_base_call();
       if (base_call != NULL) {
         base_call->generate_code(&base_call_expr);
       }

@@ -1,0 +1,7 @@
+references
+references.exe
+references*.cc
+references*.hh
+imp*.cc
+imp*.hh
+references*.log

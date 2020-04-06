@@ -42,7 +42,6 @@ namespace Asn {
 
 namespace Ttcn {
   class Reference;
-  class Ref_base;
   class TemplateInstance;
   class TemplateInstances;
   class ActualParList;
@@ -346,7 +345,7 @@ namespace Common {
           Value *v1;
           Template *t1;
           TemplateInstance *ti1;
-          Ttcn::Ref_base *r1; /**< timer, component or class */
+          Ttcn::Reference *r1; /**< timer, component or class */
           LogArguments *logargs; /**< arguments of log2str() */
           Type* type;
         };
@@ -356,7 +355,7 @@ namespace Common {
           Identifier *i2;
           Ttcn::ParsedActualParameters *t_list2;
           Ttcn::ActualParList *ap_list2;
-          Ttcn::Ref_base *r2;
+          Ttcn::Reference *r2;
           Ttcn::FieldOrArrayRefs* subrefs2;
         };
         Value *v3;
@@ -424,16 +423,16 @@ namespace Common {
     /** Constructor used by V_EXPR "v1" or [v1] */
     Value(operationtype_t p_optype, Value *p_v1);
     /** Constructor used bt V_EXPR "v1 [r2] b4": COMP_RUNNING, COMP_ALIVE */
-    Value(operationtype_t p_optype, Value* p_v1, Ttcn::Ref_base* p_r2, bool p_b4);
+    Value(operationtype_t p_optype, Value* p_v1, Ttcn::Reference* p_r2, bool p_b4);
     /** Constructor used by V_EXPR "ti1": LENGTHOF, SIZEOF, VALUEOF, TTCN2STRING */
     Value(operationtype_t p_optype, TemplateInstance *p_ti1);
     /** Constructor used by V_EXPR "ti1 subrefs2": VALUEOF */
     Value(operationtype_t p_optype, TemplateInstance *p_ti1,
       Ttcn::FieldOrArrayRefs* p_subrefs2);
     /** Constructor used by V_EXPR "r1": TMR_READ, ACTIVATE */
-    Value(operationtype_t p_optype, Ttcn::Ref_base *p_r1);
+    Value(operationtype_t p_optype, Ttcn::Reference *p_r1);
     /** Constructor used by V_EXPR "r1 [r2] b4": UNDEF_RUNNING */
-    Value(operationtype_t p_optype, Ttcn::Ref_base* p_r1, Ttcn::Ref_base* p_r2,
+    Value(operationtype_t p_optype, Ttcn::Reference* p_r1, Ttcn::Reference* p_r2,
       bool p_b4);
     /** ACTIVATE_REFD, OPTYPE_INVOKE, OPTYPE_COMP_ALIVE_REFD */
     Value(operationtype_t p_optype, Value *p_v1,
@@ -442,9 +441,9 @@ namespace Common {
     Value(operationtype_t p_optype, Value *p_v1,
       Ttcn::ParsedActualParameters *p_t_list2, Value *p_v3);
     /** Constructor used by V_EXPR "r1 [v2]": EXECUTE or [r1] v2 */
-    Value(operationtype_t p_optype, Ttcn::Ref_base *p_r1, Value *v2);
+    Value(operationtype_t p_optype, Ttcn::Reference *p_r1, Value *v2);
     /** Constructor used by V_EXPR "r1 t_list2 b4": UNDEF_CREATE */
-    Value(operationtype_t p_optype, Ttcn::Ref_base *p_r1,
+    Value(operationtype_t p_optype, Ttcn::Reference *p_r1,
       Ttcn::ParsedActualParameters* p_t_list2, bool p_b4);
     /** Constructor used by V_EXPR "v1 v2" */
     Value(operationtype_t p_optype, Value *p_v1, Value *p_v2);
@@ -476,14 +475,14 @@ namespace Common {
     Value(valuetype_t p_vt, Block *p_block);
     Value(valuetype_t p_vt, verdict_t p_verdict);
     /** Constructor used by decode */
-    Value(operationtype_t p_optype, Ttcn::Ref_base *p_r1, Ttcn::Ref_base *p_r2);
+    Value(operationtype_t p_optype, Ttcn::Reference *p_r1, Ttcn::Reference *p_r2);
     /** Constructor used by decvalue_unichar*/
-    Value(operationtype_t p_optype, Ttcn::Ref_base *p_r1, Ttcn::Ref_base *p_r2, Value *p_v3);
+    Value(operationtype_t p_optype, Ttcn::Reference *p_r1, Ttcn::Reference *p_r2, Value *p_v3);
     /** Constructor used by V_EXPR "r1 r2 v3 v4" */
-    Value(operationtype_t p_optype, Ttcn::Ref_base *p_r1, Ttcn::Ref_base *p_r2,
+    Value(operationtype_t p_optype, Ttcn::Reference *p_r1, Ttcn::Reference *p_r2,
       Value *p_v3, Value* p_v4);
     /** Constructor used by V_EXPR "r1 r2 v3 v4 v5" */
-    Value(operationtype_t p_optype, Ttcn::Ref_base* p_r1, Ttcn::Ref_base* p_r2,
+    Value(operationtype_t p_optype, Ttcn::Reference* p_r1, Ttcn::Reference* p_r2,
       Value* p_v3, Value* p_v4, Value* p_v5);
     /** Constructor used by V_ANY_VALUE and V_ANY_OR_OMIT */
     Value(valuetype_t p_vt, Ttcn::LengthRestriction* p_len_res);
@@ -614,8 +613,8 @@ namespace Common {
                                       const char *opnum1 = "left",
                                       const char *opnum2 = "right");
     void chk_expr_operand_undef_running(Type::expected_value_t exp_val,
-                                        Ttcn::Ref_base *ref, bool any_from,
-                                        Ttcn::Ref_base* index_ref,
+                                        Ttcn::Reference *ref, bool any_from,
+                                        Ttcn::Reference* index_ref,
                                         const char *opnum, const char *opname);
     /** Returns the referred component or class type if it is correct. */
     Type *chk_expr_operand_undef_create();
@@ -624,16 +623,16 @@ namespace Common {
     void chk_expr_comptype_compat();
     Type* chk_expr_operand_compref(Value *val, const char *opnum,
                                   const char *opname, bool any_from = false);
-    void chk_expr_operand_tmrref(Ttcn::Ref_base *ref,
+    void chk_expr_operand_tmrref(Ttcn::Reference *ref,
                                  const char *opnum, const char *opname,
                                  bool any_from = false);
-    void chk_expr_operand_activate(Ttcn::Ref_base *ref,
+    void chk_expr_operand_activate(Ttcn::Reference *ref,
                                    const char *opnum, const char *opname);
     void chk_expr_operand_activate_refd(Value *val,
                                         Ttcn::TemplateInstances* t_list2,
                                         Ttcn::ActualParList *&parlist,
                                         const char *opnum, const char *opname);
-    void chk_expr_operand_execute(Ttcn::Ref_base *ref, Value *val,
+    void chk_expr_operand_execute(Ttcn::Reference *ref, Value *val,
                                   const char *opnum, const char *opname);
     void chk_expr_operand_execute_refd(Value *v1,
                                        Ttcn::TemplateInstances* t_list2,
@@ -812,7 +811,6 @@ namespace Common {
     /** Usable during AST building. If VariableRef is needed, then use
      *  the return value of this function, then delete this. */
     Ttcn::Reference* steal_ttcn_ref();
-    Ttcn::Ref_base* steal_ttcn_ref_base();
     void steal_invoke_data(Value*& p_v, Ttcn::ParsedActualParameters*& p_ti,
                           Ttcn::ActualParList*& p_ap);
     Common::Assignment* get_refd_assignment();
@@ -824,7 +822,7 @@ namespace Common {
     void chk_recursions(ReferenceChain& refch);
     /** Checks for circular references within embedded expressions */
     void chk_recursions_expr(ReferenceChain& refch);
-    void chk_recursions_expr_decode(Ttcn::Ref_base* ref, ReferenceChain& refch);
+    void chk_recursions_expr_decode(Ttcn::Reference* ref, ReferenceChain& refch);
     /** Check that the value (a V_EXPR) - being used as the RHS - refers to
      *  the LHS of the assignment.
      *  @return true if self-assignment*/
@@ -957,11 +955,11 @@ namespace Common {
     /** Helper function for \a generate_code_expr_expr(). It handles
      *  create() for classes. */
     static void generate_code_expr_class_create(expression_struct* expr,
-      Ttcn::Ref_base* type, Ttcn::ActualParList* ap_list);
+      Ttcn::Reference* type, Ttcn::ActualParList* ap_list);
     /** Helper function for \a generate_code_expr_expr(). It handles
      *  create() for components. */
     static void generate_code_expr_comp_create(expression_struct *expr,
-      Ttcn::Ref_base *type, Value *name, Value *location, bool alive);
+      Ttcn::Reference *type, Value *name, Value *location, bool alive);
     /** Helper function for \a generate_code_expr_expr(). It handles
      *  activate(). */
     void generate_code_expr_activate(expression_struct *expr);
@@ -1097,7 +1095,7 @@ namespace Common {
     static void generate_code(expression_struct *expr, Value* value, Scope* scope, boolean lazy);
     static void generate_code(expression_struct *expr, TemplateInstance* temp, template_restriction_t gen_restriction_check, Scope* scope, boolean lazy);
     static void generate_code_param_class(expression_struct *expr, expression_struct& param_expr, const string& param_id, const string& type_name, boolean lazy);
-    static void generate_code_ap_default_ref(expression_struct *expr, Ttcn::Ref_base* ref, Scope* scope, boolean lazy);
+    static void generate_code_ap_default_ref(expression_struct *expr, Ttcn::Reference* ref, Scope* scope, boolean lazy);
     static void generate_code_ap_default_value(expression_struct *expr, Value* value, Scope* scope, boolean lazy);
     static void generate_code_ap_default_ti(expression_struct *expr, TemplateInstance* ti, Scope* scope, boolean lazy);
   };

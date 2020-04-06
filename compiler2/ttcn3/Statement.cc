@@ -773,7 +773,7 @@ namespace Ttcn {
     } // switch statementtype
   }
 
-  Statement::Statement(statementtype_t p_st, Ref_base *p_ref, Value *p_val)
+  Statement::Statement(statementtype_t p_st, Reference *p_ref, Value *p_val)
     : statementtype(p_st), my_sb(0)
   {
     switch(statementtype) {
@@ -787,12 +787,18 @@ namespace Ttcn {
       undefstartstop.ref=p_ref;
       undefstartstop.val=0;
       break;
+    case S_TESTCASE_INSTANCE:
+      if(!p_ref)
+        FATAL_ERROR("Statement::Statement()");
+      testcase_inst.tcref=p_ref;
+      testcase_inst.timerval=p_val;
+      break;
     default:
       FATAL_ERROR("Statement::Statement()");
     } // switch statementtype
   }
 
-  Statement::Statement(statementtype_t p_st, Ref_pard *p_ref)
+  Statement::Statement(statementtype_t p_st, Reference *p_ref)
     : statementtype(p_st), my_sb(0)
   {
     switch(statementtype) {
@@ -803,6 +809,15 @@ namespace Ttcn {
       if(!p_ref)
         FATAL_ERROR("Statement::Statement()");
       ref_pard=p_ref;
+      break;
+    case S_CLEAR:
+    case S_START_PORT:
+    case S_STOP_PORT:
+    case S_HALT:
+      port_op.portref=p_ref;
+      break;
+    case S_STOP_TIMER:
+      timer_op.timerref=p_ref;
       break;
     default:
       FATAL_ERROR("Statement::Statement()");
@@ -1320,24 +1335,6 @@ namespace Ttcn {
       FATAL_ERROR("Statement::Statement()");
     } // switch statementtype
   }
-
-  Statement::Statement(statementtype_t p_st, Reference *p_ref)
-    : statementtype(p_st), my_sb(0)
-  {
-    switch(statementtype) {
-    case S_CLEAR:
-    case S_START_PORT:
-    case S_STOP_PORT:
-    case S_HALT:
-      port_op.portref=p_ref;
-      break;
-    case S_STOP_TIMER:
-      timer_op.timerref=p_ref;
-      break;
-    default:
-      FATAL_ERROR("Statement::Statement()");
-    } // switch statementtype
-  }
   
   Statement::Statement(statementtype_t p_st, Reference *p_ref, bool p_any_from,
                        Reference* p_redirectindex)
@@ -1349,22 +1346,6 @@ namespace Ttcn {
     timer_op.timerref = p_ref;
     timer_op.any_from = p_any_from;
     timer_op.index_redirect = p_redirectindex;
-  }
-
-  Statement::Statement(statementtype_t p_st, Value *p_compref,
-                       Ref_pard *p_funcinst)
-    : statementtype(p_st), my_sb(0)
-  {
-    switch(statementtype) {
-    case S_START_COMP:
-      if(!p_compref || !p_funcinst)
-        FATAL_ERROR("Statement::Statement()");
-      comp_op.compref = p_compref;
-      comp_op.funcinstref = p_funcinst;
-      break;
-    default:
-      FATAL_ERROR("Statement::Statement()");
-    } // switch statementtype
   }
 
   Statement::Statement(statementtype_t p_st, Value *p_compref,
@@ -1448,21 +1429,6 @@ namespace Ttcn {
     } // switch statementtype
   }
 
-  Statement::Statement(statementtype_t p_st, Ref_pard *p_ref, Value *p_val)
-    : statementtype(p_st), my_sb(0)
-  {
-    switch(statementtype) {
-    case S_TESTCASE_INSTANCE:
-      if(!p_ref)
-        FATAL_ERROR("Statement::Statement()");
-      testcase_inst.tcref=p_ref;
-      testcase_inst.timerval=p_val;
-      break;
-    default:
-      FATAL_ERROR("Statement::Statement()");
-    } // switch statementtype
-  }
-
   Statement::Statement(statementtype_t p_st, Value *p_derefered_value,
                         TemplateInstances *p_ap_list, Value *p_val)
     : statementtype(p_st), my_sb(0)
@@ -1490,6 +1456,13 @@ namespace Ttcn {
       }
       convert_op.val = p_val;
       convert_op.ref = p_ref;
+      break;
+    case S_START_COMP:
+      if (p_val==NULL || p_ref==NULL) {
+        FATAL_ERROR("Statement::Statement()");
+      }
+      comp_op.compref = p_val;
+      comp_op.funcinstref = p_ref;
       break;
     default:
       FATAL_ERROR("Statement::Statement()");
@@ -3045,7 +3018,7 @@ namespace Ttcn {
 
   void Statement::chk_start_undef()
   {
-    Ref_base *t_ref = undefstartstop.ref;
+    Reference *t_ref = undefstartstop.ref;
     Value *t_val = undefstartstop.val;
     Common::Assignment *t_ass;
     {
@@ -3092,7 +3065,7 @@ namespace Ttcn {
 	  "although it cannot be a start timer or start port operation");
 	goto error;
       } else {
-        comp_op.funcinstref = t_val->steal_ttcn_ref_base();
+        comp_op.funcinstref = t_val->steal_ttcn_ref();
 	delete t_val;
       }
       comp_op.compref = new Value(Value::V_REFD, t_ref);
@@ -3116,7 +3089,7 @@ namespace Ttcn {
 
   void Statement::chk_stop_undef()
   {
-    Ref_base *t_ref = undefstartstop.ref;
+    Reference *t_ref = undefstartstop.ref;
     Common::Assignment *t_ass;
     {
       Error_Context cntxt(this, "In stop statement");
@@ -5214,7 +5187,7 @@ error:
   void Statement::chk_execute()
   {
     Error_Context cntxt(this, "In execute statement");
-    Ref_pard *ref=testcase_inst.tcref;
+    Reference *ref=testcase_inst.tcref;
     Common::Assignment *t_ass=ref->get_refd_assignment();
     if(!t_ass) goto error;
     if(t_ass->get_asstype()!=Common::Assignment::A_TESTCASE) {
@@ -11446,7 +11419,7 @@ error:
     return val;
   }
 
-  Ref_base *LogArgument::get_ref() const
+  Reference *LogArgument::get_ref() const
   {
     if (logargtype != L_REF) FATAL_ERROR("LogArgument::get_ref()");
     return ref;
@@ -11576,7 +11549,7 @@ error:
       logargtype = L_STR;
       return; }
     case Value::V_REFD: {
-      Ref_base *t_ref = val->steal_ttcn_ref_base();
+      Reference *t_ref = val->steal_ttcn_ref();
       delete val;
       ref = t_ref;
       logargtype = L_REF;
@@ -12863,7 +12836,7 @@ error:
     if (!p_stmt || !p_block) FATAL_ERROR("AltGuard::AltGuard()");
   }
 
-  AltGuard::AltGuard(Value *p_expr, Ref_pard *p_ref, StatementBlock *p_block)
+  AltGuard::AltGuard(Value *p_expr, Reference *p_ref, StatementBlock *p_block)
     : altguardtype(AG_REF), expr(p_expr), ref(p_ref), block(p_block)
   {
     if (!p_ref) FATAL_ERROR("AltGuard::AltGuard()");
@@ -13003,7 +12976,7 @@ error:
     return expr;
   }
 
-  Ref_pard *AltGuard::get_guard_ref() const
+  Reference *AltGuard::get_guard_ref() const
   {
     if (altguardtype != AG_REF) FATAL_ERROR("AltGuard::get_guard_ref()");
     return ref;
@@ -13489,7 +13462,7 @@ error:
           break; }
         case AltGuard::AG_REF: {
           // the guard operation is an altstep instance
-          Ref_pard *ref = ag->get_guard_ref();
+          Reference *ref = ag->get_guard_ref();
           str = ref->update_location_object(str);
           Common::Assignment *altstep = ref->get_refd_assignment();
           expr.expr = mputprintf(expr.expr, "%s_instance(",
@@ -13618,7 +13591,7 @@ error:
         break; }
       case AltGuard::AG_REF: {
         // the guard operation is an altstep instance
-        Ref_pard *ref = ag->get_guard_ref();
+        Reference *ref = ag->get_guard_ref();
         str = ref->update_location_object(str);
         Common::Assignment *altstep = ref->get_refd_assignment();
         expr.expr = mputprintf(expr.expr, "%s_instance(",

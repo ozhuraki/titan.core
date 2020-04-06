@@ -93,7 +93,7 @@ namespace Ttcn {
        *  types */
       Value *specific_value;
       struct {
-        Ref_base *ref;
+        Reference *ref;
 	Template *refd; /**< cache */
         Template *refd_last; /**< cache */
       } ref;
@@ -187,7 +187,7 @@ namespace Ttcn {
     Template(Value *v);
 
     /** Constructor for TEMPLATE_REFD */
-    Template(Ref_base *p_ref);
+    Template(Reference *p_ref);
 
     /** Constructor for TEMPLATE_LIST, VALUE_LIST, COMPLEMENTED_LIST,
      * SUPERSET_MATCH, SUBSET_MATCH and PERMUTATION_MATCH */
@@ -279,7 +279,7 @@ namespace Ttcn {
     void add_named_temp(NamedTemplate* nt);
 
     Value *get_specific_value() const;
-    Ref_base *get_reference() const;
+    Reference *get_reference() const;
     ValueRange *get_value_range() const;
     PatternString* get_cstr_pattern() const;
     PatternString* get_ustr_pattern() const;
@@ -350,7 +350,7 @@ namespace Ttcn {
     /** Converts the template to a reference. The returned reference
      *  is newly allocated (i.e. the caller is responsible for the
      *  deallocation). */
-    Ref_base *get_Ref();
+    Reference *get_Ref();
 
     /** Checks for circular references within embedded templates */
     void chk_recursions(ReferenceChain& refch);
@@ -385,7 +385,7 @@ namespace Ttcn {
     /** if a template has restriction \a tr then what is the restriction
         on it's subfields */
     static template_restriction_t get_sub_restriction(
-      template_restriction_t tr, Ref_base* ref);
+      template_restriction_t tr, Reference* ref);
     /** returns C++ code that checks the restriction */
     static char* generate_restriction_check_code(char* str,
       const char* name, template_restriction_t tr);
@@ -535,9 +535,9 @@ namespace Ttcn {
    */
   class TemplateInstance : public Node, public Location {
   private: // all pointers owned
-    Type     *type; // type before the colon, may be null
-    Ref_base *derived_reference; // base template, may be null
-    Template *template_body; // must not be null
+    Type      *type; // type before the colon, may be null
+    Reference *derived_reference; // base template, may be null
+    Template  *template_body; // must not be null
     char* last_gen_expr; // last expression generated from this template instance
     // (used if this template needs to be used multiple times)
 
@@ -552,16 +552,16 @@ namespace Ttcn {
      * @param p_ref  reference to the base template (for a modified template)
      * @param p_body template body (must not be NULL)
      */
-    TemplateInstance(Type *p_type, Ref_base *p_ref, Template *p_body);
+    TemplateInstance(Type *p_type, Reference *p_ref, Template *p_body);
     ~TemplateInstance();
 
     virtual TemplateInstance *clone() const;
     virtual void set_fullname(const string& p_fullname);
     virtual void set_my_scope(Scope *p_scope);
 
-    Type*     get_Type()       const { return type; }
-    Ref_base* get_DerivedRef() const { return derived_reference; }
-    Template* get_Template()   const { return template_body; }
+    Type*      get_Type()       const { return type; }
+    Reference* get_DerivedRef() const { return derived_reference; }
+    Template*  get_Template()   const { return template_body; }
     char* get_last_gen_expr()  const { return last_gen_expr; }
     // it can return null pointer
     Def_Template* get_Referenced_Base_Template();

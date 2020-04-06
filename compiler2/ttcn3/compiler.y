@@ -198,8 +198,6 @@ static const string anyname("anytype");
   TemplateInstances *templinsts;
   Templates *templs;
   Ttcn::Assignment *ass;
-  Ttcn::Ref_base *refbase;
-  Ttcn::Ref_pard *refpard;
   Ttcn::Reference *reference;
   ValueRange *valuerange;
   Type *type;
@@ -330,14 +328,14 @@ static const string anyname("anytype");
   } fieldormethod;
 
   struct {
-    Ttcn::Ref_pard *ref_pard;
+    Ttcn::Reference *ref_pard;
     Value *derefered_value;
     ParsedActualParameters *ap_list;
     Value *value;
   } testcaseinst;
 
   struct {
-    Ttcn::Ref_pard *ref_pard;
+    Ttcn::Reference *ref_pard;
     Value *derefered_value;
     TemplateInstances *ap_list;
   } activateop;
@@ -1060,9 +1058,9 @@ static const string anyname("anytype");
 %type <templs> ValueOrAttribList seqValueOrAttrib ValueList Complement
   ArrayElementSpecList SubsetMatch SupersetMatch PermutationMatch
 %type <ass> Assignment Step
-%type <refbase> DerivedRefWithParList TemplateRefWithParList DecValueArg
-%type <refpard> FunctionInstance AltstepInstance optBaseConstructorCall
-%type <reference> PortType optDerivedDef DerivedDef IndexSpec Signature
+%type <reference> DerivedRefWithParList TemplateRefWithParList DecValueArg
+  FunctionInstance AltstepInstance optBaseConstructorCall
+  PortType optDerivedDef DerivedDef IndexSpec Signature
   VariableRef TimerRef Port PortOrAll ValueStoreSpec
   SenderSpec ComponentType optRunsOnSpec RunsOnSpec optSystemSpec optPortSpec
   optMtcSpec TimestampSpec optPortRedirectOutgoing
@@ -1948,12 +1946,12 @@ optDecodedModifier
 %left '*' '/' ModKeyword RemKeyword
 %left UnarySign
 
-%expect 69
+%expect 68
 
 %start GrammarRoot
 
 /*
-XXX Source of conflicts (69 S/R):
+XXX Source of conflicts (68 S/R):
 
 1.) 10 conflicts in one state
 The Expression after 'return' keyword is optional in ReturnStatement.
@@ -1961,13 +1959,12 @@ For 10 tokens the parser cannot decide whether the token is a part of
 the return expression (shift) or it is the beginning of the next statement
 (reduce).
 
-2.) 11 distinct states, each with one conflict caused by token '['
+2.) 10 distinct states, each with one conflict caused by token '['
 The local definitions in altsteps can be followed immediately by the guard
 expression. When the parser sees the '[' token it cannot decide whether it
 belongs to the local definition as array dimension or array subreference
 (shift) or it is the beginning of the first guard expression (reduce).
 The situations are the following:
-- var t v := ref <here> [
 - var t v := ref[subref] <here> [
 - var t v := ref.integer <here> [
 - var t v := ref.subref <here> [
@@ -1975,7 +1972,7 @@ The situations are the following:
 - var t v <here> [
 - var t v := ref.objid{...}.subref <here> [
 - var template t v <here> [
-- var t v := function(...)<subrefs> <here> [
+- var t v := ref.function(...)<subrefs> <here> [
 - var template t v := decmatch (...) ref <here> [
 - var t v := valueof(...)<subrefs> <here> [
 
@@ -2006,7 +2003,7 @@ In the current version when the compiler finds '(' SingleExpression . ')'
 it can not decide if it should resolve to a SingleValueOrAttrib or to a SingleExpression.
 Shift is fine as single element list can be resolved via SingleValueOrAttrib too.
 
-9.) 4 conflicts in 4 states
+9.) 3 conflicts in 3 states
 In the rules for 'running' and 'alive' operations with the 'any from' clause,
 the redirect operator ("->") after the 'running' or 'alive' keyword can be the
 start of the operation's index redirect (shift) or another expression that starts
@@ -2027,6 +2024,17 @@ instead of the concatenation result, which is the expected behavior.
 
 12.) 1 conflict in PortDefLists
 PortElementVarDef contains optSemicolon which causes 1 conflict
+
+13.) 1 conflict
+In the rules for object identifier components the round brackets ("(") after
+an identifier can indicate a NameAndNumberForm component (shift), or a NumberForm
+component containing a reference to a function (reduce).
+This conflict was introduced when function calls were merged into the Reference
+rule, and using function calls as objid components wasn't possible before anyway,
+so this conflict didn't change anything in the compiler's behavior.
+ex.: 'a(1)' is treated as the objid component with name 'a' and number '1' (shift),
+instead of the component with the number returned by function 'a' with '1' as
+its parameter (reduce).
 
 Note that the parser implemented by bison always chooses to shift instead of
 reduce in case of conflicts.
@@ -3243,16 +3251,32 @@ FormalValueParList:
 ;
 
 WithList:
-  Type WithKeyword FunctionRef '(' optError ')'
+  Type WithKeyword Reference
   {
     $$ = new TypeMappingTargets();
-    Ttcn::Reference *func_ref = new Ttcn::Reference($3.modid, $3.id);
+    Ttcn::Reference *func_ref;
+    if ($3.is_ref) {
+      func_ref = $3.ref;
+    }
+    else {
+      func_ref = new Ttcn::Reference($3.id);
+      func_ref->set_location(infile, @3);
+    }
+    func_ref->set_location(infile, @3);
     TypeMappingTarget * tm = new TypeMappingTarget($1, TypeMappingTarget::TM_FUNCTION, func_ref);
     $$->add_target(tm);
   }
-| WithList ':' optError Type WithKeyword FunctionRef '(' optError ')'
+| WithList ':' optError Type WithKeyword Reference
   {
-    Ttcn::Reference *func_ref = new Ttcn::Reference($6.modid, $6.id);
+    Ttcn::Reference *func_ref;
+    if ($6.is_ref) {
+      func_ref = $6.ref;
+    }
+    else {
+      func_ref = new Ttcn::Reference($6.id);
+      func_ref->set_location(infile, @6);
+    }
+    func_ref->set_location(infile, @6);
     TypeMappingTarget * tm = new TypeMappingTarget($4, TypeMappingTarget::TM_FUNCTION, func_ref);
     $$ = $1;
     $$->add_target(tm);
@@ -3643,8 +3667,17 @@ ConstructorDef:
 ;
 
 optBaseConstructorCall:
-  /* empty */          { $$ = NULL; }
-| ':' FunctionInstance { $$ = $2; }
+  /* empty */   { $$ = NULL; }
+| ':' Reference
+  {
+    if ($2.is_ref) {
+      $$ = $2.ref;
+    }
+    else {
+      $$ = new Ttcn::Reference($2.id);
+      $$->set_location(infile, @2);
+    }
+  }
 ;
 
 
@@ -3913,14 +3946,14 @@ StructFieldRef: // 106 (and 107. ParRef)
 /*  | TypeReference
 Note: Non-parameterized type references are covered by (StructField)Identifier.
       Parameterized type references are covered by FunctionInstance */
-| FunctionInstance
+/*| FunctionInstance      TODO: handle later...
   {
     Location loc(infile, @$);
     loc.error("Reference to a parameterized field of type `anytype' is "
       "not currently supported");
     delete $1;
     $$ = new Identifier(Identifier::ID_TTCN, string("<error>"));
-  }
+  }*/
 ;
 
 ArraySpecList:
@@ -4330,7 +4363,7 @@ TemplateRefWithParList: /* refbase */ // 153 ?
   TemplateRef optTemplateActualParList
   {
     if ($2) {
-      $$ = new Ttcn::Ref_pard($1.modid, $1.id, new ParsedActualParameters($2));
+      $$ = new Ttcn::Reference($1.modid, $1.id, new ParsedActualParameters($2));
       $$->set_location(infile, @$);
     } else {
       $$ = new Ttcn::Reference($1.modid, $1.id);
@@ -4678,7 +4711,7 @@ FunctionInstance: /* refpard */ // 181
   /* templateref  templinsts */
   {
     $3->set_location(infile, @2, @4);
-    $$ = new Ttcn::Ref_pard($1.modid, $1.id, $3, $1.has_objid);
+    $$ = new Ttcn::Reference($1.modid, $1.id, $3);
     $$->set_location(infile, @$);
   }
 ;
@@ -4688,12 +4721,6 @@ FunctionRef: // 182
   {
     $$.modid = 0;
     $$.id = $1;
-    $$.has_objid = false;
-  }
-  | IDentifier '.' IDentifier
-  {
-    $$.modid = $1;
-    $$.id = $3;
     $$.has_objid = false;
   }
   | IDentifier '.' ObjectIdentifierValue '.' IDentifier
@@ -4794,13 +4821,7 @@ ApplyOp:
     $$.ap_list = $4;
     $$.ap_list->set_location(infile, @3 , @5);
   }
-  | FunctionInstance DotApplyKeyword '(' optFunctionActualParList ')'
-  {
-    $$.value = new Value(Value::V_REFD, $1);
-    $$.value->set_location(infile, @1);
-    $$.ap_list = $4;
-    $$.ap_list->set_location(infile, @3 , @5);
-  }
+  /*| FunctionInstance DotApplyKeyword '(' optFunctionActualParList ')'     handled by reference */
   | ApplyOp DotApplyKeyword '(' optFunctionActualParList ')'
   {
     $$.value = new Value(Value::V_INVOKE, $1.value, $1.ap_list);
@@ -5002,7 +5023,7 @@ TestcaseInstance: // 205
   optTestcaseTimerValue optError ')'
   {
     $5->set_location(infile, @4, @6);
-    $$.ref_pard = new Ttcn::Ref_pard($3.modid, $3.id, $5);
+    $$.ref_pard = new Ttcn::Reference($3.modid, $3.id, $5);
     $$.ref_pard->set_location(infile, @3, @6);
     $$.derefered_value = 0;
     $$.ap_list = $5;
@@ -5164,7 +5185,7 @@ AltstepInstance: /* refpard */ // 217
   FunctionRef '(' optFunctionActualParList ')'
   {
     $3->set_location(infile, @2, @4);
-    $$ = new Ttcn::Ref_pard($1.modid, $1.id, $3);
+    $$ = new Ttcn::Reference($1.modid, $1.id, $3);
     $$->set_location(infile, @$);
   }
 ;
@@ -6208,29 +6229,7 @@ ComponentId: // 321
 
 RunningOp: // 324
 /*  VariableRef DotRunningKeyword -- covered by RunningTimerOp */
-  FunctionInstance DotRunningKeyword
-  {
-    Value *t_val = new Value(Value::V_REFD, $1);
-    t_val->set_location(infile, @1);
-    $$ = new Value(Value::OPTYPE_COMP_RUNNING, t_val, NULL, false);
-    $$->set_location(infile, @$);
-  }
-| AnyKeyword FromKeyword FunctionInstance DotRunningKeyword
-  {
-    Value *t_val = new Value(Value::V_REFD, $3);
-    t_val->set_location(infile, @3);
-    $$ = new Value(Value::OPTYPE_COMP_RUNNING, t_val, NULL, true);
-    $$->set_location(infile, @$);
-  }
-| AnyKeyword FromKeyword FunctionInstance DotRunningKeyword
-  PortRedirectSymbol IndexSpec
-  {
-    Value *t_val = new Value(Value::V_REFD, $3);
-    t_val->set_location(infile, @3);
-    $$ = new Value(Value::OPTYPE_COMP_RUNNING, t_val, $6, true);
-    $$->set_location(infile, @$);
-  }
-| ApplyOp DotRunningKeyword
+  ApplyOp DotRunningKeyword
   {
     Value *t_val = new Value(Value::V_INVOKE, $1.value, $1.ap_list);
     t_val->set_location(infile, @1);
@@ -6448,33 +6447,19 @@ StartTCStatement: // 345
     $$ = new Statement(Statement::S_START_COMP_REFD, t_val, $4, $6);
     $$->set_location(infile, @$);
   }
-| FunctionInstance DotStartKeyword '(' FunctionInstance optError ')'
-  {
-    Value *t_val = new Value(Value::V_REFD, $1);
-    t_val->set_location(infile, @1);
-    $$ = new Statement(Statement::S_START_COMP, t_val, $4);
-    $$->set_location(infile, @$);
-  }
-| FunctionInstance DotStartKeyword '(' DereferOp '('
-    optFunctionActualParList ')' optError ')'
-  {
-    Value *t_val = new Value(Value::V_REFD, $1);
-    t_val->set_location(infile, @1);
-    $6->set_location(infile, @5 , @7);
-    $$ = new Statement(Statement::S_START_COMP_REFD, t_val, $4, $6);
-    $$->set_location(infile, @$);
-  }
-| FunctionInstance DotStartKeyword '(' error ')'
-  {
-    delete $1;
-    $$ = new Statement(Statement::S_ERROR);
-    $$->set_location(infile, @$);
-  }
-| ApplyOp DotStartKeyword '(' FunctionInstance ')'
+| ApplyOp DotStartKeyword '(' Reference ')'
   {
     Value *t_val = new Value(Value::V_INVOKE, $1.value, $1.ap_list);
     t_val->set_location(infile, @1);
-    $$ = new Statement(Statement::S_START_COMP, t_val, $4);
+    Ttcn::Reference *func_ref;
+    if ($4.is_ref) {
+      func_ref = $4.ref;
+    }
+    else {
+      func_ref = new Ttcn::Reference($4.id);
+      func_ref->set_location(infile, @4);
+    }
+    $$ = new Statement(Statement::S_START_COMP, t_val, func_ref);
     $$->set_location(infile, @$);
   }
 | ApplyOp DotStartKeyword '(' DereferOp '(' optFunctionActualParList ')'
@@ -6497,14 +6482,7 @@ StartTCStatement: // 345
 
 StopTCStatement: // 337
 /* VariableRef DotStopKeyword -- covered by StopTimerStatement */
-  FunctionInstance DotStopKeyword
-  {
-    Value *t_val = new Value(Value::V_REFD, $1);
-    t_val->set_location(infile, @1);
-    $$ = new Statement(Statement::S_STOP_COMP, t_val);
-    $$->set_location(infile, @$);
-  }
-| ApplyOp DotStopKeyword
+  ApplyOp DotStopKeyword
   {
     Value *t_val = new Value(Value::V_INVOKE, $1.value, $1.ap_list);
     t_val->set_location(infile, @1);
@@ -6556,11 +6534,6 @@ KillTCStatement: // 349
 
 ComponentOrDefaultReference: // 350
   VariableRef
-  {
-    $$ = new Value(Value::V_REFD, $1);
-    $$->set_location(infile, @$);
-  }
-| FunctionInstance
   {
     $$ = new Value(Value::V_REFD, $1);
     $$->set_location(infile, @$);
@@ -8199,7 +8172,7 @@ RunningTimerOp: // 446
   {
     // must specify the type of the null pointer, so it doesn't clash with
     // another Value constructor
-    Ref_base* null_ptr = NULL;
+    Ttcn::Reference* null_ptr = NULL;
     $$ = new Value(Value::OPTYPE_UNDEF_RUNNING, $1, null_ptr, false);
     $$->set_location(infile, @$);
   }
@@ -8212,7 +8185,7 @@ RunningTimerOp: // 446
   {
     // must specify the type of the null pointer, so it doesn't clash with
     // another Value constructor
-    Ref_base* null_ptr = NULL;
+    Ttcn::Reference* null_ptr = NULL;
     $$ = new Value(Value::OPTYPE_UNDEF_RUNNING, $3, null_ptr, true);
     $$->set_location(infile, @$);
   }
@@ -8317,17 +8290,7 @@ ReferencedType: // 465
     }
     $$->set_location(infile, @$);
   }
-| FunctionInstance optExtendedFieldReference
-  /* covers all parameterized type references */
-  {
-    Location loc(infile, @1);
-    loc.error("Reference to parameterized type is not currently supported");
-    delete $1;
-    for (size_t i = 0; i < $2.nElements; i++) delete $2.elements[i];
-    Free($2.elements);
-    $$ = new Type(Type::T_ERROR);
-    $$->set_location(infile, @$);
-  }
+//| FunctionInstance optExtendedFieldReference  TODO: handle referenced types later
 ;
 
 /*
@@ -8706,7 +8669,7 @@ Reference: // 490 ValueReference
     Free($3.elements);
     $$.ref->set_location(infile, @$);
   }
-/*| IDentifier '.' IDentifier '(' optFunctionActualParList ')'
+| IDentifier '.' IDentifier '(' optFunctionActualParList ')'
   optExtendedFieldReference
   {
     $$.is_ref = true;
@@ -8719,7 +8682,7 @@ Reference: // 490 ValueReference
     }
     Free($7.elements);
     $$.ref->set_location(infile, @$);
-  }*/
+  }
 | IDentifier '[' NotUsedSymbol ']'
 {
   $$.is_ref = true;
@@ -8737,6 +8700,14 @@ Reference: // 490 ValueReference
     delete $3;
     for (size_t i = 0; i < $6.nElements; i++) $$.ref->add($6.elements[i]);
     Free($6.elements);
+    $$.ref->set_location(infile, @$);
+  }
+| FunctionInstance optExtendedFieldReference
+  {
+    $$.is_ref = true;
+    $$.ref = $1;
+    for (size_t i = 0; i < $2.nElements; i++) $$.ref->add($2.elements[i]);
+    Free($2.elements);
     $$.ref->set_location(infile, @$);
   }
 ;
@@ -9083,9 +9054,17 @@ BehaviourStatements: // 543
     else $$ = new Statement(Statement::S_ERROR);
     $$->set_location(infile, @$);
   }
-| FunctionInstance
+| Reference
   {
-    $$ = new Statement(Statement::S_UNKNOWN_INSTANCE, $1);
+    Ttcn::Reference *func_ref;
+    if ($1.is_ref) {
+      func_ref = $1.ref;
+    }
+    else {
+      func_ref = new Ttcn::Reference($1.id);
+      func_ref->set_location(infile, @1);
+    }
+    $$ = new Statement(Statement::S_UNKNOWN_INSTANCE, func_ref);
     $$->set_location(infile, @$);
   }
 | ApplyOp
@@ -9102,7 +9081,7 @@ BehaviourStatements: // 543
 | BreakStatement { $$ = $1; }
 | ContinueStatement { $$ = $1; }
 | DeactivateStatement { $$ = $1; }
-/* | AltstepInstance -- covered by FunctionInstance */
+/* | AltstepInstance -- covered by Reference */
 | ActivateOp
   {
     if ($1.ref_pard) $$ = new Statement(Statement::S_ACTIVATE, $1.ref_pard);
@@ -9331,9 +9310,17 @@ AltGuard:
 ;
 
 GuardStatement: // 556
-  AltGuardChar AltstepInstance optSemiColon
+  AltGuardChar Reference optSemiColon
   {
-    $$=new AltGuard($1, $2, 0);
+    Ttcn::Reference *func_ref;
+    if ($2.is_ref) {
+      func_ref = $2.ref;
+    }
+    else {
+      func_ref = new Ttcn::Reference($2.id);
+      func_ref->set_location(infile, @2);
+    }
+    $$=new AltGuard($1, func_ref, 0);
     $$->set_location(infile, @$);
   }
 | AltGuardChar ApplyOp optSemiColon
@@ -9342,9 +9329,17 @@ GuardStatement: // 556
     $$->set_location(infile, @$);
     delete $2.ap_list;
   }
-| AltGuardChar AltstepInstance optSemiColon StatementBlock optSemiColon
+| AltGuardChar Reference optSemiColon StatementBlock optSemiColon
   {
-    $$=new AltGuard($1, $2, $4);
+    Ttcn::Reference *func_ref;
+    if ($2.is_ref) {
+      func_ref = $2.ref;
+    }
+    else {
+      func_ref = new Ttcn::Reference($2.id);
+      func_ref->set_location(infile, @2);
+    }
+    $$=new AltGuard($1, func_ref, $4);
     $$->set_location(infile, @$);
   }
 | AltGuardChar ApplyOp optSemiColon StatementBlock optSemiColon
@@ -9473,9 +9468,15 @@ RepeatStatement: // 571
 ;
 
 ActivateOp: // 572
-  ActivateKeyword '(' AltstepInstance optError ')'
+  ActivateKeyword '(' Reference optError ')'
   {
-    $$.ref_pard = $3;
+    if ($3.is_ref) {
+      $$.ref_pard = $3.ref;
+    }
+    else {
+      $$.ref_pard = new Ttcn::Reference($3.id);
+      $$.ref_pard->set_location(infile, @3);
+    }
     $$.derefered_value = 0;
     $$.ap_list = 0;
   }
@@ -9496,10 +9497,16 @@ ActivateOp: // 572
 ;
 
 ReferOp:
-  RefersKeyword '(' FunctionRef ')'
+  RefersKeyword '(' Reference ')'
   {
-    Ttcn::Reference* t_ref = new Ttcn::Reference($3.modid, $3.id);
-    t_ref->set_location(infile, @3);
+    Ttcn::Reference* t_ref;
+    if ($3.is_ref) {
+      t_ref = $3.ref;
+    }
+    else {
+      t_ref = new Ttcn::Reference($3.id);
+      t_ref->set_location(infile, @3);
+    }
     $$ = new Value(Value::V_REFER, t_ref);
     $$->set_location(infile, @$);
   }
@@ -10111,13 +10118,7 @@ OpCall: // 611
     else $$ = new Value(Value::V_ERROR);
     $$->set_location(infile, @$);
   }
-| FunctionInstance optExtendedFieldReference
-  {
-    for (size_t i = 0; i < $2.nElements; i++) $1->add($2.elements[i]);
-    Free($2.elements);
-    $$ = new Value(Value::V_REFD, $1);
-    $$->set_location(infile, @$);
-  }
+/*| FunctionInstance optExtendedFieldReference    handled by Reference */
 | ApplyOp
   {
     $$ = new Value(Value::V_INVOKE, $1.value, $1.ap_list);
@@ -10583,7 +10584,6 @@ DecValueArg:
       $$->set_location(infile, @$);
     }
   }
-| FunctionInstance { $$ = $1; }
 ;
 
 PredefOrIdentifier:

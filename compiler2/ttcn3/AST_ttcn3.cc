@@ -689,18 +689,40 @@ namespace Ttcn {
   // =================================
   // ===== Reference
   // =================================
+  
+  Reference::Reference(const Reference& p)
+    : Ref_base(p), parlist(NULL), gen_const_prefix(false), expr_cache(NULL)
+  {
+    params = p.params != NULL ? p.params->clone() : NULL;
+  }
 
   Reference::Reference(Identifier *p_id)
-    : Ref_base(), parlist(0), gen_const_prefix(false)
+    : Ref_base(), parlist(NULL), params(NULL), gen_const_prefix(false),
+    expr_cache(NULL)
   {
     subrefs.add(new FieldOrArrayRef(p_id));
+  }
+  
+  Reference::Reference(Identifier *p_modid, Identifier *p_id,
+                       ParsedActualParameters *p_params)
+    : Ref_base(p_modid, p_id), parlist(NULL), params(p_params),
+    gen_const_prefix(false), expr_cache(NULL)
+  {
+    if (p_params == NULL) {
+      FATAL_ERROR("Ttcn::Reference::Reference(): NULL parameter");
+    }
   }
 
   Reference::~Reference()
   {
-    if (parlist) {
-      delete parlist;
-    }
+    delete parlist;
+    delete params;
+    Free(expr_cache);
+  }
+  
+  bool Reference::has_parameters() const
+  {
+    return params_checked ? parlist != NULL : params != NULL;
   }
 
   /* Called by:
@@ -713,29 +735,69 @@ namespace Ttcn {
     return new Reference(*this);
   }
   
+  void Reference::set_fullname(const string& p_fullname)
+  {
+    Ref_base::set_fullname(p_fullname);
+    if (parlist != NULL) {
+      parlist->set_fullname(p_fullname);
+    }
+    if (params != NULL) {
+      params->set_fullname(p_fullname);
+    }
+  }
+  
   void Reference::set_my_scope(Scope *p_scope)
   {
     Ref_base::set_my_scope(p_scope);
     if (parlist != NULL) {
       parlist->set_my_scope(p_scope);
     }
+    if (params != NULL) {
+      params->set_my_scope(p_scope);
+    }
   }
 
   string Reference::get_dispname()
   {
+    if (is_erroneous) return string("erroneous");
     string ret_val;
-    if (id) {
+    if (!has_parameters()) { // TODO: simplify
+      if (id) {
+        if (modid) {
+          ret_val += modid->get_dispname();
+          ret_val += '.';
+        }
+        ret_val += id->get_dispname();
+        subrefs.append_stringRepr(ret_val);
+      } else {
+        subrefs.append_stringRepr(ret_val);
+        // cut the leading dot
+        if (!ret_val.empty() && ret_val[0] == '.')
+          ret_val.replace(0, 1, "");
+      }
+    }
+    else { // has_parameters()
       if (modid) {
         ret_val += modid->get_dispname();
         ret_val += '.';
       }
       ret_val += id->get_dispname();
+      ret_val += '(';
+      if (params_checked) {
+        // used after semantic analysis
+        for (size_t i = 0; i < parlist->get_nof_pars(); i++) {
+          if (i > 0) ret_val += ", ";
+          parlist->get_par(i)->append_stringRepr(ret_val);
+        }
+      } else {
+        // used before semantic analysis
+        for (size_t i = 0; i < params->get_nof_tis(); i++) {
+          if (i > 0) ret_val += ", ";
+          params->get_ti_byIndex(i)->append_stringRepr(ret_val);
+        }
+      }
+      ret_val += ')';
       subrefs.append_stringRepr(ret_val);
-    } else {
-      subrefs.append_stringRepr(ret_val);
-      // cut the leading dot
-      if (!ret_val.empty() && ret_val[0] == '.')
-        ret_val.replace(0, 1, "");
     }
     return ret_val;
   }
@@ -746,20 +808,59 @@ namespace Ttcn {
     // In fact calls        Ref_simple::get_refd_assignment
     if (ass && check_parlist && !params_checked) {
       params_checked = true;
-      FormalParList *fplist = ass->get_FormalParList();
-      if (fplist) {
-        if (fplist->has_only_default_values()
-          && Common::Assignment::A_TEMPLATE == ass->get_asstype()) {
-          Ttcn::ParsedActualParameters params;
-          Error_Context cntxt(&params, "In actual parameter list of %s",
-              ass->get_description().c_str());
+      if (params == NULL) {
+        // tricky: ass->get_FormalParList() can delete this object (e.x. in case of
+        // erroneous recursive templates), avoid touching members for as long as
+        // possible...
+        FormalParList *fplist = ass->get_FormalParList();
+        if (fplist != NULL) {
+          if (fplist->has_only_default_values() &&
+              Common::Assignment::A_TEMPLATE == ass->get_asstype()) {
+            Ttcn::ParsedActualParameters dummy_params;
+            Error_Context cntxt(&dummy_params, "In actual parameter list of %s",
+                ass->get_description().c_str());
+            parlist = new ActualParList();
+            is_erroneous = fplist->fold_named_and_chk(&dummy_params, parlist);
+            parlist->set_fullname(get_fullname());
+            parlist->set_my_scope(my_scope);
+          } else {
+            error("Reference to parameterized definition `%s' without "
+              "actual parameter list", ass->get_id().get_dispname().c_str());
+          }
+        }
+      }
+      else { // params != NULL
+        FormalParList *fplist = NULL;
+        if (ass->get_asstype() == Common::Assignment::A_TYPE) {
+          Def_Type* def = dynamic_cast<Def_Type*>(ass);
+          if (def == NULL) {
+            FATAL_ERROR("Reference::get_refd_assignment");
+          }
+          Type* type = def->get_Type();
+          if (type->get_typetype() == Common::Type::T_CLASS) {
+            // if the referred assignment is a class type, then the reference and
+            // its parameters are meant for the constructor instead
+            fplist = type->get_class_type_body()->get_constructor()->
+              get_FormalParList();
+          }
+        }
+        if (fplist == NULL) {
+          // if it's not a class type, retrieve the formal parameter list normally
+          fplist = ass->get_FormalParList();
+        }
+        if (fplist != NULL) {
+          Error_Context cntxt(params, "In actual parameter list of %s",
+            ass->get_description().c_str());
           parlist = new ActualParList();
-          is_erroneous = fplist->fold_named_and_chk(&params, parlist);
+          is_erroneous = fplist->fold_named_and_chk(params, parlist);
           parlist->set_fullname(get_fullname());
           parlist->set_my_scope(my_scope);
+          // the parsed parameter list is no longer needed
+          delete params;
+          params = NULL;
         } else {
-          error("Reference to parameterized definition `%s' without "
-            "actual parameter list", ass->get_id().get_dispname().c_str());
+          params->error("The referenced %s cannot have actual parameters",
+            ass->get_description().c_str());
         }
       }
     }
@@ -777,6 +878,11 @@ namespace Ttcn {
     if (!id) detect_modid();
     return id;
   }
+  
+  ActualParList* Reference::get_parlist()
+  {
+    return parlist;
+  }
 
   Type *Reference::chk_variable_ref()
   {
@@ -789,11 +895,15 @@ namespace Ttcn {
     case Common::Assignment::A_VAR:
     case Common::Assignment::A_PAR_VAL_OUT:
     case Common::Assignment::A_PAR_VAL_INOUT:
+      if (has_parameters()) {
+        error("Reference without actual parameter list was expected");
+        return NULL;
+      }
       break;
     default:
       error("Reference to a variable or value parameter was "
         "expected instead of %s", t_ass->get_description().c_str());
-      return 0;
+      return NULL;
     }
     FieldOrArrayRefs *t_subrefs = get_subrefs();
     Type *ret_val = t_ass->get_Type()->get_field_type(t_subrefs,
@@ -816,7 +926,13 @@ namespace Ttcn {
           // remain silent
           break;
         case Type::T_COMPONENT:
-          return t;
+          if (has_parameters()) {
+            error("Reference without actual parameter list was expected");
+          }
+          else {
+            return t;
+          }
+          break;
         default:
           error("Reference `%s' does not refer to a component type",
             get_dispname().c_str());
@@ -827,6 +943,29 @@ namespace Ttcn {
       }
     }
     return 0;
+  }
+
+  bool Reference::chk_activate_argument()
+  {
+    if (!has_parameters()) {
+      error("Reference with actual parameter list was expected in the argument");
+      return false;
+    }
+    Common::Assignment *t_ass = get_refd_assignment();
+    if (!t_ass) return false;
+    if (t_ass->get_asstype() != Common::Assignment::A_ALTSTEP) {
+      error("Reference to an altstep was expected in the argument instead of "
+        "%s", t_ass->get_description().c_str());
+      return false;
+    }
+    my_scope->chk_runs_on_clause(t_ass, *this, "activate");
+    // the altstep reference cannot have sub-references
+    if (get_subrefs()) FATAL_ERROR("Reference::chk_activate_argument()");
+    FormalParList *fp_list = t_ass->get_FormalParList();
+    // the altstep must have formal parameter list
+    if (!fp_list) FATAL_ERROR("Reference::chk_activate_argument()");
+    return fp_list->chk_activate_argument(parlist,
+      t_ass->get_description().c_str());
   }
   
   bool Reference::has_single_expr()
@@ -841,6 +980,15 @@ namespace Ttcn {
         if (!parlist->get_par(i)->has_single_expr(
             fplist != NULL ? fplist->get_fp_byIndex(i) : NULL)) {
           return false;
+        }
+      }
+      if (fplist != NULL) {
+        size_t num_formal = fplist->get_nof_fps();
+        for (size_t i = 0; i < num_formal; ++i) {
+          const FormalPar *fp = fplist->get_fp_byIndex(i);
+          if (fp->get_eval_type() != NORMAL_EVAL) {
+            return false;
+          }
         }
       }
     }
@@ -878,6 +1026,17 @@ namespace Ttcn {
       break;
     }
   }
+  
+  void Reference::set_code_section(
+    GovernedSimple::code_section_t p_code_section)
+  {
+    Ref_base::set_code_section(p_code_section);
+    if (parlist != NULL) {
+      for (size_t i = 0; i < parlist->get_nof_pars(); i++) {
+        parlist->get_par(i)->set_code_section(p_code_section);
+      }
+    }
+  }
 
   void Reference::generate_code(expression_struct_t *expr)
   {
@@ -893,7 +1052,7 @@ namespace Ttcn {
         const_prefix = "template_";
       }
     }
-    if (parlist) {
+    if (parlist != NULL) {
       // reference without parameters to a template that has only default formal parameters.
       // if @lazy: nothing to do, it's a C++ function call just like in case of Ref_pard::generate_code()
       expr->expr = mputprintf(expr->expr, "%s(",
@@ -926,33 +1085,41 @@ namespace Ttcn {
     switch (ass->get_asstype()) {
     case Common::Assignment::A_MODULEPAR:
     case Common::Assignment::A_VAR:
-    case Common::Assignment::A_FUNCTION_RVAL:
-    case Common::Assignment::A_EXT_FUNCTION_RVAL:
+    case Common::Assignment::A_PAR_VAL:
     case Common::Assignment::A_PAR_VAL_IN:
     case Common::Assignment::A_PAR_VAL_OUT:
     case Common::Assignment::A_PAR_VAL_INOUT: {
       is_template = false;
       break; }
     case Common::Assignment::A_MODULEPAR_TEMP:
-    case Common::Assignment::A_TEMPLATE:
     case Common::Assignment::A_VAR_TEMPLATE:
     case Common::Assignment::A_PAR_TEMPL_IN:
     case Common::Assignment::A_PAR_TEMPL_OUT:
     case Common::Assignment::A_PAR_TEMPL_INOUT: {
       is_template = true;
       break; }
-    case Common::Assignment::A_CONST:
-    case Common::Assignment::A_EXT_CONST:
+    case Common::Assignment::A_TEMPLATE:
+      if (ass->get_FormalParList() == NULL) {
+        // not a parameterized template
+        is_template = true;
+        break;
+      }
+      // else fall through
     default:
        generate_code(expr);
        return;
+    }
+    
+    Type *refd_gov = ass->get_Type();
+    if (refd_gov == NULL) {
+      generate_code(expr);
+      return;
     }
 
     // use a separate expression struct for this reference in case any of the 
     // subreferences need to convert the object further
     expression_struct_t this_expr;
     Code::init_expr(&this_expr);
-    Type *refd_gov = ass->get_Type();
     if (is_template) {
       this_expr.expr = mputprintf(this_expr.expr, "const_cast< const %s&>(",
         refd_gov->get_genname_template(get_my_scope()).c_str() );
@@ -967,13 +1134,13 @@ namespace Ttcn {
           type_str.c_str());
       }
     }
-    if (parlist) {
+    if (parlist != NULL) {
       // reference without parameters to a template that has only default formal parameters.
       // if @lazy: nothing to do, it's a C++ function call just like in case of Ref_pard::generate_code()
       this_expr.expr = mputprintf(this_expr.expr, "%s(",
         ass->get_genname_from_scope(my_scope).c_str());
-      parlist->generate_code_alias(expr, ass->get_FormalParList(),
-          ass->get_RunsOnType(), false);
+      parlist->generate_code_alias(&this_expr, ass->get_FormalParList(),
+        ass->get_RunsOnType(), false);
       this_expr.expr = mputc(this_expr.expr, ')');
     } else {
       this_expr.expr = mputstr(this_expr.expr,
@@ -1087,290 +1254,7 @@ namespace Ttcn {
     }
   }
 
-  void Reference::detect_modid()
-  {
-    // do nothing if detection is already performed
-    if (id) return;
-    // the first element of subrefs must be an <id>
-    const Identifier *first_id = subrefs.get_ref(0)->get_id(), *second_id = 0;
-    if (subrefs.get_nof_refs() > 1) {
-      FieldOrArrayRef *second_ref = subrefs.get_ref(1);
-      if (second_ref->get_type() == FieldOrArrayRef::FIELD_REF) {
-        // the reference begins with <id>.<id> (most complicated case)
-        // there are 3 possible situations:
-        // 1. first_id points to a local definition (this has the priority)
-        //      modid: 0, id: first_id
-        // 2. first_id points to an imported module (trivial case)
-        //      modid: first_id, id: second_id
-        // 3. none of the above (first_id might be an imported symbol)
-        //      modid: 0, id: first_id
-        // Note: Rule 1 has the priority because it can be overridden using
-        // the notation <id>.objid { ... }.<id> (modid and id are set in the
-        // constructor), but there is no work-around in the reverse way.
-        if (!my_scope->has_ass_withId(*first_id)
-            && my_scope->is_valid_moduleid(*first_id)) {
-          // rule 1 is not fulfilled, but rule 2 is fulfilled
-          second_id = second_ref->get_id();
-        }
-      } // else: the reference begins with <id>[<arrayref>] -> there is no modid
-    } // else: the reference consists of a single <id>  -> there is no modid
-    if (second_id) {
-      modid = first_id->clone();
-      id = second_id->clone();
-      subrefs.remove_refs(2);
-    } else {
-      modid = 0;
-      id = first_id->clone();
-      subrefs.remove_refs(1);
-    }
-  }
-
-  // =================================
-  // ===== Ref_pard
-  // =================================
-
-  Ref_pard::Ref_pard(const Ref_pard& p)
-    : Ref_base(p), parlist(p.parlist), expr_cache(0), has_objid(p.has_objid),
-    truncated(p.truncated)
-  {
-    params = p.params ? p.params->clone() : 0;
-    truncated_ref = p.truncated_ref != NULL ? p.truncated_ref->clone() : NULL;
-  }
-
-  Ref_pard::Ref_pard(Identifier *p_modid, Identifier *p_id,
-    ParsedActualParameters *p_params, bool p_has_objid)
-    : Ref_base(p_modid, p_id), parlist(), params(p_params), expr_cache(0),
-    has_objid(p_has_objid), truncated(false), truncated_ref(NULL)
-  {
-    if (!p_params)
-      FATAL_ERROR("Ttcn::Ref_pard::Ref_pard(): NULL parameter");
-  }
-
-  Ref_pard::~Ref_pard()
-  {
-    delete params;
-    Free(expr_cache);
-    delete truncated_ref;
-  }
-
-  Ref_pard *Ref_pard::clone() const
-  {
-    return new Ref_pard(*this);
-  }
-
-  void Ref_pard::set_fullname(const string& p_fullname)
-  {
-    Ref_base::set_fullname(p_fullname);
-    parlist.set_fullname(p_fullname);
-    if (params) params->set_fullname(p_fullname);
-    if (truncated) {
-      // this function should always be called before the reference is truncated
-      FATAL_ERROR("Ref_pard::set_fullname");
-      //truncated_ref->set_fullname(p_fullname);
-    }
-  }
-
-  void Ref_pard::set_my_scope(Scope *p_scope)
-  {
-    Ref_base::set_my_scope(p_scope);
-    parlist.set_my_scope(p_scope);
-    if (params) params->set_my_scope(p_scope);
-    if (truncated) {
-      // this function should always be called before the reference is truncated
-      FATAL_ERROR("Ref_pard::set_my_scope");
-      //truncated_ref->set_my_scope(p_scope);
-    }
-  }
-
-  string Ref_pard::get_dispname()
-  {
-    if (truncated) {
-      return truncated_ref->get_dispname();
-    }
-    if (is_erroneous) return string("erroneous");
-    string ret_val;
-    if (modid) {
-      ret_val += modid->get_dispname();
-      ret_val += '.';
-    }
-    ret_val += id->get_dispname();
-    ret_val += '(';
-    if (params_checked) {
-      // used after semantic analysis
-      for (size_t i = 0; i < parlist.get_nof_pars(); i++) {
-        if (i > 0) ret_val += ", ";
-        parlist.get_par(i)->append_stringRepr(ret_val);
-      }
-    } else {
-      // used before semantic analysis
-      for (size_t i = 0; i < params->get_nof_tis(); i++) {
-        if (i > 0) ret_val += ", ";
-        params->get_ti_byIndex(i)->append_stringRepr(ret_val);
-      }
-    }
-    ret_val += ')';
-    subrefs.append_stringRepr(ret_val);
-    return ret_val;
-  }
-
-  Common::Assignment* Ref_pard::get_refd_assignment(bool check_parlist)
-  {
-    if (!has_objid && modid != NULL && oop_features && !truncated &&
-        (my_scope->has_ass_withId(*modid) || !my_scope->is_valid_moduleid(*modid))) {
-      // 'x.y(...)' could refer to (ordered by priority):
-      // - method 'y' in local class object 'x' (if OOP features are enabled), or
-      // - function 'y' in module 'x', or
-      // - method 'y' in imported class object 'x' (if OOP features are enabled).
-      truncated = true;
-      truncated_ref = new Ttcn::Reference(modid);
-      //truncated_ref->set_location();
-      FieldOrArrayRef* method = new FieldOrArrayRef(id, params);
-      //method->set_location();
-      truncated_ref->add(method);
-      for (size_t i = 0; i < subrefs.get_nof_refs(); ++i) {
-        truncated_ref->add(subrefs.get_ref(i)->clone());
-      }
-      truncated_ref->set_my_scope(my_scope);
-      truncated_ref->set_fullname(get_fullname());
-      subrefs.remove_refs(subrefs.get_nof_refs());
-      params = NULL;
-      modid = NULL;
-      id = NULL;
-    }
-    if (truncated) {
-      return truncated_ref->get_refd_assignment(check_parlist);
-    }
-    Common::Assignment *ass = Ref_base::get_refd_assignment(check_parlist);
-    if (ass && check_parlist && !params_checked) {
-      params_checked = true;
-      FormalParList *fplist = ass->get_FormalParList();
-      if (fplist == NULL && ass->get_asstype() == Common::Assignment::A_TYPE) {
-        Def_Type* def = dynamic_cast<Def_Type*>(ass);
-        if (def == NULL) {
-          FATAL_ERROR("Ref_pard::get_refd_assignment");
-        }
-        Type* type = def->get_Type();
-        if (type->get_typetype() == Common::Type::T_CLASS) {
-          // if the referred assignment is a class type, then the reference and
-          // its parameters are meant for the constructor instead
-          fplist = type->get_class_type_body()->get_constructor()->
-            get_FormalParList();
-        }
-      }
-      if (fplist) {
-        Error_Context cntxt(params, "In actual parameter list of %s",
-          ass->get_description().c_str());
-        is_erroneous = fplist->fold_named_and_chk(params, &parlist);
-        parlist.set_fullname(get_fullname());
-        parlist.set_my_scope(my_scope);
-        // the parsed parameter list is no longer needed
-        delete params;
-        params = 0;
-      } else {
-        params->error("The referenced %s cannot have actual parameters",
-          ass->get_description().c_str());
-      }
-    }
-    return ass;
-  }
-
-  const Identifier* Ref_pard::get_modid()
-  {
-    if (truncated) {
-      return truncated_ref->get_modid();
-    }
-    return modid;
-  }
-
-  const Identifier* Ref_pard::get_id()
-  {
-    if (truncated) {
-      return truncated_ref->get_id();
-    }
-    return id;
-  }
-
-  ActualParList *Ref_pard::get_parlist()
-  {
-    // TODO: fatal error if truncated? (for now it just returns an empty parlist)
-    if (!params_checked && !truncated) FATAL_ERROR("Ref_pard::get_parlist()");
-    return &parlist;
-  }
-
-  bool Ref_pard::chk_activate_argument()
-  {
-    Common::Assignment *t_ass = get_refd_assignment();
-    if (!t_ass) return false;
-    // TODO: handle truncated case
-    if (t_ass->get_asstype() != Common::Assignment::A_ALTSTEP) {
-      error("Reference to an altstep was expected in the argument instead of "
-        "%s", t_ass->get_description().c_str());
-      return false;
-    }
-    my_scope->chk_runs_on_clause(t_ass, *this, "activate");
-    // the altstep reference cannot have sub-references
-    if (get_subrefs()) FATAL_ERROR("Ref_pard::chk_activate_argument()");
-    FormalParList *fp_list = t_ass->get_FormalParList();
-    // the altstep must have formal parameter list
-    if (!fp_list) FATAL_ERROR("Ref_pard::chk_activate_argument()");
-    return fp_list->chk_activate_argument(&parlist,
-      t_ass->get_description().c_str());
-  }
-
-  bool Ref_pard::has_single_expr()
-  {
-    if (truncated) {
-      return truncated_ref->has_single_expr();
-    }
-    if (!Ref_base::has_single_expr()) return false;
-    Common::Assignment *ass = get_refd_assignment();
-    const FormalParList *fplist = (ass != NULL) ? ass->get_FormalParList() : NULL;
-    for (size_t i = 0; i < parlist.get_nof_pars(); i++)
-      if (!parlist.get_par(i)->has_single_expr(
-          fplist != NULL ? fplist->get_fp_byIndex(i) : NULL)) return false;
-    // if any formal parameter has lazy or fuzzy evaluation 
-    if (fplist) {
-      size_t num_formal = fplist->get_nof_fps();
-      for (size_t i=0; i<num_formal; ++i) {
-        const FormalPar *fp = fplist->get_fp_byIndex(i);
-        if (fp->get_eval_type() != NORMAL_EVAL) return false;
-      }
-    }
-    return true;
-  }
-
-  void Ref_pard::set_code_section(
-    GovernedSimple::code_section_t p_code_section)
-  {
-    if (truncated) {
-      truncated_ref->set_code_section(p_code_section);
-    }
-    else {
-      Ref_base::set_code_section(p_code_section);
-      for (size_t i = 0; i < parlist.get_nof_pars(); i++)
-        parlist.get_par(i)->set_code_section(p_code_section);
-    }
-  }
-
-  void Ref_pard::generate_code(expression_struct_t *expr)
-  {
-    if (truncated) {
-      truncated_ref->generate_code(expr);
-    }
-    else {
-      Common::Assignment *ass = get_refd_assignment();
-      // C++ function reference with actual parameter list
-      expr->expr = mputprintf(expr->expr, "%s(",
-        ass->get_genname_from_scope(my_scope).c_str());
-      parlist.generate_code_alias(expr, ass->get_FormalParList(),
-        ass->get_RunsOnType(),false);
-      expr->expr = mputc(expr->expr, ')');
-      // subreferences
-      if (subrefs.get_nof_refs() > 0) subrefs.generate_code(expr, ass, my_scope);
-    }
-  }
-
-  void Ref_pard::generate_code_cached(expression_struct_t *expr)
+  void Reference::generate_code_cached(expression_struct_t *expr)
   {
     if (expr_cache) {
       expr->expr = mputstr(expr->expr, expr_cache);
@@ -1381,97 +1265,55 @@ namespace Ttcn {
     }
   }
 
-  void Ref_pard::generate_code_const_ref(expression_struct_t *expr)
+  void Reference::detect_modid()
   {
-    if (truncated) {
-      truncated_ref->generate_code_const_ref(expr);
-      return;
-    }
-    FieldOrArrayRefs *t_subrefs = get_subrefs();
-    if (!t_subrefs || t_subrefs->get_nof_refs() == 0) {
-      generate_code(expr);
-      return;
-    }
-
-    Common::Assignment *ass = get_refd_assignment();
-    if (!ass) FATAL_ERROR("Ref_pard::generate_code_const_ref()");
-
-    bool is_template;
-    switch (ass->get_asstype()) {
-    case Common::Assignment::A_TEMPLATE:
-      if (NULL == ass->get_FormalParList()) {
-        // not a parameterized template
-        is_template = true;
-        break;
+    // do nothing if detection is already performed
+    if (id) return;
+    // the first element of subrefs must be an <id>
+    const Identifier *first_id = subrefs.get_ref(0)->get_id(), *second_id = 0;
+    const ParsedActualParameters* second_params = 0;
+    if (subrefs.get_nof_refs() > 1) {
+      FieldOrArrayRef *second_ref = subrefs.get_ref(1);
+      if (second_ref->get_type() != FieldOrArrayRef::ARRAY_REF) {
+        // the reference begins with <id>.<id> or <id>.<id>(<params>)
+        // (most complicated case); there are 3 possible situations:
+        // 1. first_id points to a local definition (this has the priority)
+        //      modid: 0, id: first_id
+        // 2. first_id points to an imported module (trivial case)
+        //      modid: first_id, id: second_id
+        // 3. none of the above (first_id might be an imported symbol)
+        //      modid: 0, id: first_id
+        // Note: Rule 1 has the priority because it can be overridden using
+        // the notation <id>.objid { ... }.<id> or <id>.objid { ... }.<id>(<params>)
+        // (modid and id are set in the constructor), but there is no work-around
+        // in the reverse way.
+        if (!my_scope->has_ass_withId(*first_id)
+            && my_scope->is_valid_moduleid(*first_id)) {
+          // rule 1 is not fulfilled, but rule 2 is fulfilled
+          second_id = second_ref->get_id();
+          if (second_ref->get_type() == FieldOrArrayRef::FUNCTION_REF) {
+            // <id>.<id>(<params>) case
+            second_params = second_ref->get_parsed_pars();
+          }
+        }
+      } // else: the reference begins with <id>[<arrayref>] -> there is no modid
+    } // else: the reference consists of a single <id>  -> there is no modid
+    if (second_id) {
+      modid = first_id->clone();
+      id = second_id->clone();
+      if (second_params != 0) {
+        params = second_params->clone();
+        params->set_fullname(second_params->get_fullname());
+        params->set_my_scope(second_params->get_my_scope());
       }
-      // else fall through
-    case Common::Assignment::A_CONST:
-    case Common::Assignment::A_EXT_CONST:
-    case Common::Assignment::A_ALTSTEP:
-    case Common::Assignment::A_TESTCASE:
-    case Common::Assignment::A_FUNCTION:
-    case Common::Assignment::A_EXT_FUNCTION:
-    case Common::Assignment::A_FUNCTION_RVAL:
-    case Common::Assignment::A_EXT_FUNCTION_RVAL:
-    case Common::Assignment::A_FUNCTION_RTEMP:
-    case Common::Assignment::A_EXT_FUNCTION_RTEMP:
-      generate_code(expr);
-      return;
-    case Common::Assignment::A_MODULEPAR:
-    case Common::Assignment::A_VAR:
-    case Common::Assignment::A_PAR_VAL_IN:
-    case Common::Assignment::A_PAR_VAL_OUT:
-    case Common::Assignment::A_PAR_VAL_INOUT: {
-      is_template = false;
-      break; }
-    case Common::Assignment::A_MODULEPAR_TEMP:
-    case Common::Assignment::A_VAR_TEMPLATE:
-    case Common::Assignment::A_PAR_TEMPL_IN:
-    case Common::Assignment::A_PAR_TEMPL_OUT:
-    case Common::Assignment::A_PAR_TEMPL_INOUT: {
-      is_template = true;
-      break; }
-    default:
-      is_template = false;
-      break;
-    }
-
-    Type *refd_gov = ass->get_Type();
-    if (!refd_gov) {
-      generate_code(expr);
-      return;
-    }
-
-    // use a separate expression struct for this reference in case any of the 
-    // subreferences need to convert the object further
-    expression_struct_t this_expr;
-    Code::init_expr(&this_expr);
-    if (is_template) {
-      this_expr.expr = mputprintf(this_expr.expr, "const_cast< const %s&>(",
-        refd_gov->get_genname_template(get_my_scope()).c_str() );
+      subrefs.remove_refs(2);
     } else {
-      this_expr.expr = mputprintf(this_expr.expr, "const_cast< const %s%s&>(",
-        refd_gov->get_genname_value(get_my_scope()).c_str(),
-          is_template ? "_template":"");
+      modid = 0;
+      id = first_id->clone();
+      subrefs.remove_refs(1);
     }
-
-    this_expr.expr = mputprintf(this_expr.expr, "%s(",
-        ass->get_genname_from_scope(my_scope).c_str());
-    parlist.generate_code_alias(&this_expr, ass->get_FormalParList(),
-          ass->get_RunsOnType(), false);
-    this_expr.expr = mputstr(this_expr.expr, "))");
-
-    t_subrefs->generate_code(&this_expr, ass, my_scope);
-    
-    expr->expr = mputstr(expr->expr, this_expr.expr);
-    if (this_expr.preamble != NULL) {
-      expr->preamble = mputstr(expr->preamble, this_expr.preamble);
-    }
-    if (this_expr.postamble != NULL) {
-      expr->postamble = mputstr(expr->postamble, this_expr.postamble);
-    }
-    Code::free_expr(&this_expr);
   }
+
 
   // =================================
   // ===== NameBridgingScope
@@ -8743,7 +8585,7 @@ namespace Ttcn {
   // =================================
   
   Def_Constructor::Def_Constructor(FormalParList* p_fp_list,
-    Ref_pard* p_base_call, StatementBlock* p_block)
+    Reference* p_base_call, StatementBlock* p_block)
   : Definition(A_CONSTRUCTOR, new Common::Identifier(
     Common::Identifier::ID_TTCN, string("create"), true)),
     fp_list(p_fp_list), base_call(p_base_call), block(p_block)
@@ -9123,7 +8965,7 @@ namespace Ttcn {
     Type::expected_value_t exp_val)
   {
     actual_par->chk_Type(type);
-    Ref_base *derived_ref = actual_par->get_DerivedRef();
+    Reference *derived_ref = actual_par->get_DerivedRef();
     if (derived_ref) {
       derived_ref->error("An in-line modified template cannot be used as %s",
           get_assname());
@@ -9228,7 +9070,7 @@ namespace Ttcn {
       break; }
 
     case Template::TEMPLATE_REFD: {
-      Ref_base *ref = body->get_reference();
+      Reference *ref = body->get_reference();
 
       Ttcn::ActualParList *aplist = ref->get_parlist();
       if (!aplist) break;
@@ -9354,7 +9196,7 @@ namespace Ttcn {
         get_assname());
       actual_par->chk_Type(type);
     }
-    Ref_base *derived_ref = actual_par->get_DerivedRef();
+    Reference *derived_ref = actual_par->get_DerivedRef();
     if (derived_ref) {
       derived_ref->error("An in-line modified template cannot be used as %s",
         get_assname());
@@ -9366,7 +9208,7 @@ namespace Ttcn {
       "variable or value parameter";
     Template *ap_template = actual_par->get_Template();
     if (ap_template->is_Ref()) {
-      Ref_base *ref = ap_template->get_Ref();
+      Reference *ref = ap_template->get_Ref();
       Common::Assignment *ass = ref->get_refd_assignment();
       if (!ass) {
         delete ref;
@@ -9512,7 +9354,7 @@ namespace Ttcn {
         "timer parameter");
       actual_par->chk_Type(0);
     }
-    Ref_base *derived_ref = actual_par->get_DerivedRef();
+    Reference *derived_ref = actual_par->get_DerivedRef();
     if (derived_ref) {
       derived_ref->error("An in-line modified template cannot be used as "
         "timer parameter");
@@ -9520,7 +9362,7 @@ namespace Ttcn {
     }
     Template *ap_template = actual_par->get_Template();
     if (ap_template->is_Ref()) {
-      Ref_base *ref = ap_template->get_Ref();
+      Reference *ref = ap_template->get_Ref();
       Common::Assignment *ass = ref->get_refd_assignment();
       if (!ass) {
         delete ref;
@@ -9559,7 +9401,7 @@ namespace Ttcn {
         "parameter");
       actual_par->chk_Type(type);
     }
-    Ref_base *derived_ref = actual_par->get_DerivedRef();
+    Reference *derived_ref = actual_par->get_DerivedRef();
     if (derived_ref) {
       derived_ref->error("An in-line modified template cannot be used as "
         "port parameter");
@@ -9567,7 +9409,7 @@ namespace Ttcn {
     }
     Template *ap_template = actual_par->get_Template();
     if (ap_template->is_Ref()) {
-      Ref_base *ref = ap_template->get_Ref();
+      Reference *ref = ap_template->get_Ref();
       Common::Assignment *ass = ref->get_refd_assignment();
       if (!ass) {
         delete ref;
@@ -9650,7 +9492,7 @@ namespace Ttcn {
                                                  template_restriction_t temp_res)
   {
     Template *temp = ti->get_Template();
-    Ref_base *dref = ti->get_DerivedRef();
+    Reference *dref = ti->get_DerivedRef();
     if (dref != NULL) {
       expression_struct expr;
       Code::init_expr(&expr);
@@ -10477,7 +10319,7 @@ namespace Ttcn {
       default:
         FATAL_ERROR("FormalParList::chk_activate_argument()");
       }
-      Ref_base *t_ref = t_ap->get_Ref();
+      Reference *t_ref = t_ap->get_Ref();
       Common::Assignment *t_par_ass = t_ref->get_refd_assignment();
       if(!t_par_ass) FATAL_ERROR("FormalParList::chk_activate_argument()");
       switch (t_par_ass->get_asstype()) {
@@ -10610,7 +10452,7 @@ namespace Ttcn {
     temp = t;
   }
 
-  ActualPar::ActualPar(Ref_base *r)
+  ActualPar::ActualPar(Reference *r)
     : Node(), selection(AP_REF), my_scope(0), gen_restriction_check(TR_NONE),
       gen_post_restriction_check(TR_NONE)
   {
@@ -10745,7 +10587,7 @@ namespace Ttcn {
     return temp;
   }
 
-  Ref_base *ActualPar::get_Ref() const
+  Reference *ActualPar::get_Ref() const
   {
     if (selection != AP_REF) FATAL_ERROR("ActualPar::get_Ref()");
     return ref;
@@ -10766,7 +10608,7 @@ namespace Ttcn {
       refch.prev_state();
       break;
     case AP_TEMPLATE: {
-      Ref_base *derived_ref = temp->get_DerivedRef();
+      Reference *derived_ref = temp->get_DerivedRef();
       if (derived_ref) {
         ActualParList *parlist = derived_ref->get_parlist();
         if (parlist) {
@@ -11163,7 +11005,7 @@ namespace Ttcn {
       str = temp->rearrange_init_code(str, usage_mod);
       Template *t = temp->get_Template();
       if (t->get_my_scope()->get_scope_mod_gen() == usage_mod) {
-        Ref_base *dref = temp->get_DerivedRef();
+        Reference *dref = temp->get_DerivedRef();
         if (dref) {
           expression_struct expr;
           Code::init_expr(&expr);
@@ -11450,7 +11292,7 @@ namespace Ttcn {
         // if the parameter references an element of a record of/set of, then
         // the record of object needs to know, so it doesn't delete the referenced
         // element
-        Ref_base* ref = par->get_Ref();
+        Reference* ref = par->get_Ref();
         FieldOrArrayRefs* subrefs = ref->get_subrefs();
         if (subrefs != NULL) {
           Common::Assignment* ass = ref->get_refd_assignment();

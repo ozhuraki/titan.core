@@ -6245,7 +6245,7 @@ void Type::chk_this_template_ref(Template *t)
   }
 }
 
-bool Type::chk_this_template_ref_pard(Ttcn::Ref_pard* ref_pard, Common::Assignment* lhs) 
+bool Type::chk_this_template_ref_pard(Ttcn::Reference* ref_pard, Common::Assignment* lhs) 
 {
   // Check if the reference on the left hand side of the assignment can be found 
   // among the parameters
@@ -6254,7 +6254,7 @@ bool Type::chk_this_template_ref_pard(Ttcn::Ref_pard* ref_pard, Common::Assignme
     size_t nof_pars = par_list->get_nof_pars();
     for (size_t i = 0; i < nof_pars; ++i) {
       Ttcn::ActualPar* par = par_list->get_par(i);
-      Ttcn::Ref_base* par_ref = 0;
+      Ttcn::Reference* par_ref = 0;
       switch(par->get_selection()) {
       case Ttcn::ActualPar::AP_TEMPLATE: {
         Ttcn::TemplateInstance* temp_ins = par->get_TemplateInstance();
@@ -6282,8 +6282,7 @@ bool Type::chk_this_template_ref_pard(Ttcn::Ref_pard* ref_pard, Common::Assignme
         if (ass->get_asstype() == Assignment::A_FUNCTION_RTEMP ||
           ass->get_asstype() == Assignment::A_EXT_FUNCTION_RTEMP ||
           ass->get_asstype() == Assignment::A_TEMPLATE) {
-          ref_pard = dynamic_cast<Ttcn::Ref_pard*>(par_ref);
-          if (ref_pard && chk_this_template_ref_pard(ref_pard, lhs))
+          if (par_ref->has_parameters() && chk_this_template_ref_pard(par_ref, lhs))
             return true;
         }  
       }
@@ -6401,9 +6400,10 @@ bool Type::chk_this_template_generic(Template *t, namedbool incomplete_allowed,
       case Assignment::A_FUNCTION_RTEMP:
       case Assignment::A_EXT_FUNCTION_RTEMP:
       case Assignment::A_TEMPLATE: {
-        Ttcn::Ref_pard* ref_pard = dynamic_cast<Ttcn::Ref_pard*>(ref);
-        if (ref_pard)
+        if (ref->has_parameters()) {
+          Ttcn::Reference* ref_pard = dynamic_cast<Ttcn::Reference*>(ref);
           self_ref |= chk_this_template_ref_pard(ref_pard, lhs);
+        }
         break; // acceptable
       }
       default:

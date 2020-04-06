@@ -394,7 +394,7 @@ namespace Ttcn {
     }
   }
 
-  Template::Template(Ref_base *p_ref)
+  Template::Template(Reference *p_ref)
     : GovernedSimple(S_TEMPLATE),
       templatetype(TEMPLATE_REFD), my_governor(0), length_restriction(0),
       is_ifpresent(false), specific_value_checked(false),
@@ -824,7 +824,7 @@ namespace Ttcn {
       switch(p_templatetype) {
       case TEMPLATE_REFD: {
         Value *v = u.specific_value;
-        u.ref.ref = v->steal_ttcn_ref_base();
+        u.ref.ref = v->steal_ttcn_ref();
         u.ref.refd = 0;
         u.ref.refd_last = 0;
         delete v;
@@ -1296,7 +1296,7 @@ namespace Ttcn {
     return u.specific_value;
   }
 
-  Ref_base *Template::get_reference() const
+  Reference *Template::get_reference() const
   {
     if (templatetype != TEMPLATE_REFD)
       FATAL_ERROR("Template::get_reference()");
@@ -2276,18 +2276,18 @@ namespace Ttcn {
     case Value::V_UNDEF_LOWERID:
       return true;
     case Value::V_REFD:
-      if (dynamic_cast<Ref_base*>(v->get_reference())) return true;
+      if (dynamic_cast<Reference*>(v->get_reference())) return true;
       else return false;
     default:
       return false;
     }
   }
 
-  Ref_base *Template::get_Ref()
+  Reference *Template::get_Ref()
   {
     if (templatetype != SPECIFIC_VALUE)
       FATAL_ERROR("Template::get_Ref()");
-    return u.specific_value->steal_ttcn_ref_base();
+    return u.specific_value->steal_ttcn_ref();
   }
 
   void Template::chk_recursions(ReferenceChain& refch)
@@ -2573,7 +2573,7 @@ end:
       // should be a ref now
       bool can_flatten = true;
       Common::Reference  *ref = innerv->get_reference();
-      if (dynamic_cast<Ttcn::Ref_pard*>(ref)) {
+      if (ref->has_parameters()) {
         // Cannot flatten at compile time if the template has parameters.
         can_flatten = false;
       }
@@ -2733,7 +2733,7 @@ end:
                 case SPECIFIC_VALUE: {
                   Value *val = orig->get_specific_value();
                   if (val->get_valuetype() == Value::V_REFD) {
-                    if (dynamic_cast<Ttcn::Ref_pard*>(val->get_reference())) {
+                    if (val->get_reference()->has_parameters()) {
                       // Cannot flatten at compile time if one of the values or templates has parameters.
                       can_flatten = false;
                     }
@@ -3147,7 +3147,7 @@ end:
   }
 
   template_restriction_t Template::get_sub_restriction(
-    template_restriction_t tr, Ref_base* ref)
+    template_restriction_t tr, Reference* ref)
   {
     if (!ref) FATAL_ERROR("Template::get_sub_restriction()");
     if (!ref->get_subrefs()) return tr;
@@ -4079,14 +4079,14 @@ end:
               FieldOrArrayRefs   *subrefs = ref->get_subrefs();
               Common::Assignment *ass = ref->get_refd_assignment();
               str_set_size = mputstrn(str_set_size, " + ", 3);
-              Ref_pard* ref_pard = dynamic_cast<Ref_pard*>(ref);
-              if (ref_pard) {
+              if (ref->has_parameters()) {
                  // in case of parametrised references:
                  //  - temporary parameters need to be declared (stored in str_preamble)
                  //  - the same temporary needs to be used at each call (generate_code_cached call)
                 expression_struct expr;
                 Code::init_expr(&expr);
 
+                Reference* ref_pard = dynamic_cast<Reference*>(ref);
                 ref_pard->generate_code_cached(&expr);
                 str_set_size = mputprintf(str_set_size, "%s", expr.expr);
                 if (expr.preamble)
@@ -4130,11 +4130,13 @@ end:
                   switch (spec->get_valuetype()) {
                   case Common::Value::V_REFD: {
                     ref = spec->get_reference();
-                    ref_pard = dynamic_cast<Ref_pard*>(ref);
-                    if (ref_pard)
+                    if (ref->has_parameters()) {
+                      Reference* ref_pard = dynamic_cast<Reference*>(ref);
                       ref_pard->generate_code_cached(&expr);
-                    else
+                    }
+                    else {
                       ref->generate_code(&expr);
+                    }
 
                     ass = ref->get_refd_assignment();
                     switch(ass->get_asstype()) {
@@ -4190,14 +4192,14 @@ end:
                   FieldOrArrayRefs   *subrefs = ref->get_subrefs();
                   Common::Assignment *ass = ref->get_refd_assignment();
                   str_set_size = mputstrn(str_set_size, " + ", 3);
-                  Ref_pard* ref_pard = dynamic_cast<Ref_pard*>(ref);
-                  if (ref_pard) {
+                  if (ref->has_parameters()) {
                     // in case of parametrised references:
                     //  - temporary parameters need to be declared (stored in str_preamble)
                     //  - the same temporary needs to be used at each call (generate_code_cached call)
                     expression_struct expr;
                     Code::init_expr(&expr);
 
+                    Reference* ref_pard = dynamic_cast<Reference*>(ref);
                     ref_pard->generate_code_cached(&expr);
                     str_set_size = mputprintf(str_set_size, "%s", expr.expr);
                     if (expr.preamble)
@@ -4249,11 +4251,13 @@ end:
                     switch (spec->get_valuetype()) {
                     case Common::Value::V_REFD: {
                       Common::Reference  *ref = spec->get_reference();
-                      Ref_pard* ref_pard = dynamic_cast<Ref_pard*>(ref);
-                      if (ref_pard)
+                      if (ref->has_parameters()) {
+                        Reference* ref_pard = dynamic_cast<Reference*>(ref);
                         ref_pard->generate_code_cached(&expr);
-                      else
+                      }
+                      else {
                         ref->generate_code(&expr);
+                      }
 
                       Common::Assignment* ass = ref->get_refd_assignment();
                       switch(ass->get_asstype()) {
@@ -4431,9 +4435,10 @@ compile_time:
         Common::Reference  *ref = spec->get_reference();
         expression_struct expr;
         Code::init_expr(&expr);
-        Ref_pard* ref_pard = dynamic_cast<Ref_pard*>(ref);
-        if (ref_pard)
+        if (ref->has_parameters()) {
+          Reference* ref_pard = dynamic_cast<Reference*>(ref);
           ref_pard->generate_code_cached(&expr);
+        }
         else
           ref->generate_code(&expr);
 
@@ -4547,14 +4552,14 @@ compile_time:
 
         str_set_type = mputstrn(str_set_type, " + ", 3);
         
-        Ref_pard* ref_pard = dynamic_cast<Ref_pard*>(ref);
-        if (ref_pard) {
+        if (ref->has_parameters()) {
           // in case of parametrised references:
           //  - temporary parameters need to be declared (stored in str_preamble)
           //  - the same temporary needs to be used at each call (generate_code_cached call)
           expression_struct expr;
           Code::init_expr(&expr);
 
+          Reference* ref_pard = dynamic_cast<Reference*>(ref);
           ref_pard->generate_code_cached(&expr);
           str_set_type = mputprintf(str_set_type, "%s", expr.expr);
           if (expr.preamble)
@@ -4619,12 +4624,14 @@ compile_time:
             Value *sv = t->u.all_from->u.specific_value;
             switch (sv->get_valuetype()) {
             case Value::V_REFD: {
-              Common::Reference *ref = sv->get_reference();             
-              Ref_pard* ref_pard = dynamic_cast<Ref_pard*>(ref);
-              if (ref_pard)
+              Common::Reference *ref = sv->get_reference();
+              if (ref->has_parameters()) {   
+                Reference* ref_pard = dynamic_cast<Reference*>(ref);
                 ref_pard->generate_code_cached(&expr);
-              else
+              }
+              else {
                 ref->generate_code(&expr);
+              }
 
               Common::Assignment* ass = ref->get_refd_assignment();
               switch(ass->get_asstype()) {
@@ -4761,14 +4768,14 @@ compile_time:
 
         str_set_type = mputstrn(str_set_type, " + ", 3);
         
-        Ref_pard* ref_pard = dynamic_cast<Ref_pard*>(ref);
-        if (ref_pard) {
+        if (ref->has_parameters()) {
           // in case of parametrised references:
           //  - temporary parameters need to be declared (stored in str_preamble)
           //  - the same temporary needs to be used at each call (generate_code_cached call)
           expression_struct expr;
           Code::init_expr(&expr);
 
+          Reference* ref_pard = dynamic_cast<Reference*>(ref);
           ref_pard->generate_code_cached(&expr);
           str_set_type = mputprintf(str_set_type, "%s", expr.expr);
           if (expr.preamble)
@@ -4832,11 +4839,13 @@ compile_time:
             switch (sv->get_valuetype()) {
             case Value::V_REFD: {
               Common::Reference *ref = sv->get_reference();
-              Ref_pard* ref_pard = dynamic_cast<Ref_pard*>(ref);
-              if (ref_pard)
+              if (ref->has_parameters()) {
+                Reference* ref_pard = dynamic_cast<Reference*>(ref);
                 ref_pard->generate_code_cached(&expr);
-              else
+              }
+              else {
                 ref->generate_code(&expr);
+              }
 
               Common::Assignment* ass = ref->get_refd_assignment();
               switch(ass->get_asstype()) {
@@ -5155,7 +5164,11 @@ compile_time:
     // generate code for the templates that are used in the actual parameter
     // list of the reference
     Common::Assignment *ass = u.ref.ref->get_refd_assignment();
-    if (actual_parlist) str = actual_parlist->rearrange_init_code(str, usage_mod);
+    if (actual_parlist != NULL &&
+        //ass->get_my_scope()->get_scope_mod_gen() == usage_mod &&
+        my_scope->get_statementblock_scope() == NULL) {
+      str = actual_parlist->rearrange_init_code(str, usage_mod);
+    }
     // do nothing if the reference does not point to a template definition
     if (ass->get_asstype() != Common::Assignment::A_TEMPLATE) return str;
     Template *t = ass->get_Template();
@@ -5538,7 +5551,7 @@ compile_time:
     last_gen_expr = p.last_gen_expr ? mcopystr(p.last_gen_expr) : NULL;
   }
 
-  TemplateInstance::TemplateInstance(Type *p_type, Ref_base *p_ref,
+  TemplateInstance::TemplateInstance(Type *p_type, Reference *p_ref,
     Template *p_body) : Node(), Location(), type(p_type),
     derived_reference(p_ref), template_body(p_body), last_gen_expr(NULL)
   {
@@ -5987,9 +6000,8 @@ compile_time:
     if (!get_Template()) return NULL;
     Ttcn::Template::templatetype_t tpt =  get_Template()->get_templatetype();
     if (Ttcn::Template::TEMPLATE_REFD != tpt) return NULL;
-    Ttcn::Ref_base* refbase = get_Template()->get_reference();
-    Ttcn::Reference * ref = dynamic_cast<Ttcn::Reference*>(refbase);
-    if (!ref) return NULL;
+    Ttcn::Reference * ref = get_Template()->get_reference();
+    if (ref->has_parameters()) return NULL;
     Common::Assignment* ass = ref->get_refd_assignment();
     Ttcn::Definition* def = dynamic_cast<Ttcn::Definition*>(ass);
     if (!def) return NULL;

@@ -76,7 +76,6 @@ namespace Ttcn {
   class Reference;
   class PortTypeBody;
   class Def_Type;
-  class Ref_pard;
   class ClassTypeBody;
   
   /** Stores the modifier of an attribute */
@@ -1014,7 +1013,7 @@ namespace Common {
       * and in parametrised templates. Returns true if the reference in assignment \a lhs 
       * is found. 
       * Recursive: calls itself incase of multiple embedded functions / parametrised templates.*/
-    bool chk_this_template_ref_pard(Ttcn::Ref_pard* ref_pard, Common::Assignment* lhs);
+    bool chk_this_template_ref_pard(Ttcn::Reference* ref_pard, Common::Assignment* lhs);
     bool chk_this_template_generic(Template *t, namedbool incomplete_allowed,
      namedbool allow_omit, namedbool allow_any_or_omit, namedbool sub_chk,
      namedbool implicit_omit, Common::Assignment *lhs);
