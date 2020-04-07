@@ -9335,10 +9335,7 @@ module NegSem_050402_actual_parameters_117 {
 
 
 <RESULT COUNT 1>
-error: at or before token `\{': syntax error, unexpected '\{'
-<END_RESULT>
-<RESULT COUNT 1>
-error: at or before token `control': syntax error, unexpected ControlKeyword, expecting \$end
+error: Reference to parameterized definition `a_test' without actual parameter list
 <END_RESULT>
 
 <END_TC>

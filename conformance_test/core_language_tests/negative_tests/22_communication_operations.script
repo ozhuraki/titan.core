@@ -4259,7 +4259,7 @@ module NegSyn_220301_CallOperation_002 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `\(': syntax error, unexpected '\(', expecting DotCatchOpKeyword or DotGetReplyOpKeyword
+error: at or before token `\{': syntax error, unexpected '\{', expecting DotCatchOpKeyword or DotGetReplyOpKeyword
 <END_RESULT>
 <RESULT COUNT 1>
 error: at or before token `control': syntax error, unexpected ControlKeyword, expecting \$end

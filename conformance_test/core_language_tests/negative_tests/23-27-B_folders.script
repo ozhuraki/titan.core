@@ -988,7 +988,7 @@ module NegSyn_2303_timer_stop_001 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `stop': syntax error, unexpected StopKeyword
+error: Reference to a function or altstep was expected instead of timer `@NegSyn_2303_timer_stop_001\.TComp\.t_timer', which cannot be invoked
 <END_RESULT>
 
 <END_TC>
@@ -2817,7 +2817,7 @@ module NegSem_2602_TheControlPart_006 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `kill': syntax error, unexpected DotKillKeyword, expecting DotTimeoutKeyword
+error: at or before token `kill': syntax error, unexpected DotKillKeyword
 <END_RESULT>
 
 <END_TC>
@@ -2969,7 +2969,7 @@ module NegSem_2602_TheControlPart_009 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `done': syntax error, unexpected DotDoneKeyword, expecting DotTimeoutKeyword
+error: at or before token `done': syntax error, unexpected DotDoneKeyword
 <END_RESULT>
 
 <END_TC>
@@ -3275,7 +3275,7 @@ module NegSem_2602_TheControlPart_015 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `send': syntax error, unexpected DotSendOpKeyword, expecting DotTimeoutKeyword
+error: at or before token `send': syntax error, unexpected DotSendOpKeyword
 <END_RESULT>
 
 <END_TC>
@@ -3322,7 +3322,7 @@ module NegSem_2602_TheControlPart_016 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `receive': syntax error, unexpected DotReceiveOpKeyword, expecting DotTimeoutKeyword
+error: at or before token `receive': syntax error, unexpected DotReceiveOpKeyword
 <END_RESULT>
 
 <END_TC>
@@ -3373,7 +3373,7 @@ module NegSem_2602_TheControlPart_017 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `call': syntax error, unexpected DotCallOpKeyword, expecting DotTimeoutKeyword
+error: at or before token `call': syntax error, unexpected DotCallOpKeyword
 <END_RESULT>
 
 <END_TC>
@@ -3423,7 +3423,7 @@ module NegSem_2602_TheControlPart_018 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `reply': syntax error, unexpected DotReplyKeyword, expecting DotTimeoutKeyword
+error: at or before token `reply': syntax error, unexpected DotReplyKeyword
 <END_RESULT>
 
 <END_TC>
@@ -3475,7 +3475,7 @@ module NegSem_2602_TheControlPart_019 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `raise': syntax error, unexpected DotRaiseKeyword, expecting DotTimeoutKeyword
+error: at or before token `raise': syntax error, unexpected DotRaiseKeyword
 <END_RESULT>
 
 <END_TC>
@@ -3523,7 +3523,7 @@ module NegSem_2602_TheControlPart_020 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `trigger': syntax error, unexpected DotTriggerOpKeyword, expecting DotTimeoutKeyword
+error: at or before token `trigger': syntax error, unexpected DotTriggerOpKeyword
 <END_RESULT>
 
 <END_TC>
@@ -3572,7 +3572,7 @@ module NegSem_2602_TheControlPart_021 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `getcall': syntax error, unexpected DotGetCallOpKeyword, expecting DotTimeoutKeyword
+error: at or before token `getcall': syntax error, unexpected DotGetCallOpKeyword
 <END_RESULT>
 
 <END_TC>
@@ -3620,7 +3620,7 @@ module NegSem_2602_TheControlPart_022 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `getreply': syntax error, unexpected DotGetReplyOpKeyword, expecting DotTimeoutKeyword
+error: at or before token `getreply': syntax error, unexpected DotGetReplyOpKeyword
 <END_RESULT>
 
 <END_TC>
@@ -3668,7 +3668,7 @@ module NegSem_2602_TheControlPart_023 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `catch': syntax error, unexpected DotCatchOpKeyword, expecting DotTimeoutKeyword
+error: at or before token `catch': syntax error, unexpected DotCatchOpKeyword
 <END_RESULT>
 
 <END_TC>
@@ -3716,7 +3716,7 @@ module NegSem_2602_TheControlPart_024 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `check': syntax error, unexpected DotCheckOpKeyword, expecting DotTimeoutKeyword
+error: at or before token `check': syntax error, unexpected DotCheckOpKeyword
 <END_RESULT>
 
 <END_TC>
@@ -3764,7 +3764,7 @@ module NegSem_2602_TheControlPart_025 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `clear': syntax error, unexpected DotClearOpKeyword, expecting DotTimeoutKeyword
+error: at or before token `clear': syntax error, unexpected DotClearOpKeyword
 <END_RESULT>
 
 <END_TC>
@@ -3911,7 +3911,7 @@ module NegSem_2602_TheControlPart_028 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `halt': syntax error, unexpected DotHaltKeyword, expecting DotTimeoutKeyword
+error: at or before token `halt': syntax error, unexpected DotHaltKeyword
 <END_RESULT>
 
 <END_TC>
