@@ -28,7 +28,7 @@ compiler -v
 or
 
 [source]
-compiler –-ttcn2json [ -jf ] … [ -T ] module.ttcn [ -A ] module.asn … [ - schema.json ]
+compiler --ttcn2json [ -jf ] … [ -T ] module.ttcn [ -A ] module.asn … [ - schema.json ]
 
 The compiler takes the name of files containing TTCN–3 and ASN.1 modules as arguments. The usual and recommended suffix is `.ttcn` for TTCN–3 and `.asn` for ASN.1 source files, but it is not stringentfootnote:[Other tool vendors may use .mp, .3mp or .asn1 suffixes as well.]. For TTCN–3 and ASN.1 modules, the names of the output files are the same as the name of the modules, except for the suffixes which are `.hh` and `.cc`.
 
@@ -212,7 +212,9 @@ Instructs the compiler to generate code for use with the function test runtime. 
 
 * `-s`
 +
-Instructs the compiler to parse the given TTCN–3 and ASN.1 modules and perform semantic analysis on them, but not to generate {cpp} output. The list of given modules shall be complete so it is not allowed to import from a module that is not in the list. All options that influence the code generation are silently ignored when used together with `-s`.
+Instructs the compiler to parse the given TTCN–3 and ASN.1 modules and perform semantic analysis on them, but not to generate {cpp} output.
+The list of given modules shall be complete so it is not allowed to import from a module that is not in the list.
+All options that influence the code generation are silently ignored when used together with `-s`.
 +
 NOTE: The TTCN–3 semantic analyzer of the compiler is still under development, thus, it is not capable of detecting every kind of semantic error.
 
@@ -228,7 +230,7 @@ quitter3.ttcn: In TTCN-3 module `quitter3':
    quitter3.ttcn:12.20-28: error: Reference to non-existent field `z' in record value for type `@quitter3.R'
 ----
 +
-The `–S` option causes the compiler to output only the error (last line), without the preceding lines of context.
+The `-S` option causes the compiler to output only the error (last line), without the preceding lines of context.
 
 * `-t`
 +
@@ -238,7 +240,7 @@ NOTE: In versions 1.1 and earlier this was the default behavior of the compiler,
 
 * `-T file`
 +
-Forces the interpretation of file as a TTCN–3 module.
+Forces the interpretation of file as a TTCN-3 module.
 
 * `-u`
 +
@@ -264,7 +266,7 @@ Sets the verbosity bit-mask directly to `n` (where n is a decimal value between 
 +
 32 | 16 | 8: DEBUG messages. The debug-bits act like a 3-bit-length number, so the debug level has a value between 0 and 7. It is useful in case of abnormal program termination.
 +
-NOTE: When only parsing (option –p) DEBUG messages for ASN.1 values will appear in TTCN-3 form (e.x.: booleans will appear as `true` or `false`, instead of `TRUE` or `FALSE`).
+NOTE: When only parsing (option -p) DEBUG messages for ASN.1 values will appear in TTCN-3 form (e.x.: booleans will appear as `true` or `false`, instead of `TRUE` or `FALSE`).
 +
 Example: If you use the option `-V 6`, then all NOTIFY and WARNING messages will be printed, but the "NOT SUPPORTED" messages will be suppressed. To have the most detailed log, use the option `-V 63`. The default is `-V 7`.
 
@@ -274,11 +276,11 @@ Suppresses all warning messages. Equivalent to `-V 4`.
 
 * `-x`
 +
-Disables the generation of TEXT encoder/decoder routines for all TTCN–3 types.
+Disables the generation of TEXT encoder/decoder routines for all TTCN-3 types.
 
 * `-X`
 +
-Disables the generation of XER encoder/decoder routines for all TTCN–3 types.
+Disables the generation of XER encoder/decoder routines for all TTCN-3 types.
 
 * `-y`
 +
@@ -300,9 +302,11 @@ Disables attribute checks for `encvalue` and `decvalue`. Must be used together w
 +
 The single dash character as command line argument has a special meaning: it controls the selective code generation. After the list of all TTCN–3 and ASN.1 modules a subset of these files can be given separated by a dash. This option instructs the compiler to parse all modules, perform the semantic analysis on the entire module hierarchy, but generate code only for those modules that are listed after the dash again. It is not allowed to specify a file name after the dash that was not present in the list before the dash. If the single dash is not present in the command line the compiler will generate code for all modules.
 
-* `–ttcn2json`
+* `-ttcn2json`
 +
-Changes the purpose of the compiler to generate a JSON schema from the types defined in the specified TTCN-3 and ASN.1 modules. The parsing and semantic check of the input modules is still executed, but a JSON schema is generated instead of the {cpp} files. This must always be the first compiler option, and the previously listed options don’t apply (apart from options `–A` and `–T`), instead the following options are available:
+Changes the purpose of the compiler to generate a JSON schema from the types defined in the specified TTCN-3 and ASN.1 modules.
+The parsing and semantic check of the input modules is still executed, but a JSON schema is generated instead of the {cpp} files.
+This must always be the first compiler option, and the previously listed options don’t apply (apart from options `-A` and `-T`), instead the following options are available:
 
 * `-j`
 +
@@ -327,7 +331,7 @@ The command line syntax of the makefile generator is the following:
 [source]
 ----
 usage: makefilegen [-abcdDEfFgGilLmMnNprRsStTVwWXZ] [-K file] [-P dir]
-[-J file] [-U none|type|’number’] [-e ets_name] [-o dir|file] [-z file]
+[-J file] [-U none|type|"number"] [-e ets_name] [-o dir|file] [-z file]
 [-t project_descriptor.tpd [-b buildconfig]] [-I path] [-O file]
 TTCN3_module[.ttcn] ... ASN1_module[.asn] ... XSD_MODULE.xsd ... Testport_name[.cc] ...
 ----
@@ -415,7 +419,7 @@ Activates the debugger and generates extra code needed for gathering debug infor
 +
 Ignore UNTAGGED encoding instruction applied to top level union types when encoding or decoding with XML. Legacy behavior.
 
-* `-o <dir> | < file>`
+* `-o <dir> | <file>`
 +
 Writes the Makefile to the given directory or file. If the given argument is an existing directory, the generated Makefile will be placed into that directory. Otherwise, it is assumed to be the name of the generated Makefile. By default the file name is `Makefile`, placed in the current working directory.
 
@@ -433,7 +437,7 @@ Use function test runtime (TITAN_RUNTIME_2). Generates a Makefile that compiles 
 
 * `-s`
 +
-Generates a `Makefile` skeleton to be used with the single mode of the run-time environment. The only difference between the Makefiles for single and parallel modes is the setting of variable `$``TTCN3_DIR` within them.
+Generates a `Makefile` skeleton to be used with the single mode of the run-time environment. The only difference between the Makefiles for single and parallel modes is the setting of variable `$TTCN3_DIR` within them.
 
 * `-S`
 +
@@ -477,31 +481,32 @@ image::images/projecthierarchy_graph.png[project_hierarchy_graph]
 The command line makefile generator can process the TPD file hierarchy generated by Eclipse and generate one or more Makefiles for these. There are three methods to generate Makefiles:
 
 . Generate a single Makefile that will contain all files from all projects.
-The following command line options can be used for this: `-t` `–b` `–D` `–P` `–V` `-W`.
-When using this method the –c switch should not be used because in this case all the files are seen as part of one large project.
+The following command line options can be used for this: `-t` `-b` `-D` `-P` `-V` `-W`.
+When using this method the -c switch should not be used because in this case all the files are seen as part of one large project.
 . Generate a Makefile hierarchy recursively (-r):
 for each TPD file generate a Makefile that builds only one project but
 has a dependency on other projects using the feature called "central storage".
 This dependency relation in the Makefile means that prior to building a project all the other projects
 that it depends on must be built. 
 The dependency relation is contained by the top-level project’s Makefile.
-For that to work the central storage (`-c` switch in the makefile generator) feature is used to avoid compiling the source files also in top level projects that have already been compiled in the sub-projects where they belong to. Using this one Makefile all the projects can be built in the proper order. The following command line options can be used for this: `-t` `–b` `–D` `–P` `–F` `–T` `–X` `–V` `-W` `-Z` `-H`.
+For that to work the central storage (`-c` switch in the makefile generator) feature is used to avoid compiling the source files also in top level projects that have already been compiled in the sub-projects where they belong to. Using this one Makefile all the projects can be built in the proper order. The following command line options can be used for this: `-t` `-b` `-D` `-P` `-F` `-T` `-X` `-V` `-W` `-Z` `-H`.
 . Generate a Makefile hierarchy with improved linking method (`-Z`):
 for each TPD file generate a Makefile that builds only one project but has a dependency on other projects.
 It provides highly flexible way of linking static- and/or dynamic libraries together.
-The following command line options are obligatory `-t` `–Z` `–F` `–r` and these are optional: `–H` `–W`.
+The following command line options are obligatory `-t` `-Z` `-F` `-r` and these are optional: `-H` `-W`.
 
 When generating multiple Makefiles the working directories of each referenced project are determined by the TPD file of the project.
 The TPD file can contain more than one build configuration, but there’s always one active configuration.
 The active configuration is determined by the TPD file itself by the element `<ActiveConfiguration>`.
 Different build configurations can have different working directories and other settings.
-This can be overruled by the referencing project’s required configuration setting (via `<requiredConfiguration>` embedded into `<configurationRequirement>`) or in case of a top-level TPD by using the –b command line option. Both the Makefile and the symlinks to source files are generated into the working directory.
+This can be overruled by the referencing project’s required configuration setting (via `<requiredConfiguration>` embedded into `<configurationRequirement>`)
+or in case of a top-level TPD by using the -b command line option. Both the Makefile and the symlinks to source files are generated into the working directory.
 
 If there is no "workingDirectory" specified in the TPD file, default directory will be created with name "bin".
 If more than one project define the same directory for working directory a collision can happen.
-This can be avoided by the command line switch –W (see below).
+This can be avoided by the command line switch -W (see below).
 
-If you want to generate Makefiles from tpd files with incremental dependency (via .d files), you shall apply switch –g and you must not apply –m, in addition to these the top level project descriptor (tpd) file shall contain the element ordering incremental dependency as follows:
+If you want to generate Makefiles from tpd files with incremental dependency (via .d files), you shall apply switch -g and you must not apply -m, in addition to these the top level project descriptor (tpd) file shall contain the element ordering incremental dependency as follows:
 
 [source]
 <incrementalDependencyRefresh>
@@ -546,11 +551,11 @@ Generate an XML file that describes the project hierarchy as seen by the makefil
 +
 Use current directory as working directory.
 +
-NOTE: This flag overrides the working directory coming from the TPD. In case of Generate Makefile hierarchy recursively (`-r`) flag, `–D` flag is valid only for top level project.
+NOTE: This flag overrides the working directory coming from the TPD. In case of Generate Makefile hierarchy recursively (`-r`) flag, `-D` flag is valid only for top level project.
 
 * `-W`
 +
-Prefix working directories with project name. This is needed if more than one TPD file is in the same directory, because this directory will then be the root of more than one project. The working directories (usually `bin') will conflict, by using –W the working directory name will be prefixed by the project name, for example `MyProject_bin'.
+Prefix working directories with project name. This is needed if more than one TPD file is in the same directory, because this directory will then be the root of more than one project. The working directories (usually `bin') will conflict, by using -W the working directory name will be prefixed by the project name, for example `MyProject_bin'.
 +
 NOTE: In case of incorrect TPD files, the errors are displayed multiple times if the faulty TPD is included more than once in the project structure.
 
@@ -567,30 +572,30 @@ Examples:
 . Hierarchical makefile file generation from the directory of the top level project:
 +
 [source]
-makefilegen –FrcgWp –t MyTopLevelProj.tpd
+makefilegen -FrcgWp -t MyTopLevelProj.tpd
 
 . Project hierarchy file generation:
 +
 [source]
-makefilegen -rcX –t MyTopLevelProj.tpd
+makefilegen -rcX -t MyTopLevelProj.tpd
 
 . Hierarchical makefile file generation from the directory of the top level project:
 +
 [source]
-makefilegen –FWrZH –t MyTopLevelProj.tpd
+makefilegen -FWrZH -t MyTopLevelProj.tpd
 
 . Generate list of files of all hierarchical projects: Go to the folder of your top level tpd file (or to the root directory of your projects) then use the following bash command:
 +
 [source]
-makefilegen –V –P $(pwd) –t TopLevelProj.tpd
+makefilegen -V -P $(pwd) -t TopLevelProj.tpd
 
 . Create archive file of all files in all hierarchical projects: Go to the root directory of your projects then use the following bash command:
 +
 [source]
-makefilegen –V –P $(pwd) –t path/to/your/TopLevelProj.tpd | xargs tar cfz YourArchive.tgz
+makefilegen -V -P $(pwd) -t path/to/your/TopLevelProj.tpd | xargs tar cfz YourArchive.tgz
 
 [[using-the-improved-linking-method-z-and-h-option]]
-==== Using the improved linking method (-Z and –H option)
+==== Using the improved linking method (-Z and -H option)
 
 Node `<ReferencedProjects>` contains the projects whose `<defaultTarget>` is either a library (static or dynamic) or an executable. See the XML excerpt.
 
@@ -615,7 +620,10 @@ Node `<ReferencedProjects>` contains the projects whose `<defaultTarget>` is eit
 </MakefileSettings>
 ----
 
-"refProj1" and "refProj2" are subprojects of the actual one. Other info about these subprojects can only be obtained in their own TPD file. `<incrementalDependencyRefresh>` is set to true in the project structure. `<GNUMake>` shall be set to true. In this scope other tools are not supported. The node `<dynamicLinking>` true sets the dynamic linking method for the actual project. The node `<defaultTarget>` indicates whether the output is a library. If it is omitted the output is an executable.
+"refProj1" and "refProj2" are subprojects of the actual one.
+Other info about these subprojects can only be obtained in their own TPD file.
+`<incrementalDependencyRefresh>` is set to true in the project structure.
+`<GNUMake>` shall be set to true. In this scope other tools are not supported. The node `<dynamicLinking>` true sets the dynamic linking method for the actual project. The node `<defaultTarget>` indicates whether the output is a library. If it is omitted the output is an executable.
 
 `<linkerLibrarySearchPath>` and `<linkerLibraries>` provide information about third party (not in the project hierarchy) libraries.
 
@@ -645,15 +653,15 @@ If the <defaultTarget> is library and <dynamicLinking> is false, the following a
 * it cannot be linked together with a third party static libraryfootnote:[Not supported] (e.g. openssl)
 * it can have subproject(s) with `<defaultTarget>` is executable
 
-If the project’s `<defaultTarget`> is an executable, then the static and dynamic libraries can be linked together. If on a lower level project there is reason to link static and dynamic libraries together, then the node `<defaultTarget>` shall be set to executable, too. If –H option is NOT set then NO executable file will be generated for lower level projects. In this case the Makefile will generate only objects. The top-level project’s `<defaultTarget>` shall be set to executable. This is not checked if the -H option is set, since it causes every node to behave as if it were the top-level node.
+If the project’s `<defaultTarget`> is an executable, then the static and dynamic libraries can be linked together. If on a lower level project there is reason to link static and dynamic libraries together, then the node `<defaultTarget>` shall be set to executable, too. If -H option is NOT set then NO executable file will be generated for lower level projects. In this case the Makefile will generate only objects. The top-level project’s `<defaultTarget>` shall be set to executable. This is not checked if the -H option is set, since it causes every node to behave as if it were the top-level node.
 
 *Important*: within a Project hierarchy if the real top-level project with `<defaultTarget>` executable is set to `<dynamicLinking>` true, then every sublevel project with `<defaultTarget>` executable shall be set to `<dynamicLinking>` true as well. A top-level project with `<defaultTarget>` executable and `<dynamicLinking>` false has no such constraint. If the above requirements are not fulfilled it results in a linker error. The Project hierarchy cannot contain circular references otherwise an error will be displayed.
 
-The makefile uses the linker flag –rpath, so there is no need to set the environment variable LD_LIBRARY_PATH for the libraries in the project hierarchy.
+The makefile uses the linker flag -rpath, so there is no need to set the environment variable LD_LIBRARY_PATH for the libraries in the project hierarchy.
 
-If option –H is used: There is a new make command in the makefile that is generated by using the H flag. The call of *make clean-all* cleans the whole hierarchy, whereas the behavior of *make clean* changed, it only cleans the actual project.
+If option -H is used: There is a new make command in the makefile that is generated by using the H flag. The call of *make clean-all* cleans the whole hierarchy, whereas the behavior of *make clean* changed, it only cleans the actual project.
 
-If option –H is not used: In a cleaned Makefile structure the *make* shall be called in the working directory of the top-level project.
+If option -H is not used: In a cleaned Makefile structure the *make* shall be called in the working directory of the top-level project.
 
 The optimal TPD for hierarchical structure (-H option)
 
@@ -661,15 +669,15 @@ The following picture shows a simple Project structure:
 
 image::images/struct.png[struct]
 
-The arrows show the Project references. T1 has two `<ReferencedProjects>` nodes in the TPD: M1 and M2. M1 has three: S1, S2 and S3, and so on. Since the structure is hierarchical S2 will be iterated twice. M1-S2 dependencies make S2 be compiled and linked. The makefile of M2 only knows about the project S2. If the code for M2 is generated, the iteration of S2 is inevitable, even if the make of M1 had generated the code. This cannot be avoided and increases the run time of T1’s make. But relations like T1-S3 (red arrow) should be omitted since they are unnecessary and avoidable. T1 does not need to iterate S3 since M1 did it before and T1 can reach it via M1. Summarized: Try to minimize the loops in the project hierarchy graph. In big hierarchies (50-100 Projects) a well-organized structure can have an overhead of up to 50%-100%. A poorly organized one can run even 5 times longer than the flat hierarchy (without –H option).
+The arrows show the Project references. T1 has two `<ReferencedProjects>` nodes in the TPD: M1 and M2. M1 has three: S1, S2 and S3, and so on. Since the structure is hierarchical S2 will be iterated twice. M1-S2 dependencies make S2 be compiled and linked. The makefile of M2 only knows about the project S2. If the code for M2 is generated, the iteration of S2 is inevitable, even if the make of M1 had generated the code. This cannot be avoided and increases the run time of T1’s make. But relations like T1-S3 (red arrow) should be omitted since they are unnecessary and avoidable. T1 does not need to iterate S3 since M1 did it before and T1 can reach it via M1. Summarized: Try to minimize the loops in the project hierarchy graph. In big hierarchies (50-100 Projects) a well-organized structure can have an overhead of up to 50%-100%. A poorly organized one can run even 5 times longer than the flat hierarchy (without -H option).
 
 Rewriting an existing hierarchy can lead to linker errors. For example: an error message beginning with “_undefined reference to…”_ means that one (or more) project(s) is/are missing from the calling one.
 
 *Usage hints:*
 
-. Hierarchical building can be applied by option –Z.
+. Hierarchical building can be applied by option -Z.
 
-. Any project can be regarded as top level project if the makefiles are generated with the additional option –H.
+. Any project can be regarded as top level project if the makefiles are generated with the additional option -H.
 
 . Remove unnecessary references. It can dramatically decrease the hierarchical build time. The Project hierarchy cannot contain circular references.
 
@@ -745,9 +753,9 @@ NOTE: OSS_DIR system variable needs to be set properly in your path.
 
 NOTE: Using makefile updater scripts are obsolete.
 
-==== Referred project usage with –I switch
+==== Referred project usage with -I switch
 
-If there are different TPD projects which often change location, then the –I path switch(es) can be used.
+If there are different TPD projects which often change location, then the -I path switch(es) can be used.
 
 Example TPD structure:
 `MainTpd.tpd` is the top level TPD and has several project dependencies. `MainTpd` depends on the following projects: `DepTpd1.tpd`, `DepTpd2.tpd` and `DepTpd3.tpd`.
@@ -774,14 +782,14 @@ The relevant part of the MainTpd.tpd is the following:
 When executing the `makefilegen` command
 [source]
 ----
-makefilegen –t MainTpd.Tpd –I /home/titan/foo
-–I /home/titan/dep_project2
-–I /home/titan/random_folder/dep_project3
+makefilegen -t MainTpd.Tpd -I /home/titan/foo
+-I /home/titan/dep_project2
+-I /home/titan/random_folder/dep_project3
 ----
 
 Then the tool’s logic when resolving the paths is the following:
 
-The first referred project’s name is `DepTpd1` and the tool will be able to find the `DepTpd1.tpd` in the relative path provided in the `projectLocationURI` attribute. The next referred project’s name is DepTpd2X and the tool will NOT be able to find the `DepTpd2.tpd` in the relative path provided in the `projectLocationURI` attribute. In this case the tool looks for the `tpdName` attribute which is now present. The tool takes the value of the `tpdName` attribute and in input order tries to find the `DepTpd2.tpd` at the paths in the –I switches. First try is at `/home/titan/foo` which is not correct. Second try is at `/home/titan/dep_project2 which` is correct because the DepTpd2.tpd file is at `/home/titan/dep_project2/DepTpd2.tpd` and the search stops at this point. No further trying will be done.
+The first referred project’s name is `DepTpd1` and the tool will be able to find the `DepTpd1.tpd` in the relative path provided in the `projectLocationURI` attribute. The next referred project’s name is DepTpd2X and the tool will NOT be able to find the `DepTpd2.tpd` in the relative path provided in the `projectLocationURI` attribute. In this case the tool looks for the `tpdName` attribute which is now present. The tool takes the value of the `tpdName` attribute and in input order tries to find the `DepTpd2.tpd` at the paths in the -I switches. First try is at `/home/titan/foo` which is not correct. Second try is at `/home/titan/dep_project2 which` is correct because the DepTpd2.tpd file is at `/home/titan/dep_project2/DepTpd2.tpd` and the search stops at this point. No further trying will be done.
 
 The last referred project’s name is DepTpd3 and the tool will NOT be able to find the `DepTpd3.tpd` in the relative path provided in the projectLocationURI attribute. In this case the tool looks for the `tpdName` attribute which is NOT present now. In this case the tool takes the value of the name attribute and concatenates it with the `.tpd` suffix and this name will be used during the search. The first and second tries are not successful but the third try is correct because the `DepTpd3.tpd` file is at `/home/titan/random_folder/dep_project3/DepTpd3.tpd`.
 
