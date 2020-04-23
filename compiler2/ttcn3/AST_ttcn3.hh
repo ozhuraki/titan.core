@@ -334,11 +334,12 @@ namespace Ttcn {
   };
 
   /**
-   * TTCN-3 reference without parameters.
+   * TTCN-3 reference.
    * Implements the automatic detection whether the first identifier is a
    * module name or not.
    */
   class Reference : public Ref_base {
+    reftype_t reftype;
     /** "Processed" parameter list, after the semantic check. */
     ActualParList* parlist;
     /** "Raw" parameter list, before the semantic check. */
@@ -352,10 +353,11 @@ namespace Ttcn {
     Reference(const Reference& p);
   public:
     Reference(Identifier *p_id);
-    Reference(Identifier *p_modid, Identifier *p_id)
-      : Ref_base(p_modid, p_id), parlist(NULL), params(NULL), gen_const_prefix(false), expr_cache(NULL) { }
+    Reference(reftype_t p_reftype);
+    Reference(Identifier *p_modid, Identifier *p_id, reftype_t p_reftype = REF_BASIC)
+      : Ref_base(p_modid, p_id), reftype(p_reftype), parlist(NULL), params(NULL), gen_const_prefix(false), expr_cache(NULL) { }
     Reference(Identifier *p_modid, Identifier *p_id,
-              ParsedActualParameters *p_params);
+              ParsedActualParameters *p_params, reftype_t p_reftype = REF_BASIC);
     ~Reference();
     virtual bool has_parameters() const;
     virtual Reference *clone() const;
@@ -363,6 +365,8 @@ namespace Ttcn {
     virtual void set_my_scope(Scope* p_scope);
     virtual string get_dispname();
     virtual Common::Assignment *get_refd_assignment(bool check_parlist = true);
+    virtual reftype_t get_reftype() const { return reftype; }
+    virtual void set_reftype(reftype_t p_reftype) { reftype = p_reftype; }
     virtual const Identifier* get_modid();
     virtual const Identifier* get_id();
     virtual ActualParList *get_parlist();

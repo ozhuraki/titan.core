@@ -728,6 +728,12 @@ public:
    * scope-hierarchy) than a Module.
    */
   class Ref_simple : public Reference {
+  public:
+    enum reftype_t {
+      REF_BASIC, // basic reference (not class related to any class scope)
+      REF_SUPER, // reference to the superclass
+      REF_THIS   // reference to the current class object
+    };
   protected: // Derived classes need access
     /** Points to the referred assignment. Used for caching. */
     Assignment *refd_ass;
@@ -743,6 +749,8 @@ public:
     /** Returns the \a id. */
     virtual const Identifier* get_id() =0;
     /** Creates a display-name for the reference. */
+    virtual reftype_t get_reftype() const { return REF_BASIC; }
+    virtual void set_reftype(reftype_t) { FATAL_ERROR("Ref_simple::set_reftype"); }
     virtual string get_dispname();
     virtual Setting* get_refd_setting();
     /** \param check_parlist is ignored */

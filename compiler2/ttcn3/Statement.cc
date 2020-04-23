@@ -140,14 +140,16 @@ namespace Ttcn {
       defs.add(id, p_def);
       if (parent_scope) {
 	if (parent_scope->has_ass_withId(id)) {
-	  const char *dispname = id.get_dispname().c_str();
-	  p_def->error("Definition with identifier `%s' is not unique"
-                       " in the scope hierarchy", dispname);
-	  Reference ref(0, id.clone());
-	  Common::Assignment *ass = parent_scope->get_ass_bySRef(&ref);
-	  if (!ass) FATAL_ERROR("StatementBlock::register_def()");
-	  ass->note("Previous definition with identifier `%s' in higher "
-                     "scope unit is here", dispname);
+    if (parent_scope->get_scope_class() == NULL) {
+      const char *dispname = id.get_dispname().c_str();
+      p_def->error("Definition with identifier `%s' is not unique"
+                         " in the scope hierarchy", dispname);
+      Reference ref(0, id.clone());
+      Common::Assignment *ass = parent_scope->get_ass_bySRef(&ref);
+      if (!ass) FATAL_ERROR("StatementBlock::register_def()");
+      ass->note("Previous definition with identifier `%s' in higher "
+                       "scope unit is here", dispname);
+    }
 	} else if (parent_scope->is_valid_moduleid(id)) {
 	  p_def->warning("Definition with name `%s' hides a module identifier",
 	    id.get_dispname().c_str());
@@ -163,7 +165,9 @@ namespace Ttcn {
 
   Common::Assignment* StatementBlock::get_ass_bySRef(Ref_simple *p_ref)
   {
-    if(p_ref->get_modid()) return get_parent_scope()->get_ass_bySRef(p_ref);
+    if(p_ref->get_modid() || p_ref->get_reftype() != Ref_simple::REF_BASIC) {
+      return get_parent_scope()->get_ass_bySRef(p_ref);
+    }
     const Identifier& id=*p_ref->get_id();
     if(defs.has_key(id)) return defs[id];
     else return get_parent_scope()->get_ass_bySRef(p_ref);
@@ -3150,6 +3154,14 @@ namespace Ttcn {
     }
     if (!t_ass) goto error;
     switch (t_ass->get_asstype()) {
+    case Common::Assignment::A_VAR:
+      if (t_ass->get_Type()->get_type_refd_last()->get_typetype() != Common::Type::T_CLASS) {
+        ref_pard->error("Reference to a function or altstep was expected "
+          "instead of %s, which cannot be invoked",
+          t_ass->get_description().c_str());
+        goto error;
+      }
+      // else fall through
     case Common::Assignment::A_FUNCTION:
     case Common::Assignment::A_FUNCTION_RVAL:
     case Common::Assignment::A_FUNCTION_RTEMP:
@@ -3232,6 +3244,19 @@ error:
   {
     Error_Context cntxt(this, "In function instance");
     Common::Assignment *t_ass = ref_pard->get_refd_assignment();
+    if (t_ass->get_asstype() == Common::Assignment::A_VAR) {
+      // it could be a class object method
+      Common::Assignment* last_method = NULL;
+      t_ass->get_Type()->get_field_type(ref_pard->get_subrefs(),
+        Type::EXPECTED_DYNAMIC_VALUE, 0, false, &last_method);
+      if (last_method == NULL) {
+        ref_pard->error("Reference to a function or altstep was expected");
+      }
+      else {
+        // do the checks on the method at the end of the subreferences instead
+        t_ass = last_method;
+      }
+    }
     if (t_ass->get_PortType()) {
       ref_pard->error("Function with `port' clause cannot be called directly.");
     }
@@ -9240,6 +9265,9 @@ error:
               refd_ass->get_asstype() == Common::Assignment::A_CONST) {
             rhs_name = string("const_") + rhs_name;
           }
+          else if (ref->get_reftype() == Ref_simple::REF_THIS) {
+            rhs_name = string("this->") + rhs_name;
+          }
           if (val->can_use_increment(ref)) {
             switch (val->get_optype()) {
             case Value::OPTYPE_ADD:
@@ -9352,6 +9380,9 @@ error:
           if (in_constructor &&
               refd_ass->get_asstype() == Common::Assignment::A_TEMPLATE) {
             rhs_name = string("template_") + rhs_name;
+          }
+          else if (ref->get_reftype() == Ref_simple::REF_THIS) {
+            rhs_name = string("this->") + rhs_name;
           }
           if (Common::Type::T_SEQOF == templ->get_my_governor()->get_typetype() ||
               Common::Type::T_ARRAY == templ->get_my_governor()->get_typetype()) {
@@ -11476,11 +11507,20 @@ error:
     if (!t_ass) return;
     Common::Assignment::asstype_t asstype = t_ass->get_asstype();
     switch (asstype) {
+    case Common::Assignment::A_TYPE:
+      if (t_ass->get_Type()->get_typetype() != Common::Type::T_CLASS) {
+        ref->error("Reference to a value, template, timer, port or class object "
+          "was expected instead of %s", t_ass->get_description().c_str());
+        return;
+      }
+      // else fall through
     case Common::Assignment::A_FUNCTION_RVAL:
     case Common::Assignment::A_FUNCTION_RTEMP:
     case Common::Assignment::A_EXT_FUNCTION_RVAL:
     case Common::Assignment::A_EXT_FUNCTION_RTEMP:
-    	ref->get_my_scope()->chk_runs_on_clause(t_ass, *this, "call");
+      if (asstype != Common::Assignment::A_TYPE) {
+        ref->get_my_scope()->chk_runs_on_clause(t_ass, *this, "call");
+      }
     case Common::Assignment::A_CONST:
     case Common::Assignment::A_EXT_CONST:
     case Common::Assignment::A_MODULEPAR:
@@ -11527,13 +11567,13 @@ error:
       break;
     case Common::Assignment::A_FUNCTION:
     case Common::Assignment::A_EXT_FUNCTION:
-      ref->error("Reference to a value, template, timer or port was expected "
-	"instead of a call of %s, which does not have return type",
+      ref->error("Reference to a value, template, timer, port or class object "
+	"was expected instead of a call of %s, which does not have return type",
 	t_ass->get_description().c_str());
       break;
     default:
-      ref->error("Reference to a value, template, timer or port was expected "
-	"instead of %s", t_ass->get_description().c_str());
+      ref->error("Reference to a value, template, timer, port or class object "
+	"was expected instead of %s", t_ass->get_description().c_str());
     }
   }
 

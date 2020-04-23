@@ -2985,7 +2985,7 @@ namespace Ttcn {
                                boolean p_abstract, Common::Type* p_base_type, Reference* p_runs_on_ref,
                                Reference* p_mtc_ref, Reference* p_system_ref,
                                Definitions* p_members, StatementBlock* p_finally_block)
-  : Scope(), Location(), class_id(p_class_id), external(p_external), final(p_final), abstract(p_abstract),
+  : Scope(), Location(), class_id(p_class_id), my_def(NULL), external(p_external), final(p_final), abstract(p_abstract),
     base_type(p_base_type), runs_on_ref(p_runs_on_ref), mtc_ref(p_mtc_ref), system_ref(p_system_ref),
     members(p_members), finally_block(p_finally_block), constructor(NULL), checked(false),
     default_constructor(false)
@@ -2998,6 +2998,7 @@ namespace Ttcn {
   ClassTypeBody::ClassTypeBody(const ClassTypeBody& p)
   {
     class_id = p.class_id->clone();
+    my_def = p.my_def;
     external = p.external;
     final = p.final;
     abstract = p.abstract;
@@ -3148,8 +3149,31 @@ namespace Ttcn {
     if (p_ref == NULL || parent_scope == NULL) {
       FATAL_ERROR("ClassTypeBody::get_ass_bySRef()");
     }
+    chk();
     if (p_ref->get_modid() == NULL) {
       const Common::Identifier* id = p_ref->get_id();
+      if (p_ref->get_reftype() == Ref_simple::REF_SUPER) {
+        if (base_type == NULL) {
+          p_ref->error("Reference to `super' in class type `%s', which has "
+            "no base class", class_id->get_dispname().c_str());
+          return NULL;
+        }
+        else {
+          // send the reference to the base type, with the reftype changed to 'this'
+          p_ref->set_reftype(Ref_simple::REF_THIS);
+          Common::Assignment* ass = base_type->get_type_refd_last()->
+            get_class_type_body()->get_ass_bySRef(p_ref);
+          p_ref->set_reftype(Ref_simple::REF_SUPER);
+          return ass;
+        }
+      }
+      else if (id == NULL && p_ref->get_reftype() == Ref_simple::REF_THIS) {
+        // reference is just 'this'
+        return my_def;
+        // nothing special is needed for 'this.field' or 'this.method'
+        // (it's already been handled at the lower scopes)
+      }
+      
       if (id != NULL && has_local_ass_withId(*id)) {
         Common::Assignment* ass = get_local_ass_byId(*id);
         if (ass == NULL) {
@@ -3261,14 +3285,13 @@ namespace Ttcn {
         case Common::Assignment::A_CONST:
         case Common::Assignment::A_VAR: {
           // add a formal parameter for this member
-          Common::Identifier* id = new Common::Identifier(
-            Common::Identifier::ID_TTCN, string("p_") + member->get_id().get_ttcnname());
+          Common::Identifier* id = member->get_id().clone();
           FormalPar* fp = new FormalPar(is_template ?
             Common::Assignment::A_PAR_TEMPL_IN : Common::Assignment::A_PAR_VAL_IN,
             member->get_Type()->clone(), id, NULL);
           fp_list->add_fp(fp);
           // add a statement, that assigns the parameter's value to the member
-          Reference* ref_lhs = new Reference(NULL, member->get_id().clone());
+          Reference* ref_lhs = new Reference(NULL, id->clone(), Ref_simple::REF_THIS);
           Reference* ref_rhs = new Reference(NULL, id->clone());
           Common::Value* val_rhs = new Value(Common::Value::V_REFD, ref_rhs);
           Template* temp_rhs = new Template(val_rhs);
@@ -3389,7 +3412,50 @@ namespace Ttcn {
           "}\n"
           "}\n\n", class_id->get_name().c_str());
       }
-
+      
+      // logging function (similar to logging a record value, but with the 
+      // class name and the base class' log at the beginning)
+      target->header.class_defs = mputstr(target->header.class_defs,
+        "public:\n"
+        "virtual void log() const;\n");
+      target->source.methods = mputprintf(target->source.methods,
+        "void %s::log() const\n"
+        "{\n"
+        "TTCN_Logger::log_event_str(\"%s: { \");\n",
+        class_id->get_name().c_str(), class_id->get_dispname().c_str());
+      bool first_logged = false;
+      if (base_type != NULL) {
+        target->source.methods = mputprintf(target->source.methods,
+          "%s::log();\n",
+          base_type->get_genname_value(this).c_str());
+        first_logged = true;
+      }
+      for (size_t i = 0; i < members->get_nof_asss(); ++i) {
+        Common::Assignment* member = members->get_ass_byIndex(i);
+        switch (member->get_asstype()) {
+        case Common::Assignment::A_CONST:
+        case Common::Assignment::A_VAR:
+        case Common::Assignment::A_TEMPLATE:
+        case Common::Assignment::A_VAR_TEMPLATE:
+        case Common::Assignment::A_TIMER: // ?
+          if (first_logged) {
+            target->source.methods = mputstr(target->source.methods,
+              "TTCN_Logger::log_event_str(\", \");\n");
+          }
+          target->source.methods = mputprintf(target->source.methods,
+            "TTCN_Logger::log_event_str(\"%s := \");\n"
+            "%s.log();\n",
+            member->get_id().get_dispname().c_str(), member->get_id().get_name().c_str());
+          first_logged = true;
+          break;
+        default:
+          break; // don't log anything for methods
+        }
+      }
+      target->source.methods = mputstr(target->source.methods,
+        "TTCN_Logger::log_event_str(\" }\");\n"
+        "}\n\n");
+      
       target->header.class_defs = mputstr(target->header.class_defs, "};\n\n");
     }
     else { // external class

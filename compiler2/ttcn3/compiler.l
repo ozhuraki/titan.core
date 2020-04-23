@@ -582,6 +582,30 @@ finally {
     RETURN_LVAL(IDentifier);
   }
 }
+this {
+  if (oop_features) {
+    RETURN(ThisKeyword);
+  }
+  else {
+    Location loc(infile, yylloc);
+    loc.warning("Keyword 'this' is treated as an identifier. Activate "
+      "compiler option '-k' to use object-oriented features.");
+    yylval.id = new Identifier(Identifier::ID_TTCN, string(yyleng, yytext));
+    RETURN_LVAL(IDentifier);
+  }
+}
+super {
+  if (oop_features) {
+    RETURN(SuperKeyword);
+  }
+  else {
+    Location loc(infile, yylloc);
+    loc.warning("Keyword 'super' is treated as an identifier. Activate "
+      "compiler option '-k' to use object-oriented features.");
+    yylval.id = new Identifier(Identifier::ID_TTCN, string(yyleng, yytext));
+    RETURN_LVAL(IDentifier);
+  }
+}
 
   /* modifier keywords */
 

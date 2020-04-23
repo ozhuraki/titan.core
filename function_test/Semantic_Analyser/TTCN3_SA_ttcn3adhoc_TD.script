@@ -4380,10 +4380,10 @@ control {
 }
 <END_MODULE>
 <RESULT COUNT 2>
-(?is)\berror: at or before token `12': syntax error, unexpected Number, expecting Identifier or Cstring
+(?is)\berror: at or before token `12': syntax error, unexpected Number
 <END_RESULT>
 <RESULT COUNT 2>
-(?is)\berror: at or before token `refers': syntax error, unexpected RefersKeyword, expecting Identifier or Cstring
+(?is)\berror: at or before token `refers': syntax error, unexpected RefersKeyword
 <END_RESULT>
 <RESULT COUNT 6>
 (?is)\berror: Invalid reference expression

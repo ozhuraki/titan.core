@@ -14,15 +14,32 @@
 #define OOP_HH
 
 #include "Universal_charstring.hh"
+#include "Logger.hh"
 
 // OBJECT
 // ------
 
 class OBJECT {
+private:
+  size_t ref_count;
+  
+  OBJECT(const OBJECT&); // copy disabled
+  OBJECT operator=(const OBJECT&); // assignment disabled
+  boolean operator==(const OBJECT&); // equality operator disabled
 public:
-  boolean operator==(const OBJECT&) const { return TRUE; }
-  UNIVERSAL_CHARSTRING toString() const {
-    return UNIVERSAL_CHARSTRING("Object");
+  OBJECT(): ref_count(0) {}
+  virtual ~OBJECT() {
+    if (ref_count != 0) {
+      TTCN_error("Internal error: deleting an object with %lu reference(s) left.", ref_count);
+    }
+  }
+  void add_ref() { ++ref_count; }
+  boolean remove_ref() {
+    --ref_count;
+    return ref_count == 0;
+  }
+  void log() const {
+    TTCN_Logger::log_event_str("object: { }");
   }
 };
 
@@ -31,37 +48,34 @@ public:
 
 template <typename T>
 class OBJECT_REF {
-public:
-  struct object_ref_struct {
-    T* obj_ptr;
-    size_t ref_count;
-  };
-  
+  template <typename T2>
+  friend boolean operator==(null_type, const OBJECT_REF<T2>& right_val);
+  template <typename T2>
+  friend boolean operator!=(null_type, const OBJECT_REF<T2>& right_val);
 private:
-  object_ref_struct* val_ptr; // NULL if it's a null reference
+  T* ptr; // NULL if it's a null reference
   
   void clean_up() {
-    if (val_ptr != NULL) {
-      --val_ptr->ref_count;
-      if (val_ptr->ref_count == 0) {
-        delete val_ptr->obj_ptr;
-        delete val_ptr;
+    if (ptr != NULL) {
+      if (ptr->remove_ref()) {
+        delete ptr;
       }
-      val_ptr = NULL;
+      ptr = NULL;
     }
   }
   
 public:
-  OBJECT_REF(): val_ptr(NULL) {} // constructor for null reference
+  OBJECT_REF(): ptr(NULL) {} // constructor with no parameters
+
+  OBJECT_REF(null_type): ptr(NULL) {} // constructor for null reference
   
-  OBJECT_REF(T* p_obj_ptr): val_ptr(new object_ref_struct) { // constructor for new value (.create)
-    val_ptr->obj_ptr = p_obj_ptr;
-    val_ptr->ref_count = 1;
+  OBJECT_REF(T* p_ptr): ptr(p_ptr) { // constructor for new value (.create)
+    ptr->add_ref();
   }
   
-  OBJECT_REF(const OBJECT_REF<T>& p_other): val_ptr(p_other.val_ptr) { // copy constructor
-    if (val_ptr != NULL) {
-      ++val_ptr->ref_count;
+  OBJECT_REF(const OBJECT_REF<T>& p_other): ptr(p_other.ptr) { // copy constructor
+    if (ptr != NULL) {
+      ptr->add_ref();
     }
   }
   
@@ -75,44 +89,69 @@ public:
   
   OBJECT_REF& operator=(const OBJECT_REF<T>& p_other) { // assignment operator for actual reference
     clean_up();
-    if (p_other.val_ptr != NULL) {
-      val_ptr = p_other.val_ptr;
-      ++val_ptr->ref_count;
+    if (p_other.ptr != NULL) {
+      ptr = p_other.ptr;
+      ptr->add_ref();
     }
     return *this;
   }
   
-  boolean operator==(const OBJECT_REF<T>& p_other) const { // equality operator
-    if (val_ptr == p_other.val_ptr) return TRUE;
-    if (val_ptr == NULL || p_other.val_ptr == NULL) return FALSE;
-    return *val_ptr->obj_ptr == *p_other.val_ptr->obj_ptr;
+  boolean operator==(null_type) const { // equality operator (with null reference)
+    return ptr == NULL;
   }
   
-  boolean operator!=(const OBJECT_REF<T>& p_other) const { // inequality operator
-    return !(*this == p_other);
+  boolean operator!=(null_type) const { // inequality operator (with null reference)
+    return ptr != NULL;
+  }
+  
+  boolean operator==(const OBJECT_REF<T>& p_other) const { // equality operator (with actual reference)
+    return ptr == p_other.ptr;
+  }
+  
+  boolean operator!=(const OBJECT_REF<T>& p_other) const { // inequality operator (with actual reference)
+    return ptr != p_other.ptr;
   }
   
   T* operator*() { // de-referencing operator
-    if (val_ptr != NULL) {
-      return val_ptr->obj_ptr;
+    if (ptr != NULL) {
+      return ptr;
     }
     TTCN_error("Accessing a null reference.");
   }
   
   T* operator->() { // de-referencing operator (for methods)
-    if (val_ptr != NULL) {
-      return val_ptr->obj_ptr;
+    if (ptr != NULL) {
+      return ptr;
     }
     TTCN_error("Accessing a null reference.");
   }
   
   const T* operator->() const { // de-referencing operator (for constant methods)
-    if (val_ptr != NULL) {
-      return val_ptr->obj_ptr;
+    if (ptr != NULL) {
+      return ptr;
     }
     TTCN_error("Accessing a null reference.");
   }
+  
+  void log() const {
+    if (ptr == NULL) {
+      TTCN_Logger::log_event_str("null");
+    }
+    else {
+      ptr->log();
+    }
+  }
 };
+
+template<typename T>
+boolean operator==(null_type, const OBJECT_REF<T>& right_val) { // equality operator (with null reference, inverted)
+  return right_val.ptr == NULL;
+}
+
+template<typename T>
+boolean operator!=(null_type, const OBJECT_REF<T>& right_val) { // inequality operator (with null reference, inverted)
+  return right_val.ptr != NULL;
+}
 
 // EXCEPTION
 // ---------

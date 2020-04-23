@@ -4131,6 +4131,9 @@ bool Type::chk_this_value(Value *value, Common::Assignment *lhs, expected_value_
   case T_TESTCASE:
     chk_this_value_FAT(value);
     break;
+  case T_CLASS:
+    chk_this_value_class(value);
+    break;
   default:
     FATAL_ERROR("Type::chk_this_value()");
   } // switch
@@ -4194,6 +4197,15 @@ bool Type::chk_this_refd_value(Value *value, Common::Assignment *lhs, expected_v
       error_flag = true;
     }
     break;
+  case Assignment::A_TYPE:
+    if (ass->get_Type()->get_type_refd_last()->typetype != T_CLASS) {
+      value->error("Reference to a %s was expected instead of %s",
+        expected_value == EXPECTED_TEMPLATE ? "value or template" : "value",
+        ass->get_description().c_str());
+      value->set_valuetype(Value::V_ERROR);
+      return self_ref;
+    }
+    // else fall through
   case Assignment::A_VAR:
   case Assignment::A_PAR_VAL:
   case Assignment::A_PAR_VAL_IN:
@@ -5975,6 +5987,31 @@ void Type::chk_this_value_FAT(Value *value)
   }
 }
 
+void Type::chk_this_value_class(Value* value)
+{
+  Value* v = value->get_value_refd_last();
+  switch(v->get_valuetype()) {
+  case Value::V_TTCN3_NULL:
+    break; // OK
+  case Value::V_REFD:
+    // TODO
+    break;
+  case Value::V_EXPR:
+    switch (v->get_optype()) {
+    case Value::OPTYPE_CLASS_CREATE:
+      // TODO
+      break;
+    default:
+      // error
+      break;
+    }
+    break;
+  default:
+    // error
+    break;
+  }
+}
+
 void Type::chk_this_template_length_restriction(Template *t)
 {
   Ttcn::LengthRestriction *lr = t->get_length_restriction();
@@ -6108,6 +6145,40 @@ void Type::chk_this_template_ref(Template *t)
     // endless recursion in case of embedded circular references.
     // The parameter lists will be verified later.
     Assignment *ass = v->get_reference()->get_refd_assignment(false);
+    if (ass != NULL && ass->get_asstype() == Assignment::A_VAR) {
+      // there could be class objects in the subreferences, which would change
+      // the type of the assignment (e.g. to a var template);
+      // use the assignment after the last class object in the subreference chain
+      Ttcn::FieldOrArrayRefs* subrefs = v->get_reference()->get_subrefs();
+      if (subrefs != NULL) {
+        Type* type = ass->get_Type();
+        if (type->get_field_type(subrefs, EXPECTED_DYNAMIC_VALUE) != NULL) {
+          // subrefs are valid
+          for (size_t i = 0; i < subrefs->get_nof_refs(); ++i) {
+            type = type->get_type_refd_last();
+            Ttcn::FieldOrArrayRef* subref = subrefs->get_ref(i);
+            switch (subref->get_type()) {
+            case Ttcn::FieldOrArrayRef::FIELD_REF:
+            case Ttcn::FieldOrArrayRef::FUNCTION_REF:
+              if (type->typetype == T_CLASS) {
+                ass = type->get_class_type_body()->
+                  get_local_ass_byId(*subref->get_id());
+                type = ass->get_Type();
+              }
+              else {
+                type = type->get_comp_byName(*subref->get_id())->get_type();
+              }
+              break;
+            case Ttcn::FieldOrArrayRef::ARRAY_REF:
+              if (type->is_structured_type()) {
+                type = type->get_ofType();
+              }
+              break;
+            }
+          }
+        }
+      }
+    }
     if (ass) {
       switch (ass->get_asstype()) {
       case Assignment::A_VAR_TEMPLATE: {

@@ -781,10 +781,12 @@ static const string anyname("anytype");
 %token StartKeyword
 %token StopKeyword
 %token SubsetKeyword
+%token SuperKeyword
 %token SupersetKeyword
 %token SystemKeyword
 %token TemplateKeyword
 %token TestcaseKeyword
+%token ThisKeyword
 %token TimeoutKeyword
 %token TimestampKeyword
 %token TimerKeyword
@@ -1946,20 +1948,20 @@ optDecodedModifier
 %left '*' '/' ModKeyword RemKeyword
 %left UnarySign
 
-%expect 68
+%expect 75
 
 %start GrammarRoot
 
 /*
-XXX Source of conflicts (68 S/R):
+XXX Source of conflicts (75 S/R):
 
-1.) 10 conflicts in one state
+1.) 12 conflicts in one state
 The Expression after 'return' keyword is optional in ReturnStatement.
-For 10 tokens the parser cannot decide whether the token is a part of
+For 12 tokens the parser cannot decide whether the token is a part of
 the return expression (shift) or it is the beginning of the next statement
 (reduce).
 
-2.) 10 distinct states, each with one conflict caused by token '['
+2.) 13 distinct states, each with one conflict caused by token '['
 The local definitions in altsteps can be followed immediately by the guard
 expression. When the parser sees the '[' token it cannot decide whether it
 belongs to the local definition as array dimension or array subreference
@@ -1975,6 +1977,9 @@ The situations are the following:
 - var t v := ref.function(...)<subrefs> <here> [
 - var template t v := decmatch (...) ref <here> [
 - var t v := valueof(...)<subrefs> <here> [
+- var t v := this.field <here> [
+- var t v := this.function(...) <here> [
+- var t v := super.function(...) <here> [
 
 3.) 1 conflict
 The sequence identifier.objid can be either the beginning of a module name
@@ -1991,9 +1996,9 @@ non-standard language extension.
 
 6.) 1 Conflict due to pattern concatenation
 
-7.) 27 conflicts in one state
+7.) 29 conflicts in one state
 In the DecodedContentMatch rule a SingleExpression encased in round brackets is
-followed by an in-line template. For 27 tokens (after the ')' ) the parser cannot
+followed by an in-line template. For 29 tokens (after the ')' ) the parser cannot
 decide whether the token is the beginning of the in-line template (shift) or
 the brackets are only part of the SingleExpression itself and the conflicting
 token is the next segment in the expression (reduce).
@@ -3550,6 +3555,7 @@ ClassDef:
     type->set_location(infile, @$);
     $$ = new Def_Type($5, type);
     $$->set_location(infile, @$);
+    class_->set_my_def($$);
   }
 ;
 
@@ -8710,6 +8716,42 @@ Reference: // 490 ValueReference
     Free($2.elements);
     $$.ref->set_location(infile, @$);
   }
+| ThisKeyword '.' IDentifier optExtendedFieldReference
+  {
+    $$.is_ref = true;
+    $$.ref = new Ttcn::Reference(NULL, $3, Ref_simple::REF_THIS);
+    for (size_t i = 0; i < $4.nElements; i++) {
+      $$.ref->add($4.elements[i]);
+    }
+    Free($4.elements);
+    $$.ref->set_location(infile, @$);
+  }
+| ThisKeyword '.' IDentifier '(' optFunctionActualParList ')' optExtendedFieldReference
+  {
+    $$.is_ref = true;
+    $$.ref = new Ttcn::Reference(NULL, $3, $5, Ref_simple::REF_THIS);
+    for (size_t i = 0; i < $7.nElements; i++) {
+      $$.ref->add($7.elements[i]);
+    }
+    Free($7.elements);
+    $$.ref->set_location(infile, @$);
+  }
+| ThisKeyword
+  {
+    $$.is_ref = true;
+    $$.ref = new Ttcn::Reference(Ref_simple::REF_THIS);
+    $$.ref->set_location(infile, @$);
+  }
+| SuperKeyword '.' IDentifier '(' optFunctionActualParList ')' optExtendedFieldReference
+  {
+    $$.is_ref = true;
+    $$.ref = new Ttcn::Reference(NULL, $3, $5, Ref_simple::REF_SUPER);
+    for (size_t i = 0; i < $7.nElements; i++) {
+      $$.ref->add($7.elements[i]);
+    }
+    Free($7.elements);
+    $$.ref->set_location(infile, @$);
+  }
 ;
 
 /* A.1.6.5 Parameterization */
@@ -10619,6 +10661,18 @@ IschosenArg: /* see also Reference... */
     Free($4.elements);
     $$.ref->set_location(infile, @1, @4);
     $$.id = $6;
+  }
+| IDentifier '.' IDentifier '(' optFunctionActualParList ')'
+  optExtendedFieldReference '.' PredefOrIdentifier
+  {
+    $$.ref = new Ttcn::Reference($1);
+    FieldOrArrayRef* funcref = new FieldOrArrayRef($3, $5);
+    funcref->set_location(infile, @3, @5);
+    $$.ref->add(funcref);
+    for (size_t i = 0; i < $7.nElements; i++) $$.ref->add($7.elements[i]);
+    Free($7.elements);
+    $$.ref->set_location(infile, @1, @7);
+    $$.id = $9;
   }
 | IDentifier ArrayOrBitRef optExtendedFieldReference '.' PredefOrIdentifier
   {

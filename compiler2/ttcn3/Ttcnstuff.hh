@@ -756,6 +756,7 @@ public:
 
 class ClassTypeBody : public Common::Scope, public Common::Location {
   Common::Identifier* class_id; // not owned
+  Definition* my_def; // pointer to the class type definition (not owned)
   boolean external;
   boolean final;
   boolean abstract;
@@ -780,6 +781,8 @@ public:
   ClassTypeBody* clone() const;
   virtual ~ClassTypeBody();
   
+  void set_my_def(Definition* p_def) { my_def = p_def; }
+  
   void set_fullname(const string& p_fullname);
   void set_my_scope(Scope* p_scope);
   void dump(unsigned level) const;
@@ -788,6 +791,7 @@ public:
   virtual const ClassTypeBody* get_scope_class() const { return this; }
   Common::Identifier* get_id() const { return class_id; }
   Def_Constructor* get_constructor();
+  Common::Type* get_base_type() const { return base_type; }
   
   bool is_parent_class(const ClassTypeBody* p_class) const;
   bool has_local_ass_withId(const Identifier& p_id);

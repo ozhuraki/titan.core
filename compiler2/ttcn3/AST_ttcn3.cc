@@ -430,11 +430,7 @@ namespace Ttcn {
                                        bool const_ref, /* = false */
                                        bool is_template, /* = false */
                                        size_t nof_subrefs /* = UINT_MAX */)
-  {
-    // ensure everything is checked
-    // TODO: incorporate this into the semantic analysis somehow...
-    if (type) type->get_field_type(this, Common::Type::EXPECTED_DYNAMIC_VALUE);
-    
+  {    
     size_t n_refs = (nof_subrefs != UINT_MAX) ? nof_subrefs : refs.size();
     for (size_t i = 0; i < n_refs; i++) {
       if (type) type = type->get_type_refd_last();
@@ -691,21 +687,31 @@ namespace Ttcn {
   // =================================
   
   Reference::Reference(const Reference& p)
-    : Ref_base(p), parlist(NULL), gen_const_prefix(false), expr_cache(NULL)
+    : Ref_base(p), reftype(p.reftype), parlist(NULL), gen_const_prefix(false),
+    expr_cache(NULL)
   {
     params = p.params != NULL ? p.params->clone() : NULL;
   }
 
   Reference::Reference(Identifier *p_id)
-    : Ref_base(), parlist(NULL), params(NULL), gen_const_prefix(false),
-    expr_cache(NULL)
+    : Ref_base(), reftype(REF_BASIC), parlist(NULL), params(NULL),
+    gen_const_prefix(false), expr_cache(NULL)
   {
     subrefs.add(new FieldOrArrayRef(p_id));
   }
   
+  Reference::Reference(reftype_t p_reftype)
+  : Ref_base(), reftype(p_reftype), parlist(NULL), params(NULL),
+    gen_const_prefix(false), expr_cache(NULL)
+  {
+    if (reftype != REF_THIS) {
+      FATAL_ERROR("Ttcn::Reference(): basic or 'super' reference with no ID");
+    }
+  }
+  
   Reference::Reference(Identifier *p_modid, Identifier *p_id,
-                       ParsedActualParameters *p_params)
-    : Ref_base(p_modid, p_id), parlist(NULL), params(p_params),
+                       ParsedActualParameters *p_params, reftype_t p_reftype)
+    : Ref_base(p_modid, p_id), reftype(p_reftype), parlist(NULL), params(p_params),
     gen_const_prefix(false), expr_cache(NULL)
   {
     if (p_params == NULL) {
@@ -1043,6 +1049,21 @@ namespace Ttcn {
     ref_usage_found();
     Common::Assignment *ass = get_refd_assignment();
     if (!ass) FATAL_ERROR("Reference::generate_code()");
+    if (reftype == REF_THIS) {
+      if (id != NULL) {
+        expr->expr = mputstr(expr->expr, "this->");
+      }
+      else { // no 'id' means it's just a 'this' reference
+        expr->expr = mputprintf(expr->expr, "OBJECT_REF<%s>(this)",
+          ass->get_Type()->get_genname_value(my_scope).c_str());
+        return;
+      }
+    }
+    else if (reftype == REF_SUPER) {
+      expr->expr = mputprintf(expr->expr, "%s::",
+        my_scope->get_scope_class()->get_base_type()->
+        get_genname_value(my_scope).c_str());
+    }
     string const_prefix; // empty by default
     if (gen_const_prefix) {
       if (ass->get_asstype() == Common::Assignment::A_CONST) {
@@ -1053,8 +1074,6 @@ namespace Ttcn {
       }
     }
     if (parlist != NULL) {
-      // reference without parameters to a template that has only default formal parameters.
-      // if @lazy: nothing to do, it's a C++ function call just like in case of Ref_pard::generate_code()
       expr->expr = mputprintf(expr->expr, "%s(",
         ass->get_genname_from_scope(my_scope).c_str());
       parlist->generate_code_alias(expr, ass->get_FormalParList(),
@@ -1208,9 +1227,16 @@ namespace Ttcn {
       
       expression_struct isbound_expr;
       Code::init_expr(&isbound_expr);
-      isbound_expr.preamble = mputprintf(isbound_expr.preamble,
+      if (ass->get_Type()->get_type_refd_last()->get_typetype() == Common::Type::T_CLASS) {
+        isbound_expr.preamble = mputprintf(isbound_expr.preamble,
+          "boolean %s = %s != NULL_VALUE;\n", tmp_generalid_str,
+          ass_id_str);
+      }
+      else {
+        isbound_expr.preamble = mputprintf(isbound_expr.preamble,
           "boolean %s = %s.is_bound();\n", tmp_generalid_str,
           ass_id_str);
+      }
       namedbool p_optype;
       if (optype == Value::OPTYPE_ISBOUND) {
         p_optype = ISBOUND;
@@ -1268,7 +1294,7 @@ namespace Ttcn {
   void Reference::detect_modid()
   {
     // do nothing if detection is already performed
-    if (id) return;
+    if (id || reftype == REF_THIS) return;
     // the first element of subrefs must be an <id>
     const Identifier *first_id = subrefs.get_ref(0)->get_id(), *second_id = 0;
     const ParsedActualParameters* second_params = 0;
@@ -2177,14 +2203,16 @@ namespace Ttcn {
         ass_m.add(name, def);
         if (parent_scope) {
           if (parent_scope->has_ass_withId(id)) {
-            const char *dispname_str = id.get_dispname().c_str();
-            def->error("Definition with identifier `%s' is not unique in the "
-              "scope hierarchy", dispname_str);
-            Reference ref(0, id.clone());
-            Common::Assignment *ass = parent_scope->get_ass_bySRef(&ref);
-            if (!ass) FATAL_ERROR("OtherDefinitions::chk_for()");
-            ass->note("Previous definition with identifier `%s' in higher "
-              "scope unit is here", dispname_str);
+            if (parent_scope->get_scope_class() == NULL) {
+              const char *dispname_str = id.get_dispname().c_str();
+              def->error("Definition with identifier `%s' is not unique in the "
+                "scope hierarchy", dispname_str);
+              Reference ref(0, id.clone());
+              Common::Assignment *ass = parent_scope->get_ass_bySRef(&ref);
+              if (!ass) FATAL_ERROR("OtherDefinitions::chk_for()");
+              ass->note("Previous definition with identifier `%s' in higher "
+                "scope unit is here", dispname_str);
+            }
           } else if (parent_scope->is_valid_moduleid(id)) {
             def->warning("Definition with name `%s' hides a module identifier",
               id.get_dispname().c_str());
@@ -2608,6 +2636,11 @@ namespace Ttcn {
 
   Common::Assignment* Module::get_ass_bySRef(Ref_simple *p_ref)
   {
+    if (p_ref->get_reftype() != Ref_simple::REF_BASIC) {
+      p_ref->error("Reference to `%s' can only be used inside a class definition",
+        p_ref->get_reftype() == Ref_simple::REF_THIS ? "this" : "super");
+      return NULL;
+    }
     const Identifier *r_modid = p_ref->get_modid();
     const Identifier *r_id = p_ref->get_id();
     if (r_modid) {
@@ -9834,7 +9867,9 @@ namespace Ttcn {
   Common::Assignment *FormalParList::get_ass_bySRef(Common::Ref_simple *p_ref)
   {
     if (!p_ref || !checked) FATAL_ERROR("FormalParList::get_ass_bySRef()");
-    if (p_ref->get_modid()) return parent_scope->get_ass_bySRef(p_ref);
+    if (p_ref->get_modid() || p_ref->get_reftype() != Ref_simple::REF_BASIC) {
+      return parent_scope->get_ass_bySRef(p_ref);
+    }
     else {
       const string& name = p_ref->get_id()->get_name();
       if (pars_m.has_key(name)) return pars_m[name];
@@ -9900,7 +9935,8 @@ namespace Ttcn {
         pars_m[name]->note("Previous definition of `%s' is here", dispname);
       } else {
         pars_m.add(name, par);
-        if (parent_scope && parent_scope->has_ass_withId(id)) {
+        if (parent_scope && parent_scope->get_scope_class() == NULL &&
+            parent_scope->has_ass_withId(id)) {
           par->error("Parameter name `%s' is not unique in the scope "
             "hierarchy", dispname);
           Reference ref(0, id.clone());

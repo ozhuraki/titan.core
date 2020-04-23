@@ -31,6 +31,7 @@
 #include "../main.hh"
 #include "../../common/dbgnew.hh"
 #include "Attributes.hh"
+#include "Ttcnstuff.cc"
 
 namespace Ttcn {
 
@@ -2164,6 +2165,40 @@ namespace Ttcn {
     }
     case TEMPLATE_REFD: {
       Common::Assignment *ass = u.ref.ref->get_refd_assignment();
+      if (ass->get_asstype() == Common::Assignment::A_VAR) {
+        // there could be class objects in the subreferences, which would change
+        // the type of the assignment (e.g. to a var template);
+        // use the assignment after the last class object in the subreference chain
+        FieldOrArrayRefs* subrefs = u.ref.ref->get_subrefs();
+        if (subrefs != NULL) {
+          Type* type = ass->get_Type();
+          if (type->get_field_type(subrefs, Common::Type::EXPECTED_DYNAMIC_VALUE) != NULL) {
+            // subrefs are valid
+            for (size_t i = 0; i < subrefs->get_nof_refs(); ++i) {
+              type = type->get_type_refd_last();
+              FieldOrArrayRef* subref = subrefs->get_ref(i);
+              switch (subref->get_type()) {
+              case FieldOrArrayRef::FIELD_REF:
+              case FieldOrArrayRef::FUNCTION_REF:
+                if (type->get_typetype() == Common::Type::T_CLASS) {
+                  ass = type->get_class_type_body()->
+                    get_local_ass_byId(*subref->get_id());
+                  type = ass->get_Type();
+                }
+                else {
+                  type = type->get_comp_byName(*subref->get_id())->get_type();
+                }
+                break;
+              case FieldOrArrayRef::ARRAY_REF:
+                if (type->is_structured_type()) {
+                  type = type->get_ofType();
+                }
+                break;
+              }
+            }
+          }
+        }
+      }
       switch (ass->get_asstype()) {
       case Common::Assignment::A_EXT_CONST:
       case Common::Assignment::A_PAR_VAL:
@@ -2503,9 +2538,9 @@ end:
 
         if (get_template_refd_last()->templatetype == TEMPLATE_REFD)
         {
-          Assignment *formal_param_ass = get_template_refd_last()->get_reference()->get_refd_assignment();
-          if (formal_param_ass->get_asstype() >= Assignment::A_PAR_VAL)
-            if (formal_param_ass->get_asstype() <= Assignment::A_PAR_TEMPL_INOUT)
+          Common::Assignment *formal_param_ass = get_template_refd_last()->get_reference()->get_refd_assignment();
+          if (formal_param_ass->get_asstype() >= Common::Assignment::A_PAR_VAL)
+            if (formal_param_ass->get_asstype() <= Common::Assignment::A_PAR_TEMPL_INOUT)
               if (formal_param_ass->get_eval_type() != NORMAL_EVAL)
                 warning("Fuzzy parameter '%s' may change (during) the actual snapshot.",
                     get_reference()->get_dispname().c_str());
@@ -5786,43 +5821,43 @@ compile_time:
       if (derived_reference) {
         int asstype = ((Reference*)derived_reference)->get_refd_assignment()->get_asstype();
         switch (asstype) {
-          case Assignment::A_TYPE:           /**< type */
-          case Assignment::A_CONST:          /**< value (const) */
-          case Assignment::A_UNDEF:          /**< undefined/undecided (ASN.1) */
-          case Assignment::A_ERROR:          /**< erroneous; the kind cannot be deduced (ASN.1) */
-          case Assignment::A_OC:             /**< information object class (ASN.1) */
-          case Assignment::A_OBJECT:         /**< information object (ASN.1) */
-          case Assignment::A_OS:             /**< information object set (ASN.1) */
-          case Assignment::A_VS:             /**< value set (ASN.1) */
-          case Assignment::A_EXT_CONST:      /**< external constant (TTCN-3) */
-          case Assignment::A_MODULEPAR:      /**< module parameter (TTCN-3) */
-          case Assignment::A_MODULEPAR_TEMP: /**< template module parameter */
-          case Assignment::A_VAR:            /**< variable (TTCN-3) */
-          case Assignment::A_VAR_TEMPLATE:   /**< template variable: dynamic template (TTCN-3) */
-          case Assignment::A_TIMER:          /**< timer (TTCN-3) */
-          case Assignment::A_PORT:           /**< port (TTCN-3) */
-          case Assignment::A_ALTSTEP:        /**< altstep (TTCN-3) */
-          case Assignment::A_TESTCASE:       /**< testcase Assignment::(TTCN-3) */
-          case Assignment::A_PAR_TIMER:      /**< formal parameter (timer) (TTCN-3) */
-          case Assignment::A_PAR_PORT:        /**< formal parameter (port) (TTCN-3) */
-          case Assignment::A_FUNCTION:       /**< function without return type (TTCN-3) */
-          case Assignment::A_FUNCTION_RVAL:  /**< function that returns a value (TTCN-3) */
-          case Assignment::A_FUNCTION_RTEMP: /**< function that returns a template (TTCN-3) */
-          case Assignment::A_EXT_FUNCTION:   /**< external function without return type (TTCN-3) */
-          case Assignment::A_EXT_FUNCTION_RVAL:  /**< ext. func that returns a value (TTCN-3) */
-          case Assignment::A_EXT_FUNCTION_RTEMP: /**< ext. func that returns a template (TTCN-3) */
+          case Common::Assignment::A_TYPE:           /**< type */
+          case Common::Assignment::A_CONST:          /**< value (const) */
+          case Common::Assignment::A_UNDEF:          /**< undefined/undecided (ASN.1) */
+          case Common::Assignment::A_ERROR:          /**< erroneous; the kind cannot be deduced (ASN.1) */
+          case Common::Assignment::A_OC:             /**< information object class (ASN.1) */
+          case Common::Assignment::A_OBJECT:         /**< information object (ASN.1) */
+          case Common::Assignment::A_OS:             /**< information object set (ASN.1) */
+          case Common::Assignment::A_VS:             /**< value set (ASN.1) */
+          case Common::Assignment::A_EXT_CONST:      /**< external constant (TTCN-3) */
+          case Common::Assignment::A_MODULEPAR:      /**< module parameter (TTCN-3) */
+          case Common::Assignment::A_MODULEPAR_TEMP: /**< template module parameter */
+          case Common::Assignment::A_VAR:            /**< variable (TTCN-3) */
+          case Common::Assignment::A_VAR_TEMPLATE:   /**< template variable: dynamic template (TTCN-3) */
+          case Common::Assignment::A_TIMER:          /**< timer (TTCN-3) */
+          case Common::Assignment::A_PORT:           /**< port (TTCN-3) */
+          case Common::Assignment::A_ALTSTEP:        /**< altstep (TTCN-3) */
+          case Common::Assignment::A_TESTCASE:       /**< testcase Common::Assignment::(TTCN-3) */
+          case Common::Assignment::A_PAR_TIMER:      /**< formal parameter (timer) (TTCN-3) */
+          case Common::Assignment::A_PAR_PORT:        /**< formal parameter (port) (TTCN-3) */
+          case Common::Assignment::A_FUNCTION:       /**< function without return type (TTCN-3) */
+          case Common::Assignment::A_FUNCTION_RVAL:  /**< function that returns a value (TTCN-3) */
+          case Common::Assignment::A_FUNCTION_RTEMP: /**< function that returns a template (TTCN-3) */
+          case Common::Assignment::A_EXT_FUNCTION:   /**< external function without return type (TTCN-3) */
+          case Common::Assignment::A_EXT_FUNCTION_RVAL:  /**< ext. func that returns a value (TTCN-3) */
+          case Common::Assignment::A_EXT_FUNCTION_RTEMP: /**< ext. func that returns a template (TTCN-3) */
             break;
-          case Assignment::A_TEMPLATE:       /**< template (TTCN-3) */
+          case Common::Assignment::A_TEMPLATE:       /**< template (TTCN-3) */
             if(((Reference*)derived_reference)->get_parlist())
               ((Reference*)derived_reference)->get_parlist()->chk_immutability();
             break;
-          case Assignment::A_PAR_VAL:        /**< formal parameter (value) (TTCN-3) */
-          case Assignment::A_PAR_VAL_IN:     /**< formal parameter (in value) (TTCN-3) */
-          case Assignment::A_PAR_VAL_OUT:    /**< formal parameter (out value) (TTCN-3) */
-          case Assignment::A_PAR_VAL_INOUT:  /**< formal parameter (inout value) (TTCN-3) */
-          case Assignment::A_PAR_TEMPL_IN:   /**< formal parameter ([in] template) (TTCN-3) */
-          case Assignment::A_PAR_TEMPL_OUT:  /**< formal parameter (out template) (TTCN-3) */
-          case Assignment::A_PAR_TEMPL_INOUT:/**< formal parameter (inout template) (TTCN-3) */
+          case Common::Assignment::A_PAR_VAL:        /**< formal parameter (value) (TTCN-3) */
+          case Common::Assignment::A_PAR_VAL_IN:     /**< formal parameter (in value) (TTCN-3) */
+          case Common::Assignment::A_PAR_VAL_OUT:    /**< formal parameter (out value) (TTCN-3) */
+          case Common::Assignment::A_PAR_VAL_INOUT:  /**< formal parameter (inout value) (TTCN-3) */
+          case Common::Assignment::A_PAR_TEMPL_IN:   /**< formal parameter ([in] template) (TTCN-3) */
+          case Common::Assignment::A_PAR_TEMPL_OUT:  /**< formal parameter (out template) (TTCN-3) */
+          case Common::Assignment::A_PAR_TEMPL_INOUT:/**< formal parameter (inout template) (TTCN-3) */
             if (((Reference*)derived_reference)->get_refd_assignment()->get_eval_type() == FUZZY_EVAL)
               warning("Fuzzy parameter '%s' may change (during) the actual snapshot.",
                 ((Reference*)derived_reference)->get_dispname().c_str());

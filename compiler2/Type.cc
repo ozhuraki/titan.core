@@ -1677,7 +1677,7 @@ namespace Common {
 
   Type *Type::get_field_type(Ttcn::FieldOrArrayRefs *subrefs,
     expected_value_t expected_index, ReferenceChain *refch,
-    bool interrupt_if_optional)
+    bool interrupt_if_optional, Assignment** last_method)
   {
     if (!subrefs) return this;
     Type *t = this;
@@ -1789,11 +1789,15 @@ namespace Common {
           return 0;
         case Assignment::A_FUNCTION:
         case Assignment::A_EXT_FUNCTION:
-          // TODO: are these handled elsewhere? in some kind of statement?
-          ref->error("Invalid reference to method `%s' with no return type in "
-            "class type `%s'",
-            id.get_dispname().c_str(), t->get_typename().c_str());
-          return 0;
+          if (i != nof_refs - 1 || last_method == NULL) {
+            ref->error("Invalid reference to method `%s' with no return type in "
+              "class type `%s'",
+              id.get_dispname().c_str(), t->get_typename().c_str());
+            return 0;
+          }
+          // a method with no return value can still be valid (e.g. if it's
+          // in a statement)
+          // proceed as normal and return null at the end
         case Assignment::A_FUNCTION_RVAL:
         case Assignment::A_FUNCTION_RTEMP:
         case Assignment::A_EXT_FUNCTION_RVAL:
@@ -1816,6 +1820,9 @@ namespace Common {
             ap_list->set_fullname(parsed_pars->get_fullname());
             ap_list->set_my_scope(parsed_pars->get_my_scope());
             ref->set_actual_par_list(ap_list);
+          }
+          if (last_method != NULL) {
+            *last_method = ass;
           }
           break; }
         default:

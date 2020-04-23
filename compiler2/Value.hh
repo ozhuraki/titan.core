@@ -116,7 +116,7 @@ namespace Common {
       V_UNDEF_BLOCK, /**< undefined {block} */
       V_OMIT, /**< special value for optional values */
       V_VERDICT, /**< verdict */
-      V_TTCN3_NULL, /**< TTCN-3 null (for component or default references) */
+      V_TTCN3_NULL, /**< TTCN-3 null (for component, default or class references) */
       V_DEFAULT_NULL, /**< null default reference */
       V_FAT_NULL, /**< null for function, altstep and testcase */
       V_EXPR, /**< expressions */

@@ -634,10 +634,15 @@ namespace Common {
      * Special case: if \a interrupt_if_optional is true then return NULL if an
      * optional field has been reached. Using this bool parameter it can be
      * checked if a referenced field is on an optional path (used by template
-     * restriction checking code) */
+     * restriction checking code)
+     * @param last_method if not null, indicates that a method with no return
+     * value is valid at the end of the subreferences, and should not produce
+     * an error; the function assignment is also stored in the pointer pointed
+     * to by this parameter if the last subreference is a method (even if it has
+     * a return value) */
     Type *get_field_type(Ttcn::FieldOrArrayRefs *subrefs,
       expected_value_t expected_index, ReferenceChain *refch = 0,
-      bool interrupt_if_optional = false);
+      bool interrupt_if_optional = false, Assignment** last_method = NULL);
     /** subrefs must point to an existing field, get_field_type() should be used
       * to check. subrefs_array will be filled with the indexes of the fields,
       * type_array will be filled with types whose field indexes were collected,
@@ -1003,6 +1008,7 @@ namespace Common {
       expected_value_t expected_value, namedbool incomplete_allowed);
     void chk_this_value_Component(Value *value);
     void chk_this_value_FAT(Value *value);
+    void chk_this_value_class(Value* value);
   public:
     /** Checks whether template \a t is a specific value and the embedded value
      * is a referenced one. If the reference in the value points to a
@@ -1300,7 +1306,7 @@ namespace Common {
     void generate_code_ispresentboundchosen(expression_struct *expr,
       Ttcn::FieldOrArrayRefs *subrefs, Common::Module* module,
       const string& global_id, const string& external_id,
-      const bool is_template, const namedbool optype, const char* field);
+      bool is_template, const namedbool optype, const char* field);
 
     /** Extension attribute for optimized code generation of structured types:
      *    with { extension "optimize:xxx" }

@@ -4795,7 +4795,7 @@ module NegSem_1511_ConcatenatingTemplatesOfStringAndListTypes_005 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `\*': syntax error, unexpected '\*', expecting Identifier or Cstring or CharKeyword
+error: at or before token `\*': syntax error, unexpected '\*'
 <END_RESULT>
 
 <END_TC>

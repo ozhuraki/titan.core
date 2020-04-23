@@ -4060,6 +4060,12 @@ namespace Common {
 	  exp_val == Type::EXPECTED_TEMPLATE ? "value or template" : "value",
 	  ass->get_description().c_str());
         goto error;
+      case Assignment::A_TYPE:
+        if (ass->get_Type()->get_type_refd_last()->get_typetype() == Type::T_CLASS) {
+          tmp_type = ass->get_Type();
+          break;
+        }
+        // else fall through
       default:
         error("Reference to a %s was expected instead of %s",
 	  exp_val == Type::EXPECTED_TEMPLATE ? "value or template" : "value",
@@ -9536,22 +9542,27 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
               destroy_refch = true;
             }
             if (refch->add(get_fullname())) {
-              Ttcn::FieldOrArrayRefs *subrefs = u.ref.ref->get_subrefs();
-              Value *v_refd = ass->get_Value()
-              ->get_refd_sub_value(subrefs, 0,
-                  u.ref.ref->getUsedInIsbound(), refch);
-              if (v_refd) {
-                Value *v_last = v_refd->get_value_refd_last(refch);
-                // in case of circular recursion the valuetype is already set
-                // to V_ERROR, so don't set the cache
-                if (valuetype == V_REFD) u.ref.refd_last = v_last;
-              } else if (subrefs && subrefs->has_unfoldable_index()) {
+              if (ass->get_my_scope()->get_parent_scope()->is_class_scope()) {
                 u.ref.refd_last = this;
-              } else if (u.ref.ref->getUsedInIsbound()) {
-                u.ref.refd_last = this;
-              } else {
-                // the sub-reference points to a non-existent field
-                set_valuetype(V_ERROR);
+              }
+              else {
+                Ttcn::FieldOrArrayRefs *subrefs = u.ref.ref->get_subrefs();
+                Value *v_refd = ass->get_Value()
+                ->get_refd_sub_value(subrefs, 0,
+                    u.ref.ref->getUsedInIsbound(), refch);
+                if (v_refd) {
+                  Value *v_last = v_refd->get_value_refd_last(refch);
+                  // in case of circular recursion the valuetype is already set
+                  // to V_ERROR, so don't set the cache
+                  if (valuetype == V_REFD) u.ref.refd_last = v_last;
+                } else if (subrefs && subrefs->has_unfoldable_index()) {
+                  u.ref.refd_last = this;
+                } else if (u.ref.ref->getUsedInIsbound()) {
+                  u.ref.refd_last = this;
+                } else {
+                  // the sub-reference points to a non-existent field
+                  set_valuetype(V_ERROR);
+                }
               }
             } else {
               // a circular recursion was detected
@@ -9585,6 +9596,12 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
               ass->get_description().c_str());
             set_valuetype(V_ERROR);
             break;
+          case Assignment::A_TYPE:
+            if (ass->get_Type()->get_type_refd_last()->get_typetype() == Type::T_CLASS) {
+              u.ref.refd_last = this;
+              break;
+            }
+            // else fall through
           default:
             u.ref.ref->error("Reference to a value was expected instead of %s",
               ass->get_description().c_str());
@@ -9641,12 +9658,12 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case V_OPENTYPE:
     case V_UNDEF_LOWERID:
     case V_UNDEF_BLOCK:
-    case V_TTCN3_NULL:
     case V_REFER:
       // these value types are eliminated during semantic analysis
       FATAL_ERROR("Value::is_unfoldable()");
     case V_ERROR:
     case V_INVOKE:
+    case V_TTCN3_NULL:
       return true;
     case V_CHOICE:
       return u.choice.alt_value->is_unfoldable(refch, exp_val);
@@ -12911,7 +12928,8 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
   void Value::generate_code_expr_mandatory(expression_struct *expr)
   {
     generate_code_expr(expr);
-    if (valuetype == V_REFD && get_value_refd_last()->valuetype == V_REFD)
+    if (valuetype == V_REFD && get_value_refd_last()->valuetype == V_REFD &&
+        u.ref.ref->get_refd_assignment()->get_Type()->get_type_refd_last()->get_typetype() != Type::T_CLASS)
       generate_code_expr_optional_field_ref(expr, u.ref.ref);
   }
 
@@ -13641,6 +13659,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case OPTYPE_ISBOUND: {
       Template::templatetype_t temp = u.expr.ti1->get_Template()
           ->get_templatetype();
+      // TODO: use get_refd_assignment instead to determine whether it's a template?
       if (temp == Template::SPECIFIC_VALUE) {
         Value* specific_value = u.expr.ti1->get_Template()
             ->get_specific_value();
@@ -15542,6 +15561,8 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case V_ALTSTEP:
     case V_TESTCASE:
       return get_single_expr_fat();
+    case V_TTCN3_NULL:
+      return string("NULL_VALUE");
     default:
       FATAL_ERROR("Value::get_single_expr()");
       return string();

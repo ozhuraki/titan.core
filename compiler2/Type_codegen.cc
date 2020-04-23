@@ -2893,7 +2893,6 @@ bool Type::ispresent_anyvalue_embedded_field(Type* t,
     Ttcn::FieldOrArrayRef *ref = subrefs->get_ref(i);
     switch (ref->get_type()) {
     case Ttcn::FieldOrArrayRef::FIELD_REF: {
-      CompField* cf = t->get_comp_byName(*ref->get_id());
       switch (t->typetype) {
       case T_CHOICE_T:
       case T_CHOICE_A:
@@ -2903,13 +2902,17 @@ bool Type::ispresent_anyvalue_embedded_field(Type* t,
       case T_SEQ_T:
       case T_SET_T:
       case T_SEQ_A:
-      case T_SET_A:
+      case T_SET_A: {
+        CompField* cf = t->get_comp_byName(*ref->get_id());
         if (cf->get_is_optional()) return FALSE;
+        t = cf->get_type();
+        break; }
+      case T_CLASS:
+        t = t->get_class_type_body()->get_local_ass_byId(*ref->get_id())->get_Type();
         break;
       default:
         FATAL_ERROR("Type::ispresent_anyvalue_embedded_field()");
       }
-      t = cf->get_type();
     } break;
     case Ttcn::FieldOrArrayRef::ARRAY_REF:
       switch (t->typetype) {
@@ -2932,7 +2935,7 @@ bool Type::ispresent_anyvalue_embedded_field(Type* t,
 
 void Type::generate_code_ispresentboundchosen(expression_struct *expr,
     Ttcn::FieldOrArrayRefs *subrefs, Common::Module* module,
-    const string& global_id, const string& external_id, const bool is_template,
+    const string& global_id, const string& external_id, bool is_template,
     const namedbool optype, const char* field)
 {
   if (!subrefs) return;
@@ -2950,7 +2953,9 @@ void Type::generate_code_ispresentboundchosen(expression_struct *expr,
     // (e.g. because of circular reference)
     if (t->typetype == T_ERROR) return;
 
-    if (is_template) {
+    if (is_template && t->typetype != T_CLASS) {
+      // TODO: the initial value of 'is_template' is not always set properly
+      // (it seems to always be false in case of functions)
       bool anyval_ret_val = TRUE;
       if (optype == ISPRESENT) {
         anyval_ret_val = ispresent_anyvalue_embedded_field(t, subrefs, i);
@@ -2987,9 +2992,23 @@ void Type::generate_code_ispresentboundchosen(expression_struct *expr,
     switch (ref->get_type()) {
     case Ttcn::FieldOrArrayRef::FIELD_REF: {
       const Identifier& id = *ref->get_id();
-      CompField* cf = t->get_comp_byName(id);
-      next_t = cf->get_type();
-      next_o = !is_template && cf->get_is_optional();
+      if (t->typetype == T_CLASS) {
+        Assignment* ass = t->get_class_type_body()->get_local_ass_byId(id);
+        if (ass->get_asstype() == Assignment::A_TEMPLATE ||
+            ass->get_asstype() == Assignment::A_VAR_TEMPLATE) {
+          is_template = true;
+        }
+        else {
+          is_template = false;
+        }
+        next_t = ass->get_Type();
+        next_o = false;
+      }
+      else {
+        CompField* cf = t->get_comp_byName(id);
+        next_t = cf->get_type();
+        next_o = !is_template && cf->get_is_optional();
+      }
 
       switch (t->typetype) {
       case T_CHOICE_A:
@@ -3008,6 +3027,7 @@ void Type::generate_code_ispresentboundchosen(expression_struct *expr,
       case T_SET_A:
       case T_SET_T:
       case T_ANYTYPE:
+      case T_CLASS:
         break;
       default:
         FATAL_ERROR("Type::generate_code_ispresentboundchosen()");
@@ -3125,21 +3145,29 @@ void Type::generate_code_ispresentboundchosen(expression_struct *expr,
         const char *tmp_id_str = tmp_id.c_str();
         const char *tmp_id2_str = tmp_id2.c_str();
         
-        // Own const ref to the temp value
-        expr->expr = mputprintf(expr->expr,
-          "const %s%s& %s = %s;\n",
-          t->get_genname_value(module).c_str(),
-          is_template ? "_template" : "",
-          tmp_id_str, tmp_generalid_str);
-        // Get the const ref of the field from the previous const ref
-        // If we would get the const ref of the field immediately then the
-        // value in the const ref would be free-d instantly.
-        expr->expr = mputprintf(expr->expr,
-          "const %s%s& %s = %s.%s%s();\n",
-          next_t->get_genname_value(module).c_str(),
-          is_template ? "_template" : "",
-          tmp_id2_str, tmp_id_str,
-          t->typetype == T_ANYTYPE ? "AT_" : "", id.get_name().c_str());
+        if (t->typetype == T_CLASS) {
+          expr->expr = mputprintf(expr->expr, "const %s%s %s = %s->%s;\n",
+            next_t->get_genname_value(module).c_str(),
+            is_template ? "_template" : "", tmp_id2_str,
+            tmp_generalid_str, id.get_name().c_str());
+        }
+        else {
+          // Own const ref to the temp value
+          expr->expr = mputprintf(expr->expr,
+            "const %s%s& %s = %s;\n",
+            t->get_genname_value(module).c_str(),
+            is_template ? "_template" : "",
+            tmp_id_str, tmp_generalid_str);
+          // Get the const ref of the field from the previous const ref
+          // If we would get the const ref of the field immediately then the
+          // value in the const ref would be free-d instantly.
+          expr->expr = mputprintf(expr->expr,
+            "const %s%s& %s = %s.%s%s();\n",
+            next_t->get_genname_value(module).c_str(),
+            is_template ? "_template" : "",
+            tmp_id2_str, tmp_id_str,
+            t->typetype == T_ANYTYPE ? "AT_" : "", id.get_name().c_str());
+        }
 
         if (i != nof_refs - 1 || optype == ISCHOSEN) {
           expr->expr = mputprintf(expr->expr, "%s = %s.is_bound();\n",
@@ -3173,6 +3201,68 @@ void Type::generate_code_ispresentboundchosen(expression_struct *expr,
         Free(tmp_generalid_str);
         tmp_generalid_str = mcopystr(tmp_id2_str);
       }
+
+      t = next_t;
+      break; }
+    case Ttcn::FieldOrArrayRef::FUNCTION_REF: {
+      const Identifier& id = *ref->get_id();
+      Assignment* ass = t->get_class_type_body()->get_local_ass_byId(id);
+      if (ass->get_asstype() == Assignment::A_FUNCTION_RTEMP ||
+          ass->get_asstype() == Assignment::A_EXT_FUNCTION_RTEMP) {
+        is_template = true;
+      }
+      else {
+        is_template = false;
+      }
+      Ttcn::Def_Function_Base* def_func = dynamic_cast<Ttcn::Def_Function_Base*>(ass);
+      next_t = def_func->get_return_type();
+      
+      expr->expr = mputprintf(expr->expr, "if(%s) {\n", global_id.c_str());
+      expstring_t closing_brackets2 = mprintf("}\n%s", closing_brackets);
+      Free(closing_brackets);
+      closing_brackets = closing_brackets2;
+
+      const string& tmp_id = module->get_temporary_id();
+      const char *tmp_id_str = tmp_id.c_str();
+      
+      expr->expr = mputprintf(expr->expr, "const %s%s %s = %s->%s(",
+        next_t->get_genname_value(module).c_str(),
+        is_template ? "_template" : "", tmp_id_str,
+        tmp_generalid_str, id.get_name().c_str());
+      ref->get_actual_par_list()->generate_code_noalias(expr, ass->get_FormalParList());
+      expr->expr = mputstr(expr->expr, ");\n");
+
+      if (i != nof_refs - 1 || optype == ISCHOSEN) {
+        expr->expr = mputprintf(expr->expr, "%s = %s.is_bound();\n",
+          global_id.c_str(), tmp_id_str);
+      }
+      if (i == nof_refs - 1) {
+        switch (optype) {
+        case ISBOUND:
+          expr->expr = mputprintf(expr->expr, "%s = %s.is_bound();\n",
+            global_id.c_str(), tmp_id_str);
+          break;
+        case ISPRESENT:
+          expr->expr = mputprintf(expr->expr, "%s = %s.is_present(%s);\n",
+            global_id.c_str(), tmp_id_str,
+            (is_template && omit_in_value_list) ? "TRUE" : "");
+          break;
+        case ISCHOSEN:
+          expr->expr = mputprintf(expr->expr,
+            "if (%s) {\n"
+            "%s = %s.ischosen(%s);\n"
+            "}\n", global_id.c_str(), global_id.c_str(), tmp_id_str, field);
+          break;
+        case ISVALUE:
+          expr->expr = mputprintf(expr->expr, "%s = %s.is_value();\n",
+            global_id.c_str(), tmp_id_str);
+          break;
+        default:
+          FATAL_ERROR("Type::generate_code_ispresentboundchosen");
+        }
+      }
+      Free(tmp_generalid_str);
+      tmp_generalid_str = mcopystr(tmp_id_str);
 
       t = next_t;
       break; }

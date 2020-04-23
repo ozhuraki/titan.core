@@ -3563,7 +3563,7 @@ module NegSem_1911_log_statement_001 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: Reference to a value, template, timer or port was expected instead of a call of function `@NegSem_1911_log_statement_001.f_no_return', which does not have return type
+error: Reference to a value, template, timer, port or class object was expected instead of a call of function `@NegSem_1911_log_statement_001.f_no_return', which does not have return type
 <END_RESULT>
 
 <END_TC>
