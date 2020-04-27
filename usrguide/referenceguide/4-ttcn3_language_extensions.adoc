@@ -1828,7 +1828,7 @@ Can be used with: stand-alone types, or a field of a `record` or `set`.
 
 Description: This attribute specifies the order of the bits within a field. When set to `msb`, the first bit sent will be the most significant bit of the original field. When set to `lsb`, the first bit sent will be the least significant bit of the original field.
 
-Comment: The effect of `BITORDERINFIELD(msb)` is equal to the effect of `BITORDER(msb) BYTORDER(last)`.
+Comment: The effect of `BITORDERINFIELD(msb)` is equal to the effect of `BITORDER(msb) BYTEORDER(last)`.
 
 Example:
 [source]
