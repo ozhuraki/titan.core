@@ -91,18 +91,10 @@
   #endif
 
 #ifdef __clang__
-  #if __clang_major__ > 4
-    #define CLANG_VERSION (__clang_major__ * 10000 )
-  #else
-    #define CLANG_VERSION (__clang_major__ * 10000 + __clang_minor__ * 100)
-  #endif
+  #define CLANG_VERSION (__clang_major__ * 10000 + __clang_minor__ * 100)
   #define COMPILER_VERSION_STRING " Clang: (GNU) " STR(__clang_major__) "." STR(__clang_minor__) "." STR(__clang_patchlevel__)
 #else
-  #if __GNUC__ > 4
-    #define GCC_VERSION (__GNUC__ * 10000 )
-  #else
-    #define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100)
-  #endif
+  #define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100)
   #define COMPILER_VERSION_STRING " GCC: (GNU) " STR(__GNUC__) "." STR(__GNUC_MINOR__) GCC_PATCHLEVEL_STRING
 #endif
 
