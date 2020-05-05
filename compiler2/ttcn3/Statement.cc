@@ -3247,8 +3247,12 @@ error:
     if (t_ass->get_asstype() == Common::Assignment::A_VAR) {
       // it could be a class object method
       Common::Assignment* last_method = NULL;
-      t_ass->get_Type()->get_field_type(ref_pard->get_subrefs(),
+      Common::Type* end_type = t_ass->get_Type()->get_field_type(ref_pard->get_subrefs(),
         Type::EXPECTED_DYNAMIC_VALUE, 0, false, &last_method);
+      if (end_type == NULL && last_method == NULL) {
+        // invalid subreferences (the error has already been reported)
+        return;
+      }
       if (last_method == NULL) {
         ref_pard->error("Reference to a function or altstep was expected");
       }

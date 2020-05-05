@@ -1728,6 +1728,10 @@ namespace Common {
             return 0;
           }
           Assignment* ass = class_->get_local_ass_byId(id);
+          if (!class_->chk_visibility(ass, ref, subrefs->get_my_scope())) {
+            // the member is not visible (the error has already been reported)
+            return 0;
+          }
           switch (ass->get_asstype()) {
           case Assignment::A_VAR:
           case Assignment::A_VAR_TEMPLATE:
@@ -1778,6 +1782,10 @@ namespace Common {
           return 0;
         }
         Assignment* ass = class_->get_local_ass_byId(id);
+        if (!class_->chk_visibility(ass, ref, subrefs->get_my_scope())) {
+          // the method is not visible (the error has already been reported)
+          return 0;
+        }
         switch (ass->get_asstype()) {
         case Assignment::A_VAR:
         case Assignment::A_VAR_TEMPLATE:

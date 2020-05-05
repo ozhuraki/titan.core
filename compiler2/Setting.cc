@@ -606,7 +606,7 @@ namespace Common {
     return 0;
   }
   
-  const Ttcn::ClassTypeBody* Scope::get_scope_class() const
+  Ttcn::ClassTypeBody* Scope::get_scope_class()
   {
     if (parent_scope != NULL) {
       return parent_scope->get_scope_class();

@@ -307,7 +307,7 @@ namespace Ttcn {
   // =================================
 
   FieldOrArrayRefs::FieldOrArrayRefs(const FieldOrArrayRefs& p)
-    : Node(p), refs_str_element(false)
+    : Node(p), refs_str_element(false), my_scope(NULL)
   {
     for (size_t i = 0; i < p.refs.size(); i++) refs.add(p.refs[i]->clone());
   }
@@ -333,6 +333,7 @@ namespace Ttcn {
 
   void FieldOrArrayRefs::set_my_scope(Scope *p_scope)
   {
+    my_scope = p_scope;
     for (size_t i = 0; i < refs.size(); i++) refs[i]->set_my_scope(p_scope);
   }
 
@@ -3666,6 +3667,12 @@ namespace Ttcn {
               delete t;
               continue;
             }
+            else if (t->get_type_refd_last()->get_typetype() == Type::T_CLASS) {
+              ea.error("Class type `%s' cannot be added to the anytype",
+                t->get_typename().c_str());
+              delete t;
+              continue;
+            }
 
             string field_name;
             const char* btn = Type::get_typename_builtin(t->get_typetype());
@@ -3883,6 +3890,10 @@ namespace Ttcn {
       error("Constant cannot be defined for signature `%s'",
         t->get_fullname().c_str());
       break;
+    case Type::T_CLASS:
+      error("Constant cannot be defined for class type `%s'",
+        t->get_fullname().c_str());
+      break;
     default:
       value_under_check = true;
         type->chk_this_value(value, 0, Type::EXPECTED_STATIC_VALUE, WARNING_FOR_INCOMPLETE,
@@ -4069,6 +4080,10 @@ namespace Ttcn {
       error("External constant cannot be defined for signature `%s'",
         t->get_fullname().c_str());
       break;
+    case Type::T_CLASS:
+      error("External constant cannot be defined for class type `%s'",
+        t->get_fullname().c_str());
+      break;
     default:
       break;
     }
@@ -4199,6 +4214,10 @@ namespace Ttcn {
             " `%s' which has runs on self clause", t->get_fullname().c_str());
         break;
       }
+    case Type::T_CLASS:
+      error("Type of module parameter cannot be or embed class type `%s'",
+        t->get_fullname().c_str());
+      break;
     default:
 #if defined(MINGW)
       checked = true;
@@ -4366,6 +4385,10 @@ namespace Ttcn {
         error("Type of template module parameter cannot be of function reference type"
             " `%s' which has runs on self clause", t->get_fullname().c_str());
       }
+      break;
+    case Type::T_CLASS:
+      error("Type of template module parameter cannot be class type `%s'",
+        t->get_fullname().c_str());
       break;
     default:
       if (IMPLICIT_OMIT == has_implicit_omit_attr()) {
@@ -4582,6 +4605,10 @@ namespace Ttcn {
     Type *t = type->get_type_refd_last();
     if (t->get_typetype() == Type::T_PORT) {
       error("Template cannot be defined for port type `%s'",
+        t->get_fullname().c_str());
+    }
+    else if (t->get_typetype() == Type::T_CLASS) {
+      error("Template cannot be defined for class type `%s'",
         t->get_fullname().c_str());
     }
     chk_modified();
@@ -5369,6 +5396,10 @@ namespace Ttcn {
     Type *t = type->get_type_refd_last();
     if (t->get_typetype() == Type::T_PORT) {
       error("Template variable cannot be defined for port type `%s'",
+        t->get_fullname().c_str());
+    }
+    else if (t->get_typetype() == Type::T_CLASS) {
+      error("Template variable cannot be defined for class type `%s'",
         t->get_fullname().c_str());
     }
 
@@ -6675,29 +6706,53 @@ namespace Ttcn {
     if (runs_on_ref && port_ref) {
       runs_on_ref->error("A `runs on' and a `port' clause cannot be present at the same time.");
     }
-    // checking the `runs on' clause
-    if (runs_on_ref) {
-      Error_Context cntxt2(runs_on_ref, "In `runs on' clause");
-      runs_on_type = runs_on_ref->chk_comptype_ref();
-      // override the scope of the formal parameter list
-      if (runs_on_type) {
-        Scope *runs_on_scope = get_runs_on_scope(runs_on_type);
-        runs_on_scope->set_parent_scope(my_scope);
-        fp_list->set_my_scope(runs_on_scope);
+    if (my_scope->is_class_scope()) {
+      // class methods inherit `runs on', `mtc' and `system' clauses from the class
+      ClassTypeBody* class_ = my_scope->get_scope_class();
+      runs_on_type = class_->get_RunsOnType();
+      mtc_type = class_->get_MtcType();
+      system_type = class_->get_SystemType();
+    }
+    else { // not in a class method
+      // checking the `runs on' clause
+      if (runs_on_ref) {
+        Error_Context cntxt2(runs_on_ref, "In `runs on' clause");
+        runs_on_type = runs_on_ref->chk_comptype_ref();
+      }
+
+      // checking the `mtc' clause
+      if (mtc_ref) {
+        Error_Context cntxt2(mtc_ref, "In `mtc' clause");
+        mtc_type = mtc_ref->chk_comptype_ref();
+      }
+
+      // checking the `system' clause
+      if (system_ref) {
+        Error_Context cntxt2(system_ref, "In `system' clause");
+        system_type = system_ref->chk_comptype_ref();
       }
     }
     
-    // checking the `mtc' clause
-    if (mtc_ref) {
-      Error_Context cntxt2(mtc_ref, "In `mtc' clause");
-      mtc_type = mtc_ref->chk_comptype_ref();
+    // create scope units for the `runs on', `mtc' and `system' components,
+    // and link them in a row between the function's scope and the
+    // formal parameter list's scope
+    Scope* current_scope = my_scope;
+    if (system_type != NULL) {
+      Scope *system_scope = get_runs_on_scope(system_type);
+      system_scope->set_parent_scope(current_scope);
+      current_scope = system_scope;
     }
-    
-    // checking the `system' clause
-    if (system_ref) {
-      Error_Context cntxt2(system_ref, "In `system' clause");
-      system_type = system_ref->chk_comptype_ref();
+    if (mtc_type != NULL) {
+      Scope *mtc_scope = get_runs_on_scope(mtc_type);
+      mtc_scope->set_parent_scope(current_scope);
+      current_scope = mtc_scope;
     }
+    if (runs_on_type != NULL) {
+      Scope *runs_on_scope = get_runs_on_scope(runs_on_type);
+      runs_on_scope->set_parent_scope(current_scope);
+      current_scope = runs_on_scope;
+    }
+    fp_list->set_my_scope(current_scope);
     
     // checking the formal parameter list, the check must come before the 
     // chk_prototype() function call.

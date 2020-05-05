@@ -615,7 +615,7 @@ public:
     virtual Module* get_scope_mod();
     virtual Module* get_scope_mod_gen();
     virtual bool is_class_scope() const { return false; }
-    virtual const Ttcn::ClassTypeBody* get_scope_class() const;
+    virtual Ttcn::ClassTypeBody* get_scope_class();
     /** Returns the assignment referenced by \a p_ref. If no such
      * node, 0 is returned. */
     virtual Assignment* get_ass_bySRef(Ref_simple *p_ref) =0;

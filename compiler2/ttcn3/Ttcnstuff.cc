@@ -2986,7 +2986,8 @@ namespace Ttcn {
                                Reference* p_mtc_ref, Reference* p_system_ref,
                                Definitions* p_members, StatementBlock* p_finally_block)
   : Scope(), Location(), class_id(p_class_id), my_def(NULL), external(p_external), final(p_final), abstract(p_abstract),
-    base_type(p_base_type), runs_on_ref(p_runs_on_ref), mtc_ref(p_mtc_ref), system_ref(p_system_ref),
+    base_type(p_base_type), runs_on_ref(p_runs_on_ref), runs_on_type(NULL),
+    mtc_ref(p_mtc_ref), mtc_type(NULL), system_ref(p_system_ref), system_type(NULL),
     members(p_members), finally_block(p_finally_block), constructor(NULL), checked(false),
     default_constructor(false)
   {
@@ -3035,7 +3036,7 @@ namespace Ttcn {
   {
     Common::Scope::set_fullname(p_fullname);
     if (base_type != NULL) {
-      base_type->set_fullname(p_fullname + ".<base_type>");
+      base_type->set_fullname(p_fullname + ".<superclass>");
     }
     if (runs_on_ref != NULL) {
       runs_on_ref->set_fullname(p_fullname + ".<runs_on_type>");
@@ -3099,8 +3100,34 @@ namespace Ttcn {
   
   Def_Constructor* ClassTypeBody::get_constructor()
   {
-    chk();
+    if (!checked) {
+      chk();
+    }
     return constructor;
+  }
+  
+  Type* ClassTypeBody::get_RunsOnType()
+  {
+    if (!checked) {
+      chk();
+    }
+    return runs_on_type;
+  }
+  
+  Type* ClassTypeBody::get_MtcType()
+  {
+    if (!checked) {
+      chk();
+    }
+    return mtc_type;
+  }
+  
+  Type* ClassTypeBody::get_SystemType()
+  {
+    if (!checked) {
+      chk();
+    }
+    return system_type;
   }
   
   bool ClassTypeBody::is_parent_class(const ClassTypeBody* p_class) const
@@ -3144,6 +3171,37 @@ namespace Ttcn {
     return ass;
   }
   
+  bool ClassTypeBody::chk_visibility(Common::Assignment* ass,
+                                     Common::Location* usage_loc,
+                                     Common::Scope* usage_scope)
+  {
+    if (ass->get_visibility() == PUBLIC) {
+      // it's public, so it doesn't matter where it's accessed from
+      return true;
+    }
+
+    const ClassTypeBody* ref_scope_class = usage_scope->get_scope_class();
+    const ClassTypeBody* ass_scope_class = ass->get_my_scope()->get_scope_class();
+    if (ass_scope_class == NULL) {
+      FATAL_ERROR("ClassTypeBody::chk_visibility()");
+    }
+    if (ref_scope_class == ass_scope_class) {
+      // the reference is inside the same class as the assignment => any visibility is fine
+      return true;
+    }
+
+    if (ref_scope_class != NULL &&
+        ass->get_visibility() == NOCHANGE && // i.e. protected
+        ref_scope_class->is_parent_class(ass_scope_class)) {
+      return true;
+    }
+
+    usage_loc->error("The %s definition `%s' in class type `%s' is not visible "
+      "in this scope", ass->get_FormalParList() != NULL ? "method" : "member",
+      ass->get_id().get_dispname().c_str(), class_id->get_dispname().c_str());
+    return false;
+  }
+  
   Common::Assignment* ClassTypeBody::get_ass_bySRef(Common::Ref_simple* p_ref)
   {
     if (p_ref == NULL || parent_scope == NULL) {
@@ -3179,28 +3237,13 @@ namespace Ttcn {
         if (ass == NULL) {
           FATAL_ERROR("ClassTypeBody::get_ass_bySRef()");
         }
-
-        if (ass->get_visibility() == PUBLIC) {
-          // it's public, so it doesn't matter where it's accessed from
-          return ass;
-        }
         
-        const ClassTypeBody* ref_scope_class = p_ref->get_my_scope()->get_scope_class();
-        if (ref_scope_class == this) {
-          // the reference is inside this class => any visibility is fine
+        if (chk_visibility(ass, p_ref, p_ref->get_my_scope())) {
           return ass;
         }
-        
-        if (ref_scope_class != NULL &&
-            ass->get_visibility() == NOCHANGE && // i.e. protected
-            ref_scope_class->is_parent_class(this)) {
-          return ass;
+        else {
+          return NULL;
         }
-
-        p_ref->error("The member definition `%s' in class type `%s'"
-          " is not visible in this scope", id->get_dispname().c_str(),
-            class_id->get_dispname().c_str());
-        return NULL;
       }
     }
     return parent_scope->get_ass_bySRef(p_ref);
@@ -3214,20 +3257,32 @@ namespace Ttcn {
     checked = true;
     // TODO: external? final? abstract?
     if (base_type != NULL) {
+      Error_Context cntxt(base_type, "In superclass definition");
       base_type->chk();
+      if (base_type->get_type_refd_last()->get_typetype() != Common::Type::T_CLASS) {
+        if (base_type->get_typetype() != Common::Type::T_ERROR) {
+          base_type->error("Class type expected instead of `%s'",
+            base_type->get_typename().c_str());
+        }
+        delete base_type;
+        base_type = NULL;
+      }
       // TODO: additional checks for the base type
     }
 
     if (runs_on_ref != NULL) {
-      Common::Assignment* ass = runs_on_ref->get_refd_assignment(true);
+      Error_Context cntxt(runs_on_ref, "In `runs on' clause");
+      runs_on_type = runs_on_ref->chk_comptype_ref();
       // TODO
     }
     if (mtc_ref != NULL) {
-      Common::Assignment* ass = mtc_ref->get_refd_assignment(true);
+      Error_Context cntxt(mtc_ref, "In `mtc' clause");
+      mtc_type = mtc_ref->chk_comptype_ref();
       // TODO
     }
     if (system_ref != NULL) {
-      Common::Assignment* ass = system_ref->get_refd_assignment(true);
+      Error_Context cntxt(system_ref, "In `system' clause");
+      system_type = system_ref->chk_comptype_ref();
       // TODO
     }
 
@@ -3253,24 +3308,26 @@ namespace Ttcn {
       if (base_type != NULL) {
         ClassTypeBody* base_class = base_type->get_type_refd_last()->
           get_class_type_body();
-        FormalParList* base_fp_list = base_class->get_constructor()->
-          get_FormalParList();
-        fp_list = base_fp_list->clone();
-        ParsedActualParameters* parsed_ap_list = new ParsedActualParameters();
-        for (size_t i = 0; i < base_fp_list->get_nof_fps(); ++i) {
-          // the actual parameters are references to the formal parameters of
-          // the base constructor (also present in this constructor)
-          Reference* ref = new Reference(NULL,
-            base_fp_list->get_fp_byIndex(i)->get_id().clone());
-          Common::Value* val = new Value(Common::Value::V_REFD, ref);
-          Template* temp = new Template(val);
-          TemplateInstance* ti = new TemplateInstance(NULL, NULL, temp);
-          parsed_ap_list->add_ti(ti);
+        Def_Constructor* base_constructor = base_class->get_constructor();
+        if (base_constructor != NULL) {
+          FormalParList* base_fp_list = base_constructor->get_FormalParList();
+          fp_list = base_fp_list->clone();
+          ParsedActualParameters* parsed_ap_list = new ParsedActualParameters();
+          for (size_t i = 0; i < base_fp_list->get_nof_fps(); ++i) {
+            // the actual parameters are references to the formal parameters of
+            // the base constructor (also present in this constructor)
+            Reference* ref = new Reference(NULL,
+              base_fp_list->get_fp_byIndex(i)->get_id().clone());
+            Common::Value* val = new Value(Common::Value::V_REFD, ref);
+            Template* temp = new Template(val);
+            TemplateInstance* ti = new TemplateInstance(NULL, NULL, temp);
+            parsed_ap_list->add_ti(ti);
+          }
+          base_call = new Reference(base_class->get_scope_mod()->get_modid().clone(),
+            base_class->get_id()->clone(), parsed_ap_list);
         }
-        base_call = new Reference(base_class->get_scope_mod()->get_modid().clone(),
-          base_class->get_id()->clone(), parsed_ap_list);
       }
-      else {
+      if (fp_list == NULL) {
         fp_list = new FormalParList;
       }
       StatementBlock* block = new StatementBlock();
@@ -3312,6 +3369,27 @@ namespace Ttcn {
 
     if (finally_block != NULL) {
       finally_block->chk();
+    }
+  }
+  
+  void ClassTypeBody::chk_recursions(ReferenceChain& refch)
+  {
+    if (base_type != NULL) {
+      base_type->chk_recursions(refch);
+    }
+    
+    for (size_t i = 0; i < members->get_nof_asss(); ++i) {
+      Common::Assignment* def = members->get_ass_byIndex(i);
+      switch (def->get_asstype()) {
+      case Common::Assignment::A_CONST:
+      case Common::Assignment::A_VAR:
+      case Common::Assignment::A_TEMPLATE:
+      case Common::Assignment::A_VAR_TEMPLATE:
+        def->get_Type()->chk_recursions(refch);
+        break;
+      default:
+        break;
+      }
     }
   }
   

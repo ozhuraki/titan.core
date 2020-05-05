@@ -250,13 +250,15 @@ namespace Ttcn {
     /** Indicates whether the last array index refers to an element of a
      * string value. */
     bool refs_str_element;
+    Common::Scope* my_scope; ///< %Scope. Not owned
   public:
-    FieldOrArrayRefs() : Node(), refs(), refs_str_element(false) { }
+    FieldOrArrayRefs() : Node(), refs(), refs_str_element(false), my_scope(NULL) { }
     FieldOrArrayRefs(const FieldOrArrayRefs& p);
     ~FieldOrArrayRefs();
     FieldOrArrayRefs *clone() const;
     virtual void set_fullname(const string& p_fullname);
     virtual void set_my_scope(Scope *p_scope);
+    Scope *get_my_scope() const { return my_scope; }
     void add(FieldOrArrayRef *p_ref) { refs.add(p_ref); }
     size_t get_nof_refs() const { return refs.size(); }
     FieldOrArrayRef* get_ref(size_t i) const { return refs[i]; }

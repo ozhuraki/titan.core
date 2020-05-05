@@ -762,8 +762,11 @@ class ClassTypeBody : public Common::Scope, public Common::Location {
   boolean abstract;
   Common::Type* base_type;
   Reference* runs_on_ref;
+  Type* runs_on_type;
   Reference* mtc_ref;
+  Type* mtc_type;
   Reference* system_ref;
+  Type* system_type;
   Definitions* members;
   StatementBlock* finally_block;
   /** set during semantic analysis to either a pointer to the constructor in
@@ -788,17 +791,24 @@ public:
   void dump(unsigned level) const;
   
   virtual bool is_class_scope() const { return true; }
-  virtual const ClassTypeBody* get_scope_class() const { return this; }
+  virtual ClassTypeBody* get_scope_class() { return this; }
   Common::Identifier* get_id() const { return class_id; }
   Def_Constructor* get_constructor();
   Common::Type* get_base_type() const { return base_type; }
+  
+  Type* get_RunsOnType();
+  Type* get_MtcType();
+  Type* get_SystemType();
   
   bool is_parent_class(const ClassTypeBody* p_class) const;
   bool has_local_ass_withId(const Identifier& p_id);
   Common::Assignment* get_local_ass_byId(const Identifier& p_id);
   Common::Assignment* get_ass_bySRef(Common::Ref_simple* p_ref);
   
+  bool chk_visibility(Common::Assignment* ass, Common::Location* usage_loc,
+    Common::Scope* usage_scope);
   void chk();
+  void chk_recursions(ReferenceChain& refch);
   
   void generate_code(output_struct* target);
 };

@@ -31,7 +31,7 @@
 #include "../main.hh"
 #include "../../common/dbgnew.hh"
 #include "Attributes.hh"
-#include "Ttcnstuff.cc"
+#include "Ttcnstuff.hh"
 
 namespace Ttcn {
 

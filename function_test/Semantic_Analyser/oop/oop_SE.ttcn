@@ -1,0 +1,217 @@
+/******************************************************************************
+ * Copyright (c) 2000-2020 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+
+module oop_SE { //^In TTCN-3 module//
+
+type component Comp {
+  var integer cv_comp;
+  const integer cc_comp := -1;
+}
+
+type port Port message {
+  inout integer
+}
+with {
+  extension "internal"
+}
+
+type record Rec {
+  integer num,
+  charstring str
+}
+
+const integer c := 3;
+
+type class C0 { }
+
+type class C1 extends Nonexistent { } //^In type definition// //^In superclass definition// //There is no local or imported definition with name `Nonexistent'//
+
+type class C2 extends c { } //^In type definition// //^In superclass definition// //`c' is not a reference to a type//
+
+type class C3 extends Rec { } //^In type definition// //^In superclass definition// //Class type expected instead of `@oop_SE.Rec'//
+
+
+type class C4 {
+  private var integer m_private_inherited;
+  /*protected*/ var charstring m_protected_inherited;
+  public var Rec m_public_inherited;
+  private function f_private_inherited() {}
+  /*protected*/ function f_protected_inherited() {}
+  public function f_public_inherited() {}
+}
+
+type class C5 extends C4 { //^In type definition//
+  private var boolean m_private_own;
+  /*protected*/ var float m_protected_own;
+  public var octetstring m_public_own;
+  private function f_private_own() {}
+  /*protected*/ function f_protected_own() {}
+  public function f_public_own() {}
+  
+  public function f_member_access_inside() { //^In function definition//
+    log(m_private_inherited); //^In log statement// //The member definition `m_private_inherited' in class type `C5' is not visible in this scope//
+    log(m_protected_inherited);
+    log(m_public_inherited);
+    log(m_private_own);
+    log(m_protected_own);
+    log(m_public_own);
+    log(m_nonexistent); //^In log statement// //There is no local or imported definition with name `m_nonexistent'//
+    f_private_inherited(); //^In function or altstep instance// //The method definition `f_private_inherited' in class type `C5' is not visible in this scope//
+    f_protected_inherited();
+    f_public_inherited();
+    f_private_own();
+    f_protected_own();
+    f_public_own();
+    f_nonexistent(); //^In function or altstep instance// //There is no local or imported definition with name `f_nonexistent'//
+  }
+}
+
+function f_member_access_outside() { //^In function definition//
+  var C5 obj := C5.create(1, "a", { 2, "b" }, true, 0.1, '12'O);
+  log(obj.m_private_inherited); //^In log statement// //The member definition `m_private_inherited' in class type `C5' is not visible in this scope//
+  log(obj.m_protected_inherited); //^In log statement// //The member definition `m_protected_inherited' in class type `C5' is not visible in this scope//
+  log(obj.m_public_inherited);
+  log(obj.m_private_own); //^In log statement// //The member definition `m_private_own' in class type `C5' is not visible in this scope//
+  log(obj.m_protected_own); //^In log statement// //The member definition `m_protected_own' in class type `C5' is not visible in this scope//
+  log(obj.m_public_own);
+  log(obj.m_nonexistent); //^In log statement// //Reference to non-existent member `m_nonexistent' in class type `@oop_SE.C5'//
+  obj.f_private_inherited(); //^In function instance// //The method definition `f_private_inherited' in class type `C5' is not visible in this scope//
+  obj.f_protected_inherited(); //^In function instance// //The method definition `f_protected_inherited' in class type `C5' is not visible in this scope//
+  obj.f_public_inherited();
+  obj.f_private_own(); //^In function instance// //The method definition `f_private_own' in class type `C5' is not visible in this scope//
+  obj.f_protected_own(); //^In function instance// //The method definition `f_protected_own' in class type `C5' is not visible in this scope//
+  obj.f_public_own();
+  obj.f_nonexistent(); //^In function instance// //Reference to non-existent method `f_nonexistent' in class type `@oop_SE.C5'//
+}
+
+type class C6 { //^In type definition//
+  public function f_member_access_other_class() { //^In function definition//
+    var C5 obj := C5.create(1, "a", { 2, "b" }, true, 0.1, '12'O);
+    log(obj.m_private_inherited); //^In log statement// //The member definition `m_private_inherited' in class type `C5' is not visible in this scope//
+    log(obj.m_protected_inherited); //^In log statement// //The member definition `m_protected_inherited' in class type `C5' is not visible in this scope//
+    log(obj.m_public_inherited);
+    log(obj.m_private_own); //^In log statement// //The member definition `m_private_own' in class type `C5' is not visible in this scope//
+    log(obj.m_protected_own); //^In log statement// //The member definition `m_protected_own' in class type `C5' is not visible in this scope//
+    log(obj.m_public_own);
+    log(obj.m_nonexistent); //^In log statement// //Reference to non-existent member `m_nonexistent' in class type `@oop_SE.C5'//
+    obj.f_private_inherited(); //^In function instance// //The method definition `f_private_inherited' in class type `C5' is not visible in this scope//
+    obj.f_protected_inherited(); //^In function instance// //The method definition `f_protected_inherited' in class type `C5' is not visible in this scope//
+    obj.f_public_inherited();
+    obj.f_private_own(); //^In function instance// //The method definition `f_private_own' in class type `C5' is not visible in this scope//
+    obj.f_protected_own(); //^In function instance// //The method definition `f_protected_own' in class type `C5' is not visible in this scope//
+    obj.f_public_own();
+    obj.f_nonexistent(); //^In function instance// //Reference to non-existent method `f_nonexistent' in class type `@oop_SE.C5'//
+  }
+}
+
+
+type class C7 extends C9 { //^In type definition// //^In superclass definition//
+  public const integer x1 := 1;
+}
+
+type class C8 extends C7 { //^In type definition// //While checking embedded recursions\: Circular reference\: `@oop_SE.C8' -> `@oop_SE.C8.<superclass>' -> `@oop_SE.C7' -> `@oop_SE.C7.<superclass>' -> `@oop_SE.C9' -> `@oop_SE.C9.<superclass>' -> `@oop_SE.C8'//
+  private var integer x2;
+}
+
+type class C9 extends C8 {} //^In type definition// //^In superclass definition//
+
+external const C0 ec_obj; //^In external constant definition// //External constant cannot be defined for class type `@oop_SE.C0'//
+modulepar C0 mp_obj; //^In module parameter definition// //Type of module parameter cannot be or embed class type `@oop_SE.C0'//
+modulepar template C0 mpt_obj; //^In template module parameter definition// //Type of template module parameter cannot be class type `@oop_SE.C0'//
+
+function f_defs() { //^In function definition//
+  const C0 c_obj := null; //^In constant definition// //Constant cannot be defined for class type `@oop_SE.C0'//
+  var C0 v_obj;
+  template C0 t_obj := *; //^In template definition// //Template cannot be defined for class type `@oop_SE.C0'//
+  var template C0 vt_obj; //^In template variable definition// //Template variable cannot be defined for class type `@oop_SE.C0'//
+}
+
+
+type record RecClass { //^In type definition//
+  C0 x //^In record field// //Class type `@oop_SE.C0' cannot be embedded into another type//
+}
+
+type set SetClass { //^In type definition//
+  C0 x //^In set field// //Class type `@oop_SE.C0' cannot be embedded into another type//
+}
+
+type record of C0 RecOfClass; //^In type definition// //^In embedded type of record of// //Class type `@oop_SE.C0' cannot be embedded into another type//
+
+type set of C0 SetOfClass; //^In type definition// //^In embedded type of set of// //Class type `@oop_SE.C0' cannot be embedded into another type//
+
+type union UniClass { //^In type definition//
+  C0 x //^In union field// //Class type `@oop_SE.C0' cannot be embedded into another type//
+}
+
+function f_embedded_types() { //^In function definition//
+  var RecClass v_rec := { x := C0.create };
+  var SetClass v_set := { x := C0.create };
+  var RecOfClass v_recof := { C0.create };
+  var SetOfClass v_setof := { C0.create };
+  var UniClass v_uni := { x := C0.create };
+  var anytype v_any; //^In variable definition// //^In type definition//
+  v_any.C0 := C0.create; //^In variable assignment// //Reference to non-existent field `C0' in type `@oop_SE.anytype'//
+}
+
+
+function f_type_compatibility() { //^In function definition//
+  var C4 x1 := C4.create(1, "a", { 2, "b" });
+  var C5 y1 := C4.create(1, "a", { 2, "b" }); //^In variable definition// //Incompatible class types: operation `create' should refer to `@oop_SE.C5' instead of `@oop_SE.C4'//
+  var C4 x2 := C5.create(1, "a", { 2, "b" }, true, 0.1, '12'O);
+  var C5 y2 := C5.create(1, "a", { 2, "b" }, true, 0.1, '12'O);
+  var C4 x3 := y1;
+  var C5 y3 := x1; //^In variable definition// //Type mismatch: a value of type `@oop_SE.C5' was expected instead of `@oop_SE.C4'//
+  x3 := y2;
+  y3 := x2; //^In variable assignment// //Type mismatch: a value of type `@oop_SE.C5' was expected instead of `@oop_SE.C4'//
+  log(x1.m_public_inherited);
+  log(y1.m_public_inherited);
+  log(x1.m_public_own); //^In log statement// //Reference to non-existent member `m_public_own' in class type `@oop_SE.C4'//
+  log(y1.m_public_own);
+  x1.f_public_inherited();
+  y1.f_public_inherited();
+  x1.f_public_own(); //^In function instance// //Reference to non-existent method `f_public_own' in class type `@oop_SE.C4'//
+  y1.f_public_own();
+}
+
+
+type component CT_RunsOn {
+  var integer cv_runs_on;
+  const integer cc_runs_on := 0;
+}
+
+type component CT_Mtc {
+  var integer cv_mtc;
+  const integer cc_mtc := 1;
+}
+
+type component CT_System {
+  var integer cv_system;
+  const integer cc_system := 2;
+}
+
+type class C10 runs on CT_RunsOn mtc CT_Mtc system CT_System { //^In type definition//
+  public function f_comp_visibility(in integer p1 := cc_runs_on, //^In function definition// //^In formal parameter list//
+                                    in integer p2 := cc_mtc,
+                                    in integer p3 := cc_system,
+                                    in integer p4 := cc_comp) { //^In parameter// //^In default value// //There is no local or imported definition with name `cc_comp'//
+    log(cv_runs_on);
+    log(cv_mtc);
+    log(cv_system);
+    log(cv_comp); //^In log statement// //There is no local or imported definition with name `cv_comp'//
+  }
+}
+
+
+}
+with {
+  extension "anytype C0" //Class type `@oop_SE.C0' cannot be added to the anytype//
+}
