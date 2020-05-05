@@ -159,7 +159,7 @@ function f_embedded_types() { //^In function definition//
   var SetOfClass v_setof := { C0.create };
   var UniClass v_uni := { x := C0.create };
   var anytype v_any; //^In variable definition// //^In type definition//
-  v_any.C0 := C0.create; //^In variable assignment// //Reference to non-existent field `C0' in type `@oop_SE.anytype'//
+  v_any.C0 := C0.create;
 }
 
 
@@ -213,5 +213,5 @@ type class C10 runs on CT_RunsOn mtc CT_Mtc system CT_System { //^In type defini
 
 }
 with {
-  extension "anytype C0" //Class type `@oop_SE.C0' cannot be added to the anytype//
+  extension "anytype C0" //^In anytype field// //Class type `@oop_SE.C0' cannot be embedded into another type//
 }

@@ -16,7 +16,7 @@ include ../../Makefile.personal
 
 SADIRS := ver param template any_from pattern_ref float recof_index \
 port_translation mtc_and_system_clause port_map_connect deterministic invoking_function_from_specific_places \
-json realtime map_param
+json realtime map_param oop
 ifdef RT2
 SADIRS += deprecated erroneous_attributes template_concat
 endif
