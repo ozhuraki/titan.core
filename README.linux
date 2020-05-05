@@ -1,4 +1,4 @@
-******************************************************************************
+cd******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -17,12 +17,17 @@ Build and install Titan on Linux
 
 1.Install required libraries: 
 (examples are given for Ubuntu 12.04/14.04; for other Linuxes, pls. use the relevant library installation method)
-
 sudo apt-get install g++ expect libssl-dev libxml2-dev libncurses5-dev flex bison
+ (SLED 14.0: sudo zypper in libopenssl-devel,  g++, flex, bison already installed)
+ (RHEL: g++, flex, bison already installed)
+
 xutils-dev is needed by makedepend:
 sudo apt-get install xutils-dev
+(SLED 14.0: - )
+
 The following packages may be needed for titan_eclipse/automatic_build:
 sudo apt-get install ant xsltproc
+(RHEL: sudo yum install ant # xsltproc already installed)
 
 2.Clone or update the titan directory from git into /home/<user_id>/titan.core
 
@@ -48,12 +53,14 @@ USAGE_STATS := no
 
 If you want to use your build within the Ericsson domain: delete MakefileFOSS.cfg
 This will enable Ericsson internal-only licensing and statistics.
- 
-GEN_PDF set to yes will convert Word documents to PDF using a web service available within Ericsson only.
-Alternatively, one can install libreoffice and convert the documentation files as below:
 
-cd titan.core/userguide
-libreoffice -convert-to pdf *.doc *.docx
+#This paragraph is obsolete 
+#GEN_PDF set to yes will convert Word documents to PDF using a web service available within Ericsson only.
+#Alternatively, one can install libreoffice and convert the documentation files as below:
+#cd titan.core/userguide
+#libreoffice -convert-to pdf *.doc *.docx
+
+GEN_PDF set to yes will convert .adoc documents to pdf using asciidoctor-pdf
 
 Several other build options are possible; for details on options please read through the Makefile.cfg.
 Options can be overridden by the content of  a file named Makefile.personal which can be used to 
