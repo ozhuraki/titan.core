@@ -1418,7 +1418,9 @@ namespace Ttcn {
   Common::Assignment *RunsOnScope::get_ass_bySRef(Ref_simple *p_ref)
   {
     if (!p_ref) FATAL_ERROR("Ttcn::RunsOnScope::get_ass_bySRef()");
-    if (p_ref->get_modid()) return parent_scope->get_ass_bySRef(p_ref);
+    if (p_ref->get_modid() || p_ref->get_reftype() != Ref_simple::REF_BASIC) {
+      return parent_scope->get_ass_bySRef(p_ref);
+    }
     else {
       const Identifier& id = *p_ref->get_id();
       if (component_defs->has_local_ass_withId(id)) {
@@ -3667,12 +3669,6 @@ namespace Ttcn {
               delete t;
               continue;
             }
-            else if (t->get_type_refd_last()->get_typetype() == Type::T_CLASS) {
-              ea.error("Class type `%s' cannot be added to the anytype",
-                t->get_typename().c_str());
-              delete t;
-              continue;
-            }
 
             string field_name;
             const char* btn = Type::get_typename_builtin(t->get_typetype());
@@ -4206,6 +4202,10 @@ namespace Ttcn {
       error("Type of module parameter cannot be signature `%s'",
         t->get_fullname().c_str());
       break;
+    case Type::T_CLASS:
+      error("Type of module parameter cannot be or embed class type `%s'",
+        t->get_fullname().c_str());
+      break;
     case Type::T_FUNCTION:
     case Type::T_ALTSTEP:
     case Type::T_TESTCASE:
@@ -4214,10 +4214,6 @@ namespace Ttcn {
             " `%s' which has runs on self clause", t->get_fullname().c_str());
         break;
       }
-    case Type::T_CLASS:
-      error("Type of module parameter cannot be or embed class type `%s'",
-        t->get_fullname().c_str());
-      break;
     default:
 #if defined(MINGW)
       checked = true;
