@@ -844,14 +844,14 @@ Before analyzing the input modules the compiler applies some heuristics for each
 During its run, the compiler reports its activities on its standard error stream like the following. The level of detail for these messages can be controlled with the flag `-V`.
 [source]
 ----
-Notify: Parsing TTCN-3 module ’MyModule.ttcn’...
-Notify: Parsing ASN.1 module ’MyAsnModule.asn’...
+Notify: Parsing TTCN-3 module 'MyModule.ttcn'...
+Notify: Parsing ASN.1 module 'MyAsnModule.asn'...
 Notify: Checking modules...
 Notify: Generating code...
-Notify: File ‘MyModule.hh’ updated.
-Notify: File ‘MyModule.cc’ updated.
-Notify: File ‘MyAsnModule.hh’ updated.
-Notify: File ‘MyAsnModule.cc’ updated.
+Notify: File 'MyModule.hh' updated.
+Notify: File 'MyModule.cc' updated.
+Notify: File 'MyAsnModule.hh' updated.
+Notify: File 'MyAsnModule.cc' updated.
 Notify: 4 files updated.
 ----
 
