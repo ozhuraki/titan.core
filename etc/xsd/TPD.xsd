@@ -114,6 +114,7 @@
                     </xs:element>
 
                     <xs:element name="semanticCheckOnly" minOccurs="0" maxOccurs="1" type="xs:boolean" />
+                    <!-- *******TITAN Flags:****** -->
                     <xs:element name="disableAttributeValidation" minOccurs="0" maxOccurs="1" type="xs:boolean" />
                     <xs:element name="disableBER" minOccurs="0" maxOccurs="1" type="xs:boolean" />
                     <xs:element name="disableRAW" minOccurs="0" maxOccurs="1" type="xs:boolean" />
@@ -142,6 +143,8 @@
                     <xs:element name="namingRules" minOccurs="0" maxOccurs="1" type="xs:normalizedString" />
                     <xs:element name="disableSubtypeChecking" minOccurs="0" maxOccurs="1" type="xs:boolean" />
                     <xs:element name="forceGenSeof" minOccurs="0" maxOccurs="1" type="xs:boolean" />
+                    <xs:element name="enableOOP" minOccurs="0" maxOccurs="1" type="xs:boolean" />
+                    <!-- *******C++ compiler:****** -->
                     <xs:element name="CxxCompiler" minOccurs="0" maxOccurs="1" type="xs:normalizedString" />
                     <xs:element name="optimizationLevel" minOccurs="0" maxOccurs="1" type="xs:normalizedString" />
                     <xs:element name="otherOptimizationFlags" minOccurs="0" maxOccurs="1" type="xs:string" />
