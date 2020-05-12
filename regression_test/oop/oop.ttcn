@@ -224,9 +224,9 @@ testcase tc_logging() runs on CT {
   log(v_sub);
   log(v_final);
   
-  var charstring v_base_str := "BaseClass: { m_const := 2, m_const2 := { 1, 2, 1 }, m_temp := *, m_timer := timer: { name: m_timer, default duration: none, state: inactive }, m_timer_array := { timer: { name: m_timer_array[0], default duration: none, state: inactive }, timer: { name: m_timer_array[1], default duration: none, state: inactive }, timer: { name: m_timer_array[2], default duration: none, state: inactive } }, m_var := \"a\", m_var_temp := (0.000000 .. 10.000000) }";
-  var charstring v_sub_str := "SubClass: { BaseClass: { m_const := 2, m_const2 := { 1, 2, 1 }, m_temp := *, m_timer := timer: { name: m_timer, default duration: none, state: inactive }, m_timer_array := { timer: { name: m_timer_array[0], default duration: none, state: inactive }, timer: { name: m_timer_array[1], default duration: none, state: inactive }, timer: { name: m_timer_array[2], default duration: none, state: inactive } }, m_var := \"ax\", m_var_temp := (0.000000 .. 10.000000) }, m_const3 := 'FFFF'O }";
-  var charstring v_final_str := "FinalClass: { SubClass: { BaseClass: { m_const := 2, m_const2 := { 1, 2, 1 }, m_temp := *, m_timer := timer: { name: m_timer, default duration: none, state: inactive }, m_timer_array := { timer: { name: m_timer_array[0], default duration: none, state: inactive }, timer: { name: m_timer_array[1], default duration: none, state: inactive }, timer: { name: m_timer_array[2], default duration: none, state: inactive } }, m_var := \"ax\", m_var_temp := (0.000000 .. 10.000000) }, m_const3 := 'FFFF'O }, m_final_const := 8, m_final_temp := \"x\", m_final_var := -1.500000, m_final_var_temp := * }";
+  var charstring v_base_str := "BaseClass: { m_const := 2, m_const2 := { 1, 2, 1 }, m_var := \"a\", m_temp := *, m_var_temp := (0.000000 .. 10.000000), m_timer := timer: { name: m_timer, default duration: none, state: inactive }, m_timer_array := { timer: { name: m_timer_array[0], default duration: none, state: inactive }, timer: { name: m_timer_array[1], default duration: none, state: inactive }, timer: { name: m_timer_array[2], default duration: none, state: inactive } } }";
+  var charstring v_sub_str := "SubClass: { BaseClass: { m_const := 2, m_const2 := { 1, 2, 1 }, m_var := \"ax\", m_temp := *, m_var_temp := (0.000000 .. 10.000000), m_timer := timer: { name: m_timer, default duration: none, state: inactive }, m_timer_array := { timer: { name: m_timer_array[0], default duration: none, state: inactive }, timer: { name: m_timer_array[1], default duration: none, state: inactive }, timer: { name: m_timer_array[2], default duration: none, state: inactive } } }, m_const3 := 'FFFF'O }";
+  var charstring v_final_str := "FinalClass: { SubClass: { BaseClass: { m_const := 2, m_const2 := { 1, 2, 1 }, m_var := \"ax\", m_temp := *, m_var_temp := (0.000000 .. 10.000000), m_timer := timer: { name: m_timer, default duration: none, state: inactive }, m_timer_array := { timer: { name: m_timer_array[0], default duration: none, state: inactive }, timer: { name: m_timer_array[1], default duration: none, state: inactive }, timer: { name: m_timer_array[2], default duration: none, state: inactive } } }, m_const3 := 'FFFF'O }, m_final_const := 8, m_final_temp := \"x\", m_final_var := -1.500000, m_final_var_temp := * }";
   
   if (log2str(v_base) != v_base_str) {
     setverdict(fail, "v_base: ", v_base);
@@ -443,6 +443,23 @@ testcase tc_object() runs on CT {
   setverdict(pass);
 }
 
+type class Order {
+  var integer b;
+  var integer d;
+  var integer c;
+  var integer a;
+}
+
+testcase tc_order() runs on CT {
+  var Order x := Order.create(1, 2, 3, 4);
+  if (log2str(x) == "Order: { b := 1, d := 2, c := 3, a := 4 }") {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, x);
+  }
+}
+
 
 control {
   execute(tc_members_and_methods());
@@ -453,6 +470,7 @@ control {
   execute(tc_references());
   execute(tc_function_pars_and_retval());
   execute(tc_object());
+  execute(tc_order());
 }
 
 }

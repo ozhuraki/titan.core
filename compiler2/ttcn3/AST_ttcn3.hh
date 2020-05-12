@@ -514,7 +514,7 @@ namespace Ttcn {
     virtual bool has_local_ass_withId(const Identifier& p_id);
     virtual Common::Assignment* get_local_ass_byId(const Identifier& p_id);
     virtual size_t get_nof_asss();
-    virtual Common::Assignment* get_ass_byIndex(size_t p_i);
+    virtual Common::Assignment* get_ass_byIndex(size_t p_i, bool p_reordered = true);
     size_t get_nof_raw_asss();
     Definition *get_raw_ass_byIndex(size_t p_i);
     virtual bool is_class_scope() const;

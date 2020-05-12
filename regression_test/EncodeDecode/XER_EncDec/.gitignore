@@ -6,3 +6,5 @@ compile
 *.gcno
 *.log
 result.txt
+XER_EncDec
+XER_EncDec.exe

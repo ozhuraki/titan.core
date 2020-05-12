@@ -717,10 +717,10 @@ namespace Asn {
     return asss_m.size();
   }
 
-  Common::Assignment* Assignments::get_ass_byIndex(size_t p_i)
+  Common::Assignment* Assignments::get_ass_byIndex(size_t p_i, bool p_reordered)
   {
     if (!checked) chk_uniq();
-    return asss_m.get_nth_elem(p_i);
+    return p_reordered ? asss_m.get_nth_elem(p_i) : asss_v[p_i];
   }
 
   void Assignments::add_ass(Assignment *p_ass)

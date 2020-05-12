@@ -190,7 +190,7 @@ namespace Asn {
     /** Also looks into special assignments. */
     virtual Assignment* get_local_ass_byId(const Identifier& p_id);
     virtual size_t get_nof_asss();
-    virtual Common::Assignment* get_ass_byIndex(size_t p_i);
+    virtual Common::Assignment* get_ass_byIndex(size_t p_i, bool p_reordered = true);
     /** Adds the Assignment. If \a checked flag is true and the id of the new
      * assignment is not unique it reports the error. */
     void add_ass(Assignment *p_ass);

@@ -2146,10 +2146,10 @@ namespace Ttcn {
     return ass_v.size();
   }
 
-  Common::Assignment* Definitions::get_ass_byIndex(size_t p_i)
+  Common::Assignment* Definitions::get_ass_byIndex(size_t p_i, bool p_reordered)
   {
     if (!checked) chk_uniq();
-    return ass_m.get_nth_elem(p_i);
+    return p_reordered ? ass_m.get_nth_elem(p_i) : ass_v[p_i];
   }
 
   Ttcn::Definition* Definitions::get_raw_ass_byIndex(size_t p_i) {

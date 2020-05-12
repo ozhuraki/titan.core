@@ -3373,7 +3373,7 @@ namespace Ttcn {
     members->chk();
 
     for (size_t i = 0; i < members->get_nof_asss(); ++i) {
-      Common::Assignment* ass = members->get_ass_byIndex(i);
+      Common::Assignment* ass = members->get_ass_byIndex(i, false);
       if (ass->get_asstype() == Common::Assignment::A_CONSTRUCTOR) {
         // TODO: check for multiple constructors, or is that handled by previous checks?
         constructor = dynamic_cast<Def_Constructor*>(ass);
@@ -3413,7 +3413,9 @@ namespace Ttcn {
       }
       StatementBlock* block = new StatementBlock();
       for (size_t i = 0; i < members->get_nof_asss(); ++i) {
-        Common::Assignment* member = members->get_ass_byIndex(i);
+        // note: the Definitions class rearranges its element alphabetically;
+        // here the members must be accessed in their original order
+        Common::Assignment* member = members->get_ass_byIndex(i, false);
         bool is_template = false;
         switch (member->get_asstype()) {
         case Common::Assignment::A_TEMPLATE:
@@ -3463,7 +3465,7 @@ namespace Ttcn {
     }
     
     for (size_t i = 0; i < members->get_nof_asss(); ++i) {
-      Common::Assignment* def = members->get_ass_byIndex(i);
+      Common::Assignment* def = members->get_ass_byIndex(i, false);
       switch (def->get_asstype()) {
       case Common::Assignment::A_VAR:
         if (def->get_Type()->get_type_refd_last()->get_typetype() == Common::Type::T_CLASS) {
@@ -3600,7 +3602,7 @@ namespace Ttcn {
         first_logged = true;
       }
       for (size_t i = 0; i < members->get_nof_asss(); ++i) {
-        Common::Assignment* member = members->get_ass_byIndex(i);
+        Common::Assignment* member = members->get_ass_byIndex(i, false);
         switch (member->get_asstype()) {
         case Common::Assignment::A_CONST:
         case Common::Assignment::A_VAR:

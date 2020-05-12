@@ -486,7 +486,7 @@ namespace Common {
     virtual size_t get_nof_asss() = 0;
     /** Returns the assignment with the given index. Only the uniquely
      *  named assignments are visible. */
-    virtual Assignment* get_ass_byIndex(size_t p_i) = 0;
+    virtual Assignment* get_ass_byIndex(size_t p_i, bool p_reordered = true) = 0;
   };
   
   enum param_eval_t {

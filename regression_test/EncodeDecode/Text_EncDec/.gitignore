@@ -6,3 +6,5 @@ compile
 *.gcno
 *.log
 result.txt
+Text_EncDec
+Text_EncDec.exe
