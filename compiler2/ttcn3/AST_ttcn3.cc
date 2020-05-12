@@ -482,12 +482,19 @@ namespace Ttcn {
           Free(prev_expr);
         }
         const Identifier& id = *ref->get_id();
-        Common::Assignment* ass = class_->get_local_ass_byId(id);
+        // 'ass' is null if the 'toString' method from the 'object' class is called
+        Common::Assignment* ass = class_->has_local_ass_withId(id) ?
+          class_->get_local_ass_byId(id) : NULL;
         expr->expr = mputprintf(expr->expr, "->%s(", id.get_name().c_str());
-        ref->get_actual_par_list()->generate_code_noalias(expr, ass->get_FormalParList());
+        FormalParList* fp_list = ass != NULL ? ass->get_FormalParList() :
+          new FormalParList; // the formal parameter list of 'toString' is empty
+        ref->get_actual_par_list()->generate_code_noalias(expr, fp_list);
+        if (ass == NULL) {
+          delete fp_list;
+        }
         expr->expr = mputc(expr->expr, ')');
-        Def_Function_Base* def_func = dynamic_cast<Def_Function_Base*>(ass);
-        type = def_func->get_return_type();
+        type = ass != NULL ? ass->get_Type() :
+          Common::Type::get_pooltype(Common::Type::T_USTR);
         if (const_ref && i < n_refs - 1 &&
             refs[i + 1]->get_type() != FieldOrArrayRef::FUNCTION_REF) {
           // the next subreference is a field name or array index, have to
@@ -1055,15 +1062,17 @@ namespace Ttcn {
         expr->expr = mputstr(expr->expr, "this->");
       }
       else { // no 'id' means it's just a 'this' reference
-        expr->expr = mputprintf(expr->expr, "OBJECT_REF<%s>(this)",
+        expr->expr = mputprintf(expr->expr, "%s(this)",
           ass->get_Type()->get_genname_value(my_scope).c_str());
         return;
       }
     }
     else if (reftype == REF_SUPER) {
+      Common::Type* base_type = my_scope->get_scope_class()->get_base_type()->
+        get_type_refd_last();
       expr->expr = mputprintf(expr->expr, "%s::",
-        my_scope->get_scope_class()->get_base_type()->
-        get_genname_value(my_scope).c_str());
+        base_type->get_class_type_body()->is_built_in() ? "OBJECT" :
+        base_type->get_genname_own(my_scope).c_str());
     }
     string const_prefix; // empty by default
     if (gen_const_prefix) {
@@ -1146,12 +1155,8 @@ namespace Ttcn {
     } else {
       // don't convert to const object if the first subreference is a method call
       if (t_subrefs->get_ref(0)->get_type() != FieldOrArrayRef::FUNCTION_REF) {
-        string type_str = refd_gov->get_genname_value(get_my_scope());
-        if (refd_gov->get_type_refd_last()->get_typetype() == Common::Type::T_CLASS) {
-          type_str = string("OBJECT_REF<") + type_str + string(">");
-        }
         this_expr.expr = mputprintf(this_expr.expr, "const_cast< const %s&>(",
-          type_str.c_str());
+          refd_gov->get_genname_value(get_my_scope()).c_str());
       }
     }
     if (parlist != NULL) {
@@ -3688,6 +3693,11 @@ namespace Ttcn {
                 continue;
               }
               field_name = tref->get_id()->get_ttcnname();
+              if (oop_features && field_name == string("object")) {
+                ea.error("Class type `object' cannot be added to the anytype");
+                delete t;
+                continue;
+              }
             }
             else {
               // Can't happen here
@@ -3888,7 +3898,7 @@ namespace Ttcn {
       break;
     case Type::T_CLASS:
       error("Constant cannot be defined for class type `%s'",
-        t->get_fullname().c_str());
+        t->get_typename().c_str());
       break;
     default:
       value_under_check = true;
@@ -4078,7 +4088,7 @@ namespace Ttcn {
       break;
     case Type::T_CLASS:
       error("External constant cannot be defined for class type `%s'",
-        t->get_fullname().c_str());
+        t->get_typename().c_str());
       break;
     default:
       break;
@@ -4204,7 +4214,7 @@ namespace Ttcn {
       break;
     case Type::T_CLASS:
       error("Type of module parameter cannot be or embed class type `%s'",
-        t->get_fullname().c_str());
+        t->get_typename().c_str());
       break;
     case Type::T_FUNCTION:
     case Type::T_ALTSTEP:
@@ -4384,7 +4394,7 @@ namespace Ttcn {
       break;
     case Type::T_CLASS:
       error("Type of template module parameter cannot be class type `%s'",
-        t->get_fullname().c_str());
+        t->get_typename().c_str());
       break;
     default:
       if (IMPLICIT_OMIT == has_implicit_omit_attr()) {
@@ -4605,7 +4615,7 @@ namespace Ttcn {
     }
     else if (t->get_typetype() == Type::T_CLASS) {
       error("Template cannot be defined for class type `%s'",
-        t->get_fullname().c_str());
+        t->get_typename().c_str());
     }
     chk_modified();
     chk_recursive_derivation();
@@ -5285,9 +5295,6 @@ namespace Ttcn {
     const string& t_genname = get_genname();
     const char *genname_str = t_genname.c_str();
     string type_name = type->get_genname_value(my_scope);
-    if (type->get_type_refd_last()->get_typetype() == Common::Type::T_CLASS) {
-      type_name = string("OBJECT_REF<") + type_name + string(">");
-    }
     if (initial_value && initial_value->has_single_expr()) {
       // the initial value can be represented by a single C++ expression
       // the object is initialized by the constructor
@@ -5396,7 +5403,7 @@ namespace Ttcn {
     }
     else if (t->get_typetype() == Type::T_CLASS) {
       error("Template variable cannot be defined for class type `%s'",
-        t->get_fullname().c_str());
+        t->get_typename().c_str());
     }
 
     if (initial_value) {

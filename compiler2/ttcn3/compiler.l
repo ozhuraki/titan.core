@@ -606,6 +606,18 @@ super {
     RETURN_LVAL(IDentifier);
   }
 }
+object {
+  if (oop_features) {
+    RETURN(ObjectKeyword);
+  }
+  else {
+    Location loc(infile, yylloc);
+    loc.warning("Keyword 'object' is treated as an identifier. Activate "
+      "compiler option '-k' to use object-oriented features.");
+    yylval.id = new Identifier(Identifier::ID_TTCN, string(yyleng, yytext));
+    RETURN_LVAL(IDentifier);
+  }
+}
 
   /* modifier keywords */
 

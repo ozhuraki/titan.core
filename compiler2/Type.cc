@@ -53,6 +53,7 @@
 #include "ttcn3/Templatestuff.hh"
 #include "ttcn3/RawAST.hh"
 #include "ttcn3/JsonAST.hh"
+#include "ttcn3/Statement.hh"
 
 #include "../common/static_check.h"
 #include "PredefFunc.hh"
@@ -227,6 +228,7 @@ namespace Common {
     case T_VERDICT:
     case T_COMPONENT:
     case T_DEFAULT:
+    case T_CLASS: // for the built-in class 'object'
       break; // we have a pool type
     default:
       return 0; // no pool type for you!
@@ -866,6 +868,9 @@ namespace Common {
       break;
     case T_ADDRESS:
       u.address = 0;
+      break;
+    case T_CLASS:
+      u.class_ = new Ttcn::ClassTypeBody();
       break;
     default:
       FATAL_ERROR("Type::Type()");
@@ -1776,66 +1781,91 @@ namespace Common {
           return 0;
         }
         Ttcn::ClassTypeBody* class_ = t->get_class_type_body();
+        bool base_toString = false;
         if (!class_->has_local_ass_withId(id)) {
-          ref->error("Reference to non-existent method `%s' in class type `%s'",
-            id.get_dispname().c_str(), t->get_typename().c_str());
-          return 0;
-        }
-        Assignment* ass = class_->get_local_ass_byId(id);
-        if (!class_->chk_visibility(ass, ref, subrefs->get_my_scope())) {
-          // the method is not visible (the error has already been reported)
-          return 0;
-        }
-        switch (ass->get_asstype()) {
-        case Assignment::A_VAR:
-        case Assignment::A_VAR_TEMPLATE:
-        case Assignment::A_CONST:
-        case Assignment::A_TEMPLATE:
-          ref->error("Invalid reference to member `%s' in class type `%s', "
-            "reference to a method was expected instead",
-            id.get_dispname().c_str(), t->get_typename().c_str());
-          return 0;
-        case Assignment::A_FUNCTION:
-        case Assignment::A_EXT_FUNCTION:
-          if (i != nof_refs - 1 || last_method == NULL) {
-            ref->error("Invalid reference to method `%s' with no return type in "
-              "class type `%s'",
+          if (id.get_name() == string("toString")) {
+            // the 'toString' method is not in the AST, but it is inherited by
+            // every class from the 'object' class
+            base_toString = true;
+            if (!ref->parameters_checked()) {
+              Ttcn::FormalParList fp_list; // empty formal parameter list
+              Ttcn::ParsedActualParameters* parsed_pars = ref->get_parsed_pars();
+              Ttcn::ActualParList* ap_list = new Ttcn::ActualParList;
+              bool is_erroneous = fp_list.fold_named_and_chk(parsed_pars, ap_list);
+              if (is_erroneous) {
+                delete ap_list;
+                return 0;
+              }
+              ap_list->set_fullname(parsed_pars->get_fullname());
+              ap_list->set_my_scope(parsed_pars->get_my_scope());
+              ref->set_actual_par_list(ap_list);
+            }
+            t = get_pooltype(T_USTR);
+            // todo: set *last_method
+          }
+          else {
+            ref->error("Reference to non-existent method `%s' in class type `%s'",
               id.get_dispname().c_str(), t->get_typename().c_str());
             return 0;
           }
-          // a method with no return value can still be valid (e.g. if it's
-          // in a statement)
-          // proceed as normal and return null at the end
-        case Assignment::A_FUNCTION_RVAL:
-        case Assignment::A_FUNCTION_RTEMP:
-        case Assignment::A_EXT_FUNCTION_RVAL:
-        case Assignment::A_EXT_FUNCTION_RTEMP: {
-          Ttcn::Def_Function_Base* def_func =
-            dynamic_cast<Ttcn::Def_Function_Base*>(ass);
-          if (def_func == NULL) {
-            FATAL_ERROR("Type::get_field_type");
+        }
+        if (!base_toString) {
+          Assignment* ass = class_->get_local_ass_byId(id);
+          if (!class_->chk_visibility(ass, ref, subrefs->get_my_scope())) {
+            // the method is not visible (the error has already been reported)
+            return 0;
           }
-          t = def_func->get_return_type();
-          if (!ref->parameters_checked()) {
-            Ttcn::FormalParList* fp_list = ass->get_FormalParList();
-            Ttcn::ParsedActualParameters* parsed_pars = ref->get_parsed_pars();
-            Ttcn::ActualParList* ap_list = new Ttcn::ActualParList;
-            bool is_erroneous = fp_list->fold_named_and_chk(parsed_pars, ap_list);
-            if (is_erroneous) {
-              delete ap_list;
+          switch (ass->get_asstype()) {
+          case Assignment::A_VAR:
+          case Assignment::A_VAR_TEMPLATE:
+          case Assignment::A_CONST:
+          case Assignment::A_TEMPLATE:
+            ref->error("Invalid reference to member `%s' in class type `%s', "
+              "reference to a method was expected instead",
+              id.get_dispname().c_str(), t->get_typename().c_str());
+            return 0;
+          case Assignment::A_FUNCTION:
+          case Assignment::A_EXT_FUNCTION:
+            if (i != nof_refs - 1 || last_method == NULL) {
+              ref->error("Invalid reference to method `%s' with no return type in "
+                "class type `%s'",
+                id.get_dispname().c_str(), t->get_typename().c_str());
               return 0;
             }
-            ap_list->set_fullname(parsed_pars->get_fullname());
-            ap_list->set_my_scope(parsed_pars->get_my_scope());
-            ref->set_actual_par_list(ap_list);
+            // a method with no return value can still be valid (e.g. if it's
+            // in a statement)
+            // proceed as normal and return null at the end
+          case Assignment::A_FUNCTION_RVAL:
+          case Assignment::A_FUNCTION_RTEMP:
+          case Assignment::A_EXT_FUNCTION_RVAL:
+          case Assignment::A_EXT_FUNCTION_RTEMP: {
+            Ttcn::Def_Function_Base* def_func =
+              dynamic_cast<Ttcn::Def_Function_Base*>(ass);
+            if (def_func == NULL) {
+              FATAL_ERROR("Type::get_field_type");
+            }
+            t = def_func->get_return_type();
+            if (!ref->parameters_checked()) {
+              Ttcn::FormalParList* fp_list = ass->get_FormalParList();
+              Ttcn::ParsedActualParameters* parsed_pars = ref->get_parsed_pars();
+              Ttcn::ActualParList* ap_list = new Ttcn::ActualParList;
+              bool is_erroneous = fp_list->fold_named_and_chk(parsed_pars, ap_list);
+              if (is_erroneous) {
+                delete ap_list;
+                return 0;
+              }
+              ap_list->set_fullname(parsed_pars->get_fullname());
+              ap_list->set_my_scope(parsed_pars->get_my_scope());
+              ref->set_actual_par_list(ap_list);
+            }
+            if (last_method != NULL) {
+              *last_method = ass;
+            }
+            break; }
+          default:
+            FATAL_ERROR("Type::get_field_type - %s shouldn't be in a class",
+              ass->get_assname());
           }
-          if (last_method != NULL) {
-            *last_method = ass;
-          }
-          break; }
-        default:
-          FATAL_ERROR("Type::get_field_type - %s shouldn't be in a class",
-            ass->get_assname());
         }
         break; }
       case Ttcn::FieldOrArrayRef::ARRAY_REF: {
@@ -6224,6 +6254,8 @@ namespace Common {
     case T_ALTSTEP:
     case T_TESTCASE:
       return u.fatref.runs_on.type;
+    case T_CLASS:
+      return u.class_->get_RunsOnType();
     default:
       FATAL_ERROR("Type::get_fat_runs_on_type()");
       return 0;
@@ -7542,6 +7574,9 @@ namespace Common {
       return string("COMPONENT");
     case T_DEFAULT:
       return string("DEFAULT");
+    case T_CLASS:
+      return t->u.class_->is_built_in() ? string("OBJECT_REF<OBJECT>") :
+        string("OBJECT_REF<") + t->get_genname_own(p_scope) + string(">");
     case T_ARRAY:
       if (!t->u.array.in_typedef)
         return t->u.array.dimension->get_value_type(t->u.array.element_type,
@@ -7634,6 +7669,11 @@ namespace Common {
     const char* tn = get_typename_builtin(t->typetype);
     if (tn != 0) return string(tn);
     switch (t->typetype) {
+    case T_CLASS:
+      if (t->u.class_->is_built_in()) {
+        return string("object");
+      }
+      // else fall through
     case T_COMPONENT:
     case T_SIGNATURE:
     case T_CHOICE_A:
@@ -7651,7 +7691,6 @@ namespace Common {
     case T_FUNCTION:
     case T_ALTSTEP:
     case T_TESTCASE:
-    case T_CLASS:
       return t->get_fullname();
     case T_ARRAY: {
       string dimensions(t->u.array.dimension->get_stringRepr());

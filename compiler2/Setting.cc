@@ -39,6 +39,7 @@
 #include "ttcn3/profiler.h"
 #include "ttcn3/Attributes.hh"
 #include "ttcn3/Ttcnstuff.hh"
+#include "ttcn3/Statement.hh"
 
 namespace Common {
 
@@ -676,6 +677,9 @@ namespace Common {
     case Type::T_ALTSTEP:
       typetype_name = "altstep";
       break;
+    case Type::T_CLASS:
+      typetype_name = "class";
+      break;
     default:
       FATAL_ERROR("Scope::chk_runs_on_clause()");
       typetype_name = 0;
@@ -727,6 +731,33 @@ namespace Common {
     }
   }
   
+  void Scope::chk_mtc_clause(Type* p_type, const Location& p_loc)
+  {
+    // component type of the referred definition
+    Type* refd_comptype = p_type->get_class_type_body()->get_MtcType();
+    // definitions without 'mtc' can be called from anywhere
+    if (refd_comptype == NULL) {
+      return;
+    }
+    if (get_statementblock_scope()->get_my_def() == NULL) { // in control part
+      p_loc.error("Cannot create value of class type `%s', which has an `mtc' "
+        "clause, in the control part.", p_type->get_typename().c_str());
+      return;
+    }
+    Type* t_comptype = get_mtc_system_comptype(false);
+    if (t_comptype != NULL) {
+      if (!refd_comptype->is_compatible_component_by_port(t_comptype)) {
+        // the 'mtc' clause of the referred definition is not compatible
+        // with that of the current scope (i.e. the referring definition)
+        p_loc.error("Mtc clause mismatch: A definition that runs on component "
+          "type `%s' cannot create a value of class type `%s', which has `mtc' "
+          "component type `%s'",
+          t_comptype->get_typename().c_str(), p_type->get_typename().c_str(),
+          refd_comptype->get_typename().c_str());
+      }
+    }
+  }
+  
   void Scope::chk_system_clause(Assignment *p_ass, const Location& p_loc,
     const char *p_what, bool in_control_part)
   {
@@ -747,6 +778,33 @@ namespace Common {
           "component type `%s' cannot %s %s, which system clause is `%s'",
           t_comptype->get_typename().c_str(), p_what,
           p_ass->get_description().c_str(),
+          refd_comptype->get_typename().c_str());
+      }
+    }
+  }
+  
+  void Scope::chk_system_clause(Type* p_type, const Location& p_loc)
+  {
+    // component type of the referred definition
+    Type* refd_comptype = p_type->get_class_type_body()->get_SystemType();
+    // definitions without 'system' can be called from anywhere
+    if (refd_comptype == NULL) {
+      return;
+    }
+    if (get_statementblock_scope()->get_my_def() == NULL) { // in control part
+      p_loc.error("Cannot create value of class type `%s', which has a `system' "
+        "clause, in the control part.", p_type->get_typename().c_str());
+      return;
+    }
+    Type* t_comptype = get_mtc_system_comptype(true);
+    if (t_comptype != NULL) {
+      if (!refd_comptype->is_compatible_component_by_port(t_comptype)) {
+        // the 'system' clause of the referred definition is not compatible
+        // with that of the current scope (i.e. the referring definition)
+        p_loc.error("System clause mismatch: A definition that runs on component "
+          "type `%s' cannot create a value of class type `%s', which has `system' "
+          "component type `%s'",
+          t_comptype->get_typename().c_str(), p_type->get_typename().c_str(),
           refd_comptype->get_typename().c_str());
       }
     }

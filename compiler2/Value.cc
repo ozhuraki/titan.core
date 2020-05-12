@@ -2200,6 +2200,7 @@ namespace Common {
       if(u.expr.v3) u.expr.v3->set_fullname(p_fullname+".<operand3>");
       break;
     case OPTYPE_UNDEF_CREATE: // r1 t_list2 b4
+    case OPTYPE_CLASS_CREATE: // r1 t_list2 b4
       u.expr.r1->set_fullname(p_fullname+".<operand1>");
       u.expr.t_list2->set_fullname(p_fullname+".<parameterlist>");
       break;
@@ -8216,6 +8217,9 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
           u.expr.ap_list2 = parlist;
         }
         chk_expr_dynamic_part(exp_val, true);
+        my_scope->chk_runs_on_clause(t, *this, "create");
+        my_scope->chk_mtc_clause(t, *this);
+        my_scope->chk_system_clause(t, *this);
       }
       if (u.expr.v_optype != OPTYPE_COMP_CREATE) {
         break;
@@ -13028,6 +13032,9 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         // all others must already be evaluated away
         FATAL_ERROR("Value::generate_code_init()");
       }
+      break;
+    case V_TTCN3_NULL:
+      str = mputprintf(str, "%s = NULL_VALUE;\n", name);
       break;
     case V_NOTUSED:
       // unbound value, don't generate anything

@@ -124,32 +124,44 @@ type class C8 extends C7 { //^In type definition// //While checking embedded rec
 
 type class C9 extends C8 {} //^In type definition// //^In superclass definition//
 
-external const C0 ec_obj; //^In external constant definition// //External constant cannot be defined for class type `@oop_SE.C0'//
-modulepar C0 mp_obj; //^In module parameter definition// //Type of module parameter cannot be or embed class type `@oop_SE.C0'//
-modulepar template C0 mpt_obj; //^In template module parameter definition// //Type of template module parameter cannot be class type `@oop_SE.C0'//
+external const C0 ec_c0; //^In external constant definition// //External constant cannot be defined for class type `@oop_SE.C0'//
+external const object ec_obj; //^In external constant definition// //External constant cannot be defined for class type `object'//
+modulepar C0 mp_c0; //^In module parameter definition// //Type of module parameter cannot be or embed class type `@oop_SE.C0'//
+modulepar object mp_obj; //^In module parameter definition// //Type of module parameter cannot be or embed class type `object'//
+modulepar template C0 mpt_c0; //^In template module parameter definition// //Type of template module parameter cannot be class type `@oop_SE.C0'//
+modulepar template object mpt_obj; //^In template module parameter definition// //Type of template module parameter cannot be class type `object'//
 
 function f_defs() { //^In function definition//
-  const C0 c_obj := null; //^In constant definition// //Constant cannot be defined for class type `@oop_SE.C0'//
-  var C0 v_obj;
-  template C0 t_obj := *; //^In template definition// //Template cannot be defined for class type `@oop_SE.C0'//
-  var template C0 vt_obj; //^In template variable definition// //Template variable cannot be defined for class type `@oop_SE.C0'//
+  const C0 c_c0 := null; //^In constant definition// //Constant cannot be defined for class type `@oop_SE.C0'//
+  const object c_obj := null; //^In constant definition// //Constant cannot be defined for class type `object'//
+  var C0 v_c0;
+  var object v_obj;
+  template C0 t_c0 := *; //^In template definition// //Template cannot be defined for class type `@oop_SE.C0'//
+  template object t_obj := *; //^In template definition// //Template cannot be defined for class type `object'//
+  var template C0 vt_c0; //^In template variable definition// //Template variable cannot be defined for class type `@oop_SE.C0'//
+  var template object vt_obj; //^In template variable definition// //Template variable cannot be defined for class type `object'//
 }
 
 
 type record RecClass { //^In type definition//
-  C0 x //^In record field// //Class type `@oop_SE.C0' cannot be embedded into another type//
+  C0 x, //^In record field// //Class type `@oop_SE.C0' cannot be embedded into another type//
+  object y //^In record field// //Class type `object' cannot be embedded into another type//
 }
 
 type set SetClass { //^In type definition//
-  C0 x //^In set field// //Class type `@oop_SE.C0' cannot be embedded into another type//
+  C0 x, //^In set field// //Class type `@oop_SE.C0' cannot be embedded into another type//
+  object y //^In set field// //Class type `object' cannot be embedded into another type//
 }
 
 type record of C0 RecOfClass; //^In type definition// //^In embedded type of record of// //Class type `@oop_SE.C0' cannot be embedded into another type//
+type record of object RecOfObject; //^In type definition// //^In embedded type of record of// //Class type `object' cannot be embedded into another type//
 
 type set of C0 SetOfClass; //^In type definition// //^In embedded type of set of// //Class type `@oop_SE.C0' cannot be embedded into another type//
+type set of object SetOfObject; //^In type definition// //^In embedded type of set of// //Class type `object' cannot be embedded into another type//
 
 type union UniClass { //^In type definition//
-  C0 x //^In union field// //Class type `@oop_SE.C0' cannot be embedded into another type//
+  C0 x, //^In union field// //Class type `@oop_SE.C0' cannot be embedded into another type//
+  object y //^In union field// //Class type `object' cannot be embedded into another type//
 }
 
 function f_embedded_types() { //^In function definition//
@@ -191,11 +203,25 @@ type component CT_RunsOn {
 type component CT_Mtc {
   var integer cv_mtc;
   const integer cc_mtc := 1;
+  port Port pt;
 }
 
 type component CT_System {
   var integer cv_system;
   const integer cc_system := 2;
+  port Port pt;
+}
+
+type component CT_RunsOn2 extends CT_RunsOn {
+  var template integer cvt_runs_on := *;
+}
+
+type component CT_Mtc2 extends CT_Mtc {
+  var template integer cvt_mtc := ?;
+}
+
+type component CT_System2 extends CT_System {
+  var template integer cvt_system := omit;
 }
 
 type class C10 runs on CT_RunsOn mtc CT_Mtc system CT_System { //^In type definition//
@@ -210,8 +236,50 @@ type class C10 runs on CT_RunsOn mtc CT_Mtc system CT_System { //^In type defini
   }
 }
 
+type class C11 extends C10 { //^In type definition//
+  public function f_inherited_comp_visibility(in integer p1 := cc_runs_on, //^In function definition// //^In formal parameter list//
+                                              in integer p2 := cc_mtc,
+                                              in integer p3 := cc_system,
+                                              in integer p4 := cc_comp) { //^In parameter// //^In default value// //There is no local or imported definition with name `cc_comp'//
+    log(cv_runs_on);
+    log(cv_mtc);
+    log(cv_system);
+    log(cv_comp); //^In log statement// //There is no local or imported definition with name `cv_comp'//
+  }
+}
+
+type class C12 extends C10 runs on CT_RunsOn mtc CT_Mtc system CT_System { }
+
+type class C13 extends C11 //^In type definition//
+  runs on Comp //^In `runs on' clause// //The `runs on' component type of the subclass, `@oop_SE.Comp', is not compatible with the `runs on' component type of the superclass, `@oop_SE.CT_RunsOn'//
+  mtc Comp //^In `mtc' clause// //The `mtc' component type of the subclass, `@oop_SE.Comp', is not compatible with the `mtc' component type of the superclass, `@oop_SE.CT_Mtc'//
+  system Comp //^In `system' clause// //The `system' component type of the subclass, `@oop_SE.Comp', is not compatible with the `system' component type of the superclass, `@oop_SE.CT_System'//
+  { }
+
+type class C14 extends C11
+  runs on CT_RunsOn2
+  mtc CT_Mtc2
+  system CT_System2
+  { }
+
+function f_good_comp_usage() runs on CT_RunsOn mtc CT_Mtc system CT_System {
+  var C11 x := C11.create;
+}
+
+function f_bad_comp_usage() runs on Comp mtc Comp system Comp { //^In function definition//
+  var C11 x := C11.create; //^In variable definition// //Runs on clause mismatch: A definition that runs on component type `@oop_SE.Comp' cannot create a value of class type `@oop_SE.C11', which runs on `@oop_SE.CT_RunsOn'// //Mtc clause mismatch: A definition that runs on component type `@oop_SE.Comp' cannot create a value of class type `@oop_SE.C11', which has `mtc' component type `@oop_SE.CT_Mtc'// //System clause mismatch: A definition that runs on component type `@oop_SE.Comp' cannot create a value of class type `@oop_SE.C11', which has `system' component type `@oop_SE.CT_System'//
+}
+
+function f_no_comp_usage() { //^In function definition//
+  var C11 x := C11.create; //^In variable definition// //A definition without `runs on' clause cannot create a value of class type `@oop_SE.C11', which runs on component type `@oop_SE.CT_RunsOn'//
+}
+
+
+control { //^In control part//
+  var C11 x := C11.create; //^In variable definition// //A definition without `runs on' clause cannot create a value of class type `@oop_SE.C11', which runs on component type `@oop_SE.CT_RunsOn'// //Cannot create value of class type `@oop_SE.C11', which has an `mtc' clause, in the control part.// //Cannot create value of class type `@oop_SE.C11', which has a `system' clause, in the control part.//
+}
 
 }
 with {
-  extension "anytype C0" //^In anytype field// //Class type `@oop_SE.C0' cannot be embedded into another type//
+  extension "anytype C0, object" //^In anytype field// //Class type `@oop_SE.C0' cannot be embedded into another type// //Class type `object' cannot be added to the anytype//
 }

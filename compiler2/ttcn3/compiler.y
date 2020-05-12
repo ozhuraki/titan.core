@@ -738,6 +738,7 @@ static const string anyname("anytype");
 %token NowKeyword
 %token NowaitKeyword
 %token NullKeyword
+%token ObjectKeyword
 %token ObjectIdentifierKeyword
 %token OctetStringKeyword
 %token OfKeyword
@@ -1948,7 +1949,7 @@ optDecodedModifier
 %left '*' '/' ModKeyword RemKeyword
 %left UnarySign
 
-%expect 75
+%expect 76
 
 %start GrammarRoot
 
@@ -1996,9 +1997,9 @@ non-standard language extension.
 
 6.) 1 Conflict due to pattern concatenation
 
-7.) 29 conflicts in one state
+7.) 30 conflicts in one state
 In the DecodedContentMatch rule a SingleExpression encased in round brackets is
-followed by an in-line template. For 29 tokens (after the ')' ) the parser cannot
+followed by an in-line template. For 30 tokens (after the ')' ) the parser cannot
 decide whether the token is the beginning of the in-line template (shift) or
 the brackets are only part of the SingleExpression itself and the conflicting
 token is the next segment in the expression (reduce).
@@ -8227,6 +8228,11 @@ Type: // 450
   PredefinedType
   {
     $$ = new Type($1);
+    $$->set_location(infile, @$);
+  }
+| ObjectKeyword
+  {
+    $$ = new Type(Type::T_CLASS);
     $$->set_location(infile, @$);
   }
 | AnyTypeKeyword /* a predefined type with special treatment */

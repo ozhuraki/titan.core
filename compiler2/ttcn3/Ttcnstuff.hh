@@ -760,6 +760,7 @@ class ClassTypeBody : public Common::Scope, public Common::Location {
   boolean external;
   boolean final;
   boolean abstract;
+  boolean built_in;
   Common::Type* base_type;
   Reference* runs_on_ref;
   Type* runs_on_type;
@@ -777,9 +778,10 @@ class ClassTypeBody : public Common::Scope, public Common::Location {
   
 public:
   ClassTypeBody(Common::Identifier* p_class_id, boolean p_external, boolean p_final,
-    boolean p_abstract, Common::Type* p_base_type, Ttcn::Reference* p_runs_on_ref,
-    Reference* p_mtc_ref, Reference* p_system_ref,
+    boolean p_abstract, Common::Type* p_base_type,
+    Ttcn::Reference* p_runs_on_ref, Reference* p_mtc_ref, Reference* p_system_ref,
     Definitions* p_members, StatementBlock* p_finally_block);
+  ClassTypeBody();
   ClassTypeBody(const ClassTypeBody& p);
   ClassTypeBody* clone() const;
   virtual ~ClassTypeBody();
@@ -795,6 +797,7 @@ public:
   Common::Identifier* get_id() const { return class_id; }
   Def_Constructor* get_constructor();
   Common::Type* get_base_type() const { return base_type; }
+  boolean is_built_in() const { return built_in; }
   
   Type* get_RunsOnType();
   Type* get_MtcType();

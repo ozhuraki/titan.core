@@ -357,6 +357,93 @@ testcase tc_references() runs on CT {
 }
 
 
+type class Node {
+  var integer data;
+  var Node next;
+}
+
+function f_test(in Node p1, inout Node p2, out Node p3,
+                in charstring p1_str, in charstring p2_str) return Node {
+  if (log2str(p1) != p1_str) {
+    setverdict(fail, "Invalid 'in' parameter value at start: ", p1, ", expected: ", p1_str);
+  }
+  if (log2str(p2) != p2_str) {
+    setverdict(fail, "Invalid 'inout' parameter value at start: ", p2, ", expected: ", p2_str);
+  }
+  if (p3 != null) {
+    setverdict(fail, "Invalid 'out' parameter value at start: ", p3, ", expected: null");
+  }
+  var Node tmp := p2;
+  p3 := p1;
+  p1 := null;
+  p2 := null;
+  return tmp;
+}
+
+testcase tc_function_pars_and_retval() runs on CT {
+  var Node x := Node.create(1, Node.create(2, Node.create(3, null)));
+  var Node y := Node.create(0, null);
+  var Node z := Node.create(-1, null);
+  var charstring x_str := log2str(x);
+  var charstring y_str := log2str(y);
+  var Node res := f_test(x, y, z, x_str, y_str);
+  if (log2str(x) != x_str) {
+    setverdict(fail, "Invalid 'in' parameter value at end: ", x, ", expected: ", x_str);
+  }
+  if (y != null) {
+    setverdict(fail, "Invalid 'inout' parameter value at end: ", y, ", expected: null");
+  }
+  if (log2str(z) != x_str) {
+    setverdict(fail, "Invalid 'out' parameter value at end: ", z, ", expected: ", x_str);
+  }
+  if (log2str(res) != y_str) {
+    setverdict(fail, "Invalid return value: ", res, ", expected: ", y_str);
+  }
+  setverdict(pass);
+}
+
+type class Node2 {
+  var object data;
+  var Node2 next;
+}
+
+type class Something {
+  public function toString() return universal charstring {
+    return "Something";
+  }
+}
+
+testcase tc_object() runs on CT {
+  var object v_obj := Node.create(3, null);
+  var Node v_node := Node.create(3, null);
+  if (log2str(v_obj) != log2str(v_node)) {
+    setverdict(fail, "v_obj: ", v_obj, ", v_node: ", v_node);
+  }
+  if (v_obj.toString() != "Object") {
+    setverdict(fail, "v_obj.toString(): ", v_obj.toString());
+  }
+  if (v_obj.toString() != v_node.toString()) {
+    setverdict(fail, "v_obj.toString(): ", v_obj.toString(), ", v_node.toString(): ", v_node.toString());
+  }
+  var object v_obj2 := Something.create;
+  var Something v_smthn := Something.create;
+  if (v_obj2.toString() != "Something") {
+    setverdict(fail, "v_obj2.toString(): ", v_obj2.toString());
+  }
+  if (v_obj2.toString() != v_smthn.toString()) {
+    setverdict(fail, "v_obj2.toString(): ", v_obj2.toString(), ", v_smthn.toString(): ", v_smthn.toString());
+  }
+  if (v_obj2.toString()[3] != "e") {
+    setverdict(fail, "v_obj2.toString()[3]: ", v_obj2.toString()[3]);
+  }
+  var Node2 v_node2 := Node2.create(Something.create, Node2.create(Node.create(1, null), null));
+  if (log2str(v_node2) != "Node2: { data := Something: {  }, next := Node2: { data := Node: { data := 1, next := null }, next := null } }") {
+    setverdict(fail, "v_node2: ", v_node2);
+  }
+  setverdict(pass);
+}
+
+
 control {
   execute(tc_members_and_methods());
   execute(tc_logging());
@@ -364,6 +451,8 @@ control {
   execute(tc_null());
   execute(tc_this());
   execute(tc_references());
+  execute(tc_function_pars_and_retval());
+  execute(tc_object());
 }
 
 }

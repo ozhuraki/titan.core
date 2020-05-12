@@ -2982,23 +2982,37 @@ namespace Ttcn {
   // =================================
   
   ClassTypeBody::ClassTypeBody(Common::Identifier* p_class_id, boolean p_external, boolean p_final,
-                               boolean p_abstract, Common::Type* p_base_type, Reference* p_runs_on_ref,
-                               Reference* p_mtc_ref, Reference* p_system_ref,
+                               boolean p_abstract, Common::Type* p_base_type,
+                               Reference* p_runs_on_ref, Reference* p_mtc_ref, Reference* p_system_ref,
                                Definitions* p_members, StatementBlock* p_finally_block)
-  : Scope(), Location(), class_id(p_class_id), my_def(NULL), external(p_external), final(p_final), abstract(p_abstract),
-    base_type(p_base_type), runs_on_ref(p_runs_on_ref), runs_on_type(NULL),
-    mtc_ref(p_mtc_ref), mtc_type(NULL), system_ref(p_system_ref), system_type(NULL),
+  : Scope(), Location(), class_id(p_class_id), my_def(NULL), external(p_external), final(p_final),
+    abstract(p_abstract), built_in(FALSE), base_type(p_base_type),
+    runs_on_ref(p_runs_on_ref), runs_on_type(NULL), mtc_ref(p_mtc_ref),
+    mtc_type(NULL), system_ref(p_system_ref), system_type(NULL),
     members(p_members), finally_block(p_finally_block), constructor(NULL), checked(false),
     default_constructor(false)
   {
+    // constructor for user-defined classes
     if (members == NULL) {
       FATAL_ERROR("ClassTypeBody::ClassTypeBody");
     }
   }
   
+  ClassTypeBody::ClassTypeBody()
+  : Scope(), Location(), class_id(NULL), my_def(NULL), external(FALSE), final(FALSE),
+    abstract(TRUE), built_in(TRUE), base_type(NULL),
+    runs_on_ref(NULL), runs_on_type(NULL), mtc_ref(NULL),
+    mtc_type(NULL), system_ref(NULL), system_type(NULL),
+    members(NULL), finally_block(NULL), constructor(NULL), checked(false),
+    default_constructor(false)
+  {
+    // constructor for the built-in class 'object'
+  }
+  
   ClassTypeBody::ClassTypeBody(const ClassTypeBody& p)
   {
-    class_id = p.class_id->clone();
+    built_in = p.built_in;
+    class_id = p.class_id != NULL ? p.class_id->clone() : NULL;
     my_def = p.my_def;
     external = p.external;
     final = p.final;
@@ -3007,7 +3021,7 @@ namespace Ttcn {
     runs_on_ref = p.runs_on_ref != NULL ? p.runs_on_ref->clone() : NULL;
     mtc_ref = p.mtc_ref != NULL ? p.mtc_ref->clone() : NULL;
     system_ref = p.system_ref != NULL ? p.system_ref->clone() : NULL;
-    members = p.members->clone();
+    members = p.members != NULL ? p.members->clone() : NULL;
     finally_block = p.finally_block != NULL ? p.finally_block->clone() : NULL;
     default_constructor = p.default_constructor;
     constructor = default_constructor ? p.constructor->clone() : p.constructor;
@@ -3021,6 +3035,9 @@ namespace Ttcn {
   
   ClassTypeBody::~ClassTypeBody()
   {
+    if (built_in) {
+      return;
+    }
     delete base_type;
     delete finally_block;
     delete members;
@@ -3034,6 +3051,9 @@ namespace Ttcn {
   
   void ClassTypeBody::set_fullname(const string& p_fullname)
   {
+    if (built_in) {
+      return;
+    }
     Common::Scope::set_fullname(p_fullname);
     if (base_type != NULL) {
       base_type->set_fullname(p_fullname + ".<superclass>");
@@ -3055,6 +3075,9 @@ namespace Ttcn {
   
   void ClassTypeBody::set_my_scope(Scope* p_scope)
   {
+    if (built_in) {
+      return;
+    }
     set_parent_scope(p_scope);
     if (base_type != NULL) {
       base_type->set_my_scope(p_scope);
@@ -3076,6 +3099,10 @@ namespace Ttcn {
   
   void ClassTypeBody::dump(unsigned level) const
   {
+    if (built_in) {
+      DEBUG(level, "Built-in class 'object'");
+      return;
+    }
     DEBUG(level, "Modifiers:%s%s%s", external ? "external " : "",
       final ? " @final " : "", abstract ? " @abstract" : "");
     DEBUG(level, "Base class: %s", base_type != NULL ?
@@ -3132,7 +3159,7 @@ namespace Ttcn {
   
   bool ClassTypeBody::is_parent_class(const ClassTypeBody* p_class) const
   {
-    if (this == p_class) {
+    if (this == p_class || p_class->built_in) {
       return true;
     }
     if (base_type == NULL) {
@@ -3144,6 +3171,9 @@ namespace Ttcn {
   
   bool ClassTypeBody::has_local_ass_withId(const Identifier& p_id)
   {
+    if (built_in) {
+      return false;
+    }
     chk();
     if (members->has_local_ass_withId(p_id)) {
       return true;
@@ -3159,6 +3189,9 @@ namespace Ttcn {
   
   Common::Assignment* ClassTypeBody::get_local_ass_byId(const Identifier& p_id)
   {
+    if (built_in) {
+      FATAL_ERROR("ClassTypeBody::get_local_ass_byId");
+    }
     chk();
     Common::Assignment* ass = NULL;
     if (members->has_local_ass_withId(p_id)) {
@@ -3175,6 +3208,9 @@ namespace Ttcn {
                                      Common::Location* usage_loc,
                                      Common::Scope* usage_scope)
   {
+    if (built_in) {
+      FATAL_ERROR("ClassTypeBody::chk_visibility");
+    }
     if (ass->get_visibility() == PUBLIC) {
       // it's public, so it doesn't matter where it's accessed from
       return true;
@@ -3204,6 +3240,9 @@ namespace Ttcn {
   
   Common::Assignment* ClassTypeBody::get_ass_bySRef(Common::Ref_simple* p_ref)
   {
+    if (built_in) {
+      return NULL;
+    }
     if (p_ref == NULL || parent_scope == NULL) {
       FATAL_ERROR("ClassTypeBody::get_ass_bySRef()");
     }
@@ -3251,7 +3290,7 @@ namespace Ttcn {
   
   void ClassTypeBody::chk()
   {
-    if (checked) {
+    if (checked || built_in) {
       return;
     }
     checked = true;
@@ -3270,25 +3309,69 @@ namespace Ttcn {
       // TODO: additional checks for the base type
     }
 
+    ClassTypeBody* base_class = base_type != NULL ? 
+      base_type->get_type_refd_last()->get_class_type_body() : NULL;
     if (runs_on_ref != NULL) {
       Error_Context cntxt(runs_on_ref, "In `runs on' clause");
       runs_on_type = runs_on_ref->chk_comptype_ref();
-      // TODO
+      if (base_class != NULL) {
+        Type* base_runs_on_type = base_class->get_RunsOnType();
+        if (base_runs_on_type != NULL &&
+            !base_runs_on_type->is_compatible(runs_on_type, NULL, NULL)) {
+          runs_on_ref->error("The `runs on' component type of the subclass, "
+            "`%s', is not compatible with the `runs on' component type of the "
+            "superclass, `%s'",
+            runs_on_type->get_typename().c_str(),
+            base_runs_on_type->get_typename().c_str());
+        }
+      }
     }
+    else if (base_class != NULL) {
+      // inherit `runs on' component from the superclass
+      runs_on_type = base_class->get_RunsOnType();
+    }
+    
     if (mtc_ref != NULL) {
       Error_Context cntxt(mtc_ref, "In `mtc' clause");
       mtc_type = mtc_ref->chk_comptype_ref();
-      // TODO
+      if (base_class != NULL) {
+        Type* base_mtc_type = base_class->get_MtcType();
+        if (base_mtc_type != NULL &&
+            !base_mtc_type->is_compatible(mtc_type, NULL, NULL)) {
+          mtc_ref->error("The `mtc' component type of the subclass, `%s', is not "
+            "compatible with the `mtc' component type of the superclass, `%s'",
+            mtc_type->get_typename().c_str(),
+            base_mtc_type->get_typename().c_str());
+        }
+      }
     }
+    else if (base_class != NULL) {
+      // inherit `mtc' component from the superclass
+      mtc_type = base_class->get_MtcType();
+    }
+    
     if (system_ref != NULL) {
       Error_Context cntxt(system_ref, "In `system' clause");
       system_type = system_ref->chk_comptype_ref();
-      // TODO
+      if (base_class != NULL) {
+        Type* base_system_type = base_class->get_SystemType();
+        if (base_system_type != NULL &&
+            !base_system_type->is_compatible(system_type, NULL, NULL)) {
+          system_ref->error("The `system' component type of the subclass, `%s', is "
+            "not compatible with the `system' component type of the superclass, `%s'",
+            system_type->get_typename().c_str(),
+            base_system_type->get_typename().c_str());
+        }
+      }
+    }
+    else if (base_class != NULL) {
+      // inherit `system' component from the superclass
+      system_type = base_class->get_SystemType();
     }
 
     members->chk_uniq();
     members->chk();
-    
+
     for (size_t i = 0; i < members->get_nof_asss(); ++i) {
       Common::Assignment* ass = members->get_ass_byIndex(i);
       if (ass->get_asstype() == Common::Assignment::A_CONSTRUCTOR) {
@@ -3305,9 +3388,7 @@ namespace Ttcn {
       // create a default constructor
       Reference* base_call = NULL;
       FormalParList* fp_list = NULL;
-      if (base_type != NULL) {
-        ClassTypeBody* base_class = base_type->get_type_refd_last()->
-          get_class_type_body();
+      if (base_class != NULL) {
         Def_Constructor* base_constructor = base_class->get_constructor();
         if (base_constructor != NULL) {
           FormalParList* base_fp_list = base_constructor->get_FormalParList();
@@ -3374,6 +3455,9 @@ namespace Ttcn {
   
   void ClassTypeBody::chk_recursions(ReferenceChain& refch)
   {
+    if (built_in) {
+      return;
+    }
     if (base_type != NULL) {
       base_type->chk_recursions(refch);
     }
@@ -3381,8 +3465,12 @@ namespace Ttcn {
     for (size_t i = 0; i < members->get_nof_asss(); ++i) {
       Common::Assignment* def = members->get_ass_byIndex(i);
       switch (def->get_asstype()) {
-      case Common::Assignment::A_CONST:
       case Common::Assignment::A_VAR:
+        if (def->get_Type()->get_type_refd_last()->get_typetype() == Common::Type::T_CLASS) {
+          break;
+        }
+        // else fall through
+      case Common::Assignment::A_CONST:
       case Common::Assignment::A_TEMPLATE:
       case Common::Assignment::A_VAR_TEMPLATE:
         def->get_Type()->chk_recursions(refch);
@@ -3395,11 +3483,14 @@ namespace Ttcn {
   
   void ClassTypeBody::generate_code(output_struct* target)
   {
+    if (built_in) {
+      return;
+    }
     target->header.class_decls = mputprintf(target->header.class_decls,
       "class %s;\n", class_id->get_name().c_str());
     if (!external) {
       string base_type_name = base_type != NULL ?
-        base_type->get_genname_value(this) : string("OBJECT");
+        base_type->get_type_refd_last()->get_genname_own(this) : string("OBJECT");
       
       target->header.class_defs = mputprintf(target->header.class_defs,
         "class %s : public %s {\n",
@@ -3505,7 +3596,7 @@ namespace Ttcn {
       if (base_type != NULL) {
         target->source.methods = mputprintf(target->source.methods,
           "%s::log();\n",
-          base_type->get_genname_value(this).c_str());
+          base_type_name.c_str());
         first_logged = true;
       }
       for (size_t i = 0; i < members->get_nof_asss(); ++i) {

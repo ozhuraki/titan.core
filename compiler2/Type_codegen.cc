@@ -257,6 +257,7 @@ void Type::generate_code_typedescriptor(output_struct *target)
   switch (get_type_refd_last()->typetype) {
   case T_PORT:
   case T_SIGNATURE:
+  case T_CLASS:
     // do not generate any type descriptor for these non-data types
     return;
   case T_ARRAY:

@@ -38,8 +38,11 @@ public:
     --ref_count;
     return ref_count == 0;
   }
-  void log() const {
+  virtual void log() const {
     TTCN_Logger::log_event_str("object: { }");
+  }
+  virtual UNIVERSAL_CHARSTRING toString() {
+    return UNIVERSAL_CHARSTRING("Object");
   }
 };
 
@@ -54,15 +57,6 @@ class OBJECT_REF {
   friend boolean operator!=(null_type, const OBJECT_REF<T2>& right_val);
 private:
   T* ptr; // NULL if it's a null reference
-  
-  void clean_up() {
-    if (ptr != NULL) {
-      if (ptr->remove_ref()) {
-        delete ptr;
-      }
-      ptr = NULL;
-    }
-  }
   
 public:
   OBJECT_REF(): ptr(NULL) {} // constructor with no parameters
@@ -79,12 +73,22 @@ public:
     }
   }
   
+  void clean_up() {
+    if (ptr != NULL) {
+      if (ptr->remove_ref()) {
+        delete ptr;
+      }
+      ptr = NULL;
+    }
+  }
+  
   ~OBJECT_REF() {
     clean_up();
   }
   
   OBJECT_REF& operator=(null_type) { // assignment operator for null reference
     clean_up();
+    return *this;
   }
   
   OBJECT_REF& operator=(const OBJECT_REF<T>& p_other) { // assignment operator for actual reference
