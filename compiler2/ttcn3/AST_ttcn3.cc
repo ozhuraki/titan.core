@@ -5277,8 +5277,11 @@ namespace Ttcn {
     if (initial_value) {
       char*& init = in_class ? target->temp.constructor_preamble :
         target->functions.init_comp;
-      init = initial_value->generate_code_init(init,
-        initial_value->get_lhs_name().c_str());
+      string lhs = initial_value->get_lhs_name();
+      if (in_class) {
+        lhs = string("this->") + lhs;
+      }
+      init = initial_value->generate_code_init(init, lhs.c_str());
     } else if (clean_up) {  // No initial value.
       target->functions.init_comp = mputprintf(target->functions.init_comp,
         "%s.clean_up();\n", get_genname().c_str());
@@ -5496,16 +5499,18 @@ namespace Ttcn {
     if (initial_value) {
       char*& init = in_class ? target->temp.constructor_preamble :
         target->functions.init_comp;
+      string lhs = initial_value->get_lhs_name();
+      if (in_class) {
+        lhs = string("this->") + lhs;
+      }
       if (Common::Type::T_SEQOF == initial_value->get_my_governor()->get_typetype() ||
           Common::Type::T_ARRAY == initial_value->get_my_governor()->get_typetype()) {
-        init = mputprintf(init, "%s.remove_all_permutations();\n",
-          initial_value->get_lhs_name().c_str());
+        init = mputprintf(init, "%s.remove_all_permutations();\n", lhs.c_str());
       }
-      init = initial_value->generate_code_init(init,
-          initial_value->get_lhs_name().c_str());
+      init = initial_value->generate_code_init(init, lhs.c_str());
       if (template_restriction!=TR_NONE && gen_restriction_check)
         init = Template::generate_restriction_check_code(init,
-          initial_value->get_lhs_name().c_str(), template_restriction);
+          lhs.c_str(), template_restriction);
     } else if (clean_up) {  // No initial value.
       // Always reset component variables/variable templates on component
       // reinitialization.  Fix for HM79493.
