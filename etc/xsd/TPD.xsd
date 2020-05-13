@@ -140,7 +140,7 @@
                     <xs:element name="enableLegacyEncoding" minOccurs="0" maxOccurs="1" type="xs:boolean" />
                     <xs:element name="disableUserInformation" minOccurs="0" maxOccurs="1" type="xs:boolean" />
                     <xs:element name="enableRealtimeTesting" minOccurs="0" maxOccurs="1" type="xs:boolean" />
-                    <xs:element name="namingRules" minOccurs="0" maxOccurs="1" type="xs:normalizedString" />
+                    <xs:element name="namingRules" minOccurs="0" maxOccurs="1" type="xs:normalizedString" /> <!-- deprecated -->
                     <xs:element name="disableSubtypeChecking" minOccurs="0" maxOccurs="1" type="xs:boolean" />
                     <xs:element name="forceGenSeof" minOccurs="0" maxOccurs="1" type="xs:boolean" />
                     <xs:element name="enableOOP" minOccurs="0" maxOccurs="1" type="xs:boolean" />
@@ -164,7 +164,7 @@
                         </xs:sequence>
                       </xs:complexType>
                     </xs:element>
-					<xs:element name="FreeBSDSpecificLibraries" minOccurs="0" maxOccurs="1">
+                    <xs:element name="FreeBSDSpecificLibraries" minOccurs="0" maxOccurs="1">
                       <xs:complexType>
                         <xs:sequence>
                           <xs:element name="listItem" minOccurs="1" maxOccurs="unbounded" type="xs:normalizedString" />
