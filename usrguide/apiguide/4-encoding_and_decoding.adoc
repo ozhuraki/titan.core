@@ -176,10 +176,12 @@ Parameter `p_buf` contains the encoded value. For details about using it, please
 
 Parameter `p_cod` is the desired coding mechanism. As `coding_t` is defined in `TTCN_EncDec`, its value must be prefixed with `TTCN_EncDec::`. For the time being, this parameter may have one of the following values:
 
-* CT_BER - BER coding
-* CT_RAW RAW - coding;
-* CT_TEXT TEXT - coding;
-* CT_XER XML - coding.
+* CT_BER - BER coding;
+* CT_RAW - RAW coding;
+* CT_TEXT - TEXT coding;
+* CT_XER  - XML coding;
+* CT_JSON - JSON coding;
+* CT_OER - OER coding;
 
 The optional … parameter(s) are depending on the chosen coding.
 
