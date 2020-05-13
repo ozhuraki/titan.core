@@ -8,11 +8,16 @@ The TTCN–3 language elements of the test suite are individually mapped into mo
 [[mapping-of-names-and-identifiers]]
 == Mapping of Names and Identifiers
 
-In order to identify the TTCN–3 language elements in the generated {cpp} program properly, the names of test suite are translated to {cpp} identifiers according to the following simple rules.
+In order to identify the TTCN–3 language elements in the generated {cpp} program properly,
+the names of test suite are translated to {cpp} identifiers according to the following simple rules.
 
-If the TTCN–3 identifier does not contain any underscore (_) character, its equivalent {cpp} identifier will be the same. For example, the TTCN–3 variable `MyVar` will be translated to a {cpp} variable called `MyVar`.
+If the TTCN–3 identifier does not contain any underscore (_) character, 
+its equivalent {cpp} identifier will be the same. 
+For example, the TTCN–3 variable `MyVar` will be translated to a {cpp} variable called `MyVar`.
 
-If the TTCN–3 identifier contains one or more underscore characters, each underscore character will be duplicated in the {cpp} identifier. So the TTCN–3 identifier `My_Long_Name` will be mapped to a {cpp} identifier called `My\__Long__Name`.
+If the TTCN–3 identifier contains one or more underscore characters,
+each underscore character will be duplicated in the {cpp} identifier.
+So the TTCN–3 identifier `My_Long_Name` will be mapped to a {cpp} identifier called `My\__Long__Name`.
 
 The idea behind this name mapping is that we may freely use the {cpp} identifiers containing one underscore character in the generated code and in the Test Ports as well. Otherwise name clashes can always happen because the name space of TTCN–3 and {cpp} is identical. Furthermore, the generated {cpp} language elements fulfill the condition that the scope of a translated {cpp} identifier is identical as the scope of the original TTCN–3 identifier.
 
@@ -32,12 +37,14 @@ The compiler generates a {cpp} namespace for every TTCN–3 and ASN.1 module. Al
 
 The definitions of the TTCN–3 Base Library do not use any namespace.
 
-When accessing a {cpp} entity that belongs to a different module than the referring Test Port or external function is in the reference has to be prefixed with the namespace of the referenced module. For example, to access the {cpp} class that realizes type `MyType` defined in `MyModule1` from a Test Port that belongs to module `MyModule2` the reference shall be written as `MyModule1::MyType`.
+When accessing a {cpp} entity that belongs to a different module than the referring Test Port or external function is in the reference has to be prefixed with the namespace of the referenced module. For example, to access the {cpp} class that realizes type `MyType` defined in module `MyExample1` from a Test Port that belongs to module `MyExample2` the reference shall be written as `MyExample1::MyType`.
 
 [[predefined-ttcn-3-data-types]]
 == Predefined TTCN–3 Data Types
 
-There are some basic data types in TTCN–3 that have no equivalent data types in language C/{cpp} (for example bitstring, verdicttype). Other types have {cpp} equivalent, but the TTCN–3 executor must know whether a variable has a valid value or not because sending an unbound value must result in a dynamic test case error. Thus, in the TTCN–3 Base Library all basic data types of TTCN–3 were implemented as {cpp} classes. This section describes the member functions of these classes.
+There are some basic data types in TTCN–3 that have no equivalent data types in language C/{cpp} (for example bitstring, verdicttype). Other types have {cpp} equivalent, but the TTCN–3 executor must know whether a variable has a valid value or not because sending an unbound value must result in a dynamic test case error.
+Thus, in the TTCN–3 Base Library all basic data types of TTCN–3 were implemented as {cpp} classes.
+This section describes the member functions of these classes.
 
 === `Integer`
 
@@ -1935,6 +1942,12 @@ The class representing the exceptions of a signature (remote procedure) is simil
 |`void log() const` |Puts the contents of the exception into the log.
 |===================================================================================================================================================================================================================================
 
-If an exception type is a user-defined type the field name will be constructed from the {cpp} namespace name of the module that the exception type resides in and the name of the {cpp} class that realizes the exception type. The two identifiers are glued together using a single underscore character. Please note that the namespace name is always present in the identifiers, even if the exception type is defined in the same module as the signature.
+If an exception type is a user-defined type the field name will be constructed from the {cpp} namespace name of the module
+that the exception type resides in and the name of the {cpp} class that realizes the exception type.
+The two identifiers are glued together using a single underscore character.
+Please note that the namespace name is always present in the identifiers, 
+even if the exception type is defined in the same module as the signature.
 
-For example, if exception type `My_Record` is defined in module `My_Module` the respective field access functions will be named as `My\__Module_My__Record_field` and the associated enum value will be `MyProc_exception::ALT_My__Module_My__Record`.
+For example, if exception type `My_Record` is defined in module `My_Module`
+the respective field access functions will be named as `My\__Module_My__Record_field` and 
+the associated enum value will be `MyProc_exception::ALT_My\__Module_My__Record`.

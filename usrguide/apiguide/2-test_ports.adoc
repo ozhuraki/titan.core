@@ -22,7 +22,8 @@ If you have defined a TTCN–3 port type that you intend to use for internal com
 
 WARNING: In this case you must not link the object file obtained from a previous Test Port skeleton to your executable test suite.
 
-In the following we introduce two port type definitions: one for a message based and another one for a procedure based port. In our further examples we will refer to the test port skeletons generated according to these definitions given within the module called `MyModule`.
+In the following we introduce two port type definitions: one for a message based and another one for a procedure based port. 
+In our further examples we will refer to the test port skeletons generated according to these definitions given within the module called `MyExample`.
 
 == Message-based Example
 
@@ -179,7 +180,7 @@ void MyMessagePort::outgoing_send(const CHARSTRING& /*send_par*/)
 
 == Procedure-based Example
 
-The definition of `MyProcedurePort` in module `MyModule`:
+The definition of `MyProcedurePort` in module `MyExample`:
 [source]
 ----
 type port MyProcedurePort procedure
@@ -190,7 +191,7 @@ type port MyProcedurePort procedure
 };
 ----
 
-The signature definitions are imported from a module called `MyModule2`, `noblock` is not used and exceptions are used so that every member function of the port class is generated for this example. If the keyword `noblock` is used the compiler will optimize code generation by not generating outgoing reply, incoming reply member functions and their argument types. If the signature has no exception outgoing raise, incoming exception member functions and related types will not be generated.
+The signature definitions are imported from a module called `MyExample`, `noblock` is not used and exceptions are used so that every member function of the port class is generated for this example. If the keyword `noblock` is used the compiler will optimize code generation by not generating outgoing reply, incoming reply member functions and their argument types. If the signature has no exception outgoing raise, incoming exception member functions and related types will not be generated.
 
 The port type `MyProcedurePort` can handle `call`, `getreply` and `catch` operations referencing the signatures `outProc` and `inoutProc`, and it can handle `getcall`, `reply` and `raise` operations referencing the signatures `inProc` and `inoutProc`.
 
@@ -210,9 +211,9 @@ The generated skeleton header file (that is, `MyProcedurePort.hh`) will look as 
 #ifndef MyProcedurePort_HH
 #define MyProcedurePort_HH
 
-#include "MyModule.hh"
+#include "MyExample.hh"
 
-namespace MyModule {
+namespace MyExample {
 
 class MyProcedurePort : public MyProcedurePort_BASE {
 public:
@@ -261,7 +262,7 @@ The generated skeleton source file for `MyProcedurePort` (that is, `MyProcedureP
 
 #include "MyProcedurePort.hh"
 
-namespace MyModule {
+namespace MyExample {
 
 MyProcedurePort::MyProcedurePort(const char *par_port_name)
 	: MyProcedurePort_BASE(par_port_name)
@@ -627,15 +628,15 @@ incoming_message(const CHARSTRING& incoming_par);
 
 Receiving operations on procedure based ports is similar to receiving messages on message based ports. The difference is that there are different overloaded incoming functions for call, reply and raise operations called `incoming_call`, `incoming_reply` and `incoming_exception`, respectively. The event handler (when called) must recognize the type of operation on receiving and call one of these functions accordingly with one of the internal representations of the signature (see <<5-mapping_ttcn3_data_types_to_c+\+_constructs.adoc #additional-non-standard-functions, Additional Non-Standard Functions>>).
 
-In the examplefootnote:[In the example the signatures were defined in a different TTCN–3 module named MyModule2, as a consequence all types defined in that module must be prefixed with the {cpp} namespace name of that module.] the class `MyProcedurePort_BASE` has the following member functions for incoming operations:
+In the examplefootnote:[In the example the signatures were defined in a different TTCN–3 module named MyExample, as a consequence all types defined in that module must be prefixed with the {cpp} namespace name of that module.] the class `MyProcedurePort_BASE` has the following member functions for incoming operations:
 [source]
 ----
-incoming_call(const MyModule2::inProc_call& incoming_par);
-incoming_call(const MyModule2::inoutProc_call& incoming_par);
-incoming_reply(const MyModule2::outProc_reply& incoming_par);
-incoming_reply(const MyModule2::inoutProc_reply& incoming_par);
-incoming_exception(const MyModule2::outProc_exception& incoming_par);
-incoming_exception(const MyModule2::inoutProc_exception& incoming_par);
+incoming_call(const MyExample::inProc_call& incoming_par);
+incoming_call(const MyExample::inoutProc_call& incoming_par);
+incoming_reply(const MyExample::outProc_reply& incoming_par);
+incoming_reply(const MyExample::inoutProc_reply& incoming_par);
+incoming_exception(const MyExample::outProc_exception& incoming_par);
+incoming_exception(const MyExample::inoutProc_exception& incoming_par);
 ----
 For example, if the event handler receives a call operation that refers to the signature called `inoutProc`, it has to fill the parameters of an instance of the class `inoutProc_call` with the received data. Then it has to call the function `incoming_call` with this object to place the operation into the queue of the port.
 
@@ -701,34 +702,34 @@ If an `address` value was specified in the `to` clause of the corresponding TTCN
 The outgoing operations of procedure based ports are also generated in the same way if the `address` extension is specified. These functions will also have an extra parameter. Based on our example, these will have the following form:
 [source]
 ----
-void outgoing_call(const MyModule2::outProc_call& call_par,
+void outgoing_call(const MyExample::outProc_call& call_par,
                    const ADDRESS *destination_address);
-void outgoing_call(const MyModule2::inoutProc_call& call_par,
+void outgoing_call(const MyExample::inoutProc_call& call_par,
                    const ADDRESS *destination_address);
-void outgoing_reply(const MyModule2::inProc_reply& reply_par,
+void outgoing_reply(const MyExample::inProc_reply& reply_par,
                     const ADDRESS *destination_address);
-void outgoing_reply(const MyModule2::inoutProc_reply& reply_par,
+void outgoing_reply(const MyExample::inoutProc_reply& reply_par,
                     const ADDRESS *destination_address);
-void outgoing_raise(const MyModule2::inProc_exception& raise_exception,
+void outgoing_raise(const MyExample::inProc_exception& raise_exception,
                     const ADDRESS *destination_address);
-void outgoing_raise(const MyModule2::inoutProc_exception& raise_exception,
+void outgoing_raise(const MyExample::inoutProc_exception& raise_exception,
                     const ADDRESS *destination_address);
 ----
 
 The other difference is in the `incoming_message` member function of class `MyMessagePort_BASE`, and in the incoming member functions of class `MyProcedurePort_BASE`. These have an extra parameter, which is a pointer to an `ADDRESS` value. The default value is set the NULL pointer. In our example of `MyMessagePort_BASE`:
 [source]
 ----
-void incoming_call(const MyModule2::inProc_call& incoming_par,
+void incoming_call(const MyExample::inProc_call& incoming_par,
                    const ADDRESS *sender_address = NULL);
-void incoming_call(const MyModule2::inoutProc_call& incoming_par,
+void incoming_call(const MyExample::inoutProc_call& incoming_par,
                    const ADDRESS *sender_address = NULL);
-void incoming_reply(const MyModule2::outProc_reply& incoming_par,
+void incoming_reply(const MyExample::outProc_reply& incoming_par,
                     const ADDRESS *sender_address = NULL);
-void incoming_reply(const MyModule2::inoutProc_reply& incoming_par,
+void incoming_reply(const MyExample::inoutProc_reply& incoming_par,
                     const ADDRESS *sender_address = NULL);
-void incoming_exception(const MyModule2::outProc_exception& incoming_par,
+void incoming_exception(const MyExample::outProc_exception& incoming_par,
                         const ADDRESS *sender_address = NULL);
-void incoming_exception(const MyModule2::inoutProc_exception& incoming_par,
+void incoming_exception(const MyExample::inoutProc_exception& incoming_par,
                         const ADDRESS *sender_address = NULL);
 ----
 
@@ -758,7 +759,9 @@ This section summarizes only the differences from the normal Test Port API:
 
 * The Test Port header file must not include the generated header file of the corresponding TTCN–3 module. The common header file of the Base Library called TTCN3.hh shall be included instead. The source file of the Test Port may include any header file without restriction.
 
-* The member functions of the Test Port may refer to {cpp} classes that are generated from user-defined message types and signatures. To avoid compilation failures the declarations of the referenced classes must be added to the beginning of the header file. At the moment the Test Port skeleton generator has a limitation that it cannot collect the class declarations from the port type, so they must be added manually. Please note that if a message type or signature is imported from another module the corresponding class declaration must be put into the appropriate namespace.
+* The member functions of the Test Port may refer to {cpp} classes that are generated from user-defined message types and signatures.
+To avoid compilation failures the declarations of the referenced classes must be added to the beginning of the header file. 
+At the moment the Test Port skeleton generator has a limitation that it cannot collect the class declarations from the port type, so they must be added manually. Please note that if a message type or signature is imported from another module the corresponding class declaration must be put into the appropriate namespace.
 
 The following example shows the generated Test Port skeleton of a provider port type.
 
@@ -791,7 +794,7 @@ Header file `MyMessagePort.hh`:
 
 #include <TTCN3.hh>
 
-// Note: Header file MyModule.hh must not be included into this file!
+// Note: Header file MyExample.hh must not be included into this file!
 // Class declarations were added manually
 
 namespace MyOtherModule {
@@ -799,7 +802,7 @@ namespace MyOtherModule {
   class MyMessageType;
 }
 
-namespace MyModule {
+namespace MyExample {
 
 // signature MySignature was defined locally
 class MySignature_call;
@@ -851,9 +854,9 @@ Source file `MyMessagePort.cc`:
 // add your member functions here.
 
 #include "MyProviderPort.hh"
-#include "MyModule.hh"
+#include "MyExample.hh"
 
-namespace MyModule {
+namespace MyExample {
 
 MyProviderPort_PROVIDER::MyProviderPort_PROVIDER(const char *par_port_name)
   : PORT(par_port_name)

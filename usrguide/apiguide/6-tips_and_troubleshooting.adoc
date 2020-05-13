@@ -32,14 +32,14 @@ There are the standard library functions as well as other libraries in the {cpp}
 
 Since version 1.4.pl1 the semantic analyzer of the compiler checks the import statements thoroughly. Therefore one cannot use the virtual {cpp} modules as before: {cpp} functions must be defined as external functions to be accessible from TTCN–3 modules.
 
-For example, the following definitions make two {cpp} functions accessible from TTCN–3 module `MyModule` and from any other module that imports `MyModule`.
+For example, the following definitions make two {cpp} functions accessible from TTCN–3 module `MyExample` and from any other module that imports `MyExample`.
 
-[[example-ttcn-3-module-mymodule-ttcn]]
-=== Example TTCN–3 Module (MyModule.ttcn)
+[[example-ttcn-3-module-MyExample-ttcn]]
+=== Example TTCN–3 Module (MyExample.ttcn)
 
 [source]
 ----
-module MyModule {
+module MyExample {
 [...]
   external function MyFunction(integer par1, in octetstring par2)
     return bitstring;
@@ -49,7 +49,7 @@ module MyModule {
 }
 ----
 
-The compiler will translate those external function definitions to {cpp} function prototypes in the generated header file `MyModule.hh`:
+The compiler will translate those external function definitions to {cpp} function prototypes in the generated header file `MyExample.hh`:
 
 [source]
 ----

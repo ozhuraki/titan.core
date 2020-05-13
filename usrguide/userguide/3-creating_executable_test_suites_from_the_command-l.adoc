@@ -58,12 +58,12 @@ This section describes the automatically generated `Makefile`, its structure, th
 
 === `Makefile` Generation
 
-The `Makefile` for a project can be generated using the generator tool `ttcn3_Makefile gen` footnote:[Up to version 1.6pl4 Makefile generation was part of the compiler (using the -M option).]. A project usually consists of some TTCN–3 and ASN.1 modules and at least one test port and results in an executable test suite.
+The `Makefile` for a project can be generated using the Makefile generator tool `ttcn3_makefilegen` footnote:[Up to version 1.6pl4 Makefile generation was part of the compiler (using the -M option).]. A project usually consists of some TTCN–3 and ASN.1 modules and at least one test port and results in an executable test suite.
 
 `Makefile` generation is performed with the following command syntax:
 
 [source,subs="+quotes"]
-** $TTCN3_DIR/bin/ttcn3_Makefilegen [options] <Main module> {Module}* {Test_Port}* {Other_File}* **
+** $TTCN3_DIR/bin/ttcn3_makefilegen [options] <Main module> {Module}* {Test_Port}* {Other_File}* **
 
 * `[options]` can be one or more of the options that are listed in the TITAN Programmer's Technical Reference for link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor].
 
@@ -81,7 +81,7 @@ For detailed content of the generated `Makefile`, refer to <<Makefile-Structure,
 
 Before generating the `Makefile` the `Makefile` generator tries to figure out the file name, module type and module name for each argument automatically. It uses some heuristics which yield correct results in most cases, but not always. Typically, the algorithm works perfectly with shell wildcards. For example, if all source files reside in the same directory the following command will generate the right `Makefile`:
 
-`*$TTCN3_DIR/bin/ttcn3_Makefilegen *.ttcn *.asn *.c**`
+`*$TTCN3_DIR/bin/ttcn3_makefilegen *.ttcn *.asn *.c**`
 
 The `Makefile` generator looks for an existing file for each argument. It tries the given argument without any suffix, then the following list of suffixes are tried in this order: `.ttcn`, `.ttcn3`, `.3mp`, `.ttcnpp`, `.ttcnin`, `.asn`, `.asn1`, `.cc`, `.c`, `.hh`, `.h`, `.cfg`, `.prj`. Once a file is found, the `Makefile` generator tries to guess its type as described below. If no suitable file is found for a given argument the `Makefile` generator prints an error message and exits.
 
@@ -179,7 +179,7 @@ This section presents the internal structure of the generated `Makefile`.
 
 For example, the following command will generate a `Makefile` for TTCN–3 test suite "Hello, world!", which can be found in binary distribution:
 
-`*$TTCN3_DIR/bin/ttcn3_`Makefile`gen -gs MyExample.ttcn PCOType.cc MyExample.cfg*`
+`*$TTCN3_DIR/bin/ttcn3_makefilegen -gs MyExample.ttcn PCOType.cc MyExample.cfg*`
 
 The `Makefile` generator creates the `Makefile` with the following content:
 [source]
@@ -513,4 +513,10 @@ In parallel mode use `*-lttcn3-parallel-dynamic*` instead of
 
 When running the executable, add the directory `$TTCN3_DIR/lib` to the system library path (which is specified in `/etc/ld.so.conf` on most of UNIX systems) or simply add it to the environment variable `LD_LIBRARY_PATH`.
 
-From version 1.8pl2, `ttcn3_Makefilegen` supports the generation of (per module) shared objects. If this option is enabled with the `-l` command line switch, the project’s working directory (together with the central storage directories, if applicable) should be added to `LD_LIBRARY_PATH` in addition to `$TTCN3_DIR/lib`. Otherwise, the resulting executable may not run. If moving the executable from one machine to another, all the generated shared object (.so) files should be copied as well. For more information about the `–l` command line switch, please consult the  link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor].
+From version 1.8pl2, `ttcn3_makefilegen` supports the generation of (per module) shared objects. If this option is enabled with the `-l` command line switch, 
+the project’s working directory (together with the central storage directories, 
+if applicable) should be added to `LD_LIBRARY_PATH` in addition to `$TTCN3_DIR/lib`. 
+Otherwise, the resulting executable may not run.
+If moving the executable from one machine to another,
+all the generated shared object (.so) files should be copied as well.
+For more information about the `-l` command line switch, please consult the  link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor].
