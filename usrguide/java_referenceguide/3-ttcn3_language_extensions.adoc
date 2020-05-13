@@ -53,11 +53,10 @@ The TEXT Encoder and Decoder is not yet supported on the Java side.
 
 The XML Encoder and Decoder is not yet supported on the Java side.
 
+[[JSON-Encoder-and-Decoder]]
 == JSON Encoder and Decoder
 
-The JSON Encoder and Decoder is not yet fully supported on the Java side.
-
-Semantic checks for checking that the JSON attribute is used consistently is available, but code generation and runtime support is still missing.
+The Java side supports the same RAW Encoder and Decoder features as the C side.
 
 == OER Encoder and Decoder
 
