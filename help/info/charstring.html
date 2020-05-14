@@ -39,7 +39,7 @@
 <h1>charstring</h1>
 <hr align="left" width="75%">
 <p>The keyword <b><font face="Courier New"> charstring</font></b> denotes a basic string type whose distinguished values are the ordered sequences of characters of <a
-  href="http://en.wikipedia.org/wiki/ISO_646" target="_blank">ISO/IEC 646</a> International Reference Version (IRV) â formerly International Alphabet No.5 (IA5) described in ITU-T Recommendation T.50.</p>
+  href="http://en.wikipedia.org/wiki/ISO_646" target="_blank">ISO/IEC 646</a> International Reference Version (IRV) - formerly International Alphabet No.5 (IA5) described in ITU-T Recommendation T.50.</p>
 <ul>
   <li>Character string values are written between <a href="#double_quotation"> double quotes</a> (&quot; &quot;).</li>
   <li>A single character may be specified by its decimal code point using a <a href="#conversion">conversion function</a>.</li>
@@ -178,19 +178,19 @@ are optional.</p>
 <p><a name="oct2char">Example 7f</a>:
 <p><font face="Courier New">const octetstring c_deposed := char2oct (&quot;Tinky-Winky&quot;);&nbsp;<br>
 </font>
-<p>The constant called c_deposed will contain the octet string â54696E6B792D57696E6B79âO because the resulting octet string will have the same length as the incoming character string. The octets
+<p>The constant called c_deposed will contain the octet string ’54696E6B792D57696E6B79’O because the resulting octet string will have the same length as the incoming character string. The octets
 of the octet string will contain the ASCII codes of the appropriate characters of the character string.</p>
 <hr align="left" width="50%">
 <p><a name="str2bit">Example 7g</a></p>
 <p><font face="Courier New">const bitstring c_marque := str2bit (&quot;1011011100&quot;);<br>
 </font>
-<p>The constant called c_marque will contain the bit string â1011011100âB because each character represents the value of one bit in the resulting bit string. Its argument may contain the
-characters â0â or â1â only, otherwise the result is a dynamic test case error.</p>
+<p>The constant called c_marque will contain the bit string ’1011011100’B because each character represents the value of one bit in the resulting bit string. Its argument may contain the
+characters ’0’ or ’1’ only, otherwise the result is a dynamic test case error.</p>
 <hr align="left" width="50%">
 <p><a name="str2hex">Example 7h</a></p>
 <p><font face="Courier New">const hexstring c_jesien := str2hex (&quot;1D7&quot;);&nbsp;<br>
 </font>
-<p>The constant called c_jesien will contain the hexadecimal string â1D7âH&nbsp; because each character in the character string represents the value of one hexadecimal digit in the resulting
+<p>The constant called c_jesien will contain the hexadecimal string ’1D7’H&nbsp; because each character in the character string represents the value of one hexadecimal digit in the resulting
 hexadecimal string in the same order.</p>
 <hr align="left" width="50%">
 <p><a name="list">Example 8</a>:
