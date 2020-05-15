@@ -11512,7 +11512,8 @@ error:
     Common::Assignment::asstype_t asstype = t_ass->get_asstype();
     switch (asstype) {
     case Common::Assignment::A_TYPE:
-      if (t_ass->get_Type()->get_typetype() != Common::Type::T_CLASS) {
+      if (t_ass->get_Type()->get_typetype() != Common::Type::T_CLASS ||
+          ref->get_reftype() != Common::Ref_simple::REF_THIS) {
         ref->error("Reference to a value, template, timer, port or class object "
           "was expected instead of %s", t_ass->get_description().c_str());
         return;

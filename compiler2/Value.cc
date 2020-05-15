@@ -4063,8 +4063,11 @@ namespace Common {
         goto error;
       case Assignment::A_TYPE:
         if (ass->get_Type()->get_type_refd_last()->get_typetype() == Type::T_CLASS) {
-          tmp_type = ass->get_Type();
-          break;
+          Ttcn::Reference* ttcn_ref = static_cast<Ttcn::Reference*>(u.ref.ref);
+          if (ttcn_ref->get_reftype() == Ref_simple::REF_THIS) {
+            tmp_type = ass->get_Type();
+            break;
+          }
         }
         // else fall through
       default:
@@ -8201,8 +8204,12 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case OPTYPE_CLASS_CREATE: { // r1 t_list2
       Type* t = chk_expr_operand_undef_create();
       if (u.expr.v_optype == OPTYPE_CLASS_CREATE) {
-        Ttcn::FormalParList* fp_list = t->get_class_type_body()->get_constructor()
-          ->get_FormalParList();
+        Ttcn::ClassTypeBody* class_ = t->get_class_type_body();
+        if (class_->is_abstract()) {
+          error("Cannot create an instance of abstract class type `%s'",
+            class_->get_my_def()->get_Type()->get_typename().c_str());
+        }
+        Ttcn::FormalParList* fp_list = class_->get_constructor()->get_FormalParList();
         Ttcn::ActualParList* parlist = new Ttcn::ActualParList;
         bool is_erroneous = fp_list->chk_actual_parlist(u.expr.t_list2->get_tis(), parlist);
         if (is_erroneous) {
@@ -9602,8 +9609,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
             break;
           case Assignment::A_TYPE:
             if (ass->get_Type()->get_type_refd_last()->get_typetype() == Type::T_CLASS) {
-              u.ref.refd_last = this;
-              break;
+              Ttcn::Reference* ttcn_ref = static_cast<Ttcn::Reference*>(u.ref.ref);
+              if (ttcn_ref->get_reftype() == Ref_simple::REF_THIS) {
+                u.ref.refd_last = this;
+                break;
+              }
             }
             // else fall through
           default:

@@ -2986,7 +2986,7 @@ namespace Ttcn {
                                Reference* p_runs_on_ref, Reference* p_mtc_ref, Reference* p_system_ref,
                                Definitions* p_members, StatementBlock* p_finally_block)
   : Scope(), Location(), class_id(p_class_id), my_def(NULL), external(p_external), final(p_final),
-    abstract(p_abstract), built_in(FALSE), base_type(p_base_type),
+    abstract(p_abstract), built_in(FALSE), base_type(p_base_type), base_class(NULL),
     runs_on_ref(p_runs_on_ref), runs_on_type(NULL), mtc_ref(p_mtc_ref),
     mtc_type(NULL), system_ref(p_system_ref), system_type(NULL),
     members(p_members), finally_block(p_finally_block), constructor(NULL), checked(false),
@@ -3000,7 +3000,7 @@ namespace Ttcn {
   
   ClassTypeBody::ClassTypeBody()
   : Scope(), Location(), class_id(NULL), my_def(NULL), external(FALSE), final(FALSE),
-    abstract(TRUE), built_in(TRUE), base_type(NULL),
+    abstract(TRUE), built_in(TRUE), base_type(NULL), base_class(NULL),
     runs_on_ref(NULL), runs_on_type(NULL), mtc_ref(NULL),
     mtc_type(NULL), system_ref(NULL), system_type(NULL),
     members(NULL), finally_block(NULL), constructor(NULL), checked(false),
@@ -3018,6 +3018,7 @@ namespace Ttcn {
     final = p.final;
     abstract = p.abstract;
     base_type = p.base_type != NULL ? p.base_type->clone() : NULL;
+    base_class = p.base_class;
     runs_on_ref = p.runs_on_ref != NULL ? p.runs_on_ref->clone() : NULL;
     mtc_ref = p.mtc_ref != NULL ? p.mtc_ref->clone() : NULL;
     system_ref = p.system_ref != NULL ? p.system_ref->clone() : NULL;
@@ -3047,6 +3048,7 @@ namespace Ttcn {
     if (default_constructor) {
       delete constructor;
     }
+    abstract_functions.clear();
   }
   
   void ClassTypeBody::set_fullname(const string& p_fullname)
@@ -3067,7 +3069,7 @@ namespace Ttcn {
     if (system_ref != NULL) {
       system_ref->set_fullname(p_fullname + ".<system_type>");
     }
-    members->set_fullname(p_fullname + ".<members>");
+    members->set_fullname(p_fullname);
     if (finally_block != NULL) {
       finally_block->set_fullname(p_fullname + ".<finally_block>");
     }
@@ -3133,6 +3135,14 @@ namespace Ttcn {
     return constructor;
   }
   
+  ClassTypeBody* ClassTypeBody::get_base_class()
+  {
+    if (!checked) {
+      chk();
+    }
+    return base_class;
+  }
+  
   Type* ClassTypeBody::get_RunsOnType()
   {
     if (!checked) {
@@ -3157,30 +3167,33 @@ namespace Ttcn {
     return system_type;
   }
   
-  bool ClassTypeBody::is_parent_class(const ClassTypeBody* p_class) const
+  bool ClassTypeBody::is_parent_class(const ClassTypeBody* p_class)
   {
+    if (!checked) {
+      chk();
+    }
     if (this == p_class || p_class->built_in) {
       return true;
     }
-    if (base_type == NULL) {
+    if (base_class == NULL) {
       return false;
     }
-    return base_type->get_type_refd_last()->get_class_type_body()->
-      is_parent_class(p_class);
+    return base_class->is_parent_class(p_class);
   }
   
   bool ClassTypeBody::has_local_ass_withId(const Identifier& p_id)
   {
+    if (!checked) {
+      chk();
+    }
     if (built_in) {
       return false;
     }
-    chk();
     if (members->has_local_ass_withId(p_id)) {
       return true;
     }
     if (base_type != NULL) {
-      return base_type->get_type_refd_last()->get_class_type_body()->
-        has_local_ass_withId(p_id);
+      return base_class->has_local_ass_withId(p_id);
     }
     else {
       return false;
@@ -3192,14 +3205,15 @@ namespace Ttcn {
     if (built_in) {
       FATAL_ERROR("ClassTypeBody::get_local_ass_byId");
     }
-    chk();
+    if (!checked) {
+      chk();
+    }
     Common::Assignment* ass = NULL;
     if (members->has_local_ass_withId(p_id)) {
       ass = members->get_local_ass_byId(p_id);
     }
-    if (ass == NULL && base_type != NULL) {
-      ass = base_type->get_type_refd_last()->get_class_type_body()->
-        get_local_ass_byId(p_id);
+    if (ass == NULL && base_class != NULL) {
+      ass = base_class->get_local_ass_byId(p_id);
     }
     return ass;
   }
@@ -3216,8 +3230,8 @@ namespace Ttcn {
       return true;
     }
 
-    const ClassTypeBody* ref_scope_class = usage_scope->get_scope_class();
-    const ClassTypeBody* ass_scope_class = ass->get_my_scope()->get_scope_class();
+    ClassTypeBody* ref_scope_class = usage_scope->get_scope_class();
+    ClassTypeBody* ass_scope_class = ass->get_my_scope()->get_scope_class();
     if (ass_scope_class == NULL) {
       FATAL_ERROR("ClassTypeBody::chk_visibility()");
     }
@@ -3258,8 +3272,7 @@ namespace Ttcn {
         else {
           // send the reference to the base type, with the reftype changed to 'this'
           p_ref->set_reftype(Ref_simple::REF_THIS);
-          Common::Assignment* ass = base_type->get_type_refd_last()->
-            get_class_type_body()->get_ass_bySRef(p_ref);
+          Common::Assignment* ass = base_class->get_ass_bySRef(p_ref);
           p_ref->set_reftype(Ref_simple::REF_SUPER);
           return ass;
         }
@@ -3294,7 +3307,10 @@ namespace Ttcn {
       return;
     }
     checked = true;
-    // TODO: external? final? abstract?
+    if (final && abstract) {
+      error("Final classes cannot be abstract");
+    }
+    // TODO: external?
     if (base_type != NULL) {
       Error_Context cntxt(base_type, "In superclass definition");
       base_type->chk();
@@ -3306,11 +3322,14 @@ namespace Ttcn {
         delete base_type;
         base_type = NULL;
       }
-      // TODO: additional checks for the base type
+      else {
+        base_class = base_type->get_type_refd_last()->get_class_type_body();
+        if (base_class->final) {
+          base_type->error("The superclass cannot be final");
+        }
+      }
     }
-
-    ClassTypeBody* base_class = base_type != NULL ? 
-      base_type->get_type_refd_last()->get_class_type_body() : NULL;
+    
     if (runs_on_ref != NULL) {
       Error_Context cntxt(runs_on_ref, "In `runs on' clause");
       runs_on_type = runs_on_ref->chk_comptype_ref();
@@ -3375,7 +3394,6 @@ namespace Ttcn {
     for (size_t i = 0; i < members->get_nof_asss(); ++i) {
       Common::Assignment* ass = members->get_ass_byIndex(i, false);
       if (ass->get_asstype() == Common::Assignment::A_CONSTRUCTOR) {
-        // TODO: check for multiple constructors, or is that handled by previous checks?
         constructor = dynamic_cast<Def_Constructor*>(ass);
         if (constructor == NULL) {
           FATAL_ERROR("ClassTypeBody::chk");
@@ -3453,6 +3471,46 @@ namespace Ttcn {
     if (finally_block != NULL) {
       finally_block->chk();
     }
+    
+    if (abstract) {
+      // create a map of all abstract functions (including inherited ones)
+      if (base_class != NULL && base_class->abstract) {
+        for (size_t i = 0; i < base_class->abstract_functions.size(); ++i) {
+          abstract_functions.add(base_class->abstract_functions.get_nth_key(i),
+            base_class->abstract_functions.get_nth_elem(i));
+        }
+      }
+      for (size_t i = 0; i < members->get_nof_asss(); ++i) {
+        Common::Assignment* ass = members->get_ass_byIndex(i, false);
+        switch (ass->get_asstype()) {
+        case Common::Assignment::A_FUNCTION:
+        case Common::Assignment::A_FUNCTION_RVAL:
+        case Common::Assignment::A_FUNCTION_RTEMP: {
+          Def_AbsFunction* def_abs_func = dynamic_cast<Def_AbsFunction*>(ass);
+          if (def_abs_func != NULL) {
+            const string& def_name = def_abs_func->get_id().get_name();
+            if (abstract_functions.has_key(def_name)) {
+              // TODO
+            }
+            else {
+              abstract_functions.add(def_name, def_abs_func);
+            }
+          }
+          break; }
+        default:
+          break;
+        }
+      }
+    }
+    
+    if (!abstract && base_class != NULL && base_class->abstract) {
+      // all abstract methods from the base class have to be implemented in this class
+      for (size_t i = 0; i < base_class->abstract_functions.size(); ++i) {
+        Def_AbsFunction* def_abs_func = base_class->abstract_functions.get_nth_elem(i);
+        def_abs_func->chk_implementation(get_local_ass_byId(def_abs_func->get_id()), this);
+      }
+    }
+    // todo: name clashes with defs in the base class?
   }
   
   void ClassTypeBody::chk_recursions(ReferenceChain& refch)

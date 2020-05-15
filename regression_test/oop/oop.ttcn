@@ -460,6 +460,17 @@ testcase tc_order() runs on CT {
   }
 }
 
+testcase tc_abstract() runs on CT {
+  var AbstractClass v := ConcreteClass.create;
+  var integer x := 0;
+  if (v.f_abs(x) and x == 1) {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail);
+  }
+}
+
 
 control {
   execute(tc_members_and_methods());
@@ -471,6 +482,7 @@ control {
   execute(tc_function_pars_and_retval());
   execute(tc_object());
   execute(tc_order());
+  execute(tc_abstract());
 }
 
 }

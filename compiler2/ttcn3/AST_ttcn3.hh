@@ -1385,8 +1385,12 @@ namespace Ttcn {
     Type *get_input_type();
     Type *get_output_type();
     Type* get_return_type() const { return return_type; }
+    //virtual Type *get_RunsOnType();
     template_restriction_t get_template_restriction()
       { return template_restriction; }
+    /** Checks and returns whether the function is startable.
+     * Reports the appropriate error message(s) if not. */
+    //bool chk_startable(Location* caller_location);
   };
 
   /**
@@ -1611,8 +1615,8 @@ namespace Ttcn {
     virtual ~Def_AbsFunction();
     virtual Definition* clone() const;
     virtual void chk();
+    void chk_implementation(Common::Assignment* p_ass, Location* p_loc);
     virtual void generate_code(output_struct* target, bool clean_up = false);
-    // TODO
   };
 
   /**

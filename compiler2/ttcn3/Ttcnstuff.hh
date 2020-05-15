@@ -756,12 +756,13 @@ public:
 
 class ClassTypeBody : public Common::Scope, public Common::Location {
   Common::Identifier* class_id; // not owned
-  Definition* my_def; // pointer to the class type definition (not owned)
+  Def_Type* my_def; // pointer to the class type definition (not owned)
   boolean external;
   boolean final;
   boolean abstract;
   boolean built_in;
   Common::Type* base_type;
+  ClassTypeBody* base_class; // not owned
   Reference* runs_on_ref;
   Type* runs_on_type;
   Reference* mtc_ref;
@@ -773,6 +774,7 @@ class ClassTypeBody : public Common::Scope, public Common::Location {
   /** set during semantic analysis to either a pointer to the constructor in
     * 'members', or the actual default constructor (if no constructor is defined) */
   Def_Constructor* constructor;
+  map<string, Def_AbsFunction> abstract_functions;
   bool checked;
   bool default_constructor; /// true if the class uses a default constructor
   
@@ -786,7 +788,9 @@ public:
   ClassTypeBody* clone() const;
   virtual ~ClassTypeBody();
   
-  void set_my_def(Definition* p_def) { my_def = p_def; }
+  void set_my_def(Def_Type* p_def) { my_def = p_def; }
+  Def_Type* get_my_def() { return my_def; }
+  boolean is_abstract() const { return abstract; }
   
   void set_fullname(const string& p_fullname);
   void set_my_scope(Scope* p_scope);
@@ -797,13 +801,14 @@ public:
   Common::Identifier* get_id() const { return class_id; }
   Def_Constructor* get_constructor();
   Common::Type* get_base_type() const { return base_type; }
+  ClassTypeBody* get_base_class();
   boolean is_built_in() const { return built_in; }
   
   Type* get_RunsOnType();
   Type* get_MtcType();
   Type* get_SystemType();
   
-  bool is_parent_class(const ClassTypeBody* p_class) const;
+  bool is_parent_class(const ClassTypeBody* p_class);
   bool has_local_ass_withId(const Identifier& p_id);
   Common::Assignment* get_local_ass_byId(const Identifier& p_id);
   Common::Assignment* get_ass_bySRef(Common::Ref_simple* p_ref);

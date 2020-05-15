@@ -3731,7 +3731,7 @@ void Type::chk_Fat()
       Error_Context cntxt2(u.fatref.return_type, "In return type");
       u.fatref.return_type->chk();
       u.fatref.return_type->chk_as_return_type(!u.fatref.returns_template,
-        "function type");
+        " function type");
       if (u.fatref.is_startable && u.fatref.return_type->get_type_refd_last()
           ->get_typetype() == T_DEFAULT) u.fatref.is_startable = false;
 
@@ -3920,7 +3920,7 @@ void Type::chk_as_return_type(bool as_value, const char* what)
   Type *t = get_type_refd_last();
   switch(t->get_typetype()) {
   case Type::T_PORT:
-    error("Port type `%s' cannot be the return type of a %s"
+    error("Port type `%s' cannot be the return type of a%s"
       , t->get_fullname().c_str(), what);
     break;
   case Type::T_SIGNATURE:
@@ -6000,21 +6000,15 @@ void Type::chk_this_value_class(Value* value)
   switch(v->get_valuetype()) {
   case Value::V_TTCN3_NULL:
     break; // OK
-  case Value::V_REFD:
-    // TODO
-    break;
   case Value::V_EXPR:
-    switch (v->get_optype()) {
-    case Value::OPTYPE_CLASS_CREATE:
-      // TODO
-      break;
-    default:
-      // error
+    if (v->get_optype() == Value::OPTYPE_CLASS_CREATE) {
+      // OK
       break;
     }
-    break;
+    // else fall through
   default:
     // error
+    v->error("class value was expected");
     break;
   }
 }

@@ -275,6 +275,113 @@ function f_no_comp_usage() { //^In function definition//
 }
 
 
+type class C15 {
+  public var integer v;
+  public function f() { }
+  public function g() return boolean { return true; }
+}
+
+function f_access_with_class_name() { //^In function definition//
+  log(C5.v); //^In log statement// //Reference to a value, template, timer, port or class object was expected instead of type `@oop_SE.C5'//
+  log(C5.g()); //^In log statement// //Reference to a value, template, timer, port or class object was expected instead of type `@oop_SE.C5'//
+  C5.f(); //Reference to a function or altstep was expected instead of type `@oop_SE.C5', which cannot be invoked//
+  C5.g(); //Reference to a function or altstep was expected instead of type `@oop_SE.C5', which cannot be invoked//
+  if (C5.g()) { log(1); } //^In if statement// //Reference to a value was expected instead of type `@oop_SE.C5'//
+  if (C5.v == 1) { log(2); } //^In if statement// //Reference to a value was expected instead of type `@oop_SE.C5'//
+  var integer x1 := C5.v + 1; //^In variable definition// //^In the left operand of operation// //Reference to a value was expected instead of type `@oop_SE.C5'//
+  var boolean x2 := C5.g(); //^In variable definition// //Reference to a value was expected instead of type `@oop_SE.C5'//
+}
+
+
+function f_init_values() { //^In function definition//
+  var integer v_int := 3;
+  var template integer vt_int := (1..10);
+  var C4 v1 := 1; //^In variable definition// //class value was expected//
+  var C4 v2 := v_int; //^In variable definition// //Type mismatch\: a value of type `@oop_SE.C4' was expected instead of `integer'//
+  var C4 v3 := valueof(vt_int) + v_int; //^In variable definition// //Incompatible value\: `@oop_SE.C4' value was expected//
+  var C4 v4 := CT_RunsOn.create; //^In variable definition// //Incompatible value\: `@oop_SE.C4' value was expected//
+  var C4 v5 := C11.create; //^In variable definition// //Incompatible class types\: operation `create' should refer to `@oop_SE.C4' instead of `@oop_SE.C11'//
+}
+
+
+type class C16 extends C15 { //^In type definition//
+  create() : C15(1) { } //Previous definition of `create' is here//
+  create(in integer p) : C15(p) { } //Duplicate definition with name `create'//
+}
+
+type class C17 { //^In type definition//
+  create() : C15(1) { } //^In constructor definition// //^In super-constructor call// //Class type `@oop_SE.C17' does not have a superclass//
+}
+
+type class C18 extends C15 { //^In type definition//
+  create() : C16() { } //^In constructor definition// //^In super-constructor call// //expected call to constructor of class type `@oop_SE.C15', instead of class type `@oop_SE.C16'//
+}
+
+type class C19 extends C15 { //^In type definition//
+  create() { } //^In constructor definition// //Missing super-constructor call//
+}
+
+type class C20 extends C15 { //^In type definition//
+  create() : f_embedded_types() { } //^In constructor definition// //^In super-constructor call// //Reference to constructor was expected instead of function//
+}
+
+
+type class @final @abstract C21 { } //^In type definition// //Final classes cannot be abstract//
+
+type class @final C22 { }
+
+type class C23 extends C22 { } //^In type definition// //^In superclass definition// //The superclass cannot be final//
+
+type class @abstract C24 { //^In type definition//
+  public function @abstract f1(in Nonexistent a); //^In abstract function definition// //^In formal parameter list// //^In parameter// //There is no local or imported definition with name `Nonexistent'//
+  public function @abstract f2() return template Nonexistent; //^In abstract function definition// //^In return type// //There is no local or imported definition with name `Nonexistent'//
+  public function @abstract f3() return Port; //^In abstract function definition// //^In return type// //Port type `@oop_SE.Port' cannot be the return type of an abstract function//
+}
+
+function f_inst_abstract() { //^In function definition//
+  var C24 x := C24.create; //^In variable definition// //Cannot create an instance of abstract class type `@oop_SE.C24'//
+}
+
+type class @abstract C25 {
+  public function @abstract f_abs() return integer;
+}
+
+type class @abstract C26 extends C25 {
+  public function @abstract f_abs2(inout template integer p);
+}
+
+type class C27 extends C26 { } //^In type definition// //Missing implementation of abstract method `@oop_SE.C25.f_abs'// //Missing implementation of abstract method `@oop_SE.C26.f_abs2'//
+
+type class C28 extends C25 { //^In type definition//
+  public var integer f_abs; //variable `@oop_SE.C28.f_abs' shadows inherited abstract method `@oop_SE.C25.f_abs'//
+}
+
+type class C29 extends C26 { //^In type definition// //Missing implementation of abstract method `@oop_SE.C25.f_abs'//
+  public function f_abs2(inout template integer p) { }
+}
+
+type class C30 extends C26 {
+  public function f_abs() return integer { return 1; }
+  public function f_abs2(inout template integer p) { }
+}
+
+type class C31 extends C25 { //^In type definition//
+  public function f_abs(in template integer p) { } //The prototype of method `f_abs' is not identical to that of inherited abstract method `@oop_SE.C25.f_abs'//
+}
+
+type class C32 extends C25 { //^In type definition//
+  public function f_abs(inout integer p) { } //The prototype of method `f_abs' is not identical to that of inherited abstract method `@oop_SE.C25.f_abs'//
+}
+
+type class C33 extends C25 { //^In type definition//
+  public function f_abs(inout template integer q) { } //The prototype of method `f_abs' is not identical to that of inherited abstract method `@oop_SE.C25.f_abs'//
+}
+
+type class C34 extends C25 { //^In type definition//
+  public function f_abs(inout template integer p) return boolean { return false; } //The prototype of method `f_abs' is not identical to that of inherited abstract method `@oop_SE.C25.f_abs'//
+}
+
+
 control { //^In control part//
   var C11 x := C11.create; //^In variable definition// //A definition without `runs on' clause cannot create a value of class type `@oop_SE.C11', which runs on component type `@oop_SE.CT_RunsOn'// //Cannot create value of class type `@oop_SE.C11', which has an `mtc' clause, in the control part.// //Cannot create value of class type `@oop_SE.C11', which has a `system' clause, in the control part.//
 }

@@ -844,7 +844,6 @@ namespace Ttcn {
         }
       }
       else { // params != NULL
-        FormalParList *fplist = NULL;
         if (ass->get_asstype() == Common::Assignment::A_TYPE) {
           Def_Type* def = dynamic_cast<Def_Type*>(ass);
           if (def == NULL) {
@@ -854,14 +853,10 @@ namespace Ttcn {
           if (type->get_typetype() == Common::Type::T_CLASS) {
             // if the referred assignment is a class type, then the reference and
             // its parameters are meant for the constructor instead
-            fplist = type->get_class_type_body()->get_constructor()->
-              get_FormalParList();
+            ass = type->get_class_type_body()->get_constructor();
           }
         }
-        if (fplist == NULL) {
-          // if it's not a class type, retrieve the formal parameter list normally
-          fplist = ass->get_FormalParList();
-        }
+        FormalParList* fplist = ass->get_FormalParList();
         if (fplist != NULL) {
           Error_Context cntxt(params, "In actual parameter list of %s",
             ass->get_description().c_str());
@@ -6769,7 +6764,7 @@ namespace Ttcn {
     if (return_type) {
       Error_Context cntxt2(return_type, "In return type");
       return_type->chk();
-      return_type->chk_as_return_type(asstype == A_FUNCTION_RVAL,"function");
+      return_type->chk_as_return_type(asstype == A_FUNCTION_RVAL," function");
     }
     
     if (w_attrib_path) {
@@ -7454,7 +7449,7 @@ namespace Ttcn {
       Error_Context cntxt2(return_type, "In return type");
       return_type->chk();
       return_type->chk_as_return_type(asstype == A_EXT_FUNCTION_RVAL,
-        "external function");
+        " external function");
     }
     if (!semantic_check_only) fp_list->set_genname(get_genname());
     if (w_attrib_path) {
@@ -8031,7 +8026,84 @@ namespace Ttcn {
   
   void Def_AbsFunction::chk()
   {
-    // TODO
+    if (checked) {
+      return;
+    }
+    checked = true;
+    Error_Context cntxt(this, "In abstract function definition `%s'",
+      id->get_dispname().c_str());
+    ClassTypeBody* my_class = my_scope->get_scope_class();
+    if (my_class == NULL) {
+      FATAL_ERROR("Def_AbsFunction::chk");
+    }
+    if (!my_class->is_abstract()) {
+      error("Concrete class type `%s' cannot have abstract methods",
+        my_class->get_my_def()->get_Type()->get_typename().c_str());
+    }
+    fp_list->chk(asstype);
+    if (return_type != NULL) {
+      Error_Context cntxt2(return_type, "In return type");
+      return_type->chk();
+      return_type->chk_as_return_type(asstype == A_FUNCTION_RVAL,
+        "n abstract function");
+    }
+    if (!semantic_check_only) {
+      fp_list->set_genname(get_genname());
+    }
+    // TODO: with attributes
+  }
+  
+  void Def_AbsFunction::chk_implementation(Common::Assignment* p_ass, Location* p_loc)
+  {
+    switch (p_ass->get_asstype()) {
+    case A_FUNCTION:
+    case A_FUNCTION_RVAL:
+    case A_FUNCTION_RTEMP: {
+      Def_Function* def_func = dynamic_cast<Def_Function*>(p_ass);
+      if (def_func == NULL) {
+        // it's an abstract function, which means it hasn't been implemented
+        p_loc->error("Missing implementation of abstract method `%s'",
+          get_fullname().c_str());
+      }
+      else {
+        // check whether they're identical
+        bool match = true;
+        if (asstype != p_ass->get_asstype()) {
+          match = false;
+        }
+        else if (return_type != NULL &&
+                 !def_func->get_return_type()->is_identical(return_type)) {
+          match = false;
+        }
+        else {
+          FormalParList* other_fp_list = def_func->get_FormalParList();
+          if (other_fp_list->get_nof_fps() != fp_list->get_nof_fps()) {
+            match = false;
+          }
+          else {
+            for (size_t i = 0; i < fp_list->get_nof_fps(); ++i) {
+              FormalPar* fp1 = fp_list->get_fp_byIndex(i);
+              FormalPar* fp2 = other_fp_list->get_fp_byIndex(i);
+              if (fp1->get_asstype() != fp2->get_asstype() ||
+                  !fp1->get_Type()->is_identical(fp2->get_Type()) ||
+                  fp1->get_id().get_name() != fp2->get_id().get_name()) {
+                match = false;
+              }
+            }
+          }
+        }
+        if (!match) {
+          p_ass->error("The prototype of method `%s' is not identical to that "
+            "of inherited abstract method `%s'",
+            def_func->get_id().get_dispname().c_str(), get_fullname().c_str());
+        }
+      }
+      break; }
+    default:
+      p_ass->error("%s shadows inherited abstract method `%s'",
+        p_ass->get_description().c_str(), get_fullname().c_str());
+      break;
+    }
   }
   
   void Def_AbsFunction::generate_code(output_struct* target, bool)
@@ -8746,9 +8818,39 @@ namespace Ttcn {
     
     fp_list->chk(asstype);
     
+    ClassTypeBody* my_class = my_scope->get_scope_class();
+    ClassTypeBody* base_class = my_class->get_base_class();
     if (base_call != NULL) {
-      Common::Assignment* base_type_ass = base_call->get_refd_assignment(true);
-      // TODO
+      Error_Context cntxt2(this, "In super-constructor call");
+      if (base_class == NULL) {
+        base_call->error("Class type `%s' does not have a superclass",
+          my_class->get_my_def()->get_Type()->get_typename().c_str());
+      }
+      else {
+        Common::Assignment* base_call_ass = base_call->get_refd_assignment(true);
+        if (base_call_ass != NULL) {
+          if (base_call_ass->get_asstype() != Common::Assignment::A_CONSTRUCTOR) {
+            base_call->error("Reference to constructor was expected instead of %s",
+              base_call_ass->get_assname());
+          }
+          else {
+            ClassTypeBody* base_call_class = base_call_ass->get_my_scope()->get_scope_class();
+            if (base_call_class != base_class) {
+              base_call->error("expected call to constructor of class type `%s', "
+                "instead of class type `%s'",
+              my_class->get_base_type()->get_typename().c_str(),
+              base_call_class->get_my_def()->get_Type()->get_typename().c_str());
+            }
+          }
+        }
+      }
+    }
+    else if (base_class != NULL) {
+      Def_Constructor* base_constructor = base_class->get_constructor();
+      if (base_constructor != NULL &&
+          !base_constructor->get_FormalParList()->has_only_default_values()) {
+        error("Missing super-constructor call");
+      }
     }
     
     block->chk();
