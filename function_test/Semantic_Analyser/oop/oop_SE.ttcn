@@ -382,6 +382,24 @@ type class C34 extends C25 { //^In type definition//
 }
 
 
+type class C35 {
+  public const integer c := 3;
+  public template charstring t := "";
+  public function f1() return Rec { return { 2, "a" }; }
+  public function f2() return template charstring { return ?; }
+  create() {}
+}
+
+function f_left_hand_side() { //^In function definition//
+  var C35 x := C35.create;
+  x.c := 2; //^In variable assignment// //Reference to a variable or template variable was expected instead of constant `@oop_SE.C35.c'//
+  x.t := *; //^In variable assignment// //Reference to a variable or template variable was expected instead of template `@oop_SE.C35.t'//
+  x.f1() := { 3, "b" }; //^In variable assignment// //Reference to a variable or template variable was expected instead of function `@oop_SE.C35.f1'//
+  x.f1().num := 3; //^In variable assignment// //Reference to a variable or template variable was expected instead of function `@oop_SE.C35.f1'//
+  x.f2() := "x"; //^In variable assignment// //Reference to a variable or template variable was expected instead of function `@oop_SE.C35.f2'//
+}
+
+
 control { //^In control part//
   var C11 x := C11.create; //^In variable definition// //A definition without `runs on' clause cannot create a value of class type `@oop_SE.C11', which runs on component type `@oop_SE.CT_RunsOn'// //Cannot create value of class type `@oop_SE.C11', which has an `mtc' clause, in the control part.// //Cannot create value of class type `@oop_SE.C11', which has a `system' clause, in the control part.//
 }

@@ -700,6 +700,12 @@ public:
      * parameter list of the referred definition. The parameter checking is
      * done by default, but it can be disabled in certain cases. */
     virtual Assignment* get_refd_assignment(bool check_parlist = true) = 0;
+    /** Returns the referred TTCN-3 definition or ASN.1 assignment.
+      * If there are references to class members or methods (in the subreferences),
+      * then the assignment at the end of the subreferences may differ from the
+      * referred assignment without subreferences.
+      * This function returns the assignment at the end of the subreferences. */
+    virtual Assignment* get_refd_assignment_last(bool check_parlist = true);
     /** Returns the field or array subreferences of TTCN-3 references or NULL
      * otherwise. */
     virtual Ttcn::FieldOrArrayRefs *get_subrefs();

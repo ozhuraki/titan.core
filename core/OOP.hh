@@ -145,6 +145,18 @@ public:
       ptr->log();
     }
   }
+  
+  boolean is_bound() const {
+    return ptr != NULL;
+  }
+  
+  boolean is_value() const {
+    return ptr != NULL;
+  }
+  
+  boolean is_present() const {
+    return ptr != NULL;
+  }
 };
 
 template<typename T>

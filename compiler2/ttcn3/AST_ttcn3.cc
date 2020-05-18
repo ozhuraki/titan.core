@@ -875,6 +875,44 @@ namespace Ttcn {
     }
     return ass;
   }
+  
+  Common::Assignment* Reference::get_refd_assignment_last(bool check_parlist)
+  {
+    Common::Assignment* ass = get_refd_assignment(check_parlist);
+    if (ass != NULL && ass->get_asstype() == Common::Assignment::A_VAR &&
+        subrefs.get_nof_refs() != 0) {
+      // there could be class objects in the subreferences, which would change
+      // the type of the last assignment
+      Type* type = ass->get_Type();
+      if (type->get_field_type(&subrefs, Common::Type::EXPECTED_DYNAMIC_VALUE) != NULL) {
+        // subrefs are valid
+        // TODO: EXPECTED_DYNAMIC_VALUE in all cases?
+        for (size_t i = 0; i < subrefs.get_nof_refs(); ++i) {
+          type = type->get_type_refd_last();
+          FieldOrArrayRef* subref = subrefs.get_ref(i);
+          switch (subref->get_type()) {
+          case FieldOrArrayRef::FIELD_REF:
+          case FieldOrArrayRef::FUNCTION_REF:
+            if (type->get_typetype() == Common::Type::T_CLASS) {
+              ass = type->get_class_type_body()->
+                get_local_ass_byId(*subref->get_id());
+              type = ass->get_Type();
+            }
+            else {
+              type = type->get_comp_byName(*subref->get_id())->get_type();
+            }
+            break;
+          case FieldOrArrayRef::ARRAY_REF:
+            if (type->is_structured_type()) {
+              type = type->get_ofType();
+            }
+            break;
+          }
+        }
+      }
+    }
+    return ass;
+  }
 
   const Identifier* Reference::get_modid()
   {
@@ -1228,16 +1266,9 @@ namespace Ttcn {
       
       expression_struct isbound_expr;
       Code::init_expr(&isbound_expr);
-      if (ass->get_Type()->get_type_refd_last()->get_typetype() == Common::Type::T_CLASS) {
-        isbound_expr.preamble = mputprintf(isbound_expr.preamble,
-          "boolean %s = %s != NULL_VALUE;\n", tmp_generalid_str,
-          ass_id_str);
-      }
-      else {
-        isbound_expr.preamble = mputprintf(isbound_expr.preamble,
-          "boolean %s = %s.is_bound();\n", tmp_generalid_str,
-          ass_id_str);
-      }
+      isbound_expr.preamble = mputprintf(isbound_expr.preamble,
+        "boolean %s = %s.is_bound();\n", tmp_generalid_str,
+        ass_id_str);
       namedbool p_optype;
       if (optype == Value::OPTYPE_ISBOUND) {
         p_optype = ISBOUND;

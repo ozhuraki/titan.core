@@ -2164,41 +2164,7 @@ namespace Ttcn {
       return true;
     }
     case TEMPLATE_REFD: {
-      Common::Assignment *ass = u.ref.ref->get_refd_assignment();
-      if (ass->get_asstype() == Common::Assignment::A_VAR) {
-        // there could be class objects in the subreferences, which would change
-        // the type of the assignment (e.g. to a var template);
-        // use the assignment after the last class object in the subreference chain
-        FieldOrArrayRefs* subrefs = u.ref.ref->get_subrefs();
-        if (subrefs != NULL) {
-          Type* type = ass->get_Type();
-          if (type->get_field_type(subrefs, Common::Type::EXPECTED_DYNAMIC_VALUE) != NULL) {
-            // subrefs are valid
-            for (size_t i = 0; i < subrefs->get_nof_refs(); ++i) {
-              type = type->get_type_refd_last();
-              FieldOrArrayRef* subref = subrefs->get_ref(i);
-              switch (subref->get_type()) {
-              case FieldOrArrayRef::FIELD_REF:
-              case FieldOrArrayRef::FUNCTION_REF:
-                if (type->get_typetype() == Common::Type::T_CLASS) {
-                  ass = type->get_class_type_body()->
-                    get_local_ass_byId(*subref->get_id());
-                  type = ass->get_Type();
-                }
-                else {
-                  type = type->get_comp_byName(*subref->get_id())->get_type();
-                }
-                break;
-              case FieldOrArrayRef::ARRAY_REF:
-                if (type->is_structured_type()) {
-                  type = type->get_ofType();
-                }
-                break;
-              }
-            }
-          }
-        }
-      }
+      Common::Assignment *ass = u.ref.ref->get_refd_assignment_last();
       switch (ass->get_asstype()) {
       case Common::Assignment::A_EXT_CONST:
       case Common::Assignment::A_PAR_VAL:

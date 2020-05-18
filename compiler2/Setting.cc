@@ -855,6 +855,11 @@ namespace Common {
   void Reference::set_code_section(GovernedSimple::code_section_t)
   {
   }
+  
+  Assignment* Reference::get_refd_assignment_last(bool check_parlist)
+  {
+    return this->get_refd_assignment(check_parlist);
+  }
 
   Ttcn::FieldOrArrayRefs *Reference::get_subrefs()
   {

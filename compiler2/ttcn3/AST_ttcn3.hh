@@ -367,6 +367,7 @@ namespace Ttcn {
     virtual void set_my_scope(Scope* p_scope);
     virtual string get_dispname();
     virtual Common::Assignment *get_refd_assignment(bool check_parlist = true);
+    virtual Common::Assignment *get_refd_assignment_last(bool check_parlist = true);
     virtual reftype_t get_reftype() const { return reftype; }
     virtual void set_reftype(reftype_t p_reftype) { reftype = p_reftype; }
     virtual const Identifier* get_modid();

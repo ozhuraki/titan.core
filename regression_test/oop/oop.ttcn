@@ -315,6 +315,7 @@ testcase tc_references() runs on CT {
   var BaseClass v_base := BaseClass.create(4, { 1, 2, 4 }, "a", 'FF'O, 1.0);
   var SubClass v_sub := SubClass.create(4, { 1, 2, 4 }, "a", 'FF'O, 1.0);
   var FinalClass v_final := FinalClass.create(4, { 1, 2, 4 }, "a", 'FF'O, 1.0, 8, "x", -1.5, *);
+  var BaseClass v_null := null;
   
   var BaseClass v_ref1;
   if (v_ref1 != null) {
@@ -352,6 +353,24 @@ testcase tc_references() runs on CT {
   }
   if (match(v_final.get_uni(), v_final.get_uni_temp())) {
     setverdict(fail, "#11, ", match(v_final.get_uni(), v_final.get_uni_temp()));
+  }
+  if (not isbound(v_sub)) {
+    setverdict(fail, "#12");
+  }
+  if (isbound(v_null)) {
+    setverdict(fail, "#13");
+  }
+  if (not isvalue(v_final)) {
+    setverdict(fail, "#14");
+  }
+  if (isvalue(v_null)) {
+    setverdict(fail, "#15");
+  }
+  if (not ispresent(v_base)) {
+    setverdict(fail, "#16");
+  }
+  if (ispresent(v_null)) {
+    setverdict(fail, "#17");
   }
   setverdict(pass);
 }

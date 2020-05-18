@@ -8863,7 +8863,7 @@ error:
 
   void Assignment::chk_unknown_ass()
   {
-    Common::Assignment *t_ass = ref->get_refd_assignment();
+    Common::Assignment *t_ass = ref->get_refd_assignment_last();
     if (!t_ass) goto error;
     switch (t_ass->get_asstype()) {
     case Common::Assignment::A_ERROR:

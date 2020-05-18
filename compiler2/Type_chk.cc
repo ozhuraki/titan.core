@@ -6145,41 +6145,7 @@ void Type::chk_this_template_ref(Template *t)
     // Do not check the actual parameter list of the reference yet to avoid
     // endless recursion in case of embedded circular references.
     // The parameter lists will be verified later.
-    Assignment *ass = v->get_reference()->get_refd_assignment(false);
-    if (ass != NULL && ass->get_asstype() == Assignment::A_VAR) {
-      // there could be class objects in the subreferences, which would change
-      // the type of the assignment (e.g. to a var template);
-      // use the assignment after the last class object in the subreference chain
-      Ttcn::FieldOrArrayRefs* subrefs = v->get_reference()->get_subrefs();
-      if (subrefs != NULL) {
-        Type* type = ass->get_Type();
-        if (type->get_field_type(subrefs, EXPECTED_DYNAMIC_VALUE) != NULL) {
-          // subrefs are valid
-          for (size_t i = 0; i < subrefs->get_nof_refs(); ++i) {
-            type = type->get_type_refd_last();
-            Ttcn::FieldOrArrayRef* subref = subrefs->get_ref(i);
-            switch (subref->get_type()) {
-            case Ttcn::FieldOrArrayRef::FIELD_REF:
-            case Ttcn::FieldOrArrayRef::FUNCTION_REF:
-              if (type->typetype == T_CLASS) {
-                ass = type->get_class_type_body()->
-                  get_local_ass_byId(*subref->get_id());
-                type = ass->get_Type();
-              }
-              else {
-                type = type->get_comp_byName(*subref->get_id())->get_type();
-              }
-              break;
-            case Ttcn::FieldOrArrayRef::ARRAY_REF:
-              if (type->is_structured_type()) {
-                type = type->get_ofType();
-              }
-              break;
-            }
-          }
-        }
-      }
-    }
+    Assignment *ass = v->get_reference()->get_refd_assignment_last(false);
     if (ass) {
       switch (ass->get_asstype()) {
       case Assignment::A_VAR_TEMPLATE: {
