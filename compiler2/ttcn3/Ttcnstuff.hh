@@ -788,7 +788,7 @@ public:
   ClassTypeBody* clone() const;
   virtual ~ClassTypeBody();
   
-  void set_my_def(Def_Type* p_def) { my_def = p_def; }
+  void set_my_def(Def_Type* p_def);
   Def_Type* get_my_def() { return my_def; }
   boolean is_abstract() const { return abstract; }
   

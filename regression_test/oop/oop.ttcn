@@ -494,6 +494,15 @@ testcase tc_abstract() runs on CT {
   }
 }
 
+type class Destructor { }
+finally {
+  setverdict(pass);
+}
+
+testcase tc_destructor() runs on CT {
+  var Destructor x := Destructor.create;
+}
+
 
 control {
   execute(tc_members_and_methods());
@@ -506,6 +515,7 @@ control {
   execute(tc_object());
   execute(tc_order());
   execute(tc_abstract());
+  execute(tc_destructor());
 }
 
 }

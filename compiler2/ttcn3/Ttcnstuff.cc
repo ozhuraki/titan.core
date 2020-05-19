@@ -3051,6 +3051,14 @@ namespace Ttcn {
     abstract_functions.clear();
   }
   
+  void ClassTypeBody::set_my_def(Def_Type* p_def)
+  {
+    my_def = p_def;
+    if (finally_block != NULL) {
+      finally_block->set_my_def(p_def);
+    }
+  }
+  
   void ClassTypeBody::set_fullname(const string& p_fullname)
   {
     if (built_in) {
