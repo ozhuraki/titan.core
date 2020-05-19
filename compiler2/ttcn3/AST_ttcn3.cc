@@ -307,7 +307,7 @@ namespace Ttcn {
   // =================================
 
   FieldOrArrayRefs::FieldOrArrayRefs(const FieldOrArrayRefs& p)
-    : Node(p), refs_str_element(false), my_scope(NULL)
+    : Node(p), refs_str_element(false), my_scope(NULL), checked(false)
   {
     for (size_t i = 0; i < p.refs.size(); i++) refs.add(p.refs[i]->clone());
   }

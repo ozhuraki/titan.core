@@ -1685,6 +1685,8 @@ namespace Common {
     bool interrupt_if_optional, Assignment** last_method)
   {
     if (!subrefs) return this;
+    bool silent = subrefs->is_checked();
+    subrefs->set_checked();
     Type *t = this;
     if (expected_index == EXPECTED_TEMPLATE)
       expected_index = EXPECTED_DYNAMIC_VALUE;
@@ -1717,19 +1719,25 @@ namespace Common {
         case T_CLASS:
           break;
 	case T_COMPONENT:
-	  ref->error("Referencing fields of a component is not allowed");
+    if (!silent) {
+      ref->error("Referencing fields of a component is not allowed");
+    }
 	  return 0;
         default:
-          ref->error("Invalid field reference `%s': type `%s' "
-            "does not have fields", id.get_dispname().c_str(),
-            t->get_typename().c_str());
+          if (!silent) {
+            ref->error("Invalid field reference `%s': type `%s' "
+              "does not have fields", id.get_dispname().c_str(),
+              t->get_typename().c_str());
+          }
           return 0;
         }
         if (t->typetype == T_CLASS) {
           Ttcn::ClassTypeBody* class_ = t->get_class_type_body();
           if (!class_->has_local_ass_withId(id)) {
-            ref->error("Reference to non-existent member `%s' in class type `%s'",
-              id.get_dispname().c_str(), t->get_typename().c_str());
+            if (!silent) {
+              ref->error("Reference to non-existent member `%s' in class type `%s'",
+                id.get_dispname().c_str(), t->get_typename().c_str());
+            }
             return 0;
           }
           Assignment* ass = class_->get_local_ass_byId(id);
@@ -1744,16 +1752,17 @@ namespace Common {
           case Assignment::A_TEMPLATE:
             t = ass->get_Type();
             break;
-          case Assignment::A_FUNCTION: // ???
+          case Assignment::A_FUNCTION:
           case Assignment::A_FUNCTION_RVAL:
           case Assignment::A_FUNCTION_RTEMP:
-          case Assignment::A_EXT_FUNCTION: // ???
+          case Assignment::A_EXT_FUNCTION:
           case Assignment::A_EXT_FUNCTION_RVAL:
           case Assignment::A_EXT_FUNCTION_RTEMP:
-            // TODO: check if the function can be called without parameters
-            ref->error("Invalid reference to method `%s' in class type `%s', "
-              "reference to a member was expected instead",
-              id.get_dispname().c_str(), t->get_typename().c_str());
+            if (!silent) {
+              ref->error("Invalid reference to method `%s' in class type `%s', "
+                "reference to a member was expected instead",
+                id.get_dispname().c_str(), t->get_typename().c_str());
+            }
             return 0;
           default:
             FATAL_ERROR("Type::get_field_type - %s shouldn't be in a class",
@@ -1762,9 +1771,10 @@ namespace Common {
         }
         else {
           if (!t->has_comp_withName(id)) {
-            ref->error("Reference to non-existent field `%s' in type `%s'",
-              id.get_dispname().c_str(),
-              t->get_typename().c_str());
+            if (!silent) {
+              ref->error("Reference to non-existent field `%s' in type `%s'",
+                id.get_dispname().c_str(), t->get_typename().c_str());
+            }
             return 0;
           }
           CompField* cf = t->get_comp_byName(id);
@@ -1775,9 +1785,11 @@ namespace Common {
       case Ttcn::FieldOrArrayRef::FUNCTION_REF: {
         const Identifier& id = *ref->get_id();
         if (t->typetype != T_CLASS) {
-          ref->error("Invalid function reference `%s': type `%s' "
-            "does not have methods", id.get_dispname().c_str(),
-            t->get_typename().c_str());
+          if (!silent) {
+            ref->error("Invalid function reference `%s': type `%s' "
+              "does not have methods", id.get_dispname().c_str(),
+              t->get_typename().c_str());
+          }
           return 0;
         }
         Ttcn::ClassTypeBody* class_ = t->get_class_type_body();
@@ -1804,8 +1816,10 @@ namespace Common {
             // todo: set *last_method
           }
           else {
-            ref->error("Reference to non-existent method `%s' in class type `%s'",
-              id.get_dispname().c_str(), t->get_typename().c_str());
+            if (!silent) {
+              ref->error("Reference to non-existent method `%s' in class type `%s'",
+                id.get_dispname().c_str(), t->get_typename().c_str());
+            }
             return 0;
           }
         }
@@ -1820,16 +1834,20 @@ namespace Common {
           case Assignment::A_VAR_TEMPLATE:
           case Assignment::A_CONST:
           case Assignment::A_TEMPLATE:
-            ref->error("Invalid reference to member `%s' in class type `%s', "
-              "reference to a method was expected instead",
-              id.get_dispname().c_str(), t->get_typename().c_str());
+            if (!silent) {
+              ref->error("Invalid reference to member `%s' in class type `%s', "
+                "reference to a method was expected instead",
+                id.get_dispname().c_str(), t->get_typename().c_str());
+            }
             return 0;
           case Assignment::A_FUNCTION:
           case Assignment::A_EXT_FUNCTION:
             if (i != nof_refs - 1 || last_method == NULL) {
-              ref->error("Invalid reference to method `%s' with no return type in "
-                "class type `%s'",
-                id.get_dispname().c_str(), t->get_typename().c_str());
+              if (!silent) {
+                ref->error("Invalid reference to method `%s' with no return type in "
+                  "class type `%s'",
+                  id.get_dispname().c_str(), t->get_typename().c_str());
+              }
               return 0;
             }
             // a method with no return value can still be valid (e.g. if it's
@@ -1838,13 +1856,8 @@ namespace Common {
           case Assignment::A_FUNCTION_RVAL:
           case Assignment::A_FUNCTION_RTEMP:
           case Assignment::A_EXT_FUNCTION_RVAL:
-          case Assignment::A_EXT_FUNCTION_RTEMP: {
-            Ttcn::Def_Function_Base* def_func =
-              dynamic_cast<Ttcn::Def_Function_Base*>(ass);
-            if (def_func == NULL) {
-              FATAL_ERROR("Type::get_field_type");
-            }
-            t = def_func->get_return_type();
+          case Assignment::A_EXT_FUNCTION_RTEMP:
+            t = ass->get_Type();
             if (!ref->parameters_checked()) {
               Ttcn::FormalParList* fp_list = ass->get_FormalParList();
               Ttcn::ParsedActualParameters* parsed_pars = ref->get_parsed_pars();
@@ -1861,7 +1874,7 @@ namespace Common {
             if (last_method != NULL) {
               *last_method = ass;
             }
-            break; }
+            break;
           default:
             FATAL_ERROR("Type::get_field_type - %s shouldn't be in a class",
               ass->get_assname());
@@ -1899,8 +1912,10 @@ namespace Common {
         case T_GENERALIZEDTIME:
         case T_OBJECTDESCRIPTOR:
           if (subrefs->refers_to_string_element()) {
-            ref->error("A string element of type `%s' cannot be indexed",
-              t->get_typename().c_str());
+            if (!silent) {
+              ref->error("A string element of type `%s' cannot be indexed",
+                t->get_typename().c_str());
+            }
             return 0;
           } else {
             subrefs->set_string_element_ref();
@@ -1909,8 +1924,10 @@ namespace Common {
             break;
           }
         default:
-          ref->error("Type `%s' cannot be indexed",
-            t->get_typename().c_str());
+          if (!silent) {
+            ref->error("Type `%s' cannot be indexed",
+              t->get_typename().c_str());
+          }
           return 0;
         }
         // check the index value
@@ -1928,7 +1945,10 @@ namespace Common {
           
           // The indexer type must be of type integer
           if (pt->get_ofType()->get_type_refd_last()->get_typetype() != T_INT) {
-            ref->error("Only fixed length array or record of integer types are allowed for short-hand notation for nested indexes.");
+            if (!silent) {
+              ref->error("Only fixed length array or record of integer types are "
+                "allowed for short-hand notation for nested indexes.");
+            }
             return 0;
           }
           int len = 0;
@@ -1938,14 +1958,20 @@ namespace Common {
           } else if (pt->get_typetype() == T_SEQOF) {
             SubType* sub = pt->get_sub_type();
             if (sub == NULL) {
-              ref->error("The type `%s' must have single size length restriction when used as a short-hand notation for nested indexes.",
-                pt->get_typename().c_str());
+              if (!silent) {
+                ref->error("The type `%s' must have single size length restriction "
+                  "when used as a short-hand notation for nested indexes.",
+                  pt->get_typename().c_str());
+              }
               return 0;
             }
             len = sub->get_length_restriction();
             if (len == -1) {
-              ref->error("The type `%s' must have single size length restriction when used as a short-hand notation for nested indexes.",
-                pt->get_typename().c_str());
+              if (!silent) {
+                ref->error("The type `%s' must have single size length restriction "
+                  "when used as a short-hand notation for nested indexes.",
+                  pt->get_typename().c_str());
+              }
               return 0;
             }
           }
@@ -1960,8 +1986,11 @@ namespace Common {
                 embedded_type = embedded_type->get_ofType()->get_type_refd_last();
                 break;
               default:
-                ref->error("The type `%s' contains too many indexes (%i) in the short-hand notation for nested indexes.",
-                  pt->get_typename().c_str(), len);
+                if (!silent) {
+                  ref->error("The type `%s' contains too many indexes (%i) in "
+                    "the short-hand notation for nested indexes.",
+                    pt->get_typename().c_str(), len);
+                }
                 return 0;
             }
             j++;
@@ -1979,16 +2008,20 @@ namespace Common {
           if (v_last->get_valuetype() == Value::V_INT) {
             const int_val_t *index_int = v_last->get_val_Int();
             if (*index_int > INT_MAX) {
-              index_value->error("Integer value `%s' is too big for indexing "
-                "type `%s'", (index_int->t_str()).c_str(),
-                (t->get_typename()).c_str());
-              index_value->set_valuetype(Value::V_ERROR);
+              if (!silent) {
+                index_value->error("Integer value `%s' is too big for indexing "
+                  "type `%s'", (index_int->t_str()).c_str(),
+                  (t->get_typename()).c_str());
+                index_value->set_valuetype(Value::V_ERROR);
+              }
             } else {
               if (*index_int < 0) {
-                index_value->error("A non-negative integer value was "
-                  "expected for indexing type `%s' instead of `%s'",
-                  t->get_typename().c_str(), (index_int->t_str()).c_str());
-                index_value->set_valuetype(Value::V_ERROR);
+                if (!silent) {
+                  index_value->error("A non-negative integer value was "
+                    "expected for indexing type `%s' instead of `%s'",
+                    t->get_typename().c_str(), (index_int->t_str()).c_str());
+                  index_value->set_valuetype(Value::V_ERROR);
+                }
               }
             }
           }

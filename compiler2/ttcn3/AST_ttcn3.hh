@@ -251,8 +251,9 @@ namespace Ttcn {
      * string value. */
     bool refs_str_element;
     Common::Scope* my_scope; ///< %Scope. Not owned
+    bool checked; // set by Type::get_field_type
   public:
-    FieldOrArrayRefs() : Node(), refs(), refs_str_element(false), my_scope(NULL) { }
+    FieldOrArrayRefs() : Node(), refs(), refs_str_element(false), my_scope(NULL), checked(false) { }
     FieldOrArrayRefs(const FieldOrArrayRefs& p);
     ~FieldOrArrayRefs();
     FieldOrArrayRefs *clone() const;
@@ -263,6 +264,8 @@ namespace Ttcn {
     size_t get_nof_refs() const { return refs.size(); }
     FieldOrArrayRef* get_ref(size_t i) const { return refs[i]; }
     bool has_unfoldable_index() const;
+    bool is_checked() const { return checked; }
+    void set_checked() { checked = true; }
     /** Removes (deletes) the first \a n field references. */
     void remove_refs(size_t n);
     Identifier *remove_last_field();
