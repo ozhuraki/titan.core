@@ -381,8 +381,16 @@ type class C34 extends C25 { //^In type definition//
   public function f_abs(inout template integer p) return boolean { return false; } //The prototype of method `f_abs' is not identical to that of inherited abstract method `@oop_SE.C25.f_abs'//
 }
 
+type class @abstract C35 {
+  public function @abstract f(in object p) return object;
+}
 
-type class C35 {
+type class C36 extends C35 {
+  public function f(in object p) return object { return p; }
+}
+
+
+type class C37 {
   public const integer c := 3;
   public template charstring t := "";
   public function f1() return Rec { return { 2, "a" }; }
@@ -391,12 +399,12 @@ type class C35 {
 }
 
 function f_left_hand_side() { //^In function definition//
-  var C35 x := C35.create;
-  x.c := 2; //^In variable assignment// //Reference to a variable or template variable was expected instead of constant `@oop_SE.C35.c'//
-  x.t := *; //^In variable assignment// //Reference to a variable or template variable was expected instead of template `@oop_SE.C35.t'//
-  x.f1() := { 3, "b" }; //^In variable assignment// //Reference to a variable or template variable was expected instead of function `@oop_SE.C35.f1'//
-  x.f1().num := 3; //^In variable assignment// //Reference to a variable or template variable was expected instead of function `@oop_SE.C35.f1'//
-  x.f2() := "x"; //^In variable assignment// //Reference to a variable or template variable was expected instead of function `@oop_SE.C35.f2'//
+  var C37 x := C37.create;
+  x.c := 2; //^In variable assignment// //Reference to a variable or template variable was expected instead of constant `@oop_SE.C37.c'//
+  x.t := *; //^In variable assignment// //Reference to a variable or template variable was expected instead of template `@oop_SE.C37.t'//
+  x.f1() := { 3, "b" }; //^In variable assignment// //Reference to a variable or template variable was expected instead of function `@oop_SE.C37.f1'//
+  x.f1().num := 3; //^In variable assignment// //Reference to a variable or template variable was expected instead of function `@oop_SE.C37.f1'//
+  x.f2() := "x"; //^In variable assignment// //Reference to a variable or template variable was expected instead of function `@oop_SE.C37.f2'//
 }
 
 

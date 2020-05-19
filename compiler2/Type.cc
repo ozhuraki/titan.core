@@ -5467,9 +5467,11 @@ namespace Common {
     case T_FUNCTION:
     case T_ALTSTEP:
     case T_TESTCASE:
-    case T_CLASS:
       // user-defined structured types must be identical
       return t1 == t2;
+    case T_CLASS:
+      return t1 == t2 || (t2->typetype == T_CLASS && 
+        t2->u.class_->is_built_in() && t1->u.class_->is_built_in());
     case T_ARRAY:
       // the embedded type and the dimension must be identical in case of arrays
       return t2->typetype == T_ARRAY &&
