@@ -101,6 +101,10 @@ type class BaseClass runs on CT mtc CT system CT {
 finally {
   //pt.send(-1);
   log(m_var);
+  log(this);
+  log(this);
+  log(this);
+  log(this);
 }
 
 type class SubClass extends BaseClass {  

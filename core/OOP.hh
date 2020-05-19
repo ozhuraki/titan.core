@@ -22,12 +22,14 @@
 class OBJECT {
 private:
   size_t ref_count;
+  boolean destructor; // true, if the destructor is currently running;
+  // also makes sure the object is not deleted again when inside the destructor
   
   OBJECT(const OBJECT&); // copy disabled
   OBJECT operator=(const OBJECT&); // assignment disabled
   boolean operator==(const OBJECT&); // equality operator disabled
 public:
-  OBJECT(): ref_count(0) {}
+  OBJECT(): ref_count(0), destructor(FALSE) {}
   virtual ~OBJECT() {
     if (ref_count != 0) {
       TTCN_error("Internal error: deleting an object with %lu reference(s) left.", ref_count);
@@ -36,7 +38,11 @@ public:
   void add_ref() { ++ref_count; }
   boolean remove_ref() {
     --ref_count;
-    return ref_count == 0;
+    if (destructor) {
+      return FALSE;
+    }
+    destructor = ref_count == 0;
+    return destructor;
   }
   virtual void log() const {
     TTCN_Logger::log_event_str("object: { }");
