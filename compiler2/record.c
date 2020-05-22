@@ -4909,7 +4909,7 @@ void defRecordClass1(const struct_def *sdef, output_struct *output)
         opt_elements++;
       }
     }
-    int bits = opt_elements+(sdef->oerExtendable == TRUE);
+
     int needed_bytes;
 
     int pos = 8;
@@ -4975,7 +4975,7 @@ void defRecordClass1(const struct_def *sdef, output_struct *output)
     }
 
     if (sdef->oerExtendable && sdef->oerNrOrRootcomps != sdef->nElements) {
-      bits = 0;
+      int bits = 0;
       int eag_pos = 0;
       for (i = limit; i < sdef->nElements; i++) {
         if (sdef->oerEagNum != 0 && sdef->oerEag[eag_pos] == i - limit) {
@@ -5115,7 +5115,7 @@ void defRecordClass1(const struct_def *sdef, output_struct *output)
     src = mputprintf(src,
       "int %s::OER_decode(const TTCN_Typedescriptor_t&, TTCN_Buffer& p_buf, OER_struct& p_oer)\n"
       "{\n", name);
-    bits = opt_elements+(sdef->oerExtendable == TRUE);
+    int bits = opt_elements+(sdef->oerExtendable == TRUE);
     needed_bytes = bits / 8 + (bits % 8 == 0 ? 0 : 1);
     if (needed_bytes != 0) {
       src = mputprintf(src, 
