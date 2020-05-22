@@ -2519,7 +2519,7 @@ UNIVERSAL_CHARSTRING replace(const UNIVERSAL_CHARSTRING& value, int idx,
     }
     else {
       // operand types mismatch => copy parts inefficiently, character by character
-      size_t i;
+      int i;
       for (i = 0; i < idx; ++i) {
         ret_val[i] = value[i];
       }
