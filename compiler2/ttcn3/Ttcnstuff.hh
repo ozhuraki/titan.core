@@ -791,6 +791,7 @@ public:
   void set_my_def(Def_Type* p_def);
   Def_Type* get_my_def() { return my_def; }
   boolean is_abstract() const { return abstract; }
+  boolean is_external() const { return external; }
   
   void set_fullname(const string& p_fullname);
   void set_my_scope(Scope* p_scope);

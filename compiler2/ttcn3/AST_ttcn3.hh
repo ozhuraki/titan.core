@@ -1550,6 +1550,7 @@ namespace Ttcn {
     // pretty or compact printing for json or xml
     Ttcn::PrintingType *printing;
     bool deterministic;
+    bool ext_keyword;
     /// Copy constructor disabled
     Def_ExtFunction(const Def_ExtFunction& p);
     /// %Assignment disabled
@@ -1568,12 +1569,12 @@ namespace Ttcn {
      */
     Def_ExtFunction(bool p_deterministic, Identifier *p_id, FormalParList *p_fpl,
       Type *p_return_type, bool returns_template,
-      template_restriction_t p_template_restriction)
+      template_restriction_t p_template_restriction, bool p_ext_keyword)
       : Def_Function_Base(true, p_id, p_fpl, p_return_type, returns_template,
           p_template_restriction),
       function_type(EXTFUNC_MANUAL), encoding_type(Type::CT_UNDEF),
       encoding_options(0), eb_list(0), printing(0),
-      deterministic(p_deterministic) { }
+      deterministic(p_deterministic), ext_keyword(p_ext_keyword) { }
     ~Def_ExtFunction();
     virtual Def_ExtFunction *clone() const;
     virtual void set_fullname(const string& p_fullname);

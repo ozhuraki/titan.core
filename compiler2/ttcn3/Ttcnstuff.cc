@@ -3318,7 +3318,9 @@ namespace Ttcn {
     if (final && abstract) {
       error("Final classes cannot be abstract");
     }
-    // TODO: external?
+    if (external && abstract) {
+      error("External classes cannot be abstract");
+    }
     if (base_type != NULL) {
       Error_Context cntxt(base_type, "In superclass definition");
       base_type->chk();
@@ -3334,6 +3336,9 @@ namespace Ttcn {
         base_class = base_type->get_type_refd_last()->get_class_type_body();
         if (base_class->final) {
           base_type->error("The superclass cannot be final");
+        }
+        if (external && !base_class->external) {
+          base_type->error("An external class cannot extend an internal class");
         }
       }
     }
@@ -3478,6 +3483,25 @@ namespace Ttcn {
 
     if (finally_block != NULL) {
       finally_block->chk();
+    }
+    
+    if (external) {
+      for (size_t i = 0; i < members->get_nof_asss(); ++i) {
+        Common::Assignment* ass = members->get_ass_byIndex(i, false);
+        switch (ass->get_asstype()) {
+        case Common::Assignment::A_EXT_FUNCTION:
+        case Common::Assignment::A_EXT_FUNCTION_RVAL:
+        case Common::Assignment::A_EXT_FUNCTION_RTEMP:
+          // OK
+          break;
+        default:
+          ass->error("An external class cannot contain a %s", ass->get_assname());
+          break;
+        }
+      }
+      if (finally_block != NULL) {
+        finally_block->error("An external class cannot have a destructor");
+      }
     }
     
     if (abstract) {

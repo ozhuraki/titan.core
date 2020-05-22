@@ -33,7 +33,7 @@ DIRLIST := buildconfig_param invalid_buildconfig_param invalid_buildconfig_tpd \
 	HP79745 HQ56829 HQ56834 HQ56848 library HR30356 flagTest HR30365 dependency_check \
 	required_config required_config_v2  disablePredefinedExternalFolder \
 	makefileScript diff_tpd_name_error enable_legacy_encoding disable_oer \
-	disableUserInformation freeTextLinkerOptions
+	disableUserInformation freeTextLinkerOptions oop_features
 
 ifdef DYN
 DIRS += required_config_v3 splitting compile_once
