@@ -6625,6 +6625,31 @@ namespace Ttcn {
     if (!checked) chk();
     return output_type;
   }
+  
+  bool Def_Function_Base::is_identical(Def_Function_Base* p_other)
+  {
+    if (asstype != p_other->get_asstype()) {
+      return false;
+    }
+    else if (return_type != NULL &&
+             !p_other->return_type->is_identical(return_type)) {
+      return false;
+    }
+    FormalParList* other_fp_list = p_other->get_FormalParList();
+    if (other_fp_list->get_nof_fps() != fp_list->get_nof_fps()) {
+      return false;
+    }
+    for (size_t i = 0; i < fp_list->get_nof_fps(); ++i) {
+      FormalPar* fp1 = fp_list->get_fp_byIndex(i);
+      FormalPar* fp2 = other_fp_list->get_fp_byIndex(i);
+      if (fp1->get_asstype() != fp2->get_asstype() ||
+          !fp1->get_Type()->is_identical(fp2->get_Type()) ||
+          fp1->get_id().get_name() != fp2->get_id().get_name()) {
+        return false;
+      }
+    }
+    return true;
+  }
 
 
   // =================================
@@ -7475,7 +7500,7 @@ namespace Ttcn {
     checked = true;
     Error_Context cntxt(this, "In external function definition `%s'",
       id->get_dispname().c_str());
-    if (!ext_keyword && my_scope->get_scope_class()->is_external()) {
+    if (!ext_keyword && !my_scope->get_scope_class()->is_external()) {
       error("Missing function body or `external' keyword");
     }
     fp_list->chk(asstype);
@@ -8085,59 +8110,6 @@ namespace Ttcn {
       fp_list->set_genname(get_genname());
     }
     // TODO: with attributes
-  }
-  
-  void Def_AbsFunction::chk_implementation(Common::Assignment* p_ass, Location* p_loc)
-  {
-    switch (p_ass->get_asstype()) {
-    case A_FUNCTION:
-    case A_FUNCTION_RVAL:
-    case A_FUNCTION_RTEMP: {
-      Def_Function* def_func = dynamic_cast<Def_Function*>(p_ass);
-      if (def_func == NULL) {
-        // it's an abstract function, which means it hasn't been implemented
-        p_loc->error("Missing implementation of abstract method `%s'",
-          get_fullname().c_str());
-      }
-      else {
-        // check whether they're identical
-        bool match = true;
-        if (asstype != p_ass->get_asstype()) {
-          match = false;
-        }
-        else if (return_type != NULL &&
-                 !def_func->get_return_type()->is_identical(return_type)) {
-          match = false;
-        }
-        else {
-          FormalParList* other_fp_list = def_func->get_FormalParList();
-          if (other_fp_list->get_nof_fps() != fp_list->get_nof_fps()) {
-            match = false;
-          }
-          else {
-            for (size_t i = 0; i < fp_list->get_nof_fps(); ++i) {
-              FormalPar* fp1 = fp_list->get_fp_byIndex(i);
-              FormalPar* fp2 = other_fp_list->get_fp_byIndex(i);
-              if (fp1->get_asstype() != fp2->get_asstype() ||
-                  !fp1->get_Type()->is_identical(fp2->get_Type()) ||
-                  fp1->get_id().get_name() != fp2->get_id().get_name()) {
-                match = false;
-              }
-            }
-          }
-        }
-        if (!match) {
-          p_ass->error("The prototype of method `%s' is not identical to that "
-            "of inherited abstract method `%s'",
-            def_func->get_id().get_dispname().c_str(), get_fullname().c_str());
-        }
-      }
-      break; }
-    default:
-      p_ass->error("%s shadows inherited abstract method `%s'",
-        p_ass->get_description().c_str(), get_fullname().c_str());
-      break;
-    }
   }
   
   void Def_AbsFunction::generate_code(output_struct* target, bool)

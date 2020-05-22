@@ -3578,6 +3578,7 @@ optAbstractModifier:
 optExtendsClassDef:
   /* empty */                   { $$ = NULL; }
 | ExtendsKeyword ReferencedType { $$ = $2; }
+| ExtendsKeyword ObjectKeyword  { $$ = NULL; }
 ;
 
 optFinallyDef:

@@ -114,15 +114,11 @@ type class C6 { //^In type definition//
 }
 
 
-type class C7 extends C9 { //^In type definition// //^In superclass definition//
-  public const integer x1 := 1;
-}
+type class C7 extends C9 { } //^In type definition// //^In superclass definition//
 
-type class C8 extends C7 { //^In type definition// //While checking embedded recursions\: Circular reference\: `@oop_SE.C8' -> `@oop_SE.C8.<superclass>' -> `@oop_SE.C7' -> `@oop_SE.C7.<superclass>' -> `@oop_SE.C9' -> `@oop_SE.C9.<superclass>' -> `@oop_SE.C8'//
-  private var integer x2;
-}
+type class C8 extends C7 { } //^In type definition// //While checking embedded recursions\: Circular reference\: `@oop_SE.C8' -> `@oop_SE.C8.<superclass>' -> `@oop_SE.C7' -> `@oop_SE.C7.<superclass>' -> `@oop_SE.C9' -> `@oop_SE.C9.<superclass>' -> `@oop_SE.C8'//
 
-type class C9 extends C8 {} //^In type definition// //^In superclass definition//
+type class C9 extends C8 { } //^In type definition// //^In superclass definition//
 
 external const C0 ec_c0; //^In external constant definition// //External constant cannot be defined for class type `@oop_SE.C0'//
 external const object ec_obj; //^In external constant definition// //External constant cannot be defined for class type `object'//
@@ -343,42 +339,42 @@ function f_inst_abstract() { //^In function definition//
 }
 
 type class @abstract C25 {
-  public function @abstract f_abs() return integer;
+  public function @abstract f_abs(inout template integer p) return integer;
 }
 
 type class @abstract C26 extends C25 {
-  public function @abstract f_abs2(inout template integer p);
+  public function @abstract f_abs2();
 }
 
 type class C27 extends C26 { } //^In type definition// //Missing implementation of abstract method `@oop_SE.C25.f_abs'// //Missing implementation of abstract method `@oop_SE.C26.f_abs2'//
 
 type class C28 extends C25 { //^In type definition//
-  public var integer f_abs; //variable `@oop_SE.C28.f_abs' shadows inherited abstract method `@oop_SE.C25.f_abs'//
+  public var integer f_abs; //variable `@oop_SE.C28.f_abs' shadows inherited method `@oop_SE.C25.f_abs'//
 }
 
 type class C29 extends C26 { //^In type definition// //Missing implementation of abstract method `@oop_SE.C25.f_abs'//
-  public function f_abs2(inout template integer p) { }
+  public function f_abs2() { }
 }
 
 type class C30 extends C26 {
-  public function f_abs() return integer { return 1; }
-  public function f_abs2(inout template integer p) { }
+  public function f_abs(inout template integer p) return integer { return 1; }
+  public function f_abs2() { }
 }
 
 type class C31 extends C25 { //^In type definition//
-  public function f_abs(in template integer p) { } //The prototype of method `f_abs' is not identical to that of inherited abstract method `@oop_SE.C25.f_abs'//
+  public function f_abs(in template integer p) { } //The prototype of method `f_abs' is not identical to that of inherited method `@oop_SE.C25.f_abs'//
 }
 
 type class C32 extends C25 { //^In type definition//
-  public function f_abs(inout integer p) { } //The prototype of method `f_abs' is not identical to that of inherited abstract method `@oop_SE.C25.f_abs'//
+  public function f_abs(inout integer p) { } //The prototype of method `f_abs' is not identical to that of inherited method `@oop_SE.C25.f_abs'//
 }
 
 type class C33 extends C25 { //^In type definition//
-  public function f_abs(inout template integer q) { } //The prototype of method `f_abs' is not identical to that of inherited abstract method `@oop_SE.C25.f_abs'//
+  public function f_abs(inout template integer q) { } //The prototype of method `f_abs' is not identical to that of inherited method `@oop_SE.C25.f_abs'//
 }
 
 type class C34 extends C25 { //^In type definition//
-  public function f_abs(inout template integer p) return boolean { return false; } //The prototype of method `f_abs' is not identical to that of inherited abstract method `@oop_SE.C25.f_abs'//
+  public function f_abs(inout template integer p) return boolean { return false; } //The prototype of method `f_abs' is not identical to that of inherited method `@oop_SE.C25.f_abs'//
 }
 
 type class @abstract C35 {
@@ -433,8 +429,8 @@ function f_default() { //^In function definition//
 }
 
 
-type external class C40 { //^In type definition//
-  function f1(in integer p) return octetstring; //^In external function definition// //Missing function body or `external' keyword//
+type external class C40 {
+  function f1(in integer p) return octetstring;
   external function f2();
 }
 
@@ -457,6 +453,26 @@ type external class C43 extends C39 { } //^In type definition// //^In superclass
 
 type class C44 extends C40 {
   external function f();
+}
+
+type class C45 { //^In type definition//
+  function f(); //^In external function definition// //Missing function body or `external' keyword//
+}
+
+
+type class C46 extends object { }
+
+
+type class C47 {
+  const integer m1 := 3;
+  function m2() return boolean { return true; }
+  function m3(in integer p) return charstring { return int2str(p); }
+}
+
+type class C48 extends C47 { //^In type definition//
+  var template octetstring m1; //template variable `@oop_SE.C48.m1' shadows inherited member `@oop_SE.C47.m1'//
+  var integer m2; //variable `@oop_SE.C48.m2' shadows inherited method `@oop_SE.C47.m2'//
+  function m3() return charstring { return "1"; } //The prototype of method `m3' is not identical to that of inherited method `@oop_SE.C47.m3'//
 }
 
 

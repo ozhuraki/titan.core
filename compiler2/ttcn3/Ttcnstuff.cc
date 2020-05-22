@@ -3200,7 +3200,7 @@ namespace Ttcn {
     if (members->has_local_ass_withId(p_id)) {
       return true;
     }
-    if (base_type != NULL) {
+    if (base_class != NULL) {
       return base_class->has_local_ass_withId(p_id);
     }
     else {
@@ -3415,7 +3415,56 @@ namespace Ttcn {
       }
     }
     
-    if (constructor == NULL) {
+    bool name_clash = false;
+    if (base_class != NULL) {
+      for (size_t i = 0; i < members->get_nof_asss(); ++i) {
+        Common::Assignment* local_def = members->get_ass_byIndex(i, false);
+        const Common::Identifier& local_id = local_def->get_id();
+        if (local_def->get_asstype() != Common::Assignment::A_CONSTRUCTOR &&
+            base_class->has_local_ass_withId(local_id)) {
+          Common::Assignment* base_def = base_class->get_local_ass_byId(local_id);
+          switch (local_def->get_asstype()) {
+          case Common::Assignment::A_FUNCTION:
+          case Common::Assignment::A_FUNCTION_RVAL:
+          case Common::Assignment::A_FUNCTION_RTEMP:
+          case Common::Assignment::A_EXT_FUNCTION:
+          case Common::Assignment::A_EXT_FUNCTION_RVAL:
+          case Common::Assignment::A_EXT_FUNCTION_RTEMP:
+            switch (base_def->get_asstype()) {
+            case Common::Assignment::A_FUNCTION:
+            case Common::Assignment::A_FUNCTION_RVAL:
+            case Common::Assignment::A_FUNCTION_RTEMP:
+            case Common::Assignment::A_EXT_FUNCTION:
+            case Common::Assignment::A_EXT_FUNCTION_RVAL:
+            case Common::Assignment::A_EXT_FUNCTION_RTEMP: {
+              Def_Function_Base* local_func = dynamic_cast<Def_Function_Base*>(local_def);
+              Def_Function_Base* base_func = dynamic_cast<Def_Function_Base*>(base_def);
+              if (!local_func->is_identical(base_func)) {
+                local_def->error("The prototype of method `%s' is not identical "
+                  "to that of inherited method `%s'",
+                  local_id.get_dispname().c_str(), base_def->get_fullname().c_str());
+              }
+              break; }
+            default:
+              local_def->error("%s shadows inherited member `%s'",
+                local_def->get_description().c_str(), base_def->get_fullname().c_str());
+              name_clash = true;
+              break;
+            }
+            break;
+          default:
+            local_def->error("%s shadows inherited %s `%s'",
+              local_def->get_description().c_str(),
+              dynamic_cast<Def_Function_Base*>(base_def) != NULL ? "method" : "member",
+              base_def->get_fullname().c_str());
+            name_clash = true;
+            break;
+          }
+        }
+      }
+    }
+    
+    if (constructor == NULL && !name_clash) {
       // create a default constructor
       Reference* base_call = NULL;
       FormalParList* fp_list = NULL;
@@ -3521,10 +3570,7 @@ namespace Ttcn {
           Def_AbsFunction* def_abs_func = dynamic_cast<Def_AbsFunction*>(ass);
           if (def_abs_func != NULL) {
             const string& def_name = def_abs_func->get_id().get_name();
-            if (abstract_functions.has_key(def_name)) {
-              // TODO
-            }
-            else {
+            if (!abstract_functions.has_key(def_name)) {
               abstract_functions.add(def_name, def_abs_func);
             }
           }
@@ -3539,10 +3585,25 @@ namespace Ttcn {
       // all abstract methods from the base class have to be implemented in this class
       for (size_t i = 0; i < base_class->abstract_functions.size(); ++i) {
         Def_AbsFunction* def_abs_func = base_class->abstract_functions.get_nth_elem(i);
-        def_abs_func->chk_implementation(get_local_ass_byId(def_abs_func->get_id()), this);
+        Common::Assignment* ass = get_local_ass_byId(def_abs_func->get_id());
+        switch (ass->get_asstype()) {
+        case Common::Assignment::A_FUNCTION:
+        case Common::Assignment::A_FUNCTION_RVAL:
+        case Common::Assignment::A_FUNCTION_RTEMP: {
+          if (dynamic_cast<Def_AbsFunction*>(ass) != NULL) {
+            error("Missing implementation of abstract method `%s'",
+              def_abs_func->get_fullname().c_str());
+          }
+          // whether the new function is identical to the abstract one has
+          // already been checked
+          break; }
+        default:
+          // it's either an external function (which is OK), or
+          // it's shadowed by a member (error has already been reported)
+          break;
+        }
       }
     }
-    // todo: name clashes with defs in the base class?
   }
   
   void ClassTypeBody::chk_recursions(ReferenceChain& refch)
