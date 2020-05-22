@@ -395,7 +395,7 @@ static boolean is_valid_asn1_filename(const char* file_name)
 static void usage()
 {
   fprintf(stderr, "\n"
-    "usage: %s [-abcdDeEfFgiIjlLMnNOpqrRsStuwxXyY0] [-J file] [-K file] [-z file] [-V verb_level]\n"
+    "usage: %s [-abcdDeEfFgiIjklLMnNOpqrRsStuwxXyY0] [-J file] [-K file] [-z file] [-V verb_level]\n"
     "	[-o dir] [-U none|type|'number'] [-P modulename.top_level_pdu_name] [-Q number] ...\n"
     "	[-T] module.ttcn [-A] module.asn ...\n"
     "	or  %s -v\n"
@@ -417,6 +417,7 @@ static void usage()
     "	-I:		enable real-time testing features\n"
     "	-j:		disable JSON encoder/decoder functions\n"
     "	-J file:	read input files from file\n"
+    "	-k:		enable object-oriented features\n"
     "	-K file:	enable selective code coverage\n"
     "	-l:		include source line info in C++ code\n"
     "	-L:		add source line info for logging\n"

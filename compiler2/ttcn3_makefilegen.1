@@ -3,7 +3,7 @@
 ttcn3_makefilegen \- Makefile Generator
 .SH SYNOPSIS
 .B ttcn3_makefilegen
-.RB "[\| " \-acdEfgilMnpRsSw " \|]"
+.RB "[\| " \-acdEfgiklMnpRsSw " \|]"
 .RB "[\| " \-e
 .IR " ETS_name" " \|]"
 .RB "[\| " \-o
@@ -85,6 +85,9 @@ The first TPD file found is taken. If the tpdName attribute is present in
 during search. However if the tpdName attribute is missing then the value
 of the name attribute is taken with the .tpd suffix and used during the
 search.
+.TP
+.B \-k
+Enables object-oriented features.
 .TP
 .BI \-o " dir|file"
 Write the Makefile to the given directory or file.

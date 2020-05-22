@@ -7475,6 +7475,9 @@ namespace Ttcn {
     checked = true;
     Error_Context cntxt(this, "In external function definition `%s'",
       id->get_dispname().c_str());
+    if (!ext_keyword && my_scope->get_scope_class()->is_external()) {
+      error("Missing function body or `external' keyword");
+    }
     fp_list->chk(asstype);
     if (return_type) {
       Error_Context cntxt2(return_type, "In return type");

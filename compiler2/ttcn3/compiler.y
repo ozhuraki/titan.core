@@ -3654,12 +3654,20 @@ ClassFunctionDef:
       $9.template_restriction);
     $$->set_location(infile, @$);
   }
-| ExtKeyword FunctionKeyword optFinalModifier optAbstractModifier
+| ExtKeyword FunctionKeyword optFinalModifier
   optDeterministicModifier IDentifier '(' optFunctionFormalParList ')'
   optReturnType
   {
-    $$ = new Def_ExtFunction($5, $6, $8, $10.type, $10.returns_template,
-      $10.template_restriction);
+    $$ = new Def_ExtFunction($4, $5, $7, $9.type, $9.returns_template,
+      $9.template_restriction, true);
+    $$->set_location(infile, @$);
+  }
+| FunctionKeyword optFinalModifier
+  optDeterministicModifier IDentifier '(' optFunctionFormalParList ')'
+  optReturnType
+  {
+    $$ = new Def_ExtFunction($3, $4, $6, $8.type, $8.returns_template,
+      $8.template_restriction, false);
     $$->set_location(infile, @$);
   }
 ;
@@ -5634,7 +5642,7 @@ ExtFunctionDef: // 276
   {
     $6->set_location(infile, @5, @7);
     $$ = new Def_ExtFunction($3, $4, $6, $8.type, $8.returns_template,
-                             $8.template_restriction);
+                             $8.template_restriction, true);
     $$->set_location(infile, @$);
   }
 ;

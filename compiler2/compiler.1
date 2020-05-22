@@ -3,7 +3,7 @@
 compiler \- TTCN-3 and ASN.1 to C++ translator
 .SH SYNOPSIS
 .B compiler
-.RB "[\| " \-abcdDeEfFgiIjlLMnNpqrRsStuwxXyY0 " \|]"
+.RB "[\| " \-abcdDeEfFgiIjklLMnNpqrRsStuwxXyY0 " \|]"
 .RB "[\| " \-V
 .IR " verb_level" " \|]"
 .RB "[\| " \-J
@@ -130,6 +130,9 @@ Disables JSON encoder/decoder functions.
 .TP
 .BI \-J " file"
 Read a list of input files from the provided file.
+.TP
+.B \-k
+Enables object-oriented features.
 .TP
 .BI \-K " file"
 Enables selective code coverage.

@@ -398,7 +398,7 @@ type class C37 {
   create() {}
 }
 
-function f_left_hand_side() { //^In function definition//
+function f_global_left_hand_side() { //^In function definition//
   var C37 x := C37.create;
   x.c := 2; //^In variable assignment// //Reference to a variable or template variable was expected instead of constant `@oop_SE.C37.c'//
   x.t := *; //^In variable assignment// //Reference to a variable or template variable was expected instead of template `@oop_SE.C37.t'//
@@ -407,15 +407,56 @@ function f_left_hand_side() { //^In function definition//
   x.f2() := "x"; //^In variable assignment// //Reference to a variable or template variable was expected instead of function `@oop_SE.C37.f2'//
 }
 
+type class C38 extends C37 { //^In type definition//
+  public function f1() return Rec { return { 3, "b" }; }
+  public function f2() return template charstring { return omit; }
+  function f_class_left_hand_side() { //^In function definition//
+    this := null; //^In variable assignment// //Reference to a variable or template variable was expected instead of type `@oop_SE.C38'//
+    this.c := 4; //^In variable assignment// //Reference to a variable or template variable was expected instead of constant `@oop_SE.C37.c'//
+    this.t := ?; //^In variable assignment// //Reference to a variable or template variable was expected instead of template `@oop_SE.C37.t'//
+    this.f1().str := "x"; //^In variable assignment// //Reference to a variable or template variable was expected instead of function `@oop_SE.C38.f1'//
+    this.f2() := ?; //^In variable assignment// //Reference to a variable or template variable was expected instead of function `@oop_SE.C38.f2//
+    super.f1().str := "x"; //^In variable assignment// //Reference to a variable or template variable was expected instead of function `@oop_SE.C38.f1'//
+    super.f2() := ?; //^In variable assignment// //Reference to a variable or template variable was expected instead of function `@oop_SE.C38.f2//
+  }
+}
 
-type class C38 {
+
+type class C39 {
   public function f_def(in integer p := 3) return integer { return p; }
 }
 
 function f_default() { //^In function definition//
-  var C38 x := C38.create;
-  var integer ret1 := x.f_def; //^In variable definition// //Invalid reference to method `f_def' in class type `@oop_SE.C38', reference to a member was expected instead//
+  var C39 x := C39.create;
+  var integer ret1 := x.f_def; //^In variable definition// //Invalid reference to method `f_def' in class type `@oop_SE.C39', reference to a member was expected instead//
   var integer ret2 := x.f_def();
+}
+
+
+type external class C40 { //^In type definition//
+  function f1(in integer p) return octetstring; //^In external function definition// //Missing function body or `external' keyword//
+  external function f2();
+}
+
+type external class C41 { //^In type definition//
+  const charstring c := "a"; //An external class cannot contain a constant//
+  template charstring t := "b"; //An external class cannot contain a template//
+  var charstring v; //An external class cannot contain a variable//
+  var template charstring vt; //An external class cannot contain a template variable//
+  timer tmr; //An external class cannot contain a timer//
+  function f1() { } //An external class cannot contain a function//
+  function f2(in charstring x) return charstring { return x; } //An external class cannot contain a function//
+  function f3() return template charstring { return ?; } //An external class cannot contain a function//
+}
+
+type external class @abstract C42 { //^In type definition// //External classes cannot be abstract//
+  function @abstract f(); //An external class cannot contain a function//
+}
+
+type external class C43 extends C39 { } //^In type definition// //^In superclass definition// //An external class cannot extend an internal class//
+
+type class C44 extends C40 {
+  external function f();
 }
 
 
