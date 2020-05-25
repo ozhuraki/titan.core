@@ -26,7 +26,7 @@ Cygwin setup
    (A) Download and execute the latest cygwin installer utility, 
        please use the 64-bit version installer:
        https://cygwin.com/setup-x86_64.exe
-       Latest setup version 2.900 (64 bit)
+       Latest setup version 2.904 (64 bit)
   
    (B) Select Install from Internet (recommended to save local disk space)
    

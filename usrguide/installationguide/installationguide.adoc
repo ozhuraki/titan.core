@@ -1,13 +1,13 @@
 ---
 Author: Jenő Balaskó
-Version: 1/1531-CRL 113 200/6, Rev. G
-Date: 2019-11-29
+Version: 1/1531-CRL 113 200/7, Rev. H
+Date: 2020-05-29
 
 ---
 = Installation Guide for the TITAN TTCN-3 Test Executor
 :author: Jenő Balaskó
-:revnumber: 1/1531-CRL 113 200/6, Rev. G
-:revdate: 2019-11-29
+:revnumber: 1/1531-CRL 113 200/7, Rev. H
+:revdate: 2020-05-29
 :title-logo-image: images/titan_logo.png
 :sectnums:
 :doctype: book
@@ -338,11 +338,11 @@ Perform the following steps to install the license key:
 ....
 $ compiler -v
 TTCN-3 and ASN.1 Compiler for the TTCN-3 Test Executor
-Product number: CRL 113 200/6 R6B
-Version: 6.6.pl1
-Build date: Nov 19 2019 15:46:24
-Compiled with: GCC 7.3.0
-Using OpenSSL 1.0.2p  14 Aug 2018
+Product number: CRL 113 200/7 R1A
+Version: 7.1.pl0
+Build date: May 25 2020 11:14:19
+Compiled with: GCC 9.3.0
+Using OpenSSL 1.1.1f  31 Mar 2020
 
 Copyright (c) 2000-2020 Ericsson Telecom AB
 
@@ -355,7 +355,7 @@ E-mail       : jeno.balasko@ericsson.com
 Company      : Ericsson Hungary
 Department   : ETH/
 Valid from   : Fri Sep 20 00:00:00 2002
-Valid until  : Sat Mar 28 23:59:59 2020
+Valid until  : Sat Apr 17 23:59:59 2021
 Limitation   : USER
 Host ID      : 00000000
 Login name   : ethbaat

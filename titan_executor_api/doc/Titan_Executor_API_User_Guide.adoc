@@ -1,13 +1,13 @@
 ---
 Author: Arpad Lovassy
-Version: 8/198 17-CRL 113 200/6, Rev. G
-Date: 2019-11-29
+Version: 8/198 17-CRL 113 200/7, Rev. H
+Date: 2020-05-29
 
 ---
 = Titan Executor API User Guide
 :author: Arpad Lovassy
-:revnumber: 8/198 17-CRL 113 200/6, Rev. G
-:revdate: 2019-11-29
+:revnumber: 8/198 17-CRL 113 200/7, Rev. H
+:revdate: 2020-05-29
 :title-logo-image: images/titan_logo.png
 :sectnums:
 :doctype: book

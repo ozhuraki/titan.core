@@ -1,13 +1,13 @@
 ---
 Author: Kristóf Szabados
-Version: 10/198 17-CRL 113 200/6, Rev. G
-Date: 2019-11-29
+Version: 10/198 17-CRL 113 200/7, Rev. H
+Date: 2020-05-29
 
 ---
 = Programmers' Technical Reference Guide for the Java side of the TITAN TTCN-3 Toolset
 :author: Kristóf Szabados
-:revnumber: 10/198 17-CRL 113 200/6, Rev. G
-:revdate: 2019-11-29
+:revnumber: 10/198 17-CRL 113 200/7, Rev. H
+:revdate: 2020-05-29
 :title-logo-image: images/titan_logo.png
 :sectnums:
 :doctype: book

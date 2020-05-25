@@ -47,7 +47,9 @@ Enforces legacy behavior when matching the value `omit`. Allows the use of the v
 Forces the code generator to generate the full classes for record of and set of types.
 When turned off, and the of type of the set of/record of type is a basic type, the generated code will only refer to pre-generated classes in the runtime library, saving compilation time.
 
-
+* `Enable object oriented programming - OOP  (-k)`
++
+Enable object oriented programming language elements. It is not working yet on Titan Java Projects. Syntactic and semantic analyzer and java compiler do not support OOP yet. 
 
 == Makefile Generator
 
