@@ -269,6 +269,15 @@ testcase tc_equality() runs on CT {
   if (v_ref2 != v_base) {
     setverdict(fail, "Inequality of object and indirect reference to object failed");
   }
+  
+  var SubClass v_sub := SubClass.create(4, { 1, 2, 4 }, "a", 'FF'O, (0.0 .. 10.0));
+  var BaseClass v_ref3 := v_sub;
+  if (not v_ref3 == v_sub) {
+    setverdict(fail, "Equality of subclass object and superclass reference failed");
+  }
+  if (v_ref3 != v_sub) {
+    setverdict(fail, "Inquality of subclass object and superclass reference failed");
+  }
   setverdict(pass);
 }
 

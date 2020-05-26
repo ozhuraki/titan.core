@@ -79,6 +79,19 @@ public:
     }
   }
   
+  template <typename T2>
+  OBJECT_REF(OBJECT_REF<T2>& p_other) {
+    if (p_other != NULL_VALUE) {
+      ptr = dynamic_cast<T*>(*p_other);
+      if (ptr != NULL) {
+        ptr->add_ref();
+      }
+      else {
+        TTCN_error("Invalid dynamic type of initial value.");
+      }
+    }
+  }
+  
   void clean_up() {
     if (ptr != NULL) {
       if (ptr->remove_ref()) {
@@ -102,6 +115,21 @@ public:
     if (p_other.ptr != NULL) {
       ptr = p_other.ptr;
       ptr->add_ref();
+    }
+    return *this;
+  }
+  
+  template <typename T2>
+  OBJECT_REF& operator=(OBJECT_REF<T2>& p_other) {
+    clean_up();
+    if (p_other != NULL_VALUE) {
+      ptr = dynamic_cast<T*>(*p_other);
+      if (ptr != NULL) {
+        ptr->add_ref();
+      }
+      else {
+        TTCN_error("Invalid dynamic type of assigned value.");
+      }
     }
     return *this;
   }
