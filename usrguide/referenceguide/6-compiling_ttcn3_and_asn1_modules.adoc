@@ -18,7 +18,7 @@ The program compiler resides in the directory `$TTCN3_DIR/bin`.
 The command line syntax of the compiler is the following:
 
 [source]
-compiler [ -abBcdDeEfFgiIjlLMnNOpqrRstuwxXyY0 ] [ -J file ] [ -K file ] [ -z file ] [ -N old|new ][ -o dir ] [ -V n ] [ -P toplevel pdu ] [ -Qn ] [ -U none|type|"number" ] …[ -T ] module.ttcn [ -A ] module.asn … [ - module.ttcn module.asn … ]
+compiler [ -abBcdDeEfFgiIjklLMnNOpqrRstuwxXyY0 ] [ -J file ] [ -K file ] [ -z file ] [ -N old|new ][ -o dir ] [ -V n ] [ -P toplevel pdu ] [ -Qn ] [ -U none|type|"number" ] …[ -T ] module.ttcn [ -A ] module.asn … [ - module.ttcn module.asn … ]
 
 or
 
@@ -129,6 +129,10 @@ Enables the use of real-time testing features, i.e. the test system clock ('now'
 * `-j`
 +
 Disables the generation of JSON encoder/decoder routines for all TTCN–3 types.
+
+* `-k`
++
+Enables the use of object-oriented features. These features are disabled by default for backward compatibility.
 
 * `-K file`
 +
@@ -330,7 +334,7 @@ The command line syntax of the makefile generator is the following:
 
 [source]
 ----
-usage: makefilegen [-abcdDEfFgGilLmMnNprRsStTVwWXZ] [-K file] [-P dir]
+usage: makefilegen [-abcdDEfFgGiklLmMnNprRsStTVwWXZ] [-K file] [-P dir]
 [-J file] [-U none|type|"number"] [-e ets_name] [-o dir|file] [-z file]
 [-t project_descriptor.tpd [-b buildconfig]] [-I path] [-O file]
 TTCN3_module[.ttcn] ... ASN1_module[.asn] ... XSD_MODULE.xsd ... Testport_name[.cc] ...
@@ -390,6 +394,10 @@ Add path to the list of search paths which are used to search for referred TPD-s
 * `-J file`
 +
 The `makefilegen` tool will read the input files form `file` which must contain the input files separated by spaces. Every file that is in the `file` is treated as if they were passed to the `makefilegen` tool directly.
+
+* `-k`
++
+Enables the use of object-oriented features. These features are disabled by default for backward compatibility.
 
 * `-K file`
 +

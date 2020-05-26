@@ -8883,7 +8883,7 @@ For example when a `port.send()` statement is executed in a translation function
 
 TITAN supports the real-time testing features described in chapter 5 of the TTCN-3 standard extension `TTCN-3 Performance and Real Time Testing` (ETSI ES 202 782 V1.3.1, <<13-references.adoc#_26, [26]>>) with the differences and limitations described in this section.
 
-* The real-time testing features are disabled by default. They can be activated with the compiler command line option `-I`.
+* The real-time testing features are disabled by default. They can be activated with the compiler command line option `-I`. When real-time testing features are disabled, the names `now`, `realtime`, and `timestapm` can be used as identifiers (for backward compatibility).
 * The `stepsize` setting is not supported. The symbol `now` always returns the current test system time with microsecond precision (i.e. 6 decimal precision).
 * While the compiler allows timestamp redirects (`-> timestamp`) to be used in all situations indicated by the standard, they only store a valid timestamp if one was stored in the user-defined port's C++ code (as specified in the API guide, <<13-references.adoc#_16, [16]>>). Timestamp redirects on connected (internal) ports don't do anything, and the referenced variable remains unchanged (see example below).
 * Timestamp redirects also work on ports in translation mode, as long as both the translation port type and the provider port type have the `realtime` clause. Timestamp redirects can also be used inside translation functions (i.e. the `port.send` and `port.receive` statements can also have timestamp redirects).
@@ -8965,3 +8965,79 @@ void PT::outgoing_send(const INTEGER& send_par, FLOAT* timestamp_redirect)
   incoming_message(send_par, TTCN_Runtime::now());
 }
 ----
+
+
+== Object-oriented features
+
+TITAN supports the object-oriented programming features described in chapter 5 of the TTCN-3 standard extension `Object-Oriented Features` (ETSI ES 203 790 V1.1.1, <<13-references.adoc#_27, [27]>>) with the clarifications and limitations described in this section.
+
+* The object-oriented features are disabled by default. They can be activated with the compiler command line option `-k`. When object-oriented features are disabled, the names `class`, `finally`, `this`, `super` and `object` can be used as identifiers (for backward compatibility).
+* Class types cannot be embedded into other structured types (i.e. as `records`, `sets`, `record ofs`, `set ofs`, `arrays`, `unions` and the `anytype`), only into other class types.
+* Class members of `port` and `port array` types are not allowed.
+* Class member `templates` cannot have parameters.
+* Exceptions are not currently supported.
+* Unhandled dynamic test case errors inside the destructor of a class cause the program to terminate (due to C++ limitations).
+* The `with` attributes of class members and methods are currently ignored.
+* Members of `timer` and `timer array` types cannot be initialized in the constructor, and the default constructor doesn't add a formal parameter for the initialization of these members.
+* Class member `constants` and `templates` must have initial values in their declaration, just like global `constants` and `templates`. These can be overwritten in the constructor. The default constructor always adds a formal parameter for these members and overwrites their initial values from their declarations with the parameter values.
+
+Default constructor example:
+[source]
+----
+type class MyClass {
+  private const integer c := 0;
+  private template MyRecordType t := *;
+  private var MyOtherClass v;
+  private var template charstring vt;
+  private timer tmr;
+  private timer tmr_arr[3];
+  // default constructor:
+  // create(in integer c, in template MyRecordType t, in MyOtherClass v, in template charstring vt) {
+  //   this.c := c;
+  //   this.t := t;
+  //   this.v := v;
+  //   this.vt := vt;
+  // }
+}
+----
+
+* The constructor of a subclass must call the superclass' constructor, if the super-constructor has at least one formal parameter without a default value. (This is in accordance with V1.2.1 of the standard extension, not V1.1.1.)
+* The result of logging an instance of a class is similar to that of a `record` value, except it is preceded by the class name (before the braces), and by the log of the superclass, if there is one (after the left brace, before the logs of members).
+
+Logging example:
+[source]
+----
+type class MyClass2 {
+  private var integer num;
+  private var charstring str;
+}
+
+type class MyClass3 extends MyClass2 {
+  private var template octetstring temp;
+}
+
+...
+
+var MyClass3 my_object := MyClass3.create(3, "abc", ?);
+log(my_object); // result: MyClass3: { MyClass2: { num := 3, str := "abc" }, temp := ? }
+----
+
+Note: Even though every class automatically extends the built-in class `object`, if it has no superclass specified, this class does not appear in the log.
+
+* Two object references are only equal, if they both refer to the same object, or if they are both `null`. Two separate objects with equal members are not equal with each other.
+
+Equality example:
+[source]
+----
+var MyClass3 my_object1 := MyClass3.create(3, "abc", ?);
+var MyClass3 my_object2 := my_object1;
+var MyClass3 my_object3 := MyClass3.create(3, "abc", ?);
+log(my_object1 == my_object2); // true
+log(my_object1 == my_object3); // false
+----
+
+* The reference `this` can be used inside a class method, constructor or destructor to access members and methods of the class. The stand-alone `this` refers to the object itself.
+* The reference `super` can be used inside a class method, constructor or destructor to access methods of the superclass.
+* The predefined functions `isbound`, `isvalue` and `ispresent`, with an object reference as parameter, return true, if the object reference is not `null`.
+* External classes and external methods in classes cannot be abstract.
+* A definition in the subclass can only have the same name as a definition in one of the superclasses, if both are methods (incl. external or abstract), and both have the same prototype (i.e. identical return type, identical formal parameter names, types and direction).
