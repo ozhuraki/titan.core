@@ -1034,5 +1034,5 @@ if (timestamp_redirect != NULL) {
 }
 ----
 
-Note: Because of this extra parameter, adding or removing the `realtime` clause from a port will cause already-written C++ code for the port to no longer compile. In these cases the new parameters must be manually added or removed from the mentioned functions, or the user-written code copied to newly-generated test port skeletons.
+NOTE: Because of this extra parameter, adding or removing the `realtime` clause from a port will cause already-written C++ code for the port to no longer compile. In these cases the new parameters must be manually added or removed from the mentioned functions, or the user-written code copied to newly-generated test port skeletons.
 

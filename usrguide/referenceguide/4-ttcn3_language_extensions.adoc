@@ -9022,7 +9022,7 @@ var MyClass3 my_object := MyClass3.create(3, "abc", ?);
 log(my_object); // result: MyClass3: { MyClass2: { num := 3, str := "abc" }, temp := ? }
 ----
 
-Note: Even though every class automatically extends the built-in class `object`, if it has no superclass specified, this class does not appear in the log.
+NOTE: Even though every class automatically extends the built-in class `object`, if it has no superclass specified, this class does not appear in the log.
 
 * Two object references are only equal, if they both refer to the same object, or if they are both `null`. Two separate objects with equal members are not equal with each other.
 

@@ -388,7 +388,7 @@ Using the value of an unbound `BITSTRING` variable for anything will cause dynam
 
 The {cpp} class `BITSTRING_ELEMENT` is the equivalent of the TTCN-3 `bitstring`’s element type (the result of indexing a `bitstring` value). The class does not store the actual bit, only a reference to the original `BITSTRING` object, an index value and a bound flag.
 
-Note: changing the value of the `BITSTRING_ELEMENT` (through the assignment operator) changes the referenced bit in the original `bitstring` object.
+NOTE: changing the value of the `BITSTRING_ELEMENT` (through the assignment operator) changes the referenced bit in the original `bitstring` object.
 
 The class `BITSTRING_ELEMENT` has the following public member functions:
 
@@ -499,7 +499,7 @@ Using the value of an unbound `HEXSTRING` variable for anything will cause a dyn
 
 The {cpp} class `HEXSTRING_ELEMENT` is the equivalent of the TTCN-3 `hexstring`’s element type (the result of indexing a `hexstring` value). The class does not store the actual hexadecimal digit (nibble), only a reference to the original HEXSTRING object, an index value and a bound flag.
 
-Note: changing the value of the `HEXSTRING_ELEMENT` (through the assignment operator) changes the referenced nibble in the original `hexstring` object.
+NOTE: changing the value of the `HEXSTRING_ELEMENT` (through the assignment operator) changes the referenced nibble in the original `hexstring` object.
 
 The class `HEXSTRING_ELEMENT` has the following public member functions:
 
@@ -614,7 +614,7 @@ Using the value of an unbound `OCTETSTRING` variable for anything will cause dyn
 
 The {cpp} class `OCTETSTRING_ELEMENT` is the equivalent of the TTCN-3 `octetstring`’s element type (the result of indexing an `octetstring` value). The class does not store the actual octet, only a reference to the original OCTETSTRING object, an index value and a bound flag.
 
-Note: changing the value of the OCTETSTRING_ELEMENT (through the assignment operator) changes the referenced octet in the original `octetstring` object.
+NOTE: changing the value of the OCTETSTRING_ELEMENT (through the assignment operator) changes the referenced octet in the original `octetstring` object.
 
 The class `OCTETSTRING_ELEMENT` has the following public member functions:
 
@@ -757,7 +757,7 @@ CHARSTRING operator+(const char* string_value,
 
 The {cpp} class `CHARSTRING_ELEMENT` is the equivalent of the TTCN-3 `charstring`’s element type (the result of indexing a `charstring` value). The class does not store the actual character, only a reference to the original CHARSTRING object, an index value and a bound flag.
 
-Note: changing the value of the `CHARSTRING_ELEMENT` (through the assignment operator) changes the referenced character in the original `charstring` object.
+NOTE: changing the value of the `CHARSTRING_ELEMENT` (through the assignment operator) changes the referenced character in the original `charstring` object.
 
 The class `CHARSTRING_ELEMENT` has the following public member functions:
 
@@ -941,7 +941,7 @@ UNIVERSAL_CHARSTRING operator+(const char* string_value,
 
 The {cpp} class `UNIVERSAL_CHARSTRING_ELEMENT` is the equivalent of the TTCN-3 `universal charstring`’s element type (the result of indexing a `universal charstring` value). The class does not store the actual character, only a reference to the original `UNIVERSAL_CHARSTRING` object, an index value and a bound flag.
 
-Note: changing the value of the `UNIVERSAL_CHARSTRING_ELEMENT` (through the assignment operator) changes the referenced character in the original `universal charstring` object.
+NOTE: changing the value of the `UNIVERSAL_CHARSTRING_ELEMENT` (through the assignment operator) changes the referenced character in the original `universal charstring` object.
 
 The class `UNIVERSAL_CHARSTRING_ELEMENT` has the following public member functions:
 

@@ -425,7 +425,7 @@ Using the value of an unbound `TitanBitString` variable for anything will cause 
 
 The Java class `TitanBitString_Element` is the equivalent of the TTCN-3 `bitstring`’s element type (the result of indexing a `bitstring` value). The class does not store the actual bit, only a reference to the original `TitanBitString` object, an index value and a bound flag.
 
-Note: changing the value of the `TitanBitString_Element` (through the assignment operator) changes the referenced bit in the original `bitstring` object.
+NOTE: changing the value of the `TitanBitString_Element` (through the assignment operator) changes the referenced bit in the original `bitstring` object.
 
 The class `TitanBitString_Element` has the following public member functions:
 
@@ -537,7 +537,7 @@ Using the value of an unbound `TitanHexString` variable for anything will cause 
 
 The Java class `TitanHexString_Element` is the equivalent of the TTCN-3 `hexstring`’s element type (the result of indexing a `hexstring` value). The class does not store the actual hexadecimal digit (nibble), only a reference to the original TitanHexString object, an index value and a bound flag.
 
-Note: changing the value of the `TitanHexString_Element` (through the assignment operator) changes the referenced nibble in the original `hexstring` object.
+NOTE: changing the value of the `TitanHexString_Element` (through the assignment operator) changes the referenced nibble in the original `hexstring` object.
 
 The class `TitanHexString_Element` has the following public member functions:
 
@@ -646,7 +646,7 @@ Using the value of an unbound `TitanOctetString` variable for anything will caus
 
 The Java class `TitanOctetString_Element` is the equivalent of the TTCN-3 `octetstring`’s element type (the result of indexing an `octetstring` value). The class does not store the actual octet, only a reference to the original TitanOctetString object, an index value and a bound flag.
 
-Note: changing the value of the TitanOctetString_Element (through the assignment operator) changes the referenced octet in the original `octetstring` object.
+NOTE: changing the value of the TitanOctetString_Element (through the assignment operator) changes the referenced octet in the original `octetstring` object.
 
 The class `TitanOctetString_Element` has the following public member functions:
 
@@ -777,7 +777,7 @@ TitanCharString operator_concatenate(final String stringValue, final TitanCharSt
 
 The Java class `TitanCharString_Element` is the equivalent of the TTCN-3 `charstring`’s element type (the result of indexing a `charstring` value). The class does not store the actual character, only a reference to the original TitanCharString object, an index value and a bound flag.
 
-Note: changing the value of the `TitanCharString_Element` (through the assignment operator) changes the referenced character in the original `charstring` object.
+NOTE: changing the value of the `TitanCharString_Element` (through the assignment operator) changes the referenced character in the original `charstring` object.
 
 The class `TitanCharString_Element` has the following public member functions:
 
@@ -954,7 +954,7 @@ TitanUniversalCharString operator_concatenate(final String stringValue, final Ti
 
 The Java class `TitanUniversalCharString_Element` is the equivalent of the TTCN-3 `universal charstring`’s element type (the result of indexing a `universal charstring` value). The class does not store the actual character, only a reference to the original `TitanUniversalCharString` object, an index value and a bound flag.
 
-Note: changing the value of the `TitanUniversalCharString_Element` (through the assignment operator) changes the referenced character in the original `universal charstring` object.
+NOTE: changing the value of the `TitanUniversalCharString_Element` (through the assignment operator) changes the referenced character in the original `universal charstring` object.
 
 The class `TitanUniversalCharString_Element` has the following public member functions:
 

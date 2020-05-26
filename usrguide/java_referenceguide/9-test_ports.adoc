@@ -663,4 +663,4 @@ if (timestamp_redirect != null) {
 }
 ----
 
-Note: Because of this extra parameter, adding or removing the `realtime` clause from a port will cause already-written Java code for the port to no longer compile. In these cases the new parameters must be manually added or removed from the mentioned functions.
+NOTE: Because of this extra parameter, adding or removing the `realtime` clause from a port will cause already-written Java code for the port to no longer compile. In these cases the new parameters must be manually added or removed from the mentioned functions.

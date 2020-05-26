@@ -1,6 +1,6 @@
 = Code Coverage of TTCN-3 Modules
 
-Note: the feature described here is deprecated; please use instead the coverage tool described in <<4-ttcn3_language_extensions.adoc#profiling-and-code-coverage, Profiling and code coverage>>.
+NOTE: the feature described here is deprecated; please use instead the coverage tool described in <<4-ttcn3_language_extensions.adoc#profiling-and-code-coverage, Profiling and code coverage>>.
 
 The TTCN-3 compiler is able to instrument the generated C/{cpp} code for a set of TTCN-3 modules (= or files) to generate code coverage information during runtime. To enable this feature the `-K file` option needs to be used. For convenience this option is available for `ttcn3_makefilegen` as well. It’s possible to generate code coverage information only for a given set of TTCN-3 modules listed on the command line. In that case the set of files in `file` needs to be a subset of the files listed on the command line. If `file` contains a file which is not listed on the command line an error will be issued.
 
