@@ -1,12 +1,12 @@
 ---
 Author: Jenő Balaskó
-Version: 1/1531-CRL 113 200/7, Rev. H
+Version: 1/1531-CRL 113 200/7, Rev. A
 Date: 2020-05-29
 
 ---
 = Installation Guide for the TITAN TTCN-3 Test Executor
 :author: Jenő Balaskó
-:revnumber: 1/1531-CRL 113 200/7, Rev. H
+:revnumber: 1/1531-CRL 113 200/7, Rev. A
 :revdate: 2020-05-29
 :title-logo-image: images/titan_logo.png
 :sectnums:

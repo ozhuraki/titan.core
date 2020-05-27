@@ -1,12 +1,12 @@
 ---
 Author: Elemér Lelik
-Version: 109 47-CRL 113 200/7 Uen, Rev. H
+Version: 109 47-CRL 113 200/7 Uen, Rev. A
 Date: 2020-05-29
 
 ---
 = Release Notes for TITAN TTCN-3 Test Executor
 :author: Elemér Lelik
-:revnumber: 109 47-CRL 113 200/7 Uen, Rev. H
+:revnumber: 109 47-CRL 113 200/7 Uen, Rev. A
 :revdate: 2020-05-29
 :title-logo-image: images/titan_logo.png
 :sectnums:

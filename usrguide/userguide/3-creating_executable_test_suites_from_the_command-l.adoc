@@ -416,7 +416,7 @@ The shell script example below can be used to automate the modification of the `
 [source]
 ----
 #!/bin/sh
-editcmd=’s/CPPFLAGS = -D$(PLATFORM) -I$(TTCN3_DIR)\
+editcmd='s/CPPFLAGS = -D$(PLATFORM) -I$(TTCN3_DIR)\
 /include/CPPFLAGS = -D$(PLATFORM)
 -I$(TTCN3_DIR)\/include -I$(ERLANG_DIR)\
 /include -I$(OPENSSL_DIR)\/include/g
@@ -437,8 +437,8 @@ s/-lcrypto $($(PLATFORM)_LIBS)/-lcrypto \\/g
 a\
 -L$(ERLANG_DIR)/lib -lerl_interface -lei $($(PLATFORM)_LIBS)
 }
-’
-if [ ‘uname‘ = SunOS ]
+'
+if [ 'uname' = SunOS ]
 then
 case ‘uname -r‘ in
 5.6) editcmd="$editcmd
