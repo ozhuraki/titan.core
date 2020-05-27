@@ -1,11 +1,11 @@
 ---
-Author: Elemér Lelik
+Author: Kristof Szabados
 Version: 109 47-CRL 113 200/7 Uen, Rev. A
 Date: 2020-05-29
 
 ---
 = Release Notes for TITAN TTCN-3 Test Executor
-:author: Elemér Lelik
+:author: Kristof Szabados
 :revnumber: 109 47-CRL 113 200/7 Uen, Rev. A
 :revdate: 2020-05-29
 :title-logo-image: images/titan_logo.png
@@ -26,6 +26,29 @@ The document is organized as follows: <<what-s-new-in-this-version,What's new in
 
 [[what-s-new-in-this-version]]
 = What’s new in this version?
+
+[[version-7-1-crl-113-200-7-r1a]]
+== Version 7.1 (CRL 113 200/7 R1A)
+
+This release contains major new features, backward incompatible changes and some bugfixes.
+
+With this release We have also upgraded our licese from Eclipse Plugin License 1.0 to Ecplise Plugin License 2.0.
+
+New Features:
+
+* The C side of the toolset will now support the Object Oriented Extension of the TTCN-3 standard (with some limitations).
+* In the Designer plugin we have parallelised several algorithms resulting in 3-4* faster execution:
+  ** The semantic checking of modules inside the same project.
+  ** Projects in a project hierarchy, not dependent on each other, will not be able to be analysed in parallel.
+  ** The Code Smell checkers of Titanium will also run in parallel.
+* On the Java side of the toolset, we have added support for JSON encoding/decoding (with some limitations).
+
+Backward incompatible changes:
+
+* 'omit' matching mechanism shouldn't be allowed for union fields
+* Compilation issue in the Java code generator when used with very large modules
+
+
 
 [[version-6-6-crl-113-200-6-r6b]]
 == Version 6.6 (CRL 113 200/6 R6B)
@@ -660,6 +683,31 @@ Version 1.1 has the following new features:
 
 [[version-history]]
 = Version history
+
+[[version-crl-113-200-7-r1a]]
+== Version CRL 113 200/7 R1A
+
+Release date: 29th of May 2020
+
+This release contains major new features, backward incompatible changes and some bugfixes.
+
+With this release We have also upgraded our licese from Eclipse Plugin License 1.0 to Ecplise Plugin License 2.0.
+
+New Features:
+
+* The C side of the toolset will now support the Object Oriented Extension of the TTCN-3 standard (with some limitations).
+* In the Designer plugin we have parallelised several algorithms resulting in 3-4* faster execution:
+  ** The semantic checking of modules inside the same project.
+  ** Projects in a project hierarchy, not dependent on each other, will not be able to be analysed in parallel.
+  ** The Code Smell checkers of Titanium will also run in parallel.
+* On the Java side of the toolset, we have added support for JSON encoding/decoding (with some limitations).
+
+Backward incompatible changes:
+
+* 'omit' matching mechanism shouldn't be allowed for union fields
+* Compilation issue in the Java code generator when used with very large modules
+
+And many bugfixes.
 
 [[version-crl-113-200-6-r6b]]
 == Version CRL 113 200/6 R6B
