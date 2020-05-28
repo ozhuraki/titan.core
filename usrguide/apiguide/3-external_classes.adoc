@@ -1,0 +1,76 @@
+= External Classes
+:table-number: 0
+:toc:
+
+There is currently no {cpp} skeleton generator for external classes, so any external classes have to be implemented manually.
+
+External class implementation must abide by the following rules:
+
+* The file name, where the external class is declared, must be the name of the external class followed by `.hh`. Please note that the name mapping rules described in <<6-mapping_ttcn3_data_types_to_c++_constructs.adoc#mapping-of-names-and-identifiers, Mapping of Names and Identifiers>> also apply to the class and file name. The implementations of class methods can be in any {cpp} source file that is linked to the executable test suite.
+* The new `.hh` file must include the generated header file of the TTCN-3 module containing the external class declaration.
+* The include to the new `.hh` file is already in the desired namespace in the generated {cpp} code, so no further namespaces are needed around the external class declaration.
+* The external class must inherit the built-in {cpp} class `OBJECT` (`object` in TTCN-3).
+* The C++ equivalents of all functions in the TTCN-3 external function declaration must be virtual.
+* The class must also have a virtual destructor (even if it is empty).
+* For more information about function parameters and return values of class types see <<6-mapping_ttcn3_data_types_to_c++_constructs.adoc#object-references, Object References>>.
+
+== Example
+
+Example.ttcn:
+[source]
+----
+type external class ExternalClass {
+  public external function f_ext(in integer x) return charstring;
+  external function f_ext2(inout OtherClass p);
+}
+----
+
+ExternalClass.hh:
+[source]
+----
+#include "Example.hh"
+
+#ifndef EXTERNALCLASS_HH
+#define EXTERNALCLASS_HH
+
+// NOTE: no namespace specification needed, since the 'include' command is
+// already in the desired namespace!
+
+class ExternalClass : public OBJECT {
+public:
+  virtual CHARSTRING f__ext(const INTEGER& x);
+  
+protected:
+  virtual void f__ext2(OBJECT_REF<OtherClass>& p);
+  
+public:
+  virtual ~ExternalClass() { }
+
+// additional members and methods
+
+};
+
+#endif
+----
+
+ExternalClass.cc:
+[source]
+----
+#include "ExternalClass.hh"
+
+namespace Example {
+
+CHARSTRING ExternalClass::f__ext(const INTEGER& x)
+{
+  // method implementation
+}
+
+void ExternalClass::f__ext2(OBJECT_REF<OtherClass>& p)
+{
+  // method implementation
+}
+
+}
+----
+
+NOTE: If external class methods are implemented in a different {cpp} file, than the mentioned new `.hh` file (such as `ExternalClass.cc` in this case), then they need to be placed in the TTCN-3 module's namespace.

@@ -814,7 +814,7 @@ The four components of the quadruple (that is, group, plane, row and cell) are s
 
 In case of single-octet characters, which can be also given in TTCN–3 charstring notation (between quotation marks), the fields `uc_group`, `uc_plane`, `uc_row` are set to zero. If tuple notation was used for an ASN.1 string value fields `uc_row` and `uc_cell` carry the tuple and the others are set to zero.
 
-Except when performing encoding or decoding, the run-time environment does not check whether the quadruples used in the following API represent valid character positions according to <<7-references.adoc#_8,[8]>>. Moreover, if ASN.1 multi-octet character string values are used, it is not verified whether the elements of such strings are permitted characters of the corresponding string type.
+Except when performing encoding or decoding, the run-time environment does not check whether the quadruples used in the following API represent valid character positions according to <<8-references.adoc#_8,[8]>>. Moreover, if ASN.1 multi-octet character string values are used, it is not verified whether the elements of such strings are permitted characters of the corresponding string type.
 
 The {cpp} equivalent of TTCN–3 type `universal charstring` is implemented in class `UNIVERSAL_CHARSTRING`. The characters of the string are stored in an array of structure `universal_char`. The array returned by the casting operator is not terminated with a special character, thus, the length of the string must be always considered when doing operations with the array. The length of the string, which can be obtained by using member function `lengthof()`, is measured in characters (quadruples) and not bytes.
 
@@ -1951,3 +1951,44 @@ even if the exception type is defined in the same module as the signature.
 For example, if exception type `My_Record` is defined in module `My_Module`
 the respective field access functions will be named as `My\__Module_My__Record_field` and 
 the associated enum value will be `MyProc_exception::ALT_My\__Module_My__Record`.
+
+[[object-references]]
+== Object references
+
+All function parameters, return values and variables of class type must use the `OBJECT_REF` wrapper class, with the class type as its template parameter (e.g. `MyClass` in TTCN-3 translates to `OBJECT_REF<MyClass>` in {cpp}). This class contains a pointer to the class object itself, and handles its reference counting and deallocation.
+
+Accessing members and methods through `OBJECT_REF` is done through the operator `->` (as if it were a pointer in {cpp}). Methods of `OBJECT_REF` are accessed through the operator `.` (see below).
+
+.Public methods of the template class `OBJECT_REF<T>`, where `T` is a class type
+[cols=",,",]
+|==================================================
+2+^.^|*Member functions* |*Notes*
+.5+^.^|_Constructors_
+|`OBJECT_REF()` |Initializes to `null` reference.
+|`OBJECT_REF(null_type)` |Initializes to `null` reference.
+|`OBJECT_REF(T*)` |Initializes to a new object, which needs to be allocated with the {cpp} operator `new`.
+|`OBJECT_REF(const OBJECT_REF<T>&)` |Copy constructor.
+|`template <typename T2>
+  OBJECT_REF(OBJECT_REF<T2>&)` |Copy constructor for a reference of a different class type, referring to an object of type `T` or a subclass of `T`.
+^.^|_Destructor_
+|`~OBJECT_REF()` |
+.3+^.^|_Assignment operators_
+|`OBJECT_REF& operator=(null_type)` |Assigns the `null` reference.
+|`OBJECT_REF& operator=(const OBJECT_REF<T>&)` |Assigns a reference of `T`.
+|`template <typename T2>
+  OBJECT_REF& operator=(OBJECT_REF<T2>&)` |Assigns a reference of a different class type, referring to an object of type `T` or a subclass of `T`. 
+.4+^.^|_Comparison operators_
+|`boolean operator==(null_type) const` | Returns TRUE if the reference is `null`.
+|`boolean operator!=(null_type) const` | Returns FALSE if the reference is `null`.
+|`boolean operator==(const OBJECT_REF<T>&) const` | Returns TRUE if both this and the parameter refer to the same object.
+|`boolean operator!=(const OBJECT_REF<T>&) const` | Returns FALSE if both this and the parameter refer to the same object.
+.3+^.^|_Access operators_
+|`T* operator*()` |Returns a pointer to the actual object.
+|`T* operator->()` |Accesses the object's members and methods.
+|`const T* operator->() const` |Accesses the object's constant members and methods.
+.4+^.^|_Other methods_
+| `void log() const` |Puts the object (or `null`) into the log.
+| `boolean is_bound() const` |Returns TRUE if the reference is not `null`.
+| `boolean is_value() const` |Returns TRUE if the reference is not `null`.
+| `boolean is_present() const` |Returns TRUE if the reference is not `null`.
+|==================================================

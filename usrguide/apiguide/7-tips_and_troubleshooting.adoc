@@ -59,7 +59,7 @@ The compiler will translate those external function definitions to {cpp} functio
 [...]
 ----
 
-Both pre-defined and user-defined TTCN–3 data types can be used as parameters and/or return types of the {cpp} functions. The detailed description of the equivalent {cpp} classes as well as the name mapping rules are described in chapter <<4-encoding_and_decoding.adoc#xml-encoding-xer,XML Encoding (XER)>>.
+Both pre-defined and user-defined TTCN–3 data types can be used as parameters and/or return types of the {cpp} functions. The detailed description of the equivalent {cpp} classes as well as the name mapping rules are described in chapter <<5-encoding_and_decoding.adoc#xml-encoding-xer,XML Encoding (XER)>>.
 
 Using templates as formal parameters in external functions is possible, but not recommended because the API of the classes realizing templates is not documented and subject to change without notice.
 

@@ -12,7 +12,7 @@ The functions of Test Ports must be written by the user who knows the interface 
 
 A Test Port consists of two parts. One part is generated automatically by the Compiler, and it is put into the generated {cpp} code. The user has nothing to do with this part.
 
-The other part is a {cpp} class, which is written mainly by the user. This class can be found in a separate {cpp} header and source file (their suffixes are `.hh` and `.cc`, respectively). The names of the source files and the {cpp} class are identical to the name of the port type. Please note that the name mapping rules described in <<5-mapping_ttcn3_data_types_to_c+\+_constructs.adoc#mapping-of-names-and-identifiers, Mapping of Names and Identifiers>> also apply to these class and file names.
+The other part is a {cpp} class, which is written mainly by the user. This class can be found in a separate {cpp} header and source file (their suffixes are `.hh` and `.cc`, respectively). The names of the source files and the {cpp} class are identical to the name of the port type. Please note that the name mapping rules described in <<6-mapping_ttcn3_data_types_to_c++_constructs.adoc#mapping-of-names-and-identifiers, Mapping of Names and Identifiers>> also apply to these class and file names.
 
 During the translation, when the Compiler encounters a port type definition and the `*–t*` command line switch is used, it checks whether the header and source files of Test Port exist in its working directory. If none of them can be found there, the compiler generates the skeleton header and source files for the corresponding test port automatically. This means, once you have generated (and possibly modified) a skeleton, it will never be overwritten. If you want to re-generate the skeleton, you must rename or remove the existing one.
 
@@ -526,13 +526,13 @@ Outgoing operations are `send` (specific to message based ports); `call`, `reply
 
 The Test Port class has an overloaded function called `outgoing_send` for each outgoing message type. This function will be called when a message is sent on the port and it should be routed to the system (that is, SUT) according to the addressing semanticsfootnote:[That is, the port has exactly one mapping and either the port has no connections or the message is explicitly addressed by a `send (…) to system` statement.] of TTCN–3. The messages (implicitly or explicitly) addressed to other test components are handled inside the test executor; the Test Ports have nothing to do with them. The function `outgoing_send` will be also called if the port has neither connections nor mappings, but a message is sent on it.
 
-The only parameter of `outgoing_send` contains a read-only reference to the message in the internal data representation format of the test executor. The access methods for internal data types are described in <<4-encoding_and_decoding.adoc#xml-encoding-xer, XML Encoding (XER)>>. The test port writer should encode and send the message towards SUT. For information on how to use the standard encoding functions like BER, please consult <<3-logger_plug-ins.adoc, Logger Plug-ins>>. Sending a message on a not started port causes a dynamic test case error. In this case outgoing_send will not be called.
+The only parameter of `outgoing_send` contains a read-only reference to the message in the internal data representation format of the test executor. The access methods for internal data types are described in <<5-encoding_and_decoding.adoc#xml-encoding-xer, XML Encoding (XER)>>. The test port writer should encode and send the message towards SUT. For information on how to use the standard encoding functions like BER, please consult <<4-logger_plug-ins.adoc, Logger Plug-ins>>. Sending a message on a not started port causes a dynamic test case error. In this case outgoing_send will not be called.
 
 ==== Call, Reply and Raise Functions
 
 The procedure based Test Port class has overloaded functions called `outgoing_call`, `outgoing_reply` and `outgoing_raise` for each `call`, `reply` and `raise` operations, respectively. One of these functions will be called when a port-operation is addressing the system (that is, SUT using the to `system` statement).
 
-The only parameter of these functions is an internal representation of the signature parameters (and possibly its return value) or the exceptions it may raise. The signature classes are described in <<5-mapping_ttcn3_data_types_to_c++_constructs.adoc#using-the-signature-classes,Using the Signature Classes>>.
+The only parameter of these functions is an internal representation of the signature parameters (and possibly its return value) or the exceptions it may raise. The signature classes are described in <<6-mapping_ttcn3_data_types_to_c++_constructs.adoc#using-the-signature-classes,Using the Signature Classes>>.
 
 === Incoming Operations
 
@@ -626,7 +626,7 @@ incoming_message(const CHARSTRING& incoming_par);
 
 ==== Receiving calls, replies and exceptions
 
-Receiving operations on procedure based ports is similar to receiving messages on message based ports. The difference is that there are different overloaded incoming functions for call, reply and raise operations called `incoming_call`, `incoming_reply` and `incoming_exception`, respectively. The event handler (when called) must recognize the type of operation on receiving and call one of these functions accordingly with one of the internal representations of the signature (see <<5-mapping_ttcn3_data_types_to_c+\+_constructs.adoc #additional-non-standard-functions, Additional Non-Standard Functions>>).
+Receiving operations on procedure based ports is similar to receiving messages on message based ports. The difference is that there are different overloaded incoming functions for call, reply and raise operations called `incoming_call`, `incoming_reply` and `incoming_exception`, respectively. The event handler (when called) must recognize the type of operation on receiving and call one of these functions accordingly with one of the internal representations of the signature (see <<6-mapping_ttcn3_data_types_to_c++_constructs.adoc #additional-non-standard-functions, Additional Non-Standard Functions>>).
 
 In the examplefootnote:[In the example the signatures were defined in a different TTCN–3 module named MyExample, as a consequence all types defined in that module must be prefixed with the {cpp} namespace name of that module.] the class `MyProcedurePort_BASE` has the following member functions for incoming operations:
 [source]
@@ -925,7 +925,7 @@ The following sections deal with logging and error handling in Test Ports.
 
 Test Ports may record important events in the Test Executor log during sending/receiving or encoding/decoding messages. Such log messages are also good for debugging fresh code.
 
-The Test Port member functions may call the functions of class `TTCN_Logger`. These functions are detailed in <<6-tips_&_troubleshooting.adoc#logging-in-test-ports-or-external-functions, Logging in Test Ports or External Functions>>.
+The Test Port member functions may call the functions of class `TTCN_Logger`. These functions are detailed in <<7-tips_&_troubleshooting.adoc#logging-in-test-ports-or-external-functions, Logging in Test Ports or External Functions>>.
 
 If there are many points in the Test Port code that want to log something, it can be a good practice to write a common log function in the Test Port class. We show here an example function, which takes its arguments as the standard C function `printf` and forwards the message to the Test Executor’s logger:
 
@@ -987,7 +987,7 @@ This function puts an entry in the executor’s log with severity `TTCN_WARNING`
 
 == Setting timestamps
 
-In order to use the timestamp redirects (`-> timestamp`) described in chapter 5 of the TTCN-3 standard extension `TTCN-3 Performance and Real Time Testing` (ETSI ES 202 782 V1.3.1, <<7-references.adoc#_16, [16]>>) the test port writer needs to add extra code to set the timestamps for the incoming and outgoing port operations of each port with the `realtime` clause.
+In order to use the timestamp redirects (`-> timestamp`) described in chapter 5 of the TTCN-3 standard extension `TTCN-3 Performance and Real Time Testing` (ETSI ES 202 782 V1.3.1, <<8-references.adoc#_16, [16]>>) the test port writer needs to add extra code to set the timestamps for the incoming and outgoing port operations of each port with the `realtime` clause.
 
 === Incoming operations
 
