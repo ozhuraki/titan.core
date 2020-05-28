@@ -32,14 +32,14 @@ The document is organized as follows: <<what-s-new-in-this-version,What's new in
 
 This release contains major new features, backward incompatible changes and some bugfixes.
 
-With this release We have also upgraded our licese from Eclipse Plugin License 1.0 to Ecplise Plugin License 2.0.
+With this release we have also upgraded our license from Eclipse Plugin License 1.0 to Eclipse Plugin License 2.0.
 
 New Features:
 
 * The C side of the toolset will now support the Object Oriented Extension of the TTCN-3 standard (with some limitations).
-* In the Designer plugin we have parallelised several algorithms resulting in 3-4* faster execution:
+* In the Designer plugin we have parallelized several algorithms resulting in 3-4* faster execution:
   ** The semantic checking of modules inside the same project.
-  ** Projects in a project hierarchy, not dependent on each other, will not be able to be analysed in parallel.
+  ** Projects in a project hierarchy, not dependent on each other, will not be able to be analyzed in parallel.
   ** The Code Smell checkers of Titanium will also run in parallel.
 * On the Java side of the toolset, we have added support for JSON encoding/decoding (with some limitations).
 
@@ -691,14 +691,14 @@ Release date: 29th of May 2020
 
 This release contains major new features, backward incompatible changes and some bugfixes.
 
-With this release We have also upgraded our licese from Eclipse Plugin License 1.0 to Ecplise Plugin License 2.0.
+With this release we have also upgraded our license from Eclipse Plugin License 1.0 to Eclipse Plugin License 2.0.
 
 New Features:
 
 * The C side of the toolset will now support the Object Oriented Extension of the TTCN-3 standard (with some limitations).
-* In the Designer plugin we have parallelised several algorithms resulting in 3-4* faster execution:
+* In the Designer plugin we have parallelized several algorithms resulting in 3-4* faster execution:
   ** The semantic checking of modules inside the same project.
-  ** Projects in a project hierarchy, not dependent on each other, will not be able to be analysed in parallel.
+  ** Projects in a project hierarchy, not dependent on each other, will not be able to be analyzed in parallel.
   ** The Code Smell checkers of Titanium will also run in parallel.
 * On the Java side of the toolset, we have added support for JSON encoding/decoding (with some limitations).
 
