@@ -21,6 +21,7 @@
 #define _Common_ustring_HH
 
 #include <string.h>
+#include <limits.h>
 
 class string;
 
@@ -53,9 +54,9 @@ private:
 
 public:
 
-  /** The largest possible value of type size_t. That is, size_t(-1). */
+  /** The largest possible string length that can theoretically fit into the memory. */
   static const size_t max_string_len =
-    (-1 - sizeof(ustring_struct)) / sizeof(universal_char) + 1;
+    (UINT_MAX - sizeof(ustring_struct)) / sizeof(universal_char) + 1;
 
   /** Constructs an empty string. */
   ustring() : val_ptr(0) { init_struct(0); }
