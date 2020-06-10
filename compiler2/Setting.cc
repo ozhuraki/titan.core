@@ -1001,8 +1001,8 @@ namespace Common {
     if (errors.size() < *err_stack.top())
       FATAL_ERROR("Common::ReferenceChain::prev_error_state()");
 
-    int state = static_cast<int>(*err_stack.top());
-    for (int i = static_cast<int>(errors.size()) - 1; i >= state; --i) {
+    size_t state = *err_stack.top();
+    for (size_t i = errors.size() - 1; i >= state; --i) {
       errors.remove(i);
     }
     delete err_stack.pop();
