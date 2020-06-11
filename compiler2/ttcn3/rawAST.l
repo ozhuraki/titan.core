@@ -75,7 +75,7 @@ extern int rawAST_debug;
 extern YYLTYPE yylloc;
 
 /* always points to the first character of the regexp to be recognized */
-static int current_line, current_column;
+static size_t current_line, current_column;
 
 static void update_lloc()
 {

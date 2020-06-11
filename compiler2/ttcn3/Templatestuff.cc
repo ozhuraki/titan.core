@@ -1082,7 +1082,7 @@ namespace Ttcn {
     }
   }
 
-  void ParsedActualParameters::set_location(const char *p_filename, int p_lineno)
+  void ParsedActualParameters::set_location(const char *p_filename, size_t p_lineno)
   {
     Location   ::set_location(p_filename, p_lineno);
     if (namedpart)
@@ -1109,8 +1109,8 @@ namespace Ttcn {
     unnamedpart->set_location(p_filename, p_firstloc, p_lastloc);
   }
 
-  void ParsedActualParameters::set_location(const char *p_filename, int p_first_line,
-    int p_first_column, int p_last_line, int p_last_column)
+  void ParsedActualParameters::set_location(const char *p_filename, size_t p_first_line,
+    size_t p_first_column, size_t p_last_line, size_t p_last_column)
   {
     Location   ::set_location(p_filename, p_first_line, p_first_column,
                                           p_last_line, p_last_column);

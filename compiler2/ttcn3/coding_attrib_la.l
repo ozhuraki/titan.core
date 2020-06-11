@@ -48,7 +48,7 @@ extern YYLTYPE yylloc;
 const char *coding_attrib_infile;
 
 /** always points to the first character of the regexp to be recognized */
-static int current_line, current_column;
+static size_t current_line, current_column;
 
 /** the actual size of state condition stack */
 static size_t stack_size = 0;

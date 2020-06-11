@@ -99,7 +99,7 @@ extern void init_ttcn3_lex();
 extern void free_ttcn3_lex();
 extern void set_md5_checksum(Ttcn::Module *m);
 
-extern void init_erroneous_lex(const char* p_infile, int p_line, int p_column);
+extern void init_erroneous_lex(const char* p_infile, size_t p_line, size_t p_column);
 struct yy_buffer_state;
 extern int ttcn3_lex_destroy(void);
 extern yy_buffer_state *ttcn3__scan_string(const char *yy_str);
@@ -11285,7 +11285,7 @@ Ttcn::ErroneousAttributeSpec* ttcn3_parse_erroneous_attr_spec_string(
   is_erroneous_parsed = true;
   act_ttcn3_erroneous_attr_spec = NULL;
   string titan_err_str("$#&&&(#TITANERRONEOUS$#&&^#% ");
-  int hack_str_len = static_cast<int>(titan_err_str.size());
+  size_t hack_str_len = titan_err_str.size();
   string *parsed_string = parse_charstring_value(p_str, str_loc);
   titan_err_str += *parsed_string;
   delete parsed_string;

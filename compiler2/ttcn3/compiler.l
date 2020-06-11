@@ -78,7 +78,7 @@ extern YYLTYPE yylloc;
 extern bool is_erroneous_parsed;
 
 /* always points to the first character of the regexp to be recognized */
-static int current_line, current_column;
+static size_t current_line, current_column;
 
 /* when reporting an error in linemarker or preprocessor
  * directive the real file name and line number is needed */
@@ -204,9 +204,9 @@ TITAN "$#&&&(#TITANERRONEOUS$#&&^#% "
 
 %%
   /* local variables of yylex() */
-  int start_line = 0, start_column = 0; /**< used by block comments and
+  size_t start_line = 0, start_column = 0; /**< used by block comments and
 					     string literals */
-  int dot_line = 0, dot_column = 0; /**< location of the previous '.' token */
+  size_t dot_line = 0, dot_column = 0; /**< location of the previous '.' token */
   /* variables used when processing binary strings */
   expstring_t binstr = NULL; /**< the string itself */
   bool valid_bit = false, /**< binstr is valid bitstring */
@@ -1162,7 +1162,7 @@ void init_ttcn3_lex()
   MD5_Init(&md5_ctx);
 }
 
-void init_erroneous_lex(const char* p_infile, int p_line, int p_column)
+void init_erroneous_lex(const char* p_infile, size_t p_line, size_t p_column)
 {
   infile = p_infile;
   current_line = p_line;

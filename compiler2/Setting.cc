@@ -78,7 +78,7 @@ namespace Common {
     yyloc.last_column = 0;
   }
 
-  void Location::set_location(const char *p_filename, int p_lineno)
+  void Location::set_location(const char *p_filename, size_t p_lineno)
   {
     filename = p_filename;
     yyloc.first_line = p_lineno;
@@ -103,8 +103,8 @@ namespace Common {
     yyloc.last_column = p_lastloc.last_column;
   }
 
-  void Location::set_location(const char *p_filename, int p_first_line,
-    int p_first_column, int p_last_line, int p_last_column)
+  void Location::set_location(const char *p_filename, size_t p_first_line,
+    size_t p_first_column, size_t p_last_line, size_t p_last_column)
   {
     filename = p_filename;
     yyloc.first_line = p_first_line;

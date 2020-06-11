@@ -27,7 +27,7 @@ extern int asn1_yylex();
 extern const char *asn1_infile;
 extern int asn1_yylineno;
 #define yylineno asn1_yylineno
-extern int asn1_plineno;
+extern size_t asn1_plineno;
 #define plineno asn1_plineno
 extern YYLTYPE asn1_yylloc;
 #define yylloc asn1_yylloc
