@@ -52,6 +52,8 @@ namespace Ttcn {
   class SelectCases;
   class SelectUnion;
   class SelectUnions;
+  class SelectClassCase;
+  class SelectClassCases;
   class AltGuard;
   class AltGuards;
   class WithAttribPath;
@@ -197,6 +199,7 @@ namespace Ttcn {
       S_IF, // if_stmt
       S_SELECT, // select
       S_SELECTUNION, // select union
+      S_SELECT_CLASS, // select class
       S_FOR, // loop
       S_WHILE, // loop
       S_DOWHILE, // loop
@@ -453,6 +456,11 @@ namespace Ttcn {
         Value *expr;
         SelectUnions *sus;
       } select_union;
+      
+      struct {
+        Reference* ref;
+        SelectClassCases* sccs;
+      } select_class;
 
       struct {
         Value *v;
@@ -539,6 +547,8 @@ namespace Ttcn {
     Statement(statementtype_t p_st, Value *p_expr, SelectCases *p_scs);
     /** Constructor used by S_SELECTUNION */
     Statement(statementtype_t p_st, Value *p_expr, SelectUnions *p_sus);
+    /** Constructor used by S_SELECT_CLASS */
+    Statement(statementtype_t p_st, Reference *p_ref, SelectClassCases *p_sccs);
     /** Constructor used by S_FOR */
     Statement(statementtype_t p_st, Definitions *p_defs, Assignment *p_ass,
               Value *p_final, Assignment *p_step, StatementBlock *p_block);
@@ -708,6 +718,7 @@ namespace Ttcn {
     void chk_if();
     void chk_select();
     void chk_select_union();
+    void chk_select_class();
     void chk_for();
     void chk_while();
     void chk_do_while();
@@ -848,6 +859,7 @@ namespace Ttcn {
     char *generate_code_if(char *str, char*& def_glob_vars, char*& src_glob_vars);
     char *generate_code_select(char *str, char*& def_glob_vars, char*& src_glob_vars);
     char *generate_code_select_union(char *str, char*& def_glob_vars, char*& src_glob_vars);
+    char *generate_code_select_class(char *str, char*& def_glob_vars, char*& src_glob_vars);
     char *generate_code_for(char *str, char*& def_glob_vars, char*& src_glob_vars);
     char *generate_code_while(char *str, char*& def_glob_vars, char*& src_glob_vars);
     char *generate_code_dowhile(char *str, char*& def_glob_vars, char*& src_glob_vars);
@@ -862,6 +874,7 @@ namespace Ttcn {
     void ilt_generate_code_if(ILT *ilt);
     void ilt_generate_code_select(ILT *ilt);
     void ilt_generate_code_select_union(ILT *ilt);
+    void ilt_generate_code_select_class(ILT *ilt);
     void ilt_generate_code_call(ILT *ilt);
     void ilt_generate_code_for(ILT *ilt);
     void ilt_generate_code_while(ILT *ilt);
@@ -1562,6 +1575,89 @@ namespace Ttcn {
     void set_code_section(GovernedSimple::code_section_t p_code_section);
     char *generate_code(char *str, char*& def_glob_vars, char*& src_glob_vars,
       const char *type_name, const char* loc);
+
+    /** Needed by implicit omit. Pushes attrib path down to definitions
+     */
+    virtual void set_parent_path(WithAttribPath* p_path);
+  };
+  
+  
+  /**
+   * Class to represent a select-class-case: the class type reference and
+   * the statement block.
+   */
+  class SelectClassCase : public Node, public Location {
+  private:
+    Common::Type* type;
+    StatementBlock* block;
+    Common::Scope* my_scope;
+    bool always_false;
+
+    SelectClassCase(const SelectCase& p);
+    SelectClassCase& operator=(const SelectCase& p);
+  public:
+    /** type == NULL means "else" case */
+    SelectClassCase(Common::Type* p_type, StatementBlock* p_block);
+    virtual ~SelectClassCase();
+    virtual SelectClassCase* clone() const;
+    virtual void set_my_scope(Scope* p_scope);
+    virtual void set_fullname(const string& p_fullname);
+    Common::Type* get_type() const { return type; }
+    StatementBlock* get_block() const { return block; }
+    /* checking functions */
+    void chk(ClassTypeBody* p_ref_class, bool& unreach);
+    /** Sets the code section selector of all embedded values and
+     *  templates to \a p_code_section. */
+    void set_code_section(GovernedSimple::code_section_t p_code_section);
+    char* generate_code_if(char* str, const char* tmp_prefix,
+      const char* ref_str, size_t idx, bool& unreach);
+    char* generate_code_stmt(char* str, char*& def_glob_vars, char*& src_glob_vars,
+      const char* tmp_prefix, size_t idx, bool& unreach);
+    void ilt_generate_code_stmt(ILT* ilt, const char* tmp_prefix,
+      size_t idx, bool& unreach);
+
+    /** Needed by implicit omit. Pushes attrib path down to definitions
+     */
+    virtual void set_parent_path(WithAttribPath* p_path);
+  };
+
+  /**
+   * Class to represent a select class construct.
+   */
+  class SelectClassCases : public Node {
+  private:
+    vector<SelectClassCase> sccs;
+
+    SelectClassCases(const SelectCases& p);
+    SelectClassCases& operator=(const SelectCases& p);
+  public:
+    SelectClassCases() : Node() { }
+    virtual ~SelectClassCases();
+    virtual SelectClassCases* clone() const;
+    void add_scc(SelectClassCase* p_scc);
+    size_t get_nof_sccs() const { return sccs.size(); }
+    SelectClassCase *get_scc_byIndex(size_t p_i) const { return sccs[p_i]; }
+    virtual void set_my_scope(Scope* p_scope);
+    virtual void set_fullname(const string& p_fullname);
+    void set_my_sb(StatementBlock* p_sb, size_t p_index);
+    void set_my_def(Definition* p_def);
+    void set_my_ags(AltGuards* p_ags);
+    void set_my_laic_stmt(AltGuards* p_ags, Statement* p_loop_stmt);
+    StatementBlock::returnstatus_t has_return() const;
+    bool has_receiving_stmt() const;
+    /* checking functions */
+    /** p_ref_class is the class of the select reference */
+    void chk(ClassTypeBody* p_ref_class);
+    /** checks whether all embedded statements are allowed in an interleaved
+     * construct */
+    void chk_allowed_interleave();
+    /** Sets the code section selector of all embedded values and
+     *  templates to \a p_code_section. */
+    void set_code_section(GovernedSimple::code_section_t p_code_section);
+    char* generate_code(char* str, char*& def_glob_vars, char*& src_glob_vars,
+      const char* tmp_prefix, const char* ref_str);   
+    void ilt_generate_code(ILT* ilt, const char* tmp_prefix, const char* ref_str);
+    
 
     /** Needed by implicit omit. Pushes attrib path down to definitions
      */

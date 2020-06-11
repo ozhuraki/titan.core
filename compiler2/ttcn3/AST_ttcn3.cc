@@ -6428,7 +6428,8 @@ namespace Ttcn {
   }
 
   Def_Function_Base::Def_Function_Base(const Def_Function_Base& p)
-    : Definition(p), prototype(PROTOTYPE_NONE), input_type(0), output_type(0)
+    : Definition(p), prototype(PROTOTYPE_NONE), input_type(0), output_type(0),
+    final(p.final)
   {
     fp_list = p.fp_list->clone();
     fp_list->set_my_def(this);
@@ -6438,11 +6439,11 @@ namespace Ttcn {
 
   Def_Function_Base::Def_Function_Base(bool is_external, Identifier *p_id,
     FormalParList *p_fpl, Type *p_return_type, bool returns_template,
-    template_restriction_t p_template_restriction)
+    template_restriction_t p_template_restriction, bool p_final)
     : Definition(determine_asstype(is_external, p_return_type != 0,
         returns_template), p_id), fp_list(p_fpl), return_type(p_return_type),
         prototype(PROTOTYPE_NONE), input_type(0), output_type(0),
-        template_restriction(p_template_restriction)
+        template_restriction(p_template_restriction), final(p_final)
   {
     if (!p_fpl) FATAL_ERROR("Def_Function_Base::Def_Function_Base()");
     fp_list->set_my_def(this);
@@ -6662,9 +6663,9 @@ namespace Ttcn {
                              Type *p_return_type,
                              bool returns_template,
                              template_restriction_t p_template_restriction,
-                             StatementBlock *p_block)
+                             bool p_final, StatementBlock *p_block)
     : Def_Function_Base(false, p_id, p_fpl, p_return_type, returns_template,
-        p_template_restriction),
+        p_template_restriction, p_final),
         runs_on_ref(p_runs_on_ref), runs_on_type(0),
         mtc_ref(p_mtc_ref), mtc_type(0),
         system_ref(p_system_ref), system_type(0),

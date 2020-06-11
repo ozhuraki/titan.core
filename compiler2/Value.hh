@@ -279,11 +279,15 @@ namespace Common {
       OPTYPE_CBOR2JSON, // v1
       OPTYPE_JSON2CBOR, // v1
       OPTYPE_BSON2JSON, // v1
-      OPTYPE_JSON2BSON, // v1
+      OPTYPE_JSON2BSON, // v1         120
       
       OPTYPE_GET_PORT_REF, // -
+      
+      OPTYPE_OF_CLASS, // type r2
+      OPTYPE_CLASS_CASTING, // type r2
+      OPTYPE_CLASS_CASTING_REF, // r1 r2
 
-      NUMBER_OF_OPTYPES // must be last              122
+      NUMBER_OF_OPTYPES // must be last              125
     };
 
     enum macrotype_t {
@@ -474,7 +478,7 @@ namespace Common {
     Value(valuetype_t p_vt, Reference *p_ref);
     Value(valuetype_t p_vt, Block *p_block);
     Value(valuetype_t p_vt, verdict_t p_verdict);
-    /** Constructor used by decode */
+    /** Constructor used by V_EXPR "r1 r2": DECODE, OPTYPE_CLASS_CASTING_REF */
     Value(operationtype_t p_optype, Ttcn::Reference *p_r1, Ttcn::Reference *p_r2);
     /** Constructor used by decvalue_unichar*/
     Value(operationtype_t p_optype, Ttcn::Reference *p_r1, Ttcn::Reference *p_r2, Value *p_v3);
@@ -486,6 +490,8 @@ namespace Common {
       Value* p_v3, Value* p_v4, Value* p_v5);
     /** Constructor used by V_ANY_VALUE and V_ANY_OR_OMIT */
     Value(valuetype_t p_vt, Ttcn::LengthRestriction* p_len_res);
+    /** Constructor used by V_EXPR "type r2": OF_CLASS, OPTYPE_CLASS_CASTING */
+    Value(operationtype_t p_optype, Type* p_type, Ttcn::Reference* p_r2);
     virtual ~Value();
     virtual Value* clone() const;
     valuetype_t get_valuetype() const {return valuetype;}

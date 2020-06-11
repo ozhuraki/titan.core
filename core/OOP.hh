@@ -50,6 +50,7 @@ public:
   virtual UNIVERSAL_CHARSTRING toString() {
     return UNIVERSAL_CHARSTRING("Object");
   }
+  static const char* class_name() { return "object"; }
 };
 
 // OBJECT_REF
@@ -190,6 +191,18 @@ public:
   
   boolean is_present() const {
     return ptr != NULL;
+  }
+  
+  template<typename T2>
+  OBJECT_REF<T2> cast_to() const {
+    if (ptr == NULL) {
+      TTCN_error("Casting a null reference");
+    }
+    T2* new_ptr = dynamic_cast<T2*>(ptr);
+    if (new_ptr == NULL) {
+      TTCN_error("Invalid casting to class type `%s'", T2::class_name());
+    }
+    return OBJECT_REF<T2>(new_ptr);
   }
 };
 

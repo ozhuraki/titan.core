@@ -186,6 +186,8 @@ static const string anyname("anytype");
   SelectCases *selectcases;
   SelectUnion *selectunion;
   SelectUnions *selectunions;
+  SelectClassCase* selectclasscase;
+  SelectClassCases* selectclasscases;
   SignatureExceptions *signexc;
   SignatureParam *signparam;
   SignatureParamList *signparamlist;
@@ -947,6 +949,7 @@ static const string anyname("anytype");
 %token SR ">>"
 %token RL "<@"
 %token _RR "@>" /* Name clash with bn.h:292 */
+%token ClassCastingSymbol "=>"
 
 /*********************************************************************
  * Semantic types of nonterminals
@@ -1024,6 +1027,8 @@ static const string anyname("anytype");
 %type <selectcases> seqSelectCase SelectCaseBody
 %type <selectunion> SelectUnion SelectunionElse
 %type <selectunions> seqSelectUnion SelectUnionBody
+%type <selectclasscase> SelectClassCase
+%type <selectclasscases> seqSelectClassCase SelectClassBody
 %type <signexc> ExceptionTypeList optExceptionSpec
 %type <signparam> SignatureFormalPar
 %type <signparamlist> SignatureFormalParList optSignatureFormalParList
@@ -1041,8 +1046,9 @@ static const string anyname("anytype");
   StartTimerStatement StopExecutionStatement StopStatement StopTCStatement
   StopTimerStatement TimeoutStatement TimerStatements TriggerStatement
   UnmapStatement VerdictStatements WhileStatement SelectCaseConstruct
-  SelectUnionConstruct UpdateStatement SetstateStatement SetencodeStatement
-  StopTestcaseStatement String2TtcnStatement ProfilerStatement int2enumStatement
+  SelectUnionConstruct SelectClassConstruct UpdateStatement SetstateStatement
+  SetencodeStatement StopTestcaseStatement String2TtcnStatement ProfilerStatement
+  int2enumStatement
 %type <statementblock> StatementBlock optElseClause FunctionStatementOrDefList
   ControlStatementOrDefList ModuleControlBody optFinallyDef
 %type <subtypeparse> ValueOrRange
@@ -1085,7 +1091,7 @@ AllOrTypeListWithTo TypeListWithFrom TypeListWithTo
   PredefinedValue ReadTimerOp ReferOp ReferencedValue RunningOp RunningTimerOp
   SelfOp SingleExpression SingleLowerBound SystemOp TemplateOps TimerOps
   TimerValue UpperBound Value ValueofOp VerdictOps VerdictValue optReplyValue
-  optTestcaseTimerValue optToClause ProfilerRunningOp
+  optTestcaseTimerValue optToClause ProfilerRunningOp OfClassOp ClassCastingOp
 %type <values> ArrayElementExpressionList seqArrayExpressionSpec
 %type <variableentries> VariableList
 %type <variableentry> VariableEntry
@@ -1239,6 +1245,7 @@ CatchStatement
 CharStringMatch
 CharStringValue
 CheckStatement
+ClassCastingOp
 ClassDef
 ClassMemberList
 ClearStatement
@@ -1357,6 +1364,7 @@ ObjIdComponentList
 ObjectIdentifierValue
 OctetStringMatch
 OctetStringValue
+OfClassOp
 OmitValue
 OpCall
 Ostring
@@ -1391,10 +1399,14 @@ RunningOp
 RunningTimerOp
 RunsOnSpec
 SUTStatements
+SelectClassBody
+SelectClassCase
+SelectClassConstruct
 SelfOp
 SendParameter
 SendStatement
 SenderSpec
+seqSelectClassCase
 SetDef
 SetencodeStatement
 SetLocalVerdict
@@ -3644,7 +3656,7 @@ ClassFunctionDef:
   optReturnType optError StatementBlock
   {
     $$ = new Def_Function($3, $4, $6, NULL, NULL, NULL, NULL, $8.type,
-      $8.returns_template, $8.template_restriction, $10);
+      $8.returns_template, $8.template_restriction, $2, $10);
     $$->set_location(infile, @$);
   }
 | FunctionKeyword optFinalModifier AbstractKeyword
@@ -3660,7 +3672,7 @@ ClassFunctionDef:
   optReturnType
   {
     $$ = new Def_ExtFunction($4, $5, $7, $9.type, $9.returns_template,
-      $9.template_restriction, true);
+      $9.template_restriction, $3, true);
     $$->set_location(infile, @$);
   }
 | FunctionKeyword optFinalModifier
@@ -3668,7 +3680,7 @@ ClassFunctionDef:
   optReturnType
   {
     $$ = new Def_ExtFunction($3, $4, $6, $8.type, $8.returns_template,
-      $8.template_restriction, false);
+      $8.template_restriction, $2, false);
     $$->set_location(infile, @$);
   }
 ;
@@ -4537,7 +4549,7 @@ FunctionDef: // 164
   {
     $5->set_location(infile, @4, @6);
     $$ = new Def_Function($2, $3, $5, $7, $8.mtcref, $8.systemref, $9, $10.type, $10.returns_template,
-                          $10.template_restriction, $12);
+                          $10.template_restriction, false, $12);
     $$->set_location(infile, @$);
   }
 ;
@@ -5643,7 +5655,7 @@ ExtFunctionDef: // 276
   {
     $6->set_location(infile, @5, @7);
     $$ = new Def_ExtFunction($3, $4, $6, $8.type, $8.returns_template,
-                             $8.template_restriction, true);
+                             $8.template_restriction, false, true);
     $$->set_location(infile, @$);
   }
 ;
@@ -9645,6 +9657,7 @@ BasicStatements: // 578
 | ConditionalConstruct { $$ = $1; }
 | SelectCaseConstruct { $$ = $1; }
 | SelectUnionConstruct { $$ = $1; }
+| SelectClassConstruct { $$ = $1; }
 ;
 
 Expression: // 579
@@ -10217,6 +10230,36 @@ OpCall: // 611
 | NowKeyword
   {
     $$ = new Value(Value::OPTYPE_NOW);
+    $$->set_location(infile, @$);
+  }
+| OfClassOp { $$ = $1; }
+| ClassCastingOp { $$ = $1; }
+;
+
+OfClassOp:
+  VariableRef OfKeyword ReferencedType
+  {
+    $$ = new Value(Value::OPTYPE_OF_CLASS, $3, $1);
+    $$->set_location(infile, @$);
+  }
+| VariableRef OfKeyword ObjectKeyword
+  {
+    Type* type = new Type(Type::T_CLASS);
+    type->set_location(infile, @3);
+    $$ = new Value(Value::OPTYPE_OF_CLASS, type, $1);
+    $$->set_location(infile, @$);
+  }
+;
+
+ClassCastingOp:
+  VariableRef ClassCastingSymbol ReferencedType
+  {
+    $$ = new Value(Value::OPTYPE_CLASS_CASTING, $3, $1);
+    $$->set_location(infile, @$);
+  }
+| VariableRef ClassCastingSymbol '(' VariableRef ')'
+  {
+    $$ = new Value(Value::OPTYPE_CLASS_CASTING_REF, $4, $1);
     $$->set_location(infile, @$);
   }
 ;
@@ -11091,6 +11134,53 @@ SelectunionElse:
     $$=new SelectUnion($3);  // The else branch, ids is empty
     $$->set_location(infile, @2);
   }
+;
+
+SelectClassConstruct:
+  SelectKeyword ClassKeyword '(' VariableRef ')' SelectClassBody
+  {
+    $$ = new Statement(Statement::S_SELECT_CLASS, $4, $6);
+    $$->set_location(infile, @$);
+  }
+;
+
+SelectClassBody:
+  '{' seqSelectClassCase optError '}' { $$ = $2; }
+| '{' error '}' { $$ = new SelectClassCases; }
+;
+
+seqSelectClassCase:
+  optError SelectClassCase
+  {
+    $$ = new SelectClassCases;
+    $$->add_scc($2);
+  }
+| seqSelectClassCase optError SelectClassCase
+  {
+    $$ = $1;
+    $$->add_scc($3);
+  }
+;
+
+SelectClassCase:
+  CaseKeyword '(' ReferencedType optError ')' StatementBlock optSemiColon
+  {
+    $$ = new SelectClassCase($3, $6);
+    $$->set_location(infile, @$);
+  }
+| CaseKeyword '(' ObjectKeyword optError ')' StatementBlock optSemiColon
+  {
+    Type* type = new Type(Type::T_CLASS);
+    type->set_location(infile, @3);
+    $$ = new SelectClassCase(type, $6);
+    $$->set_location(infile, @$);
+  }
+| CaseKeyword ElseKeyword StatementBlock optSemiColon
+  {
+    $$ = new SelectClassCase(NULL, $3);
+    $$->set_location(infile, @$);
+  }
+;
 
 
 

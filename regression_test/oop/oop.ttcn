@@ -512,6 +512,157 @@ testcase tc_destructor() runs on CT {
   var Destructor x := Destructor.create;
 }
 
+testcase tc_of_operator() runs on CT {
+  var SubClass v_sub := SubClass.create(4, { 1, 2, 4 }, "a", 'FF'O, 1.0);
+  var SubClass v_final := FinalClass.create(4, { 1, 2, 4 }, "a", 'FF'O, 1.0, 8, "x", -1.5, *);
+  var object v_obj := Node.create(3, null);
+  var BaseClass v_null := null;
+  
+  if (not v_sub of BaseClass) {
+    setverdict(fail, "#1");
+  }
+  if (not v_sub of SubClass) {
+    setverdict(fail, "#2");
+  }
+  if (v_sub of FinalClass) {
+    setverdict(fail, "#3");
+  }
+  if (not v_final of BaseClass) {
+    setverdict(fail, "#4");
+  }
+  if (not v_final of SubClass) {
+    setverdict(fail, "#5");
+  }
+  if (not v_final of FinalClass) {
+    setverdict(fail, "#6");
+  }
+  if (v_sub of Node) {
+    setverdict(fail, "#7");
+  }
+  if (not v_sub of object) {
+    setverdict(fail, "#8");
+  }
+  if (not v_obj of object) {
+    setverdict(fail, "#9");
+  }
+  if (not v_obj of Node) {
+    setverdict(fail, "#10");
+  }
+  if (v_obj of AbstractClass) {
+    setverdict(fail, "#11");
+  }
+  if (v_null of BaseClass) {
+    setverdict(fail, "#12");
+  }
+  if (v_null of object) {
+    setverdict(fail, "#13");
+  }
+  setverdict(pass);
+}
+
+testcase tc_select_class() runs on CT {
+  var SubClass v_sub := SubClass.create(4, { 1, 2, 4 }, "a", 'FF'O, 1.0);
+  var SubClass v_final := FinalClass.create(4, { 1, 2, 4 }, "a", 'FF'O, 1.0, 8, "x", -1.5, *);
+  var object v_obj := Node.create(3, null);
+  var BaseClass v_null := null;
+  
+  select class (v_sub) {
+    case (FinalClass) {
+      setverdict(fail, "#1 FinalClass");
+    }
+    case (SubClass) {
+      setverdict(pass);
+    }
+    case (BaseClass) {
+      setverdict(fail, "#1 BaseClass");
+    }
+  }
+  
+  select class (v_final) {
+    case (FinalClass) {
+      setverdict(pass);
+    }
+    case (SubClass) {
+      setverdict(fail, "#2 SubClass");
+    }
+    case (BaseClass) {
+      setverdict(fail, "#2 BaseClass");
+    }
+  }
+  
+  select class (v_obj) {
+    case (object) {
+      setverdict(pass);
+    }
+    case (Node) {
+      setverdict(fail, "#3 Node");
+    }
+    case else {
+      setverdict(fail, "#3 else");
+    }
+  }
+  
+  select class (v_null) {
+    case (BaseClass) {
+      setverdict(fail, "#4 BaseClass");
+    }
+    case (Node) {
+      setverdict(fail, "#4 Node");
+    }
+    case (object) {
+      setverdict(fail, "#4 object");
+    }
+    case else {
+      setverdict(pass);
+    }
+  }
+}
+
+testcase tc_casting() runs on CT {
+  var SubClass v_sub := SubClass.create(4, { 1, 2, 4 }, "a", 'FF'O, 1.0);
+  var SubClass v_final := FinalClass.create(4, { 1, 2, 4 }, "a", 'FF'O, 1.0, 8, "x", -1.5, *);
+  var object v_obj := Node.create(3, null);
+  var BaseClass v_null := null;
+  var Node v_null2 := null;
+  
+  var BaseClass v_base := v_sub => BaseClass;
+  var BaseClass v_base2 := v_sub;
+  if (log2str(v_base) != log2str(v_base2)) {
+    setverdict(fail, "#1: ", v_base);
+  }
+  var FinalClass v_final2 := v_final => FinalClass;
+  if (log2str(v_final2) != log2str(v_final)) {
+    setverdict(fail, "#2: ", v_final2);
+  }
+  var Node v_node := v_obj => (v_null2);
+  if (log2str(v_node) != log2str(v_obj)) {
+    setverdict(fail, "#3: ", v_node);
+  }
+  var SubClass v_sub2 := v_sub => SubClass;
+  if (log2str(v_sub2) != log2str(v_sub)) {
+    setverdict(fail, "#4: ", v_sub2);
+  }
+  @try {
+    var SubClass v_bad := v_null => SubClass;
+    setverdict(fail, "#5: Error expected");
+  }
+  @catch(msg) {
+    if (not match(msg, pattern "*Casting a null reference")) {
+      setverdict(fail, "#5: Invalid error: ", msg);
+    }
+  }
+  @try {
+    var FinalClass v_bad2 := v_sub => FinalClass;
+    setverdict(fail, "#6: Error expected");
+  }
+  @catch(msg) {
+    if (not match(msg, pattern "*Invalid casting to class type `FinalClass'")) {
+      setverdict(fail, "#6: Invalid error: ", msg);
+    }
+  }
+  setverdict(pass);
+}
+
 
 control {
   execute(tc_members_and_methods());
@@ -525,6 +676,9 @@ control {
   execute(tc_order());
   execute(tc_abstract());
   execute(tc_destructor());
+  execute(tc_of_operator());
+  execute(tc_select_class());
+  execute(tc_casting());
 }
 
 }

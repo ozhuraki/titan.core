@@ -550,6 +550,10 @@ namespace Ttcn {
       delete select_union.expr;
       delete select_union.sus;
       break;
+    case S_SELECT_CLASS:
+      delete select_class.ref;
+      delete select_class.sccs;
+      break;
     case S_FOR:
       if(loop.for_stmt.varinst)
         delete loop.for_stmt.init_varinst;
@@ -964,7 +968,7 @@ namespace Ttcn {
     } // switch statementtype
   }
   
-    Statement::Statement(statementtype_t p_st, Value *p_expr, SelectUnions *p_sus)
+  Statement::Statement(statementtype_t p_st, Value *p_expr, SelectUnions *p_sus)
     : statementtype(p_st), my_sb(0)
   {
     switch(statementtype) {
@@ -973,6 +977,22 @@ namespace Ttcn {
         FATAL_ERROR("Statement::Statement()");
       select_union.expr=p_expr;
       select_union.sus=p_sus;
+      break;
+    default:
+      FATAL_ERROR("Statement::Statement()");
+    } // switch statementtype
+  }
+    
+  Statement::Statement(statementtype_t p_st, Reference *p_ref, SelectClassCases *p_sccs)
+    : statementtype(p_st), my_sb(0)
+  {
+    switch(statementtype) {
+    case S_SELECT_CLASS:
+      if (p_ref == NULL || p_sccs == NULL) {
+        FATAL_ERROR("Statement::Statement()");
+      }
+      select_class.ref = p_ref;
+      select_class.sccs = p_sccs;
       break;
     default:
       FATAL_ERROR("Statement::Statement()");
@@ -1598,6 +1618,7 @@ namespace Ttcn {
     case S_IF: return "if";
     case S_SELECT: return "select-case";
     case S_SELECTUNION: return "select-union";
+    case S_SELECT_CLASS: return "select-class";
     case S_FOR: return "for";
     case S_WHILE: return "while";
     case S_DOWHILE: return "do-while";
@@ -1776,6 +1797,10 @@ namespace Ttcn {
     case S_SELECTUNION:
       select_union.expr->set_my_scope(p_scope);
       select_union.sus->set_my_scope(p_scope);
+      break;
+    case S_SELECT_CLASS:
+      select_class.ref->set_my_scope(p_scope);
+      select_class.sccs->set_my_scope(p_scope);
       break;
     case S_FOR:
       if (loop.for_stmt.varinst) {
@@ -2086,6 +2111,10 @@ namespace Ttcn {
       select_union.expr->set_fullname(p_fullname+".expr");
       select_union.sus->set_fullname(p_fullname+".sus");
       break;
+    case S_SELECT_CLASS:
+      select_class.ref->set_fullname(p_fullname+".ref");
+      select_class.sccs->set_fullname(p_fullname+".sccs");
+      break;
     case S_FOR:
       if(loop.for_stmt.varinst)
         loop.for_stmt.init_varinst->set_fullname(p_fullname+".init");
@@ -2380,6 +2409,9 @@ namespace Ttcn {
     case S_SELECTUNION:
       select_union.sus->set_my_sb(p_sb, p_index);
       break;
+    case S_SELECT_CLASS:
+      select_class.sccs->set_my_sb(p_sb, p_index);
+      break;
     case S_FOR:
     case S_WHILE:
     case S_DOWHILE:
@@ -2412,6 +2444,9 @@ namespace Ttcn {
       break;
     case S_SELECTUNION:
       select_union.sus->set_my_def(p_def);
+      break;
+    case S_SELECT_CLASS:
+      select_class.sccs->set_my_def(p_def);
       break;
     case S_FOR:
     case S_WHILE:
@@ -2446,6 +2481,9 @@ namespace Ttcn {
     case S_SELECTUNION:
       select_union.sus->set_my_ags(p_ags);
       break;
+    case S_SELECT_CLASS:
+      select_class.sccs->set_my_ags(p_ags);
+      break;
     case S_FOR:
     case S_WHILE:
     case S_DOWHILE:
@@ -2475,6 +2513,9 @@ namespace Ttcn {
       break;
     case S_SELECTUNION:
       select_union.sus->set_my_laic_stmt(p_ags, p_loop_stmt);
+      break;
+    case S_SELECT_CLASS:
+      select_class.sccs->set_my_laic_stmt(p_ags, p_loop_stmt);
       break;
     case S_ALT:
     case S_INTERLEAVE:
@@ -2548,6 +2589,8 @@ namespace Ttcn {
       return select.scs->has_return();
     case S_SELECTUNION:
       return select_union.sus->has_return();
+    case S_SELECT_CLASS:
+      return select_class.sccs->has_return();
     case S_FOR:
     case S_WHILE:
       if (loop.block->has_return() == StatementBlock::RS_NO)
@@ -2672,6 +2715,8 @@ namespace Ttcn {
       return select.scs->has_receiving_stmt();
     case S_SELECTUNION:
       return select_union.sus->has_receiving_stmt();
+    case S_SELECT_CLASS:
+      return select_class.sccs->has_receiving_stmt();
     case S_FOR:
     case S_WHILE:
     case S_DOWHILE:
@@ -2762,6 +2807,9 @@ namespace Ttcn {
       break;
     case S_SELECTUNION:
       chk_select_union();
+      break;
+    case S_SELECT_CLASS:
+      chk_select_class();
       break;
     case S_FOR:
       chk_for();
@@ -2988,6 +3036,9 @@ namespace Ttcn {
       break;
     case S_SELECTUNION:
       select_union.sus->chk_allowed_interleave();
+      break;
+    case S_SELECT_CLASS:
+      select_class.sccs->chk_allowed_interleave();
       break;
     case S_FOR:
     case S_WHILE:
@@ -3435,6 +3486,24 @@ error:
     
     select_union.sus->chk();
   }
+  
+  void Statement::chk_select_class()
+  {
+    Error_Context cntxt(this, "In select class statement");
+    Type* ref_type = select_class.ref->chk_variable_ref();
+    ClassTypeBody* ref_class = NULL;
+    if (ref_type != NULL) {
+      Type* ref_type_last = ref_type->get_type_refd_last();
+      if (ref_type_last->get_typetype() != Type::T_CLASS) {
+        select_class.ref->error("Reference to a class object was expected");
+      }
+      else {
+        ref_class = ref_type_last->get_class_type_body();
+      }
+    }
+    select_class.sccs->chk(ref_class);
+  }
+  
   void Statement::chk_for()
   {
     Error_Context cntxt(this, "In for statement");
@@ -6111,6 +6180,10 @@ error:
       select_union.expr->set_code_section(p_code_section);
       select_union.sus->set_code_section(p_code_section);
       break;
+    case S_SELECT_CLASS:
+      select_class.ref->set_code_section(p_code_section);
+      select_class.sccs->set_code_section(p_code_section);
+      break;
     case S_ALT:
     case S_INTERLEAVE:
       ags->set_code_section(p_code_section);
@@ -6360,6 +6433,7 @@ error:
     case S_IF:
     case S_SELECT:
     case S_SELECTUNION:
+    case S_SELECT_CLASS:
     case S_FOR:
     case S_WHILE:
     case S_DOWHILE:
@@ -6405,6 +6479,9 @@ error:
       break;
     case S_SELECTUNION:
       str=generate_code_select_union(str, def_glob_vars, src_glob_vars);
+      break;
+    case S_SELECT_CLASS:
+      str = generate_code_select_class(str, def_glob_vars, src_glob_vars);
       break;
     case S_FOR:
       str=generate_code_for(str, def_glob_vars, src_glob_vars);
@@ -6707,6 +6784,9 @@ error:
     case S_SELECTUNION:
       ilt_generate_code_select_union(ilt);
       break;
+    case S_SELECT_CLASS:
+      ilt_generate_code_select_class(ilt);
+      break;
     case S_CALL:
       ilt_generate_code_call(ilt);
       break;
@@ -6980,6 +7060,26 @@ error:
     }
     Code::free_expr(&expr);
     Free(loc);
+    return str;
+  }
+  
+  char* Statement::generate_code_select_class(char* str, char*& def_glob_vars, char*& src_glob_vars)
+  {
+    const string& tmp_prefix = my_sb->get_scope_mod_gen()->get_temporary_id();
+    str = mputstr(str, "{\n");
+    expression_struct_t expr;
+    Code::init_expr(&expr);
+    select_class.ref->generate_code(&expr);
+    if (expr.preamble != NULL) {
+      str = mputstr(str, expr.preamble);
+    }
+    str = select_class.sccs->generate_code(str, def_glob_vars, src_glob_vars,
+      tmp_prefix.c_str(), expr.expr);
+    if (expr.postamble != NULL) {
+      str = mputstr(str, expr.postamble);
+    }
+    Code::free_expr(&expr);
+    str = mputstr(str, "}\n");
     return str;
   }
   
@@ -7358,6 +7458,30 @@ error:
     }
     Code::free_expr(&expr);
     Free(loc);
+    if (has_recv) {
+      str = mputstr(str, "}\n");
+    }
+  }
+  
+  void Statement::ilt_generate_code_select_class(ILT* ilt)
+  {
+    const string& tmp_prefix = my_sb->get_scope_mod_gen()->get_temporary_id();
+    char*& str = ilt->get_out_branches();
+    expression_struct expr;
+    Code::init_expr(&expr);
+    select_class.ref->generate_code(&expr);
+    bool has_recv = select_class.sccs->has_receiving_stmt();
+    if (has_recv) {
+      str = mputstr(str, "{\n");
+    }
+    if (expr.preamble != NULL) {
+      str = mputstr(str, expr.preamble);
+    }
+    select_class.sccs->ilt_generate_code(ilt, tmp_prefix.c_str(), expr.expr);
+    if (expr.postamble != NULL) {
+      str = mputstr(str, expr.postamble);
+    }
+    Code::free_expr(&expr);
     if (has_recv) {
       str = mputstr(str, "}\n");
     }
@@ -8674,6 +8798,9 @@ error:
           break;
         case S_SELECTUNION:
           select_union.sus->set_parent_path(p_path);
+          break;
+        case S_SELECT_CLASS:
+          select_class.sccs->set_parent_path(p_path);
           break;
         case S_FOR:
           loop.block->set_parent_path(p_path);
@@ -12868,6 +12995,348 @@ error:
   void SelectUnions::set_parent_path(WithAttribPath* p_path) {
     for (size_t i = 0; i < sus.size(); i++) {
       sus[i]->set_parent_path(p_path);
+    }
+  }
+  
+  // =================================
+  // ===== SelectClassCase
+  // =================================
+
+  SelectClassCase::SelectClassCase(Common::Type* p_type, StatementBlock* p_block)
+    : type(p_type), block(p_block), my_scope(NULL), always_false(false)
+  {
+    if (block == NULL) {
+      FATAL_ERROR("SelectClassCase::SelectClassCase()");
+    }
+  }
+
+  SelectClassCase::~SelectClassCase()
+  {
+    delete type;
+    delete block;
+  }
+
+  SelectClassCase* SelectClassCase::clone() const
+  {
+    FATAL_ERROR("SelectClassCase::clone");
+  }
+
+  void SelectClassCase::set_my_scope(Scope* p_scope)
+  {
+    my_scope = p_scope;
+    if (type != NULL) {
+      type->set_my_scope(p_scope);
+    }
+    block->set_my_scope(p_scope);
+  }
+
+  void SelectClassCase::set_fullname(const string& p_fullname)
+  {
+    Node::set_fullname(p_fullname);
+    if (type != NULL) {
+      type->set_fullname(p_fullname + ".type");
+    }
+    block->set_fullname(p_fullname + ".block");
+  }
+
+  void SelectClassCase::chk(ClassTypeBody* p_ref_class, bool& unreach)
+  {
+    Error_Context cntxt(this, "In select class case statement");
+    if (unreach) {
+      warning("Control never reaches this code because of previous "
+        "effective case(s)");
+    }
+    if (type != NULL) {
+      type->chk();
+      Common::Type* type_last = type->get_type_refd_last();
+      if (type_last->get_typetype() != Type::T_CLASS) {
+        type->error("Class type was expected");
+      }
+      else if (!unreach) {
+        ClassTypeBody* class_ = type_last->get_class_type_body();
+        if (p_ref_class != NULL && !class_->is_parent_class(p_ref_class) &&
+            !p_ref_class->is_parent_class(class_)) {
+          block->warning("Control never reaches this code because the case will "
+            "never be chosen");
+          always_false = true;
+        }
+      }
+    }
+    else {
+      unreach = true; // else statement
+    }
+    block->chk();
+  }
+
+  void SelectClassCase::set_code_section(GovernedSimple::code_section_t p_code_section)
+  {
+    block->set_code_section(p_code_section);
+  }
+
+  char* SelectClassCase::generate_code_if(char* str, const char* tmp_prefix,
+                                          const char* ref_str, size_t idx,
+                                          bool& unreach)
+  {
+    if (unreach || always_false) {
+      return str;
+    }
+    if (type != NULL) {
+      ClassTypeBody* class_ = type->get_type_refd_last()->get_class_type_body();
+      str = mputprintf(str,
+        "if (%s != NULL_VALUE && dynamic_cast<%s*>(*%s) != NULL) goto %s_%lu;\n",
+        ref_str, class_->is_built_in() ? "OBJECT" :
+          type->get_type_refd_last()->get_genname_own(my_scope).c_str(),
+        ref_str, tmp_prefix, static_cast<unsigned long>(idx));
+    }
+    else {
+      unreach = true; // else statement
+      str = mputprintf(str, "goto %s_%lu;\n",
+        tmp_prefix, static_cast<unsigned long>(idx));
+    }
+    return str;
+  }
+
+  char* SelectClassCase::generate_code_stmt(char* str, char*& def_glob_vars, char*& src_glob_vars,
+                                            const char* tmp_prefix, size_t idx, bool& unreach)
+  {
+    if (unreach || always_false) {
+      return str;
+    }
+    if (type == NULL) {
+      unreach = true;
+    }
+    str = mputprintf(str, "%s_%lu:\n{\n",
+      tmp_prefix, static_cast<unsigned long>(idx));
+    if (debugger_active) {
+      str = mputstr(str, "TTCN3_Debug_Scope debug_scope;\n");
+    }
+    str = block->generate_code(str, def_glob_vars, src_glob_vars);
+    str = mputprintf(str, "goto %s_end;\n}\n", tmp_prefix);
+    return str;
+  }
+
+  void SelectClassCase::ilt_generate_code_stmt(ILT* ilt, const char* tmp_prefix,
+                                               size_t idx, bool& unreach)
+  {
+    if (unreach || always_false) {
+      return;
+    }
+    if (type == NULL) {
+      unreach = true;
+    }
+    char*& str = ilt->get_out_branches();
+    str = mputprintf(str, "%s_%lu:\n",
+      tmp_prefix, static_cast<unsigned long>(idx));
+    bool has_recv = block->has_receiving_stmt();
+    if (!has_recv) {
+      str = mputstr(str, "{\n");
+      str = block->generate_code(str, ilt->get_out_def_glob_vars(),
+        ilt->get_out_src_glob_vars());
+    }
+    else {
+      block->ilt_generate_code(ilt);
+    }
+    str = mputprintf(str, "goto %s_end;\n", tmp_prefix);
+    if (!has_recv) {
+      str = mputstr(str, "}\n");
+    }
+  }
+
+  void SelectClassCase::set_parent_path(WithAttribPath* p_path) {
+    block->set_parent_path(p_path);
+  }
+
+  // =================================
+  // ===== SelectClassCases
+  // =================================
+
+  SelectClassCases::~SelectClassCases()
+  {
+    for (size_t i = 0; i < sccs.size(); i++) {
+      delete sccs[i];
+    }
+    sccs.clear();
+  }
+
+  SelectClassCases *SelectClassCases::clone() const
+  {
+    FATAL_ERROR("SelectClassCases::clone");
+  }
+
+  void SelectClassCases::add_scc(SelectClassCase *p_scc)
+  {
+    if (p_scc == NULL) {
+      FATAL_ERROR("SelectClassCases::add_scc()");
+    }
+    sccs.add(p_scc);
+  }
+
+  void SelectClassCases::set_my_scope(Scope* p_scope)
+  {
+    for (size_t i = 0; i < sccs.size(); i++) {
+      sccs[i]->set_my_scope(p_scope);
+    }
+  }
+
+  void SelectClassCases::set_fullname(const string& p_fullname)
+  {
+    Node::set_fullname(p_fullname);
+    for (size_t i = 0; i < sccs.size(); i++) {
+      sccs[i]->set_fullname(p_fullname + ".scc_" + Int2string(i+1));
+    }
+  }
+
+  void SelectClassCases::set_my_sb(StatementBlock* p_sb, size_t p_index)
+  {
+    for (size_t i = 0; i < sccs.size(); i++) {
+      sccs[i]->get_block()->set_my_sb(p_sb, p_index);
+    }
+  }
+
+  void SelectClassCases::set_my_def(Definition* p_def)
+  {
+    for (size_t i = 0; i < sccs.size(); i++) {
+      sccs[i]->get_block()->set_my_def(p_def);
+    }
+  }
+
+  void SelectClassCases::set_my_ags(AltGuards *p_ags)
+  {
+    for (size_t i = 0; i < sccs.size(); i++) {
+      sccs[i]->get_block()->set_my_ags(p_ags);
+    }
+  }
+
+  void SelectClassCases::set_my_laic_stmt(AltGuards* p_ags, Statement* p_loop_stmt)
+  {
+    for (size_t i = 0; i < sccs.size(); i++) {
+      sccs[i]->get_block()->set_my_laic_stmt(p_ags, p_loop_stmt);
+    }
+  }
+
+  StatementBlock::returnstatus_t SelectClassCases::has_return() const
+  {
+    StatementBlock::returnstatus_t ret_val = StatementBlock::RS_MAYBE;
+    bool has_else = false;
+    for (size_t i = 0; i < sccs.size(); i++) {
+      SelectClassCase* scc = sccs[i];
+      switch (scc->get_block()->has_return()) {
+      case StatementBlock::RS_NO:
+        if (ret_val == StatementBlock::RS_YES) {
+          return StatementBlock::RS_MAYBE;
+        }
+        else {
+          ret_val = StatementBlock::RS_NO;
+        }
+        break;
+      case StatementBlock::RS_YES:
+        if (ret_val == StatementBlock::RS_NO) {
+          return StatementBlock::RS_MAYBE;
+        }
+        else {
+          ret_val = StatementBlock::RS_YES;
+        }
+        break;
+      default:
+        return StatementBlock::RS_MAYBE;
+      }
+      if (scc->get_type() == NULL) {
+        has_else = true;
+        break;
+      }
+    }
+    if (!has_else && ret_val == StatementBlock::RS_YES) {
+      return StatementBlock::RS_MAYBE;
+    }
+    else {
+      return ret_val;
+    }
+  }
+
+  bool SelectClassCases::has_receiving_stmt() const
+  {
+    for (size_t i = 0; i < sccs.size(); i++) {
+      if (sccs[i]->get_block()->has_receiving_stmt()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void SelectClassCases::chk(ClassTypeBody* p_ref_class)
+  {
+    bool unreach = false;
+    for (size_t i = 0; i < sccs.size(); i++) {
+      sccs[i]->chk(p_ref_class, unreach);
+    }
+  }
+
+  void SelectClassCases::chk_allowed_interleave()
+  {
+    for (size_t i = 0; i < sccs.size(); i++) {
+      sccs[i]->get_block()->chk_allowed_interleave();
+    }
+  }
+
+  void SelectClassCases::set_code_section(GovernedSimple::code_section_t p_code_section)
+  {
+    for (size_t i = 0; i < sccs.size(); i++) {
+      sccs[i]->set_code_section(p_code_section);
+    }
+  }
+
+  char* SelectClassCases::generate_code(char* str, char*& def_glob_vars, char*& src_glob_vars,
+                                        const char* tmp_prefix, const char* ref_str)
+  {
+    bool unreach = false;
+    for (size_t i = 0; i < sccs.size(); i++) {
+      str = sccs[i]->generate_code_if(str, tmp_prefix, ref_str, i, unreach);
+      if (unreach) {
+        break;
+      }
+    }
+    if (!unreach) {
+      str = mputprintf(str, "goto %s_end;\n", tmp_prefix);
+    }
+    unreach = false;
+    for (size_t i = 0; i<sccs.size(); i++) {
+      str = sccs[i]->generate_code_stmt(str, def_glob_vars, src_glob_vars,
+        tmp_prefix, i, unreach);
+      if (unreach) {
+        break;
+      }
+    }
+    str = mputprintf(str, "%s_end: /* empty */;\n", tmp_prefix);
+    return str;
+  }
+
+  void SelectClassCases::ilt_generate_code(ILT* ilt, const char* tmp_prefix,
+                                           const char* ref_str)
+  {
+    char*& str = ilt->get_out_branches();
+    bool unreach = false;
+    for (size_t i = 0; i < sccs.size(); i++) {
+      if (unreach) {
+        break;
+      }
+      str = sccs[i]->generate_code_if(str, tmp_prefix, ref_str, i, unreach);
+    }
+    if (!unreach) {
+      str = mputprintf(str, "goto %s_end;\n", tmp_prefix);
+    }
+    unreach = false;
+    for (size_t i = 0; i < sccs.size(); i++) {
+      if (unreach) {
+        break;
+      }
+      sccs[i]->ilt_generate_code_stmt(ilt, tmp_prefix, i, unreach);
+    }
+    str = mputprintf(str, "%s_end:\n", tmp_prefix);
+  }
+
+  void SelectClassCases::set_parent_path(WithAttribPath* p_path) {
+    for (size_t i = 0; i < sccs.size(); i++) {
+      sccs[i]->set_parent_path(p_path);
     }
   }
 

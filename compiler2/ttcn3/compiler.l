@@ -1075,6 +1075,8 @@ NULL RETURN(NullValue);
   RETURN_NOLOCUPD(NE);
 }
 
+"=>" RETURN(ClassCastingSymbol);
+
 	/* Identifiers */
 
 {IDENTIFIER} {

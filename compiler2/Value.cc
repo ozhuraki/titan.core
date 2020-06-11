@@ -398,6 +398,15 @@ namespace Common {
         u.expr.ti1 = p.u.expr.ti1->clone();
         u.expr.v2 = p.u.expr.v2->clone();
         break;
+      case OPTYPE_OF_CLASS:
+      case OPTYPE_CLASS_CASTING:
+        u.expr.type = p.u.expr.type->clone();
+        u.expr.r2 = p.u.expr.r2->clone();
+        break;
+      case OPTYPE_CLASS_CASTING_REF:
+        u.expr.r1 = p.u.expr.r1->clone();
+        u.expr.r2 = p.u.expr.r2->clone();
+        break;
       default:
         FATAL_ERROR("Value::Value()");
       } // switch
@@ -613,6 +622,14 @@ namespace Common {
           case OPTYPE_ISTEMPLATEKIND: // ti1 v2
             u.expr.v2->chk_expr_immutability();
             u.expr.ti1->chk_immutability();
+            break;
+          case OPTYPE_OF_CLASS:
+          case OPTYPE_CLASS_CASTING:
+            u.expr.r2->chk_immutability();
+            break;
+          case OPTYPE_CLASS_CASTING_REF:
+            u.expr.r1->chk_immutability();
+            u.expr.r2->chk_immutability();
             break;
           default:
             FATAL_ERROR("Value::chk_expr_immutability()");
@@ -869,6 +886,7 @@ namespace Common {
       break;
     case OPTYPE_UNDEF_RUNNING: // r1 [r2] b4
     case OPTYPE_TMR_RUNNING: // r1 [r2] b4
+    case OPTYPE_CLASS_CASTING_REF:
       delete u.expr.r1;
       delete u.expr.r2;
       break;
@@ -990,6 +1008,11 @@ namespace Common {
     case OPTYPE_LOG2STR:
     case OPTYPE_ANY2UNISTR:
       delete u.expr.logargs;
+      break;
+    case OPTYPE_OF_CLASS:
+    case OPTYPE_CLASS_CASTING:
+      delete u.expr.type;
+      delete u.expr.r2;
       break;
     default:
       FATAL_ERROR("Value::clean_up_expr()");
@@ -1784,6 +1807,13 @@ namespace Common {
       u.expr.v3=NULL;
       u.expr.v4 = NULL;
       break;
+    case OPTYPE_CLASS_CASTING_REF:
+      if (p_r1 == NULL || p_r2 == NULL) {
+        FATAL_ERROR("Value::Value()");
+      }
+      u.expr.r1 = p_r1;
+      u.expr.r2 = p_r2;
+      break;
     default:
       FATAL_ERROR("Value::Value()");
     } // switch
@@ -1868,6 +1898,26 @@ namespace Common {
     case V_ANY_VALUE:
     case V_ANY_OR_OMIT:
       u.len_res = p_len_res;
+      break;
+    default:
+      FATAL_ERROR("Value::Value()");
+    } // switch
+  }
+  
+  // type r2
+  Value::Value(operationtype_t p_optype, Type* p_type, Ttcn::Reference* p_r2)
+    : GovernedSimple(S_V), valuetype(V_EXPR), my_governor(0), in_brackets(false)
+  {
+    u.expr.v_optype = p_optype;
+    u.expr.state = EXPR_NOT_CHECKED;
+    switch (p_optype) {
+    case OPTYPE_OF_CLASS:
+    case OPTYPE_CLASS_CASTING:
+      if (p_type == NULL || p_r2 == NULL) {
+        FATAL_ERROR("Value::Value()");
+      }
+      u.expr.type = p_type;
+      u.expr.r2 = p_r2;
       break;
     default:
       FATAL_ERROR("Value::Value()");
@@ -2257,6 +2307,15 @@ namespace Common {
         u.expr.r2->set_fullname(p_fullname+".redirindex");
       }
       break;
+    case OPTYPE_OF_CLASS:
+    case OPTYPE_CLASS_CASTING:
+      u.expr.type->set_fullname(p_fullname + ".<classtype>");
+      u.expr.r2->set_fullname(p_fullname + ".<operand>");
+      break;
+    case OPTYPE_CLASS_CASTING_REF:
+      u.expr.r1->set_fullname(p_fullname + ".<operand2>");
+      u.expr.r2->set_fullname(p_fullname + ".<operand1>");
+      break;
     default:
       FATAL_ERROR("Value::set_fullname_expr()");
     } // switch
@@ -2514,6 +2573,15 @@ namespace Common {
     case OPTYPE_LOG2STR:
     case OPTYPE_ANY2UNISTR:
       u.expr.logargs->set_my_scope(p_scope);
+      break;
+    case OPTYPE_OF_CLASS:
+    case OPTYPE_CLASS_CASTING:
+      u.expr.type->set_my_scope(p_scope);
+      u.expr.r2->set_my_scope(p_scope);
+      break;
+    case OPTYPE_CLASS_CASTING_REF:
+      u.expr.r1->set_my_scope(p_scope);
+      u.expr.r2->set_my_scope(p_scope);
       break;
     default:
       FATAL_ERROR("Value::set_my_scope_expr()");
@@ -2905,6 +2973,13 @@ namespace Common {
       case OPTYPE_LOG2STR:
       case OPTYPE_ANY2UNISTR:
         u.expr.logargs->set_code_section(p_code_section);
+        break;
+      case OPTYPE_CLASS_CASTING_REF:
+        u.expr.r1->set_code_section(p_code_section);
+        // no break
+      case OPTYPE_CLASS_CASTING:
+      case OPTYPE_OF_CLASS:
+        u.expr.r2->set_code_section(p_code_section);
         break;
       default:
         FATAL_ERROR("Value::set_code_section()");
@@ -3653,6 +3728,7 @@ namespace Common {
       case OPTYPE_CHECKSTATE_ANY:
       case OPTYPE_CHECKSTATE_ALL:
       case OPTYPE_ISTEMPLATEKIND:
+      case OPTYPE_OF_CLASS:
         return Type::T_BOOL;
       case OPTYPE_GETVERDICT:
         return Type::T_VERDICT;
@@ -3935,6 +4011,9 @@ namespace Common {
         return Type::T_OSTR;
       case OPTYPE_DECOMP:
         return Type::T_OID;
+      case OPTYPE_CLASS_CASTING:
+      case OPTYPE_CLASS_CASTING_REF:
+        return Type::T_CLASS;
       default:
         FATAL_ERROR("Value::get_expr_returntype(): invalid optype");
         // to avoid warning
@@ -4115,6 +4194,11 @@ namespace Common {
 	return chk_expr_operand_undef_create();
       case OPTYPE_GET_PORT_REF:
         chk_expr_operands(NULL, exp_val); // calculate the port type
+        return u.expr.type;
+      case OPTYPE_CLASS_CASTING_REF:
+        chk_expr_operands(NULL, exp_val);
+        // no break
+      case OPTYPE_CLASS_CASTING:
         return u.expr.type;
       default:
         break;
@@ -4411,6 +4495,11 @@ namespace Common {
       return "@profiler.running";
     case OPTYPE_GET_PORT_REF:
       return "port.getref()";
+    case OPTYPE_OF_CLASS:
+      return "of";
+    case OPTYPE_CLASS_CASTING:
+    case OPTYPE_CLASS_CASTING_REF:
+      return "=>";
     default:
       FATAL_ERROR("Value::get_opname()");
     } // switch
@@ -8347,6 +8436,69 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       if (!governor) return;
       chk_expr_eval_ti(u.expr.ti1, governor, refch, ti_exp_val);
     } break;
+    case OPTYPE_CLASS_CASTING_REF:
+      {
+        Error_Context cntxt(this, "In the second operand of operation `%s'", opname);
+        Type* type = u.expr.r1->chk_variable_ref();
+        type = (type == NULL) ? new Type(Type::T_ERROR) : type->clone();
+        type->set_my_scope(my_scope);
+        type->set_fullname(get_fullname() + ".<classtype>");
+        type->set_location(*u.expr.r1);
+        delete u.expr.r1;
+        u.expr.type = type;
+        u.expr.v_optype = OPTYPE_CLASS_CASTING;
+      }
+      // no break
+    case OPTYPE_CLASS_CASTING:
+    case OPTYPE_OF_CLASS: {
+      bool erroneous = false;
+      Type* ref_type_last = NULL;
+      {
+        Error_Context cntxt(this, "In the first operand of operation `%s'", opname);
+        Type* ref_type = u.expr.r2->chk_variable_ref();
+        if (ref_type != NULL) {
+          ref_type_last = ref_type->get_type_refd_last();
+          if (ref_type_last->get_typetype() != Type::T_CLASS) {
+            u.expr.r2->error("Reference to a class object was expected");
+            erroneous = true;
+          }
+        }
+        else {
+          erroneous = true;
+        }
+      }
+      {
+        Error_Context cntxt(this, "In the second operand of operation `%s'", opname);
+        u.expr.type->chk();
+        Type* type_last = u.expr.type->get_type_refd_last();
+        if (type_last->get_typetype() != Type::T_CLASS) {
+          if (type_last->get_typetype() != Type::T_ERROR) {
+            u.expr.type->error("Class type was expected");
+          }
+          erroneous = true;
+        }
+        else if (u.expr.v_optype == OPTYPE_CLASS_CASTING) {
+          Ttcn::ClassTypeBody* new_class = type_last->get_class_type_body();
+          if (new_class->is_abstract()) {
+            u.expr.type->error("Cannot cast to abstract class type `%s'",
+              u.expr.type->get_typename().c_str());
+          }
+          if (!erroneous) {
+            Ttcn::ClassTypeBody* old_class = ref_type_last->get_class_type_body();
+            if (!new_class->is_parent_class(old_class) &&
+                !old_class->is_parent_class(new_class)) {
+              u.expr.type->error("Cannot cast an object of class type `%s' "
+                "to class type `%s'",
+                ref_type_last->get_typename().c_str(),
+                u.expr.type->get_typename().c_str());
+            }
+          }
+        }
+      }
+      if (erroneous) {
+        set_valuetype(V_ERROR);
+      }
+      break; }
     default:
       FATAL_ERROR("chk_expr_operands()");
     } // switch optype
@@ -9293,6 +9445,25 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         delete v1;
       }
       break;
+    case OPTYPE_OF_CLASS:
+      if (!is_unfoldable()) {
+        clean_up();
+        valuetype = V_BOOL;
+        u.val_bool = false;
+      }
+      break;
+    case OPTYPE_CLASS_CASTING:
+      if (!is_unfoldable()) {
+        Type* type = u.expr.type;
+        Reference* ref = u.expr.r2;
+        valuetype = V_REFD;
+        u.ref.ref = ref;
+        u.ref.refd_last = this;
+        set_my_governor(type->get_type_refd_last());
+        delete type;
+      }
+      break;
+    case OPTYPE_CLASS_CASTING_REF:
     case OPTYPE_UNDEF_RUNNING:
     default:
       FATAL_ERROR("Value::evaluate_value()");
@@ -9904,6 +10075,19 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       case OPTYPE_ANY2UNISTR:
       case OPTYPE_TTCN2STRING:
         return true;
+      case OPTYPE_OF_CLASS: {
+        // class of object reference
+        Ttcn::ClassTypeBody* ref_class = u.expr.r2->chk_variable_ref()->
+          get_type_refd_last()->get_class_type_body();
+        // expected class
+        Ttcn::ClassTypeBody* exp_class = u.expr.type->get_type_refd_last()->
+          get_class_type_body();
+        // the result is always false if the classes are not related to each other,
+        // otherwise a runtime check is required
+        return ref_class->is_parent_class(exp_class) ||
+          exp_class->is_parent_class(ref_class); }
+      case OPTYPE_CLASS_CASTING:
+        return !u.expr.type->is_identical(u.expr.r2->chk_variable_ref());
       default:
         FATAL_ERROR("Value::is_unfoldable()");
       } // switch
@@ -11661,9 +11845,15 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       self_ref |= chk_expr_self_ref_val(u.expr.v1, lhs);
       // TODO t_list2
       break;
+    case OPTYPE_OF_CLASS:
+    case OPTYPE_CLASS_CASTING: {
+      Common::Assignment *ass = u.expr.r2->get_refd_assignment();
+      self_ref |= (ass == lhs);
+      break; }
 
     case NUMBER_OF_OPTYPES: // can never happen
     case OPTYPE_ISCHOSEN: // r1 i2, should have been classified as _T or _V
+    case OPTYPE_CLASS_CASTING_REF:
       FATAL_ERROR("Value::chk_expr_self_ref(%d)", u.expr.v_optype);
       break;
     } // switch u.expr.v_optype
@@ -12301,6 +12491,15 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         return string("@profiler.running");
       case OPTYPE_GET_PORT_REF:
         return string("port.getref()");
+      case OPTYPE_OF_CLASS:
+        return u.expr.r2->get_dispname() + string(" of ") +
+          u.expr.type->get_typename();
+      case OPTYPE_CLASS_CASTING:
+        return u.expr.r2->get_dispname() + string(" => ") +
+          u.expr.type->get_typename();
+      case OPTYPE_CLASS_CASTING_REF:
+        return u.expr.r2->get_dispname() + string(" => (") +
+          u.expr.r1->get_dispname() + string(")");
       default:
         return string("<unsupported optype>");
       } // switch u.expr.v_optype
@@ -13918,6 +14117,41 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         u.expr.type->get_genname_value(my_scope).c_str(), tmp_id.c_str(),
         u.expr.type->get_typename().c_str());
       expr->expr = mputprintf(expr->expr, "(*%s)", tmp_id.c_str());
+      break; }
+    case OPTYPE_OF_CLASS: {
+      Ttcn::ClassTypeBody* exp_class = u.expr.type->get_type_refd_last()->
+        get_class_type_body();
+      expression_struct_t ref_expr;
+      Code::init_expr(&ref_expr);
+      u.expr.r2->generate_code(&ref_expr);
+      if (ref_expr.preamble != NULL) {
+        expr->preamble = mputstr(expr->preamble, ref_expr.preamble);
+      }
+      expr->expr = mputprintf(expr->expr,
+        "%s != NULL_VALUE && dynamic_cast<%s*>(*%s) != NULL",
+        ref_expr.expr, exp_class->is_built_in() ? "OBJECT" :
+          u.expr.type->get_type_refd_last()->get_genname_own(my_scope).c_str(),
+        ref_expr.expr);
+      if (ref_expr.postamble != NULL) {
+        expr->postamble = mputstr(expr->postamble, ref_expr.postamble);
+      }
+      Code::free_expr(&ref_expr);
+      break; }
+    case OPTYPE_CLASS_CASTING: {
+      expression_struct_t ref_expr;
+      Code::init_expr(&ref_expr);
+      u.expr.r2->generate_code(&ref_expr);
+      if (ref_expr.preamble != NULL) {
+        expr->preamble = mputstr(expr->preamble, ref_expr.preamble);
+      }
+      expr->expr = mputprintf(expr->expr,
+        "%s.cast_to<%s>()",
+        ref_expr.expr,
+        u.expr.type->get_type_refd_last()->get_genname_own(my_scope).c_str());
+      if (ref_expr.postamble != NULL) {
+        expr->postamble = mputstr(expr->postamble, ref_expr.postamble);
+      }
+      Code::free_expr(&ref_expr);
       break; }
     default:
       FATAL_ERROR("Value::generate_code_expr_expr()");
@@ -15770,6 +16004,9 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case OPTYPE_EXECUTE_REFD: // v1 ap_list2 [v3]
       return has_single_expr_invoke(u.expr.v1, u.expr.ap_list2) &&
             (!u.expr.v3 || u.expr.v3->has_single_expr());
+    case OPTYPE_OF_CLASS:
+    case OPTYPE_CLASS_CASTING:
+      return u.expr.r2->has_single_expr();
     default:
       FATAL_ERROR("Value::has_single_expr_expr()");
     } // switch

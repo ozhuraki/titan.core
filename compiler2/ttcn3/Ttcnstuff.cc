@@ -3444,6 +3444,10 @@ namespace Ttcn {
                   "to that of inherited method `%s'",
                   local_id.get_dispname().c_str(), base_def->get_fullname().c_str());
               }
+              else if (base_func->is_final()) {
+                local_def->error("Cannot override final method `%s'",
+                  base_def->get_fullname().c_str());
+              }
               break; }
             default:
               local_def->error("%s shadows inherited member `%s'",
@@ -3648,6 +3652,12 @@ namespace Ttcn {
       target->header.class_defs = mputprintf(target->header.class_defs,
         "class %s : public %s {\n",
         class_id->get_name().c_str(), base_type_name.c_str());
+      
+      // class name
+      target->header.class_defs = mputprintf(target->header.class_defs,
+        "public:\n"
+        "static const char* class_name() { return \"%s\"; }\n\n",
+        class_id->get_dispname().c_str());
       
       // members
       members->generate_code(target);

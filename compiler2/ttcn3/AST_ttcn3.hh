@@ -1356,6 +1356,7 @@ namespace Ttcn {
     Type *output_type;
     /** optional template restriction on return template value */
     template_restriction_t template_restriction;
+    bool final;
 
     static asstype_t determine_asstype(bool is_external, bool has_return_type,
       bool returns_template);
@@ -1376,7 +1377,7 @@ namespace Ttcn {
      */
     Def_Function_Base(bool is_external, Identifier *p_id,
       FormalParList *p_fpl, Type *p_return_type, bool returns_template,
-      template_restriction_t p_template_restriction);
+      template_restriction_t p_template_restriction, bool p_final);
     virtual ~Def_Function_Base();
     virtual void set_fullname(const string& p_fullname);
     virtual void set_my_scope(Scope *p_scope);
@@ -1393,6 +1394,7 @@ namespace Ttcn {
     bool is_identical(Def_Function_Base* p_other);
     template_restriction_t get_template_restriction()
       { return template_restriction; }
+    virtual bool is_final() const { return final; }
     /** Checks and returns whether the function is startable.
      * Reports the appropriate error message(s) if not. */
     //bool chk_startable(Location* caller_location);
@@ -1471,10 +1473,9 @@ namespace Ttcn {
     Def_Function(bool p_deterministic, Identifier *p_id, FormalParList *p_fpl,
                  Reference *p_runs_on_ref, Reference *p_mtc_ref,
                  Reference *p_system_ref, Reference *p_port_ref,
-                 Type *p_return_type,
-                 bool returns_template,
+                 Type *p_return_type, bool returns_template,
                  template_restriction_t p_template_restriction,
-                 StatementBlock *p_block);
+                 bool p_final, StatementBlock *p_block);
     virtual ~Def_Function();
     virtual Def_Function *clone() const;
     virtual void set_fullname(const string& p_fullname);
@@ -1570,9 +1571,9 @@ namespace Ttcn {
      */
     Def_ExtFunction(bool p_deterministic, Identifier *p_id, FormalParList *p_fpl,
       Type *p_return_type, bool returns_template,
-      template_restriction_t p_template_restriction, bool p_ext_keyword)
+      template_restriction_t p_template_restriction, bool p_final, bool p_ext_keyword)
       : Def_Function_Base(true, p_id, p_fpl, p_return_type, returns_template,
-          p_template_restriction),
+          p_template_restriction, p_final),
       function_type(EXTFUNC_MANUAL), encoding_type(Type::CT_UNDEF),
       encoding_options(0), eb_list(0), printing(0),
       deterministic(p_deterministic), ext_keyword(p_ext_keyword) { }
@@ -1617,7 +1618,7 @@ namespace Ttcn {
       Type* p_return_type, bool returns_template,
       template_restriction_t p_template_restriction)
     : Def_Function_Base(false, p_id, p_fpl, p_return_type, returns_template,
-      p_template_restriction) { }
+      p_template_restriction, false) { }
     virtual ~Def_AbsFunction();
     virtual Definition* clone() const;
     virtual void chk();
