@@ -142,51 +142,51 @@ namespace Common {
       if (output_only_linenum || (yyloc.first_line == yyloc.last_line &&
           yyloc.first_column <= 0 && yyloc.last_column <= 0)) {
 	// print only the first line
-	fprintf(fp, "%d", yyloc.first_line);
+	fprintf(fp, "%lu", yyloc.first_line);
       } else if (yyloc.last_line > yyloc.first_line) {
 	// multi-line area
 	if (yyloc.first_column >= 0 && yyloc.last_column >= 0) {
 	  // all line/column fields are valid
 	  if (gcc_compat) {
-	    fprintf(fp, "%d:%d", yyloc.first_line, yyloc.first_column + 1);
+	    fprintf(fp, "%lu:%lu", yyloc.first_line, yyloc.first_column + 1);
 	  }
 	  else {
-	    fprintf(fp, "%d.%d-%d.%d", yyloc.first_line,
+	    fprintf(fp, "%lu.%lu-%lu.%lu", yyloc.first_line,
 	      yyloc.first_column + 1, yyloc.last_line, yyloc.last_column);
 	  }
 	} else {
 	  // only the line numbers are valid
 	  if (gcc_compat) {
-	    fprintf(fp, "%d", yyloc.first_line);
+	    fprintf(fp, "%lu", yyloc.first_line);
 	  }
 	  else {
-	    fprintf(fp, "%d-%d", yyloc.first_line, yyloc.last_line);
+	    fprintf(fp, "%lu-%lu", yyloc.first_line, yyloc.last_line);
 	  }
 	}
       } else if (yyloc.first_line == yyloc.last_line) {
 	// single line area
 	if (yyloc.first_column >= 0 && yyloc.last_column > yyloc.first_column) {
 	  if (gcc_compat) {
-	    fprintf(fp, "%d:%d", yyloc.first_line, yyloc.first_column + 1);
+	    fprintf(fp, "%lu:%lu", yyloc.first_line, yyloc.first_column + 1);
 	  }
 	  else {
 	    if (yyloc.last_column > yyloc.first_column + 1) {
 	      // more characters are covered
-	      fprintf(fp, "%d.%d-%d", yyloc.first_line, yyloc.first_column + 1,
+	      fprintf(fp, "%lu.%lu-%lu", yyloc.first_line, yyloc.first_column + 1,
 	        yyloc.last_column);
 	    } else {
 	      // only a single character is covered
-	      fprintf(fp, "%d.%d", yyloc.first_line, yyloc.first_column + 1);
+	      fprintf(fp, "%lu.%lu", yyloc.first_line, yyloc.first_column + 1);
 	    }
 	  }
 	} else {
 	  // the column information is invalid, print the line number only
-	  fprintf(fp, "%d", yyloc.first_line);
+	  fprintf(fp, "%lu", yyloc.first_line);
 	}
       } else {
 	// the last line is smaller than the first line
 	// print only the first line
-	fprintf(fp, "%d", yyloc.first_line);
+	fprintf(fp, "%lu", yyloc.first_line);
       }
     } else {
       // line information is not available
@@ -244,11 +244,11 @@ namespace Common {
         		      : "TTCN_Location_Statistics current_location(\"");
       str = Code::translate_string(str, filename);
       str = mputprintf(str,
-        !tcov_enabled ? "\", %d, TTCN_Location::LOCATION_%s, \"%s\");\n"
-        		      : "\", %d, TTCN_Location_Statistics::LOCATION_%s, \"%s\");\n", yyloc.first_line, entitytype, entityname);
+        !tcov_enabled ? "\", %lu, TTCN_Location::LOCATION_%s, \"%s\");\n"
+        		      : "\", %lu, TTCN_Location_Statistics::LOCATION_%s, \"%s\");\n", yyloc.first_line, entitytype, entityname);
       if (tcov_enabled) {
           effective_module_lines =
-            mputprintf(effective_module_lines, "%s%d",
+            mputprintf(effective_module_lines, "%s%lu",
             		   (effective_module_lines ? ", " : ""), yyloc.first_line);
           effective_module_functions =
             mputprintf(effective_module_functions, "%s\"%s\"",
@@ -263,7 +263,7 @@ namespace Common {
         char* file_name2 = mcopystrn(filename, file_name_len);
         str = mputprintf(str,
           "TTCN3_Stack_Depth stack_depth;\n"
-          "ttcn3_prof.enter_function(\"%s\", %d);\n", file_name2, yyloc.first_line);
+          "ttcn3_prof.enter_function(\"%s\", %lu);\n", file_name2, yyloc.first_line);
         insert_profiler_code_line(file_name2, 
           (0 == strcmp(entitytype, "CONTROLPART") ? "control" : entityname),
           yyloc.first_line);
@@ -277,7 +277,7 @@ namespace Common {
   {
     if (filename && yyloc.first_line > 0) {
       if (include_location_info && !transparency) {
-        str = mputprintf(str, "current_location.update_lineno(%d);\n",
+        str = mputprintf(str, "current_location.update_lineno(%lu);\n",
                          yyloc.first_line);
         const char* file_name = get_filename();
         if (is_file_profiled(file_name)) {
@@ -287,24 +287,24 @@ namespace Common {
             file_name_len -= 2;
           }
           char* file_name2 = mcopystrn(file_name, file_name_len);
-          str = mputprintf(str, "ttcn3_prof.execute_line(\"%s\", %d);\n",
+          str = mputprintf(str, "ttcn3_prof.execute_line(\"%s\", %lu);\n",
                   file_name2, yyloc.first_line);
           insert_profiler_code_line(file_name2, NULL, yyloc.first_line);
           Free(file_name2);
         }
         if (tcov_file_name && in_tcov_files(file_name)) {
             effective_module_lines =
-              mputprintf(effective_module_lines, "%s%d",
+              mputprintf(effective_module_lines, "%s%lu",
               		   (effective_module_lines ? ", " : ""), yyloc.first_line);
         }
         if (debugger_active) {
-          str = mputprintf(str, "ttcn3_debugger.breakpoint_entry(%d);\n", yyloc.first_line);
+          str = mputprintf(str, "ttcn3_debugger.breakpoint_entry(%lu);\n", yyloc.first_line);
         }
       }
 
       if (include_line_info)
-        str = mputprintf(str, "#line %d \"%s\"\n", yyloc.first_line, filename);
-      else str = mputprintf(str, "/* %s, line %d */\n", filename,
+        str = mputprintf(str, "#line %lu \"%s\"\n", yyloc.first_line, filename);
+      else str = mputprintf(str, "/* %s, line %lu */\n", filename,
                             yyloc.first_line);
     }
     return str;

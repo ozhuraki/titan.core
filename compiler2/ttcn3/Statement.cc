@@ -6757,8 +6757,8 @@ error:
     str = Code::translate_string(str, get_filename());
     size_t first_line = get_first_line(), last_line = get_last_line();
     if (first_line < last_line) str = mputprintf(str,
-      " between lines %d and %d", first_line, last_line);
-    else str = mputprintf(str, ", line %d", first_line);
+      " between lines %lu and %lu", first_line, last_line);
+    else str = mputprintf(str, ", line %lu", first_line);
     str = mputstr(str, ".\");\n"
       "TTCN_Snapshot::take_new(TRUE);\n"
       "}\n");
@@ -13574,8 +13574,8 @@ error:
       str = Code::translate_string(str, loc.get_filename());
       size_t first_line = loc.get_first_line(), last_line = loc.get_last_line();
       if (first_line < last_line) str = mputprintf(str,
-	" between lines %d and %d", first_line, last_line);
-      else str = mputprintf(str, ", line %d", first_line);
+	" between lines %lu and %lu", first_line, last_line);
+      else str = mputprintf(str, ", line %lu", first_line);
       str = mputstr(str, ".\");\n"
 	"TTCN_Snapshot::take_new(TRUE);\n");
     }
@@ -13805,8 +13805,8 @@ error:
     str = Code::translate_string(str, loc.get_filename());
     size_t first_line = loc.get_first_line(), last_line = loc.get_last_line();
     if (first_line < last_line) str = mputprintf(str,
-      " between lines %d and %d", first_line, last_line);
-    else str = mputprintf(str, ", line %d", first_line);
+      " between lines %lu and %lu", first_line, last_line);
+    else str = mputprintf(str, ", line %lu", first_line);
     str = mputstr(str, ".\");\n"
       "TTCN_Snapshot::take_new(TRUE);\n"
       "}\n"); // (1) for
