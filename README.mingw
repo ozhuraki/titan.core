@@ -36,7 +36,11 @@ MinGW setup
 		MinGW compilation needs a few extra changes in the Makefile.cfg also. Set
 		the PLATFORM and MINGW values:
 			PLATFORM := WIN32 
-			MINGW := -DMINGW -mno-cygwin 
+		
+		(/1: for older gcc -s)
+			MINGW := -DMINGW -mno-cygwin
+		(/2: for newer gcc -s, probably >5.0)
+			MINGW := -DMINGW
 	
 	(E) Compile Titan:
 	        cd titan
@@ -50,3 +54,5 @@ MinGW setup
 		https://cygwin.com/cgi-bin2/package-grep.cgi
 		Extract the downloaded package into the MinGW installation directory, and
 		restart the build process.
+	
+	(+) for man2pdf "man -t ./compiler.1 2> /dev/null | ps2pdf - 2> /dev/null > compiler.pdf"
