@@ -1109,7 +1109,7 @@ void PatternType::applyFacet() // only for time types and string types without h
         {
           if (charclass == 0) {
             Mstring s;
-            int k = 1;
+            size_t k = 1;
             while (facet[i + k] != '}') {
               s += facet[i + k];
               ++k;
@@ -1195,7 +1195,7 @@ void PatternType::applyFacet() // only for time types and string types without h
         case '&':
           if (facet[i + 1] == '#') { // &#....;
             Mstring s;
-            int k = 2;
+            size_t k = 2;
             while (facet[i + k] != ';') {
               s += facet[i + k];
               ++k;
