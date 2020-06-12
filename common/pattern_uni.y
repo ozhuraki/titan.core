@@ -95,7 +95,7 @@ static void yyprint(FILE *file, int type, const YYSTYPE& value);
 
 %union {
   int b; /* boolean */
-  char c; /* single character */
+  unsigned char c; /* single character */
   char *s; /* character string */
   unsigned long int u; /* unsigned integer */
   struct character_set *set; // used by nonterminals in pattern_p.y

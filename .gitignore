@@ -12,3 +12,4 @@ META-INF
 build.properties
 .cproject
 .settings/
+*.pdf

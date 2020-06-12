@@ -123,14 +123,14 @@ if (in_set) {
   bool error = false;
   Ttcn::Reference *ref = 0;
   size_t last = 0; // last "consumed" index into yytext
-  int old_column = 0, old_line = 0; // the beginning of the entire reference
+  size_t old_column = 0, old_line = 0; // the beginning of the entire reference
 
   for (size_t i = 0; i < num_id; ++i) {
     const string & id_str = *identifiers[i];
     const size_t    & id_beg = *beginnings [i];
     if (Identifier::is_reserved_word(id_str, Identifier::ID_TTCN)) {
       UPDATE_LOCATION(last, id_beg); // consume before identifier
-      int first_line = current_line, first_column = current_column;
+      size_t first_line = current_line, first_column = current_column;
       UPDATE_LOCATION(id_beg, id_beg+id_str.size()); // consume identifier
       Location loc(current_file, first_line, first_column, current_line,
         current_column); // location covers the identifier
@@ -199,7 +199,7 @@ if (in_set) {
 }
 
 "{"[^}]*"}" {
-  int first_line = current_line, first_column = current_column;
+  size_t first_line = current_line, first_column = current_column;
   UPDATE_LOCATION(0, yyleng);
   Location loc(current_file, first_line, first_column, current_line,
     current_column);
@@ -218,7 +218,7 @@ if (in_set) {
     Identifier::ID_TTCN, id_str));
   ps->addRef(ref, TRUE);
   
-  int first_line = current_line, first_column = current_column;
+  size_t first_line = current_line, first_column = current_column;
   UPDATE_LOCATION(0, yyleng);
   Location loc(current_file, first_line, first_column, current_line,
     current_column);
@@ -241,7 +241,7 @@ if (in_set) {
     Identifier::ID_TTCN, id_str));
   ps->addRef(ref, TRUE);
   
-  int first_line = current_line, first_column = current_column;
+  size_t first_line = current_line, first_column = current_column;
   UPDATE_LOCATION(0, yyleng);
   Location loc(current_file, first_line, first_column, current_line,
     current_column);
@@ -253,7 +253,7 @@ if (in_set) {
 }
 
 "\\N"{WS}"{"[^}]*"}" {
-  int first_line = current_line, first_column = current_column;
+  size_t first_line = current_line, first_column = current_column;
   UPDATE_LOCATION(0, yyleng);
   Location loc(current_file, first_line, first_column, current_line,
     current_column);
@@ -390,7 +390,7 @@ if (in_set) {
 }
 
 "\\q"({WS}"{"[^}]*"}")? {
-  int first_line = current_line, first_column = current_column;
+  size_t first_line = current_line, first_column = current_column;
   UPDATE_LOCATION(0, yyleng);
   Location loc(current_file, first_line, first_column, current_line,
     current_column);
@@ -462,7 +462,7 @@ if (in_set) {
 }
 
 "\\"(.|{NEWLINE}) {
-  int first_line = current_line, first_column = current_column;
+  size_t first_line = current_line, first_column = current_column;
   UPDATE_LOCATION(0, yyleng);
   Location loc(current_file, first_line, first_column, current_line,
     current_column);
@@ -474,7 +474,7 @@ if (in_set) {
 }
 
 "#"{WS}[0-9] {
-  int first_line = current_line, first_column = current_column;
+  size_t first_line = current_line, first_column = current_column;
   UPDATE_LOCATION(0, yyleng);
   if (in_set) {
     Location loc(current_file, first_line, first_column, current_line,
@@ -489,7 +489,7 @@ if (in_set) {
 
 "#"{WS}"("{WS}{NUMBER}{WS}")" {
   if (in_set) {
-    int first_line = current_line, first_column = current_column;
+    size_t first_line = current_line, first_column = current_column;
     UPDATE_LOCATION(0, yyleng);
     Location loc(current_file, first_line, first_column, current_line,
       current_column);
@@ -514,7 +514,7 @@ if (in_set) {
 }
 
 "#"{WS}"("{WS}{NUMBER}{WS}","{WS}{NUMBER}{WS}")" {
-  int first_line = current_line, first_column = current_column;
+  size_t first_line = current_line, first_column = current_column;
   if (in_set) {
     UPDATE_LOCATION(0, yyleng);
     Location loc(current_file, first_line, first_column, current_line,
@@ -569,7 +569,7 @@ if (in_set) {
 
 "#"{WS}"("{WS}{NUMBER}{WS}","{WS}")" {
   if (in_set) {
-    int first_line = current_line, first_column = current_column;
+    size_t first_line = current_line, first_column = current_column;
     UPDATE_LOCATION(0, yyleng);
     Location loc(current_file, first_line, first_column, current_line,
       current_column);
@@ -597,7 +597,7 @@ if (in_set) {
 
 "#"{WS}"("{WS}","{WS}{NUMBER}{WS}")" {
   if (in_set) {
-    int first_line = current_line, first_column = current_column;
+    size_t first_line = current_line, first_column = current_column;
     UPDATE_LOCATION(0, yyleng);
     Location loc(current_file, first_line, first_column, current_line,
       current_column);
@@ -623,7 +623,7 @@ if (in_set) {
 }
 
 "#"{WS}"("{WS}","{WS}")" {
-  int first_line = current_line, first_column = current_column;
+  size_t first_line = current_line, first_column = current_column;
   UPDATE_LOCATION(0, yyleng);
   if (in_set) {
     Location loc(current_file, first_line, first_column, current_line,
@@ -634,7 +634,7 @@ if (in_set) {
 }
 
 "#"{WS}"("[^)]*")" {
-  int first_line = current_line, first_column = current_column;
+  size_t first_line = current_line, first_column = current_column;
   UPDATE_LOCATION(0, yyleng);
   Location loc(current_file, first_line, first_column, current_line,
     current_column);

@@ -877,7 +877,7 @@ This ABNF browser was generated from file &lt;mockup_bnf.txt&gt; on Tue Jul 20 1
     <TD>
     <P><A NAME="componentdef"></a><A HREF="#Xref.ComponentDef">ComponentDef</A>
     <TD VALIGN=TOP>=</TD>
-    <TD><A HREF="#componentkeyword">ComponentKeyword</A> <A HREF="#componenttypeidentifier">ComponentTypeIdentifier</A> <A HREF="#beginchar">BeginChar</A> [<A HREF="#componentdeflist">ComponentDefList</A>]
+    <TD><A HREF="#componentkeyword">ComponentKeyword</A> <A HREF="#componenttypeidentifier">ComponentTypeIdentifier</A> [<A HREF="#extendskeyword">ExtendsKeyword</A> <A HREF="#componenttypeidentifier">ComponentTypeIdentifier</A>] <A HREF="#beginchar">BeginChar</A> [<A HREF="#componentdeflist">ComponentDefList</A>]
     <A HREF="#endchar">EndChar</A></TD>
   </TR>
   <TR VALIGN=TOP>
@@ -889,6 +889,16 @@ This ABNF browser was generated from file &lt;mockup_bnf.txt&gt; on Tue Jul 20 1
     <P><A NAME="componentkeyword"></a><A HREF="#Xref.ComponentKeyword">ComponentKeyword</A>
     <TD VALIGN=TOP>=</TD>
     <TD>"<FONT COLOR="black">component</FONT>"</TD>
+  </TR>
+  <TR VALIGN=TOP>
+    <TD></TD>
+    <TD></TD>
+  </TR>
+  <TR VALIGN=TOP>
+    <TD>
+    <P><A NAME="extendskeyword"></a><A HREF="#Xref.ExtendsKeyword">ExtendsKeyword</A>
+    <TD VALIGN=TOP>=</TD>
+    <TD>"<FONT COLOR="black">extends</FONT>"</TD>
   </TR>
   <TR VALIGN=TOP>
     <TD></TD>
@@ -5765,6 +5775,10 @@ This ABNF browser was generated from file &lt;mockup_bnf.txt&gt; on Tue Jul 20 1
   <TR VALIGN=TOP>
     <TD><A NAME="Xref.ExtendedFieldReference"></a><A HREF="#extendedfieldreference">ExtendedFieldReference</A></TD>
     <TD><A HREF="#variableref">VariableRef</A>, <A HREF="#referencedtype">ReferencedType</A>, <A HREF="#referencedvalue">ReferencedValue</A></TD>
+  </TR>
+  <TR VALIGN=TOP>
+    <TD><A NAME="Xref.ExtendsKeyword"></a><A HREF="#extendskeyword">ExtendsKeyword</A></TD>
+    <TD><A HREF="#componentdef">ComponentDef</A></TD>
   </TR>
   <TR VALIGN=TOP>
     <TD><A NAME="Xref.ExtensionKeyword"></a><A HREF="#extensionkeyword">ExtensionKeyword</A></TD>

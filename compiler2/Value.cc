@@ -9572,14 +9572,14 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       Free(t_filepath);
       break; }
     case MACRO_LINENUMBER: {
-      int t_lineno = get_first_line();
+      size_t t_lineno = get_first_line();
       if (t_lineno <= 0)
 	FATAL_ERROR("Value::evaluate_macro(): line number is not set");
       set_val_str(new string(Int2string(t_lineno)));
       valuetype = V_CSTR;
       break; }
     case MACRO_LINENUMBER_C: {
-      int t_lineno = get_first_line();
+      size_t t_lineno = get_first_line();
       if (t_lineno <= 0)
 	FATAL_ERROR("Value::evaluate_macro(): line number is not set");
       u.val_Int = new int_val_t(t_lineno);

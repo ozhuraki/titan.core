@@ -34,7 +34,17 @@ void operator delete(void *ptr) throw()
     Free(ptr);
 }
 
+void operator delete(void *ptr, std::size_t) throw()
+{
+    Free(ptr);
+}
+
 void operator delete[](void *ptr) throw()
+{
+    if (ptr != static_cast<void*>(&dummy)) Free(ptr);
+}
+
+void operator delete[](void *ptr, std::size_t) throw()
 {
     if (ptr != static_cast<void*>(&dummy)) Free(ptr);
 }

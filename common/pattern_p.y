@@ -71,11 +71,11 @@
   static void pattern_yyerror(const char *error_str);
   /** Creates the POSIX equivalent of literal character \a c using the
    * appropriate escape sequence when needed. */
-  static char *translate_character(char c);
+  static char *translate_character(unsigned char c);
   /** Returns the printable equivalent of character \a c */
-  static char *print_character(char c);
+  static char *print_character(unsigned char c);
   /** Returns the printable equivalent of range \a lower .. \a upper */
-  static char *print_range(char lower, char upper);
+  static char *print_range(unsigned char lower, unsigned char upper);
   /** structure for manipulating character sets */
   struct character_set;
   /** allocates, initializes and returns a new empty set */
@@ -89,16 +89,16 @@
   /** returns whether set \a set contains all characters in range 1..127 */
   static int set_is_full(const character_set *set);
   /** returns whether set \a set contains the character \a c */
-  static int set_has_char(const character_set *set, char c);
+  static int set_has_char(const character_set *set, unsigned char c);
   /** adds character \a c to set \a set */
-  static void set_add_char(character_set *set, char c);
+  static void set_add_char(character_set *set, unsigned char c);
   /** removes character \a c to set \a set */
-  static void set_remove_char(character_set *set, char c);
+  static void set_remove_char(character_set *set, unsigned char c);
   /** returns whether set \a set contains at least one character in the range
    * \a lower .. \a upper */
-  static int set_has_range(const character_set *set, char lower, char upper);
+  static int set_has_range(const character_set *set, unsigned char lower, unsigned char upper);
   /** adds range \a lower .. \a upper to set \a set */
-  static void set_add_range(character_set *set, char lower, char upper);
+  static void set_add_range(character_set *set, unsigned char lower, unsigned char upper);
   /** returns whether set \a set1 and \a set2 has non-empty intersect */
   static int set_has_intersect(const character_set *set1,
     const character_set *set2);
@@ -139,7 +139,7 @@ static void yyprint(FILE *file, int type, const YYSTYPE& value);
 
 %union {
   int b; /* boolean */
-  char c; /* single character */
+  unsigned char c; /* single character */
   char *s; /* character string */
   unsigned long int u; /* unsigned integer */
   struct character_set *set; // used by nonterminals in pattern_p.y
@@ -686,7 +686,7 @@ void pattern_yyerror(const char *error_str)
  * @param c plain character
  * @return a newly allocated string which must be Free() 'd
  */
-char *translate_character(char c)
+char *translate_character(unsigned char c)
 {
   int escape_needed = 0;
   switch (c) {
@@ -710,7 +710,7 @@ char *translate_character(char c)
   else return mputc(NULL, c);
 }
 
-char *print_character(char c)
+char *print_character(unsigned char c)
 {
   switch (c) {
   case '\t':
@@ -723,7 +723,7 @@ char *print_character(char c)
   }
 }
 
-char *print_range(char lower, char upper)
+char *print_range(unsigned char lower, unsigned char upper)
 {
   char *range_str = print_character(lower);
   range_str = mputc(range_str, '-');
@@ -775,24 +775,24 @@ int set_is_full(const character_set *set)
   return 1;
 }
 
-int set_has_char(const character_set *set, char c)
+int set_has_char(const character_set *set, unsigned char c)
 {
   if (set->set_members[c / CS_BITS_PER_ELEM] & 1UL << c % CS_BITS_PER_ELEM)
     return 1;
   else return 0;
 }
 
-void set_add_char(character_set *set, char c)
+void set_add_char(character_set *set, unsigned char c)
 {
   set->set_members[c / CS_BITS_PER_ELEM] |= 1UL << c % CS_BITS_PER_ELEM;
 }
 
-void set_remove_char(character_set *set, char c)
+void set_remove_char(character_set *set, unsigned char c)
 {
   set->set_members[c / CS_BITS_PER_ELEM] &= ~(1UL << c % CS_BITS_PER_ELEM);
 }
 
-int set_has_range(const character_set *set, char lower, char upper)
+int set_has_range(const character_set *set, unsigned char lower, unsigned char upper)
 {
   for (size_t i = lower; i <= static_cast<unsigned char>(upper); i++)
     if (set->set_members[i / CS_BITS_PER_ELEM] & 1UL << i % CS_BITS_PER_ELEM)
@@ -800,7 +800,7 @@ int set_has_range(const character_set *set, char lower, char upper)
   return 0;
 }
 
-void set_add_range(character_set *set, char lower, char upper)
+void set_add_range(character_set *set, unsigned char lower, unsigned char upper)
 {
   for (size_t i = lower; i <= static_cast<unsigned char>(upper); i++)
     set->set_members[i / CS_BITS_PER_ELEM] |= 1UL << i % CS_BITS_PER_ELEM;
@@ -832,10 +832,10 @@ void set_report_duplicates(const character_set *set1,
     for (i++; i <= 127; i++)
       if (set_has_char(set2, i) && set_has_char(set1, i)) break;
     if (i > 127) break;
-    char lower = i;
+    unsigned char lower = i;
     for (i++; i <= 127; i++)
       if (!set_has_char(set2, i) || !set_has_char(set1, i)) break;
-    char upper = i - 1;
+    unsigned char upper = static_cast<unsigned char>(i - 1);
     if (lower < upper) {
       char *range_str = print_range(lower, upper);
       TTCN_pattern_warning("Duplicate range `%s' in the character set.",

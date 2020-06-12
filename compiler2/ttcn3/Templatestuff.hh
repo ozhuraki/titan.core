@@ -388,12 +388,12 @@ namespace Ttcn {
     virtual void set_fullname(const string& p_fullname);
     virtual void set_my_scope(Scope *p_scope);
     Scope* get_my_scope() const { return my_scope; }
-    void set_location(const char *p_filename, int p_lineno=0);
+    void set_location(const char *p_filename, size_t p_lineno=0);
     void set_location(const char *p_filename, const YYLTYPE& p_yyloc);
     void set_location(const char *p_filename, const YYLTYPE& p_firstloc,
                                               const YYLTYPE& p_lastloc);
-    void set_location(const char *p_filename, int p_first_line,
-      int p_first_column, int p_last_line, int p_last_column);
+    void set_location(const char *p_filename, size_t p_first_line,
+      size_t p_first_column, size_t p_last_line, size_t p_last_column);
     virtual void dump(unsigned int level) const;
     // @}
 

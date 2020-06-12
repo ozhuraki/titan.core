@@ -39,10 +39,10 @@
 #if ! defined (YYLTYPE) && ! defined (YYLTYPE_IS_DECLARED)
 typedef struct YYLTYPE
 {
-  int first_line;
-  int first_column;
-  int last_line;
-  int last_column;
+  size_t first_line;
+  size_t first_column;
+  size_t last_line;
+  size_t last_column;
 } YYLTYPE;
 # define YYLTYPE_IS_DECLARED 1
 # define YYLTYPE_IS_TRIVIAL 1
@@ -134,7 +134,7 @@ namespace Common {
     /** Constructor with filename and just a line number.
      * Sets \c yyloc.first_line and \c yyloc.last_line to \p p_lineno,
      * and the columns to zero. */
-    Location(const char *p_filename, int p_lineno=0)
+    Location(const char *p_filename, size_t p_lineno=0)
       { set_location(p_filename, p_lineno); }
 
     /** Constructor with filename and full location information.
@@ -162,15 +162,15 @@ namespace Common {
      * Stores the filename, and the line/column info in the appropriate
      * members of \c yyloc.
      */
-    Location(const char *p_filename, int p_first_line, int p_first_column,
-                                     int p_last_line, int p_last_column)
+    Location(const char *p_filename, size_t p_first_line, size_t p_first_column,
+                                     size_t p_last_line, size_t p_last_column)
       { set_location(p_filename, p_first_line, p_first_column,
                                  p_last_line, p_last_column); }
 
     /** Setter with filename and full location information.
      * Copies \p p_yyloc into \p yyloc.
      */
-    void set_location(const char *p_filename, int p_lineno=0);
+    void set_location(const char *p_filename, size_t p_lineno=0);
     /** Setter with filename and full location information.
      * Copies \p p_yyloc into \p yyloc.
      */
@@ -192,8 +192,8 @@ namespace Common {
      * Stores the filename, and the line/column info in the appropriate
      * members of \c yyloc.
      */
-    void set_location(const char *p_filename, int p_first_line,
-      int p_first_column, int p_last_line, int p_last_column);
+    void set_location(const char *p_filename, size_t p_first_line,
+      size_t p_first_column, size_t p_last_line, size_t p_last_column);
 
     /** Copies the stored location information from \a p. */
     void set_location(const Location& p) { *this = p; }
@@ -204,15 +204,15 @@ namespace Common {
     /** Returns the attribute filename. */
     const char *get_filename() const { return filename; }
     /** Returns the line number, for backward compatibility */
-    int get_lineno() const { return yyloc.first_line; }
+    size_t get_lineno() const { return yyloc.first_line; }
     /** Returns the first line attribute */
-    int get_first_line() const { return yyloc.first_line; }
+    size_t get_first_line() const { return yyloc.first_line; }
     /** Returns the last line attribute */
-    int get_last_line() const { return yyloc.last_line; }
+    size_t get_last_line() const { return yyloc.last_line; }
     /** Returns the first column attribute */
-    int get_first_column() const { return yyloc.first_column; }
+    size_t get_first_column() const { return yyloc.first_column; }
     /** Returns the last column attribute */
-    int get_last_column() const { return yyloc.last_column; }
+    size_t get_last_column() const { return yyloc.last_column; }
 
 private:
     /** Prints the line/column information stored in \a this into file \a fp.

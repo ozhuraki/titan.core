@@ -201,10 +201,10 @@ namespace Ttcn {
     str = mputstr(str, "TTCN_error(\"None of the branches can be chosen in the "
       "interleave statement in file ");
     str = Code::translate_string(str, il->get_filename());
-    int first_line = il->get_first_line(), last_line = il->get_last_line();
+    size_t first_line = il->get_first_line(), last_line = il->get_last_line();
     if (first_line < last_line) str = mputprintf(str,
-      " between lines %d and %d", first_line, last_line);
-    else str = mputprintf(str, ", line %d", first_line);
+      " between lines %lu and %lu", first_line, last_line);
+    else str = mputprintf(str, ", line %lu", first_line);
     str = mputprintf(str, ".\");\n"
       "%s_newsnapshot:\n"
       "TTCN_Snapshot::take_new(TRUE);\n"

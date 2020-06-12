@@ -66,7 +66,7 @@ extern FILE *asn1_yyin;
 #define yyin asn1_yyin
 extern int asn1_yylineno;
 #define yylineno asn1_yylineno
-int asn1_plineno;
+size_t asn1_plineno;
 #define plineno asn1_plineno
 /* copy-paste from xxxxx.yy.cc */
 #define YY_BUF_SIZE 16384

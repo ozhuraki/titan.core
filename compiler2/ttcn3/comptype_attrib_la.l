@@ -40,7 +40,7 @@ enum extension_attr_parser_state_t {
 };
 
 #define YY_DECL static int yylex(Common::CompTypeRefList*& attr_comp_refs, \
-int current_line, int current_column, const char *current_file)
+size_t current_line, size_t current_column, const char *current_file)
 
 #define FATAL_ERROR_INVALID_STATE \
   FATAL_ERROR("comptype_attr.l: invalid parser state");
@@ -89,8 +89,8 @@ LINECOMMENT "//"[^\r\n]*{NEWLINE}
 %%
   Common::Identifier *id=0;
   YYLTYPE id_loc;
-  int start_line = 0;
-  int start_column = 0;
+  size_t start_line = 0;
+  size_t start_column = 0;
   extension_attr_parser_state_t parser_state = INITIAL_STATE;
   BEGIN(INITIAL);
 

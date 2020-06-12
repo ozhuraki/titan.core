@@ -44,7 +44,7 @@ static void add_char(char*& string_ptr, size_t& string_len,
 #define ADD_CHAR(c) add_char(string_ptr, string_len, string_size, c)
 
 #define YY_DECL static string *yylex(const char *current_file, \
-  int current_line, int current_column)
+  size_t current_line, size_t current_column)
 
 %}
 
