@@ -8477,21 +8477,15 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
           }
           erroneous = true;
         }
-        else if (u.expr.v_optype == OPTYPE_CLASS_CASTING) {
+        else if (u.expr.v_optype == OPTYPE_CLASS_CASTING && !erroneous) {
           Ttcn::ClassTypeBody* new_class = type_last->get_class_type_body();
-          if (new_class->is_abstract()) {
-            u.expr.type->error("Cannot cast to abstract class type `%s'",
+          Ttcn::ClassTypeBody* old_class = ref_type_last->get_class_type_body();
+          if (!new_class->is_parent_class(old_class) &&
+              !old_class->is_parent_class(new_class)) {
+            u.expr.type->error("Cannot cast an object of class type `%s' "
+              "to class type `%s'",
+              ref_type_last->get_typename().c_str(),
               u.expr.type->get_typename().c_str());
-          }
-          if (!erroneous) {
-            Ttcn::ClassTypeBody* old_class = ref_type_last->get_class_type_body();
-            if (!new_class->is_parent_class(old_class) &&
-                !old_class->is_parent_class(new_class)) {
-              u.expr.type->error("Cannot cast an object of class type `%s' "
-                "to class type `%s'",
-                ref_type_last->get_typename().c_str(),
-                u.expr.type->get_typename().c_str());
-            }
           }
         }
       }
@@ -14138,6 +14132,8 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       Code::free_expr(&ref_expr);
       break; }
     case OPTYPE_CLASS_CASTING: {
+      Ttcn::ClassTypeBody* exp_class = u.expr.type->get_type_refd_last()->
+        get_class_type_body();
       expression_struct_t ref_expr;
       Code::init_expr(&ref_expr);
       u.expr.r2->generate_code(&ref_expr);
@@ -14146,7 +14142,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       }
       expr->expr = mputprintf(expr->expr,
         "%s.cast_to<%s>()",
-        ref_expr.expr,
+        ref_expr.expr, exp_class->is_built_in() ? "OBJECT" :
         u.expr.type->get_type_refd_last()->get_genname_own(my_scope).c_str());
       if (ref_expr.postamble != NULL) {
         expr->postamble = mputstr(expr->postamble, ref_expr.postamble);

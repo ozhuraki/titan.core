@@ -390,8 +390,8 @@ testcase tc_references() runs on CT {
 
 
 type class Node {
-  var integer data;
-  var Node next;
+  public var integer data;
+  public var Node next;
 }
 
 function f_test(in Node p1, inout Node p2, out Node p3,
@@ -435,8 +435,8 @@ testcase tc_function_pars_and_retval() runs on CT {
 }
 
 type class Node2 {
-  var object data;
-  var Node2 next;
+  public var object data;
+  public var Node2 next;
 }
 
 type class Something {
@@ -624,10 +624,10 @@ testcase tc_casting() runs on CT {
   var object v_obj := Node.create(3, null);
   var BaseClass v_null := null;
   var Node v_null2 := null;
+  var object v_con := ConcreteClass.create;
   
   var BaseClass v_base := v_sub => BaseClass;
-  var BaseClass v_base2 := v_sub;
-  if (log2str(v_base) != log2str(v_base2)) {
+  if (log2str(v_base) != log2str(v_sub)) {
     setverdict(fail, "#1: ", v_base);
   }
   var FinalClass v_final2 := v_final => FinalClass;
@@ -642,24 +642,36 @@ testcase tc_casting() runs on CT {
   if (log2str(v_sub2) != log2str(v_sub)) {
     setverdict(fail, "#4: ", v_sub2);
   }
+  var object v_obj2 := v_sub => object;
+  if (log2str(v_obj2) != log2str(v_sub)) {
+    setverdict(fail, "#5: ", v_obj2);
+  }
+  var AbstractClass v_abs := v_con => AbstractClass;
+  if (log2str(v_abs) != log2str(v_con)) {
+    setverdict(fail, "#6: ", v_abs);
+  }
   @try {
     var SubClass v_bad := v_null => SubClass;
-    setverdict(fail, "#5: Error expected");
+    setverdict(fail, "#7: Error expected");
   }
   @catch(msg) {
     if (not match(msg, pattern "*Casting a null reference")) {
-      setverdict(fail, "#5: Invalid error: ", msg);
+      setverdict(fail, "#7: Invalid error: ", msg);
     }
   }
   @try {
     var FinalClass v_bad2 := v_sub => FinalClass;
-    setverdict(fail, "#6: Error expected");
+    setverdict(fail, "#8: Error expected");
   }
   @catch(msg) {
     if (not match(msg, pattern "*Invalid casting to class type `FinalClass'")) {
-      setverdict(fail, "#6: Invalid error: ", msg);
+      setverdict(fail, "#8: Invalid error: ", msg);
     }
   }
+  /*var integer v_int := (v_obj => Node).data;
+  if (v_int != 3) {
+    setverdict(fail, "#9: ", v_int);
+  }*/
   setverdict(pass);
 }
 

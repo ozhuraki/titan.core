@@ -10257,6 +10257,13 @@ ClassCastingOp:
     $$ = new Value(Value::OPTYPE_CLASS_CASTING, $3, $1);
     $$->set_location(infile, @$);
   }
+| VariableRef ClassCastingSymbol ObjectKeyword
+  {
+    Type* type = new Type(Type::T_CLASS);
+    type->set_location(infile, @3);
+    $$ = new Value(Value::OPTYPE_CLASS_CASTING, type, $1);
+    $$->set_location(infile, @$);
+  }
 | VariableRef ClassCastingSymbol '(' VariableRef ')'
   {
     $$ = new Value(Value::OPTYPE_CLASS_CASTING_REF, $4, $1);
