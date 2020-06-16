@@ -71,11 +71,13 @@ int main(void)
 #else
     "#if GCC_VERSION != %d\n"
 #endif
-    "#%s The version of " COMPILER_NAME_STRING " does not match the expected version (" COMPILER_NAME_STRING " %d.%d.%d)\n"
+    "#%s The version of " COMPILER_NAME_STRING " does not match the expected version (" COMPILER_NAME_STRING " %d.%d.%d).%s\n"
     "#endif\n", compiler_major * 10000 + compiler_minor * 100,
     /* Note that we don't use compiler_patchlevel when checking.
      * This assumes that code is portable between GCC a.b.x and a.b.y */
-    compiler_major < 5 ? "error" : "warning", compiler_major, compiler_minor, compiler_patchlevel);
+    compiler_major < 5 ? "error" : "warning", compiler_major, compiler_minor, compiler_patchlevel,
+    compiler_major < 5 ? "" : " In case of ABI changes between the expected and current compiler version, "
+    "this may lead to difficult-to-predict issues during execution.");
 #elif defined(__SUNPRO_C)
   printf("\n"
     "#if __SUNPRO_CC != 0x%X\n"
