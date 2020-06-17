@@ -91,6 +91,9 @@ public:
         TTCN_error("Invalid dynamic type of initial value.");
       }
     }
+    else {
+      ptr = NULL;
+    }
   }
   
   void clean_up() {

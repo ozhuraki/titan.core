@@ -385,6 +385,10 @@ testcase tc_references() runs on CT {
   if (ispresent(v_null)) {
     setverdict(fail, "#17");
   }
+  var BaseClass v_base2 := v_null;
+  if (v_base2 != null) {
+    setverdict(fail, "#18");
+  }
   setverdict(pass);
 }
 
