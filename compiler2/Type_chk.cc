@@ -4232,6 +4232,17 @@ bool Type::chk_this_refd_value(Value *value, Common::Assignment *lhs, expected_v
     default:
       break;
     }
+    if (!error_flag && ref->get_subrefs() != NULL &&
+        (ass->get_asstype() == Assignment::A_PAR_VAL ||
+         ass->get_asstype() == Assignment::A_PAR_VAL_IN)) {
+      Ttcn::FieldOrArrayRefs* subrefs = ref->get_subrefs();
+      for (size_t i = 0; i < subrefs->get_nof_refs(); ++i) {
+        if (subrefs->get_ref(i)->get_type() == Ttcn::FieldOrArrayRef::FUNCTION_REF) {
+          // the parameter needs to be copied, since all class methods are non-const
+          ass->use_as_lvalue(*ref);
+        }
+      }
+    }
     break;
   case Assignment::A_MODULEPAR_TEMP:
   case Assignment::A_TEMPLATE:

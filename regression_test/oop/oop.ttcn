@@ -392,6 +392,7 @@ testcase tc_references() runs on CT {
 type class Node {
   public var integer data;
   public var Node next;
+  public function f() return integer { return 1; }
 }
 
 function f_test(in Node p1, inout Node p2, out Node p3,
@@ -404,6 +405,10 @@ function f_test(in Node p1, inout Node p2, out Node p3,
   }
   if (p3 != null) {
     setverdict(fail, "Invalid 'out' parameter value at start: ", p3, ", expected: null");
+  }
+  var integer i := p1.f();
+  if (i != 1) {
+    setverdict(fail, "Invalid value returned by function call of 'in' parameter: ", i);
   }
   var Node tmp := p2;
   p3 := p1;
