@@ -2120,7 +2120,12 @@ static void print_makefile(struct makefile_struct *makefile)
       unsigned int
         compiler_major = __clang_major__,
         compiler_minor = __clang_minor__;
-      cxx = mprintf("clang++-%u.%u", compiler_major, compiler_minor);
+      if (compiler_major < 7) {
+        cxx = mprintf("clang++-%u.%u", compiler_major, compiler_minor);
+      }
+      else {
+        cxx = mprintf("clang++-%u", compiler_major);
+      }
       cxx_free = TRUE;
 #else
       cxx = "g++";
