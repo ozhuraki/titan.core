@@ -25,9 +25,23 @@ xutils-dev is needed by makedepend:
 sudo apt-get install xutils-dev
 (SLED 14.0: - )
 
+Install optional packages required some tests:
+
 The following packages may be needed for titan_eclipse/automatic_build:
-sudo apt-get install ant xsltproc
-(RHEL: sudo yum install ant # xsltproc already installed)
+Ubuntu: sudo apt-get install ant xsltproc ant-junit
+(SLED 12.4: sudo zypper install ant-junit ; libxslt-tools already installed)
+(RHEL: sudo yum install ant ant-junit# xsltproc already installed)
+(SUSE 15.1: -)
+
+The regression test requires xmllint. The package containing it: libxml2-utils
+ubuntu: sudo apt install libxml2-utils
+suse: sudo zypper install libxml2-tools
+rhel: sudo yum install libxml2-devel
+
+
+Performance test requires pcap
+ubuntu: sudo apt-get install libpcap0.8-dev
+suse: sudo zypper install libpcap-devel libpcap1
 
 2.Clone or update the titan directory from git into /home/<user_id>/titan.core
 
