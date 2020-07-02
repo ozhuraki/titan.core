@@ -443,6 +443,7 @@ namespace Ttcn {
         // Template::generate_code_init_se, TypeConv::gen_conv_func_choice_anytype,
         // defUnionClass and defUnionTemplate.
         const Identifier& id = *ref->get_id();
+        // todo: convert back to non-const if the previous type wasn't a class and the current one is
         expr->expr = mputprintf(expr->expr, "%s%s%s%s",
           (type != NULL && type->get_typetype() == Type::T_CLASS) ? "->" : ".",
           ((type!=0 && type->get_typetype()==Type::T_ANYTYPE) ? "AT_" : ""),
@@ -473,7 +474,7 @@ namespace Ttcn {
         }
         ClassTypeBody* class_ = type->get_class_type_body();
         if (const_ref && i > 0 &&
-            refs[i - 1]->get_type() != FieldOrArrayRef::FUNCTION_REF) {
+            refs[i - 1]->get_type() != FieldOrArrayRef::FUNCTION_REF) { // todo: convert if previous type wasn't a class
           // all class methods are non-const, have to convert the current object
           // to non-const
           char* prev_expr = expr->expr;
@@ -879,36 +880,45 @@ namespace Ttcn {
   Common::Assignment* Reference::get_refd_assignment_last(bool check_parlist)
   {
     Common::Assignment* ass = get_refd_assignment(check_parlist);
-    if (ass != NULL && ass->get_asstype() == Common::Assignment::A_VAR &&
-        subrefs.get_nof_refs() != 0) {
-      // there could be class objects in the subreferences, which would change
-      // the type of the last assignment
-      Type* type = ass->get_Type();
-      if (type->get_field_type(&subrefs, Common::Type::EXPECTED_DYNAMIC_VALUE) != NULL) {
-        // subrefs are valid
-        // TODO: EXPECTED_DYNAMIC_VALUE in all cases?
-        for (size_t i = 0; i < subrefs.get_nof_refs(); ++i) {
-          type = type->get_type_refd_last();
-          FieldOrArrayRef* subref = subrefs.get_ref(i);
-          switch (subref->get_type()) {
-          case FieldOrArrayRef::FIELD_REF:
-          case FieldOrArrayRef::FUNCTION_REF:
-            if (type->get_typetype() == Common::Type::T_CLASS) {
-              ass = type->get_class_type_body()->
-                get_local_ass_byId(*subref->get_id());
-              type = ass->get_Type();
+    if (ass != NULL && subrefs.get_nof_refs() != 0) {
+      switch (ass->get_asstype()) {
+      case Common::Assignment::A_VAR:
+      case Common::Assignment::A_PAR_VAL:
+      case Common::Assignment::A_PAR_VAL_IN:
+      case Common::Assignment::A_PAR_VAL_INOUT:
+      case Common::Assignment::A_PAR_VAL_OUT: {
+        // there could be class objects in the subreferences, which would change
+        // the type of the last assignment
+        Type* type = ass->get_Type();
+        if (type->get_field_type(&subrefs, Common::Type::EXPECTED_DYNAMIC_VALUE) != NULL) {
+          // subrefs are valid
+          // TODO: EXPECTED_DYNAMIC_VALUE in all cases?
+          for (size_t i = 0; i < subrefs.get_nof_refs(); ++i) {
+            type = type->get_type_refd_last();
+            FieldOrArrayRef* subref = subrefs.get_ref(i);
+            switch (subref->get_type()) {
+            case FieldOrArrayRef::FIELD_REF:
+            case FieldOrArrayRef::FUNCTION_REF:
+              if (type->get_typetype() == Common::Type::T_CLASS) {
+                ass = type->get_class_type_body()->
+                  get_local_ass_byId(*subref->get_id());
+                type = ass->get_Type();
+              }
+              else {
+                type = type->get_comp_byName(*subref->get_id())->get_type();
+              }
+              break;
+            case FieldOrArrayRef::ARRAY_REF:
+              if (type->is_structured_type()) {
+                type = type->get_ofType();
+              }
+              break;
             }
-            else {
-              type = type->get_comp_byName(*subref->get_id())->get_type();
-            }
-            break;
-          case FieldOrArrayRef::ARRAY_REF:
-            if (type->is_structured_type()) {
-              type = type->get_ofType();
-            }
-            break;
           }
         }
+        break; }
+      default:
+        break;
       }
     }
     return ass;
@@ -1186,8 +1196,8 @@ namespace Ttcn {
       this_expr.expr = mputprintf(this_expr.expr, "const_cast< const %s&>(",
         refd_gov->get_genname_template(get_my_scope()).c_str() );
     } else {
-      // don't convert to const object if the first subreference is a method call
-      if (t_subrefs->get_ref(0)->get_type() != FieldOrArrayRef::FUNCTION_REF) {
+      // don't convert to const object if the base reference is of class type
+      if (refd_gov->get_type_refd_last()->get_typetype() != Common::Type::T_CLASS) {
         this_expr.expr = mputprintf(this_expr.expr, "const_cast< const %s&>(",
           refd_gov->get_genname_value(get_my_scope()).c_str());
       }
@@ -1206,7 +1216,7 @@ namespace Ttcn {
         LazyFuzzyParamData::add_ref_genname(ass, my_scope).c_str() :
         ass->get_genname_from_scope(my_scope).c_str());
     }
-    if (t_subrefs->get_ref(0)->get_type() != FieldOrArrayRef::FUNCTION_REF) {
+    if (refd_gov->get_type_refd_last()->get_typetype() != Common::Type::T_CLASS) {
       this_expr.expr = mputstr(this_expr.expr, ")");
     }
 
@@ -6971,7 +6981,6 @@ namespace Ttcn {
     char* body = create_location_object(memptystr(), "FUNCTION", dispname_str);
     if (!enable_set_bound_out_param)
       body = fp_list->generate_code_set_unbound(body); // conform the standard out parameter is unbound
-    body = fp_list->generate_shadow_objects(body);
     if (debugger_active) {
       body = generate_code_debugger_function_init(body, this);
     }
@@ -6980,6 +6989,7 @@ namespace Ttcn {
     // smart formal parameter list (names of unused parameters are omitted)
     char *formal_par_list = fp_list->generate_code(memptystr());
     fp_list->generate_code_defval(target);
+    char* shadow_objects = fp_list->generate_shadow_objects(memptystr());
     
     bool in_class = my_scope->is_class_scope();
     char*& header = in_class ? target->header.class_defs :
@@ -6996,16 +7006,17 @@ namespace Ttcn {
     source = mputprintf(source,
       "%s %s%s%s%s(%s)\n"
       "{\n"
-      "%s"
+      "%s%s"
       "}\n\n",
       return_type_str,
       port_type && clean_up ? port_type->get_genname_own().c_str() :
       (in_class ? my_scope->get_scope_class()->get_id()->get_name().c_str() : ""),
       port_type && clean_up && port_type->get_PortBody()->get_testport_type() != PortTypeBody::TP_INTERNAL ? "_BASE" : "",
       in_class || (port_type && clean_up) ? "::" : "",
-      genname_str, formal_par_list, body);
+      genname_str, formal_par_list, shadow_objects, body);
     Free(formal_par_list);
     Free(body);
+    Free(shadow_objects);
 
     if (is_startable && !in_class) {
       size_t nof_fps = fp_list->get_nof_fps();
@@ -8873,9 +8884,18 @@ namespace Ttcn {
   
   void Def_Constructor::generate_code(output_struct *target, bool clean_up)
   {
-    fp_list->generate_code_defval(target);
-    target->temp.constructor_block = block->generate_code(target->temp.constructor_block,
+    if (!enable_set_bound_out_param) {
+      target->temp.constructor_block = fp_list->generate_code_set_unbound(
+        target->temp.constructor_block);
+    }
+    
+    char* block_gen_str = block->generate_code(memptystr(),
       target->header.global_vars, target->source.global_vars);
+    fp_list->generate_code_defval(target);
+    target->temp.constructor_block = fp_list->generate_shadow_objects(
+      target->temp.constructor_block);
+    target->temp.constructor_block = mputstr(target->temp.constructor_block, block_gen_str);
+    Free(block_gen_str);
   }
   
   void Def_Constructor::set_parent_path(WithAttribPath* p_path)
@@ -9063,21 +9083,24 @@ namespace Ttcn {
         defval.ap->set_code_section(GovernedSimple::CS_POST_INIT);
     }
     
-    if (use_runtime_2 && eval == NORMAL_EVAL && my_parlist->get_my_def() != NULL &&
-        my_parlist->get_my_def()->get_asstype() == Definition::A_ALTSTEP) {
-      // altstep 'in' parameters are always shadowed in RT2, because if a default
-      // altstep deactivates itself, then its parameters are deleted;
-      // update the genname so that all references in the generated code
-      // will point to the shadow object
-      switch (asstype) {
-      case A_PAR_VAL:
-      case A_PAR_VAL_IN:
-      case A_PAR_TEMPL_IN:
-        set_genname(id->get_name() + "_shadow");
-        break;
-      default:
-        break;
+    switch (asstype) {
+    case A_PAR_VAL_IN:
+    case A_PAR_TEMPL_IN:
+      if (eval == NORMAL_EVAL &&
+          // altstep 'in' parameters are always shadowed in RT2, because if a default
+          // altstep deactivates itself, then its parameters are deleted;
+          // update the genname so that all references in the generated code
+          // will point to the shadow object
+          ((use_runtime_2 && my_parlist->get_my_def() != NULL &&
+          my_parlist->get_my_def()->get_asstype() == Definition::A_ALTSTEP) ||
+          // always shadow 'in' parameters of class type (to avoid having to deal
+          // with constant OBJECT_REFs at runtime)
+          (type != NULL && type->get_type_refd_last()->get_typetype() == Type::T_CLASS))) {
+        use_as_lvalue(*this);
       }
+      break;
+    default:
+      break;
     }
   }
 
@@ -9894,9 +9917,7 @@ namespace Ttcn {
 
   char *FormalPar::generate_shadow_object(char *str) const
   {
-    if ((used_as_lvalue || (use_runtime_2 && usage_found &&
-        my_parlist->get_my_def()->get_asstype() == Definition::A_ALTSTEP))
-        && eval == NORMAL_EVAL) {
+    if (used_as_lvalue && usage_found && eval == NORMAL_EVAL) {
       const string& t_genname = get_genname();
       const char *genname_str = t_genname.c_str();
       const char *name_str = id->get_name().c_str();

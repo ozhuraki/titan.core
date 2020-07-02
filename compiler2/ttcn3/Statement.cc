@@ -3206,6 +3206,10 @@ namespace Ttcn {
     if (!t_ass) goto error;
     switch (t_ass->get_asstype()) {
     case Common::Assignment::A_VAR:
+    case Common::Assignment::A_PAR_VAL:
+    case Common::Assignment::A_PAR_VAL_IN:
+    case Common::Assignment::A_PAR_VAL_INOUT:
+    case Common::Assignment::A_PAR_VAL_OUT:
       if (t_ass->get_Type()->get_type_refd_last()->get_typetype() != Common::Type::T_CLASS) {
         ref_pard->error("Reference to a function or altstep was expected "
           "instead of %s, which cannot be invoked",
@@ -3295,7 +3299,12 @@ error:
   {
     Error_Context cntxt(this, "In function instance");
     Common::Assignment *t_ass = ref_pard->get_refd_assignment();
-    if (t_ass->get_asstype() == Common::Assignment::A_VAR) {
+    switch (t_ass->get_asstype()) {
+    case Common::Assignment::A_VAR:
+    case Common::Assignment::A_PAR_VAL:
+    case Common::Assignment::A_PAR_VAL_IN:
+    case Common::Assignment::A_PAR_VAL_INOUT:
+    case Common::Assignment::A_PAR_VAL_OUT: {
       // it could be a class object method
       Common::Assignment* last_method = NULL;
       Common::Type* end_type = t_ass->get_Type()->get_field_type(ref_pard->get_subrefs(),
@@ -3311,6 +3320,9 @@ error:
         // do the checks on the method at the end of the subreferences instead
         t_ass = last_method;
       }
+      break; }
+    default:
+      break;
     }
     if (t_ass->get_PortType()) {
       ref_pard->error("Function with `port' clause cannot be called directly.");

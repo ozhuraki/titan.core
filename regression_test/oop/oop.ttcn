@@ -440,12 +440,30 @@ testcase tc_function_pars_and_retval() runs on CT {
   if (log2str(res) != y_str) {
     setverdict(fail, "Invalid return value: ", res, ", expected: ", y_str);
   }
+  
   setverdict(pass);
 }
 
 type class Node2 {
   public var object data;
   public var Node2 next;
+  public function f(in object p) { data := p; }
+}
+
+function f_test_in(Node p1, Node2 p2) {
+  p2.f(p1.next);
+}
+
+testcase tc_function_pars_in() runs on CT {
+  var Node n1 := Node.create(1, Node.create(2, null));
+  var Node2 n2 := Node2.create(null, null);
+  f_test_in(n1, n2);
+  if (log2str(n2.data) != log2str(n1.next)) {
+    setverdict(fail, "Expected: ", n1.next, ", got: ", n2.data);
+  }
+  else {
+    setverdict(pass);
+  }
 }
 
 type class Something {
@@ -693,6 +711,7 @@ control {
   execute(tc_this());
   execute(tc_references());
   execute(tc_function_pars_and_retval());
+  execute(tc_function_pars_in());
   execute(tc_object());
   execute(tc_order());
   execute(tc_abstract());
