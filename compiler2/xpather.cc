@@ -1907,7 +1907,7 @@ static tpd_result process_tpd_internal(const char **p_tpd_name, char *tpdName, c
   // Collect files; filter out excluded ones
   {
     XPathObject  filesObj(run_xpath(xpathCtx,
-      "TITAN_Project_File_Information/Files/FileResource"));
+      "/TITAN_Project_File_Information/Files/FileResource"));
 
     xmlNodeSetPtr nodes = filesObj->nodesetval;
     if (nodes) for (int i = 0; i < nodes->nodeNr; ++i) {
