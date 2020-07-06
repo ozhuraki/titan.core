@@ -1366,7 +1366,7 @@ int VALUE_ARRAY<T_type,array_size,index_offset>::JSON_encode(
   int enc_len = p_tok.put_next_token(JSON_TOKEN_ARRAY_START, NULL);
   
   for (unsigned int i = 0; i < array_size; ++i) {
-    if (NULL != p_td.json && p_td.json->metainfo_unbound && !array_elements[i].is_bound()) {
+    if (p_td.json->metainfo_unbound && !array_elements[i].is_bound()) {
       // unbound elements are encoded as { "metainfo []" : "unbound" }
       enc_len += p_tok.put_next_token(JSON_TOKEN_OBJECT_START, NULL);
       enc_len += p_tok.put_next_token(JSON_TOKEN_NAME, "metainfo []");
@@ -1401,7 +1401,7 @@ int VALUE_ARRAY<T_type,array_size,index_offset>::JSON_decode(
   for (unsigned int i = 0; i < array_size; ++i) {
     size_t buf_pos = p_tok.get_buf_pos();
     size_t ret_val;
-    if (NULL != p_td.json && p_td.json->metainfo_unbound) {
+    if (p_td.json->metainfo_unbound) {
       // check for metainfo object
       ret_val = p_tok.get_next_token(&token, NULL, NULL);
       if (JSON_TOKEN_OBJECT_START == token) {

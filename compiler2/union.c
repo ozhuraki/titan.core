@@ -2050,7 +2050,7 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
         // 'as value' is not set for the base type, but it might still be set in
         // the type descriptor
         src = mputstr(src, 
-          "  boolean as_value = NULL != p_td.json && p_td.json->as_value;\n"
+          "  boolean as_value = p_td.json->as_value;\n"
           "  int enc_len = as_value ? 0 : "
           "p_tok.put_next_token(JSON_TOKEN_OBJECT_START, NULL);\n");
       } else {
@@ -2112,7 +2112,7 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
           // 'as value' is not set for the base type, but it might still be set in
           // the type descriptor
           src = mputstr(src, 
-            "  boolean as_value = NULL != p_td.json && p_td.json->as_value;\n"
+            "  boolean as_value = p_td.json->as_value;\n"
             "  int enc_len = as_value ? 0 : "
             "p_tok.put_next_token(JSON_TOKEN_OBJECT_START, NULL);\n");
         } else {
@@ -2217,7 +2217,7 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
         "  json_token_t j_token = JSON_TOKEN_NONE;\n");
       if (!sdef->jsonAsValue) {
         src = mputstr(src,
-          " if (NULL != p_td.json && p_td.json->as_value) {\n");
+          " if (p_td.json->as_value) {\n");
       }
       src = mputstr(src,
         "  size_t buf_pos = p_tok.get_buf_pos();\n"

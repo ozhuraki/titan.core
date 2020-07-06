@@ -1548,7 +1548,7 @@ void defRecordOfClass1(const struct_of_def *sdef, output_struct *output)
       "  int enc_len = p_tok.put_next_token(p_td.json->as_map ? "
       "JSON_TOKEN_OBJECT_START : JSON_TOKEN_ARRAY_START, NULL);\n"
       "  for (int i = 0; i < val_ptr->n_elements; ++i) {\n"
-      "    if (NULL != p_td.json && p_td.json->metainfo_unbound && !(*this)[i].is_bound()) {\n"
+      "    if (p_td.json->metainfo_unbound && !(*this)[i].is_bound()) {\n"
       // unbound elements are encoded as { "metainfo []" : "unbound" }
       "      enc_len += p_tok.put_next_token(JSON_TOKEN_OBJECT_START, NULL);\n"
       "      enc_len += p_tok.put_next_token(JSON_TOKEN_NAME, \"metainfo []\");\n"
@@ -1591,7 +1591,7 @@ void defRecordOfClass1(const struct_of_def *sdef, output_struct *output)
       "  for (int nof_elements = 0; TRUE; ++nof_elements) {\n"
       "    size_t buf_pos = p_tok.get_buf_pos();\n"
       "    size_t ret_val;\n"
-      "    if (NULL != p_td.json && p_td.json->metainfo_unbound) {\n"
+      "    if (p_td.json->metainfo_unbound) {\n"
       // check for metainfo object
       "      ret_val = p_tok.get_next_token(&token, NULL, NULL);\n"
       "      if (JSON_TOKEN_OBJECT_START == token) {\n"
@@ -3067,7 +3067,7 @@ void defRecordOfClassMemAllocOptimized(const struct_of_def *sdef, output_struct 
       "  }\n\n"
       "  int enc_len = p_tok.put_next_token(JSON_TOKEN_ARRAY_START, NULL);\n"
       "  for (int i = 0; i < n_elements; ++i) {\n"
-      "    if (NULL != p_td.json && p_td.json->metainfo_unbound && !value_elements[i].is_bound()) {\n"
+      "    if (p_td.json->metainfo_unbound && !value_elements[i].is_bound()) {\n"
       // unbound elements are encoded as { "metainfo []" : "unbound" }
       "      enc_len += p_tok.put_next_token(JSON_TOKEN_OBJECT_START, NULL);\n"
       "      enc_len += p_tok.put_next_token(JSON_TOKEN_NAME, \"metainfo []\");\n"
@@ -3102,7 +3102,7 @@ void defRecordOfClassMemAllocOptimized(const struct_of_def *sdef, output_struct 
       "  for (int nof_elements = 0; TRUE; ++nof_elements) {\n"
       "    size_t buf_pos = p_tok.get_buf_pos();\n"
       "    size_t ret_val;\n"
-      "    if (NULL != p_td.json && p_td.json->metainfo_unbound) {\n"
+      "    if (p_td.json->metainfo_unbound) {\n"
       // check for metainfo object
       "      ret_val = p_tok.get_next_token(&token, NULL, NULL);\n"
       "      if (JSON_TOKEN_OBJECT_START == token) {\n"

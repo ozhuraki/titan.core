@@ -1481,7 +1481,7 @@ int Record_Of_Type::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenize
     JSON_TOKEN_ARRAY_START, NULL);
   
   for (int i = 0; i < get_nof_elements(); ++i) {
-    if (NULL != p_td.json && p_td.json->metainfo_unbound && !get_at(i)->is_bound()) {
+    if (p_td.json->metainfo_unbound && !get_at(i)->is_bound()) {
       // unbound elements are encoded as { "metainfo []" : "unbound" }
       enc_len += p_tok.put_next_token(JSON_TOKEN_OBJECT_START, NULL);
       enc_len += p_tok.put_next_token(JSON_TOKEN_NAME, "metainfo []");
@@ -1550,7 +1550,7 @@ int Record_Of_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_desc
         }
       }
     }
-    else if (NULL != p_td.json && p_td.json->metainfo_unbound && !get_at(i)->is_bound()) {
+    else if (p_td.json->metainfo_unbound && !get_at(i)->is_bound()) {
       // unbound elements are encoded as { "metainfo []" : "unbound" }
       enc_len += p_tok.put_next_token(JSON_TOKEN_OBJECT_START, NULL);
       enc_len += p_tok.put_next_token(JSON_TOKEN_NAME, "metainfo []");
@@ -1616,7 +1616,7 @@ int Record_Of_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenize
   for (int nof_elements = 0; TRUE; ++nof_elements) {
     // Read value tokens until we reach some other token
     size_t buf_pos = p_tok.get_buf_pos();
-    if (NULL != p_td.json && p_td.json->metainfo_unbound) {
+    if (p_td.json->metainfo_unbound) {
       // check for metainfo object
       size_t ret_val = p_tok.get_next_token(&token, NULL, NULL);
       if (JSON_TOKEN_OBJECT_START == token) {
@@ -5975,7 +5975,7 @@ int Record_Type::JSON_encode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& 
     return -1;
   }
   
-  if (NULL != p_td.json && p_td.json->as_value) {
+  if (p_td.json->as_value) {
     if (get_at(0)->is_optional()) {
       // can only happen if the record has the 'JSON:object' attribute;
       // in this case 'omit' is the same as if the field was an empty record of
@@ -6042,7 +6042,7 @@ int Record_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
     return -1;
   }
   
-  boolean as_value = NULL != p_td.json && p_td.json->as_value;
+  boolean as_value = p_td.json->as_value;
   
   int enc_len = (as_value || p_parent_is_map) ? 0 : p_tok.put_next_token(JSON_TOKEN_OBJECT_START, NULL);
   
@@ -6186,7 +6186,7 @@ int Record_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
 int Record_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok,
                              boolean p_silent, boolean p_parent_is_map, int)
 {
-  if (NULL != p_td.json && p_td.json->as_value) {
+  if (p_td.json->as_value) {
     if (get_at(0)->is_optional()) {
       // can only happen if the record has the 'JSON:object' attribute;
       // in this case the optional class must not be allowed to decode the

@@ -3242,7 +3242,7 @@ char* generate_json_decoder(char* src, const struct_def* sdef)
 
   if (sdef->nElements == 1) {
     if (!sdef->jsonAsValue) {
-      src = mputstr(src, "  if (NULL != p_td.json && p_td.json->as_value) {\n");
+      src = mputstr(src, "  if (p_td.json->as_value) {\n");
     }
     if (sdef->elements[0].isOptional) {
       // can only happen if the record has the 'JSON:object' attribute;
@@ -4808,7 +4808,7 @@ void defRecordClass1(const struct_def *sdef, output_struct *output)
       ((sdef->nElements == 1 && !sdef->jsonAsValue) || sdef->jsonAsMapPossible) ? " p_td" : "", dispname);
     if (sdef->nElements == 1) {
       if (!sdef->jsonAsValue) {
-        src = mputstr(src, "  if (NULL != p_td.json && p_td.json->as_value) {\n");
+        src = mputstr(src, "  if (p_td.json->as_value) {\n");
       }
       if (sdef->elements[0].isOptional) {
         // can only happen if the record has the 'JSON:object' attribute;
