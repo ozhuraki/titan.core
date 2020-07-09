@@ -3203,7 +3203,39 @@ namespace Common {
 	delete u.ref.ref;
 	set_val_ustr(ustr);
 	u.ustr.convert_str = true; // will be converted back to string
-      } else FATAL_ERROR("Value::set_valuetype()");
+      }
+      else if (p_valuetype == V_CSTR) {
+        Value *v_last = get_value_refd_last();
+        if (v_last->valuetype != V_USTR) {
+          FATAL_ERROR("Value::set_valuetype()");
+        }
+        ustring* old_str = v_last->u.ustr.val_ustr;
+        size_t nof_chars = old_str->size();
+        for (size_t i = 0; i < nof_chars; i++) {
+          const ustring::universal_char& uchar = (*old_str)[i];
+          if (uchar.group != 0 || uchar.plane != 0 || uchar.row != 0) {
+            error("This string value cannot contain multiple-byte characters, "
+              "but it has quadruple char(%u, %u, %u, %u) at index %lu",
+              uchar.group, uchar.plane, uchar.row, uchar.cell,
+                    (unsigned long) i);
+            p_valuetype = V_ERROR;
+            break;
+          }
+          else if (uchar.cell > 127) {
+            error("This string value may not contain characters with code "
+              "higher than 127, but it has character with code %u (0x%02X) "
+              "at index %lu", uchar.cell, uchar.cell, (unsigned long) i);
+            p_valuetype = V_ERROR;
+            break;
+          }
+        }
+        delete u.ref.ref;
+        if (p_valuetype != V_ERROR) {
+          set_val_str(new string(*old_str));
+        }
+        u.ustr.convert_str = true; // will be converted back to string
+      }
+      else FATAL_ERROR("Value::set_valuetype()");
       break;
     case V_CHARSYMS:
       switch(p_valuetype) {
@@ -3294,7 +3326,7 @@ namespace Common {
 	    warning("This string value may not contain characters with code "
 	      "higher than 127, but it has character with code %u (0x%02X) "
 	      "at index %lu", uchar.cell, uchar.cell, (unsigned long) i);
-	      warning_flag = true;
+	    warning_flag = true;
 	  }
 	}
 	if (p_valuetype != V_ERROR) set_val_str(new string(*old_str));

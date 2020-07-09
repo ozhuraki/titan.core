@@ -1271,7 +1271,7 @@ static tpd_result process_tpd_internal(const char **p_tpd_name, char* tpdName, c
   boolean* p_fxflag, boolean* p_doflag, boolean* p_gfflag, boolean* p_lnflag, boolean* p_isflag,
   boolean* p_asflag, boolean* p_swflag, boolean* p_Yflag, boolean* p_Mflag, boolean *p_Eflag, boolean* p_nflag, boolean* p_Nflag,
   boolean* p_diflag, boolean* p_enable_legacy_encoding, boolean* p_disable_userinfo, boolean* p_realtime_features, boolean* p_oop_features,
-  struct string_list* solspeclibs, struct string_list* sol8speclibs,
+  boolean* p_charstring_compat, struct string_list* solspeclibs, struct string_list* sol8speclibs,
   struct string_list* linuxspeclibs, struct string_list* freebsdspeclibs, struct string_list* win32speclibs, char** ttcn3prep,
   struct string_list* linkerlibs, struct string_list* additionalObjects, struct string_list* linkerlibsearchp, boolean Vflag, boolean Dflag,
   boolean *p_Zflag, boolean *p_Hflag, char** generatorCommandOutput, struct string2_list* target_placement_list, boolean prefix_workdir, 
@@ -1293,7 +1293,7 @@ extern "C" tpd_result process_tpd(const char **p_tpd_name, const char *actcfg,
   boolean* p_fxflag, boolean* p_doflag, boolean* p_gfflag, boolean* p_lnflag, boolean* p_isflag,
   boolean* p_asflag, boolean* p_swflag, boolean* p_Yflag, boolean* p_Mflag, boolean* p_Eflag, boolean* p_nflag, boolean* p_Nflag,
   boolean* p_diflag, boolean* p_enable_legacy_encoding, boolean* p_disable_userinfo, boolean* p_realtime_features, boolean* p_oop_features,
-  struct string_list* solspeclibs, struct string_list* sol8speclibs,
+  boolean* p_charstring_compat, struct string_list* solspeclibs, struct string_list* sol8speclibs,
   struct string_list* linuxspeclibs, struct string_list* freebsdspeclibs, struct string_list* win32speclibs, char** ttcn3prep,
   string_list* linkerlibs, string_list* additionalObjects, string_list* linkerlibsearchp, boolean Vflag, boolean Dflag, boolean *p_Zflag,
   boolean *p_Hflag, char** generatorCommandOutput, struct string2_list* target_placement_list, boolean prefix_workdir,
@@ -1325,7 +1325,7 @@ extern "C" tpd_result process_tpd(const char **p_tpd_name, const char *actcfg,
       p_fxflag, p_doflag, p_gfflag, p_lnflag, p_isflag,
       p_asflag, p_swflag, p_Yflag, p_Mflag, p_Eflag, p_nflag, p_Nflag,
       p_diflag, p_enable_legacy_encoding, p_disable_userinfo,
-      p_realtime_features, p_oop_features, solspeclibs, sol8speclibs,
+      p_realtime_features, p_oop_features, p_charstring_compat, solspeclibs, sol8speclibs,
       linuxspeclibs, freebsdspeclibs, win32speclibs, ttcn3prep,
       linkerlibs, additionalObjects, linkerlibsearchp, Vflag, Dflag, p_Zflag,
       p_Hflag, generatorCommandOutput, target_placement_list, prefix_workdir, 
@@ -1356,7 +1356,7 @@ extern "C" tpd_result process_tpd(const char **p_tpd_name, const char *actcfg,
       p_fxflag, p_doflag, p_gfflag, p_lnflag, p_isflag,
       p_asflag, p_swflag, p_Yflag, p_Mflag, p_Eflag, p_nflag, p_Nflag,
       p_diflag, p_enable_legacy_encoding, p_disable_userinfo,
-      p_realtime_features, p_oop_features, solspeclibs, sol8speclibs,
+      p_realtime_features, p_oop_features, p_charstring_compat, solspeclibs, sol8speclibs,
       linuxspeclibs, freebsdspeclibs, win32speclibs, ttcn3prep,
       linkerlibs, additionalObjects, linkerlibsearchp, Vflag, Dflag, p_Zflag,
       p_Hflag, generatorCommandOutput, target_placement_list, prefix_workdir, 
@@ -1463,7 +1463,7 @@ static tpd_result process_tpd_internal(const char **p_tpd_name, char *tpdName, c
   boolean* p_fxflag, boolean* p_doflag, boolean* p_gfflag, boolean* p_lnflag, boolean* p_isflag,
   boolean* p_asflag, boolean* p_swflag, boolean* p_Yflag, boolean* p_Mflag, boolean* p_Eflag, boolean* p_nflag, boolean* p_Nflag,
   boolean* p_diflag, boolean* p_enable_legacy_encoding, boolean* p_disable_userinfo, boolean* p_realtime_features, boolean* p_oop_features,
-  struct string_list* solspeclibs, struct string_list* sol8speclibs,
+  boolean* p_charstring_compat, struct string_list* solspeclibs, struct string_list* sol8speclibs,
   struct string_list* linuxspeclibs, struct string_list* freebsdspeclibs, struct string_list* win32speclibs, char** ttcn3prep,
   string_list* linkerlibs, string_list* additionalObjects, string_list* linkerlibsearchp, boolean Vflag, boolean Dflag, boolean *p_Zflag,
   boolean *p_Hflag, char** generatorCommandOutput, struct string2_list* target_placement_list, boolean prefix_workdir,
@@ -2075,6 +2075,7 @@ static tpd_result process_tpd_internal(const char **p_tpd_name, char *tpdName, c
   xsdbool2boolean(xpathCtx, actcfg, "disableUserInformation", p_disable_userinfo);
   xsdbool2boolean(xpathCtx, actcfg, "enableRealtimeTesting", p_realtime_features);
   xsdbool2boolean(xpathCtx, actcfg, "enableOOP", p_oop_features);
+  xsdbool2boolean(xpathCtx, actcfg, "charstringCompat", p_charstring_compat);
 
   projDesc = projGenHelper.getTargetOfProject(*p_project_name);
   if (projDesc) projDesc->setLinkingStrategy(*p_lflag);
@@ -2983,6 +2984,7 @@ static tpd_result process_tpd_internal(const char **p_tpd_name, char *tpdName, c
         boolean my_enable_legacy_encoding = 0;
         boolean my_realtime_features = 0;
         boolean my_oop_features = 0;
+        boolean my_charstring_compat = 0;
 
         char *my_ets = NULL;
         char *my_proj_name = NULL;
@@ -3035,7 +3037,8 @@ static tpd_result process_tpd_internal(const char **p_tpd_name, char *tpdName, c
           &my_quflag, &my_dsflag, cxxcompiler, optlevel, optflags, linkerOptions, semantic_check_only, disable_attibute_validation,
           &my_dbflag, &my_drflag, &my_dtflag, &my_dxflag, &my_djflag, &my_doerflag, &my_fxflag, &my_doflag,
           &my_gfflag, &my_lnflag, &my_isflag, &my_asflag, &my_swflag, &my_Yflag, &my_Mflag, &my_Eflag, &my_nflag, &my_Nflag, &my_diflag,
-          &my_enable_legacy_encoding, &my_duflag, &my_realtime_features, &my_oop_features, solspeclibs, sol8speclibs, linuxspeclibs, freebsdspeclibs, win32speclibs,
+          &my_enable_legacy_encoding, &my_duflag, &my_realtime_features, &my_oop_features, &my_charstring_compat,
+	  solspeclibs, sol8speclibs, linuxspeclibs, freebsdspeclibs, win32speclibs,
           ttcn3prep, linkerlibs, additionalObjects, linkerlibsearchp, Vflag, FALSE, &my_Zflag, 
           &my_Hflag, NULL, NULL, prefix_workdir, run_command_list, seen_tpd_files, required_configs, profiled_file_list,
           search_paths, n_search_paths, makefileScript, all_configs);

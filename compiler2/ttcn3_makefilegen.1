@@ -3,7 +3,7 @@
 ttcn3_makefilegen \- Makefile Generator
 .SH SYNOPSIS
 .B ttcn3_makefilegen
-.RB "[\| " \-acdEfgiklMnpRsSw " \|]"
+.RB "[\| " \-acdEfghiklMnpRsSw " \|]"
 .RB "[\| " \-e
 .IR " ETS_name" " \|]"
 .RB "[\| " \-o
@@ -67,6 +67,9 @@ Generates a Makefile that can be used with
 only. The resulting Makefile will be smaller and less redundant. It
 exploits the pattern substitution features of GNU make, which may cause
 syntax errors with other versions of make.
+.TP
+.B \-h
+Allows unsafe universal charstring to charstring conversion.
 .TP
 .B \-i
 Enables real-time testing features.

@@ -4370,6 +4370,10 @@ bool Type::chk_this_refd_value(Value *value, Common::Assignment *lhs, expected_v
     if (v_last->get_valuetype() == Value::V_CSTR
         && get_typetype_ttcn3(get_type_refd_last()->typetype) == T_USTR)
       value->set_valuetype(Value::V_USTR);
+    if (v_last->get_valuetype() == Value::V_USTR &&
+        get_type_refd_last()->typetype == T_CSTR) {
+      value->set_valuetype(Value::V_CSTR);
+    }
     // Check v_last against the subtype constraints.
     if (sub_type!=NULL) sub_type->chk_this_value(value);
   }

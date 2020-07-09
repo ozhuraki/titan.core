@@ -18,7 +18,7 @@ The program compiler resides in the directory `$TTCN3_DIR/bin`.
 The command line syntax of the compiler is the following:
 
 [source]
-compiler [ -abBcdDeEfFgiIjklLMnNOpqrRstuwxXyY0 ] [ -J file ] [ -K file ] [ -z file ] [ -N old|new ][ -o dir ] [ -V n ] [ -P toplevel pdu ] [ -Qn ] [ -U none|type|"number" ] …[ -T ] module.ttcn [ -A ] module.asn … [ - module.ttcn module.asn … ]
+compiler [ -abBcdDeEfFghiIjklLMnNOpqrRstuwxXyY0 ] [ -J file ] [ -K file ] [ -z file ] [ -N old|new ][ -o dir ] [ -V n ] [ -P toplevel pdu ] [ -Qn ] [ -U none|type|"number" ] …[ -T ] module.ttcn [ -A ] module.asn … [ - module.ttcn module.asn … ]
 
 or
 
@@ -117,6 +117,10 @@ This option is used internally for pre-generating the mentioned {cpp} classes.
 The compiler error/warning messages will contain the starting line number, and the starting column number if available. This option provides compatibility with the GNU compiler and many tools which are able to interpret its output (including Eclipse).
 +
 If both `–g` and `–i` are specified, `-g` takes precedence.
+
+* `-h`
++
+Allow unsafe universal charstring to charstring conversion.
 
 * `-i`
 +
@@ -334,7 +338,7 @@ The command line syntax of the makefile generator is the following:
 
 [source]
 ----
-usage: makefilegen [-abcdDEfFgGiklLmMnNprRsStTVwWXZ] [-K file] [-P dir]
+usage: makefilegen [-abcdDEfFgGhiklLmMnNprRsStTVwWXZ] [-K file] [-P dir]
 [-J file] [-U none|type|"number"] [-e ets_name] [-o dir|file] [-z file]
 [-t project_descriptor.tpd [-b buildconfig]] [-I path] [-O file]
 TTCN3_module[.ttcn] ... ASN1_module[.asn] ... XSD_MODULE.xsd ... Testport_name[.cc] ...
@@ -382,6 +386,10 @@ Generates a Makefile that can be used with GNU `make` only. The resulting Makefi
 * `-G`
 +
 Instructs the compiler to use the legacy encoding rules for semantic checking and for generating the code (see compiler option "-e" and its description in <<4-ttcn3_language_extensions.adoc#legacy-codec-handling, Legacy codec handling>>).
+
+* `-h`
++
+Allow unsafe universal charstring to charstring conversion.
 
 * `-i`
 +

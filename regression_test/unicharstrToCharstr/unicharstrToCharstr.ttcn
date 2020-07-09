@@ -1,0 +1,118 @@
+/******************************************************************************
+ * Copyright (c) 2000-2020 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+
+// this module tests the compiler option '-h', which allows converting
+// universal charstrings to charstrings
+module unicharstrToCharstr {
+
+function f_init(universal charstring p) return charstring
+{
+  var charstring x := p;
+  return x;
+}
+
+function f_assign(universal charstring p) return charstring
+{
+  var charstring x;
+  x := p;
+  return x;
+}
+
+const universal charstring c_ustr := "xy";
+
+type component CT {}
+
+testcase tc_init_pos() runs on CT {
+  var charstring exp := "abc";
+  var charstring res := f_init(exp);
+  if (res != exp) {
+    setverdict(fail, res);
+  }
+  else {
+    setverdict(pass);
+  }
+}
+
+testcase tc_init_neg() runs on CT {
+  @try {
+    var charstring res := f_init("áram");
+    setverdict(fail, "Error expected.");
+  }
+  @catch (msg) {
+    var template charstring msg_exp := pattern "*Non-ASCII characters cannot be used to initialize a charstring*";
+    if (not match(msg, msg_exp)) {
+      setverdict(fail, "Invalid error message: ", msg);
+    }
+    else {
+      setverdict(pass);
+    }
+  }
+}
+
+testcase tc_init_const() runs on CT {
+  var charstring x := c_ustr;
+  if (log2str(x) != log2str(c_ustr)) {
+    setverdict(fail, x);
+  }
+  else {
+    setverdict(pass);
+  }
+}
+
+testcase tc_assign_pos() runs on CT {
+  var charstring exp := "abc";
+  var charstring res := f_assign(exp);
+  if (res != exp) {
+    setverdict(fail, res);
+  }
+  else {
+    setverdict(pass);
+  }
+}
+
+testcase tc_assign_neg() runs on CT {
+  @try {
+    var charstring res := f_assign("áram");
+    setverdict(fail, "Error expected.");
+  }
+  @catch (msg) {
+    var template charstring msg_exp := pattern "*Non-ASCII characters cannot be assigned to a charstring*";
+    if (not match(msg, msg_exp)) {
+      setverdict(fail, "Invalid error message: ", msg);
+    }
+    else {
+      setverdict(pass);
+    }
+  }
+}
+
+testcase tc_assign_const() runs on CT {
+  var charstring x;
+  x := c_ustr;
+  if (log2str(x) != log2str(c_ustr)) {
+    setverdict(fail, x);
+  }
+  else {
+    setverdict(pass);
+  }
+}
+
+control {
+  execute(tc_init_pos());
+  execute(tc_init_neg());
+  execute(tc_init_const());
+  execute(tc_assign_pos());
+  execute(tc_assign_neg());
+  execute(tc_assign_const());
+}
+
+}

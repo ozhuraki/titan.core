@@ -137,6 +137,8 @@ public:
   CHARSTRING(const CHARSTRING& other_value);
   /** Construct a CHARSTRING of length one */
   CHARSTRING(const CHARSTRING_ELEMENT& other_value);
+  /** Construct a CHARSTRING from a UNIVERSAL_CHARSTRING */
+  CHARSTRING(const UNIVERSAL_CHARSTRING& other_value);
 
   /** Destructor. Simply calls clean_up() */
   ~CHARSTRING();
@@ -158,6 +160,10 @@ public:
   inline boolean operator!=(const CHARSTRING& other_value) const
   { return !(*this == other_value); }
   inline boolean operator!=(const CHARSTRING_ELEMENT& other_value) const
+  { return !(*this == other_value); }
+  inline boolean operator!=(const UNIVERSAL_CHARSTRING& other_value) const
+  { return !(*this == other_value); }
+  inline boolean operator!=(const UNIVERSAL_CHARSTRING_ELEMENT& other_value) const
   { return !(*this == other_value); }
 
   CHARSTRING operator+(const char* other_value) const;

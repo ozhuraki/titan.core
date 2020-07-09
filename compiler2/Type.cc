@@ -4518,6 +4518,14 @@ namespace Common {
       case T_GENERALIZEDTIME:
         is_type_comp = true;
         break;
+      case T_USTR:
+      case T_TELETEXSTRING:
+      case T_VIDEOTEXSTRING:
+      case T_GRAPHICSTRING:
+      case T_OBJECTDESCRIPTOR:
+      case T_GENERALSTRING:
+	is_type_comp = charstring_compat && (t1->typetype == T_CSTR);
+	break;
       default:
         is_type_comp = false;
         break;

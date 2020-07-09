@@ -3,7 +3,7 @@
 compiler \- TTCN-3 and ASN.1 to C++ translator
 .SH SYNOPSIS
 .B compiler
-.RB "[\| " \-abcdDeEfFgiIjklLMnNpqrRsStuwxXyY0 " \|]"
+.RB "[\| " \-abcdDeEfFghiIjklLMnNpqrRsStuwxXyY0 " \|]"
 .RB "[\| " \-V
 .IR " verb_level" " \|]"
 .RB "[\| " \-J
@@ -114,6 +114,9 @@ line number and column, in a format compatible with th GNU compiler (gcc).
 takes precedence over
 .B \-i
 if both are specified.
+.TP
+.B \-h
+Allows unsafe universal charstring to charstring conversion.
 .TP
 .B \-i
 The compiler error/warning messages

@@ -100,7 +100,7 @@ boolean generate_skeleton = FALSE, force_overwrite = FALSE,
   warnings_for_bad_variants = FALSE, debugger_active = FALSE,
   legacy_unbound_union_fields = FALSE, split_to_slices = FALSE,
   legacy_untagged_union, disable_user_info, legacy_codec_handling = FALSE,
-  realtime_features = FALSE, oop_features = FALSE;
+  realtime_features = FALSE, oop_features = FALSE, charstring_compat = FALSE;
 
 // Default code splitting mode is set to 'no splitting'.
 CodeGenHelper::split_type code_splitting_mode = CodeGenHelper::SPLIT_NONE;
@@ -395,7 +395,7 @@ static boolean is_valid_asn1_filename(const char* file_name)
 static void usage()
 {
   fprintf(stderr, "\n"
-    "usage: %s [-abcdDeEfFgiIjklLMnNOpqrRsStuwxXyY0] [-J file] [-K file] [-z file] [-V verb_level]\n"
+    "usage: %s [-abcdDeEfFghiIjklLMnNOpqrRsStuwxXyY0] [-J file] [-K file] [-z file] [-V verb_level]\n"
     "	[-o dir] [-U none|type|'number'] [-P modulename.top_level_pdu_name] [-Q number] ...\n"
     "	[-T] module.ttcn [-A] module.asn ...\n"
     "	or  %s -v\n"
@@ -413,6 +413,7 @@ static void usage()
     "	-f:		force overwriting of output files\n"
     "	-F:		force generation of records of/sets of basic types and remove their compatibility\n"
     "	-g:		emulate GCC error/warning message format\n"
+    "	-h:		allow unsafe universal charstring to charstring conversion\n"
     "	-i:		use only line numbers in error/warning messages\n"
     "	-I:		enable real-time testing features\n"
     "	-j:		disable JSON encoder/decoder functions\n"
@@ -504,7 +505,7 @@ int main(int argc, char *argv[])
     Sflag = false, Kflag = false, jflag = false, zflag = false, Fflag = false,
     Mflag = false, Eflag = false, nflag = false, Bflag = false, errflag = false,
     print_usage = false, ttcn2json = false, Nflag = false, Dflag = false,
-    eflag = false, Oflag = false, Iflag = false, kflag = false;
+    eflag = false, Oflag = false, Iflag = false, kflag = false, hflag = false;
 
   CodeGenHelper cgh;
 
@@ -600,7 +601,7 @@ int main(int argc, char *argv[])
 
   if (!ttcn2json) {
     for ( ; ; ) {
-      int c = getopt(argc, argv, "aA:bBcC:dDeEfFgiIjJ:kK:lLMnNo:OpP:qQ:rRsStT:uU:vV:wxXyYz:0-");
+      int c = getopt(argc, argv, "aA:bBcC:dDeEfFghiIjJ:kK:lLMnNo:OpP:qQ:rRsStT:uU:vV:wxXyYz:0-");
       if (c == -1) break;
       switch (c) {
       case 'a':
@@ -670,6 +671,10 @@ int main(int argc, char *argv[])
         SET_FLAG(g);
         gcc_compat = TRUE;
         break;
+      case 'h':
+	SET_FLAG(h);
+	charstring_compat = TRUE;
+	break;
       case 'i':
         SET_FLAG(i);
         output_only_linenum = TRUE;
@@ -851,7 +856,8 @@ int main(int argc, char *argv[])
         bflag || fflag || iflag || lflag || oflag || pflag || qflag ||
         rflag || sflag || tflag || uflag || wflag || xflag || Xflag || Rflag ||
         Uflag || yflag || Kflag || jflag || zflag || Fflag || Mflag || Eflag ||
-        nflag || Bflag || Dflag || eflag || Oflag || Iflag || s0flag || kflag) {
+        nflag || Bflag || Dflag || eflag || Oflag || Iflag || s0flag || kflag ||
+	hflag) {
         errflag = true;
         print_usage = true;
       }

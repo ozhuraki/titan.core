@@ -155,6 +155,30 @@ CHARSTRING::CHARSTRING(const CHARSTRING_ELEMENT& other_value)
   val_ptr->chars_ptr[0] = other_value.get_char();
 }
 
+CHARSTRING::CHARSTRING(const UNIVERSAL_CHARSTRING& other_value)
+{
+  other_value.must_bound("Initialization of a charstring with an unbound "
+    "universal charstring.");
+  if (other_value.charstring) {
+    val_ptr = other_value.cstr.val_ptr;
+    val_ptr->ref_count++;
+  }
+  else {
+    int n_chars = other_value.val_ptr->n_uchars;
+    init_struct(n_chars);
+    for (int i = 0; i < n_chars; ++i) {
+      const universal_char& uc = other_value.val_ptr->uchars_ptr[i];
+      if (uc.uc_group != 0 || uc.uc_plane != 0 || uc.uc_row != 0 || uc.uc_cell > 127) {
+	Free(val_ptr);
+	TTCN_error("Non-ASCII characters cannot be used to initialize a charstring, "
+	  "invalid character char(%u, %u, %u, %u) at index %d.",
+	  uc.uc_group, uc.uc_plane, uc.uc_row, uc.uc_cell, i);
+      }
+      val_ptr->chars_ptr[i] = other_value.val_ptr->uchars_ptr[i].uc_cell;
+    }
+  }
+}
+
 CHARSTRING::~CHARSTRING()
 {
   clean_up();
@@ -219,8 +243,9 @@ CHARSTRING& CHARSTRING::operator=(const UNIVERSAL_CHARSTRING& other_value)
     init_struct(n_chars);
     for (int i = 0; i < n_chars; ++i) {
       const universal_char& uc = other_value.val_ptr->uchars_ptr[i];
-      if (uc.uc_group != 0 || uc.uc_plane != 0 || uc.uc_row != 0) {
-        TTCN_error("Multiple-byte characters cannot be assigned to a charstring, "
+      if (uc.uc_group != 0 || uc.uc_plane != 0 || uc.uc_row != 0 || uc.uc_cell > 127) {
+	Free(val_ptr);
+        TTCN_error("Non-ASCII characters cannot be assigned to a charstring, "
           "invalid character char(%u, %u, %u, %u) at index %d.", 
           uc.uc_group, uc.uc_plane, uc.uc_row, uc.uc_cell, i);
       }

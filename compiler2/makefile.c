@@ -277,6 +277,7 @@ struct makefile_struct {
   boolean disable_userinfo;
   boolean realtime_features;
   boolean oop_features;
+  boolean charstring_compat;
   struct string_list* solspeclibraries; /* not owned */
   struct string_list* sol8speclibraries; /* not owned */
   struct string_list* linuxspeclibraries; /* not owned */
@@ -350,6 +351,7 @@ static void init_makefile_struct(struct makefile_struct *makefile)
   makefile->disable_userinfo = FALSE;
   makefile->realtime_features = FALSE;
   makefile->oop_features = FALSE;
+  makefile->charstring_compat = FALSE;
   makefile->solspeclibraries = NULL;
   makefile->sol8speclibraries = NULL;
   makefile->linuxspeclibraries = NULL;
@@ -2262,7 +2264,7 @@ static void print_makefile(struct makefile_struct *makefile)
           "AR = ar\n"
           "ARFLAGS = \n\n"
           "# Flags for the TTCN-3 and ASN.1 compiler:\n"
-          "COMPILER_FLAGS =%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n\n"
+          "COMPILER_FLAGS =%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n\n"
           "# Execution mode: (either ttcn3 or ttcn3-parallel)\n"
           "TTCN3_LIB = ttcn3%s%s%s\n\n"
 #ifdef LICENSE
@@ -2312,6 +2314,7 @@ static void print_makefile(struct makefile_struct *makefile)
           (makefile->disable_userinfo ? " -D" : ""),
           (makefile->realtime_features ? " -I" : ""),
           (makefile->oop_features ? " -k" : ""),
+	  (makefile->charstring_compat ? " -h" : ""),
           /* end of COMPILER FLAGS */
           (makefile->use_runtime_2 ? "-rt2"    : ""), /* TTCN3_LIB */
           (makefile->single_mode   ? ""        : "-parallel"),
@@ -4693,7 +4696,7 @@ static void generate_makefile(size_t n_arguments, char *arguments[],
   boolean linenumbersonlymsg, boolean includesourceinfo, boolean addsourcelineinfo, boolean suppresswarnings,
   boolean outparamboundness, boolean omit_in_value_list, boolean warnings_for_bad_variants, boolean activate_debugger,
   boolean ignore_untagged_on_top_union, boolean disable_predef_ext_folder, boolean enable_legacy_encoding, boolean disable_userinfo,
-  boolean realtime_features, boolean oop_features, struct string_list* solspeclibraries, struct string_list* sol8speclibraries,
+  boolean realtime_features, boolean oop_features, boolean charstring_compat, struct string_list* solspeclibraries, struct string_list* sol8speclibraries,
   struct string_list* linuxspeclibraries, struct string_list* freebsdspeclibraries,
   struct string_list* win32speclibraries, const char* ttcn3preprocessor, struct string_list* linkerlibraries,
   struct string_list* additionalObjects, struct string_list* linkerlibsearchpath, char* generatorCommandOutput,
@@ -4755,6 +4758,7 @@ static void generate_makefile(size_t n_arguments, char *arguments[],
   makefile.disable_userinfo = disable_userinfo;
   makefile.realtime_features = realtime_features;
   makefile.oop_features = oop_features;
+  makefile.charstring_compat = charstring_compat;
   makefile.solspeclibraries = solspeclibraries;
   makefile.sol8speclibraries = sol8speclibraries;
   makefile.linuxspeclibraries = linuxspeclibraries;
@@ -4977,7 +4981,8 @@ int main(int argc, char *argv[])
     Sflag = FALSE, Vflag = FALSE, Dflag = FALSE, Wflag = FALSE,
     djflag = FALSE, doerflag = FALSE, Zflag = FALSE, Hflag = FALSE, Mflag = FALSE,
     diflag = FALSE, zflag = FALSE, Eflag = FALSE, nflag = FALSE,
-    Nflag = FALSE, Gflag = FALSE, duflag = FALSE, iflag = FALSE, kflag = FALSE;
+    Nflag = FALSE, Gflag = FALSE, duflag = FALSE, iflag = FALSE, kflag = FALSE,
+    hflag = FALSE;
   boolean error_flag = FALSE;
   char *output_file = NULL;
   char *ets_name = NULL;
@@ -5038,7 +5043,7 @@ int main(int argc, char *argv[])
   }
 
   for ( ; ; ) {
-    int c = getopt(argc, argv, "O:ab:c" C_flag "dDe:EfFgGiI:J:kK:o:lLmMnNpP:rRsSt:TU:vVwWXYz:ZH");
+    int c = getopt(argc, argv, "O:ab:c" C_flag "dDe:EfFgGhHiI:J:kK:o:lLmMnNpP:rRsSt:TU:vVwWXYz:Z");
     if (c == -1) break;
     switch (c) {
     case 'O':
@@ -5096,6 +5101,9 @@ int main(int argc, char *argv[])
       break;
     case 'G':
       SET_FLAG(G);
+      break;
+    case 'h':
+      SET_FLAG(h);
       break;
     case 'H':
       SET_FLAG(H);
@@ -5225,7 +5233,7 @@ int main(int argc, char *argv[])
     if ( aflag || bflag || cflag || Cflag || dflag || eflag || fflag || Fflag || gflag
       || mflag || oflag || lflag || pflag || Pflag || rflag || Rflag || sflag || Gflag
       || tflag || Tflag || Vflag || wflag || Xflag || Kflag || Dflag || Wflag || Yflag
-      || Zflag || Hflag || Mflag || zflag || Eflag || nflag || iflag || kflag
+      || Zflag || Hflag || Mflag || zflag || Eflag || nflag || iflag || kflag || hflag
       || n_other_files > 0 || n_search_paths > 0)
       error_flag = TRUE;
   }
@@ -5430,7 +5438,7 @@ int main(int argc, char *argv[])
       create_symlink_list, ttcn3_prep_includes, ttcn3_prep_defines, ttcn3_prep_undefines, prep_includes, prep_defines, prep_undefines, &csmode,
       &quflag, &dsflag, &cxxcompiler, &optlevel, &optflags, &linkerOptions, &semantic_check_only, &disable_attibute_validation,
       &dbflag, &drflag, &dtflag, &dxflag, &djflag, &doerflag, &fxflag, &doflag, &gfflag, &lnflag, &isflag,
-      &asflag, &temp_wflag, &Yflag, &Mflag, &Eflag, &nflag, &Nflag, &diflag, &Gflag, &duflag, &iflag, &kflag,
+      &asflag, &temp_wflag, &Yflag, &Mflag, &Eflag, &nflag, &Nflag, &diflag, &Gflag, &duflag, &iflag, &kflag, &hflag,
       solspeclibraries, sol8speclibraries, linuxspeclibraries, freebsdspeclibraries, win32speclibraries, &ttcn3prep,
       linkerlibraries, additionalObjects, linkerlibsearchpath, Vflag, Dflag, &Zflag, &Hflag,
       &generatorCommandOutput, target_placement_list, Wflag, run_command_list, required_configs, &profiled_file_list, search_paths, n_search_paths, &makefileScript);
@@ -5481,7 +5489,7 @@ int main(int argc, char *argv[])
       cxxcompiler, optlevel, optflags, linkerOptions,
       semantic_check_only, disable_attibute_validation, dbflag, drflag, dtflag, dxflag, djflag, doerflag,
       fxflag, doflag, gfflag, lnflag, isflag, asflag, wflag, Yflag, Mflag, Eflag, nflag, Nflag, diflag,
-      Gflag, duflag, iflag, kflag, solspeclibraries, sol8speclibraries, linuxspeclibraries,
+      Gflag, duflag, iflag, kflag, hflag, solspeclibraries, sol8speclibraries, linuxspeclibraries,
       freebsdspeclibraries, win32speclibraries, ttcn3prep, linkerlibraries, additionalObjects,
       linkerlibsearchpath, generatorCommandOutput, target_placement_list);
     if (makefileScript != NULL) {

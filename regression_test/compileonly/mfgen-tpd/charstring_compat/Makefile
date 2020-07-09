@@ -31,8 +31,8 @@ BuildTpdTrue:
 
 CheckTpdTrue: BuildTpdTrue
 	if [ ! -f "./bin/Makefile" ] \
-	|| [ `grep -c "COMPILER_FLAGS = -L  -k" ./bin/Makefile` -ne 1 ]; \
-	then echo "Makefilegen OOP features test: Overall verdict: fail" && exit 1; fi
+	|| [ `grep -c "COMPILER_FLAGS = -L  -h" ./bin/Makefile` -ne 1 ]; \
+	then echo "Makefilegen charstring compat test: Overall verdict: fail" && exit 1; fi
 
 BuildTpdFalse:
 	$(TTCN3_DIR)/bin/ttcn3_makefilegen -f $(MFGEN_FLAGS) $(COVERAGE_FLAG) \
@@ -40,8 +40,8 @@ BuildTpdFalse:
 
 CheckTpdFalse: BuildTpdFalse
 	if [ ! -f "./bin2/Makefile" ] \
-	|| [ `grep -c "COMPILER_FLAGS = -L  -k" ./bin2/Makefile` -ne 0 ]; \
-	then echo "Makefilegen OOP features test: Overall verdict: fail" && exit 1; fi
+	|| [ `grep -c "COMPILER_FLAGS = -L  -h" ./bin2/Makefile` -ne 0 ]; \
+	then echo "Makefilegen charstring compat test: Overall verdict: fail" && exit 1; fi
 
 BuildTpdMissing:
 	$(TTCN3_DIR)/bin/ttcn3_makefilegen -f $(MFGEN_FLAGS) $(COVERAGE_FLAG) \
@@ -49,8 +49,8 @@ BuildTpdMissing:
 
 CheckTpdMissing: BuildTpdMissing
 	if [ ! -f "./bin3/Makefile" ] \
-	|| [ `grep -c "COMPILER_FLAGS = -L  -k" ./bin3/Makefile` -ne 0 ]; \
-	then echo "Makefilegen OOP features test: Overall verdict: fail" && exit 1; fi
+	|| [ `grep -c "COMPILER_FLAGS = -L  -h" ./bin3/Makefile` -ne 0 ]; \
+	then echo "Makefilegen charstring compat test: Overall verdict: fail" && exit 1; fi
 
 clean:
 	-rm -rf bin bin2 bin3
