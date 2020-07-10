@@ -169,10 +169,10 @@ CHARSTRING::CHARSTRING(const UNIVERSAL_CHARSTRING& other_value)
     for (int i = 0; i < n_chars; ++i) {
       const universal_char& uc = other_value.val_ptr->uchars_ptr[i];
       if (uc.uc_group != 0 || uc.uc_plane != 0 || uc.uc_row != 0 || uc.uc_cell > 127) {
-	Free(val_ptr);
-	TTCN_error("Non-ASCII characters cannot be used to initialize a charstring, "
-	  "invalid character char(%u, %u, %u, %u) at index %d.",
-	  uc.uc_group, uc.uc_plane, uc.uc_row, uc.uc_cell, i);
+        Free(val_ptr);
+        TTCN_error("Non-ASCII characters cannot be used to initialize a charstring, "
+          "invalid character char(%u, %u, %u, %u) at index %d.",
+          uc.uc_group, uc.uc_plane, uc.uc_row, uc.uc_cell, i);
       }
       val_ptr->chars_ptr[i] = other_value.val_ptr->uchars_ptr[i].uc_cell;
     }
@@ -244,7 +244,6 @@ CHARSTRING& CHARSTRING::operator=(const UNIVERSAL_CHARSTRING& other_value)
     for (int i = 0; i < n_chars; ++i) {
       const universal_char& uc = other_value.val_ptr->uchars_ptr[i];
       if (uc.uc_group != 0 || uc.uc_plane != 0 || uc.uc_row != 0 || uc.uc_cell > 127) {
-	Free(val_ptr);
         TTCN_error("Non-ASCII characters cannot be assigned to a charstring, "
           "invalid character char(%u, %u, %u, %u) at index %d.", 
           uc.uc_group, uc.uc_plane, uc.uc_row, uc.uc_cell, i);
