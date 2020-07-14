@@ -122,6 +122,7 @@ Compressed update site and SHA512 checksum:
 * https://github.com/eclipse/titan.ProtocolModules.IPsec
 * https://github.com/eclipse/titan.ProtocolModules.IUA
 * https://github.com/eclipse/titan.ProtocolModules.JSON_v07_2006
+* https://github.com/eclipse/titan.ProtocolModules.JSON_Web_Signature
 * https://github.com/eclipse/titan.ProtocolModules.L2TP
 * https://github.com/eclipse/titan.ProtocolModules.M3UA
 * https://github.com/eclipse/titan.ProtocolModules.MIME
