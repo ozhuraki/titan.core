@@ -43,7 +43,7 @@ if [[ "$_java" ]]; then
 fi
 
 # check java version (>=1.7) in another way
-[ $(java -version 2>&1 | sed 's/java version "\(.*\)\.\(.*\)\..*"/\1\2/; 1q') -ge 17 ] && echo "version is at least 1.7, OK" || { echo "version is less than 1.7, NOT OK, exiting"; exit 1; }
+[ $(java -version 2>&1 | sed 's/.* version "\(.*\)\.\(.*\)\..*".*/\1\2/; 1q') -ge 17 ] && echo "version is at least 1.7, OK" || { echo "version is less than 1.7, NOT OK, exiting"; exit 1; }
 
 # checks if file exists, exits if not
 # @param $1 file full path
