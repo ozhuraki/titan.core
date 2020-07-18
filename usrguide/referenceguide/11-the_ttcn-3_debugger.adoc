@@ -523,7 +523,7 @@ dcont
 Batch file for the automatic breakpoint for error verdicts (error.bat):
 [source]
 ----
-dprintss
+dprintcalls
 dlistvar local v_*
 dprintvar $
 dcont
@@ -574,7 +574,7 @@ demo.ttcn:40: Dynamic test case error: Matching with an uninitialized/unsupporte
 [yellow-background]#Automatic breakpoint (error verdict) reached at line 40 in module 'demo'.
 Test execution halted.
 Executing batch file 'error.bat'.#
-[aqua-background]#dprintss#
+[aqua-background]#dprintcalls#
 [yellow-background]#[testcase]	started 	tc_demo()
 [function]	started 	f_fact([in] n := 4)
 [function]	started 	f_fact([in] n := 3)
