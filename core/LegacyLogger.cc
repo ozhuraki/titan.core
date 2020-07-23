@@ -405,7 +405,7 @@ boolean LegacyLogger::log_console(const TitanLoggerApi::TitanLogEvent& event,
     return FALSE;
   }
   size_t event_str_len = mstrlen(event_str);
-  if (!TTCN_Communication::send_log((time_t)event.timestamp__().seconds(),
+  if (!TTCN_Communication::send_log((time_t)event.timestamp__().seconds().get_long_long_val(),
       (suseconds_t)event.timestamp__().microSeconds(), severity,
       event_str_len, event_str)) {
     // The event text shall be printed to stderr when there is no control
@@ -1774,7 +1774,7 @@ char *event_to_str(const TitanLoggerApi::TitanLogEvent& event,
 {
   char *ret_val = NULL;
   if (!without_header) {
-    struct timeval timestamp = { (time_t)event.timestamp__().seconds(),
+    struct timeval timestamp = { (time_t)event.timestamp__().seconds().get_long_long_val(),
       (suseconds_t)event.timestamp__().microSeconds() };
     char *sourceinfo = NULL;
     if (event.sourceInfo__list().is_bound()) {
