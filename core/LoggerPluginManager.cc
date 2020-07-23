@@ -532,7 +532,8 @@ void LoggerPluginManager::fill_common_fields(API::TitanLogEvent& event,
   struct timeval tv;
   if (gettimeofday(&tv, NULL) < 0)
     TTCN_Logger::fatal_error("The gettimeofday() system call failed.");
-  event.timestamp__() = API::TimestampType(tv.tv_sec, tv.tv_usec);
+  event.timestamp__().seconds().set_long_long_val(tv.tv_sec);
+  event.timestamp__().microSeconds()=tv.tv_usec;
   TTCN_Logger::source_info_format_t source_info_format =
     TTCN_Logger::get_source_info_format();
   API::TitanLogEvent_sourceInfo__list& srcinfo = event.sourceInfo__list();
