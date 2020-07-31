@@ -2654,6 +2654,77 @@ field2:='0110100'B
 // 00000000
 // ˆ the padding bits
 The encoding will result in the octetstring 'A5010000'O
+
+//Example number 5)
+type record ChangeActiveMaskRes
+{
+   INT1                      vtfunction (173),
+   INT2                      newActiveMaskObjectID
+   //we want this padded to 64 bits
+} with {variant "PADDING(88), PADDING_PATTERN('11111111'B)"}
+
+type record Message 
+{
+OCT3     pgn,
+record {
+	record 		
+		{
+		ChangeActiveMaskRes   changeActiveMaskRes
+		}       vt2ecu
+	}    pdu
+} with { variant "" };
+
+
+const Message c_message:={
+     pgn := '00E600'O,
+     pdu := {
+         vt2ecu := {
+             changeActiveMaskRes := {
+                 vtfunction := 173,
+                 newActiveMaskObjectID := 1005
+             }
+         }
+     }
+} 
+
+The encoding will result in the following octetstring: '00E600ADED03FFFFFFFFFF'O
+//3 bytes pgn followed by 3 bytes pdu padded to 88 bits from the start of the message
+//64 bits from the start of pdu
+
+//Example number 6)
+type record ChangeActiveMaskRes
+{
+   INT1                      vtfunction (173),
+   INT2                      newActiveMaskObjectID
+   //we want this padded to 64 bits
+} with {variant "PADDING(64), PADDING_PATTERN('11111111'B)"}
+
+type record Message 
+{
+record {
+	record 		
+		{
+		ChangeActiveMaskRes   changeActiveMaskRes
+		}       vt2ecu
+	}    pdu,
+OCT3     pgn
+} with { variant "" };
+
+const Message c_message:={
+     pdu := {
+         vt2ecu := {
+             changeActiveMaskRes := {
+                 vtfunction := 173,
+                 newActiveMaskObjectID := 1005
+             }
+         }
+     },
+pgn := '00E600'O 
+} 
+
+The encoding will result in the following octetstring: 'ADED03FFFFFFFFFF00E600'O
+//3 bytes pdu padded to 64 bits from the start of the message
+//followed by 3 bytes of pgn
 ----
 
 *PADDING_PATTERN*
