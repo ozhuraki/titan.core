@@ -155,6 +155,12 @@ For example, if the cygwin root is ``C:\cygwin64`` then ``Path`` should contain 
 (use the desktop icon created during Cygwin installation or start ``bash.exe`` from the Windows ``Start`` menu) or 
 start ``cmd.exe`` from the Windows Start menu and type: ``bash.exe``.
 
+= Installing only for Ericsson Users Working in E2C with AFS Service
+
+. In CLI or in your batch file add the required module containing the full pre-installed titan version, for example: +
+`module add ttcn/7.1-pl0`
+. Set the environment variables according to the next chapter, except setting `$TTCN3_DIR`. It has been set by the previous command.
+
 = Installing from a pre-built binary package
 
 This chapter describes obtaining the software and installing it.
@@ -206,9 +212,13 @@ It is recommended to make a backup copy of the older version of the distribution
 
 == Install TITAN with Clang
 
-Currently it is experimental to use TITAN with clang on Ubuntu operating system. It was tested only on Ubuntu. In order to use TITAN with clang on Ubuntu some steps must be done:
+Currently it is experimental to use TITAN with clang on Ubuntu operating system.
+It is tested only on Ubuntu. 
+In order to use TITAN with clang on Ubuntu some steps must be done:
 
-. Install *clang-3.8* (3.8 is the required version).
+. Install *clang-3.8* (3.8 is the required version) or *clang* version 6.0.0 on Ubuntu 18.04.
+For clang 6.0.0, the suffix `-3.8` shall be omitted in the steps listed below.
+
 . Go into your TITAN installation directory and open (or create) the Makefile.personal file and add the following lines: +
 *CXX := clang++-3.8* +
 *CC := clang-3.8*
@@ -220,6 +230,8 @@ There are some important notes about using clang with TITAN:
 * The {cpp} source code generated and TITAN must be compiled with the same version of clang. See section 2.2 note.
 * Makefiles of TTCN-3 projects must be modified by hand(replace *CXX = g++* with *CXX = clang++3.8*). Or regenerated using *makefilegen*, to use clang compiler. TITAN’s *makefilegen* can detect if it was compiled with clang and will generate makefiles with clang as default {cpp} compiler.
 * Required clang version is *3.8*.
+
+NOTE: On Ubuntu 18.04 the default clang version is 6.0.0.
 
 = Building Titan from source code
 
@@ -259,10 +271,11 @@ After setting the environmental variables, the TITAN TTCN–3 Test Executor inst
 == Modification of the User Login Script
 
 The following examples provide some help in modifying the login scripts.
+In case of using AFS for installing TITAN, the first command (setting TTCN3_DIR) must not apply because it already has been set.
 
 *Example modifications of login script* assuming bash as login shell:
 ....
-TTCN3_DIR=/usr/local/TTCNv3
+TTCN3_DIR=/usr/local/TTCNv3 # not for AFS
 PATH=$TTCN3_DIR/bin:$PATH
 LD_LIBRARY_PATH=$TTCN3_DIR/lib:$LD_LIBRARY_PATH
 MANPATH=$MANPATH:$TTCN3_DIR/man
@@ -272,7 +285,7 @@ export TTCN3_DIR PATH LD_LIBRARY_PATH MANPATH TTCN3_LICENSE_FILE
 
 *Example modifications of login script* assuming tcsh as login shell:
 ....
-setenv TTCN3_DIR /usr/local/TTCNv3
+setenv TTCN3_DIR /usr/local/TTCNv3 # not for AFS
 setenv PATH ${TTCN3_DIR}/bin:${PATH}
 setenv LD_LIBRARY_PATH ${TTCN3_DIR}/lib:${LD_LIBRARY_PATH}
 setenv MANPATH ${MANPATH}:${TTCN3_DIR}/man
