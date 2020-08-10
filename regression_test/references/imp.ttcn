@@ -25,4 +25,12 @@ function f() return integer {
   return 7;
 }
 
+type component CT2 {
+  timer tmr;
+}
+
+altstep as() runs on CT2 {
+  [] tmr.timeout { setverdict(pass); }
+}
+
 }

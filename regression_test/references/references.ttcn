@@ -133,6 +133,18 @@ testcase tc_ref_double_pard_with_objid() runs on CT {
   }
 }
 
+// Bug 565952
+testcase tc_activate_imported_altstep() runs on CT2 {
+  var default def := null;
+  timer tmr_local;
+  tmr.start(0.1);
+  tmr_local.start(2.0);
+  def := activate(imp.as());
+  alt {
+    [] tmr_local.timeout { setverdict(fail); }
+  }
+}
+
 control {
   execute(tc_ref_simple_local());
   execute(tc_ref_simple_imported());
@@ -144,6 +156,7 @@ control {
   execute(tc_ref_double_pard_local());
   execute(tc_ref_double_pard_specific());
   execute(tc_ref_double_pard_with_objid());
+  execute(tc_activate_imported_altstep());
 }
 
 }
