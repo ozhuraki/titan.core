@@ -735,9 +735,8 @@ namespace Ttcn {
     Free(expr_cache);
   }
   
-  bool Reference::has_parameters()
+  bool Reference::has_parameters() const
   {
-    get_refd_assignment(); // make sure the reference is checked
     return params_checked ? parlist != NULL : params != NULL;
   }
 
@@ -1005,11 +1004,11 @@ namespace Ttcn {
 
   bool Reference::chk_activate_argument()
   {
+    Common::Assignment *t_ass = get_refd_assignment();
     if (!has_parameters()) {
       error("Reference with actual parameter list was expected in the argument");
       return false;
     }
-    Common::Assignment *t_ass = get_refd_assignment();
     if (!t_ass) return false;
     if (t_ass->get_asstype() != Common::Assignment::A_ALTSTEP) {
       error("Reference to an altstep was expected in the argument instead of "

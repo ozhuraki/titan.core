@@ -364,7 +364,7 @@ namespace Ttcn {
     Reference(Identifier *p_modid, Identifier *p_id,
               ParsedActualParameters *p_params, reftype_t p_reftype = REF_BASIC);
     ~Reference();
-    virtual bool has_parameters();
+    virtual bool has_parameters() const;
     virtual Reference *clone() const;
     virtual void set_fullname(const string& p_fullname);
     virtual void set_my_scope(Scope* p_scope);
