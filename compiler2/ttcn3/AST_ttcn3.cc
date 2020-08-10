@@ -735,8 +735,9 @@ namespace Ttcn {
     Free(expr_cache);
   }
   
-  bool Reference::has_parameters() const
+  bool Reference::has_parameters()
   {
+    get_refd_assignment(); // make sure the reference is checked
     return params_checked ? parlist != NULL : params != NULL;
   }
 
