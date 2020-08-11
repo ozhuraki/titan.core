@@ -23,9 +23,10 @@ namespace Common {
 // =================================
 
 CompField::CompField(Identifier *p_name, Type *p_type, bool p_is_optional,
-  Value *p_defval)
+  Value *p_defval, bool p_default_modifier)
   : Node(), Location(), name(p_name), type(p_type),
-    is_optional(p_is_optional), defval(p_defval), rawattrib(0)
+    is_optional(p_is_optional), defval(p_defval),
+    default_modifier(p_default_modifier), rawattrib(0)
 {
   if(!p_name || !p_type)
     FATAL_ERROR("NULL parameter: Common::CompField::CompField()");
@@ -33,7 +34,8 @@ CompField::CompField(Identifier *p_name, Type *p_type, bool p_is_optional,
 }
 
 CompField::CompField(const CompField& p)
-  : Node(p), Location(p), is_optional(p.is_optional), rawattrib(0)
+  : Node(p), Location(p), is_optional(p.is_optional),
+    default_modifier(p.default_modifier), rawattrib(0)
 {
   name=p.name->clone();
   type=p.type->clone();
@@ -83,6 +85,9 @@ void CompField::dump(unsigned level) const
   if(defval) {
     DEBUG(level + 1, "with default value");
     defval->dump(level + 2);
+  }
+  if (default_modifier) {
+    DEBUG(level + 1, "@default");
   }
 }
 
@@ -145,6 +150,14 @@ CompField* CompFieldMap::get_comp_byName(const Identifier& p_name)
   return m[p_name.get_name()];
 }
 
+CompField* CompFieldMap::get_default()
+{
+  if (!checked) {
+    chk_uniq();
+  }
+  return default_alt;
+}
+
 const char *CompFieldMap::get_typetype_name() const
 {
   if (!my_type) FATAL_ERROR("CompFieldMap::get_typetype_name()");
@@ -178,6 +191,36 @@ void CompFieldMap::chk_uniq()
       comp->error("Duplicate %s field name `%s'", typetype_name, dispname);
       m[name]->note("Field `%s' is already defined here", dispname);
     } else m.add(name, comp);
+    if (comp->has_default_modifier()) {
+      if (default_alt == NULL) {
+        default_alt = comp;
+      }
+      else {
+        comp->error("Multiple union fields defined with the `@default' modifier");
+        default_alt->note("The `@default' modifier was already used here");
+      }
+    }
+  }
+  if (default_alt != NULL) {
+    CompField* current_default = default_alt;
+    while (current_default) {
+      Type* current_type = current_default->get_type()->get_type_refd_last();
+      if (!current_type->is_secho()) {
+        break;
+      }
+      for (size_t i = 0; i < nof_comps; ++i) {
+        CompField* comp = v[i];
+        const Identifier& id = comp->get_name();
+        if (current_type->has_comp_withName(id)) {
+          CompField* clashing_comp = current_type->get_comp_byName(id);
+          const char* dispname = id.get_dispname().c_str();
+          comp->error("Duplicate union field name `%s'", dispname);
+          clashing_comp->note("Field `%s' of the default alternative is here", dispname);
+        }
+      }
+      current_default = current_type->get_typetype() == Type::T_CHOICE_T ?
+        current_type->get_default_alternative() : NULL;
+    }
   }
   checked = true;
 }

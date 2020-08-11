@@ -32,6 +32,8 @@ private:
   bool is_optional;
   /** Default value or 0 if no default value. Owned. */
   Value *defval;
+  /** @default modifier */
+  bool default_modifier;
   /** Raw attributes or 0. Owned */
   RawAST *rawattrib;
   /** Copy constructor not implemented */
@@ -40,7 +42,7 @@ private:
   CompField& operator=(const CompField& p);
 public:
   CompField(Identifier *p_name, Type *p_type, bool p_is_optional=false,
-    Value *p_defval=0);
+    Value *p_defval=0, bool p_default_modifier = false);
   virtual ~CompField();
   virtual CompField *clone() const;
   virtual void set_fullname(const string& p_fullname);
@@ -52,6 +54,7 @@ public:
   bool get_is_optional() const { return is_optional; }
   bool has_default() const { return defval != 0; }
   Value *get_defval() const { return defval; }
+  bool has_default_modifier() const { return default_modifier; }
   virtual void dump(unsigned level) const;
 };
 
@@ -68,6 +71,9 @@ private:
   /** Contains pointers to the individual CompField s.
    * The CompFieldMap owns the CompFields and will free them. */
   vector<CompField> v;
+  /** Pointer to the union alternative with the '@default' modifier.
+   * Null if there is none, or if the structure is not a union. */
+  CompField* default_alt;
   /** Points to the owner type, which shall be a TTCN-3 record, set or
    * union or an ASN.1 open type.
    * The CompFieldMap does not own the type. */
@@ -80,7 +86,7 @@ private:
   /** Assignment disabled */
   CompFieldMap& operator=(const CompFieldMap& p);
 public:
-  CompFieldMap() : Node(), m(), v(), my_type(0), checked(false) {}
+  CompFieldMap() : Node(), m(), v(), default_alt(NULL), my_type(0), checked(false) {}
   virtual ~CompFieldMap();
   virtual CompFieldMap *clone() const;
   virtual void set_fullname(const string& p_fullname);
@@ -91,6 +97,7 @@ public:
   CompField* get_comp_byIndex(size_t n) const { return v[n]; }
   bool has_comp_withName(const Identifier& p_name);
   CompField* get_comp_byName(const Identifier& p_name);
+  CompField* get_default();
 private:
   const char *get_typetype_name() const;
   /** Check the uniqueness of field identifiers.

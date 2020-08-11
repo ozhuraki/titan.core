@@ -630,6 +630,7 @@ object {
 "@local"         RETURN(LocalKeyword);
 "@final"         RETURN(FinalKeyword);
 "@abstract"      RETURN(AbstractKeyword);
+"@default"       RETURN(DefaultModifier);
 
   /* special TITAN specific keywords */
 

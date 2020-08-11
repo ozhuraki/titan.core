@@ -1,0 +1,5 @@
+defaultAlternative
+defaultAlternative.exe
+defaultAlternative*.cc
+defaultAlternative*.hh
+defaultAlternative*.log

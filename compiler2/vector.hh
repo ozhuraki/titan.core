@@ -129,6 +129,29 @@ public:
     num_e++;
     e_ptr[0] = elem;
   }
+  
+  /** Inserts the elem to a specified position in the vector. */
+  void insert(T* elem, size_t pos) {
+    if (e_ptr == NULL) {
+      e_ptr = static_cast<T**>(Malloc(initial_size * sizeof(*e_ptr)));
+    }
+    else {
+      size_t max_e = initial_size;
+      while (max_e < num_e) {
+        max_e *= increment_factor;
+      }
+      if (max_e <= num_e) {
+        if (max_e >= max_vector_length / increment_factor) {
+          FATAL_ERROR("vector::insert(): vector index overflow");
+        }
+        e_ptr = static_cast<T**>
+          (Realloc(e_ptr, max_e * increment_factor * sizeof(*e_ptr)));
+      }
+    }
+    memmove(e_ptr + pos + 1, e_ptr + pos, (num_e - pos) * sizeof(*e_ptr));
+    num_e++;
+    e_ptr[pos] = elem;
+  }
 
   /** Returns the <em>n</em>th element. The index of the first element is
    * zero. If no such index, then FATAL_ERROR occurs. */

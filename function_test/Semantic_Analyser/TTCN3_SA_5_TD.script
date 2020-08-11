@@ -4080,12 +4080,9 @@ template boolean b3 := b1 @> 1
 }
 <END_MODULE>
 <RESULT COUNT 2>
-(?im)operand.+?should.+?be.+?string.+?value
-<END_RESULT>
-<RESULT COUNT 2>
 (?im)reference.+?to.+?value.+?expected.+?instead.+?of.+?template
 <END_RESULT>
-<RESULT COUNT 4>
+<RESULT COUNT 2>
 (?is)\berror:
 <END_RESULT>
 <RESULT>
@@ -4726,15 +4723,12 @@ template rtype	r3 := r1 & r2
 }
 <END_MODULE>
 <RESULT LTRT COUNT 2>
-(?im)operand.+?should.+?be.+?string.+?value
-<END_RESULT>
-<RESULT LTRT COUNT 2>
 (?im)reference.+?to.+?value.+?expected.+?instead.+?of.+?template
 <END_RESULT>
 <RESULT FTRT COUNT 2>
 (?im)Templates.+?of.+?type.+?`@Temp.rtype'.+?cannot.+?be.+?concatenated
 <END_RESULT>
-<RESULT LTRT COUNT 4>
+<RESULT LTRT COUNT 2>
 (?is)\berror:
 <END_RESULT>
 <RESULT FTRT COUNT 2>
@@ -4852,12 +4846,9 @@ template utype	u3 := u1 @> 1
 }
 <END_MODULE>
 <RESULT COUNT 2>
-(?im)operand.+?should.+?be.+?string.+?value
-<END_RESULT>
-<RESULT COUNT 2>
 (?im)reference.+?to.+?value.+?expected.+?instead.+?of.+?template
 <END_RESULT>
-<RESULT COUNT 4>
+<RESULT COUNT 2>
 (?is)\berror:
 <END_RESULT>
 <RESULT>

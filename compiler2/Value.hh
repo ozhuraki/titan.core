@@ -523,6 +523,12 @@ namespace Common {
     void set_valuetype(valuetype_t p_valuetype, Identifier *p_id);
     void set_valuetype(valuetype_t p_valuetype, Assignment *p_ass);
     void add_id(Identifier *p_id);
+    /** Converts the value into a union value, with the union type's @default alternative
+      * as its name and the original (cloned) value as its value.
+      * Used when a value of a different type appears in a context, where a value of
+      * the specified union type was expected.
+      * This attempts to use the value as the union's default alternative instead. */
+    void use_default_alternative(Type* p_union_type);
     /** Follows the chain of references if any and returns the last
      *  element of the chain. In other words, the returned value is
      *  the first value which is not a reference. */
@@ -551,7 +557,8 @@ namespace Common {
 
     /** If this value is used in an expression, what is its return type? */
     Type::typetype_t get_expr_returntype
-    (Type::expected_value_t exp_val=Type::EXPECTED_DYNAMIC_VALUE);
+    (Type::expected_value_t exp_val=Type::EXPECTED_DYNAMIC_VALUE,
+     bool use_def_alt = false);
     /** If this value is used in an expression, what is its governor?
      *  If has no governor, but is reference, then tries the
      *  referenced stuff... If not known, returns NULL. */
@@ -565,8 +572,6 @@ namespace Common {
     /** Used to determine whether the reference points to value or
      *  template in ISCHOSEN, then convert to {ISCHOSEN}_{V,T} */
     void chk_expr_ref_ischosen();
-    void chk_expr_operandtype_enum(const char *opname, Value *v,
-                                   Type::expected_value_t exp_val);
     void chk_expr_operandtype_bool(Type::typetype_t tt, const char *opnum,
                                    const char *opname, const Location *loc);
     void chk_expr_operandtype_int(Type::typetype_t tt, const char *opnum,
@@ -697,7 +702,8 @@ namespace Common {
      * should be a referenced value pointing to a optional record/set field. */
     void chk_expr_omit_comparison(Type::expected_value_t exp_val);
     Int chk_eval_expr_sizeof(ReferenceChain *refch,
-                             Type::expected_value_t exp_val);
+                             Type::expected_value_t exp_val,
+                             Type* def_alt_type = NULL);
     /** The governor is returned. */
     Type *chk_expr_operands_ti(TemplateInstance* ti, Type::expected_value_t exp_val);
     void chk_expr_operands_match(Type::expected_value_t exp_val);
@@ -709,6 +715,17 @@ namespace Common {
     void chk_expr_operands(ReferenceChain *refch,
                            Type::expected_value_t exp_val);
     void chk_expr_operand_valid_float(Value* v, const char *opnum, const char *opname);
+    /** Checks whether the type of the specified union value has a @default alternative.
+      * If it is, then the default alternative's subreference is appended to the end of
+      * the value (which must be a reference) and 'chk_expr_operands' is re-called. */
+    bool chk_expr_operand_default_alternative(Value* v, ReferenceChain *refch,
+      Type::expected_value_t exp_val);
+    /** Checks whether the template instance is a reference to a value or template of a union
+      * type, that has a @default alternative.
+      * If it is, then the default alternative's subreference is appended to the end of
+      * the value/template reference and 'chk_expr_operands' is re-called. */
+    bool chk_expr_operand_default_alternative(TemplateInstance* ti, Type* ti_gov,
+      ReferenceChain *refch, Type::expected_value_t exp_val);
     /** Evaluate...
      * Called by Value::get_value_refd_last() for V_EXPR */
     void evaluate_value(ReferenceChain *refch, Type::expected_value_t exp_val);

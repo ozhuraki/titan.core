@@ -3003,10 +3003,24 @@ namespace Ttcn {
       error("Could not determine the assignment for second parameter");
       goto error;
     }
-    if (Type::T_ENUM_T != convert_op.ref->chk_variable_ref()->get_type_refd_last()->get_typetype_ttcn3()) {
-      convert_op.ref->error("A reference to variable or value parameter of "
-        "type enumerated was expected");
-      goto error;
+    {
+      Type* t = convert_op.ref->chk_variable_ref()->get_type_refd_last();
+      Type::typetype_t tt = t->get_typetype_ttcn3();
+      if (Type::T_ENUM_T != tt) {
+        if (Type::T_CHOICE_T == tt) {
+          CompField* def_alt = t->get_default_alternative();
+          if (def_alt != NULL) {
+            Error_Context cntxt2(convert_op.ref, "Using default alternative `%s' in value of union type `%s'",
+              def_alt->get_name().get_dispname().c_str(), t->get_typename().c_str());
+            convert_op.ref->use_default_alternative(def_alt->get_name());
+            chk_int2enum();
+            return;
+          }
+        }
+        convert_op.ref->error("A reference to variable or value parameter of "
+          "type enumerated was expected");
+        goto error;
+      }
     }
     return;
   error:
@@ -5950,6 +5964,18 @@ error:
         }
         if (of_type->get_typetype() == Type::T_COMPONENT) {
           return ret_val;
+        }
+      }
+      break;
+    case Type::T_CHOICE_T: 
+      if (v->is_ref()) {
+        CompField* def_alt = ret_val->get_default_alternative();
+        Reference* ttcn_ref = dynamic_cast<Reference*>(v->get_reference());
+        if (def_alt != NULL && ttcn_ref != NULL) {
+          Error_Context cntxt(v, "Using default alternative `%s' in value of union type `%s'",
+            def_alt->get_name().get_dispname().c_str(), ret_val->get_typename().c_str());
+          ttcn_ref->use_default_alternative(def_alt->get_name());
+          return chk_comp_ref(p_val, allow_mtc, allow_system, p_any_from);
         }
       }
       break;

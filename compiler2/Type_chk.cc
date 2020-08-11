@@ -3962,6 +3962,13 @@ void Type::chk_this_value_ref(Value *value)
     case T_OCFT:
       get_type_refd()->chk_this_value_ref(value);
       return;
+    case T_CHOICE_T: {
+      CompField* def_alt = get_default_alternative();
+      if (def_alt != NULL) {
+        def_alt->get_type()->chk_this_value_ref(value);
+        return;
+      }
+      break; }
     default:
       break;
     } // switch
@@ -4003,6 +4010,15 @@ bool Type::chk_this_value(Value *value, Common::Assignment *lhs, expected_value_
     if (value->is_unfoldable(0, expected_value)) {
       typetype_t tt = value->get_expr_returntype(expected_value);
       if (!is_compatible_tt(tt, value->is_asn1(), value->get_expr_governor_last())) {
+        CompField* def_alt = get_default_alternative();
+        if (def_alt != NULL) {
+          Error_Context cntxt(value, "Using default alternative `%s' in value of union type `%s'",
+            def_alt->get_name().get_dispname().c_str(), get_typename().c_str());
+          self_ref = def_alt->get_type()->chk_this_value(value, lhs, expected_value,
+            incomplete_allowed, omit_allowed, sub_chk, implicit_omit, is_str_elem);
+          value->use_default_alternative(this);
+          return self_ref;
+        }
         value->error("Incompatible value: `%s' value was expected",
                      get_typename().c_str());
         value->set_valuetype(Value::V_ERROR);
@@ -4085,8 +4101,8 @@ bool Type::chk_this_value(Value *value, Common::Assignment *lhs, expected_value_
   case T_CHOICE_T:
   case T_OPENTYPE:
   case T_ANYTYPE:
-    self_ref = chk_this_value_Choice(value, lhs, expected_value, incomplete_allowed,
-      implicit_omit);
+    self_ref = chk_this_value_Choice(value, lhs, expected_value, omit_allowed,
+      sub_chk, incomplete_allowed, implicit_omit, is_str_elem);
     break;
   case T_SEQ_T:
   case T_SET_T:
@@ -4340,6 +4356,26 @@ bool Type::chk_this_refd_value(Value *value, Common::Assignment *lhs, expected_v
       if (info.is_subtype_error()) {
         value->error("%s", info.get_subtype_error().c_str());
       } else if (!info.is_erroneous()) {
+        CompField* def_alt_ref = governor->get_default_alternative();
+        Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(ref);
+        if (def_alt_ref != NULL && ttcn_ref != NULL) {
+          // first try using default alternatives on the right-hand-side
+          Error_Context cntxt(value, "Using default alternative `%s' in reference to "
+            "value of union type `%s'", def_alt_ref->get_name().get_dispname().c_str(),
+            governor->get_typename().c_str());
+          ttcn_ref->use_default_alternative(def_alt_ref->get_name());
+          return chk_this_refd_value(value, lhs, expected_value, refch, str_elem);
+        }
+        CompField* def_alt = get_default_alternative();
+        if (def_alt != NULL) {
+          // afterwards try using default alternatives on the left-hand-side
+          Error_Context cntxt(value, "Using default alternative `%s' in value of union type `%s'",
+            def_alt->get_name().get_dispname().c_str(), get_typename().c_str());
+          self_ref = def_alt->get_type()->chk_this_refd_value(value, lhs,
+            expected_value, refch, str_elem);
+          value->use_default_alternative(this);
+          return self_ref;
+        }
         value->error("Type mismatch: a %s of type `%s' was expected "
                      "instead of `%s'", expected_value == EXPECTED_TEMPLATE
                      ? "value or template" : "value",
@@ -4932,12 +4968,22 @@ static string actual_fields(Type& t) // alas, not even get_nof_comps() is const
 
 
 bool Type::chk_this_value_Choice(Value *value, Common::Assignment *lhs,
-  expected_value_t expected_value, namedbool incomplete_allowed, namedbool implicit_omit)
+  expected_value_t expected_value, namedbool omit_allowed, namedbool sub_chk,
+  namedbool incomplete_allowed, namedbool implicit_omit, namedbool str_elem)
 {
   bool self_ref = false;
+  CompField* def_alt = get_default_alternative();
   switch(value->get_valuetype()) {
   case Value::V_SEQ:
     if (value->is_asn1()) {
+      if (def_alt != NULL) {
+        Error_Context cntxt(value, "Using default alternative `%s' in value of union type `%s'",
+          def_alt->get_name().get_dispname().c_str(), get_typename().c_str());
+        self_ref = def_alt->get_type()->chk_this_value(value, lhs, expected_value,
+          incomplete_allowed, omit_allowed, sub_chk, implicit_omit, str_elem);
+        value->use_default_alternative(this);
+        return self_ref;
+      }
       value->error("CHOICE value was expected for type `%s'",
                    get_fullname().c_str());
       value->set_valuetype(Value::V_ERROR);
@@ -4945,6 +4991,15 @@ bool Type::chk_this_value_Choice(Value *value, Common::Assignment *lhs,
     } else {
       // the valuetype can be ERROR if the value has no fields at all
       if (value->get_valuetype() == Value::V_ERROR) return false;
+      if (def_alt != NULL && (value->get_nof_comps() != 1 ||
+          !has_comp_withName(value->get_se_comp_byIndex(0)->get_name()))) {
+        Error_Context cntxt(value, "Using default alternative `%s' in value of union type `%s'",
+          def_alt->get_name().get_dispname().c_str(), get_typename().c_str());
+        self_ref = def_alt->get_type()->chk_this_value(value, lhs, expected_value,
+          incomplete_allowed, omit_allowed, sub_chk, implicit_omit, str_elem);
+        value->use_default_alternative(this);
+        return self_ref;
+      }
       // The value notation for TTCN record/union types
       // cannot be distinguished during parsing.  Now we know it's a union.
       value->set_valuetype(Value::V_CHOICE);
@@ -4957,20 +5012,30 @@ bool Type::chk_this_value_Choice(Value *value, Common::Assignment *lhs,
     }
     const Identifier& alt_name = value->get_alt_name();
     if(!has_comp_withName(alt_name)) {
-      if (value->is_asn1()) {
-        value->error("Reference to non-existent alternative `%s' in CHOICE"
-                     " value for type `%s'",
-                     alt_name.get_dispname().c_str(),
-                     get_fullname().c_str());
-      } else {
-        value->error("Reference to non-existent field `%s' in union "
-                     "value for type `%s'",
-                     alt_name.get_dispname().c_str(),
-                     get_fullname().c_str());
+      if (def_alt != NULL) {
+        Error_Context cntxt(value, "Using default alternative `%s' in value of union type `%s'",
+          def_alt->get_name().get_dispname().c_str(), get_typename().c_str());
+        self_ref = def_alt->get_type()->chk_this_value(value, lhs, expected_value,
+          incomplete_allowed, omit_allowed, sub_chk, implicit_omit, str_elem);
+        value->use_default_alternative(this);
+        return self_ref;
       }
-      value->set_valuetype(Value::V_ERROR);
-      value->note("%s", actual_fields(*this).c_str());
-      return self_ref;
+      else {
+        if (value->is_asn1()) {
+          value->error("Reference to non-existent alternative `%s' in CHOICE"
+                       " value for type `%s'",
+                       alt_name.get_dispname().c_str(),
+                       get_fullname().c_str());
+        } else {
+          value->error("Reference to non-existent field `%s' in union "
+                       "value for type `%s'",
+                       alt_name.get_dispname().c_str(),
+                       get_fullname().c_str());
+        }
+        value->set_valuetype(Value::V_ERROR);
+        value->note("%s", actual_fields(*this).c_str());
+        return self_ref;
+      }
     }
     Type *alt_type = get_comp_byName(alt_name)->get_type();
     Value *alt_value = value->get_alt_value();
@@ -4986,10 +5051,19 @@ bool Type::chk_this_value_Choice(Value *value, Common::Assignment *lhs,
     }
     break;}
   default:
-    value->error("%s value was expected for type `%s'",
-                 value->is_asn1() ? "CHOICE" : "union",
-                 get_fullname().c_str());
-    value->set_valuetype(Value::V_ERROR);
+    if (def_alt != NULL) {
+      Error_Context cntxt(value, "Using default alternative `%s' in value of union type `%s'",
+        def_alt->get_name().get_dispname().c_str(), get_typename().c_str());
+      self_ref = def_alt->get_type()->chk_this_value(value, lhs, expected_value,
+        incomplete_allowed, omit_allowed, sub_chk, implicit_omit, str_elem);
+      value->use_default_alternative(this);
+      return self_ref;
+    }
+    else {
+      value->error("%s value was expected for type `%s'",
+        value->is_asn1() ? "CHOICE" : "union", get_fullname().c_str());
+      value->set_valuetype(Value::V_ERROR);
+    }   
     break;
   }
   return self_ref;
@@ -6537,7 +6611,8 @@ bool Type::chk_this_template_generic(Template *t, namedbool incomplete_allowed,
     }
     break;
   default:
-    self_ref = chk_this_template(t, incomplete_allowed, sub_chk, implicit_omit, lhs);
+    self_ref = chk_this_template(t, incomplete_allowed, allow_omit, allow_any_or_omit,
+      sub_chk, implicit_omit, lhs);
     break;
   }
   if (t->get_length_restriction()) chk_this_template_length_restriction(t);
@@ -6687,8 +6762,9 @@ bool Type::chk_this_template_concat_operand(Template* t, namedbool implicit_omit
   return self_ref;
 }
 
-bool Type::chk_this_template(Template *t, namedbool incomplete_allowed, namedbool,
-  namedbool implicit_omit, Common::Assignment *lhs)
+bool Type::chk_this_template(Template *t, namedbool incomplete_allowed,
+                             namedbool allow_omit, namedbool allow_any_or_omit, namedbool sub_chk,
+                             namedbool implicit_omit, Common::Assignment *lhs)
 {
   bool self_ref = false;
   Type *t_last = get_type_refd_last();
@@ -6742,7 +6818,8 @@ bool Type::chk_this_template(Template *t, namedbool incomplete_allowed, namedboo
   case T_CHOICE_T:
   case T_OPENTYPE:
   case T_ANYTYPE:
-    self_ref = t_last->chk_this_template_Choice(t, incomplete_allowed, implicit_omit, lhs);
+    self_ref = t_last->chk_this_template_Choice(t, incomplete_allowed, allow_omit,
+      allow_any_or_omit, sub_chk, implicit_omit, lhs);
     break;
   case T_SEQ_A:
   case T_SEQ_T:
@@ -7030,12 +7107,23 @@ void Type::chk_this_template_Enum(Template *t)
 }
 
 bool Type::chk_this_template_Choice(Template *t, namedbool incomplete_allowed,
+  namedbool allow_omit, namedbool allow_any_or_omit, namedbool sub_chk,
   namedbool implicit_omit, Common::Assignment *lhs)
 {
   bool self_ref = false;
+  CompField* def_alt = get_default_alternative();
   switch (t->get_templatetype()) {
   case Ttcn::Template::NAMED_TEMPLATE_LIST: {
     size_t nof_nts = t->get_nof_comps();
+    if (def_alt != NULL && (nof_nts != 1 ||
+        !has_comp_withName(t->get_namedtemp_byIndex(0)->get_name()))) {
+      Error_Context cntxt(t, "Using default alternative `%s' in template of union type `%s'",
+        def_alt->get_name().get_dispname().c_str(), get_typename().c_str());
+      self_ref = def_alt->get_type()->chk_this_template_generic(t, incomplete_allowed, allow_omit,
+        allow_any_or_omit, sub_chk, implicit_omit, lhs);
+      t->use_default_alternative(this);
+      return self_ref;
+    }
     if (nof_nts != 1) t->error("A template for union type must contain "
       "exactly one selected field");
     // We check all named templates, even though it is an error
@@ -7072,6 +7160,14 @@ bool Type::chk_this_template_Choice(Template *t, namedbool incomplete_allowed,
     }
     break;}
   default:
+    if (def_alt != NULL) {
+      Error_Context cntxt(t, "Using default alternative `%s' in value of union type `%s'",
+        def_alt->get_name().get_dispname().c_str(), get_typename().c_str());
+      self_ref = def_alt->get_type()->chk_this_template_generic(t, incomplete_allowed, allow_omit,
+        allow_any_or_omit, sub_chk, implicit_omit, lhs);
+      t->use_default_alternative(this);
+      return self_ref;
+    }
     t->error("%s cannot be used for union type `%s'",
       t->get_templatetype_str(), get_typename().c_str());
     break;

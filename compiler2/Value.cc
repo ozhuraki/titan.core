@@ -80,7 +80,7 @@ namespace Common {
   // =================================
 
   Value::Value(const Value& p)
-    : GovernedSimple(p), valuetype(p.valuetype), my_governor(0)
+    : GovernedSimple(p), valuetype(p.valuetype), my_governor(p.my_governor)
     , in_brackets(p.in_brackets)
   {
     switch(valuetype) {
@@ -3681,7 +3681,8 @@ namespace Common {
     }
   }
 
-  Type::typetype_t Value::get_expr_returntype(Type::expected_value_t exp_val)
+  Type::typetype_t Value::get_expr_returntype(Type::expected_value_t exp_val,
+                                              bool use_def_alt /* = false */)
   {
     switch (valuetype) {
     case V_CHARSYMS:
@@ -3710,8 +3711,23 @@ namespace Common {
     case V_REFD:
     case V_INVOKE: {
       Type *t = get_expr_governor(exp_val);
-      if (t) return t->get_type_refd_last()->get_typetype_ttcn3();
-      else return Type::T_ERROR; }
+      if (t != NULL) {
+        t = t->get_type_refd_last();
+      }
+      Type::typetype_t tt = t != NULL ? t->get_typetype_ttcn3() : Type::T_ERROR;
+      if (use_def_alt) {
+        while (tt == Type::T_CHOICE_T) {
+          CompField* def_alt = t->get_default_alternative();
+          if (def_alt != NULL) {
+            t = def_alt->get_type()->get_type_refd_last();
+            tt = t->get_typetype_ttcn3();
+          }
+          else {
+            break; // exit the 'while' loop if there's no default alternative
+          }
+        }
+      }
+      return tt; }
     case V_FUNCTION:
       return Type::T_FUNCTION;
     case V_ALTSTEP:
@@ -3801,7 +3817,7 @@ namespace Common {
           Error_Context cntxt(this, "In the operand of operation `%s'",
                               get_opname());
           u.expr.v1->set_lowerid_to_ref();
-          tmp_tt=u.expr.v1->get_expr_returntype(exp_val);
+          tmp_tt=u.expr.v1->get_expr_returntype(exp_val, true);
         }
         switch(tmp_tt) {
         case Type::T_INT:
@@ -3821,7 +3837,7 @@ namespace Common {
           Error_Context cntxt(this, "In the left operand of operation `%s'",
                               get_opname());
           u.expr.v1->set_lowerid_to_ref();
-          tmp_tt=u.expr.v1->get_expr_returntype(exp_val);
+          tmp_tt=u.expr.v1->get_expr_returntype(exp_val, true);
         }
         switch(tmp_tt) {
         case Type::T_INT:
@@ -3834,7 +3850,7 @@ namespace Common {
               Error_Context cntxt(this, "In the right operand of operation `%s'",
                                   get_opname());
               u.expr.v2->set_lowerid_to_ref();
-              tmp_tt2=u.expr.v2->get_expr_returntype(exp_val);
+              tmp_tt2=u.expr.v2->get_expr_returntype(exp_val, true);
             }
             Type::typetype_t ret_val=Type::T_ERROR;
             bool maybeconcat=false;
@@ -3882,7 +3898,7 @@ namespace Common {
                               u.expr.v_optype==OPTYPE_NOT4B?"":"left ",
                               get_opname());
           u.expr.v1->set_lowerid_to_ref();
-          tmp_tt=u.expr.v1->get_expr_returntype(exp_val);
+          tmp_tt=u.expr.v1->get_expr_returntype(exp_val, true);
         }
         switch(tmp_tt) {
         case Type::T_BSTR:
@@ -3966,7 +3982,7 @@ namespace Common {
           Error_Context cntxt(this, "In the first operand of operation `%s'",
                               get_opname());
           u.expr.v1->set_lowerid_to_ref();
-          tmp_tt=u.expr.v1->get_expr_returntype(exp_val);
+          tmp_tt=u.expr.v1->get_expr_returntype(exp_val, true);
         }
         switch(tmp_tt) {
         case Type::T_CSTR:
@@ -4583,29 +4599,6 @@ namespace Common {
     } // switch
   }
 
-  void Value::chk_expr_operandtype_enum(const char *opname, Value *v,
-                                        Type::expected_value_t exp_val)
-  {
-    v->set_lowerid_to_ref(); // can only be reference to enum
-    Type *t = v->get_expr_governor(exp_val);
-    if (v->valuetype==V_ERROR) return;
-    if (!t) {
-      v->error("Please use reference to an enumerated value as the operand of "
-            "operation `%s'", get_opname());
-      set_valuetype(V_ERROR);
-      return;
-    }
-    t = t->get_type_refd_last();
-    if (t->get_typetype()!=Type::T_ENUM_A && t->get_typetype()!=Type::T_ENUM_T) {
-      v->error("The operand of operation `%s' should be enumerated value", opname);
-      set_valuetype(V_ERROR);
-    }
-    if (v->get_value_refd_last()->valuetype==V_OMIT) {
-      v->error("The operand of operation `%s' cannot be omit", opname);
-      set_valuetype(V_ERROR);
-    }
-  }
-
   void Value::chk_expr_operandtype_bool(Type::typetype_t tt,
                                         const char *opnum,
                                         const char *opname,
@@ -4956,6 +4949,26 @@ namespace Common {
           if (!info1.is_erroneous() && !info2.is_erroneous()) {
             // the subtypes don't need to be compatible here
             if (!info1.is_subtype_error() && !info2.is_subtype_error()) {
+              if (v1->is_ref()) {
+                CompField* def_alt = t1->get_default_alternative();
+                Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(v1->get_reference());
+                if (def_alt != NULL && ttcn_ref != NULL) {
+                  Error_Context cntxt(v1, "Using default alternative `%s' in value of union type `%s'",
+                    def_alt->get_name().get_dispname().c_str(), t1->get_typename().c_str());
+                  ttcn_ref->use_default_alternative(def_alt->get_name());
+                  return chk_expr_operandtypes_compat(exp_val, v1, v2, opnum1, opnum2);
+                }
+              }
+              if (v2->is_ref()) {
+                CompField* def_alt = t2->get_default_alternative();
+                Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(v2->get_reference());
+                if (def_alt != NULL && ttcn_ref != NULL) {
+                  Error_Context cntxt(v2, "Using default alternative `%s' in value of union type `%s'",
+                    def_alt->get_name().get_dispname().c_str(), t2->get_typename().c_str());
+                  ttcn_ref->use_default_alternative(def_alt->get_name());
+                  return chk_expr_operandtypes_compat(exp_val, v1, v2, opnum1, opnum2);
+                }
+              }
               error("The operands of operation `%s' should be of compatible "
                     "types", get_opname());
               set_valuetype(V_ERROR);
@@ -5272,6 +5285,16 @@ namespace Common {
           ->get_field_type(ref->get_subrefs(), Type::EXPECTED_DYNAMIC_VALUE);
         if(!ret_val) goto error;
         Type* t_type=ret_val->get_type_refd_last();
+        if (t_type->get_typetype() == Type::T_CHOICE_T) {
+          CompField* def_alt = t_type->get_default_alternative();
+          Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(ref);
+          if (def_alt != NULL && ttcn_ref != NULL) {
+            Error_Context cntxt(val, "Using default alternative `%s' in value of union type `%s'",
+              def_alt->get_name().get_dispname().c_str(), t_type->get_typename().c_str());
+            ttcn_ref->use_default_alternative(def_alt->get_name());
+            return chk_expr_operand_compref(val, opnum, opname, any_from);
+          }
+        }
         if(t_type->get_typetype() != (any_from ? Type::T_ARRAY : Type::T_COMPONENT)) {
           ref->error("%s operand of operation `%s': Type mismatch:"
                      " component%s reference was expected instead of `%s'",
@@ -6446,14 +6469,31 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       case Type::T_CHOICE_T:
       case Type::T_ANYTYPE:
       case Type::T_OPENTYPE:
-	if (!t_governor->has_comp_withName(*u.expr.i2)) {
-	  error(t_governor->get_typetype()==Type::T_ANYTYPE ?
-	    "%s does not have a field named `%s'"   :
-	    "Union type `%s' does not have a field named `%s'",
-	    t_governor->get_typename().c_str(),
-	    u.expr.i2->get_dispname().c_str());
-	  error_flag = true;
-	}
+        if (!t_governor->has_comp_withName(*u.expr.i2)) {
+          CompField* def_alt = t_governor->get_default_alternative();
+          Ttcn::Reference* ref = u.expr.v_optype == OPTYPE_ISCHOSEN_V ?
+            dynamic_cast<Ttcn::Reference*>(u.expr.v1->get_reference()) :
+            u.expr.t1->get_reference();
+          if (def_alt != NULL && ref != NULL) {
+            Error_Context cntxt2(ref, "Using default alternative `%s' in value or template of union type `%s'",
+              def_alt->get_name().get_dispname().c_str(), t_governor->get_typename().c_str());
+            ref->use_default_alternative(def_alt->get_name());
+            if (u.expr.v_optype == OPTYPE_ISCHOSEN_V) {
+              u.expr.v1->set_my_governor(def_alt->get_type());
+            }
+            else {
+              u.expr.t1->set_my_governor(def_alt->get_type());
+            }
+            chk_expr_operands_ischosen(refch, exp_val);
+            return;
+          }
+          error(t_governor->get_typetype()==Type::T_ANYTYPE ?
+            "%s does not have a field named `%s'"   :
+            "Union type `%s' does not have a field named `%s'",
+            t_governor->get_typename().c_str(),
+            u.expr.i2->get_dispname().c_str());
+          error_flag = true;
+        }
         break;
       default:
 	loc->error("The operand of operation `%s' should be a union value "
@@ -6581,6 +6621,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       }
       v_enc_info->set_lowerid_to_ref();
       Type::typetype_t tt = v_enc_info->get_expr_returntype(exp_val);
+      if (tt == Type::T_CHOICE_T && v_enc_info->is_ref() &&
+          chk_expr_operand_default_alternative(v_enc_info, refch, exp_val)) {
+        // this function was already re-called with the default alternative, abort this call
+        return;
+      }
       chk_expr_operandtype_charstr(tt, u.expr.v_optype == OPTYPE_ENCODE ?
         "Second" : "Third", opname, v_enc_info);
       chk_expr_eval_value(v_enc_info, t_chk, refch, exp_val);
@@ -6597,6 +6642,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       }
       v_dyn_enc->set_lowerid_to_ref();
       Type::typetype_t tt = v_dyn_enc->get_expr_returntype(exp_val);
+      if (tt == Type::T_CHOICE_T && v_dyn_enc->is_ref() &&
+          chk_expr_operand_default_alternative(v_dyn_enc, refch, exp_val)) {
+        // this function was already re-called with the default alternative, abort this call
+        return;
+      }
       chk_expr_operandtype_charstr(tt, u.expr.v_optype == OPTYPE_ENCODE ?
         "Third" : "Fourth", opname, v_dyn_enc);
       chk_expr_eval_value(v_dyn_enc, t_chk, refch, exp_val);
@@ -6666,6 +6716,16 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
                                                    Type::EXPECTED_DYNAMIC_VALUE);
       if (!t_type) {
         goto error;
+      }
+      if (t_type->get_type_refd_last()->get_typetype() == Type::T_CHOICE_T) {
+        CompField* def_alt = t_type->get_default_alternative();
+        if (def_alt != NULL) {
+          Error_Context cntxt2(ref, "Using default alternative `%s' in reference to value of union type `%s'",
+            def_alt->get_name().get_dispname().c_str(), t_type->get_typename().c_str());
+          ref->use_default_alternative(def_alt->get_name());
+          chk_expr_operands_decode(refch, exp_val);
+          return;
+        }
       }
       switch(u.expr.v_optype) {
         case OPTYPE_DECODE:
@@ -6750,6 +6810,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         }
         v_enc_info->set_lowerid_to_ref();
         Type::typetype_t tt = v_enc_info->get_expr_returntype(exp_val);
+        if (tt == Type::T_CHOICE_T && v_enc_info->is_ref() &&
+            chk_expr_operand_default_alternative(v_enc_info, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_charstr(tt, u.expr.v_optype == OPTYPE_DECODE ?
           "Third" : "Fourth", opname, v_enc_info);
         chk_expr_eval_value(v_enc_info, t_chk, refch, exp_val);
@@ -6766,6 +6831,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         }
         v_dyn_enc->set_lowerid_to_ref();
         Type::typetype_t tt = v_dyn_enc->get_expr_returntype(exp_val);
+        if (tt == Type::T_CHOICE_T && v_dyn_enc->is_ref() &&
+            chk_expr_operand_default_alternative(v_dyn_enc, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_charstr(tt, u.expr.v_optype == OPTYPE_DECODE ?
           "Fourth" : "Fifth", opname, v_dyn_enc);
         chk_expr_eval_value(v_dyn_enc, t_chk, refch, exp_val);
@@ -6835,7 +6905,8 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
   }
 
   Int Value::chk_eval_expr_sizeof(ReferenceChain *refch,
-                                  Type::expected_value_t exp_val)
+                                  Type::expected_value_t exp_val,
+                                  Type* def_alt_type)
   {
     if(valuetype==V_ERROR) return -1;
     if(u.expr.state==EXPR_CHECKING_ERR) return -1;
@@ -6899,7 +6970,8 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     Assignment* t_ass = 0;
     Reference* ref = 0;
     Ttcn::FieldOrArrayRefs* t_subrefs = 0;
-    t_type = chk_expr_operands_ti(u.expr.ti1, exp_val);
+    t_type = def_alt_type != NULL ? def_alt_type :
+      chk_expr_operands_ti(u.expr.ti1, exp_val);
     if (t_type) {
       chk_expr_eval_ti(u.expr.ti1, t_type, refch, exp_val);
       t_type = t_type->get_type_refd_last();
@@ -6917,6 +6989,10 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case Template::INDEXED_TEMPLATE_LIST:
       return -1;
     case Template::TEMPLATE_REFD:
+      ref = t_templ->get_reference();
+      t_ass = ref->get_refd_assignment();
+      t_subrefs = ref->get_subrefs();
+      break;
     case Template::TEMPLATE_LIST:
     case Template::NAMED_TEMPLATE_LIST:
       // computed later
@@ -6996,10 +7072,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case Assignment::A_PAR_TEMPL_IN:
     case Assignment::A_PAR_TEMPL_OUT:
     case Assignment::A_PAR_TEMPL_INOUT:
-      if (exp_val!=Type::EXPECTED_TEMPLATE)
+      if (exp_val!=Type::EXPECTED_TEMPLATE) {
         u.expr.ti1->error("Reference to a value was expected instead of %s",
                    t_ass->get_description().c_str());
-      goto error;
+        goto error;
+      }
       break;
     case Assignment::A_FUNCTION_RVAL:
     case Assignment::A_EXT_FUNCTION_RVAL:
@@ -7079,6 +7156,18 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case Type::T_OID:
     case Type::T_ROID:
       break;
+    case Type::T_CHOICE_T:
+      if (ref != NULL) {
+        CompField* def_alt = t_type->get_default_alternative();
+        Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(ref);
+        if (def_alt != NULL && ttcn_ref != NULL) {
+          Error_Context cntxt2(ref, "Using default alternative `%s' in value or template of union type `%s'",
+            def_alt->get_name().get_dispname().c_str(), t_type->get_typename().c_str());
+          ttcn_ref->use_default_alternative(def_alt->get_name());
+          return chk_eval_expr_sizeof(refch, exp_val, def_alt->get_type());
+        }
+      }
+      // otherwise fall through
     default:
       u.expr.ti1->error("Reference to value or template of type record, record of,"
                  " set, set of, objid or array was expected");
@@ -7358,6 +7447,58 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       set_valuetype(V_ERROR);
     }
   }
+  
+  bool Value::chk_expr_operand_default_alternative(Value* v, ReferenceChain *refch,
+                                                   Type::expected_value_t exp_val)
+  {
+    if (!v->is_ref()) {
+      FATAL_ERROR("Value::chk_default_alternative_ref");
+    }
+    Type* t = v->get_expr_governor(exp_val);
+    CompField* def_alt = t->get_default_alternative();
+    Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(v->get_reference());
+    if (def_alt != NULL && ttcn_ref != NULL) {
+      Error_Context cntxt(v, "Using default alternative `%s' in value of union type `%s'",
+        def_alt->get_name().get_dispname().c_str(), t->get_typename().c_str());
+      ttcn_ref->use_default_alternative(def_alt->get_name());
+      if (u.expr.state != EXPR_CHECKING_ERR) {
+        chk_expr_operands(refch, exp_val);
+      }
+      return true;
+    }
+    return false;
+  }
+  
+  bool Value::chk_expr_operand_default_alternative(TemplateInstance* ti, Type* ti_gov,
+                                                   ReferenceChain *refch, Type::expected_value_t exp_val)
+  {
+    CompField* def_alt = ti_gov->get_default_alternative();
+    if (def_alt == NULL) {
+      return false;
+    }
+    Ttcn::Reference* ttcn_ref = NULL;
+    Template* temp = ti->get_Template();
+    switch (temp->get_templatetype()) {
+    case Ttcn::Template::TEMPLATE_REFD:
+      ttcn_ref = temp->get_reference();
+      break;
+    case Ttcn::Template::SPECIFIC_VALUE:
+      ttcn_ref = dynamic_cast<Ttcn::Reference*>(temp->get_specific_value()->get_reference());
+      break;
+    default:
+      break;
+    }
+    if (ttcn_ref != NULL) {
+      Error_Context cntxt(ti, "Using default alternative `%s' in value or template of union type `%s'",
+        def_alt->get_name().get_dispname().c_str(), ti_gov->get_typename().c_str());
+      ttcn_ref->use_default_alternative(def_alt->get_name());
+      if (u.expr.state != EXPR_CHECKING_ERR) {
+        chk_expr_operands(refch, exp_val);
+      }
+      return true;
+    }
+    return false;
+  }
 
   void Value::chk_expr_operands(ReferenceChain *refch,
                                 Type::expected_value_t exp_val)
@@ -7431,6 +7572,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_int_float(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -7441,6 +7587,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_bool(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -7451,6 +7602,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_binstr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -7463,6 +7619,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_bstr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -7473,6 +7634,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_bstr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
         // Skip `chk_expr_val_bitstr_intsize(v1, the, opname);'.
@@ -7484,6 +7650,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_cstr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
         chk_expr_val_len1(v1, the, opname);
@@ -7495,6 +7666,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_cstr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -7505,6 +7681,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_cstr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
         chk_expr_val_str_int(v1, the, opname);
@@ -7516,6 +7697,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_cstr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
         chk_expr_val_str_float(v1, the, opname);
@@ -7527,6 +7713,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_cstr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
         chk_expr_val_str_bindigits(v1, the, opname);
@@ -7538,6 +7729,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_cstr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
         chk_expr_val_str_hexdigits(v1, the, opname);
@@ -7549,6 +7745,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_cstr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
         chk_expr_val_str_len_even(v1, the, opname);
@@ -7559,7 +7760,29 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       v1=u.expr.v1;
       {
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
-        chk_expr_operandtype_enum(opname, v1, exp_val);
+        v1->set_lowerid_to_ref(); // can only be reference to enum
+        Type *t = v1->get_expr_governor(exp_val);
+        if (v1->valuetype==V_ERROR) return;
+        if (!t) {
+          v1->error("Please use reference to an enumerated value as the operand of "
+            "operation `%s'", get_opname());
+          set_valuetype(V_ERROR);
+          return;
+        }
+        t = t->get_type_refd_last();
+        if (t->get_typetype() == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
+        if (t->get_typetype()!=Type::T_ENUM_A && t->get_typetype()!=Type::T_ENUM_T) {
+          v1->error("The operand of operation `%s' should be enumerated value", opname);
+          set_valuetype(V_ERROR);
+        }
+        if (v1->get_value_refd_last()->valuetype==V_OMIT) {
+          v1->error("The operand of operation `%s' cannot be omit", opname);
+          set_valuetype(V_ERROR);
+        }
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
       break;
@@ -7573,6 +7796,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_float(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
         if (u.expr.v_optype==OPTYPE_FLOAT2INT)
@@ -7585,6 +7813,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_float(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
         chk_expr_operand_valid_float(v1, the, opname);
@@ -7599,6 +7832,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_hstr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -7609,6 +7847,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_hstr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
         // Skip `chk_expr_val_hexstr_intsize(v1, the, opname);'.
@@ -7620,6 +7863,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_int(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
         chk_expr_val_int_pos7bit(v1, the, opname);
@@ -7631,6 +7879,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_int(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
         chk_expr_val_int_pos31bit(v1, first, opname);
@@ -7643,6 +7896,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_int(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -7657,6 +7915,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_ostr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -7667,6 +7930,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_ostr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
         // Simply skip `chk_expr_val_hexstr_intsize(v1, the, opname);' for
@@ -7679,6 +7947,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_ostr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
         chk_expr_val_str_7bitoctets(v1, the, opname);
@@ -7690,6 +7963,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_ostr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -7700,6 +7978,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_ostr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -7710,6 +7993,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_ostr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -7719,6 +8007,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the second operand of operation `%s'", opname);
         v2->set_lowerid_to_ref();
         tt2=v2->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_bool(tt2, second, opname, v2);
         chk_expr_eval_value(v2, t_chk, refch, exp_val);
       }
@@ -7729,6 +8022,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_cstr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -7739,6 +8037,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_charstr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
         chk_expr_val_len1(v1, the, opname);
@@ -7750,6 +8053,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_charstr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
         chk_expr_val_ustr_7bitchars(v1, the, opname);
@@ -7762,6 +8070,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the first operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_cstr(tt1, second, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -7773,6 +8086,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_charstr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -7783,6 +8101,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_charstr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -7792,6 +8115,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the second operand of operation `%s'", opname);
         v2->set_lowerid_to_ref();
         tt2=v2->get_expr_returntype(exp_val);
+        if (tt2 == Type::T_CHOICE_T && v2->is_ref() &&
+            chk_expr_operand_default_alternative(v2, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_cstr(tt2, second, opname, v2);
         chk_expr_eval_value(v2, t_chk, refch, exp_val);
       }
@@ -7802,6 +8130,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_ostr(tt1, the, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -7811,6 +8144,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the second operand of operation `%s'", opname);
         v2->set_lowerid_to_ref();
         tt2=v2->get_expr_returntype(exp_val);
+        if (tt2 == Type::T_CHOICE_T && v2->is_ref() &&
+            chk_expr_operand_default_alternative(v2, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_cstr(tt2, second, opname, v2);
         chk_expr_eval_value(v2, t_chk, refch, exp_val);
       }
@@ -7828,6 +8166,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       Error_Context cntxt(u.expr.v2, "In the second operand of operation `%s'", opname);
       u.expr.v2->set_lowerid_to_ref();
       tt2=u.expr.v2->get_expr_returntype(exp_val);
+      if (tt2 == Type::T_CHOICE_T && u.expr.v2->is_ref() &&
+          chk_expr_operand_default_alternative(u.expr.v2, refch, exp_val)) {
+        // this function was already re-called with the default alternative, abort this call
+        return;
+      }
       chk_expr_operandtype_charstr(tt2, second, opname, u.expr.v2);
       chk_expr_eval_value(u.expr.v2, t_chk, refch, exp_val);
       if (!u.expr.v2->is_unfoldable()) {
@@ -7853,6 +8196,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the second operand of operation `%s'", opname);
         v2->set_lowerid_to_ref();
         tt2=v2->get_expr_returntype(exp_val);
+        if (tt2 == Type::T_CHOICE_T && v2->is_ref() &&
+            chk_expr_operand_default_alternative(v2, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_charstr(tt2, second, opname, v2);
         chk_expr_eval_value(v2, t_chk, refch, exp_val);
         if (!u.expr.v2->is_unfoldable()) {
@@ -7875,6 +8223,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the thrid operand of operation `%s'", opname);
         v3->set_lowerid_to_ref();
         tt3=v3->get_expr_returntype(exp_val);
+        if (tt3 == Type::T_CHOICE_T && v3->is_ref() &&
+            chk_expr_operand_default_alternative(v3, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_charstr(tt3, third, opname, v3);
         chk_expr_eval_value(v3, t_chk, refch, exp_val);
         if (!u.expr.v3->is_unfoldable()) {
@@ -7899,7 +8252,17 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       v1->set_lowerid_to_ref();
       v2->set_lowerid_to_ref();
       tt1=v1->get_expr_returntype(exp_val);
+      if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+          chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+        // this function was already re-called with the default alternative, abort this call
+        return;
+      }
       tt2=v2->get_expr_returntype(exp_val);
+      if (tt2 == Type::T_CHOICE_T && v2->is_ref() &&
+          chk_expr_operand_default_alternative(v2, refch, exp_val)) {
+        // this function was already re-called with the default alternative, abort this call
+        return;
+      }
       chk_expr_operandtype_int_float(tt1, first, opname, v1);
       chk_expr_operandtype_int_float(tt2, second, opname, v2);
       chk_expr_eval_value(v1, t_chk, refch, exp_val);
@@ -7916,6 +8279,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the left operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_int(tt1, left, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -7924,6 +8292,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the right operand of operation `%s'", opname);
         v2->set_lowerid_to_ref();
         tt2=v2->get_expr_returntype(exp_val);
+        if (tt2 == Type::T_CHOICE_T && v2->is_ref() &&
+            chk_expr_operand_default_alternative(v2, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_int(tt2, right, opname, v2);
         chk_expr_eval_value(v2, t_chk, refch, exp_val);
         chk_expr_val_int_float_not0(v2, right, opname);
@@ -7938,12 +8311,22 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         {
           Error_Context cntxt(this, "In the left operand of operation `%s'", opname);
           tt1=v1->get_expr_returntype(exp_val);
+          if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+              chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+            // this function was already re-called with the default alternative, abort this call
+            return;
+          }
           chk_expr_operandtype_str(tt1, left, opname, v1);
           chk_expr_eval_value(v1, t_chk, refch, exp_val);
         }
         {
           Error_Context cntxt(this, "In the right operand of operation `%s'", opname);
           tt2=v2->get_expr_returntype(exp_val);
+          if (tt2 == Type::T_CHOICE_T && v2->is_ref() &&
+              chk_expr_operand_default_alternative(v2, refch, exp_val)) {
+            // this function was already re-called with the default alternative, abort this call
+            return;
+          }
           chk_expr_operandtype_str(tt2, right, opname, v2);
           chk_expr_eval_value(v2, t_chk, refch, exp_val);
         }
@@ -7951,6 +8334,8 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
             || (tt2==Type::T_CSTR && tt1==Type::T_USTR)))
           chk_expr_operandtypes_same(tt1, tt2, opname);
       } else { // other list types
+        v1->get_value_refd_last();
+        v2->get_value_refd_last();
         Type* v1_gov = v1->get_expr_governor(exp_val);
         Type* v2_gov = v2->get_expr_governor(exp_val);
         if (!v1_gov) {
@@ -7959,6 +8344,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
           return;
         } else {
           Error_Context cntxt(this, "In the left operand of operation `%s'", opname);
+          if (v1->is_ref() && v1_gov->get_type_refd_last()->get_typetype() == Type::T_CHOICE_T &&
+              chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+            // this function was already re-called with the default alternative, abort this call
+            return;
+          }
           v1_gov->chk_this_value_ref(v1);
           (void)v1_gov->chk_this_value(v1, 0, exp_val,
             INCOMPLETE_NOT_ALLOWED, OMIT_NOT_ALLOWED, SUB_CHK);
@@ -7972,6 +8362,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         {
           Error_Context cntxt(this, "In the right operand of operation `%s'",
                               opname);
+          if (v2->is_ref() && v2_gov->get_type_refd_last()->get_typetype() == Type::T_CHOICE_T &&
+              chk_expr_operand_default_alternative(v2, refch, exp_val)) {
+            // this function was already re-called with the default alternative, abort this call
+            return;
+          }
           v2_gov->chk_this_value_ref(v2);
           (void)v2_gov->chk_this_value(v2, 0, exp_val,
             INCOMPLETE_NOT_ALLOWED, OMIT_NOT_ALLOWED, SUB_CHK);
@@ -8027,6 +8422,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the left operand of operation `%s'",
                             opname);
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_int_float_enum(tt1, left, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -8034,6 +8434,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the right operand of operation `%s'",
                             opname);
         tt2=v2->get_expr_returntype(exp_val);
+        if (tt2 == Type::T_CHOICE_T && v2->is_ref() &&
+            chk_expr_operand_default_alternative(v2, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_int_float_enum(tt2, right, opname, v2);
         chk_expr_eval_value(v2, t_chk, refch, exp_val);
       }
@@ -8047,6 +8452,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
                             opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_bool(tt1, left, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -8056,6 +8466,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
                             opname);
         v2->set_lowerid_to_ref();
         tt2=v2->get_expr_returntype(exp_val);
+        if (tt2 == Type::T_CHOICE_T && v2->is_ref() &&
+            chk_expr_operand_default_alternative(v2, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_bool(tt2, right, opname, v2);
         chk_expr_eval_value(v2, t_chk, refch, exp_val);
       }
@@ -8069,6 +8484,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
                             opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_binstr(tt1, left, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -8078,6 +8498,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
                             opname);
         v2->set_lowerid_to_ref();
         tt2=v2->get_expr_returntype(exp_val);
+        if (tt2 == Type::T_CHOICE_T && v2->is_ref() &&
+            chk_expr_operand_default_alternative(v2, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_binstr(tt2, right, opname, v2);
         chk_expr_eval_value(v2, t_chk, refch, exp_val);
       }
@@ -8091,6 +8516,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the left operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_binstr(tt1, left, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       }
@@ -8099,6 +8529,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the right operand of operation `%s'", opname);
         v2->set_lowerid_to_ref();
         tt2=v2->get_expr_returntype(exp_val);
+        if (tt2 == Type::T_CHOICE_T && v2->is_ref() &&
+            chk_expr_operand_default_alternative(v2, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_int(tt2, right, opname, v2);
         chk_expr_eval_value(v2, t_chk, refch, exp_val);
         chk_expr_val_large_int(v2, right, opname);
@@ -8111,14 +8546,25 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       if (v1->is_string_type(exp_val)) {
         Error_Context cntxt(this, "In the left operand of operation `%s'", opname);
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_str(tt1, left, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
       } else { // other list types
+        v1->get_value_refd_last();
         Type* v1_gov = v1->get_expr_governor(exp_val);
         if (!v1_gov) { // a recof/setof literal would be a syntax error here
           error("Cannot determine the type of the left operand of `%s' operation", opname);
         } else {
           Error_Context cntxt(this, "In the left operand of operation `%s'", opname);
+          if (v1->is_ref() && v1_gov->get_type_refd_last()->get_typetype() == Type::T_CHOICE_T &&
+              chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+            // this function was already re-called with the default alternative, abort this call
+            return;
+          }
           v1_gov->chk_this_value_ref(v1);
           (void)v1_gov->chk_this_value(v1, 0, exp_val,
             INCOMPLETE_NOT_ALLOWED, OMIT_NOT_ALLOWED, SUB_CHK);
@@ -8130,6 +8576,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the right operand of operation `%s'", opname);
         v2->set_lowerid_to_ref();
         tt2=v2->get_expr_returntype(exp_val);
+        if (tt2 == Type::T_CHOICE_T && v2->is_ref() &&
+            chk_expr_operand_default_alternative(v2, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_int(tt2, right, opname, v2);
         chk_expr_eval_value(v2, t_chk, refch, exp_val);
         chk_expr_val_large_int(v2, right, opname);
@@ -8143,6 +8594,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the first operand of operation `%s'", opname);
         v1->set_lowerid_to_ref();
         tt1=v1->get_expr_returntype(exp_val);
+        if (tt1 == Type::T_CHOICE_T && v1->is_ref() &&
+            chk_expr_operand_default_alternative(v1, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_int(tt1, first, opname, v1);
         chk_expr_eval_value(v1, t_chk, refch, exp_val);
         chk_expr_val_int_pos0(v1, first, opname);
@@ -8152,6 +8608,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the second operand of operation `%s'", opname);
         v2->set_lowerid_to_ref();
         tt2=v2->get_expr_returntype(exp_val);
+        if (tt2 == Type::T_CHOICE_T && v2->is_ref() &&
+            chk_expr_operand_default_alternative(v2, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_int(tt2, second, opname, v2);
         chk_expr_eval_value(v2, t_chk, refch, exp_val);
         chk_expr_val_int_pos0(v2, second, opname);
@@ -8168,6 +8629,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         if (ti_exp_val == Type::EXPECTED_DYNAMIC_VALUE) ti_exp_val = Type::EXPECTED_TEMPLATE;
         Type* governor = chk_expr_operands_ti(u.expr.ti1, ti_exp_val);
         if (!governor) return;
+        if (governor->get_type_refd_last()->get_typetype() == Type::T_CHOICE_T &&
+            chk_expr_operand_default_alternative(u.expr.ti1, governor, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_eval_ti(u.expr.ti1, governor, refch, ti_exp_val);
         if (valuetype!=V_ERROR)
           u.expr.ti1->get_Template()->chk_specific_value(false);
@@ -8178,6 +8644,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the second operand of operation `%s'", opname);
         v2->set_lowerid_to_ref();
         tt2=v2->get_expr_returntype(exp_val);
+        if (tt2 == Type::T_CHOICE_T && v2->is_ref() &&
+            chk_expr_operand_default_alternative(v2, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_int(tt2, second, opname, v2);
         chk_expr_eval_value(v2, t_chk, refch, exp_val);
         chk_expr_val_int_pos0(v2, second, opname);
@@ -8187,6 +8658,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the third operand of operation `%s'", opname);
         v3->set_lowerid_to_ref();
         tt3=v3->get_expr_returntype(exp_val);
+        if (tt3 == Type::T_CHOICE_T && v3->is_ref() &&
+            chk_expr_operand_default_alternative(v3, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_int(tt3, third, opname, v3);
         chk_expr_eval_value(v3, t_chk, refch, exp_val);
         chk_expr_val_int_pos0(v3, third, opname);
@@ -8200,6 +8676,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the first operand of operation `%s'", opname);
         Type* governor = chk_expr_operands_ti(u.expr.ti1, ti_exp_val);
         if (!governor) return;
+        if (governor->get_type_refd_last()->get_typetype() == Type::T_CHOICE_T &&
+            chk_expr_operand_default_alternative(u.expr.ti1, governor, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_eval_ti(u.expr.ti1, governor, refch, ti_exp_val);
         if (valuetype!=V_ERROR) {
           u.expr.ti1->get_Template()->chk_specific_value(false);
@@ -8211,6 +8692,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the second operand of operation `%s'", opname);
         Type* governor = chk_expr_operands_ti(u.expr.t2, ti_exp_val);
         if (!governor) return;
+        if (governor->get_type_refd_last()->get_typetype() == Type::T_CHOICE_T &&
+            chk_expr_operand_default_alternative(u.expr.t2, governor, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_eval_ti(u.expr.t2, governor, refch, ti_exp_val);
         chk_expr_operandtype_charstr(governor->get_type_refd_last()->
           get_typetype_ttcn3(), second, opname, u.expr.t2);
@@ -8220,6 +8706,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the third operand of operation `%s'", opname);
         v3->set_lowerid_to_ref();
         tt3=v3->get_expr_returntype(exp_val);
+        if (tt3 == Type::T_CHOICE_T && v3->is_ref() &&
+            chk_expr_operand_default_alternative(v3, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_int(tt3, third, opname, v3);
         chk_expr_eval_value(v3, t_chk, refch, exp_val);
         chk_expr_val_int_pos0(v3, third, opname);
@@ -8283,6 +8774,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       Error_Context cntxt(this, "In the operand of operation `%s'", opname);
       Type *governor = chk_expr_operands_ti(u.expr.ti1, exp_val);
       if (!governor) return;
+      if (governor->get_type_refd_last()->get_typetype() == Type::T_CHOICE_T &&
+          chk_expr_operand_default_alternative(u.expr.ti1, governor, refch, exp_val)) {
+        // this function was already re-called with the default alternative, abort this call
+        return;
+      }
       chk_expr_operandtype_list(governor, the, opname, u.expr.ti1, true);
       if (valuetype == V_ERROR) return;
       chk_expr_eval_ti(u.expr.ti1, governor, refch, exp_val);
@@ -8384,8 +8880,13 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         Error_Context cntxt(this, "In the first operand of operation `%s'", opname);
         v2->set_lowerid_to_ref();
         tt2=v2->get_expr_returntype(exp_val);
-	chk_expr_operandtype_cstr(tt2, first, opname, v2);
-	chk_expr_eval_value(v2, t_chk, refch, exp_val);
+        if (tt2 == Type::T_CHOICE_T && v2->is_ref() &&
+            chk_expr_operand_default_alternative(v2, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
+        chk_expr_operandtype_cstr(tt2, first, opname, v2);
+        chk_expr_eval_value(v2, t_chk, refch, exp_val);
       }
       break;
     case OPTYPE_ACTIVATE_REFD:{ //v1 t_list2
@@ -8417,6 +8918,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
                             opname);
         Type* governor = chk_expr_operands_ti(u.expr.ti1, ti_exp_val);
         if (!governor) return;
+        if (governor->get_type_refd_last()->get_typetype() == Type::T_CHOICE_T &&
+            chk_expr_operand_default_alternative(u.expr.ti1, governor, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_eval_ti(u.expr.ti1, governor, refch, ti_exp_val);
         if (valuetype != V_ERROR)
           u.expr.ti1->get_Template()->chk_specific_value(false);
@@ -8428,6 +8934,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
                             opname);
         v2->set_lowerid_to_ref();
         tt2 = v2->get_expr_returntype(exp_val);
+        if (tt2 == Type::T_CHOICE_T && v2->is_ref() &&
+            chk_expr_operand_default_alternative(v2, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_int(tt2, second, opname, v2);
         chk_expr_eval_value(v2, t_chk, refch, exp_val);
         chk_expr_val_int_pos0(v2, second, opname);
@@ -8438,6 +8949,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
                             opname);
         v3->set_lowerid_to_ref();
         tt3 = v3->get_expr_returntype(exp_val);
+        if (tt3 == Type::T_CHOICE_T && v3->is_ref() &&
+            chk_expr_operand_default_alternative(v3, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_operandtype_int(tt3, third, opname, v3);
         chk_expr_eval_value(v3, t_chk, refch, exp_val);
         chk_expr_val_int_pos0(v3, third, opname);
@@ -8447,6 +8963,11 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
                             opname);
         Type* governor = chk_expr_operands_ti(u.expr.ti4, ti_exp_val);
         if (!governor) return;
+        if (governor->get_type_refd_last()->get_typetype() == Type::T_CHOICE_T &&
+            chk_expr_operand_default_alternative(u.expr.ti4, governor, refch, exp_val)) {
+          // this function was already re-called with the default alternative, abort this call
+          return;
+        }
         chk_expr_eval_ti(u.expr.ti4, governor, refch, ti_exp_val);
         if (valuetype != V_ERROR)
           u.expr.ti4->get_Template()->chk_specific_value(false);
@@ -9682,6 +10203,26 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       FATAL_ERROR("Value::add_id()");
     } // switch
   }
+  
+  void Value::use_default_alternative(Type* p_union_type)
+  {
+    if (valuetype == V_ERROR) {
+      return;
+    }
+    CompField* def_alt = p_union_type->get_default_alternative();
+    if (def_alt == NULL) {
+      FATAL_ERROR("Value::use_default_alternative");
+    }
+    Value* def_val = clone();
+    def_val->my_governor = def_alt->get_type();
+    def_val->set_my_scope(my_scope);
+    def_val->set_fullname(get_fullname() + ".<default_alternative>");
+    clean_up();
+    valuetype = V_CHOICE;
+    u.choice.alt_name = def_alt->get_name().clone();
+    u.choice.alt_value = def_val;
+    my_governor = p_union_type;
+  }
 
   Value* Value::get_value_refd_last(ReferenceChain *refch,
                                     Type::expected_value_t exp_val)
@@ -10546,8 +11087,23 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     set_lowerid_to_ref();
     Type::typetype_t r_tt = get_expr_returntype(exp_val);
     bool error_flag = r_tt != Type::T_ERROR && r_tt != p_tt;
-    if (error_flag)
+    if (error_flag) {
+      if (is_ref() && r_tt == Type::T_CHOICE_T) {
+        Type* t = get_expr_governor(exp_val);
+        if (t != NULL) {
+          CompField* def_alt = t->get_default_alternative();
+          Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(get_reference());
+          if (def_alt != NULL && ttcn_ref != NULL) {
+            Error_Context cntxt(this, "Using default alternative `%s' in value of union type `%s'",
+              def_alt->get_name().get_dispname().c_str(), t->get_typename().c_str());
+            ttcn_ref->use_default_alternative(def_alt->get_name());
+            chk_expr_type(p_tt, type_name, exp_val);
+            return;
+          }
+        }
+      }
       error("A value or expression of type %s was expected", type_name);
+    }
     if (valuetype == V_REFD) {
       Type *t_chk = Type::get_pooltype(Type::T_ERROR);
       t_chk->chk_this_refd_value(this, 0, exp_val);
@@ -12898,7 +13454,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
 
   bool Value::is_string_type(Type::expected_value_t exp_val)
   {
-    switch (get_expr_returntype(exp_val)) {
+    switch (get_expr_returntype(exp_val, true)) {
     case Type::T_CSTR:
     case Type::T_USTR:
     case Type::T_BSTR:

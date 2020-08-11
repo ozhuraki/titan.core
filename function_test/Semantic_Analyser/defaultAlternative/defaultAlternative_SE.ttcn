@@ -1,0 +1,37 @@
+/******************************************************************************
+ * Copyright (c) 2000-2020 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+
+module defaultAlternative_SE { //^In TTCN-3 module//
+
+type union MyDefaultUnionType {
+  @default integer number,
+  charstring string //Field `string' of the default alternative is here//
+}
+
+type union MyDefaultUnionType2 {
+  @default MyDefaultUnionType ageInYears, //Field `ageInYears' of the default alternative is here//
+  integer ageInDays
+}
+
+type union MyUnionTypeWithDefaultErr { //^In type definition//
+  @default //Duplicate union field name `ageInYears'//
+  MyDefaultUnionType2 ageInYears,
+  charstring string //Duplicate union field name `string'//
+}
+
+type union MyUnionTypeWithTwoDefaults { //^In type definition//
+  @default integer number, //The `@default' modifier was already used here//
+  charstring string,
+  @default octetstring bytes //Multiple union fields defined with the `@default' modifier//
+}
+
+}

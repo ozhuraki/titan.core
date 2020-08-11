@@ -42,7 +42,8 @@ namespace Ttcn {
   Template::Template(const Template& p) : GovernedSimple(p),
     templatetype(p.templatetype), my_governor(p.my_governor),
     is_ifpresent(p.is_ifpresent), specific_value_checked(false),
-    has_permutation(p.has_permutation), base_template(p.base_template)
+    has_permutation(p.has_permutation), flattened(p.flattened),
+    base_template(p.base_template)
   {
     switch (templatetype) {
     case TEMPLATE_ERROR:
@@ -1430,6 +1431,27 @@ namespace Ttcn {
       FATAL_ERROR("Template::get_listitem_byIndex(): index overflow");
       return 0;
     } else return u.templates->get_t_byIndex(n);
+  }
+  
+  void Template::use_default_alternative(Type* p_union_type)
+  {
+    if (templatetype == TEMPLATE_ERROR) {
+      return;
+    }
+    CompField* def_alt = p_union_type->get_default_alternative();
+    if (def_alt == NULL) {
+      FATAL_ERROR("Value::use_default_alternative");
+    }
+    Template* def_temp = clone();
+    def_temp->my_governor = def_alt->get_type();
+    def_temp->set_my_scope(my_scope);
+    def_temp->set_fullname(get_fullname() + ".<default_alternative>");
+    clean_up();
+    NamedTemplate* nt = new NamedTemplate(def_alt->get_name().clone(), def_temp);
+    templatetype = NAMED_TEMPLATE_LIST;
+    u.named_templates = new NamedTemplates;
+    u.named_templates->add_nt(nt);
+    my_governor = p_union_type;
   }
 
   /** \todo revise and merge with get_template_refd() */
@@ -2989,6 +3011,17 @@ end:
             delete new_templates; // cannot flatten at compile time
             new_templates = 0;
             break;
+          case Common::Type::T_CHOICE_T: {
+            CompField* def_alt = type->get_default_alternative();
+            Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(ref);
+            if (def_alt != NULL && ttcn_ref != NULL) {
+              Error_Context cntxt(t, "Using default alternative `%s' in template of union type `%s'",
+                def_alt->get_name().get_dispname().c_str(), type->get_typename().c_str());
+              ttcn_ref->use_default_alternative(def_alt->get_name());
+              delete new_templates;
+              return harbinger(t, from_permutation, killer);
+            }
+            /* otherwise fall through */ }
           default: {
             // not an array type => error
             const char* ass_name = ass->get_assname();
@@ -3028,6 +3061,7 @@ end:
             }
             type->error("%s of type `%s' can not be used as target of 'all from'",
               descr.c_str(), type->get_typename().c_str());
+            delete new_templates;
             break; }
           }
         } // switch(typetype)
@@ -4066,10 +4100,10 @@ end:
         char* str_set_size = NULL;
         char* str_preamble = NULL;
         char* str_body = NULL;
-        string counter = get_temporary_id();
+        string counter_str = get_temporary_id();
         
         if (has_permutation || has_allfrom()) {
-          str_body = mputprintf(str_body, "int %s = %lld;\n", counter.c_str(), index_offset);
+          str_body = mputprintf(str_body, "int %s = %lld;\n", counter_str.c_str(), index_offset);
           for (size_t i = 0; i < nof_ts; ++i) {
             Template *t = u.templates->get_t_byIndex(i);
             if (t->templatetype == ALL_FROM) {
@@ -4172,16 +4206,16 @@ end:
                 "for (int i_i = 0, i_lim = %s.n_elem(); i_i < i_lim; ++i_i) {\n",
                 expr.expr);
               str_body = t->generate_code_init_seof_element(str_body, name,
-                (counter + " + i_i").c_str(),
+                (counter_str + " + i_i").c_str(),
                 oftype_name_str);
               str_body = mputstrn(str_body, "}\n", 2);
-              str_body = mputprintf(str_body, "%s += %s.n_elem();\n", counter.c_str(), expr.expr);
+              str_body = mputprintf(str_body, "%s += %s.n_elem();\n", counter_str.c_str(), expr.expr);
               Code::free_expr(&expr);
               t->set_code_generated();
             } else if (t->templatetype == PERMUTATION_MATCH) {
               string permutation_start = get_temporary_id();
               str_body = mputprintf(str_body, "int %s = %s;\n",
-                permutation_start.c_str(), counter.c_str());
+                permutation_start.c_str(), counter_str.c_str());
               size_t nof_perm_ts = t->u.templates->get_nof_ts();
               for (size_t j = 0; j < nof_perm_ts; j++) {
                 Template *subt = t->u.templates->get_t_byIndex(j);
@@ -4240,7 +4274,7 @@ end:
                 } else {
                   fixed_part++;
                   str_body = subt->generate_code_init_seof_element(str_body, name,
-                    counter.c_str(), oftype_name_str);
+                    counter_str.c_str(), oftype_name_str);
                 }
                 
                 if (subt->templatetype == ALL_FROM) {
@@ -4294,29 +4328,29 @@ end:
                     expr.expr);
 
                   str_body = subt->generate_code_init_seof_element(str_body, name,
-                    (counter + " + i_i").c_str(),
+                    (counter_str + " + i_i").c_str(),
                     oftype_name_str);
 
                   str_body = mputstrn(str_body, "}\n", 2);
-                  str_body = mputprintf(str_body, "%s += %s.n_elem();\n", counter.c_str(), expr.expr);
+                  str_body = mputprintf(str_body, "%s += %s.n_elem();\n", counter_str.c_str(), expr.expr);
                   Code::free_expr(&expr);
                 }
                 else {
                   str_body = subt->generate_code_init_seof_element(str_body, name,
-                    counter.c_str(), oftype_name_str);
-                  str_body = mputprintf(str_body, "%s++;\n", counter.c_str());
+                    counter_str.c_str(), oftype_name_str);
+                  str_body = mputprintf(str_body, "%s++;\n", counter_str.c_str());
                 }
                   
               }
               // do not consider index_offset in case of permutation indicators
               str_body = mputprintf(str_body, "%s.add_permutation(%s-%lld, %s-%lld-1);\n", name,
-                permutation_start.c_str(), index_offset, counter.c_str(), index_offset);
+                permutation_start.c_str(), index_offset, counter_str.c_str(), index_offset);
               t->set_code_generated();
             } else {
               fixed_part++;
               str_body = t->generate_code_init_seof_element(str_body, name,
-                      counter.c_str(), oftype_name_str);
-              str_body = mputprintf(str_body, "%s++;\n", counter.c_str());
+                      counter_str.c_str(), oftype_name_str);
+              str_body = mputprintf(str_body, "%s++;\n", counter_str.c_str());
             }
           }
           str = mputstr(str, str_preamble);

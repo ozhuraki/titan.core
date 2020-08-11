@@ -1771,6 +1771,13 @@ namespace Common {
         }
         else {
           if (!t->has_comp_withName(id)) {
+            CompField* def_alt = t->get_default_alternative();
+            if (def_alt != NULL) {
+              Error_Context cntxt(ref, "Using default alternative `%s' in value of union type `%s'",
+                def_alt->get_name().get_dispname().c_str(), t->get_typename().c_str());
+              subrefs->use_default_alternative(i, def_alt->get_name());
+              return get_field_type(subrefs, expected_index, refch, interrupt_if_optional, last_method);
+            }
             if (!silent) {
               ref->error("Reference to non-existent field `%s' in type `%s'",
                 id.get_dispname().c_str(), t->get_typename().c_str());
@@ -1923,6 +1930,15 @@ namespace Common {
             embedded_type = t;
             break;
           }
+        case T_CHOICE_T: {
+          CompField* def_alt = t->get_default_alternative();
+          if (def_alt != NULL) {
+            Error_Context cntxt(ref, "Using default alternative `%s' in value of union type `%s'",
+              def_alt->get_name().get_dispname().c_str(), t->get_typename().c_str());
+            subrefs->use_default_alternative(i, def_alt->get_name());
+            return get_field_type(subrefs, expected_index, refch, interrupt_if_optional, last_method);
+          }
+          /* otherwise fall through */ }
         default:
           if (!silent) {
             ref->error("Type `%s' cannot be indexed",
@@ -6017,6 +6033,18 @@ namespace Common {
       }
     }
     return *(*t->u.secho.field_by_name)[p_name.get_name()];
+  }
+  
+  CompField* Type::get_default_alternative()
+  {
+    if (!checked) {
+      chk();
+    }
+    Type* t = get_type_refd_last();
+    if (t->typetype != T_CHOICE_T) {
+      return NULL;
+    }
+    return t->u.secho.cfm->get_default();
   }
 
   size_t Type::get_eis_index_byName(const Identifier& p_name)

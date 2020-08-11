@@ -821,6 +821,7 @@ static const string anyname("anytype");
 %token LocalKeyword
 %token FinalKeyword
 %token AbstractKeyword
+%token DefaultModifier
 
 /* TITAN specific keywords */
 %token TitanSpecificTryKeyword
@@ -957,7 +958,7 @@ static const string anyname("anytype");
 
 %type <bool_val> optAliveKeyword optOptionalKeyword
   optErrValueRaw optAllKeyword optDeterministicModifier optRealtimeClause
-  optExtKeyword optFinalModifier optAbstractModifier
+  optExtKeyword optFinalModifier optAbstractModifier optDefaultModifier
 %type <str> FreeText optLanguageSpec PatternChunk PatternChunkList
 %type <uchar_val> Group Plane Row Cell
 %type <id> FieldReference GlobalModuleId
@@ -2634,25 +2635,30 @@ UnionFieldDefList:
 | error { $$ = new CompFieldMap; }
 ;
 
+optDefaultModifier:
+  /* empty */     { $$ = false; }
+| DefaultModifier { $$ = true; }
+;
+
 UnionFieldDef: // 34
-  TypeOrNestedTypeDef IDentifier optArrayDef optSubTypeSpec
+  optDefaultModifier TypeOrNestedTypeDef IDentifier optArrayDef optSubTypeSpec
   {
-    if ($4) {
+    if ($5) {
       /* The subtype constraint belongs to the innermost embedded type of
        * possible nested 'record of' or 'set of' constructs. */
-      Type *t = $1;
+      Type *t = $2;
       while (t->is_seof()) t = t->get_ofType();
-      t->set_parsed_restrictions($4);
+      t->set_parsed_restrictions($5);
     }
-    Type *type = $1;
+    Type *type = $2;
     /* creation of array type(s) if necessary (from right to left) */
-    for (size_t i = $3.nElements; i > 0; i--) {
-      type = new Type(Type::T_ARRAY, type, $3.elements[i - 1], true);
-      type->set_location(*$1);
+    for (size_t i = $4.nElements; i > 0; i--) {
+      type = new Type(Type::T_ARRAY, type, $4.elements[i - 1], true);
+      type->set_location(*$2);
     }
-    Free($3.elements);
-    $$ = new CompField($2, type, false);
-    $$->set_location(infile, @$);
+    Free($4.elements);
+    $$ = new CompField($3, type, false, 0, $1);
+    $$->set_location(infile, $1 ? @1 : @2, @5);
   }
 ;
 

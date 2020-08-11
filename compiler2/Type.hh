@@ -977,7 +977,9 @@ namespace Common {
     void chk_this_value_Any(Value *value);
     bool chk_this_value_Choice(Value *value, Common::Assignment *lhs,
       expected_value_t expected_value, namedbool incomplete_allowed,
-      namedbool implicit_omit = NOT_IMPLICIT_OMIT);
+      namedbool omit_allowed, namedbool sub_chk,
+      namedbool implicit_omit = NOT_IMPLICIT_OMIT,
+      namedbool str_elem = NOT_STR_ELEM);
     bool chk_this_value_Se(Value *value, Common::Assignment *lhs,
       expected_value_t expected_value, namedbool incomplete_allowed,
       namedbool implicit_omit = NOT_IMPLICIT_OMIT);
@@ -1030,8 +1032,9 @@ namespace Common {
     void chk_this_template_length_restriction(Template *t);
     bool chk_this_template_concat_operand(Template* t, namedbool implicit_omit,
       Common::Assignment *lhs);
-    bool chk_this_template(Template *t, namedbool incomplete_allowed, namedbool sub_chk,
-      namedbool implicit_omit, Common::Assignment *);
+    bool chk_this_template(Template *t, namedbool incomplete_allowed,
+      namedbool allow_omit, namedbool allow_any_or_omit, namedbool sub_chk,
+      namedbool implicit_omit, Common::Assignment *lhs);
     bool chk_this_template_Str(Template *t, namedbool implicit_omit,
       Common::Assignment *lhs);
     /** Checks whether \a v is a correct range boundary for this type.
@@ -1049,6 +1052,7 @@ namespace Common {
     void chk_this_template_Int_Real(Template *t);
     void chk_this_template_Enum(Template *t);
     bool chk_this_template_Choice(Template *t, namedbool incomplete_allowed,
+      namedbool allow_omit, namedbool allow_any_or_omit, namedbool sub_chk,
       namedbool implicit_omit, Common::Assignment *lhs);
     bool chk_this_template_Seq(Template *t, namedbool incomplete_allowed,
       namedbool implicit_omit, Common::Assignment *lhs);
@@ -1109,6 +1113,8 @@ namespace Common {
      * T_CHOICE_T, T_SEQ_T, T_SET_T, T_OPENTYPE,
      * T_SEQ_A, T_SET_A, T_CHOICE_A, T_ANYTYPE */
     size_t get_comp_index_byName(const Identifier& p_name);
+    
+    CompField* get_default_alternative();
 
     /** Get the index of the enum item with the given name
      *

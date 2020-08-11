@@ -296,6 +296,14 @@ namespace Ttcn {
      * PERMUTATION_MATCH constructs are also counted. */
     Template *get_listitem_byIndex(size_t n) const;
 
+    /** Converts the template into a named template list, with one element that
+      * has the union type's @default alternative as its name and the original template (cloned)
+      * as its value.
+      * Used when a template of a different type appears in a context, where a template of
+      * the specified union type was expected.
+      * This attempts to use the template as the union's default alternative instead. */
+    void use_default_alternative(Type* p_union_type);
+    
     Template* get_template_refd_last(ReferenceChain *refch=0);
     Template* get_refd_sub_template(Ttcn::FieldOrArrayRefs *subrefs,
                                     bool usedInIsbound,

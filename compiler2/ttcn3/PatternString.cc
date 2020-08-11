@@ -276,7 +276,8 @@ namespace Ttcn {
   // =================================
 
   PatternString::PatternString(const PatternString& p)
-    : Node(p), my_scope(0), cstr_value(0), pattern_type(p.pattern_type)
+    : Node(p), my_scope(0), cstr_value(0), pattern_type(p.pattern_type),
+      nocase(p.nocase)
   {
     size_t nof_elems = p.elems.size();
     for (size_t i = 0; i < nof_elems; i++) elems.add(p.elems[i]->clone());

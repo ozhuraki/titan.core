@@ -554,6 +554,14 @@ namespace Ttcn {
   {
     for (size_t i = 0; i < refs.size(); i++) refs[i]->append_stringRepr(str);
   }
+  
+  void FieldOrArrayRefs::use_default_alternative(size_t p_idx, const Identifier& p_alt_name)
+  {
+    FieldOrArrayRef* alt_ref = new FieldOrArrayRef(new Identifier(p_alt_name));
+    alt_ref->set_my_scope(my_scope);
+    refs.insert(alt_ref, p_idx);
+    set_fullname(get_fullname());
+  }
 
   // =================================
   // ===== Ref_base
@@ -564,7 +572,7 @@ namespace Ttcn {
   {
     modid = p.modid ? p.modid->clone() : 0;
     id = p.id ? p.id->clone() : 0;
-    params_checked = p.is_erroneous;
+    params_checked = p.params_checked;
   }
 
   Ref_base::Ref_base(Identifier *p_modid, Identifier *p_id)
@@ -696,10 +704,11 @@ namespace Ttcn {
   // =================================
   
   Reference::Reference(const Reference& p)
-    : Ref_base(p), reftype(p.reftype), parlist(NULL), gen_const_prefix(false),
+    : Ref_base(p), reftype(p.reftype), gen_const_prefix(false),
     expr_cache(NULL)
   {
     params = p.params != NULL ? p.params->clone() : NULL;
+    parlist = p.parlist != NULL ? p.parlist->clone() : NULL;
   }
 
   Reference::Reference(Identifier *p_id)
@@ -1082,6 +1091,16 @@ namespace Ttcn {
     default:
       break;
     }
+  }
+  
+  
+  void Reference::use_default_alternative(const Identifier& p_alt_name)
+  {
+    FieldOrArrayRef* alt_ref = new FieldOrArrayRef(new Identifier(p_alt_name));
+    alt_ref->set_my_scope(my_scope);
+    alt_ref->set_fullname(get_fullname() +
+      ".<sub_reference" + Int2string(subrefs.get_nof_refs()) + ">");
+    subrefs.add(alt_ref);
   }
   
   void Reference::set_code_section(

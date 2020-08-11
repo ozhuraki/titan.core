@@ -1,0 +1,800 @@
+/******************************************************************************
+ * Copyright (c) 2000-2020 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+
+module defaultAlternative {
+
+type record Rec {
+  integer num,
+  charstring str optional
+}
+with {
+  encode "JSON";
+}
+
+type record of integer RecOf;
+
+type enumerated Enum { first (0), second };
+
+type union Uni {
+  integer num,
+  charstring str
+}
+
+type union UniDefInt {
+  @default integer def,
+  charstring str
+}
+
+type union UniDefStr {
+  @default charstring def,
+  integer num
+}
+
+type union UniDefRec {
+  @default Rec def,
+  boolean bool
+}
+
+type union UniDefRecOf {
+  boolean bool,
+  @default RecOf def
+}
+
+type union UniDefUni {
+  boolean bool,
+  @default Uni def
+}
+
+type union UniDefIntEmb {
+  @default UniDefInt def2,
+  octetstring oct
+}
+
+type union UniDefIntDblEmb {
+  @default UniDefIntEmb def3,
+  Rec rec
+}
+
+type union UniWithDefStr {
+  UniDefStr uni,
+  octetstring oct
+}
+
+type union UniDefStrEmbBroken {
+  @default UniWithDefStr def2,
+  boolean bool
+}
+
+type union UniDefBool {
+  @default boolean def,
+  integer num
+}
+
+type union UniDefBit {
+  @default bitstring def,
+  integer num
+}
+
+type union UniDefEnum {
+  @default Enum def
+}
+
+type union UniDefFloat {
+  @default float def
+}
+
+type union UniDefHex {
+  @default hexstring def
+}
+
+type union UniDefOct {
+  @default octetstring def
+}
+
+type union UniDefUstr {
+  @default universal charstring def
+}
+
+type union UniDefVerdict {
+  @default verdicttype def
+}
+
+type union UniDefComp {
+  @default CT def
+}
+
+type port PT message {
+  inout integer
+}
+with { extension "internal" }
+
+type component CT {
+  timer tmr_comp;
+  port PT pt;
+}
+
+type union UniDefDef {
+  @default default def
+}
+
+testcase tc_init_and_assign() runs on CT {
+  var UniDefInt u1 := 3;
+  if (u1.def != 3) {
+    setverdict(fail, "u1: ", u1);
+  }
+  
+  var UniDefStr u2;
+  u2 := "abc";
+  if (u2.def != "abc") {
+    setverdict(fail, "u2: ", u2);
+  }
+
+  var UniDefRec u3 := { num := 4, str := "xy" };
+  if (u3.def != { num := 4, str := "xy" }) {
+    setverdict(fail, "u3: ", u3);
+  }
+  
+  u3.num := 5;
+  if (u3.def != { num := 5, str := "xy" }) {
+    setverdict(fail, "u3 mod: ", u3);
+  }
+  
+  var UniDefRecOf u4 := { 1, 2, 3 };
+  if (u4.def != { 1, 2, 3}) {
+    setverdict(fail, "u4: ", u4);
+  }
+  
+  u4[2] := 4;
+  if (u4.def != { 1, 2, 4}) {
+    setverdict(fail, "u4 mod: ", u4);
+  }
+  
+  var UniDefUni u5 := { str := "def" };
+  if (u5.def.str != "def") {
+    setverdict(fail, "u5: ", u5);
+  }
+  
+  u5.num := 0;
+  if (u5.def.num != 0) {
+    setverdict(fail, "u5 mod: ", u5);
+  }
+
+  var UniDefIntEmb u6 := 2;
+  if (u6.def2.def != 2) {
+    setverdict(fail, "u6: ", u6);
+  }
+  
+  var UniDefIntDblEmb u7 := 1;
+  if (u7.def3.def2.def != 1) {
+    setverdict(fail, "u7: ", u7);
+  }
+  
+  var UniDefStrEmbBroken u8;
+  u8.uni := "ghi";
+  if (u8.def2.uni.def != "ghi") {
+    setverdict(fail, "u8: ", u8);
+  }
+  
+  var UniDefEnum u9 := first;
+  if (u9.def != first) {
+    setverdict(fail, "u9: ", u9);
+  }
+  u9 := second;
+  if (u9.def != second) {
+    setverdict(fail, "u9 mod: ", u9);
+  }
+  
+  var template UniDefInt tu1 := 3;
+  var template UniDefInt tu1_exp := { def := 3 };
+  if (log2str(tu1) != log2str(tu1_exp)) {
+    setverdict(fail, "tu1: ", tu1);
+  }
+  
+  var template UniDefInt tu2 := (0..4);
+  var template UniDefInt tu2_exp := { def := (0..4) };
+  if (log2str(tu2) != log2str(tu2_exp)) {
+    setverdict(fail, "tu2: ", tu2);
+  }
+  
+  var template UniDefIntEmb tu3 := (1, 2, 3, (6..10));
+  var template UniDefIntEmb tu3_exp := (
+    { def2 := { def := 1 } },
+    { def2 := { def := 2 } },
+    { def2 := { def := 3 } },
+    { def2 := { def := (6 .. 10) } }
+  );
+  if (log2str(tu3) != log2str(tu3_exp)) {
+    setverdict(fail, "tu3: ", tu3);
+  }
+  
+  var template UniDefStr tu4 := "abc";
+  var template UniDefStr tu4_exp := { def := "abc" };
+  if (log2str(tu4) != log2str(tu4_exp)) {
+    setverdict(fail, "tu4: ", tu4);
+  }
+  tu4[1] := "z";
+  tu4_exp.def[1] := "z";
+  if (log2str(tu4) != log2str(tu4_exp)) {
+    setverdict(fail, "tu4 mod: ", tu4);
+  }
+  
+  var template UniDefStr tu5;
+  tu5 := pattern "ab?c";
+  var template UniDefStr tu5_exp := { def := pattern "ab?c" };
+  if (log2str(tu5) != log2str(tu5_exp)) {
+    setverdict(fail, "tu5: ", tu5);
+  }
+  
+  var template UniDefRec tu6 := { num := 1, str := "xy" };
+  var template UniDefRec tu6_exp := { def := { num := 1, str := "xy" } };
+  if (log2str(tu6) != log2str(tu6_exp)) {
+    setverdict(fail, "tu6: ", tu6);
+  }
+  tu6.num := -6;
+  tu6_exp.def.num := -6;
+  if (log2str(tu6) != log2str(tu6_exp)) {
+    setverdict(fail, "tu6 mod: ", tu6);
+  }
+  
+  var template UniDefRec tu7 := { 1, "xy" };
+  var template UniDefRec tu7_exp := { def := { 1, "xy" } };
+  if (log2str(tu7) != log2str(tu7_exp)) {
+    setverdict(fail, "tu7: ", tu7);
+  }
+  
+  var template UniDefRecOf tu8 := { 1, 2, 3 };
+  var template UniDefRecOf tu8_exp := { def := { 1, 2, 3 } };
+  if (log2str(tu8) != log2str(tu8_exp)) {
+    setverdict(fail, "tu8: ", tu8);
+  }
+  tu8[1] := 22;
+  tu8_exp.def[1] := 22;
+  if (log2str(tu8) != log2str(tu8_exp)) {
+    setverdict(fail, "tu8 mod: ", tu8);
+  }
+  
+  var template UniDefRecOf tu9 := { [1] := 1, [0] := 0 };
+  var template UniDefRecOf tu9_exp := { def := { [1] := 1, [0] := 0 } };
+  if (log2str(tu9) != log2str(tu9_exp)) {
+    setverdict(fail, "tu9: ", tu9);
+  }
+  
+  var template UniDefUni tu10 := { str := "qwe" };
+  var template UniDefUni tu10_exp := { def := { str := "qwe" } };
+  if (log2str(tu10) != log2str(tu10_exp)) {
+    setverdict(fail, "tu10: ", tu10);
+  }
+  tu10.num := 2;
+  tu10_exp.def.num := 2;
+  if (log2str(tu10) != log2str(tu10_exp)) {
+    setverdict(fail, "tu10 mod: ", tu10);
+  }
+  
+  var template UniDefEnum tu11 := first;
+  var template UniDefEnum tu11_exp := { def := first };
+  if (log2str(tu11) != log2str(tu11_exp)) {
+    setverdict(fail, "tu11: ", tu11);
+  }
+  tu11 := second;
+  tu11_exp.def := second;
+  if (log2str(tu11) != log2str(tu11_exp)) {
+    setverdict(fail, "tu11 mod: ", tu11);
+  }
+  setverdict(pass);
+}
+
+testcase tc_ref() runs on CT {
+  var UniDefInt u1 := 1;
+  var integer i1 := u1;
+  if (i1 != 1) {
+    setverdict(fail, "i1: ", i1);
+  }
+  
+  var UniDefRec u2 := { num := 4, str := "xy" };
+  var charstring cs1 := u2.str;
+  if (cs1 != "xy") {
+    setverdict(fail, "cs1: ", cs1);
+  }
+  
+  var UniDefRecOf u3 := { 1, 2, 3 };
+  var integer i2 := u3[1];
+  if (i2 != 2) {
+    setverdict(fail, "i2: ", i2);
+  }
+  
+  var charstring cs2 := "abc";
+  var UniDefStr u4 := cs2;
+  if (u4.def != "abc") {
+    setverdict(fail, "u4: ", u4);
+  }
+  
+  var UniDefIntEmb u5 := u1;
+  if (u5.def2.def != 1) {
+    setverdict(fail, "u5: ", u5);
+  }
+  
+  var UniDefStrEmbBroken u6 := { uni := cs2 };
+  if (u6.def2.uni.def != "abc") {
+    setverdict(fail, "u6: ", u6);
+  }
+  
+  var template UniDefRecOf tu1 := { 1, 2, 3 };
+  var template integer ti1 := (0, all from tu1);
+  var template integer ti1_exp := (0, all from tu1.def);
+  if (log2str(ti1) != log2str(ti1_exp)) {
+    setverdict(fail, "ti1: ", ti1);
+  }
+  /*template UniDefRecOf tu2 := { 1, 2, 3 }; TODO
+  template integer ti2 := (0, all from tu2);
+  template integer ti2_exp := (0, all from tu2.def);
+  if (log2str(ti2) != log2str(ti2_exp)) {
+    setverdict(fail, "ti2: ", ti2);
+  }
+  var template UniDefInt tu3 := (0, all from tu1);
+  var template UniDefInt tu3_exp := (0, all from tu1.def);
+  if (log2str(tu3) != log2str(tu3_exp)) {
+    setverdict(fail, "tu3: ", tu3);
+  }*/
+  var template RecOf tro1 := { 0, permutation(all from tu1) };
+  var template RecOf tro1_exp := { 0, permutation(all from tu1.def) };
+  if (log2str(tro1) != log2str(tro1_exp)) {
+    setverdict(fail, "tro1: ", tro1);
+  }
+  setverdict(pass);
+}
+
+testcase tc_expr() runs on CT {
+  var UniDefInt u1 := 2;
+  var integer i1 := u1 + 1;
+  if (i1 != 3) {
+    setverdict(fail, "i1: ", i1);
+  }
+  
+  var UniDefInt u2 := 3;
+  var UniDefInt u3 := ((+u1 - -u2) * (u2 + -1)) / (5 rem u2 + u2 mod 4);
+  if (u3.def != 2) {
+    setverdict(fail, "u3: ", u3);
+  }
+  
+  var UniDefStr u4 := "xy";
+  var charstring cs1 := u4 & "a" & (u4 & u4) & "b" & u4;
+  if (cs1 != "xyaxyxybxy") {
+    setverdict(fail, "cs1: ", cs1);
+  }
+  
+  var UniDefRecOf u5 := { 1, 2, 3 };
+  var RecOf ro1 := u5 & { 0 } & (u5 & u5) & { 6 } & u5;
+  if (ro1 != { 1, 2, 3, 0, 1, 2, 3, 1, 2, 3, 6, 1, 2, 3}) {
+    setverdict(fail, "ro1: ", ro1);
+  }
+  
+  var integer i2 := 4;
+  var UniDefIntEmb u6 := 4;
+  if (not i2 == u6) {
+    setverdict(fail, "ref not equal");
+  }
+  if (u6 == u2) {
+    setverdict(fail, "ref equal");
+  }
+  if (i2 == u6 - 1) {
+    setverdict(fail, "expr not equal");
+  }
+  if (not u6 == u2 + 1) {
+    setverdict(fail, "ref equal");
+  }
+  if (i2 < u6) {
+    setverdict(fail, "less than");
+  }
+  if (u2 > u6) {
+    setverdict(fail, "greater than");
+  }
+  if (u6 <= u2) {
+    setverdict(fail, "less or equal");
+  }
+  if (u2 >= u6) {
+    setverdict(fail, "greater or equal");
+  }
+  
+  var UniDefBool u7 := true;
+  if (not u7) {
+    setverdict(fail, "not u7");
+  }
+  if (u7 and false) {
+    setverdict(fail, "and u7");
+  }
+  if (not (false or u7)) {
+    setverdict(fail, "or u7");
+  }
+  if (true xor u7) {
+    setverdict(fail, "xor u7");
+  }
+  
+  var UniDefBit u8 := '1100'B;
+  var bitstring bs1 := (((not4b u8) xor4b u8) and4b u8) or4b u8;
+  if (bs1 != '1100'B) {
+    setverdict(fail, "bs1: ", bs1);
+  }
+  
+  var bitstring bs2 := u8 << 2;
+  if (bs2 != '0000'B) {
+    setverdict(fail, "bs2: ", bs2);
+  }
+  var UniDefBit u9 := u8 >> u2;
+  if (u9.def != '0001'B) {
+    setverdict(fail, "u9: ", u9);
+  }
+  var bitstring bs3 := u8 <@ (u2 - 1);
+  if (bs3 != '0011'B) {
+    setverdict(fail, "bs3: ", bs3);
+  }
+  var UniDefBit u10 := u8 @> 1;
+  if (u10.def != '0110'B) {
+    setverdict(fail, "u10: ", u10);
+  }
+  var RecOf ro2 := u5 <@ 1;
+  if (ro2 != { 2, 3, 1 }) {
+    setverdict(fail, "ro2: ", ro2);
+  }
+  var RecOf ro3 := u5 @> 1;
+  if (ro3 != { 3, 1, 2 }) {
+    setverdict(fail, "ro3: ", ro3);
+  }
+  setverdict(pass);
+}
+
+testcase tc_predef_func() runs on CT {
+  var UniDefBit u1 := '1010'B;
+  var hexstring hs1 := bit2hex(u1);
+  if (hs1 != 'A'H) {
+    setverdict(fail, "hs1: ", hs1);
+  }
+  var octetstring os1 := bit2oct(u1);
+  if (os1 != '0A'O) {
+    setverdict(fail, "os1: ", os1);
+  }
+  var charstring cs1 := bit2str(u1);
+  if (cs1 != "1010") {
+    setverdict(fail, "cs1: ", cs1);
+  }
+  var integer i1 := bit2int(u1);
+  if (i1 != 10) {
+    setverdict(fail, "i1: ", i1);
+  }
+  
+  var UniDefStr u2 := "4";
+  var integer i2 := char2int(u2);
+  if (i2 != 52) {
+    setverdict(fail, "i2: ", i2);
+  }
+  var octetstring os2 := char2oct(u2);
+  if (os2 != '34'O) {
+    setverdict(fail, "os2: ", os2);
+  }
+  var integer i3 := str2int(u2);
+  if (i3 != 4) {
+    setverdict(fail, "i3: ", i3);
+  }
+  var float f1 := str2float(u2);
+  if (f1 != 4.0) {
+    setverdict(fail, "f1: ", f1);
+  }
+  var UniDefStr u3 := "10";
+  var bitstring bs1 := str2bit(u3);
+  if (bs1 != '10'B) {
+    setverdict(fail, "bs1: ", bs1);
+  }
+  var hexstring hs2 := str2hex(u2);
+  if (hs2 != '4'H) {
+    setverdict(fail, "hs2: ", hs2);
+  }
+  var octetstring os3 := str2oct(u3);
+  if (os3 != '10'O) {
+    setverdict(fail, "os3: ", os3);
+  }
+  
+  var UniDefEnum u4 := { def := first };
+  var integer i4 := enum2int(u4);
+  if (i4 != 0) {
+    setverdict(fail, "i4: ", i4);
+  }
+  
+  var UniDefFloat u5 := 3.0;
+  var integer i5 := float2int(u5);
+  if (i5 != 3) {
+    setverdict(fail, "i5: ", i5);
+  }
+  var charstring cs2 := float2str(u5);
+  if (cs2 != "3.000000") {
+    setverdict(fail, "cs2: ", cs2);
+  }
+  
+  var float f2 := rnd(u5);
+  
+  var UniDefHex u6 := '20'H;
+  var bitstring bs2 := hex2bit(u6);
+  if (bs2 != '00100000'B) {
+    setverdict(fail, "bs2: ", bs2);
+  }
+  var octetstring os4 := hex2oct(u6);
+  if (os4 != '20'O) {
+    setverdict(fail, "os4: ", os4);
+  }
+  var charstring cs3 := hex2str(u6);
+  if (cs3 != "20") {
+    setverdict(fail, "cs3: ", cs3);
+  }
+  var integer i6 := hex2int(u6);
+  if (i6 != 32) {
+    setverdict(fail, "i6: ", i6);
+  }
+  
+  var UniDefInt u7 := 65;
+  var charstring cs4 := int2char(u7);
+  if (cs4 != "A") {
+    setverdict(fail, "cs4: ", cs4);
+  }
+  var universal charstring us1 := int2unichar(u7);
+  if (us1 != "A") {
+    setverdict(fail, "us1: ", us1);
+  }
+  var float f3 := int2float(u7);
+  if (f3 != 65.0) {
+    setverdict(fail, "f3: ", f3);
+  }
+  var charstring cs5 := int2str(u7);
+  if (cs5 != "65") {
+    setverdict(fail, "cs5: ", cs4);
+  }
+  var bitstring bs3 := int2bit(u7, u7 / 8);
+  if (bs3 != '01000001'B) {
+    setverdict(fail, "bs3: ", bs3);
+  }
+  var hexstring hs3 := int2hex(u7, u7 / 30);
+  if (hs3 != '41'H) {
+    setverdict(fail, "hs3: ", hs3);
+  }
+  var octetstring os5 := int2oct(u7, u7 / 50);
+  if (os5 != '41'O) {
+    setverdict(fail, "os5: ", os5);
+  }
+  
+  var UniDefOct u8 := '20'O;
+  var bitstring bs4 := oct2bit(u8);
+  if (bs4 != '00100000'B) {
+    setverdict(fail, "bs4: ", bs4);
+  }
+  var hexstring hs4 := oct2hex(u8);
+  if (hs4 != '20'H) {
+    setverdict(fail, "hs4: ", hs4);
+  }
+  var charstring cs6 := oct2str(u8);
+  if (cs6 != "20") {
+    setverdict(fail, "cs6: ", cs6);
+  }
+  var integer i7 := oct2int(u8);
+  if (i7 != 32) {
+    setverdict(fail, "i7: ", i7);
+  }
+  var charstring cs7 := oct2char(u8);
+  if (cs7 != " ") {
+    setverdict(fail, "cs7: ", cs7);
+  }
+  
+  var UniDefUstr u9 := "a";
+  var integer i8 := unichar2int(u9);
+  if (i8 != 97) {
+    setverdict(fail, "i8: ", i8);
+  }
+  var charstring cs8 := unichar2char(u9);
+  if (cs8 != "a") {
+    setverdict(fail, "cs8: ", cs8);
+  }
+  
+  var UniDefStr u10 := "AnyValue";
+  var template integer t := ?;
+  if (not istemplatekind(t, u10)) {
+    setverdict(fail, "istemplatekind");
+  }
+  
+  var template UniDefStr u_str := "something";
+  var UniDefInt u_idx := 4;
+  var UniDefInt u_len := 3;
+  var UniDefStr u_substr := substr(u_str, u_idx, u_len);
+  if (u_substr.def != "thi") {
+    setverdict(fail, "substr: ", u_str);
+  }
+  
+  var template UniDefStr u_input := " date: 2001-10-20; msgno: 17; exp ";
+  var UniDefStr u_pattern := "[ \\t]#(,)date: [\\d\\-]#(,);[ \\t]#(,)msgno: (\\d#(1,3));[ \\t]#(,)(exp[ \\t]#(,))#(0,1)";
+  var UniDefInt u_groupno := 0;
+  var UniDefStr u_regexp := regexp(u_input, u_pattern, u_groupno);
+  if (u_regexp.def != "17") {
+    setverdict(fail, "regexp: ", u_regexp);
+  }
+  
+  var UniDefInt u_lengthof := lengthof(u_str);
+  if (u_lengthof.def != 9) {
+    setverdict(fail, "lengthof: ", u_lengthof);
+  }
+  
+  var UniDefRec u_rec := { num := 6, str := omit };
+  var UniDefInt u_sizeof := sizeof(u_rec);
+  if (u_sizeof.def != 1) {
+    setverdict(fail, "sizeof: ", u_sizeof);
+  }
+  var template UniDefRec u_rec_t := { num := 6, str := omit };
+  var UniDefInt u_sizeof2 := sizeof(u_rec_t);
+  if (u_sizeof2.def != 1) {
+    setverdict(fail, "sizeof temp: ", u_sizeof2);
+  }
+  
+  var template UniDefInt u_temp := (0..5);
+  var UniDefInt u_val := 3;
+  var template integer i_temp := (0..5);
+  var integer i_val := 3;
+  if (not match(i_val, u_temp)) {
+    setverdict(fail, "match int with union");
+  }
+  if (not match(u_val, i_temp)) {
+    setverdict(fail, "match union with int");
+  }
+  if (not match(u_val, u_temp)) {
+    setverdict(fail, "match union with union");
+  }
+  
+  var template UniDefStr u_str2 := "My name is JJ";
+  var UniDefInt u_idx2 := 11;
+  var UniDefInt u_len2 := 1;
+  var template UniDefStr u_repl := "xx";
+  var UniDefStr u_replace := replace(u_str2, u_idx2, u_len2, u_repl);
+  if (u_replace.def != "My name is xxJ") {
+    setverdict(fail, "replace: ", u_replace);
+  }
+  
+  var UniDefUni u_uni := { num := 6 };
+  if (not ischosen(u_uni.num)) {
+    setverdict(fail, "ischosen");
+  }
+  setverdict(pass);
+}
+
+testcase tc_encdec() runs on CT {
+  var Rec val := { num := 3, str := "abc" };
+  var UniDefStr str_enc := "UTF-8";
+  var UniDefUstr enc_info := "";
+  var UniDefUstr dyn_enc := "JSON";
+  var UniDefUstr buf := encvalue_unichar(val, str_enc, enc_info, dyn_enc);
+  if (buf.def != "{\"num\":3,\"str\":\"abc\"}") {
+    setverdict(fail, "encoded value: ", buf);
+  }
+  var Rec dec_val;
+  var UniDefInt res := decvalue_unichar(buf, dec_val, str_enc, enc_info, dyn_enc);
+  if (res.def != 0) {
+    setverdict(fail, "decoding result: ", res);
+  }
+  if (dec_val != val) {
+    setverdict(fail, "decoded value: ", dec_val);
+  }
+  setverdict(pass);
+}
+
+function f_behavior() runs on CT {
+}
+
+testcase tc_comp_and_port() runs on CT {
+  var UniDefComp u1 := CT.create;
+  
+  if (u1.running) {
+    setverdict(fail, "u1 running");
+  }
+  
+  if (not u1.alive) {
+    setverdict(fail, "u1 alive");
+  }
+  
+  var UniDefStr u2 := "Started";
+  if (not pt.checkstate(u2)) {
+    setverdict(fail, "checkstate");
+  }
+  if (not any port.checkstate(u2)) {
+    setverdict(fail, "any checkstate");
+  }
+  if (not all port.checkstate(u2)) {
+    setverdict(fail, "all checkstate");
+  }
+  
+  u1.start(f_behavior());
+  u1.stop;
+  u1.killed;
+  
+  setverdict(pass);
+}
+
+altstep as() runs on CT {
+  [] tmr_comp.timeout { setverdict(fail, "altstep is still active"); }
+}
+
+testcase tc_default_altstep() runs on CT {
+  timer tmr_local;
+  var UniDefDef u_def := activate(as());
+  deactivate(u_def);
+  tmr_comp.start(0.1);
+  tmr_local.start(2.0);
+  alt {
+    [] tmr_local.timeout { setverdict(pass); }
+  }
+}
+
+function f_func() return integer {
+  var UniDefInt x := 3;
+  return x;
+}
+
+type record RecEnc {
+  integer f
+}
+with {
+  encode "XML";
+  encode "JSON";
+}
+
+testcase tc_statements() runs on CT {
+  var UniDefInt ret_val := f_func();
+  if (ret_val.def != 3) {
+    setverdict(fail, "return value: ", ret_val);
+  }
+  
+  var UniDefBool u_bool := false;
+  while (u_bool) {
+    setverdict(fail, "while");
+    break;
+  }
+  
+  var UniDefStr u_text := "32";
+  var integer i;
+  string2ttcn(u_text, i);
+  if (i != 32) {
+    setverdict(fail, "string2ttcn: ", i);
+  }
+  var UniDefStr u_text_res := ttcn2string(i);
+  if (u_text_res.def != "32") {
+    setverdict(fail, "ttcn2string: ", u_text_res);
+  }
+  
+  var UniDefInt u_int := 1;
+  var UniDefEnum u_enum;
+  int2enum(u_int, u_enum);
+  if (u_enum.def != second) {
+    setverdict(fail, "int2enum: ", u_enum);
+  }
+  
+  var UniDefUstr u_enc := "JSON";
+  self.setencode(RecEnc, u_enc);
+  setverdict(pass);
+}
+
+testcase tc_setverdict() runs on CT {
+  var UniDefVerdict u_verdict := pass;
+  setverdict(u_verdict);
+}
+
+control {
+  execute(tc_init_and_assign());
+  execute(tc_ref());
+  execute(tc_expr());
+  execute(tc_predef_func());
+  execute(tc_comp_and_port());
+  execute(tc_statements());
+  execute(tc_setverdict());
+}
+
+}
