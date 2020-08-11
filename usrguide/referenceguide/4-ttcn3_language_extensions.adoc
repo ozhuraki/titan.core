@@ -9125,3 +9125,43 @@ only variables and function parameters are valid `out` actual parameters.
 * A definition in the subclass can only have the same name as a definition in one of the superclasses, if both are methods (incl. external or abstract), and both have the same prototype (i.e. identical return type, identical formal parameter names, types and direction).
 * Internal classes can define external methods, even if they are not derived from an external class.
 * There are no restrictions to visibility of members or methods (i.e. members can be public and overriding methods can have any visibility, regardless of the overriden method's visibility).
+
+
+== Default alternatives of union types
+
+TITAN supports the default alternatives of union types (i.e. the `@default` modifier) described in the TTCN-3 core language standard with the clarifications and limitations described in this section.
+
+* Module parameter values and templates in the configuration file ignore the `@default` modifier. The union field must be specified explicitly, even if the default alternative is used.
+* When encoding or decoding union values with pre-defined functions or built-in operators (e.g. `encvalue`, `decvalue`, `@decoded`, etc.), the union type is always the one being encoded or decoded, and not its default alternative (i.e. the `@default` modifier is ignored), even if the default alternative can be encoded with the specified codec and the union type cannot. Encoding and decoding with external functions do take the `@default` modifier into consideration.
+
+Example:
+[source]
+----
+type record Rec {
+  integer num,
+  charstring str optional
+}
+with {
+  encode "JSON";
+}
+
+external function f_enc_rec(in Rec x) return octetstring
+with { extension "prototype(convert) encode(JSON)" }
+
+type union UniDefRec {
+  @default Rec def,
+  boolean bool
+}
+
+...
+
+var UniDefRec val := { num := 3, str := "abc" };
+
+var bitstring res1 := encvalue(val);
+// produces an error, because type `UniDefRec` does not have any encoding specified
+
+var octetstring res2 := f_enc_rec(val);
+// successfully encodes the default alternative of `val`
+----
+
+* Sending and receiving operations on union values also ignore the `@default` modifier, even if the default alternative is in the port's incoming/outgoing list and the union type is not.

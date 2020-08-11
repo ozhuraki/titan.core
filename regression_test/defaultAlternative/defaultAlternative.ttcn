@@ -20,6 +20,9 @@ with {
   encode "JSON";
 }
 
+external function f_enc_rec(in Rec x) return octetstring
+with { extension "prototype(convert) encode(JSON)" }
+
 type record of integer RecOf;
 
 type enumerated Enum { first (0), second };
@@ -683,6 +686,12 @@ testcase tc_encdec() runs on CT {
   }
   if (dec_val != val) {
     setverdict(fail, "decoded value: ", dec_val);
+  }
+  
+  var UniDefRec u_val := val;
+  var UniDefOct u_oct := f_enc_rec(u_val);
+  if (oct2char(u_oct.def) != "{\"num\":3,\"str\":\"abc\"}") {
+    setverdict(fail, "encoded value (/w ext func): ", u_oct);
   }
   setverdict(pass);
 }
