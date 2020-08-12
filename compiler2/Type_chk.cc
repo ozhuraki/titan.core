@@ -4355,7 +4355,7 @@ bool Type::chk_this_refd_value(Value *value, Common::Assignment *lhs, expected_v
     default:
       if (info.is_subtype_error()) {
         value->error("%s", info.get_subtype_error().c_str());
-      } else if (!info.is_erroneous()) {
+      } else {
         CompField* def_alt_ref = governor->get_default_alternative();
         Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(ref);
         if (def_alt_ref != NULL && ttcn_ref != NULL) {
@@ -4376,15 +4376,17 @@ bool Type::chk_this_refd_value(Value *value, Common::Assignment *lhs, expected_v
           value->use_default_alternative(this);
           return self_ref;
         }
-        value->error("Type mismatch: a %s of type `%s' was expected "
+        if (!info.is_erroneous()) {
+          value->error("Type mismatch: a %s of type `%s' was expected "
                      "instead of `%s'", expected_value == EXPECTED_TEMPLATE
                      ? "value or template" : "value",
                      get_typename().c_str(),
                      governor->get_typename().c_str());
-      } else {
-        // The semantic error was found by the new code.  It was better to
-        // do the assembly inside TypeCompatInfo.
-        value->error("%s", info.get_error_str_str().c_str());
+        } else {
+          // The semantic error was found by the new code.  It was better to
+          // do the assembly inside TypeCompatInfo.
+          value->error("%s", info.get_error_str_str().c_str());
+        }
       }
       break;
     }

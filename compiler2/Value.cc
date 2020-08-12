@@ -4946,29 +4946,29 @@ namespace Common {
         bool compat_t1 = t1->is_compatible(t2, &info1, this, &l_chain1, &r_chain1);
         bool compat_t2 = t2->is_compatible(t1, &info2, NULL, &l_chain2, &r_chain2);
         if (!compat_t1 && !compat_t2) {
+          if (v1->is_ref()) {
+            CompField* def_alt = t1->get_default_alternative();
+            Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(v1->get_reference());
+            if (def_alt != NULL && ttcn_ref != NULL) {
+              Error_Context cntxt(v1, "Using default alternative `%s' in value of union type `%s'",
+                def_alt->get_name().get_dispname().c_str(), t1->get_typename().c_str());
+              ttcn_ref->use_default_alternative(def_alt->get_name());
+              return chk_expr_operandtypes_compat(exp_val, v1, v2, opnum1, opnum2);
+            }
+          }
+          if (v2->is_ref()) {
+            CompField* def_alt = t2->get_default_alternative();
+            Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(v2->get_reference());
+            if (def_alt != NULL && ttcn_ref != NULL) {
+              Error_Context cntxt(v2, "Using default alternative `%s' in value of union type `%s'",
+                def_alt->get_name().get_dispname().c_str(), t2->get_typename().c_str());
+              ttcn_ref->use_default_alternative(def_alt->get_name());
+              return chk_expr_operandtypes_compat(exp_val, v1, v2, opnum1, opnum2);
+            }
+          }
           if (!info1.is_erroneous() && !info2.is_erroneous()) {
             // the subtypes don't need to be compatible here
             if (!info1.is_subtype_error() && !info2.is_subtype_error()) {
-              if (v1->is_ref()) {
-                CompField* def_alt = t1->get_default_alternative();
-                Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(v1->get_reference());
-                if (def_alt != NULL && ttcn_ref != NULL) {
-                  Error_Context cntxt(v1, "Using default alternative `%s' in value of union type `%s'",
-                    def_alt->get_name().get_dispname().c_str(), t1->get_typename().c_str());
-                  ttcn_ref->use_default_alternative(def_alt->get_name());
-                  return chk_expr_operandtypes_compat(exp_val, v1, v2, opnum1, opnum2);
-                }
-              }
-              if (v2->is_ref()) {
-                CompField* def_alt = t2->get_default_alternative();
-                Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(v2->get_reference());
-                if (def_alt != NULL && ttcn_ref != NULL) {
-                  Error_Context cntxt(v2, "Using default alternative `%s' in value of union type `%s'",
-                    def_alt->get_name().get_dispname().c_str(), t2->get_typename().c_str());
-                  ttcn_ref->use_default_alternative(def_alt->get_name());
-                  return chk_expr_operandtypes_compat(exp_val, v1, v2, opnum1, opnum2);
-                }
-              }
               error("The operands of operation `%s' should be of compatible "
                     "types", get_opname());
               set_valuetype(V_ERROR);
