@@ -16,6 +16,7 @@
  *   Raduly, Csaba
  *   Szabo, Bence Janos
  *   Szabo, Janos Zoltan – initial implementation
+ *   Szalai, Gabor
  *   Zalanyi, Balazs Andor
  *
  ******************************************************************************/
@@ -1261,7 +1262,6 @@ double str2float(const CHARSTRING& value)
   size_t end = value_len;
   boolean leading_ws = FALSE;
   boolean trailing_ws = FALSE;
-  boolean leading_zero = FALSE;
   double ret_val;
   while (is_whitespace(value_str[start])) {
     leading_ws = TRUE;
@@ -1321,7 +1321,6 @@ double str2float(const CHARSTRING& value)
         if (c == '.') state = S_FIRST_F;
         else if (c == 'E' || c == 'e') state = S_INITIAL_E;
         else if (c >= '0' && c <= '9') {
-          leading_zero = TRUE;
           state = S_MORE_M;
         } else state = S_ERR;
         break;
@@ -1353,7 +1352,6 @@ double str2float(const CHARSTRING& value)
         break;
       case S_ZERO_E:
         if (c >= '0' && c <= '9') {
-          leading_zero = TRUE;
           state = S_MORE_E;
         }
         else state = S_ERR;
@@ -1400,13 +1398,6 @@ double str2float(const CHARSTRING& value)
   }
   if (leading_ws) {
     TTCN_warning_begin("Leading whitespace was detected in the argument "
-      "of function str2float(): ");
-    value.log();
-    TTCN_Logger::log_char('.');
-    TTCN_warning_end();
-  }
-  if (leading_zero) {
-    TTCN_warning_begin("Leading zero digit was detected in the argument "
       "of function str2float(): ");
     value.log();
     TTCN_Logger::log_char('.');
