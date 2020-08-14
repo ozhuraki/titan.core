@@ -6003,8 +6003,6 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
 	if (c == '.') state = S_FIRST_F;
 	else if (c == 'E' || c == 'e') state = S_INITIAL_E;
 	else if (c >= '0' && c <= '9') {
-	  val->warning("Leading zero digit was detected and ignored in the "
-	    "mantissa of the operand of operation `%s'", opname);
 	  state = S_MORE_M;
 	} else state = S_ERR;
 	break;
@@ -6036,8 +6034,6 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
 	break;
       case S_ZERO_E:
 	if (c >= '0' && c <= '9') {
-	  val->warning("Leading zero digit was detected and ignored in the "
-	    "exponent of the operand of operation `%s'", opname);
 	  state = S_MORE_E;
 	}
 	else state = S_ERR;
