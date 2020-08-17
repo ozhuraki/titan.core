@@ -79,7 +79,7 @@ static inline void log_float(double float_val)
       double exponent = floor(log10(rabs));
       double mantissa = rabs * pow(10.0, -exponent);
 
-      TTCN_Logger::log_event("%s%.17g", float_val < 0.0 ? "-" : "", mantissa);
+      TTCN_Logger::log_event("%s%.16g", float_val < 0.0 ? "-" : "", mantissa);
       if (floor(mantissa) == mantissa) TTCN_Logger::log_event( ".0");
       if (exponent != 0.0) TTCN_Logger::log_event("e%d", (int)exponent);
       
