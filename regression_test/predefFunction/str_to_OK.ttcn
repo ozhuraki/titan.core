@@ -68,9 +68,7 @@ testcase str_to_bit() runs on PDTestComponent{
 const     float s2fcon := str2float("0.0")
 modulepar float s2fpar  := str2float("0.0")
 modulepar float s2fpar1 := str2float("12345678901.0")
-modulepar float s2fpar2 := str2float("000000000000" & "12345678901.0") //In module parameter definition// \
-	//In default value//	//In the operand of operation `str2float\(\)'// \
-	//warning: Leading zero digit was detected and ignored in the mantissa of the operand of operation `str2float\(\)'//
+modulepar float s2fpar2 := str2float("000000000000" & "12345678901.0")
 modulepar float s2fpar3 := str2float("-12" & "345678901.0")
 modulepar float s2fpar4 := str2float("1.234E3")
 //modulepar float s2fpar5 := str2float("1.234-3")
@@ -84,12 +82,8 @@ modulepar float s2fpar7 := str2float("1");
 modulepar float s2fpar7m:= str2float("-1");
 modulepar float s2fpar8m:= str2float("-1.");
 modulepar float s2fpar8 := str2float("1.");
-modulepar float s2fpar9 := str2float("+001"); //In module parameter definition// \
-	//In default value//	//In the operand of operation `str2float\(\)'// \
-	//warning: Leading zero digit was detected and ignored in the mantissa of the operand of operation `str2float\(\)'//
-modulepar float s2fpar10:= str2float("+001."); //In module parameter definition// \
-	//In default value//	//In the operand of operation `str2float\(\)'// \
-	//warning: Leading zero digit was detected and ignored in the mantissa of the operand of operation `str2float\(\)'//
+modulepar float s2fpar9 := str2float("+001");
+modulepar float s2fpar10:= str2float("+001.");
 modulepar float s2fpar11:= str2float("-0");
 modulepar float s2fpar12:= str2float("-0.");
 modulepar float s2fpar13:= str2float("-0.0");
@@ -131,9 +125,7 @@ modulepar charstring s2fmp16_str := "not_a_number";
 //modulepar float s2fmp := str2float("")
 modulepar float s2fmp := str2float("0.0")
 modulepar float s2fmp1 := str2float("12345678901.0")
-modulepar float s2fmp2 := str2float("000000000000" & "12345678901.0") //In module parameter definition// \
-	//In default value//	//In the operand of operation `str2float\(\)'// \
-	//warning: Leading zero digit was detected and ignored in the mantissa of the operand of operation `str2float\(\)'//
+modulepar float s2fmp2 := str2float("000000000000" & "12345678901.0")
 modulepar float s2fmp3 := str2float("-12" & "345678901.0")
 modulepar float s2fmp4 := str2float("1.234E3")
 //modulepar float s2fmp5 := str2float("1.234-3")
@@ -147,12 +139,8 @@ modulepar float s2fmp7 := str2float("1");
 modulepar float s2fmp7m:= str2float("-1");
 modulepar float s2fmp8m:= str2float("-1.");
 modulepar float s2fmp8 := str2float("1.");
-modulepar float s2fmp9 := str2float("+001"); //In module parameter definition// \
-	//In default value//	//In the operand of operation `str2float\(\)'// \
-	//warning: Leading zero digit was detected and ignored in the mantissa of the operand of operation `str2float\(\)'//
-modulepar float s2fmp10:= str2float("+001."); //In module parameter definition// \
-	//In default value//	//In the operand of operation `str2float\(\)'// \
-	//warning: Leading zero digit was detected and ignored in the mantissa of the operand of operation `str2float\(\)'//
+modulepar float s2fmp9 := str2float("+001");
+modulepar float s2fmp10:= str2float("+001.");
 modulepar float s2fmp11:= str2float("-0");
 modulepar float s2fmp12:= str2float("-0.");
 modulepar float s2fmp13:= str2float("-0.0");
@@ -163,7 +151,7 @@ modulepar float s2fmp16:= str2float("not_a_number");
 
 
 
-testcase str_to_float() runs on PDTestComponent{ //In testcase definition//
+testcase str_to_float() runs on PDTestComponent{
 
 // compile-time
 	if ((s2fpar == str2float("0.0"))
@@ -176,11 +164,7 @@ testcase str_to_float() runs on PDTestComponent{ //In testcase definition//
 	     {setverdict(pass);}
 	else {setverdict(fail, __LINE__);}
 
-	if ((s2fpar2 == str2float("000000000000" & "12345678901.0")) //In if statement// \
-	//In the left operand of operation `and'// \
-	//In the right operand of operation `=='// \
-	//In the operand of operation `str2float\(\)'// \
-	//warning: Leading zero digit was detected and ignored in the mantissa of the operand of operation `str2float\(\)'//
+	if ((s2fpar2 == str2float("000000000000" & "12345678901.0"))
 	and (s2fpar2 == 12345678901.0))
 	     {setverdict(pass);}
 	else {setverdict(fail, __LINE__);}
@@ -225,20 +209,12 @@ testcase str_to_float() runs on PDTestComponent{ //In testcase definition//
 	     {setverdict(pass);}
 	else {setverdict(fail, __LINE__);}
 
-	if ((s2fpar9 == str2float("+001" )) //In if statement// \
-	//In the left operand of operation `and'// \
-	//In the right operand of operation `=='// \
-	//In the operand of operation `str2float\(\)'// \
-	//warning: Leading zero digit was detected and ignored in the mantissa of the operand of operation `str2float\(\)'//
+	if ((s2fpar9 == str2float("+001" ))
 	and (s2fpar9 == 1.0))
 	     {setverdict(pass);}
 	else {setverdict(fail, __LINE__);}
 
-	if ((s2fpar10== str2float("+001.")) //In if statement// \
-	//In the left operand of operation `and'// \
-	//In the right operand of operation `=='// \
-	//In the operand of operation `str2float\(\)'// \
-	//warning: Leading zero digit was detected and ignored in the mantissa of the operand of operation `str2float\(\)'//
+	if ((s2fpar10== str2float("+001."))
 	and (s2fpar10== 1.0))
 	     {setverdict(pass);}
 	else {setverdict(fail, __LINE__);}
@@ -281,11 +257,7 @@ testcase str_to_float() runs on PDTestComponent{ //In testcase definition//
 	     {setverdict(pass);}
 	else {setverdict(fail, __LINE__);}
 
-	if ((s2fmp2 == str2float("000000000000" & "12345678901.0")) //In if statement// \
-	//In the left operand of operation `and'// \
-	//In the right operand of operation `=='// \
-	//In the operand of operation `str2float\(\)'// \
-	//warning: Leading zero digit was detected and ignored in the mantissa of the operand of operation `str2float\(\)'//
+	if ((s2fmp2 == str2float("000000000000" & "12345678901.0"))
 	and (s2fmp2 == 12345678901.0))
 	     {setverdict(pass);}
 	else {setverdict(fail, __LINE__);}

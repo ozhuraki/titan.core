@@ -55,9 +55,7 @@ testcase str_to_bit() runs on PDTestComponent{ //In testcase definition//
 //const float s2fcon := str2float("")
 const float s2fcon := str2float("0.0")
 const float s2fcon1 := str2float("12345678901.0")
-const float s2fcon2 := str2float("000000000000" & "12345678901.0") //^In constant definition// \
-	//^In the operand of operation `str2float\(\)'// \
-	//^warning: Leading zero digit was detected and ignored in the mantissa of the operand of operation \`str2float\(\)\'//
+const float s2fcon2 := str2float("000000000000" & "12345678901.0")
 const float s2fcon3 := str2float("-12" & "345678901.0")
 const float s2fcon4 := str2float("1.234E3")
 //const float s2fcon5 := str2float("1.234-3")
@@ -71,12 +69,8 @@ const float s2fcon7 := str2float("1");
 const float s2fcon7m:= str2float("-1");
 const float s2fcon8m:= str2float("-1.");
 const float s2fcon8 := str2float("1.");
-const float s2fcon9 := str2float("+001"); //^In constant definition// \
-	//^In the operand of operation `str2float\(\)'// \
-	//^warning: Leading zero digit was detected and ignored in the mantissa of the operand of operation \`str2float\(\)\'//
-const float s2fcon10:= str2float("+001."); //^In constant definition// \
-	//^In the operand of operation `str2float\(\)'// \
-	//^warning: Leading zero digit was detected and ignored in the mantissa of the operand of operation \`str2float\(\)\'//
+const float s2fcon9 := str2float("+001");
+const float s2fcon10:= str2float("+001.");
 const float s2fcon11:= str2float("-0");
 const float s2fcon12:= str2float("-0.");
 const float s2fcon13:= str2float("-0.0");
@@ -99,11 +93,7 @@ testcase str_to_float() runs on PDTestComponent{ //In testcase definition//
 	     {setverdict(pass);}
 	else {setverdict(fail);} //^In else statement// \
                              //^warning\: Control never reaches this code because of previous effective condition\(s\)//
-	if ((s2fcon2 == str2float("000000000000" & "12345678901.0")) //^In if statement// \
-		//In the left operand of operation `and'// \
-		//In the right operand of operation `=='// \
-		//In the operand of operation \`str2float\(\)\'// \
-		//^warning: Leading zero digit was detected and ignored in the mantissa of the operand of operation `str2float\(\)'//
+	if ((s2fcon2 == str2float("000000000000" & "12345678901.0"))
 	and (s2fcon2 == 12345678901.0))
 	     {setverdict(pass);}
 	else {setverdict(fail);} //^In else statement// \
@@ -145,19 +135,11 @@ testcase str_to_float() runs on PDTestComponent{ //In testcase definition//
 	     {setverdict(pass);}
 	else {setverdict(fail);} //^In else statement// \
                              //^warning\: Control never reaches this code because of previous effective condition\(s\)//
-	if ((s2fcon9 == str2float("+001" )) and (s2fcon9 == 1.0)) //^In if statement// \
-		//In the left operand of operation `and'// \
-		//In the right operand of operation `=='// \
-		//In the operand of operation \`str2float\(\)\'// \
-		//^warning: Leading zero digit was detected and ignored in the mantissa of the operand of operation `str2float\(\)'//
+	if ((s2fcon9 == str2float("+001" )) and (s2fcon9 == 1.0))
 	     {setverdict(pass);}
 	else {setverdict(fail);} //^In else statement// \
                              //^warning\: Control never reaches this code because of previous effective condition\(s\)//
-	if ((s2fcon10== str2float("+001.")) and (s2fcon10== 1.0)) //^In if statement// \
-		//In the left operand of operation `and'// \
-		//In the right operand of operation `=='// \
-		//In the operand of operation \`str2float\(\)\'// \
-		//^warning: Leading zero digit was detected and ignored in the mantissa of the operand of operation `str2float\(\)'//
+	if ((s2fcon10== str2float("+001.")) and (s2fcon10== 1.0))
 	     {setverdict(pass);}
 	else {setverdict(fail);} //^In else statement// \
                              //^warning\: Control never reaches this code because of previous effective condition\(s\)//
