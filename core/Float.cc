@@ -68,12 +68,28 @@ static inline void log_float(double float_val)
   else if(float_val!=float_val)
     TTCN_Logger::log_event_str("not_a_number");
   else {
-    boolean f = (float_val > -MAX_DECIMAL_FLOAT && float_val <= -MIN_DECIMAL_FLOAT)
-      || (float_val >= MIN_DECIMAL_FLOAT && float_val <   MAX_DECIMAL_FLOAT)
-      || (float_val == 0.0);
     const char* loc = setlocale(LC_ALL, NULL);
     setlocale(LC_NUMERIC, "C"); // use default locale for displaying numbers
-    TTCN_Logger::log_event(f ? "%f" : "%e", float_val);
+    if(TTCN_Logger::get_log_format() == TTCN_Logger::LF_TTCN && float_val != 0.0){
+      // ttcn2str, use the TTCN-3 standard format and print enough 
+      // digits so when scanning the string back, we get the original floating point.
+      // for 64bit double 17 digit is needed
+      // The 0.0 is habdled by the normal logging case. The %f prints the 0.0 or -0.0 correctly
+      double rabs = fabs(float_val);
+      double exponent = floor(log10(rabs));
+      double mantissa = rabs * pow(10.0, -exponent);
+
+      TTCN_Logger::log_event("%s%.17g", float_val < 0.0 ? "-" : "", mantissa);
+      if (floor(mantissa) == mantissa) TTCN_Logger::log_event( ".0");
+      if (exponent != 0.0) TTCN_Logger::log_event("e%d", (int)exponent);
+      
+    } else {
+      // Normal logging
+      boolean f = (float_val > -MAX_DECIMAL_FLOAT && float_val <= -MIN_DECIMAL_FLOAT)
+        || (float_val >= MIN_DECIMAL_FLOAT && float_val <   MAX_DECIMAL_FLOAT)
+        || (float_val == 0.0);
+      TTCN_Logger::log_event(f ? "%f" : "%e", float_val);
+    }
     setlocale(LC_NUMERIC, loc);
   }
 }
