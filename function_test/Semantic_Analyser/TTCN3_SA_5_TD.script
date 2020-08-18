@@ -1865,7 +1865,7 @@ const ftype4   f8 := f7;
 (?im)not.+?valid.+?value.+?for.+?subtype
 <END_RESULT>
 <RESULT COUNT 1>
-(?is)\berror: Subtype mismatch: subtype \(6(\.0)?e0\.\.7(\.0)?e0\) has no common value with subtype \(4\.1e-1,1(\.0)?e0,2(\.0)?e0,8.0e0\.\.1(\.0)?e1\)
+(?is)\berror: Subtype mismatch: subtype \(6(\.0)?e0\.\.7(\.0)?e0\) has no common value with subtype \(4\..*e-1,1(\.0)?e0,2(\.0)?e0,8.0e0\.\.1(\.0)?e1\)
 <END_RESULT>
 <RESULT COUNT 4>
 (?is)\berror:

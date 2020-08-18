@@ -5571,13 +5571,13 @@ module module1
 (?is)\berror: 4.0e0 is not a valid value for type `float' which has subtype \(1.0e0,2.0e0,3.0e0\)
 <END_RESULT>
 <RESULT COUNT 1>
-(?is)\berror: The subtype restriction is not a subset of the restriction on the parent type. Subtype \(4.0e0\) is not subset of subtype \(1.0e0,2.0e0,3.0e0\)
+(?is)\berror: The subtype restriction is not a subset of the restriction on the parent type. Subtype \(4.*e0\) is not subset of subtype \(1.0e0,2.0e0,3.0e0\)
 <END_RESULT>
 <RESULT COUNT 1>
-(?is)\berror: The subtype restriction is not a subset of the restriction on the parent type. Subtype \(4.0e0..8.0e0\) is not subset of subtype \(1.0e0,2.0e0,3.0e0\)
+(?is)\berror: The subtype restriction is not a subset of the restriction on the parent type. Subtype \(4.*e0..8.0e0\) is not subset of subtype \(1.0e0,2.0e0,3.0e0\)
 <END_RESULT>
 <RESULT COUNT 1>
-(?is)\berror: The subtype restriction is not a subset of the restriction on the parent type. Subtype \(4.0e0..8.0e0,1.6e1\) is not subset of subtype \(1.0e0,2.0e0,3.0e0\)
+(?is)\berror: The subtype restriction is not a subset of the restriction on the parent type. Subtype \(4.*e0..8.0e0,1.6.*e1\) is not subset of subtype \(1.0e0,2.0e0,3.0e0\)
 <END_RESULT>
 <RESULT COUNT 11>
 (?is)\berror:
