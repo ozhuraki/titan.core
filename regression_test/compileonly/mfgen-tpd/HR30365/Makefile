@@ -30,8 +30,9 @@ BuildHelloTpd:
 	 -t HelloTpd/HelloTpd.tpd 2>&1 | tee output
 
 CheckHelloTpd: BuildHelloTpd
-	if [[ -d "Hello000/bin" || -d "Hello123/bin" || `grep -c "Makefile skeleton was generated." ./output` -ne 1 ]];\
-	then exit 1; fi
+	if [ -e "Hello000/bin" ] || [ -e "Hello123/bin" ] || [ `grep -c "Makefile skeleton was generated." ./output` -ne 1 ]; \
+	then exit 1; \
+	fi
 
 clean:
 	-rm -rf HelloTpd/bin output
