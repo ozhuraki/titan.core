@@ -930,7 +930,7 @@ testcase tc_REC_ttcn2string() runs on MC {
   log(ttcn2string(tspt_rec_empty));
   if(ttcn2string(tspt_rec_empty) == "-") { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4v);
-  if(ttcn2string(tspt_rec_mod4v) == "{ i := 1, f := 1.000000, cs := \"ABBA\", bs := '0100'B }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(tspt_rec_mod4v) == "{ i := 1, f := 1.0, cs := \"ABBA\", bs := '0100'B }") { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4a);
   if(ttcn2string(tspt_rec_mod4a) == "*") { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4q);
@@ -938,28 +938,28 @@ testcase tc_REC_ttcn2string() runs on MC {
   log(tspt_rec_mod4o);
   if(ttcn2string(tspt_rec_mod4o) == "omit") { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4vr);
-  if(ttcn2string(tspt_rec_mod4vr) == "{ i := 1, f := 1.000000, cs := (\"ABBA\", \"baba\"), bs := '0100'B }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(tspt_rec_mod4vr) == "{ i := 1, f := 1.0, cs := (\"ABBA\", \"baba\"), bs := '0100'B }") { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4vl2x2);
-  if(ttcn2string(tspt_rec_mod4vl2x2) == "{ i := 1, f := 1.000000, cs := (\"ABBA\", \"baba\"), bs := ('0100'B, '01001'B) }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(tspt_rec_mod4vl2x2) == "{ i := 1, f := 1.0, cs := (\"ABBA\", \"baba\"), bs := ('0100'B, '01001'B) }") { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4omitx4);
   if(ttcn2string(tspt_rec_mod4omitx4) == "{ i := omit, f := omit, cs := omit, bs := omit }") { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4r);
-  if(ttcn2string(tspt_rec_mod4r) == "({ i := 1, f := 1.000000, cs := \"ABBA\", bs := '0100'B }, { i := 2, f := 2.000000, cs := \"baba\", bs := '01001'B })") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(tspt_rec_mod4r) == "({ i := 1, f := 1.0, cs := \"ABBA\", bs := '0100'B }, { i := 2, f := 2.0, cs := \"baba\", bs := '01001'B })") { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4vr);
-  if(ttcn2string(tspt_rec_mod4vr) == "{ i := 1, f := 1.000000, cs := (\"ABBA\", \"baba\"), bs := '0100'B }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(tspt_rec_mod4vr) == "{ i := 1, f := 1.0, cs := (\"ABBA\", \"baba\"), bs := '0100'B }") { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4c);
-  if(ttcn2string(tspt_rec_mod4c) == "complement({ i := 1, f := 1.000000, cs := (\"ABBA\", \"baba\"), bs := '0100'B })") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(tspt_rec_mod4c) == "complement({ i := 1, f := 1.0, cs := (\"ABBA\", \"baba\"), bs := '0100'B })") { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4vl);
-  if(ttcn2string(tspt_rec_mod4vl) == "{ i := 1, f := 1.000000, cs := (\"ABBA\", \"baba\"), bs := '0100'B }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(tspt_rec_mod4vl) == "{ i := 1, f := 1.0, cs := (\"ABBA\", \"baba\"), bs := '0100'B }") { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4vq);
-  if(ttcn2string(tspt_rec_mod4vq) == "{ i := ?, f := 1.000000, cs := pattern \"abc*xyz\", bs := '0100'B }") { setverdict(pass) } else {setverdict(fail)}         
+  if(ttcn2string(tspt_rec_mod4vq) == "{ i := ?, f := 1.0, cs := pattern \"abc*xyz\", bs := '0100'B }") { setverdict(pass) } else {setverdict(fail)}         
 }
 
 testcase tc_REC_ifp_ttcn2string() runs on MC {
   log(ttcn2string(tspt_rec_emptyifp));
   if(ttcn2string(tspt_rec_emptyifp) == "- ifpresent") { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4vifp);
-  if(ttcn2string(tspt_rec_mod4vifp) == "{ i := 1 ifpresent, f := 1.000000 ifpresent, cs := \"ABBA\" ifpresent, bs := '0100'B ifpresent }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(tspt_rec_mod4vifp) == "{ i := 1 ifpresent, f := 1.0 ifpresent, cs := \"ABBA\" ifpresent, bs := '0100'B ifpresent }") { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4aifp);
   if(ttcn2string(tspt_rec_mod4aifp) == "* ifpresent") { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4qifp);
@@ -967,19 +967,19 @@ testcase tc_REC_ifp_ttcn2string() runs on MC {
   log(tspt_rec_mod4oifp);
   if(ttcn2string(tspt_rec_mod4oifp) == "omit ifpresent") { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4vl2x2ifp);
-  if(ttcn2string(tspt_rec_mod4vl2x2ifp) == "{ i := 1 ifpresent, f := 1.000000 ifpresent, cs := (\"ABBA\" ifpresent, \"baba\" ifpresent), bs := ('0100'B, '01001'B) ifpresent }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(tspt_rec_mod4vl2x2ifp) == "{ i := 1 ifpresent, f := 1.0 ifpresent, cs := (\"ABBA\" ifpresent, \"baba\" ifpresent), bs := ('0100'B, '01001'B) ifpresent }") { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4omitx4ifp);
   if(ttcn2string(tspt_rec_mod4omitx4ifp) == "{ i := omit, f := omit, cs := omit, bs := omit } ifpresent" ) { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4rifp);
-  if(ttcn2string(tspt_rec_mod4rifp) == "({ i := 1 ifpresent, f := 1.000000 ifpresent, cs := \"ABBA\" ifpresent, bs := '0100'B ifpresent }, { i := 2, f := 2.000000, cs := \"baba\", bs := '01001'B })") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(tspt_rec_mod4rifp) == "({ i := 1 ifpresent, f := 1.0 ifpresent, cs := \"ABBA\" ifpresent, bs := '0100'B ifpresent }, { i := 2, f := 2.0, cs := \"baba\", bs := '01001'B })") { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4vrifp);
   if(ttcn2string(tspt_rec_mod4vrifp) == "{ i := (1 .. 2) ifpresent, f := ? ifpresent, cs := \"ABBA\" ifpresent, bs := '0100'B ifpresent }" ) { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4cifp);
-  if(ttcn2string(tspt_rec_mod4cifp) == "complement({ i := 1 ifpresent, f := 1.000000 ifpresent, cs := (\"ABBA\", \"baba\") ifpresent, bs := '0100'B ifpresent })") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(tspt_rec_mod4cifp) == "complement({ i := 1 ifpresent, f := 1.0 ifpresent, cs := (\"ABBA\", \"baba\") ifpresent, bs := '0100'B ifpresent })") { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4vlifp);
-  if(ttcn2string(tspt_rec_mod4vlifp) == "{ i := 1 ifpresent, f := 1.000000 ifpresent, cs := (\"ABBA\", \"baba\") ifpresent, bs := '0100'B ifpresent }" ) { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(tspt_rec_mod4vlifp) == "{ i := 1 ifpresent, f := 1.0 ifpresent, cs := (\"ABBA\", \"baba\") ifpresent, bs := '0100'B ifpresent }" ) { setverdict(pass) } else {setverdict(fail)}
   log(tspt_rec_mod4vqifp);
-  if(ttcn2string(tspt_rec_mod4vqifp) == "{ i := ?, f := 1.000000, cs := pattern \"abc*xyz\", bs := '0100'B ifpresent }" ) { setverdict(pass) } else {setverdict(fail)}         
+  if(ttcn2string(tspt_rec_mod4vqifp) == "{ i := ?, f := 1.0, cs := pattern \"abc*xyz\", bs := '0100'B ifpresent }" ) { setverdict(pass) } else {setverdict(fail)}         
 }
 
 // Embedded templates
@@ -989,7 +989,7 @@ testcase tc_REC_ttcn2string_emb() runs on MC {
   log(ttcn2string(tspt_rrec_mod4empty));
   if(ttcn2string(tspt_rrec_mod4empty) == "-") { setverdict(pass) } else {setverdict(fail)}
   log(t_rrec(tspt_rec_mod4v));
-  if(ttcn2string(t_rrec(tspt_rec_mod4v)) == "{ rec := { i := 1, f := 1.000000, cs := \"ABBA\", bs := '0100'B } }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(t_rrec(tspt_rec_mod4v)) == "{ rec := { i := 1, f := 1.0, cs := \"ABBA\", bs := '0100'B } }") { setverdict(pass) } else {setverdict(fail)}
   log(t_rrec(tspt_rec_mod4a));
   if(ttcn2string(t_rrec(tspt_rec_mod4a)) == "{ rec := * }") { setverdict(pass) } else {setverdict(fail)}
   log(t_rrec(tspt_rec_mod4q));
@@ -997,21 +997,21 @@ testcase tc_REC_ttcn2string_emb() runs on MC {
   log(t_rrec(tspt_rec_mod4o));
   if(ttcn2string(t_rrec(tspt_rec_mod4o)) == "{ rec := omit }") { setverdict(pass) } else {setverdict(fail)}
   log(t_rrec(tspt_rec_mod4vr));
-  if(ttcn2string(t_rrec(tspt_rec_mod4vr)) == "{ rec := { i := 1, f := 1.000000, cs := (\"ABBA\", \"baba\"), bs := '0100'B } }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(t_rrec(tspt_rec_mod4vr)) == "{ rec := { i := 1, f := 1.0, cs := (\"ABBA\", \"baba\"), bs := '0100'B } }") { setverdict(pass) } else {setverdict(fail)}
   log(t_rrec(tspt_rec_mod4vl2x2));
-  if(ttcn2string(t_rrec(tspt_rec_mod4vl2x2)) == "{ rec := { i := 1, f := 1.000000, cs := (\"ABBA\", \"baba\"), bs := ('0100'B, '01001'B) } }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(t_rrec(tspt_rec_mod4vl2x2)) == "{ rec := { i := 1, f := 1.0, cs := (\"ABBA\", \"baba\"), bs := ('0100'B, '01001'B) } }") { setverdict(pass) } else {setverdict(fail)}
   log(t_rrec(tspt_rec_mod4omitx4));
   if(ttcn2string(t_rrec(tspt_rec_mod4omitx4)) == "{ rec := { i := omit, f := omit, cs := omit, bs := omit } }") { setverdict(pass) } else {setverdict(fail)}
   log(t_rrec(tspt_rec_mod4r));
-  if(ttcn2string(t_rrec(tspt_rec_mod4r)) == "{ rec := ({ i := 1, f := 1.000000, cs := \"ABBA\", bs := '0100'B }, { i := 2, f := 2.000000, cs := \"baba\", bs := '01001'B }) }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(t_rrec(tspt_rec_mod4r)) == "{ rec := ({ i := 1, f := 1.0, cs := \"ABBA\", bs := '0100'B }, { i := 2, f := 2.0, cs := \"baba\", bs := '01001'B }) }") { setverdict(pass) } else {setverdict(fail)}
   log(t_rrec(tspt_rec_mod4vr));
-  if(ttcn2string(t_rrec(tspt_rec_mod4vr)) == "{ rec := { i := 1, f := 1.000000, cs := (\"ABBA\", \"baba\"), bs := '0100'B } }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(t_rrec(tspt_rec_mod4vr)) == "{ rec := { i := 1, f := 1.0, cs := (\"ABBA\", \"baba\"), bs := '0100'B } }") { setverdict(pass) } else {setverdict(fail)}
   log(t_rrec(tspt_rec_mod4c));
-  if(ttcn2string(t_rrec(tspt_rec_mod4c)) == "{ rec := complement({ i := 1, f := 1.000000, cs := (\"ABBA\", \"baba\"), bs := '0100'B }) }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(t_rrec(tspt_rec_mod4c)) == "{ rec := complement({ i := 1, f := 1.0, cs := (\"ABBA\", \"baba\"), bs := '0100'B }) }") { setverdict(pass) } else {setverdict(fail)}
   log(t_rrec(tspt_rec_mod4vl));
-  if(ttcn2string(t_rrec(tspt_rec_mod4vl)) == "{ rec := { i := 1, f := 1.000000, cs := (\"ABBA\", \"baba\"), bs := '0100'B } }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(t_rrec(tspt_rec_mod4vl)) == "{ rec := { i := 1, f := 1.0, cs := (\"ABBA\", \"baba\"), bs := '0100'B } }") { setverdict(pass) } else {setverdict(fail)}
   log(t_rrec(tspt_rec_mod4vq));
-  if(ttcn2string(t_rrec(tspt_rec_mod4vq)) == "{ rec := { i := ?, f := 1.000000, cs := pattern \"abc*xyz\", bs := '0100'B } }") { setverdict(pass) } else {setverdict(fail)}         
+  if(ttcn2string(t_rrec(tspt_rec_mod4vq)) == "{ rec := { i := ?, f := 1.0, cs := pattern \"abc*xyz\", bs := '0100'B } }") { setverdict(pass) } else {setverdict(fail)}         
 }
 
 testcase tc_REC_ifp_ttcn2string_emb() runs on MC {
@@ -1021,14 +1021,14 @@ testcase tc_REC_ifp_ttcn2string_emb() runs on MC {
   if(ttcn2string(tspt_rrec_mod4emptyifp) == "{ rec := - ifpresent }") { setverdict(pass) } else {setverdict(fail)}
   
   log(t_rrec(tspt_rec_mod4vifp));
-  if(ttcn2string(t_rrec(tspt_rec_mod4vifp)) == "{ rec := { i := 1 ifpresent, f := 1.000000 ifpresent, cs := \"ABBA\" ifpresent, bs := '0100'B ifpresent } }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(t_rrec(tspt_rec_mod4vifp)) == "{ rec := { i := 1 ifpresent, f := 1.0 ifpresent, cs := \"ABBA\" ifpresent, bs := '0100'B ifpresent } }") { setverdict(pass) } else {setverdict(fail)}
   
   log(ttcn2string(f_rrec_transparent_in_t(t_rrec(tspt_rec_mod4vifp))));
-  if(ttcn2string(f_rrec_transparent_in_t(t_rrec(tspt_rec_mod4vifp))) == "{ rec := { i := 1 ifpresent, f := 1.000000 ifpresent, cs := \"ABBA\" ifpresent, bs := '0100'B ifpresent } }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(f_rrec_transparent_in_t(t_rrec(tspt_rec_mod4vifp))) == "{ rec := { i := 1 ifpresent, f := 1.0 ifpresent, cs := \"ABBA\" ifpresent, bs := '0100'B ifpresent } }") { setverdict(pass) } else {setverdict(fail)}
   
   var template RREC vlt_rrec:= t_rrec(tspt_rec_mod4vifp)
   log(ttcn2string(f_rrec_transparent_inout_t(vlt_rrec)));
-  if(ttcn2string(f_rrec_transparent_inout_t(vlt_rrec)) == "{ rec := { i := 1 ifpresent, f := 1.000000 ifpresent, cs := \"ABBA\" ifpresent, bs := '0100'B ifpresent } }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(f_rrec_transparent_inout_t(vlt_rrec)) == "{ rec := { i := 1 ifpresent, f := 1.0 ifpresent, cs := \"ABBA\" ifpresent, bs := '0100'B ifpresent } }") { setverdict(pass) } else {setverdict(fail)}
   
   log(t_rrec(tspt_rec_mod4aifp));
   if(ttcn2string(t_rrec(tspt_rec_mod4aifp)) == "{ rec := * ifpresent }") { setverdict(pass) } else {setverdict(fail)}
@@ -1037,19 +1037,19 @@ testcase tc_REC_ifp_ttcn2string_emb() runs on MC {
   log(t_rrec(tspt_rec_mod4oifp));
   if(ttcn2string(t_rrec(tspt_rec_mod4oifp)) == "{ rec := omit ifpresent }") { setverdict(pass) } else {setverdict(fail)}
   log(t_rrec(tspt_rec_mod4vl2x2ifp));
-  if(ttcn2string(t_rrec(tspt_rec_mod4vl2x2ifp)) == "{ rec := { i := 1 ifpresent, f := 1.000000 ifpresent, cs := (\"ABBA\" ifpresent, \"baba\" ifpresent), bs := ('0100'B, '01001'B) ifpresent } }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(t_rrec(tspt_rec_mod4vl2x2ifp)) == "{ rec := { i := 1 ifpresent, f := 1.0 ifpresent, cs := (\"ABBA\" ifpresent, \"baba\" ifpresent), bs := ('0100'B, '01001'B) ifpresent } }") { setverdict(pass) } else {setverdict(fail)}
   log(t_rrec(tspt_rec_mod4omitx4ifp));
   if(ttcn2string(t_rrec(tspt_rec_mod4omitx4ifp)) == "{ rec := { i := omit, f := omit, cs := omit, bs := omit } ifpresent }" ) { setverdict(pass) } else {setverdict(fail)}
   log(t_rrec(tspt_rec_mod4rifp));
-  if(ttcn2string(t_rrec(tspt_rec_mod4rifp)) == "{ rec := ({ i := 1 ifpresent, f := 1.000000 ifpresent, cs := \"ABBA\" ifpresent, bs := '0100'B ifpresent }, { i := 2, f := 2.000000, cs := \"baba\", bs := '01001'B }) }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(t_rrec(tspt_rec_mod4rifp)) == "{ rec := ({ i := 1 ifpresent, f := 1.0 ifpresent, cs := \"ABBA\" ifpresent, bs := '0100'B ifpresent }, { i := 2, f := 2.0, cs := \"baba\", bs := '01001'B }) }") { setverdict(pass) } else {setverdict(fail)}
   log(t_rrec(tspt_rec_mod4vrifp));
   if(ttcn2string(t_rrec(tspt_rec_mod4vrifp)) == "{ rec := { i := (1 .. 2) ifpresent, f := ? ifpresent, cs := \"ABBA\" ifpresent, bs := '0100'B ifpresent } }" ) { setverdict(pass) } else {setverdict(fail)}
   log(t_rrec(tspt_rec_mod4cifp));
-  if(ttcn2string(t_rrec(tspt_rec_mod4cifp)) == "{ rec := complement({ i := 1 ifpresent, f := 1.000000 ifpresent, cs := (\"ABBA\", \"baba\") ifpresent, bs := '0100'B ifpresent }) }") { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(t_rrec(tspt_rec_mod4cifp)) == "{ rec := complement({ i := 1 ifpresent, f := 1.0 ifpresent, cs := (\"ABBA\", \"baba\") ifpresent, bs := '0100'B ifpresent }) }") { setverdict(pass) } else {setverdict(fail)}
   log(t_rrec(tspt_rec_mod4vlifp));
-  if(ttcn2string(t_rrec(tspt_rec_mod4vlifp)) == "{ rec := { i := 1 ifpresent, f := 1.000000 ifpresent, cs := (\"ABBA\", \"baba\") ifpresent, bs := '0100'B ifpresent } }" ) { setverdict(pass) } else {setverdict(fail)}
+  if(ttcn2string(t_rrec(tspt_rec_mod4vlifp)) == "{ rec := { i := 1 ifpresent, f := 1.0 ifpresent, cs := (\"ABBA\", \"baba\") ifpresent, bs := '0100'B ifpresent } }" ) { setverdict(pass) } else {setverdict(fail)}
   log(t_rrec(tspt_rec_mod4vqifp));
-  if(ttcn2string(t_rrec(tspt_rec_mod4vqifp)) == "{ rec := { i := ?, f := 1.000000, cs := pattern \"abc*xyz\", bs := '0100'B ifpresent } }" ) { setverdict(pass) } else {setverdict(fail)}         
+  if(ttcn2string(t_rrec(tspt_rec_mod4vqifp)) == "{ rec := { i := ?, f := 1.0, cs := pattern \"abc*xyz\", bs := '0100'B ifpresent } }" ) { setverdict(pass) } else {setverdict(fail)}         
 }
 
 testcase tc_REC_string2ttcn_empty() runs on MC {
@@ -1174,7 +1174,7 @@ testcase tc_RREC_string2ttcn_neg1() runs on MC {
   f_string2ttcn_RREC_t("{ rec :=  x ifpresent }", t_rrec(tspt_rec_mod4qifp),false);// TODO: wrong error message
   f_string2ttcn_RREC_t("{ rec :=  {x:=1 ifpresent }}", t_rrec(tspt_rec_mod4qifp),false);
   f_string2ttcn_RREC_t("{ rec :=  {x:=1 ifpresent }", t_rrec(tspt_rec_mod4qifp),false);
-  f_string2ttcn_RREC_v("{ recfalse := { i := 1, f := 1.000000, cs := \"ABBA\", bs := '0100'B } }" , t_rrec(tspt_rec_v),false);
+  f_string2ttcn_RREC_v("{ recfalse := { i := 1, f := 1.0, cs := \"ABBA\", bs := '0100'B } }" , t_rrec(tspt_rec_v),false);
 } 
 
 //=========================================================================
