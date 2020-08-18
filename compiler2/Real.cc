@@ -48,7 +48,7 @@ namespace Common {
     double integral = floor(fraction);
     char   tmp[64];
 
-    sprintf(tmp, "%s%.16g%se%d",
+    sprintf(tmp, "%s%.15g%se%d",
             (sign == -1) ? "-" : "",
             fraction,
             (fraction == integral) ? ".0" : "",
@@ -68,7 +68,7 @@ namespace Common {
       Real exponent = floor(log10(rabs));
       Real mantissa = rabs * pow(10.0, -exponent);
 
-      char *tmp = mprintf("%s%.16g", r < 0.0 ? "-" : "", mantissa);
+      char *tmp = mprintf("%s%.15g", r < 0.0 ? "-" : "", mantissa);
       if (floor(mantissa) == mantissa) tmp = mputstr(tmp, ".0");
       if (exponent != 0.0) tmp = mputprintf(tmp, "e%d", (int)exponent);
       string ret_val(tmp);
