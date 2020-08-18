@@ -649,7 +649,9 @@ Syntax:
 [source]
 ttcn2string(in <TemplateInstance> ti) return charstring
 
-This predefined function returns its parameter's value in a string which is in TTCN-3 syntax. The returned string has legal ttcn-3 with a few exceptions such as unbound values. Unbound values are returned as "-", which can be used only as fields of assignment or value list notations, but not as top level assignments (e.g. `x:=- is illegal`). Differences between the output format of `ttcn2string()` and `log2str()`:
+This predefined function returns its parameter's value in a string which is in TTCN-3 syntax. 
+The returned string has legal ttcn-3 with a few exceptions such as unbound values. Unbound values are returned as "-", 
+which can be used only as fields of assignment or value list notations, but not as top level assignments (e.g. `x:=-` is illegal). Differences between the output format of `ttcn2string()` and `log2str()`:
 
 [cols=",,",options="header",]
 |===
@@ -666,7 +668,14 @@ Syntax:
 [source]
 string2ttcn(in charstring ttcn_str, inout <reference> ref)
 
-This predefined function does not have a return value, thus it is a statement. Any error in the input string will cause an exception that can be caught using @try - @catch blocks. The message string of the exception contains the exact cause of the error. There might be syntax and semantic errors. This function uses the module parameter parser of the TITAN runtime, it accepts the same syntax as the module parameters of the configuration file. Check the documentation chapters for the module parameters section. There are differences between the ttcn-3 syntax and the configuration file module parameters syntax, these are described in the documentation chapter of the module parameters. The second parameter must be a reference to a value or template variable.
+This predefined function does not have a return value, thus it is a statement. 
+Any error in the input string will cause an exception that can be caught using @try - @catch blocks. 
+The message string of the exception contains the exact cause of the error. There might be syntax and semantic errors. 
+This function uses the module parameter parser of the TITAN runtime, it accepts the same syntax as the module parameters of the configuration file. 
+Check the documentation chapters for the module parameters section. 
+There are differences between the ttcn-3 syntax and the configuration file module parameters syntax, 
+these are described in the documentation chapter of the module parameters. 
+The second parameter must be a reference to a value or template variable.
 
 Example code:
 
