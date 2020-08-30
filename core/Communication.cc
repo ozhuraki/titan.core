@@ -1235,7 +1235,10 @@ boolean TTCN_Communication::send_log(time_t timestamp_sec, long timestamp_usec,
   if (is_connected) {
     Text_Buf text_buf;
     text_buf.push_int(MSG_LOG);
-    text_buf.push_int(timestamp_sec);
+    int upper_int = timestamp_sec / 0xffffffff;
+    int lower_int = timestamp_sec % 0xffffffff;
+    text_buf.push_int(upper_int);
+    text_buf.push_int(lower_int);
     text_buf.push_int(timestamp_usec);
     text_buf.push_int(event_severity);
     text_buf.push_int(message_text_len);

@@ -3717,7 +3717,9 @@ void MainController::process_log(unknown_connection *conn)
 {
   Text_Buf& text_buf = *conn->text_buf;
   struct timeval tv;
-  tv.tv_sec = text_buf.pull_int().get_val();
+  int upper_int = text_buf.pull_int().get_val();
+  int lower_int = text_buf.pull_int().get_val();
+  tv.tv_sec = upper_int * 0xffffffff + lower_int;
   tv.tv_usec = text_buf.pull_int().get_val();
   char *source = mprintf("<unknown>@%s", conn->ip_addr->get_host_str());
   int severity = text_buf.pull_int().get_val();
@@ -3912,7 +3914,9 @@ void MainController::process_log(host_struct *hc)
 {
   Text_Buf& text_buf = *hc->text_buf;
   struct timeval tv;
-  tv.tv_sec = text_buf.pull_int().get_val();
+  int upper_int = text_buf.pull_int().get_val();
+  int lower_int = text_buf.pull_int().get_val();
+  tv.tv_sec = upper_int * 0xffffffff + lower_int;
   tv.tv_usec = text_buf.pull_int().get_val();
   int severity = text_buf.pull_int().get_val();
   char *message = text_buf.pull_string();
@@ -4133,7 +4137,9 @@ void MainController::process_log(component_struct *tc)
 {
   Text_Buf& text_buf = *tc->text_buf;
   struct timeval tv;
-  tv.tv_sec = text_buf.pull_int().get_val();
+  int upper_int = text_buf.pull_int().get_val();
+  int lower_int = text_buf.pull_int().get_val();
+  tv.tv_sec = upper_int * 0xffffffff + lower_int;
   tv.tv_usec = text_buf.pull_int().get_val();
   int severity = text_buf.pull_int().get_val();
   char *message = text_buf.pull_string();
