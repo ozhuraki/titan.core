@@ -1014,40 +1014,63 @@ char *generate_raw_coding_negtest(char *src, const struct_def *sdef,
     "  if (!is_bound()) TTCN_EncDec_ErrorContext::error"
     "(TTCN_EncDec::ET_UNBOUND, \"Encoding an unbound value.\");\n"
     "  int idx_map[%lu];\n"
-    "  for (int idx_map_idx = 0; idx_map_idx < %lu; ++idx_map_idx)\n"
+    "  int idx_map_before[%lu];\n"
+    "  int idx_map_after[%lu];\n"
+    "  bool altered_[%lu];\n"
+    "  for (int idx_map_idx = 0; idx_map_idx < %lu; ++idx_map_idx) {\n"
     "    idx_map[idx_map_idx] = -1;\n"
+    "    idx_map_before[idx_map_idx] = -1;\n"
+    "    idx_map_after[idx_map_idx] = -1;\n"
+    "    altered_[idx_map_idx] = false;\n"
+    "  };\n"
     "  (void)idx_map;\n"
+    "  (void)idx_map_before;\n"
+    "  (void)idx_map_after;\n"
+    "  (void)altered_;\n"
     "  int encoded_length = 0;\n"
     "  int num_fields = get_count();\n"
     "  myleaf.isleaf = FALSE;\n"
     "  myleaf.body.node.num_of_nodes = 0;\n"
     "  for (int field_idx = 0; field_idx < num_fields; ++field_idx) {\n"
     "    if ((p_err_descr->omit_before != -1) &&\n"
-    "        (field_idx < p_err_descr->omit_before))\n"
+    "        (field_idx < p_err_descr->omit_before)) {\n"
+    "      altered_[field_idx] = true;\n"
     "      continue;\n"
+    "    }\n"
     "    const Erroneous_values_t *err_vals = p_err_descr->get_field_err_values(field_idx);\n"
     "    const Erroneous_descriptor_t *emb_descr = p_err_descr->get_field_emb_descr(field_idx);\n"
-    "    if (err_vals && err_vals->before)\n"
-    "      ++myleaf.body.node.num_of_nodes;\n"
-    "    if (err_vals && err_vals->value) {\n"
-    "      if (err_vals->value->errval) {\n"
-    "        // Field is modified, but it's still there.  Otherwise, it's\n"
-    "        // initialized to `-1'.\n"
-    "        idx_map[field_idx] = -2;\n"
-    "        ++myleaf.body.node.num_of_nodes;\n"
-    "      }\n"
-    "    } else {\n"
-    "      if (emb_descr) idx_map[field_idx] = -2;\n"
-    "      else idx_map[field_idx] = myleaf.body.node.num_of_nodes;\n"
+    "    if (err_vals && err_vals->before) {\n"
+    "      idx_map_before[field_idx] = myleaf.body.node.num_of_nodes;\n"
     "      ++myleaf.body.node.num_of_nodes;\n"
     "    }\n"
-    "    if (err_vals && err_vals->after)\n"
+    "    if (err_vals && err_vals->value) {\n"
+    "      if (err_vals->value->errval) {\n"
+    "        idx_map[field_idx] = myleaf.body.node.num_of_nodes;\n"
+    "        ++myleaf.body.node.num_of_nodes;\n"
+    "      }\n"
+    "      altered_[field_idx] = true;\n"
+    "    } else {\n"
+    "      if (emb_descr) altered_[field_idx] = true;\n"
+    "      idx_map[field_idx] = myleaf.body.node.num_of_nodes;\n"
     "      ++myleaf.body.node.num_of_nodes;\n"
+    "    }\n"
+    "    if (err_vals && err_vals->after) {\n"
+    "      idx_map_after[field_idx] = myleaf.body.node.num_of_nodes;\n"
+    "      ++myleaf.body.node.num_of_nodes;\n"
+    "    }\n"
     "    if ((p_err_descr->omit_after != -1) &&\n"
-    "        (field_idx >= p_err_descr->omit_after))\n"
+    "        (field_idx >= p_err_descr->omit_after)) {\n"
+    "      ++field_idx;\n"
+    "      while (field_idx < num_fields) {\n"
+    "        altered_[field_idx] = true;\n"
+    "        ++field_idx;\n"
+    "      }\n"
     "      break;\n"
+    "    }\n"
     "  }\n",
-    name, (unsigned long)sdef->nElements, (unsigned long)sdef->nElements);
+    name, (unsigned long)sdef->nElements, (unsigned long)sdef->nElements,
+    (unsigned long)sdef->nElements, (unsigned long)sdef->nElements,
+    (unsigned long)sdef->nElements);
   /* Init nodes.  */
   src = mputprintf(src,
     "  myleaf.body.node.nodes =\n"
@@ -1153,7 +1176,7 @@ char *generate_raw_coding_negtest(char *src, const struct_def *sdef,
         "        in_between_modified = TRUE;\n"
         "        break;\n"
         "      }\n"
-        "    if (idx_map[%d] < 0 || idx_map[%d] < 0 ||\n"
+        "    if (altered_[%d] || altered_[%d] ||\n"
         "        %d != idx_map[%d] - idx_map[%d] || in_between_modified) {\n"
         "      e_c.set_msg(\"Field #%d and/or #%d: \");\n"
         "      TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_NEGTEST_CONFL,\n"
@@ -1203,74 +1226,81 @@ char *generate_raw_coding_negtest(char *src, const struct_def *sdef,
       /* Encoding of lenghto fields.  */
       int a;
       src = mputprintf(src,
-        "  if (idx_map[%lu] < 0) {\n"
-        "    e_c.set_msg(\"Field '%s': \");\n"
-        "    TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_NEGTEST_CONFL,\n"
-        "      \"Conflicting negative testing attributes, LENGTHTO "
-        "attribute will be ignored\");\n"
-        "  } else {\n"
-        "    boolean negtest_confl_lengthto = FALSE;\n",
-        (unsigned long)i, sdef->elements[i].name);
+        "  if (idx_map[%lu] >= 0 && !altered_[%lu]) {\n"
+        "    size_t nof_fields = %d",
+        (unsigned long)i, (unsigned long)i, sdef->elements[i].raw.lengthto_num);
       for (a = 0; a < sdef->elements[i].raw.lengthto_num; a++) {
         src = mputprintf(src,
-          "    if (idx_map[%lu] < 0) {\n"
-          "      negtest_confl_lengthto = TRUE;\n"
-          "      e_c.set_msg(\"Field '%s': \");\n"
-          "      TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_NEGTEST_CONFL,\n"
-          "        \"Conflicting negative testing attributes, LENGTHTO "
-          "attribute will be ignored\");\n"
-          "    }\n",
+          " + (idx_map_before[%lu] >= 0) + (idx_map_after[%lu] >= 0)",
           (unsigned long)sdef->elements[i].raw.lengthto[a],
-          sdef->elements[sdef->elements[i].raw.lengthto[a]].name);
+          (unsigned long)sdef->elements[i].raw.lengthto[a]);
       }
       src = mputprintf(src,
-        "    if (!negtest_confl_lengthto) {\n"
-        "      encoded_length += %d;\n"
-        "      myleaf.body.node.nodes[idx_map[%lu]]->calc = CALC_LENGTH;\n"
-        "      myleaf.body.node.nodes[idx_map[%lu]]->coding_descr = &%s_descr_;\n"
-        "      myleaf.body.node.nodes[idx_map[%lu]]->calcof.lengthto.num_of_fields = %d;\n"
-        "      myleaf.body.node.nodes[idx_map[%lu]]->calcof.lengthto.unit = %d;\n"
-        "      myleaf.body.node.nodes[idx_map[%lu]]->calcof.lengthto.offset = %d;\n"
-        "      myleaf.body.node.nodes[idx_map[%lu]]->calcof.lengthto.fields = "
-        "init_lengthto_fields_list(%d);\n"
-        "      myleaf.body.node.nodes[idx_map[%lu]]->length = %d;\n",
+        ";\n"
+        "    encoded_length += %d;\n"
+        "    myleaf.body.node.nodes[idx_map[%lu]]->calc = CALC_LENGTH;\n"
+        "    myleaf.body.node.nodes[idx_map[%lu]]->coding_descr = &%s_descr_;\n"
+        "    myleaf.body.node.nodes[idx_map[%lu]]->calcof.lengthto.num_of_fields = nof_fields;\n"
+        "    myleaf.body.node.nodes[idx_map[%lu]]->calcof.lengthto.unit = %d;\n"
+        "    myleaf.body.node.nodes[idx_map[%lu]]->calcof.lengthto.offset = %d;\n"
+        "    myleaf.body.node.nodes[idx_map[%lu]]->calcof.lengthto.fields = "
+        "init_lengthto_fields_list(nof_fields);\n"
+        "    myleaf.body.node.nodes[idx_map[%lu]]->length = %d;\n"
+        "    nof_fields = 0;\n",
         sdef->elements[i].raw.fieldlength, (unsigned long)i,
         (unsigned long)i, sdef->elements[i].typedescrname,
-        (unsigned long)i, sdef->elements[i].raw.lengthto_num,
-        (unsigned long)i, sdef->elements[i].raw.unit,
+        (unsigned long)i, (unsigned long)i, sdef->elements[i].raw.unit,
         (unsigned long)i, sdef->elements[i].raw.lengthto_offset,
-        (unsigned long)i, sdef->elements[i].raw.lengthto_num,
-        (unsigned long)i, sdef->elements[i].raw.fieldlength);
+        (unsigned long)i, (unsigned long)i, sdef->elements[i].raw.fieldlength);
       for (a = 0; a < sdef->elements[i].raw.lengthto_num; a++) {
-        if (sdef->elements[sdef->elements[i].raw.lengthto[a]].isOptional) {
-          src = mputprintf(src,
-            "      if (field_%s.ispresent()) {\n",
-            sdef->elements[sdef->elements[i].raw.lengthto[a]].name);
-        }
         src = mputprintf(src,
-          "      myleaf.body.node.nodes[idx_map[%lu]]->calcof.lengthto.fields[%lu].level = "
-          "myleaf.body.node.nodes[idx_map[%lu]]->curr_pos.level;\n"
-          "      myleaf.body.node.nodes[idx_map[%lu]]->calcof.lengthto.fields[%lu].pos = "
-          "myleaf.body.node.nodes[idx_map[%lu]]->curr_pos.pos;\n",
-          (unsigned long)i, (unsigned long)a,
-          (unsigned long)sdef->elements[i].raw.lengthto[a],
-          (unsigned long)i, (unsigned long)a,
+          "    if (idx_map[%lu] >= 0",
           (unsigned long)sdef->elements[i].raw.lengthto[a]);
         if (sdef->elements[sdef->elements[i].raw.lengthto[a]].isOptional) {
           src = mputprintf(src,
-            "      } else {\n"
-            "      myleaf.body.node.nodes[idx_map[%lu]]->"
-            "calcof.lengthto.fields[%lu].level = 0;\n"
-            "      myleaf.body.node.nodes[idx_map[%lu]]->"
-            "calcof.lengthto.fields[%lu].pos = 0;\n"
-            "      }\n",
-            (unsigned long)i, (unsigned long)a,
-            (unsigned long)i, (unsigned long)a);
+            " && field_%s.ispresent()",
+            sdef->elements[sdef->elements[i].raw.lengthto[a]].name);
         }
+        src = mputprintf(src,
+          ") {\n"
+          "      myleaf.body.node.nodes[idx_map[%lu]]->calcof.lengthto.fields[nof_fields].level = "
+          "myleaf.body.node.nodes[idx_map[%lu]]->curr_pos.level;\n"
+          "      myleaf.body.node.nodes[idx_map[%lu]]->calcof.lengthto.fields[nof_fields++].pos = "
+          "myleaf.body.node.nodes[idx_map[%lu]]->curr_pos.pos;\n"
+          "    } else {\n"
+          "      myleaf.body.node.nodes[idx_map[%lu]]->"
+          "calcof.lengthto.fields[nof_fields].level = 0;\n"
+          "      myleaf.body.node.nodes[idx_map[%lu]]->"
+          "calcof.lengthto.fields[nof_fields++].pos = 0;\n"
+          "    }\n"
+          "    if (idx_map_before[%lu] >= 0) {\n"
+          "      myleaf.body.node.nodes[idx_map[%lu]]->calcof.lengthto.fields[nof_fields].level = "
+          "myleaf.body.node.nodes[idx_map_before[%lu]]->curr_pos.level;\n"
+          "      myleaf.body.node.nodes[idx_map[%lu]]->calcof.lengthto.fields[nof_fields++].pos = "
+          "myleaf.body.node.nodes[idx_map_before[%lu]]->curr_pos.pos;\n"
+          "    }\n"
+          "    if (idx_map_after[%lu] >= 0) {\n"
+          "      myleaf.body.node.nodes[idx_map[%lu]]->calcof.lengthto.fields[nof_fields].level = "
+          "myleaf.body.node.nodes[idx_map_after[%lu]]->curr_pos.level;\n"
+          "      myleaf.body.node.nodes[idx_map[%lu]]->calcof.lengthto.fields[nof_fields++].pos = "
+          "myleaf.body.node.nodes[idx_map_after[%lu]]->curr_pos.pos;\n"
+          "    }\n",
+          (unsigned long)i,
+          (unsigned long)sdef->elements[i].raw.lengthto[a],
+          (unsigned long)i,
+          (unsigned long)sdef->elements[i].raw.lengthto[a],
+          (unsigned long)i, (unsigned long)i,
+          (unsigned long)sdef->elements[i].raw.lengthto[a],
+          (unsigned long)i,
+          (unsigned long)sdef->elements[i].raw.lengthto[a],
+          (unsigned long)i,
+          (unsigned long)sdef->elements[i].raw.lengthto[a],
+          (unsigned long)sdef->elements[i].raw.lengthto[a],
+          (unsigned long)i,
+          (unsigned long)sdef->elements[i].raw.lengthto[a],
+          (unsigned long)i,
+          (unsigned long)sdef->elements[i].raw.lengthto[a]);
       }
-      /* Closing inner index check.  */
-      src = mputstr(src,
-        "    }\n");
       /* Closing outer index check.  */
       src = mputstr(src,
         "  }\n");
@@ -1289,7 +1319,7 @@ char *generate_raw_coding_negtest(char *src, const struct_def *sdef,
         "      break;\n"
         "    }\n"
         "  }\n"
-        "  if (idx_map[%lu] < 0 || idx_map[%lu] < 0 ||\n"
+        "  if (altered_[%lu] || altered_[%lu] ||\n"
         "      %lu != idx_map[%lu] - idx_map[%lu] || in_between_modified_pointerto_%s) {\n"
         "    e_c.set_msg(\"Field '%s' and/or '%s': \");\n"
         "    TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_NEGTEST_CONFL,\n"
@@ -1338,10 +1368,10 @@ char *generate_raw_coding_negtest(char *src, const struct_def *sdef,
       /* Encoding of normal fields with no negative testing.  Needed for the
          later phase.  */
       src = mputprintf(src,
-        "  if (idx_map[%lu] >= 0) "
+        "  if (!altered_[%lu] && idx_map[%lu] >= 0) "
         "encoded_length += field_%s%s.RAW_encode(%s_descr_, "
         "*myleaf.body.node.nodes[idx_map[%lu]]);\n",
-        (unsigned long)i, sdef->elements[i].name,
+        (unsigned long)i, (unsigned long)i, sdef->elements[i].name,
         sdef->elements[i].isOptional ? "()" : "",
         sdef->elements[i].typedescrname, (unsigned long)i);
     }
@@ -1361,7 +1391,7 @@ char *generate_raw_coding_negtest(char *src, const struct_def *sdef,
           sdef->elements[i].name);
       }
       src = mputprintf(src,
-        "  if (idx_map[%lu] < 0) {\n"
+        "  if (altered_[%lu]) {\n"
         "    e_c.set_msg(\"Field '%s': \");\n"
         "    TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_NEGTEST_CONFL,\n"
         "      \"Conflicting negative testing attributes, LENGTHTO/LENGTHINDEX "
@@ -1373,7 +1403,7 @@ char *generate_raw_coding_negtest(char *src, const struct_def *sdef,
         sdef->elements[i].raw.lengthindex->nthfield);
       for (a = 0; a < sdef->elements[i].raw.lengthto_num; a++) {
         src = mputprintf(src,
-          "      if (idx_map[%lu] < 0) {\n"
+          "      if (altered_[%lu]) {\n"
           "        negtest_confl_lengthto = TRUE;\n"
           "        e_c.set_msg(\"Field '%s': \");\n"
           "        TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_NEGTEST_CONFL,\n"
@@ -1454,7 +1484,7 @@ char *generate_raw_coding_negtest(char *src, const struct_def *sdef,
       }
       src = mputprintf(src,
         "  {\n"
-        "  if (idx_map[%lu] < 0) {\n"
+        "  if (altered_[%lu]) {\n"
         "    e_c.set_msg(\"Field '%s': \");\n"
         "    TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_NEGTEST_CONFL,\n"
         "      \"Conflicting negative testing attributes, LENGTHTO/LENGTHINDEX "
@@ -1464,7 +1494,7 @@ char *generate_raw_coding_negtest(char *src, const struct_def *sdef,
         (unsigned long)i, sdef->elements[i].name);
       for (a = 0; a < sdef->elements[i].raw.lengthto_num; a++) {
         src = mputprintf(src,
-          "  if (idx_map[%lu] < 0) {\n"
+          "  if (altered_[%lu]) {\n"
           "    negtest_confl_lengthto = TRUE;\n"
           "    e_c.set_msg(\"Field '%s': \");\n"
           "      TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_NEGTEST_CONFL,\n"
@@ -1538,7 +1568,7 @@ char *generate_raw_coding_negtest(char *src, const struct_def *sdef,
         sdef->raw.taglist.list + raw_options[i].tag_type - 1;
       src = mputprintf(src,
         "  boolean negtest_confl_tag_%s = FALSE;\n"
-        "  if (idx_map[%lu] < 0) {\n"
+        "  if (altered_[%lu]) {\n"
         "    negtest_confl_tag_%s = TRUE;\n"
         "    e_c.set_msg(\"Field '%s': \");\n"
         "    TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_NEGTEST_CONFL,\n"
@@ -1564,7 +1594,7 @@ char *generate_raw_coding_negtest(char *src, const struct_def *sdef,
       /* The optional field itself.  */
       src = mputprintf(src,
         "  boolean negtest_confl_presence_%s = FALSE;\n"
-        "  if (idx_map[%lu] < 0) {\n"
+        "  if (altered_[%lu]) {\n"
         "    negtest_confl_presence_%s = TRUE;\n"
         "    e_c.set_msg(\"Field '%s': \");\n"
         "    TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_NEGTEST_CONFL,\n"
@@ -1583,7 +1613,7 @@ char *generate_raw_coding_negtest(char *src, const struct_def *sdef,
           if (field_idx == 0) {
             rawAST_coding_fields *field = fields->fields + field_idx;
             src = mputprintf(src,
-              "  if (idx_map[%d] < 0) {\n"
+              "  if (altered_[%d]) {\n"
               "    negtest_confl_presence_%s = TRUE;\n"
               "    e_c.set_msg(\"Field '%s': \");\n"
               "    TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_NEGTEST_CONFL,\n"
@@ -1614,7 +1644,7 @@ char *generate_raw_coding_negtest(char *src, const struct_def *sdef,
       int a;
       /* The union field itself.  */
       src = mputprintf(src,
-        "  if (idx_map[%lu] < 0) {\n"
+        "  if (altered_[%lu]) {\n"
         "    e_c.set_msg(\"Field '%s': \");\n"
         "    TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_NEGTEST_CONFL,\n"
         "      \"Conflicting negative testing attributes, CROSSTAG attribute "
@@ -1646,7 +1676,7 @@ char *generate_raw_coding_negtest(char *src, const struct_def *sdef,
               if (field_idx == 0) {
                 rawAST_coding_fields *field = fields->fields + field_idx;
                 src = mputprintf(src,
-                  "  if (idx_map[%d] < 0) {\n"
+                  "  if (altered_[%d]) {\n"
                   "    negtest_confl_crosstag = TRUE;\n"
                   "    e_c.set_msg(\"Field '%s': \");\n"
                   "    TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_NEGTEST_CONFL,\n"
@@ -1818,7 +1848,7 @@ char *generate_raw_coding_negtest(char *src, const struct_def *sdef,
         if (field_idx == 0) {
           rawAST_coding_fields *field = fields->fields + field_idx;
           src = mputprintf(src,
-            "  if (idx_map[%d] < 0) {\n"
+            "  if (altered_[%d]) {\n"
             "    negtest_confl_presence = TRUE;\n"
             "    e_c.set_msg(\"Field '%s': \");\n"
             "    TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_NEGTEST_CONFL,\n"

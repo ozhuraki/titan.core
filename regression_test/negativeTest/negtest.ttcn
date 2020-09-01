@@ -1281,9 +1281,9 @@ testcase raw_negtest_records() runs on MyComp
   if (rawenc1(cmr11)  == '80B100'O)                         { setverdict(pass) } else { setverdict(fail) }
   if (rawenc1(cmr12)  == '802A726F636B72696467652A'O)       { setverdict(pass) } else { setverdict(fail) }
   if (rawenc1(cmr13)  == '80'O)                             { setverdict(pass) } else { setverdict(fail) }
-  if (rawenc9(cmr14)  == '01070101756E69636F726E01'O)       { setverdict(pass) } else { setverdict(fail) }
-  if (rawenc11(cmr15) == '010601017069636E696301'O)         { setverdict(pass) } else { setverdict(fail) }
-  if (rawenc13(cmr16) == '010A01016D6F636B01747572746C65'O) { setverdict(pass) } else { setverdict(fail) }
+  if (rawenc9(cmr14)  == '01090101756E69636F726E01'O)       { setverdict(pass) } else { setverdict(fail) }
+  if (rawenc11(cmr15) == '010801017069636E696301'O)         { setverdict(pass) } else { setverdict(fail) }
+  if (rawenc13(cmr16) == '010C01016D6F636B01747572746C65'O) { setverdict(pass) } else { setverdict(fail) }
   if (rawenc15(cmr17) == '010264696E6E657262656C6C01'O)     { setverdict(pass) } else { setverdict(fail) }
   if (rawenc17(cmr18) == '010274696765726C696C7901'O)       { setverdict(pass) } else { setverdict(fail) }
   if (rawenc19(cmr19) == '01010001'O)                       { setverdict(pass) } else { setverdict(fail) }
@@ -1315,9 +1315,9 @@ testcase raw_negtest_records() runs on MyComp
   if (rawenc2(cms11)  == '80B100'O)                         { setverdict(pass) } else { setverdict(fail) }
   if (rawenc2(cms12)  == '802A726F636B72696467652A'O)       { setverdict(pass) } else { setverdict(fail) }
   if (rawenc2(cms13)  == '80'O)                             { setverdict(pass) } else { setverdict(fail) }
-  if (rawenc10(cms14) == '01070101756E69636F726E01'O)       { setverdict(pass) } else { setverdict(fail) }
-  if (rawenc12(cms15) == '010601017069636E696301'O)         { setverdict(pass) } else { setverdict(fail) }
-  if (rawenc14(cms16) == '010A01016D6F636B01747572746C65'O) { setverdict(pass) } else { setverdict(fail) }
+  if (rawenc10(cms14) == '01090101756E69636F726E01'O)       { setverdict(pass) } else { setverdict(fail) }
+  if (rawenc12(cms15) == '010801017069636E696301'O)         { setverdict(pass) } else { setverdict(fail) }
+  if (rawenc14(cms16) == '010C01016D6F636B01747572746C65'O) { setverdict(pass) } else { setverdict(fail) }
   if (rawenc16(cms17) == '010264696E6E657262656C6C01'O)     { setverdict(pass) } else { setverdict(fail) }
   if (rawenc18(cms18) == '010274696765726C696C7901'O)       { setverdict(pass) } else { setverdict(fail) }
   if (rawenc20(cms19) == '01010001'O)                       { setverdict(pass) } else { setverdict(fail) }
@@ -1349,9 +1349,9 @@ testcase raw_negtest_records() runs on MyComp
   if (rawenc1(valueof(tmr11))  == '80B100'O)                         { setverdict(pass) } else { setverdict(fail) }
   if (rawenc1(valueof(tmr12))  == '802A726F636B72696467652A'O)       { setverdict(pass) } else { setverdict(fail) }
   if (rawenc1(valueof(tmr13))  == '80'O)                             { setverdict(pass) } else { setverdict(fail) }
-  if (rawenc9(valueof(tmr14))  == '01070101756E69636F726E01'O)       { setverdict(pass) } else { setverdict(fail) }
-  if (rawenc11(valueof(tmr15)) == '010601017069636E696301'O)         { setverdict(pass) } else { setverdict(fail) }
-  if (rawenc13(valueof(tmr16)) == '010A01016D6F636B01747572746C65'O) { setverdict(pass) } else { setverdict(fail) }
+  if (rawenc9(valueof(tmr14))  == '01090101756E69636F726E01'O)       { setverdict(pass) } else { setverdict(fail) }
+  if (rawenc11(valueof(tmr15)) == '010801017069636E696301'O)         { setverdict(pass) } else { setverdict(fail) }
+  if (rawenc13(valueof(tmr16)) == '010C01016D6F636B01747572746C65'O) { setverdict(pass) } else { setverdict(fail) }
   if (rawenc15(valueof(tmr17)) == '010264696E6E657262656C6C01'O)     { setverdict(pass) } else { setverdict(fail) }
   if (rawenc17(valueof(tmr18)) == '010274696765726C696C7901'O)       { setverdict(pass) } else { setverdict(fail) }
   if (rawenc19(valueof(tmr19)) == '01010001'O)                       { setverdict(pass) } else { setverdict(fail) }
@@ -1383,9 +1383,9 @@ testcase raw_negtest_records() runs on MyComp
   if (rawenc2(valueof(tms11))  == '80B100'O)                         { setverdict(pass) } else { setverdict(fail) }
   if (rawenc2(valueof(tms12))  == '802A726F636B72696467652A'O)       { setverdict(pass) } else { setverdict(fail) }
   if (rawenc2(valueof(tms13))  == '80'O)                             { setverdict(pass) } else { setverdict(fail) }
-  if (rawenc10(valueof(tms14)) == '01070101756E69636F726E01'O)       { setverdict(pass) } else { setverdict(fail) }
-  if (rawenc12(valueof(tms15)) == '010601017069636E696301'O)         { setverdict(pass) } else { setverdict(fail) }
-  if (rawenc14(valueof(tms16)) == '010A01016D6F636B01747572746C65'O) { setverdict(pass) } else { setverdict(fail) }
+  if (rawenc10(valueof(tms14)) == '01090101756E69636F726E01'O)       { setverdict(pass) } else { setverdict(fail) }
+  if (rawenc12(valueof(tms15)) == '010801017069636E696301'O)         { setverdict(pass) } else { setverdict(fail) }
+  if (rawenc14(valueof(tms16)) == '010C01016D6F636B01747572746C65'O) { setverdict(pass) } else { setverdict(fail) }
   if (rawenc16(valueof(tms17)) == '010264696E6E657262656C6C01'O)     { setverdict(pass) } else { setverdict(fail) }
   if (rawenc18(valueof(tms18)) == '010274696765726C696C7901'O)       { setverdict(pass) } else { setverdict(fail) }
   if (rawenc20(valueof(tms19)) == '01010001'O)                       { setverdict(pass) } else { setverdict(fail) }
@@ -1760,7 +1760,7 @@ testcase negtest_compare_with_octetstring_RAW_special() runs on MyComp
   //log(encode_RawSpecTest_Rec_LengthTo(c_lengthto3)); // 'EE03FFEE11FFEE22FFEE33FFEE44FFEE55FF'O
   if (encode_RawSpecTest_Rec_LengthTo(c_lengthto1)=='0311FF33FF55'O) { setverdict(pass) } else { setverdict(fail) }
   if (encode_RawSpecTest_Rec_LengthTo(c_lengthto2)=='12345678901122334455'O) { setverdict(pass) } else { setverdict(fail) }
-  if (encode_RawSpecTest_Rec_LengthTo(c_lengthto3)=='EE03FFEE11FFEE22FFEE33FFEE44FFEE55FF'O) { setverdict(pass) } else { setverdict(fail) }
+  if (encode_RawSpecTest_Rec_LengthTo(c_lengthto3)=='EE09FFEE11FFEE22FFEE33FFEE44FFEE55FF'O) { setverdict(pass) } else { setverdict(fail) }
 
   ////////////////////////
   // LENGTHTO / LENGTHINDEX
@@ -1787,6 +1787,139 @@ testcase negtest_compare_with_octetstring_RAW_special() runs on MyComp
   ///if (encode_RawSpecTest_Rec_PointerTo(c_pointerto4)==''O) { setverdict(pass) } else { setverdict(fail) }
 }
 
+
+// Testing LENGTHTO with erroneous values
+type record Rec {
+  integer len,
+  octetstring data
+}
+with {
+  encode "RAW";
+  variant (len) "LENGTHTO(data)";
+}
+
+external function f_enc(in Rec x) return octetstring
+with { extension "prototype(convert) encode(RAW) errorbehavior(ALL:WARNING)" }
+
+const Rec val_good := { 0, '1234ABCD'O };
+
+const Rec val_bad1 := { 0, '1234ABCD'O }
+with {
+  erroneous (data) "value := 'ABCD'O";
+}
+
+const Rec val_bad2 := { 0, '1234ABCD'O }
+with {
+  erroneous (data) "value := omit";
+}
+
+const Rec val_bad3 := { 0, '1234ABCD'O }
+with {
+  erroneous (data) "before := '9876'O";
+}
+
+const Rec val_bad4 := { 0, '1234ABCD'O }
+with {
+  erroneous (data) "after := 'FEDC'O";
+}
+
+const Rec val_bad5 := { 0, '1234ABCD'O }
+with {
+  erroneous (data) "value (raw) := '1101010110110011'B";
+}
+
+const Rec val_bad6 := { 0, '1234ABCD'O }
+with {
+  erroneous (data) "value := charstring:\"abc\"";
+}
+
+const Rec val_bad7 := { 0, '1234ABCD'O }
+with {
+  erroneous (len) "value := 10";
+}
+
+type record Rec2 {
+  integer num,
+  charstring str
+}
+with {
+  encode "RAW";
+}
+
+const Rec val_bad8 := { 0, '1234ABCD'O }
+with {
+  erroneous (data) "value := Rec2: { num := 3, str := \"ab\" }";
+}
+
+const Rec val_bad9 := { 0, '1234ABCD'O }
+with {
+  erroneous (len) "value := Rec2: { num := 3, str := \"ab\" }";
+}
+
+testcase tc_negtest_lengthto() runs on MyComp {
+  var octetstring enc_good := f_enc(val_good);
+  var octetstring enc_good_exp := '041234ABCD'O;
+  if (enc_good != enc_good_exp) {
+    setverdict(fail, "Good failed. Expected: ", enc_good_exp, ", got: ", enc_good);
+  }
+  
+  var octetstring enc_bad1 := f_enc(val_bad1);
+  var octetstring enc_bad1_exp := '02ABCD'O;
+  if (enc_bad1 != enc_bad1_exp) {
+    setverdict(fail, "Bad #1 failed. Expected: ", enc_bad1_exp, ", got: ", enc_bad1);
+  }
+  
+  var octetstring enc_bad2 := f_enc(val_bad2);
+  var octetstring enc_bad2_exp := '00'O;
+  if (enc_bad2 != enc_bad2_exp) {
+    setverdict(fail, "Bad #2 failed. Expected: ", enc_bad2_exp, ", got: ", enc_bad2);
+  }
+  
+  var octetstring enc_bad3 := f_enc(val_bad3);
+  var octetstring enc_bad3_exp := '0698761234ABCD'O;
+  if (enc_bad3 != enc_bad3_exp) {
+    setverdict(fail, "Bad #3 failed. Expected: ", enc_bad3_exp, ", got: ", enc_bad3);
+  }
+  
+  var octetstring enc_bad4 := f_enc(val_bad4);
+  var octetstring enc_bad4_exp := '061234ABCDFEDC'O;
+  if (enc_bad4 != enc_bad4_exp) {
+    setverdict(fail, "Bad #4 failed. Expected: ", enc_bad4_exp, ", got: ", enc_bad4);
+  }
+  
+  var octetstring enc_bad5 := f_enc(val_bad5);
+  var octetstring enc_bad5_exp := '02ABCD'O;
+  if (enc_bad5 != enc_bad5_exp) {
+    setverdict(fail, "Bad #5 failed. Expected: ", enc_bad5_exp, ", got: ", enc_bad5);
+  }
+  
+  var octetstring enc_bad6 := f_enc(val_bad6);
+  var octetstring enc_bad6_exp := '03616263'O;
+  if (enc_bad6 != enc_bad6_exp) {
+    setverdict(fail, "Bad #6 failed. Expected: ", enc_bad6_exp, ", got: ", enc_bad6);
+  }
+  
+  var octetstring enc_bad7 := f_enc(val_bad7);
+  var octetstring enc_bad7_exp := '0A1234ABCD'O;
+  if (enc_bad7 != enc_bad7_exp) {
+    setverdict(fail, "Bad #7 failed. Expected: ", enc_bad7_exp, ", got: ", enc_bad7);
+  }
+  
+  var octetstring enc_bad8 := f_enc(val_bad8);
+  var octetstring enc_bad8_exp := '03036162'O;
+  if (enc_bad8 != enc_bad8_exp) {
+    setverdict(fail, "Bad #8 failed. Expected: ", enc_bad8_exp, ", got: ", enc_bad8);
+  }
+  
+  var octetstring enc_bad9 := f_enc(val_bad9);
+  var octetstring enc_bad9_exp := '0361621234ABCD'O;
+  if (enc_bad9 != enc_bad9_exp) {
+    setverdict(fail, "Bad #9 failed. Expected: ", enc_bad9_exp, ", got: ", enc_bad9);
+  }
+  
+  setverdict(pass);
+}
+
 control {
   execute(negtest_compare_with_erroneous_types_BER());
   execute(negtest_compare_with_octetstring_BER());
@@ -1797,5 +1930,6 @@ control {
   execute(raw_negtest_unions());
   execute(negtest_compare_with_erroneous_types_RAW_special());
   execute(negtest_compare_with_octetstring_RAW_special());
+  execute(tc_negtest_lengthto());
 }
 }
