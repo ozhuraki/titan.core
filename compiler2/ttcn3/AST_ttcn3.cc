@@ -1039,6 +1039,9 @@ namespace Ttcn {
     if (!Ref_base::has_single_expr()) {
       return false;
     }
+    if (reftype == REF_THIS && id == NULL) {
+      return false;
+    }
     if (parlist != NULL) {
       Common::Assignment* ass = get_refd_assignment();
       const FormalParList* fplist = (ass != NULL) ? ass->get_FormalParList() : NULL;
@@ -1124,8 +1127,10 @@ namespace Ttcn {
         expr->expr = mputstr(expr->expr, "this->");
       }
       else { // no 'id' means it's just a 'this' reference
-        expr->expr = mputprintf(expr->expr, "%s(this)",
-          ass->get_Type()->get_genname_value(my_scope).c_str());
+        string tmp_id = my_scope->get_scope_mod_gen()->get_temporary_id();
+        expr->preamble = mputprintf(expr->preamble, "%s %s(this);\n",
+          ass->get_Type()->get_genname_value(my_scope).c_str(), tmp_id.c_str());
+        expr->expr = mputprintf(expr->expr, "%s", tmp_id.c_str());
         return;
       }
     }

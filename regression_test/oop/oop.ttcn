@@ -33,6 +33,10 @@ type union Uni {
   charstring cs
 }
 
+function f_this_as_param(object p) {
+  log(p);
+}
+
 type class BaseClass runs on CT mtc CT system CT {
   public const integer m_const := 1;
   private const IntList m_const2 := { 1, 2, 3 };
@@ -96,6 +100,7 @@ type class BaseClass runs on CT mtc CT system CT {
     if (this != v_ref2) {
       setverdict(fail, "inequality failed");
     }
+    f_this_as_param(this);
   }
 }
 finally {
