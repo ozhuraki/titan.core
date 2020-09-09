@@ -1682,6 +1682,18 @@ UNIVERSAL_CHARSTRING regexp(const UNIVERSAL_CHARSTRING& instr,
   return regexp(instr, expression, (int)groupno, nocase);
 }
 
+CHARSTRING regexp(const CHARSTRING& instr, const UNIVERSAL_CHARSTRING& expression,
+                  int groupno, boolean nocase)
+{
+  return regexp((UNIVERSAL_CHARSTRING)instr, expression, groupno, nocase);
+}
+
+CHARSTRING regexp(const CHARSTRING& instr, const UNIVERSAL_CHARSTRING& expression,
+                  const INTEGER& groupno, boolean nocase)
+{
+  return regexp((UNIVERSAL_CHARSTRING)instr, expression, groupno, nocase);
+}
+
 // regexp() on templates
 
 CHARSTRING regexp(const CHARSTRING_template& instr,

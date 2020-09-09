@@ -193,6 +193,10 @@ extern UNIVERSAL_CHARSTRING regexp(const UNIVERSAL_CHARSTRING& instr,
 extern UNIVERSAL_CHARSTRING regexp(const UNIVERSAL_CHARSTRING& instr,
     const CHARSTRING& expression, const INTEGER& groupno,
     boolean nocase);
+extern CHARSTRING regexp(const CHARSTRING& instr,
+    const UNIVERSAL_CHARSTRING& expression, int groupno, boolean nocase);
+extern CHARSTRING regexp(const CHARSTRING& instr,
+    const UNIVERSAL_CHARSTRING& expression, const INTEGER& groupno, boolean nocase);
 // regexp on templates
 extern CHARSTRING regexp(const CHARSTRING_template& instr,
     const CHARSTRING_template& expression, int groupno, boolean nocase);

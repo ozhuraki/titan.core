@@ -174,10 +174,39 @@ testcase regexp_nocase() runs on PDTestComponent {
   setverdict(pass);
 }
 
+testcase Bug_565852() runs on PDTestComponent {
+  // issue #1: Titan does not support the notation '#()'
+  var charstring cs_input := "xxxxaaaxxxx";
+  var charstring cs_pattern := "x#()(a#(1,))x#()";
+  var charstring cs_result := regexp(cs_input, cs_pattern, 0);
+  var charstring cs_expected := "aaa";
+  if (cs_result != cs_expected) {
+    setverdict(fail, "Test #1 failed. Expected: ", cs_expected, ", got: ", cs_result);
+  }
+  
+  // issue #2: '[^a]' and 'a#(...)' do not work for unversal charstrings
+  var universal charstring us_input := "xxxxaaaxxxx";
+  var universal charstring us_pattern := "*[^a](a#(1,))[^a]*";
+  var universal charstring us_result := regexp(us_input, us_pattern, 0);
+  var universal charstring us_expected := "aaa";
+  if (us_result != us_expected) {
+    setverdict(fail, "Test #2 failed. Expected: ", us_expected, ", got: ", us_result);
+  }
+  
+  // extra issue: regexp(<charstring>, <universal charstring>, ...) generates incorrect code
+  var universal charstring mixed_result := regexp(cs_input, us_pattern, 0);
+  var universal charstring mixed_expected := "aaa";
+  if (mixed_result != mixed_expected) {
+    setverdict(fail, "Test #3 failed. Expected: ", mixed_expected, ", got: ", mixed_result);
+  }
+  setverdict(pass);
+}
+
 control {
 	execute (regexp_char());
 	execute (regexp_degen());
 	execute (regexp_nocase());
+	execute (Bug_565852());
 }
 
 }

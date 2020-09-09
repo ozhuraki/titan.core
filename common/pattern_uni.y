@@ -236,13 +236,13 @@ RE_Concat_Elem:
 | RE_Multiply_Elem RE_Multiply_Statement
   {
     if ($1 != NULL && $2 != NULL) {
-      $$ = mputstr($1, $2);
-      Free($2);
-    } else {
-      Free($1);
-      Free($2);
+      $$ = mprintf("(%s)%s", $1, $2);
+    }
+    else {
       $$ = NULL;
     }
+    Free($1);
+    Free($2);
   }
 | '*' {$$=mcopystr("(........)*");}
 ;
@@ -274,6 +274,10 @@ RE_Multiply_Statement:
   '+'
   {
     $$ = mcopystr("+");
+  }
+| '#' '(' ')'
+  {
+    $$ = mcopystr("*");
   }
 | '#' '(' ',' ')'
   {

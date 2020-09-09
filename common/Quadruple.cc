@@ -571,7 +571,7 @@ void QuadSet::do_negate() {
     case QSET_QUAD:
       q2 = it->u.p_quad->get_value() - 1;
       qs->add_negate_interval(q1, q2);
-      q1 = q2.get_value() + 1;
+      q1 = it->u.p_quad->get_value() + 1;
       break;
     case QSET_INTERVAL:
       q2 = it->u.p_interval->get_lower().get_value() - 1;

@@ -317,6 +317,10 @@ RE_Multiply_Statement:
   {
     $$ = mcopystr("+");
   }
+| '#' '(' ')'
+  {
+    $$ = mcopystr("*");
+  }
 | '#' '(' ',' ')'
   {
     $$ = mcopystr("*");
