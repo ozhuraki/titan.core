@@ -16,7 +16,7 @@ In the following we present all possible sections of the configuration file. The
 
 The indication (Parallel mode) following the section title signals that the concerned section is processed in parallel operation mode only. Irrelevant sections or options are ignored in each mode and a warning message is displayed during configuration file processing. For details on running TITAN TTCN–3 test suites in either single or parallel mode using see the TITAN TTCN–3 User Guide (see <<13-references.adoc#_13, [13]>>).
 
-The component name defined by the `create` operation (see <<4-ttcn3_language_extensions.adoc#parameters-of-create-operation, here>>) can contain any characters. This component name can be used without quoted marks but it shall be used with quoted marks (i.e as quoted string) if it contains extra characters e.g. space (“ “), hyphen (“-“) or dot ("."). See also the examples of this chapter in sections <<module-parameters, [MODULE_PARAMETERS]>> and <<testport-parameters, [TESTPORT_PARAMETERS]>>.
+The component name defined by the `create` operation (see <<4-ttcn3_language_extensions.adoc#parameters-of-create-operation, here>>) can contain any characters. This component name can be used without quoted marks but it shall be used with quoted marks (i.e as quoted string) if it contains extra characters e.g. space (" "), hyphen ("-") or dot ("."). See also the examples of this chapter in sections <<module-parameters, [MODULE_PARAMETERS]>> and <<testport-parameters, [TESTPORT_PARAMETERS]>>.
 
 [[module-parameters]]
 == [MODULE_PARAMETERS]
@@ -33,24 +33,24 @@ In the Function Test runtime:
 ----
 ModuleParametersSection ::= "[MODULE_PARAMETERS]" {ModuleParameter}
 ModuleParameter ::= ParameterName ParamOpType ParameterValue [SemiColon]
-ParameterName ::= [(ModuleName | “*”) "."] ParameterIdentifier
+ParameterName ::= [(ModuleName | "*") "."] ParameterIdentifier
 ModuleName ::= Identifier
-ParameterIdentifier ::= Identifier | ParameterIdentifier “.” Identifier
-| ParameterIdentifier “[” ParameterExpression “]”
-ParamOpType ::= “:=” | “&=”
-ParameterValue ::= ParameterExpression [LengthMatch] [“ifpresent”]
+ParameterIdentifier ::= Identifier | ParameterIdentifier "." Identifier
+| ParameterIdentifier "[" ParameterExpression "]"
+ParamOpType ::= ":=" | "&="
+ParameterValue ::= ParameterExpression [LengthMatch] ["ifpresent"]
 ParameterExpression ::= SimpleParameterValue | ParameterIdentifier
-	| “(” ParameterExpression “)” | (“+” | “-”) ParameterExpression
-	| ParameterExpression (“+” | “-” | “*” | “/” | “&”) ParameterExpression
-LengthMatch ::= “length” “(“ LengthBound [“..” (LengthBound|”infinity”)] “)”
+	| "(" ParameterExpression ")" | ("+" | "-") ParameterExpression
+	| ParameterExpression ("+" | "-" | "*" | "/" | "&") ParameterExpression
+LengthMatch ::= "length" "(" LengthBound [".." (LengthBound|"infinity")] ")"
 LengthBound ::= ParameterExpression
 SimpleParameterValue ::= IntegerValue | FloatValue | BitstringValue | HexstringValue
 	| OctetstringValue | StringValue | UniversalCharstringValue | BooleanValue
-	| ObjIdValue | VerdictValue | EnumeratedValue | “omit” | “NULL” | “null”
-	| “?” | “*” | IntegerRange | FloatRange | StringRange
-	| “pattern” PatternChunk
+	| ObjIdValue | VerdictValue | EnumeratedValue | "omit" | "NULL" | "null"
+	| "?" | "*" | IntegerRange | FloatRange | StringRange
+	| "pattern" PatternChunk
 	| BitStringMatch | HexStringMatch | OctetStringMatch
-	| “mtc” | “system”
+	| "mtc" | "system"
 	| CompoundValue
 IntegerValue ::= Number
 FloatValue ::= FloatDotNotation | FloatENotation
@@ -67,22 +67,22 @@ NumberForm ::= Number
 NameAndNumberForm ::= Identifier "(" Number ")"
 EnumeratedValue ::= Identifier
 PatternChunk ::= Cstring | Quadruple
-IntegerRange ::= “(“ (“-“ “infinity” | IntegerValue) “..” (IntegerValue | “infinity”) “)”
-FloatRange ::= “(“ (“-“ “infinity” | FloatValue) “..” (FloatValue | “infinity”) “)”
-StringRange ::= “(“ StringRangeBound “..” StringRangeBound “)”
+IntegerRange ::= "(" ("-" "infinity" | IntegerValue) ".." (IntegerValue | "infinity") ")"
+FloatRange ::= "(" ("-" "infinity" | FloatValue) ".." (FloatValue | "infinity") ")"
+StringRange ::= "(" StringRangeBound ".." StringRangeBound ")"
 StringRangeBound ::= Cstring | Quadruple
-CompoundValue ::= “{“ “}”
- 	| “{“ FieldValue {“,” FieldValue} “}”
- 	| “{“ ArrayItem {“,” ArrayItem} “}”
- 	| “{“ IndexItem {“,” IndexItem} “}”
-	| “(“ ParameterValue “,” ParameterValue {“,” ParameterValue} “)”
-	| (“complement” | “superset” | “subset”) “(“ParameterValue {“,”
-   ParameterValue} “)”
-FieldValue ::= FieldName “:=” ParameterValueOrNotUsedSymbol
+CompoundValue ::= "{" "}"
+ 	| "{" FieldValue {"," FieldValue} "}"
+ 	| "{" ArrayItem {"," ArrayItem} "}"
+ 	| "{" IndexItem {"," IndexItem} "}"
+	| "(" ParameterValue "," ParameterValue {"," ParameterValue} ")"
+	| ("complement" | "superset" | "subset") "("ParameterValue {","
+   ParameterValue} ")"
+FieldValue ::= FieldName ":=" ParameterValueOrNotUsedSymbol
 FieldName ::= Identifier | ASN1LowerIdentifier
-ArrayItem ::= ParameterValueOrNotUsedSymbol | (“permutation” “(“ParameterValue {“,” ParameterValue} “)”)
-IndexItem ::= “[“ ParameterExpression “]” “:=” ParameterValue
-ParameterValueOrNotUsedSymbol ::= ParameterValue | “-“
+ArrayItem ::= ParameterValueOrNotUsedSymbol | ("permutation" "("ParameterValue {"," ParameterValue} ")")
+IndexItem ::= "[" ParameterExpression "]" ":=" ParameterValue
+ParameterValueOrNotUsedSymbol ::= ParameterValue | "-"
 ----
 
 The BNF productions in the Load Test runtime are mostly the same with one difference:
@@ -106,10 +106,10 @@ The parameter value can be one of the following:
 * `null` value for TTCN–3 component and default references.
 * `NULL` value for the ASN.1 `NULL` type.
 * "?" value: AnyValue for matching
-* “*” value: AnyValueOrNone for matching
+* "*" value: AnyValueOrNone for matching
 * IntegerRange/FloatRange/StringRange: matching an integer/float/charstring range
 * Pattern for pattern matching in charstring and universal charstring
-* Bit/Hex/Octet –string matching mechanism which are bit/hex/octet strings that contain "?" and “*” for matching
+* Bit/Hex/Octet –string matching mechanism which are bit/hex/octet strings that contain "?" and "*" for matching
 * "mtc" and "system" values for component references
 * Compound value with assignment notation. One or more fields (separated by commas) with field names within brackets for types `record` and `set`.
 * Compound value with value list notation. Comma separated list of values between brackets for types `record of`, `set of` and `array`.
@@ -117,7 +117,7 @@ The parameter value can be one of the following:
 * Compound value containing a template list. Can be a value list, complemented value list, superset and subset list.
 * Reference to a module parameter (or a field/element of a module parameter). Its syntax is the same as the left hand side of a module parameter assignment/concatenation (except the symbol ‘*’ cannot be used to specify all modules). The reference is substituted with the current value of the specified module parameter (its value prior to the execution of this module parameter assignment/concatenation). References can also appear in the expressions specified above (integer and float references can appear in arithmetic expressions, references to string types can be concatenated with other strings of the same type). A dynamic test case error is displayed if the referenced module parameter is unbound.
 
-Nested compound values are permitted in arbitrary depth. In compound values with assignment and value list notations the “-“ symbol can be used to skip an element. In value list notation for record of and set of permutation lists can be used.
+Nested compound values are permitted in arbitrary depth. In compound values with assignment and value list notations the "-" symbol can be used to skip an element. In value list notation for record of and set of permutation lists can be used.
 
 Parsing conflict: An asterisk (*) after a module parameter expression could be treated as a multiplication operator or the "all modules" symbol for the next module parameter assignment/concatenation. The configuration parser always treats it as a multiplication operator. In order to use the asterisk as an "all modules" symbol, the previous statement must be closed with a semicolon (;).
 
@@ -139,7 +139,7 @@ Neither the ttcn-3 syntax nor the module parameter section syntax is the subset 
 * Field values of records and sets can be referenced multiple times, in this case all field value assignments will be executed in order of appearance. Example: mp_myRecord := { a :=1, b:=3, a:=2 } // a==2
 * In an assignment notation used for a union multiple field values can appear, only the last value will be used. Example: mp_myUnion := { a:=1,b:=2,a:=3 } only a:=3 will be used, the other 2 assignments are disregarded without warnings.
 * The order of fields in assignment notation for records does not have to be identical to the order of fields specified in the type definition of the record type. Example: type record MYREC { integer a, integer b } mp_myRec := { b:=2, a:=1}
-* The “\*” matching symbol can be used for mandatory fields (in TTCN-3 this cannot be used directly but indirectly any field of a variable template can be set to “*”).
+* The "\*" matching symbol can be used for mandatory fields (in TTCN-3 this cannot be used directly but indirectly any field of a variable template can be set to "*").
 
 In the module parameters section only constant values and references to module parameters can be used. Function calls are not allowed (not even predefined functions).
 
@@ -249,7 +249,7 @@ Logger plugins can be configured with arbitrary name-value pairs in the configur
 Each logger plugin has 4 .so files. The following table contains the names of the 4 different cases if the base file name (this is not the name of the plugin, library file names start with "lib") of the plugin is "libplugin":
 
 NOTE: The preferred method of specifying the above logger plugin in the configuration file is: `LoggerPlugins := { MyPluginName := "libplugin"}` +
-The name MyPluginName is the name of the plugin and can be different than the library file names. If the full plugin file name is provided ( “libplugin.so, libplugin-parallel.so, etc.) then care must be taken to always use the name that corresponds to the mode in which the executable is running.
+The name MyPluginName is the name of the plugin and can be different than the library file names. If the full plugin file name is provided ( "libplugin.so, libplugin-parallel.so, etc.) then care must be taken to always use the name that corresponds to the mode in which the executable is running.
 
 ==== Component-based Logger Plugin Settings
 
@@ -354,7 +354,7 @@ Each testcase starts with two xml style comments which is followed by a <testcas
 Each testcase starts with the following two xml comments:
 
 * `<!– Testcase "name of the testcase" started –>`
-* `<!– Testcase "name of the testcase" finished in "execution time is seconds", verdict:”verdict” –>`
+* `<!– Testcase "name of the testcase" finished in "execution time is seconds", verdict:"verdict" –>`
 
 This is followed by a <testcase> tag.
 
@@ -588,7 +588,7 @@ The content of these messages is filled based on the log data and data given in 
 |testType |"testType" |
 |logLink |"default_log_location" |absolute location of log files
 |logEnd |"default_web_log_dir" |log directory relative to web server root
-|reportEmail |automatically set to < runByUser > +“@ericsson.com&quot; |who is to be notified via email
+|reportEmail |automatically set to < runByUser > +"@ericsson.com&quot; |who is to be notified via email
 |reportTelnum |"0" |where to send the SMS notification
 |===
 
@@ -1101,7 +1101,7 @@ EmergencyLogging ::= "EmergencyLogging" AssignmentChar Number
 EmergencyLoggingBehaviour ::= "EmergencyLoggingBehaviour" AssignmentChar
 	( "BufferAll" | "BufferMasked" )
 EmergencyLoggingMask ::= "EmergencyLoggingMask" AssignmentChar LoggingBitMask
-EmergencyLoggingForFailVerdict ::= “EmergencyLoggingForFailVerdict” AssignmentChar (“Yes” | “No”)
+EmergencyLoggingForFailVerdict ::= "EmergencyLoggingForFailVerdict" AssignmentChar ("Yes" | "No")
 ----
 
 === *_Example 1_*
@@ -1109,7 +1109,7 @@ EmergencyLoggingForFailVerdict ::= “EmergencyLoggingForFailVerdict” Assignme
 ----
 [LOGGING]
 LogFile := "/usr/local/TTCN3/logs/%l/%e.%h-%t%r-part%i.%s"
-“Alma-Ata”.FileMask := LOG_ALL
+"Alma-Ata".FileMask := LOG_ALL
 MyComponent.FileMask := MATCHING
 mtc.FileMask := LOG_ALL | MATCHING
 ConsoleMask := ERROR | WARNING | TESTCASE | TIMEROP_START
@@ -1143,9 +1143,9 @@ LogEventTypes := Yes
 [[testport-parameters]]
 == `[TESTPORT_PARAMETERS]`
 
-In this section you can specify parameters that are passed to Test Ports. Each parameter definition consists of a component name, a port name, a parameter name and a parameter value. The component name can be either an identifier that is assigned to the component in the `create` operation (see <<4-ttcn3_language_extensions.adoc#visibility-modifiers, here>>) or an integer value, which is interpreted as component reference[31]. The port and parameter names are identifiers while the parameter value must be always a `charstring` (with quotation marks). Instead of component name or port name (or both of them) the asterisk (*) sign can be used, which means ”all components” or ”all ports of the component”.
+In this section you can specify parameters that are passed to Test Ports. Each parameter definition consists of a component name, a port name, a parameter name and a parameter value. The component name can be either an identifier that is assigned to the component in the `create` operation (see <<4-ttcn3_language_extensions.adoc#visibility-modifiers, here>>) or an integer value, which is interpreted as component reference[31]. The port and parameter names are identifiers while the parameter value must be always a `charstring` (with quotation marks). Instead of component name or port name (or both of them) the asterisk (*) sign can be used, which means "all components" or "all ports of the component".
 
-If the keyword `system` is used as a component identifier, the parameter is passed to all ports of all components that are mapped to the given port of the test system interface. In this case the port identifier refers to the port of the test system and not the port of a TTCN–3 test component. These parameters are passed to the appropriate Test Port during the execution of map operations because the future mappings are not known at test component initialization. The asterisk (”*”) sign can also be used as port name with the component identifier system. This wildcard means, of course, all ports of the Test System Interface (that is, the parameter will be passed during all `map` operations).
+If the keyword `system` is used as a component identifier, the parameter is passed to all ports of all components that are mapped to the given port of the test system interface. In this case the port identifier refers to the port of the test system and not the port of a TTCN–3 test component. These parameters are passed to the appropriate Test Port during the execution of map operations because the future mappings are not known at test component initialization. The asterisk ("*") sign can also be used as port name with the component identifier system. This wildcard means, of course, all ports of the Test System Interface (that is, the parameter will be passed during all `map` operations).
 
 The names and meaning of Test Port parameters depend on the Test Port that you are using; for this information please consult the user documentation of your Test Port. It is the Test Port writer’s responsibility to process the parameter names and values. For the details of Test Port API see the section "Parameter setting function" in <<13-references.adoc#_16, [16]>>.
 
@@ -1168,7 +1168,7 @@ PortParameterValue ::= StringValue
 ----
 [TESTPORT_PARAMETERS]
 mtc.*.LocalIPAddress := "164.48.161.146"
-“Alma-Ata”. RemoteIPAddress := "164.48.161.147"
+"Alma-Ata". RemoteIPAddress := "164.48.161.147"
 mtc.RADIUS[0].LocalUDPPort := "12345"
 mtc.RADIUS[1].LocalUDPPort := "12346"
 system.MySystemInterface1.RemoteIPAddress := "10.1.1.1"
@@ -1264,8 +1264,8 @@ Localhost := 127.0.0.1
 binary_240 := 11110000
 four := 4.0
 LongString := "This is a very long string."
-x1 = “Connecting to “${Localhost}
-x2 = $LongString${Localhost,charstring}” is an IP address”
+x1 = "Connecting to "${Localhost}
+x2 = $LongString${Localhost,charstring}" is an IP address"
 binary_str := ${binary_240}010101
 
 /* Examples for the structured macro definitions */
@@ -1306,7 +1306,7 @@ DEF_49 := { f2 := "${DEF_20}"} 	// => DEF_49 := { f2 := "${DEF_20}"}
 // the other definitions are not valid for tsp_1
 
 // complex data structures can also be referenced
-DEF_50 := { f1 := ${DEF_42}, f2 := “a”}
+DEF_50 := { f1 := ${DEF_42}, f2 := "a"}
 ----
 
 === *_Use example:_*
@@ -1727,22 +1727,22 @@ ProfilerSection ::= "[PROFILER]" {ProfilerSetting}
 ProfilerSetting ::= (DisableProfilerSetting | DisableCoverageSetting |
   DatabaseFileSetting | AggregateDataSetting | StatisticsFileSetting |
   DisableStatisticsSetting | StatisticsFilterSetting) [SemiColon]
-DisableProfilerSetting ::= “DisableProfiler” AssignmentChar BooleanValue
-DisableCoverageSetting ::= “DisableCoverage” AssignmentChar BooleanValue
-DatabaseFileSetting ::= “DatabaseFile” AssignmentChar CharstringValue
-AggregateDataSetting ::= “AggregateData” AssignmentChar BooleanValue
-StatisticsFileSetting ::= “StatisticsFile” AssignmentChar CharstringValue
-DisableStatisticsSetting ::= “DisableStatistics” AssignmentChar BooleanValue
-StatisticsFilterSetting ::= “StatisticsFilter” (AssignmentChar | ConcatChar)
-  StatisticsFilter [ { (“&” | “|”) StatisticsFilter } ]
-StatisticsFilter ::= (“NumberOfLines” | “LineDataRaw” | “FuncDataRaw” |
-  “LineAvgRaw” | “FuncAvgRaw” | “LineTimesSortedByMod” | “FuncTimesSortedByMod”
-  | “LineTimesSortedTotal” | “FuncTimesSortedTotal” | “LineCountSortedByMod” |
-  “FuncCountSortedByMod” | “LineCountSortedTotal” | “FuncCountSortedTotal” |
-  “LineAvgSortedByMod” | “FuncAvgSortedByMod” | “LineAvgSortedTotal” |
-  “FuncAvgSortedTotal” | “Top10LineTimes” | “Top10FuncTimes” | “Top10LineCount”
-  | “Top10FuncCount” | “Top10LineAvg” | “Top10FuncAvg” | “UnusedLines” |
-  “UnusedFunc” | {Hex}+)
+DisableProfilerSetting ::= "DisableProfiler" AssignmentChar BooleanValue
+DisableCoverageSetting ::= "DisableCoverage" AssignmentChar BooleanValue
+DatabaseFileSetting ::= "DatabaseFile" AssignmentChar CharstringValue
+AggregateDataSetting ::= "AggregateData" AssignmentChar BooleanValue
+StatisticsFileSetting ::= "StatisticsFile" AssignmentChar CharstringValue
+DisableStatisticsSetting ::= "DisableStatistics" AssignmentChar BooleanValue
+StatisticsFilterSetting ::= "StatisticsFilter" (AssignmentChar | ConcatChar)
+  StatisticsFilter [ { ("&" | "|") StatisticsFilter } ]
+StatisticsFilter ::= ("NumberOfLines" | "LineDataRaw" | "FuncDataRaw" |
+  "LineAvgRaw" | "FuncAvgRaw" | "LineTimesSortedByMod" | "FuncTimesSortedByMod"
+  | "LineTimesSortedTotal" | "FuncTimesSortedTotal" | "LineCountSortedByMod" |
+  "FuncCountSortedByMod" | "LineCountSortedTotal" | "FuncCountSortedTotal" |
+  "LineAvgSortedByMod" | "FuncAvgSortedByMod" | "LineAvgSortedTotal" |
+  "FuncAvgSortedTotal" | "Top10LineTimes" | "Top10FuncTimes" | "Top10LineCount"
+  | "Top10FuncCount" | "Top10LineAvg" | "Top10FuncAvg" | "UnusedLines" |
+  "UnusedFunc" | {Hex}+)
 ----
 [[example-10]]
 *_Example:_*
@@ -1813,7 +1813,7 @@ Logging severities present in the parameter will be switched on; severities abse
 [source]
 ----
 var Severities encdec := { DEBUG_ENCDEC }
-TitanLoggerControl.add_to_file_mask(“LegacyLogger”, encdec);
+TitanLoggerControl.add_to_file_mask("LegacyLogger", encdec);
 ----
 
 NOTE: Each bit is treated individually. To turn on a first level category, one needs to enumerate all subcategories. For example, to turn on all `DEBUG` messages, the value of the Severities variable should be:
@@ -1821,7 +1821,7 @@ NOTE: Each bit is treated individually. To turn on a first level category, one n
 [source]
 ----
 var Severities debug_all := { DEBUG_ENCDEC, DEBUG_TESTPORT, DEBUG_UNQUALIFIED };
-TitanLoggerControl.add_to_file_mask(“LegacyLogger”, debug_all);
+TitanLoggerControl.add_to_file_mask("LegacyLogger", debug_all);
 ----
 
 The following functions allow removing of individual Severities:
