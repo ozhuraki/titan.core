@@ -1247,6 +1247,13 @@ void Type::generate_code_alias(output_struct *target)
       "typedef %s_template %s_template;\n",
       refd_name, own_name);
     break;
+  case T_CLASS: {
+    Ttcn::ClassTypeBody* class_ = t_last->get_class_type_body();
+    target->header.typedefs = mputprintf(target->header.typedefs,
+      "typedef %s %s;\n",
+      class_->is_built_in() ? "OBJECT" : t_last->get_genname_own(my_scope).c_str(),
+      own_name);
+    break; }
   default: // value and template classes exist
     target->header.typedefs = mputprintf(target->header.typedefs,
 #ifndef NDEBUG
