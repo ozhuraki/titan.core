@@ -406,3 +406,49 @@ MTC@esekilxxen1844: Warning: New size of type @test.roc: 8000
 MTC@esekilxxen1844: Warning: New size of type @test.roc: 9000
 MTC@esekilxxen1844: Warning: New size of type @test.roc: 10000
 ----
+
+== Parsing limitations
+
+The TITAN compiler uses `bison` for parsing TTCN-3 files. The parser cannot process every possible combination of TTCN-3 language elements. Some language elements can cause conflicts in the parser, because they can be interpreted in multiple ways (these are called `shift-reduce` conflicts).
+
+One such conflict was introduced in version 7.1.0. It causes the semicolon (`;`) after an `altstep` call in an `alt` statement to no longer be optional (unless the `altstep` call is in the last `alt` branch).
+For example:
+
+[source]
+----
+alt {
+  [] myAltstep()
+  [] myPort.receive(integer: ?) { ... }
+}
+----
+
+If the semicolon after `myAltstep()` is omitted, then the parser is conflicted in how to interpret the following left square bracket (`[`) character.
+
+* It can be interpreted as the continuation of the reference to `myAltstep`, in which case a square bracket would be the start of an array index applied to the return value of `myAltstep`. This is the `shift` case. (Function, altstep and testcase calls cannot be distinguished during parsing. This happens later during semantic checking.)
+* It can be interpreted as the start of the next `alt` branch. This is the `reduce` case.
+
+The `bison` parser is greedy and will always choose the `shift` case in these types of conflicts. In this case it will display an error message, saying that an array index was expected instead of the right square bracket (`]`). This error can be avoided by adding the omitted semicolon after `myAltstep()`.
+
+There are many similar conficts in the compiler's parser. Most of them are caused by semicolons at the end of statements being optional. Many of them very unlikely to occur in actual TTCN-3 code.
+
+Example 2:
+[source]
+----
+function g() {
+  return
+  f();
+}
+----
+
+In this case the parser interprets the `f()` function call as the return value of function `g` (`shift` case), instead of the next statement after an empty `return` statement (`reduce` case). A semicolon after `return` would resolve the conflict. However, such code would be pointless, since statements after `return` will not be executed.
+
+Example 3:
+[source]
+----
+altstep as() runs on CT {
+  template integer t := a
+  [] tmr.timeout { log("timeout"); }
+}
+----
+
+Yet another conflict between array indexes and alt-guards: if whatever is at the end of the last local declaration in an `altstep` can in theory be indexed, then the following square brackets will be interpreted as an array index instead of an alt-guard. A semicolon at the end of the local declaration would resolve this conflict.
