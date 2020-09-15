@@ -1245,10 +1245,10 @@ void LoggerPluginManager::log_matching_timeout(const char *timer_name)
 
 void LoggerPluginManager::log_random(int action, double v, unsigned long u)
 {
-  if (!TTCN_Logger::log_this_event(TTCN_Logger::FUNCTION_RND) && (TTCN_Logger::get_emergency_logging()<=0))
+  if (!TTCN_Logger::log_this_event(TTCN_Logger::DEBUG_UNQUALIFIED) && (TTCN_Logger::get_emergency_logging()<=0))
     return;
   API::TitanLogEvent event;
-  fill_common_fields(event, TTCN_Logger::FUNCTION_RND);
+  fill_common_fields(event, TTCN_Logger::DEBUG_UNQUALIFIED);
 
   API::FunctionEvent_choice_random &r = event.logEvent().choice().functionEvent().choice().random();
   r.operation()= action;
