@@ -62,7 +62,7 @@ with {
 
 type union Head_group
 {
-	HeadType head,
+	@default HeadType head,
 	Extended extended
 }
 with {

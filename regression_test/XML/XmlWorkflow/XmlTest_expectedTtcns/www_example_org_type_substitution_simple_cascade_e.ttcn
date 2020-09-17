@@ -98,7 +98,7 @@ with {
 
 type union String_derivations
 {
-	XSD.String string,
+	@default XSD.String string,
 	Stringtype stringtype,
 	Stringtype2 stringtype2,
 	Stringtype3 stringtype3,
@@ -111,7 +111,7 @@ with {
 
 type union Stringtype_derivations
 {
-	Stringtype stringtype,
+	@default Stringtype stringtype,
 	Stringtype2 stringtype2,
 	Stringtype3 stringtype3,
 	Stringtype4 stringtype4
@@ -123,7 +123,7 @@ with {
 
 type union Stringtype2_derivations
 {
-	Stringtype2 stringtype2,
+	@default Stringtype2 stringtype2,
 	Stringtype3 stringtype3,
 	Stringtype4 stringtype4
 }
@@ -134,7 +134,7 @@ with {
 
 type union Stringtype3_derivations
 {
-	Stringtype3 stringtype3,
+	@default Stringtype3 stringtype3,
 	Stringtype4 stringtype4
 }
 with {

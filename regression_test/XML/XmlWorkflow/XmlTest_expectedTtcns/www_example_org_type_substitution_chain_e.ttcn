@@ -136,7 +136,7 @@ with {
 
 type union ParentType_derivations
 {
-	ParentType parentType,
+	@default ParentType parentType,
 	RestrictedType restrictedType,
 	RestrictedType2 restrictedType2,
 	RestrictedType2_1 restrictedType2_1,
@@ -151,7 +151,7 @@ with {
 
 type union RestrictedType_derivations
 {
-	RestrictedType restrictedType,
+	@default RestrictedType restrictedType,
 	RestrictedType2 restrictedType2,
 	RestrictedType2_1 restrictedType2_1,
 	RestrictedType3 restrictedType3

@@ -118,7 +118,7 @@ with {
 
 type union Head_group_1
 {
-	Head_type head,
+	@default Head_type head,
 	Member member,
 	Member2 member2,
 	StringEnum stringEnum

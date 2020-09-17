@@ -143,7 +143,7 @@ with {
 
 type union String_derivations
 {
-	XSD.String string,
+	@default XSD.String string,
 	Stringtype stringtype,
 	Stringtype2 stringtype2
 }
@@ -154,7 +154,7 @@ with {
 
 type union Stringtype_derivations
 {
-	Stringtype stringtype,
+	@default Stringtype stringtype,
 	Stringtype2 stringtype2
 }
 with {
@@ -164,7 +164,7 @@ with {
 
 type union Integer_derivations
 {
-	XSD.Integer integer_,
+	@default XSD.Integer integer_,
 	ExtInt extInt
 }
 with {
@@ -175,7 +175,7 @@ with {
 
 type union Base64Binary_derivations
 {
-	XSD.Base64Binary base64Binary,
+	@default XSD.Base64Binary base64Binary,
 	CrypBinary crypBinary
 }
 with {

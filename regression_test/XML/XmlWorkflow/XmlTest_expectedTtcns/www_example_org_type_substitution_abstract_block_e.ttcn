@@ -170,7 +170,7 @@ with {
 
 type union ParentType_derivations
 {
-	ParentType parentType,
+	@default ParentType parentType,
 	ExtendedType extendedType,
 	RestrictedExtendedType restrictedExtendedType,
 	RestrictedType restrictedType,
@@ -189,7 +189,7 @@ with {
 
 type union RestrictedType_derivations
 {
-	RestrictedType restrictedType,
+	@default RestrictedType restrictedType,
 	RestrictedType2 restrictedType2,
 	RestrictedType2_1 restrictedType2_1,
 	RestrictedType3 restrictedType3
@@ -202,7 +202,7 @@ with {
 
 type union ExtendedType_derivations
 {
-	ExtendedType extendedType,
+	@default ExtendedType extendedType,
 	RestrictedExtendedType restrictedExtendedType
 }
 with {

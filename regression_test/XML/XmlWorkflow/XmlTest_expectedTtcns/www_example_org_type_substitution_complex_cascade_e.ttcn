@@ -147,7 +147,7 @@ with {
 
 type union RequestType_derivations
 {
-	RequestType requestType,
+	@default RequestType requestType,
 	MyProductionRequestType_1 myProductionRequestType,
 	MyProductionRequestType2_1 myProductionRequestType2,
 	MyProductionRequestType3 myProductionRequestType3,
@@ -160,7 +160,7 @@ with {
 
 type union MyProductionRequestType_derivations
 {
-	MyProductionRequestType_1 myProductionRequestType,
+	@default MyProductionRequestType_1 myProductionRequestType,
 	MyProductionRequestType2_1 myProductionRequestType2,
 	MyProductionRequestType3 myProductionRequestType3,
 	MyProductionRequestType4 myProductionRequestType4
@@ -172,7 +172,7 @@ with {
 
 type union MyProductionRequestType2_derivations
 {
-	MyProductionRequestType2_1 myProductionRequestType2,
+	@default MyProductionRequestType2_1 myProductionRequestType2,
 	MyProductionRequestType3 myProductionRequestType3,
 	MyProductionRequestType4 myProductionRequestType4
 }

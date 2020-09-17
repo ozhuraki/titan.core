@@ -96,7 +96,7 @@ with {
 
 type union RequestAbstractType1_group
 {
-	RequestAbstractType requestAbstractType1,
+	@default RequestAbstractType requestAbstractType1,
 	ProductionRequest productionRequest,
 	ProgrammingRequest programmingRequest
 }

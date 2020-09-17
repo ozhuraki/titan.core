@@ -91,7 +91,7 @@ with {
 
 type union ParentType_derivations
 {
-	ParentType_1 parentType,
+	@default ParentType_1 parentType,
 	RestrictedType_1 restrictedType
 }
 with {

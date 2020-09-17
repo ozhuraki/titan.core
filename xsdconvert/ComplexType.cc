@@ -1207,7 +1207,14 @@ void ComplexType::printToFile(FILE * file, const unsigned level, const bool is_u
     }
 
     for (List<ComplexType*>::iterator c = complexfields.begin(); c; c = c->Next) {
-      c->Data->printToFile(file, level + 1, is_union);
+      if (c == complexfields.begin() && (subsGroup == this || typeSubsGroup == this)) {
+        indent(file, level + 1);
+        fprintf(file, "@default ");
+        c->Data->printToFile(file, 0, is_union);
+      }
+      else {
+        c->Data->printToFile(file, level + 1, is_union);
+      }
       if (c->Next != NULL) {
         fprintf(file, ",\n");
       } else {

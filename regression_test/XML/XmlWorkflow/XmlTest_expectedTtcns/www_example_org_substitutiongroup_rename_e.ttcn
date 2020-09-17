@@ -86,7 +86,7 @@ with {
 
 type union BaseElement_group
 {
-	BaseElement_1 baseElement,
+	@default BaseElement_1 baseElement,
 	Case_1 case_
 }
 with {

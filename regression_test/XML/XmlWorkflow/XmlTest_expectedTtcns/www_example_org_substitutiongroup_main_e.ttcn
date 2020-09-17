@@ -58,7 +58,7 @@ with {
 
 type union Subsgroup_group
 {
-	XSD.String subsgroup,
+	@default XSD.String subsgroup,
 	Replace replace_
 }
 with {

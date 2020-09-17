@@ -125,7 +125,7 @@ with {
 
 type union Request_group
 {
-	RequestAbstractType_derivations request,
+	@default RequestAbstractType_derivations request,
 	ProductionRequest productionRequest,
 	ProgrammingRequest programmingRequest
 }
@@ -138,7 +138,7 @@ with {
 
 type union RequestAbstractType_derivations
 {
-	RequestAbstractType requestAbstractType,
+	@default RequestAbstractType requestAbstractType,
 	MyProductionRequestType myProductionRequestType,
 	MyProgrammingRequestType myProgrammingRequestType
 }

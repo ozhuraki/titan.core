@@ -89,7 +89,7 @@ with {
 
 type union String_derivations
 {
-	XSD.String string,
+	@default XSD.String string,
 	Data data,
 	Enable enable,
 	Res res,

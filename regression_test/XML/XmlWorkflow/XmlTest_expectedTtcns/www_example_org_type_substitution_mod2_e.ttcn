@@ -97,7 +97,7 @@ with {
 
 type union ExtendedType_derivations
 {
-	ExtendedType extendedType,
+	@default ExtendedType extendedType,
 	RestrictedExtendedType restrictedExtendedType
 }
 with {

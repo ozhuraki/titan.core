@@ -157,7 +157,7 @@ with {
 
 type union Comment_group
 {
-	XSD.String comment,
+	@default XSD.String comment,
 	CustomerComment customerComment,
 	ShipComment shipComment
 }
