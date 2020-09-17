@@ -208,7 +208,8 @@ TITAN "$#&&&(#TITANERRONEOUS$#&&^#% "
 					     string literals */
   size_t dot_line = 0, dot_column = 0; /**< location of the previous '.' token */
   /* variables used when processing binary strings */
-  expstring_t binstr = NULL; /**< the string itself */
+  expstring_t origbinstr = NULL; /**< the string itself */
+  expstring_t binstr = NULL; /**< the string itself (with capital letters) */
   bool valid_bit = false, /**< binstr is valid bitstring */
     valid_oct = false, /**< binstr is valid octetstring */
     half_oct = false, /**< binstr is not a valid octetstr but a valid hexstr */
@@ -729,6 +730,7 @@ hostid          RETURN(hostidKeyWord);
 NULL RETURN(NullValue);
 
 "'" {
+  origbinstr=memptystr();
   binstr=memptystr();
   valid_bit=true;
   valid_oct=true;
@@ -778,12 +780,14 @@ NULL RETURN(NullValue);
   }
 
   [01] {
+    origbinstr = mputc(origbinstr, yytext[0]);
     binstr = mputc(binstr, yytext[0]);
     half_oct = !half_oct;
     current_column++;
   }
 
   [2-9A-F] {
+    origbinstr = mputc(origbinstr, yytext[0]);
     binstr = mputc(binstr, yytext[0]);
     valid_bit = false;
     half_oct = !half_oct;
@@ -791,13 +795,15 @@ NULL RETURN(NullValue);
   }
 
   [a-f] {
-    binstr = mputc(binstr, yytext[0]);
+    origbinstr = mputc(origbinstr, yytext[0]);
+    binstr = mputc(binstr, yytext[0] - 'a' + 'A');
     valid_bit = false;
     half_oct = !half_oct;
     current_column++;
   }
 
   "?"|"*" {
+    origbinstr = mputc(origbinstr, yytext[0]);
     binstr = mputc(binstr, yytext[0]);
     contains_match = true;
     if (half_oct) valid_oct = false;
@@ -857,7 +863,8 @@ NULL RETURN(NullValue);
 	  "digits");
       }
     }
-    MD5_Update(&md5_ctx, binstr, strlen(binstr));
+    MD5_Update(&md5_ctx, origbinstr, strlen(origbinstr));
+    Free(origbinstr);
     Free(binstr);
     update_md5();
     BEGIN(INITIAL);
@@ -879,7 +886,8 @@ NULL RETURN(NullValue);
     Location loc(infile, yylloc);
     loc.error("Invalid binary string literal. Expecting `B', `H' or `O' after "
       "the closing `''");
-    MD5_Update(&md5_ctx, binstr, strlen(binstr));
+    MD5_Update(&md5_ctx, origbinstr, strlen(origbinstr));
+    Free(origbinstr);
     Free(binstr);
     BEGIN(INITIAL);
     RETURN_NOLOCUPD(TOK_errval);
@@ -891,7 +899,8 @@ NULL RETURN(NullValue);
     int c = static_cast<unsigned char>( yytext[0] );
     loc.error("Invalid character `%c' (0x%02X) in binary string",
       isprint(c) ? c : '?', c);
-    MD5_Update(&md5_ctx, binstr, strlen(binstr));
+    MD5_Update(&md5_ctx, origbinstr, strlen(origbinstr));
+    Free(origbinstr);
     Free(binstr);
     MD5_Update(&md5_ctx, yytext, 1);
     current_column++;
@@ -1130,6 +1139,7 @@ NULL RETURN(NullValue);
       loc.error("Unterminated block comment");
       break;
     case SC_binstring:
+      Free(origbinstr);
       Free(binstr);
       /* no break */
     case SC_binstring_bad:
