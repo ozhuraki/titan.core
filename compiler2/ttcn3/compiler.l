@@ -791,7 +791,7 @@ NULL RETURN(NullValue);
   }
 
   [a-f] {
-    binstr = mputc(binstr, yytext[0] - 'a' + 'A');
+    binstr = mputc(binstr, yytext[0]);
     valid_bit = false;
     half_oct = !half_oct;
     current_column++;
