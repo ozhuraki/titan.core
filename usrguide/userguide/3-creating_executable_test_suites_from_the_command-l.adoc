@@ -1,6 +1,8 @@
-= Creating Executable Test Suites from the Command-line
+[[creating-executable-test-suites-from-the-command-line]]
+= Creating Executable Test Suites from the Command line
 
-This section describes the elementary commands that comprise the build process. The primary audience of this section is the group of users who want to integrate TTCN–3 to a new or an existing build system.
+This section describes the elementary commands that comprise the build process.
+The primary audience of this section is the group of users who want to integrate TTCN–3 to a new or an existing build system.
 
 == Using `make`
 

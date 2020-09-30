@@ -1,3 +1,4 @@
+[[executing-test-suites]]
 = Executing Test Suites
 
 This chapter describes the modalities of test suite execution.
