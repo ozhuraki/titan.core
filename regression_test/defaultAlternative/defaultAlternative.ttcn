@@ -545,7 +545,7 @@ testcase tc_expr_bs() runs on CT {
   setverdict(pass);
 }
 
-testcase tc_predef_func() runs on CT {
+testcase tc_predef_func_bit2x() runs on CT {
   var UniDefBit u1 := '1010'B;
   var hexstring hs1 := bit2hex(u1);
   if (hs1 != 'A'H) {
@@ -563,7 +563,10 @@ testcase tc_predef_func() runs on CT {
   if (i1 != 10) {
     setverdict(fail, "i1: ", i1);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_predef_func_char2x() runs on CT {
   var UniDefStr u2 := "4";
   var integer i2 := char2int(u2);
   if (i2 != 52) {
@@ -573,6 +576,11 @@ testcase tc_predef_func() runs on CT {
   if (os2 != '34'O) {
     setverdict(fail, "os2: ", os2);
   }
+  setverdict(pass);
+}
+
+testcase tc_predef_func_str2x() runs on CT {
+  var UniDefStr u2 := "4";
   var integer i3 := str2int(u2);
   if (i3 != 4) {
     setverdict(fail, "i3: ", i3);
@@ -594,13 +602,19 @@ testcase tc_predef_func() runs on CT {
   if (os3 != '10'O) {
     setverdict(fail, "os3: ", os3);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_predef_func_enum2x() runs on CT {
   var UniDefEnum u4 := { def := first };
   var integer i4 := enum2int(u4);
   if (i4 != 0) {
     setverdict(fail, "i4: ", i4);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_predef_func_float2x() runs on CT {
   var UniDefFloat u5 := 3.0;
   var integer i5 := float2int(u5);
   if (i5 != 3) {
@@ -612,7 +626,10 @@ testcase tc_predef_func() runs on CT {
   }
   
   var float f2 := rnd(u5);
-  
+  setverdict(pass);
+}
+
+testcase tc_predef_func_hex2x() runs on CT {
   var UniDefHex u6 := '20'H;
   var bitstring bs2 := hex2bit(u6);
   if (bs2 != '00100000'B) {
@@ -630,7 +647,10 @@ testcase tc_predef_func() runs on CT {
   if (i6 != 32) {
     setverdict(fail, "i6: ", i6);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_predef_func_int2x() runs on CT {
   var UniDefInt u7 := 65;
   var charstring cs4 := int2char(u7);
   if (cs4 != "A") {
@@ -660,7 +680,10 @@ testcase tc_predef_func() runs on CT {
   if (os5 != '41'O) {
     setverdict(fail, "os5: ", os5);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_predef_func_oct2x() runs on CT {
   var UniDefOct u8 := '20'O;
   var bitstring bs4 := oct2bit(u8);
   if (bs4 != '00100000'B) {
@@ -682,7 +705,10 @@ testcase tc_predef_func() runs on CT {
   if (cs7 != " ") {
     setverdict(fail, "cs7: ", cs7);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_predef_func_unichar2x() runs on CT {
   var UniDefUstr u9 := "a";
   var integer i8 := unichar2int(u9);
   if (i8 != 97) {
@@ -698,7 +724,10 @@ testcase tc_predef_func() runs on CT {
   if (not istemplatekind(t, u10)) {
     setverdict(fail, "istemplatekind");
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_predef_func_templ() runs on CT {
   var template UniDefStr u_str := "something";
   var UniDefInt u_idx := 4;
   var UniDefInt u_len := 3;
@@ -811,11 +840,11 @@ testcase tc_comp_and_port() runs on CT {
   if (not all port.checkstate(u2)) {
     setverdict(fail, "all checkstate");
   }
-  
+
   u1.start(f_behavior());
   u1.stop;
   u1.killed;
-  
+
   setverdict(pass);
 }
 
@@ -832,6 +861,7 @@ testcase tc_default_altstep() runs on CT {
   alt {
     [] tmr_local.timeout { setverdict(pass); }
   }
+  setverdict(pass);
 }
 
 function f_func() return integer {
@@ -921,7 +951,16 @@ control {
   execute(tc_expr_bool());
   execute(tc_expr_bs());
 
-  execute(tc_predef_func());
+  execute(tc_predef_func_bit2x());
+  execute(tc_predef_func_char2x());
+  execute(tc_predef_func_str2x());
+  execute(tc_predef_func_enum2x());
+  execute(tc_predef_func_float2x());
+  execute(tc_predef_func_hex2x());
+  execute(tc_predef_func_int2x());
+  execute(tc_predef_func_oct2x());
+  execute(tc_predef_func_unichar2x());
+  execute(tc_predef_func_templ());
   execute(tc_encdec());
   execute(tc_comp_and_port());
   execute(tc_default_altstep());
