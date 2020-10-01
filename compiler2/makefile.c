@@ -3681,7 +3681,7 @@ static void print_makefile(struct makefile_struct *makefile)
     fputs(" -lresolv", fp);
 #endif
 #ifdef ADVANCED_DEBUGGER_UI
-    fputs(" -lcurses", fp);
+    fputs(" -lcurses -lbsd -ledit", fp);
 #endif
     if (makefile->solspeclibraries) {
       struct string_list* act_elem = makefile->solspeclibraries;
@@ -3699,7 +3699,7 @@ static void print_makefile(struct makefile_struct *makefile)
     fputs(" -lresolv", fp);
 #endif
 #ifdef ADVANCED_DEBUGGER_UI
-    fputs(" -lcurses", fp);
+    fputs(" -lcurses -lbsd -ledit", fp);
 #endif
     if (makefile->sol8speclibraries) {
       struct string_list* act_elem = makefile->sol8speclibraries;
@@ -3717,7 +3717,7 @@ static void print_makefile(struct makefile_struct *makefile)
     fputs(" -lpthread -lrt", fp);
 #endif
 #ifdef ADVANCED_DEBUGGER_UI
-    fputs(" -lncurses", fp);
+    fputs(" -lncurses -lbsd -ledit", fp);
 #endif
     if (makefile->linuxspeclibraries) {
       struct string_list* act_elem = makefile->linuxspeclibraries;
@@ -3732,7 +3732,7 @@ static void print_makefile(struct makefile_struct *makefile)
 
     fputs("FREEBSD_LIBS = -lxml2", fp);
 #ifdef ADVANCED_DEBUGGER_UI
-    fputs(" -lncurses", fp);
+    fputs(" -lncurses -lbsd -ledit", fp);
 #endif
     if (makefile->freebsdspeclibraries) {
       struct string_list* act_elem = makefile->freebsdspeclibraries;
@@ -3747,7 +3747,7 @@ static void print_makefile(struct makefile_struct *makefile)
 
     fputs("WIN32_LIBS = -lxml2", fp);
 #ifdef ADVANCED_DEBUGGER_UI
-    fputs(" -lncurses", fp);
+    fputs(" -lncurses -lbsd -ledit", fp);
 #endif
     if (makefile->win32speclibraries) {
       struct string_list* act_elem = makefile->win32speclibraries;

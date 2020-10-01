@@ -18,7 +18,7 @@
 #include <ctype.h>
 
 #ifdef ADVANCED_DEBUGGER_UI
-#include "../mctr2/editline/libedit/src/editline/readline.h"
+#include <editline/readline.h>
 // use a different file, than the MCTR CLI, since not all commands are the same
 #define TTCN3_HISTORY_FILENAME ".ttcn3_history_single"
 #endif
@@ -221,7 +221,7 @@ void TTCN_Debugger_UI::init()
   // read history from file, don't bother if it does not exist
   read_history(ttcn3_history_filename);
   // set our own command completion function
-  rl_completion_entry_function = (Function*)complete_command;
+  rl_completion_entry_function = complete_command;
 #endif
 }
 

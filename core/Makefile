@@ -83,12 +83,12 @@ WIN32_LIBS     := -lxml2
 INTERIX_LIBS   := -lxml2
 	
 ifeq ($(ADVANCED_DEBUGGER_UI), yes)
-  SOLARIS_LIBS   += -lcurses
-  SOLARIS8_LIBS  += -lcurses
-  LINUX_LIBS     += -lncurses
-  FREEBSD_LIBS   += -lncurses
-  WIN32_LIBS     += -lncurses
-  INTERIX_LIBS   += -lncurses
+  SOLARIS_LIBS   += -lcurses -lbsd -ledit
+  SOLARIS8_LIBS  += -lcurses -lbsd -ledit
+  LINUX_LIBS     += -lncurses -lbsd -ledit
+  FREEBSD_LIBS   += -lncurses -lbsd -ledit
+  WIN32_LIBS     += -lncurses -lbsd -ledit
+  INTERIX_LIBS   += -lncurses -lbsd -ledit
 endif
 
 ifeq ($(USAGE_STATS), yes)
@@ -179,15 +179,9 @@ ifeq ($(USAGE_STATS), yes)
   COMMON_OBJECTS += ../common/usage_stats.o
 endif
 
-ifeq ($(ADVANCED_DEBUGGER_UI), yes)
-EDITLINE_OBJECTS := $(addprefix ../mctr2/editline/build/src/.libs/, chared.o common.o \
-emacs.o fgetln.o help.o history.o map.o prompt.o read.o search.o strlcat.o term.o tty.o \
-vi.o wcsdup.o chartype.o el.o fcns.o filecomplete.o hist.o key.o parse.o readline.o \
-refresh.o sig.o strlcpy.o tokenizer.o unvis.o vis.o)
-endif
 
 LIBRARY_OBJECTS_NOMAIN := $(filter-out Single_main.o Parallel_main.o ProfMerge_main.o, \
-  $(OBJECTS)) $(COMMON_OBJECTS) $(EDITLINE_OBJECTS)
+  $(OBJECTS)) $(COMMON_OBJECTS)
 
 TOBECLEANED := LoggerPlugin_static.o LoggerPlugin_dynamic.o ProfilerTools.profmerge.o
 
