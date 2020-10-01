@@ -83,17 +83,17 @@ LINUX_LIBS := -lpthread
 FREEBSD_LIBS := -lpthread
 WIN32_LIBS := -lpthread
 
-SOLARIS_CLI_LIBS := -lcurses
-SOLARIS8_CLI_LIBS := -lcurses
-LINUX_CLI_LIBS := -lncurses
-FREEBSD_CLI_LIBS := -lncurses
-WIN32_CLI_LIBS := -lncurses
-INTERIX_CLI_LIBS := -lncurses
+SOLARIS_CLI_LIBS := -lcurses -lbsd -ledit
+SOLARIS8_CLI_LIBS := -lcurses -lbsd -ledit
+LINUX_CLI_LIBS := -lncurses -lbsd -ledit
+FREEBSD_CLI_LIBS := -lncurses -lbsd -ledit
+WIN32_CLI_LIBS := -lncurses -lbsd -ledit
+INTERIX_CLI_LIBS := -lncurses -lbsd -ledit
 
 all run: $(TARGETS)
 
 mctr_cli$(EXESUFFIX): Cli_main.o $(OBJECTS_NOMAIN) $(COMMON_OBJECTS_CLI) \
-../cli/libcli.a ../editline/build/src/.libs/libedit.a
+../cli/libcli.a
 	$(CXX) $(LDFLAGS) -o $@ $^ \
 	-lcrypto $($(PLATFORM)_CLI_LIBS) $($(PLATFORM)_LIBS) $(RSLICLIB)
 

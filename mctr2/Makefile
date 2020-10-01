@@ -24,7 +24,7 @@ include $(TOP)/Makefile.cfg
 
 SUBDIRS := 
 ifeq ($(CLI), yes)
-  SUBDIRS += editline cli
+  SUBDIRS +=  cli
 endif
 SUBDIRS += mctr
 

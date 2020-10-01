@@ -31,7 +31,7 @@
 #include "../mctr/MainController.h"
 
 #include <stdio.h>
-#include "../editline/libedit/src/editline/readline.h"
+#include <editline/readline.h>
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
@@ -372,7 +372,7 @@ int Cli::interactiveMode()
   // Read history from file, don't bother if it does not exist!
   read_history(ttcn3_history_filename);
   // Set our own command completion function
-  rl_completion_entry_function = (Function*)completeCommand;
+  rl_completion_entry_function = completeCommand;
   // Override rl_getc() in order to detect shell mode
   rl_getc_function = getcWithShellDetection;
 
