@@ -129,28 +129,37 @@ type union UniDefDef {
   @default default def
 }
 
-testcase tc_init_and_assign() runs on CT {
+testcase tc_init_and_assign_int() runs on CT {
   var UniDefInt u1 := 3;
   if (u1.def != 3) {
     setverdict(fail, "u1: ", u1);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_init_and_assign_str() runs on CT {
   var UniDefStr u2;
   u2 := "abc";
   if (u2.def != "abc") {
     setverdict(fail, "u2: ", u2);
   }
+  setverdict(pass);
+}
 
+testcase tc_init_and_assign_rec() runs on CT {
   var UniDefRec u3 := { num := 4, str := "xy" };
   if (u3.def != { num := 4, str := "xy" }) {
     setverdict(fail, "u3: ", u3);
   }
-  
+
   u3.num := 5;
   if (u3.def != { num := 5, str := "xy" }) {
     setverdict(fail, "u3 mod: ", u3);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_init_and_assign_recof() runs on CT {
   var UniDefRecOf u4 := { 1, 2, 3 };
   if (u4.def != { 1, 2, 3}) {
     setverdict(fail, "u4: ", u4);
@@ -160,7 +169,10 @@ testcase tc_init_and_assign() runs on CT {
   if (u4.def != { 1, 2, 4}) {
     setverdict(fail, "u4 mod: ", u4);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_init_and_assign_uni() runs on CT {
   var UniDefUni u5 := { str := "def" };
   if (u5.def.str != "def") {
     setverdict(fail, "u5: ", u5);
@@ -170,23 +182,35 @@ testcase tc_init_and_assign() runs on CT {
   if (u5.def.num != 0) {
     setverdict(fail, "u5 mod: ", u5);
   }
+  setverdict(pass);
+}
 
+testcase tc_init_and_assign_emb() runs on CT {
   var UniDefIntEmb u6 := 2;
   if (u6.def2.def != 2) {
     setverdict(fail, "u6: ", u6);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_init_and_assign_dblemb() runs on CT {
   var UniDefIntDblEmb u7 := 1;
   if (u7.def3.def2.def != 1) {
     setverdict(fail, "u7: ", u7);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_init_and_assign_embbroken() runs on CT {
   var UniDefStrEmbBroken u8;
   u8.uni := "ghi";
   if (u8.def2.uni.def != "ghi") {
     setverdict(fail, "u8: ", u8);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_init_and_assign_enum() runs on CT {
   var UniDefEnum u9 := first;
   if (u9.def != first) {
     setverdict(fail, "u9: ", u9);
@@ -195,19 +219,25 @@ testcase tc_init_and_assign() runs on CT {
   if (u9.def != second) {
     setverdict(fail, "u9 mod: ", u9);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_init_and_assign_int_templ() runs on CT {
   var template UniDefInt tu1 := 3;
   var template UniDefInt tu1_exp := { def := 3 };
   if (log2str(tu1) != log2str(tu1_exp)) {
     setverdict(fail, "tu1: ", tu1);
   }
-  
+
   var template UniDefInt tu2 := (0..4);
   var template UniDefInt tu2_exp := { def := (0..4) };
   if (log2str(tu2) != log2str(tu2_exp)) {
     setverdict(fail, "tu2: ", tu2);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_init_and_assign_int_templ_emb() runs on CT {
   var template UniDefIntEmb tu3 := (1, 2, 3, (6..10));
   var template UniDefIntEmb tu3_exp := (
     { def2 := { def := 1 } },
@@ -218,7 +248,10 @@ testcase tc_init_and_assign() runs on CT {
   if (log2str(tu3) != log2str(tu3_exp)) {
     setverdict(fail, "tu3: ", tu3);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_init_and_assign_str_templ() runs on CT {
   var template UniDefStr tu4 := "abc";
   var template UniDefStr tu4_exp := { def := "abc" };
   if (log2str(tu4) != log2str(tu4_exp)) {
@@ -229,14 +262,17 @@ testcase tc_init_and_assign() runs on CT {
   if (log2str(tu4) != log2str(tu4_exp)) {
     setverdict(fail, "tu4 mod: ", tu4);
   }
-  
+
   var template UniDefStr tu5;
   tu5 := pattern "ab?c";
   var template UniDefStr tu5_exp := { def := pattern "ab?c" };
   if (log2str(tu5) != log2str(tu5_exp)) {
     setverdict(fail, "tu5: ", tu5);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_init_and_assign_rec_templ() runs on CT {
   var template UniDefRec tu6 := { num := 1, str := "xy" };
   var template UniDefRec tu6_exp := { def := { num := 1, str := "xy" } };
   if (log2str(tu6) != log2str(tu6_exp)) {
@@ -247,13 +283,17 @@ testcase tc_init_and_assign() runs on CT {
   if (log2str(tu6) != log2str(tu6_exp)) {
     setverdict(fail, "tu6 mod: ", tu6);
   }
-  
+
   var template UniDefRec tu7 := { 1, "xy" };
   var template UniDefRec tu7_exp := { def := { 1, "xy" } };
   if (log2str(tu7) != log2str(tu7_exp)) {
     setverdict(fail, "tu7: ", tu7);
   }
-  
+  setverdict(pass);
+
+}
+
+testcase tc_init_and_assign_recof_templ() runs on CT {
   var template UniDefRecOf tu8 := { 1, 2, 3 };
   var template UniDefRecOf tu8_exp := { def := { 1, 2, 3 } };
   if (log2str(tu8) != log2str(tu8_exp)) {
@@ -270,7 +310,10 @@ testcase tc_init_and_assign() runs on CT {
   if (log2str(tu9) != log2str(tu9_exp)) {
     setverdict(fail, "tu9: ", tu9);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_init_and_assign_uni_templ() runs on CT {
   var template UniDefUni tu10 := { str := "qwe" };
   var template UniDefUni tu10_exp := { def := { str := "qwe" } };
   if (log2str(tu10) != log2str(tu10_exp)) {
@@ -281,7 +324,10 @@ testcase tc_init_and_assign() runs on CT {
   if (log2str(tu10) != log2str(tu10_exp)) {
     setverdict(fail, "tu10 mod: ", tu10);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_init_and_assign_enum_templ() runs on CT {
   var template UniDefEnum tu11 := first;
   var template UniDefEnum tu11_exp := { def := first };
   if (log2str(tu11) != log2str(tu11_exp)) {
@@ -295,47 +341,69 @@ testcase tc_init_and_assign() runs on CT {
   setverdict(pass);
 }
 
-testcase tc_ref() runs on CT {
+testcase tc_reference_int() runs on CT {
   var UniDefInt u1 := 1;
   var integer i1 := u1;
   if (i1 != 1) {
     setverdict(fail, "i1: ", i1);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_reference_rec() runs on CT {
   var UniDefRec u2 := { num := 4, str := "xy" };
   var charstring cs1 := u2.str;
   if (cs1 != "xy") {
     setverdict(fail, "cs1: ", cs1);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_reference_recof() runs on CT {
   var UniDefRecOf u3 := { 1, 2, 3 };
   var integer i2 := u3[1];
   if (i2 != 2) {
     setverdict(fail, "i2: ", i2);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_reference_str() runs on CT {
   var charstring cs2 := "abc";
   var UniDefStr u4 := cs2;
   if (u4.def != "abc") {
     setverdict(fail, "u4: ", u4);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_reference_emb() runs on CT {
+  var UniDefInt u1 := 1;
   var UniDefIntEmb u5 := u1;
   if (u5.def2.def != 1) {
     setverdict(fail, "u5: ", u5);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_reference_embbroken() runs on CT {
+  var charstring cs2 := "abc";
   var UniDefStrEmbBroken u6 := { uni := cs2 };
   if (u6.def2.uni.def != "abc") {
     setverdict(fail, "u6: ", u6);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_reference_int_templ() runs on CT {
   var template UniDefRecOf tu1 := { 1, 2, 3 };
   var template integer ti1 := (0, all from tu1);
   var template integer ti1_exp := (0, all from tu1.def);
   if (log2str(ti1) != log2str(ti1_exp)) {
     setverdict(fail, "ti1: ", ti1);
   }
+  setverdict(pass);
+
   /*template UniDefRecOf tu2 := { 1, 2, 3 }; TODO
   template integer ti2 := (0, all from tu2);
   template integer ti2_exp := (0, all from tu2.def);
@@ -347,6 +415,10 @@ testcase tc_ref() runs on CT {
   if (log2str(tu3) != log2str(tu3_exp)) {
     setverdict(fail, "tu3: ", tu3);
   }*/
+}
+
+testcase tc_reference_recof_templ() runs on CT {
+  var template UniDefRecOf tu1 := { 1, 2, 3 };
   var template RecOf tro1 := { 0, permutation(all from tu1) };
   var template RecOf tro1_exp := { 0, permutation(all from tu1.def) };
   if (log2str(tro1) != log2str(tro1_exp)) {
@@ -355,7 +427,7 @@ testcase tc_ref() runs on CT {
   setverdict(pass);
 }
 
-testcase tc_expr() runs on CT {
+testcase tc_expr_int() runs on CT {
   var UniDefInt u1 := 2;
   var integer i1 := u1 + 1;
   if (i1 != 3) {
@@ -367,24 +439,34 @@ testcase tc_expr() runs on CT {
   if (u3.def != 2) {
     setverdict(fail, "u3: ", u3);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_expr_str() runs on CT {
   var UniDefStr u4 := "xy";
   var charstring cs1 := u4 & "a" & (u4 & u4) & "b" & u4;
   if (cs1 != "xyaxyxybxy") {
     setverdict(fail, "cs1: ", cs1);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_expr_recof() runs on CT {
   var UniDefRecOf u5 := { 1, 2, 3 };
   var RecOf ro1 := u5 & { 0 } & (u5 & u5) & { 6 } & u5;
   if (ro1 != { 1, 2, 3, 0, 1, 2, 3, 1, 2, 3, 6, 1, 2, 3}) {
     setverdict(fail, "ro1: ", ro1);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_expr_emb() runs on CT {
   var integer i2 := 4;
   var UniDefIntEmb u6 := 4;
   if (not i2 == u6) {
     setverdict(fail, "ref not equal");
   }
+  var UniDefInt u2 := 3;
   if (u6 == u2) {
     setverdict(fail, "ref equal");
   }
@@ -406,7 +488,10 @@ testcase tc_expr() runs on CT {
   if (u2 >= u6) {
     setverdict(fail, "greater or equal");
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_expr_bool() runs on CT {
   var UniDefBool u7 := true;
   if (not u7) {
     setverdict(fail, "not u7");
@@ -420,17 +505,22 @@ testcase tc_expr() runs on CT {
   if (true xor u7) {
     setverdict(fail, "xor u7");
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_expr_bs() runs on CT {
   var UniDefBit u8 := '1100'B;
   var bitstring bs1 := (((not4b u8) xor4b u8) and4b u8) or4b u8;
   if (bs1 != '1100'B) {
     setverdict(fail, "bs1: ", bs1);
   }
-  
+
   var bitstring bs2 := u8 << 2;
   if (bs2 != '0000'B) {
     setverdict(fail, "bs2: ", bs2);
   }
+
+  var UniDefInt u2 := 3;
   var UniDefBit u9 := u8 >> u2;
   if (u9.def != '0001'B) {
     setverdict(fail, "u9: ", u9);
@@ -443,6 +533,7 @@ testcase tc_expr() runs on CT {
   if (u10.def != '0110'B) {
     setverdict(fail, "u10: ", u10);
   }
+  var UniDefRecOf u5 := { 1, 2, 3 };
   var RecOf ro2 := u5 <@ 1;
   if (ro2 != { 2, 3, 1 }) {
     setverdict(fail, "ro2: ", ro2);
@@ -797,11 +888,43 @@ testcase tc_setverdict() runs on CT {
 }
 
 control {
-  execute(tc_init_and_assign());
-  execute(tc_ref());
-  execute(tc_expr());
+  execute(tc_init_and_assign_int());
+  execute(tc_init_and_assign_str());
+  execute(tc_init_and_assign_rec());
+  execute(tc_init_and_assign_recof());
+  execute(tc_init_and_assign_uni());
+  execute(tc_init_and_assign_emb());
+  execute(tc_init_and_assign_dblemb());
+  execute(tc_init_and_assign_embbroken());
+  execute(tc_init_and_assign_enum());
+
+  execute(tc_init_and_assign_int_templ());
+  execute(tc_init_and_assign_int_templ_emb());
+  execute(tc_init_and_assign_str_templ());
+  execute(tc_init_and_assign_rec_templ());
+  execute(tc_init_and_assign_recof_templ());
+  execute(tc_init_and_assign_uni_templ());
+  execute(tc_init_and_assign_enum_templ());
+
+  execute(tc_reference_int());
+  execute(tc_reference_rec());
+  execute(tc_reference_recof());
+  execute(tc_reference_str());
+  execute(tc_reference_emb());
+  execute(tc_reference_embbroken());
+  execute(tc_reference_int_templ());
+
+  execute(tc_expr_int());
+  execute(tc_expr_str());
+  execute(tc_expr_recof());
+  execute(tc_expr_emb());
+  execute(tc_expr_bool());
+  execute(tc_expr_bs());
+
   execute(tc_predef_func());
+  execute(tc_encdec());
   execute(tc_comp_and_port());
+  execute(tc_default_altstep());
   execute(tc_statements());
   execute(tc_setverdict());
 }
