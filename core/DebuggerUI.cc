@@ -18,7 +18,7 @@
 #include <ctype.h>
 
 #ifdef ADVANCED_DEBUGGER_UI
-#include <editline/readline.h>
+#include <readline.h>
 // use a different file, than the MCTR CLI, since not all commands are the same
 #define TTCN3_HISTORY_FILENAME ".ttcn3_history_single"
 #endif

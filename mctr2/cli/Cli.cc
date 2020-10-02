@@ -31,7 +31,7 @@
 #include "../mctr/MainController.h"
 
 #include <stdio.h>
-#include <editline/readline.h>
+#include <readline.h>
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>

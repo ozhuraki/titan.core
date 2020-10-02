@@ -40,7 +40,7 @@ OBJECTS := $(patsubst %.cc,%.o,$(patsubst %.c,%.o,$(SOURCES)))
 
 DEPFILES := $(patsubst %.cc,%.d,$(patsubst %.c,%.d,$(SOURCES)))
 
-CPPFLAGS += -D_REENTRANT
+CPPFLAGS += -D_REENTRANT -I/usr/include/editline -I/usr/include/readline
 
 ifdef OPENSSL_DIR
 ifneq ($(OPENSSL_DIR), default)
