@@ -17,7 +17,7 @@ Build and install Titan on Linux
 
 1.Install required libraries: 
 (examples are given for Ubuntu 12.04/14.04; for other Linuxes, pls. use the relevant library installation method)
-sudo apt-get install g++ expect libssl-dev libxml2-dev libncurses5-dev flex bison
+sudo apt-get install g++ expect libssl-dev libxml2-dev libncurses5-dev flex bison libedit2 libedit-devel
  (SLED 14.0: sudo zypper in libopenssl-devel,  g++, flex, bison already installed)
  (RHEL: g++, flex, bison already installed)
 
@@ -145,7 +145,7 @@ make
 5. Set environment variables
 
 setenv TTCN3_DIR /home/<user id>/titan.core/Install
-setenv PATH /home/<userid>/titan.core/Install/bin/:${PATH}
+setenv PATH /home/<userid>/titan.core/Install/bin:${PATH}
 setenv LD_LIBRARY_PATH /home/<userid>/titan.core/Install/lib:${LD_LIBRARY_PATH}
 
 for csh
@@ -153,7 +153,7 @@ for csh
 or 
 
 export TTCN3_DIR=/home/<user id>/titan.core/Install
-export PATH=/home/<userid>/titan.core/Install/bin/:${PATH}
+export PATH=/home/<userid>/titan.core/Install/bin:${PATH}
 export LD_LIBRARY_PATH=/home/<userid>/titan.core/Install/lib:${LD_LIBRARY_PATH}
 
 for bash
