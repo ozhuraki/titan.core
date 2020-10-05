@@ -372,7 +372,7 @@ int Cli::interactiveMode()
   // Read history from file, don't bother if it does not exist!
   read_history(ttcn3_history_filename);
   // Set our own command completion function
-#ifdef WIN32
+#ifdef OLD_LIBEDIT
   rl_completion_entry_function = (Function*)completeCommand;
 #else
   rl_completion_entry_function = completeCommand;

@@ -221,7 +221,7 @@ void TTCN_Debugger_UI::init()
   // read history from file, don't bother if it does not exist
   read_history(ttcn3_history_filename);
   // set our own command completion function
-#ifdef WIN32
+#ifdef OLD_LIBEDIT
   rl_completion_entry_function = (Function*)complete_command;
 #else
   rl_completion_entry_function = complete_command;
