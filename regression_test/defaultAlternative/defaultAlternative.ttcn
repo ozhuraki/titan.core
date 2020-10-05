@@ -129,8 +129,36 @@ type union UniDefDef {
   @default default def
 }
 
+testcase tc_ininit_int() runs on CT {
+  var UniDefInt u1;
+  if ( ischosen(u1.def)) {
+    setverdict(fail, "ischosen bug 1");
+  }
+  if (ischosen(u1.str)) {
+    setverdict(fail, "ischosen bug 2");
+  }
+  if ( isbound(u1)){
+    setverdict(fail, "isbound bug");
+  }
+  @try {
+    var UniDefInt u2 := u1;
+    setverdict(fail, "This line should not be reached");
+  } @catch(e) {
+    setverdict(pass, "This DTE is expected");
+  }
+}
+
 testcase tc_init_and_assign_int() runs on CT {
   var UniDefInt u1 := 3;
+  if ( not ischosen(u1.def)) {
+    setverdict(fail, "ischosen bug 1");
+  }
+  if (ischosen(u1.str)) {
+    setverdict(fail, "ischosen bug 2");
+  }
+  if ( not isbound(u1)){
+    setverdict(fail, "isbound bug");
+  }
   if (u1.def != 3) {
     setverdict(fail, "u1: ", u1);
   }
@@ -605,7 +633,7 @@ testcase tc_predef_func_str2x() runs on CT {
   setverdict(pass);
 }
 
-testcase tc_predef_func_enum2x() runs on CT {
+testcase tc_predef_func_enum2int() runs on CT {
   var UniDefEnum u4 := { def := first };
   var integer i4 := enum2int(u4);
   if (i4 != 0) {
@@ -624,7 +652,11 @@ testcase tc_predef_func_float2x() runs on CT {
   if (cs2 != "3.000000") {
     setverdict(fail, "cs2: ", cs2);
   }
-  
+  setverdict(pass);
+}
+
+testcase tc_predef_func_rnd() runs on CT {
+  var UniDefFloat u5 := 3.0;
   var float f2 := rnd(u5);
   setverdict(pass);
 }
@@ -651,6 +683,7 @@ testcase tc_predef_func_hex2x() runs on CT {
 }
 
 testcase tc_predef_func_int2x() runs on CT {
+  //TODO:int2enum
   var UniDefInt u7 := 65;
   var charstring cs4 := int2char(u7);
   if (cs4 != "A") {
@@ -852,6 +885,10 @@ altstep as() runs on CT {
   [] tmr_comp.timeout { setverdict(fail, "altstep is still active"); }
 }
 
+altstep as2() runs on CT {
+  [] tmr_comp.timeout { setverdict(pass, "altstep is still active"); }
+}
+
 testcase tc_default_altstep() runs on CT {
   timer tmr_local;
   var UniDefDef u_def := activate(as());
@@ -861,6 +898,18 @@ testcase tc_default_altstep() runs on CT {
   alt {
     [] tmr_local.timeout { setverdict(pass); }
   }
+  setverdict(pass);
+}
+
+testcase tc_default_altstep2() runs on CT {
+  timer tmr_local;
+  var UniDefDef u_def := activate(as2());
+  tmr_comp.start(0.1);
+  tmr_local.start(2.0);
+  alt {
+    [] tmr_local.timeout { setverdict(fail, "altstep still active"); }
+  }
+  deactivate(u_def);
   setverdict(pass);
 }
 
@@ -918,6 +967,7 @@ testcase tc_setverdict() runs on CT {
 }
 
 control {
+  execute(tc_ininit_int());
   execute(tc_init_and_assign_int());
   execute(tc_init_and_assign_str());
   execute(tc_init_and_assign_rec());
@@ -954,8 +1004,10 @@ control {
   execute(tc_predef_func_bit2x());
   execute(tc_predef_func_char2x());
   execute(tc_predef_func_str2x());
-  execute(tc_predef_func_enum2x());
+  execute(tc_predef_func_enum2int());
   execute(tc_predef_func_float2x());
+  execute(tc_predef_func_rnd());
+
   execute(tc_predef_func_hex2x());
   execute(tc_predef_func_int2x());
   execute(tc_predef_func_oct2x());
@@ -964,6 +1016,7 @@ control {
   execute(tc_encdec());
   execute(tc_comp_and_port());
   execute(tc_default_altstep());
+  execute(tc_default_altstep2());
   execute(tc_statements());
   execute(tc_setverdict());
 }
