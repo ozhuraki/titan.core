@@ -42,10 +42,7 @@
 #include "../../common/config_preproc.h"
 #include "../../core/DebugCommands.hh"
 
-#include <readline.h>
-#if RL_READLINE_VERSION == 0x0603
-#include <history.h>
-#endif
+#include <editline/readline.h>
 
 #define PROMPT "MC2> "
 #define CMTC_TEXT "cmtc"

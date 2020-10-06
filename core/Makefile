@@ -83,12 +83,12 @@ WIN32_LIBS     := -lxml2
 INTERIX_LIBS   := -lxml2
 	
 ifeq ($(ADVANCED_DEBUGGER_UI), yes)
-  SOLARIS_LIBS   += -lcurses -lbsd -ledit
-  SOLARIS8_LIBS  += -lcurses -lbsd -ledit
-  LINUX_LIBS     += -lncurses -lbsd -ledit
-  FREEBSD_LIBS   += -lncurses -lbsd -ledit
+  SOLARIS_LIBS   += -lcurses -ledit
+  SOLARIS8_LIBS  += -lcurses -ledit
+  LINUX_LIBS     += -lncurses -ledit
+  FREEBSD_LIBS   += -lncurses -ledit
   WIN32_LIBS     += -lncurses -ledit
-  INTERIX_LIBS   += -lncurses -lbsd -ledit
+  INTERIX_LIBS   += -lncurses -ledit
 endif
 
 ifeq ($(USAGE_STATS), yes)
@@ -149,10 +149,6 @@ endif
 ifeq ($(PLATFORM),INTERIX)
   # to get the "right" iconv, used by libxml2
   CPPFLAGS += -I/usr/local/include
-endif
-
-ifeq ($(ADVANCED_DEBUGGER_UI), yes)
-  CPPFLAGS += -I/usr/include/editline -I/usr/include/readline
 endif
 
 

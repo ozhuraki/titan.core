@@ -83,12 +83,12 @@ LINUX_LIBS := -lpthread
 FREEBSD_LIBS := -lpthread
 WIN32_LIBS := -lpthread
 
-SOLARIS_CLI_LIBS := -lcurses -lbsd -ledit
-SOLARIS8_CLI_LIBS := -lcurses -lbsd -ledit
-LINUX_CLI_LIBS := -lncurses -lbsd -ledit
-FREEBSD_CLI_LIBS := -lncurses -lbsd -ledit
-WIN32_CLI_LIBS := -lncurses -lbsd -ledit
-INTERIX_CLI_LIBS := -lncurses -lbsd -ledit
+SOLARIS_CLI_LIBS := -lcurses -ledit
+SOLARIS8_CLI_LIBS := -lcurses -ledit
+LINUX_CLI_LIBS := -lncurses -ledit
+FREEBSD_CLI_LIBS := -lncurses -ledit
+WIN32_CLI_LIBS := -lncurses -ledit
+INTERIX_CLI_LIBS := -lncurses -ledit
 
 all run: $(TARGETS)
 
