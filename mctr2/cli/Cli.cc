@@ -31,7 +31,6 @@
 #include "../mctr/MainController.h"
 
 #include <stdio.h>
-#include <readline.h>
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
@@ -42,6 +41,11 @@
 #include "../../common/memory.h"
 #include "../../common/config_preproc.h"
 #include "../../core/DebugCommands.hh"
+
+#include <readline.h>
+#if RL_READLINE_VERSION == 0x0603
+#include <history.h>
+#endif
 
 #define PROMPT "MC2> "
 #define CMTC_TEXT "cmtc"
