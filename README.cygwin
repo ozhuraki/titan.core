@@ -147,11 +147,12 @@ Cygwin setup
             GUI := no
             GEN_PDF := no
             DEBUG := no
+            OLD_LIBEDIT := yes
     Compile Titan:
           cd titan
           make dep
           make -j  
-          make install 
+          make install
     The compiled files will be placed into the titan.core/Install directory. 
   
   (L) If you want to use graphical tools (like nedit for example), then you need to install the Cygwin/X
