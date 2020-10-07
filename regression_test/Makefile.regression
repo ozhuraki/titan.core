@@ -192,12 +192,12 @@ else
   EXESUFFIX :=
 endif # WIN32
 
-SOLARIS_LIBS = -lxnet -L${XMLDIR}/lib -lxml2 -lresolv -lcurses -lbsd -ledit
-SOLARIS8_LIBS = $(SOLARIS_LIBS) -lresolv -lcurses -lbsd -ledit
-LINUX_LIBS = -L${XMLDIR}/lib -lxml2 -lpthread -lrt -lncurses -lbsd -ledit
-FREEBSD_LIBS = -lncurses -lbsd -ledit
-WIN32_LIBS = -L${XMLDIR}/lib -lxml2 -lncurses -lbsd -ledit
-INTERIX_LIBS = -L${XMLDIR}/lib -lxml2 -liconv -lncurses -lbsd -ledit
+SOLARIS_LIBS = -lxnet -L${XMLDIR}/lib -lxml2 -lresolv -lcurses -ledit
+SOLARIS8_LIBS = $(SOLARIS_LIBS) -lresolv -lcurses -ledit
+LINUX_LIBS = -L${XMLDIR}/lib -lxml2 -lpthread -lrt -lncurses -ledit
+FREEBSD_LIBS = -lncurses -ledit
+WIN32_LIBS = -L${XMLDIR}/lib -lxml2 -lncurses -ledit
+INTERIX_LIBS = -L${XMLDIR}/lib -lxml2 -liconv -lncurses -ledit
 
 
 #
