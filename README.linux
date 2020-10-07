@@ -103,8 +103,8 @@ OPENSSL_DIR := /usr
 XMLDIR := /usr
 JNI := no
 GEN_PDF := no
-OLD_LIBEDIT = yes # if the first line of /usr/include/editline/readline.h (or /usr/include/readline/readline.h) 
-                  # contains v1.34 or older i.e version of editline is 2.0.53 or older.
+OLD_LIBEDIT := yes # if the first line of /usr/include/editline/readline.h
+                   # contains v1.34 or older i.e version of editline is 0:53:0 or older.
 
 b) JNI  disabled, clang compiler ver. 3.8
 
