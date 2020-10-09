@@ -7,7 +7,7 @@
  *
  * Contributors:
  *   Baranyi, Botond
- *
+ *   Balasko, Jeno
  ******************************************************************************/
 
 module defaultAlternative {
@@ -129,7 +129,7 @@ type union UniDefDef {
   @default default def
 }
 
-testcase tc_ininit_int() runs on CT {
+testcase tc_uninit_int() runs on CT {
   var UniDefInt u1;
   if ( ischosen(u1.def)) {
     setverdict(fail, "ischosen bug 1");
@@ -757,21 +757,40 @@ testcase tc_predef_func_int2float() runs on CT {
   }
 }
 
-testcase tc_predef_func_int2x() runs on CT {
+testcase tc_predef_func_int2str() runs on CT {
   var UniDefInt u7 := 65;
-  
+
   var charstring cs5 := int2str(u7);
   if (cs5 != "65") {
     setverdict(fail, "cs5: ", cs5);
+  } else {
+    setverdict(pass);
   }
+}
+
+testcase tc_predef_func_int2bit() runs on CT {
+  var UniDefInt u7 := 65;
+
   var bitstring bs3 := int2bit(u7, u7 / 8);
   if (bs3 != '01000001'B) {
     setverdict(fail, "bs3: ", bs3);
   }
+}
+
+testcase tc_predef_func_int2hex() runs on CT {
+  var UniDefInt u7 := 65;
+
   var hexstring hs3 := int2hex(u7, u7 / 30);
   if (hs3 != '41'H) {
     setverdict(fail, "hs3: ", hs3);
+  } else {
+    setverdict(pass);
   }
+}
+
+testcase tc_predef_func_int2oct() runs on CT {
+  var UniDefInt u7 := 65;
+
   var octetstring os5 := int2oct(u7, u7 / 50);
   if (os5 != '41'O) {
     setverdict(fail, "os5: ", os5);
@@ -1030,7 +1049,7 @@ testcase tc_setverdict() runs on CT {
 }
 
 control {
-  execute(tc_ininit_int());
+  execute(tc_uninit_int());
   execute(tc_init_and_assign_int());
   execute(tc_init_and_assign_str());
   execute(tc_init_and_assign_rec());
@@ -1072,6 +1091,7 @@ control {
   execute(tc_predef_func_rnd());
 
   execute(tc_predef_func_hex2x());
+
   execute(tc_predef_func_int2enum_const());
   execute(tc_predef_func_int2enum_var());
   execute(tc_predef_func_int2char_const());
@@ -1079,7 +1099,11 @@ control {
   execute(tc_predef_func_int2char_mp());
   execute(tc_predef_func_int2unichar());
   execute(tc_predef_func_int2float());
-  execute(tc_predef_func_int2x());
+  execute(tc_predef_func_int2str());
+  execute(tc_predef_func_int2bit());
+  execute(tc_predef_func_int2hex());
+  execute(tc_predef_func_int2oct());
+
   execute(tc_predef_func_oct2x());
   execute(tc_predef_func_unichar2x());
   execute(tc_predef_func_templ());
