@@ -774,6 +774,8 @@ testcase tc_predef_func_int2bit() runs on CT {
   var bitstring bs3 := int2bit(u7, u7 / 8);
   if (bs3 != '01000001'B) {
     setverdict(fail, "bs3: ", bs3);
+  } else {
+    setverdict(pass);
   }
 }
 
@@ -794,8 +796,10 @@ testcase tc_predef_func_int2oct() runs on CT {
   var octetstring os5 := int2oct(u7, u7 / 50);
   if (os5 != '41'O) {
     setverdict(fail, "os5: ", os5);
+  }else {
+    setverdict(pass);
   }
-  setverdict(pass);
+
 }
 
 testcase tc_predef_func_oct2bit() runs on CT {
@@ -875,8 +879,9 @@ testcase tc_predef_func_unichar_istemplatekind() runs on CT {
   var template integer t := ?;
   if (not istemplatekind(t, u10)) {
     setverdict(fail, "istemplatekind");
+  } else {
+    setverdict(pass);
   }
-  setverdict(pass);
 }
 
 testcase tc_predef_func_templ() runs on CT {
