@@ -798,24 +798,48 @@ testcase tc_predef_func_int2oct() runs on CT {
   setverdict(pass);
 }
 
-testcase tc_predef_func_oct2x() runs on CT {
+testcase tc_predef_func_oct2bit() runs on CT {
   var UniDefOct u8 := '20'O;
   var bitstring bs4 := oct2bit(u8);
   if (bs4 != '00100000'B) {
     setverdict(fail, "bs4: ", bs4);
+  } else {
+    setverdict(pass);
   }
+}
+
+testcase tc_predef_func_oct2hex() runs on CT {
+  var UniDefOct u8 := '20'O;
   var hexstring hs4 := oct2hex(u8);
   if (hs4 != '20'H) {
     setverdict(fail, "hs4: ", hs4);
+  } else {
+    setverdict(pass);
   }
+}
+
+testcase tc_predef_func_oct2str() runs on CT {
+  var UniDefOct u8 := '20'O;
   var charstring cs6 := oct2str(u8);
   if (cs6 != "20") {
     setverdict(fail, "cs6: ", cs6);
+  } else {
+    setverdict(pass);
   }
+}
+
+testcase tc_predef_func_oct2int() runs on CT {
+  var UniDefOct u8 := '20'O;
   var integer i7 := oct2int(u8);
   if (i7 != 32) {
     setverdict(fail, "i7: ", i7);
+  } else {
+    setverdict(pass);
   }
+}
+
+testcase tc_predef_func_oct2char() runs on CT {
+  var UniDefOct u8 := '20'O;
   var charstring cs7 := oct2char(u8);
   if (cs7 != " ") {
     setverdict(fail, "cs7: ", cs7);
@@ -1104,7 +1128,11 @@ control {
   execute(tc_predef_func_int2hex());
   execute(tc_predef_func_int2oct());
 
-  execute(tc_predef_func_oct2x());
+  execute(tc_predef_func_oct2bit());
+  execute(tc_predef_func_oct2hex());
+  execute(tc_predef_func_oct2str());
+  execute(tc_predef_func_oct2int());
+  execute(tc_predef_func_oct2char());
   execute(tc_predef_func_unichar2x());
   execute(tc_predef_func_templ());
   execute(tc_encdec());
