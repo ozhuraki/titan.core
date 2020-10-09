@@ -682,8 +682,18 @@ testcase tc_predef_func_hex2x() runs on CT {
   setverdict(pass);
 }
 
+testcase tc_predef_func_int2enum_const() runs on CT {
+  const UniDefInt u7 := 2;
+  var Enum converted, expected := third; /*2*/
+  int2enum(u7, converted);
+  if ( converted == expected) { 
+    setverdict(pass);
+  } else {
+    setverdict(fail, "int2enum failed");
+  }
+}
 
-testcase tc_predef_func_int2enum() runs on CT {
+testcase tc_predef_func_int2enum_var() runs on CT {
   var UniDefInt u7 := 2;
   var Enum converted, expected := third; /*2*/
   int2enum(u7, converted);
@@ -694,23 +704,65 @@ testcase tc_predef_func_int2enum() runs on CT {
   }
 }
 
-testcase tc_predef_func_int2x() runs on CT {
+testcase tc_predef_func_int2char_const() runs on CT {
+  const UniDefInt u7 := 65;
+  const charstring cs4 := int2char(u7);
+  if (cs4 != "A") {
+    setverdict(fail, "cs4: ", cs4);
+  } else {
+    setverdict(pass)
+  }
+}
+
+testcase tc_predef_func_int2char_var() runs on CT {
   var UniDefInt u7 := 65;
   var charstring cs4 := int2char(u7);
   if (cs4 != "A") {
     setverdict(fail, "cs4: ", cs4);
+  } else {
+    setverdict(pass)
   }
+}
+
+modulepar UniDefInt tsp_u7 := 65;
+testcase tc_predef_func_int2char_mp() runs on CT { 
+  var charstring cs4 := int2char(tsp_u7);
+  if (cs4 != "A") {
+    setverdict(fail, "cs4: ", cs4);
+  } else {
+    setverdict(pass)
+  }
+}
+
+testcase tc_predef_func_int2unichar() runs on CT {
+  var UniDefInt u7 := 65;
+
   var universal charstring us1 := int2unichar(u7);
   if (us1 != "A") {
     setverdict(fail, "us1: ", us1);
+  } else {
+    setverdict(pass);
   }
+   
+}
+
+testcase tc_predef_func_int2float() runs on CT {
+  var UniDefInt u7 := 65;
+
   var float f3 := int2float(u7);
   if (f3 != 65.0) {
     setverdict(fail, "f3: ", f3);
+  } else {
+    setverdict(pass);
   }
+}
+
+testcase tc_predef_func_int2x() runs on CT {
+  var UniDefInt u7 := 65;
+  
   var charstring cs5 := int2str(u7);
   if (cs5 != "65") {
-    setverdict(fail, "cs5: ", cs4);
+    setverdict(fail, "cs5: ", cs5);
   }
   var bitstring bs3 := int2bit(u7, u7 / 8);
   if (bs3 != '01000001'B) {
@@ -1020,7 +1072,13 @@ control {
   execute(tc_predef_func_rnd());
 
   execute(tc_predef_func_hex2x());
-  execute(tc_predef_func_int2enum());
+  execute(tc_predef_func_int2enum_const());
+  execute(tc_predef_func_int2enum_var());
+  execute(tc_predef_func_int2char_const());
+  execute(tc_predef_func_int2char_var());
+  execute(tc_predef_func_int2char_mp());
+  execute(tc_predef_func_int2unichar());
+  execute(tc_predef_func_int2float());
   execute(tc_predef_func_int2x());
   execute(tc_predef_func_oct2x());
   execute(tc_predef_func_unichar2x());
