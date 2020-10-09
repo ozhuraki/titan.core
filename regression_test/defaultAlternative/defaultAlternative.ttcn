@@ -25,7 +25,7 @@ with { extension "prototype(convert) encode(JSON)" }
 
 type record of integer RecOf;
 
-type enumerated Enum { first (0), second };
+type enumerated Enum { first (0), second /*1*/, third /*2*/ };
 
 type union Uni {
   integer num,
@@ -682,8 +682,19 @@ testcase tc_predef_func_hex2x() runs on CT {
   setverdict(pass);
 }
 
+
+testcase tc_predef_func_int2enum() runs on CT {
+  var UniDefInt u7 := 2;
+  var Enum converted, expected := third; /*2*/
+  int2enum(u7, converted);
+  if ( converted == expected) { 
+    setverdict(pass);
+  } else {
+    setverdict(fail, "int2enum failed");
+  }
+}
+
 testcase tc_predef_func_int2x() runs on CT {
-  //TODO:int2enum
   var UniDefInt u7 := 65;
   var charstring cs4 := int2char(u7);
   if (cs4 != "A") {
@@ -1009,6 +1020,7 @@ control {
   execute(tc_predef_func_rnd());
 
   execute(tc_predef_func_hex2x());
+  execute(tc_predef_func_int2enum());
   execute(tc_predef_func_int2x());
   execute(tc_predef_func_oct2x());
   execute(tc_predef_func_unichar2x());
