@@ -843,21 +843,34 @@ testcase tc_predef_func_oct2char() runs on CT {
   var charstring cs7 := oct2char(u8);
   if (cs7 != " ") {
     setverdict(fail, "cs7: ", cs7);
+  }else {
+    setverdict(pass);
   }
-  setverdict(pass);
 }
 
-testcase tc_predef_func_unichar2x() runs on CT {
+testcase tc_predef_func_unichar2int() runs on CT {
   var UniDefUstr u9 := "a";
   var integer i8 := unichar2int(u9);
   if (i8 != 97) {
     setverdict(fail, "i8: ", i8);
+  } else {
+    setverdict(pass);
   }
+}
+
+testcase tc_predef_func_unichar2char() runs on CT {
+    var UniDefUstr u9 := "a";
   var charstring cs8 := unichar2char(u9);
   if (cs8 != "a") {
     setverdict(fail, "cs8: ", cs8);
+  } else {
+    setverdict(pass);
   }
-  
+}
+
+testcase tc_predef_func_unichar_istemplatekind() runs on CT {
+  var UniDefUstr u9 := "a";
+
   var UniDefStr u10 := "AnyValue";
   var template integer t := ?;
   if (not istemplatekind(t, u10)) {
@@ -1133,7 +1146,9 @@ control {
   execute(tc_predef_func_oct2str());
   execute(tc_predef_func_oct2int());
   execute(tc_predef_func_oct2char());
-  execute(tc_predef_func_unichar2x());
+  execute(tc_predef_func_unichar2int());
+  execute(tc_predef_func_unichar2char());
+  execute(tc_predef_func_unichar_istemplatekind());
   execute(tc_predef_func_templ());
   execute(tc_encdec());
   execute(tc_comp_and_port());
