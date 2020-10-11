@@ -1,0 +1,5 @@
+ALPINE_LINUX := yes
+TTCN3_DIR := /home/titan/titan.core/Install
+OPENSSL_DIR := /usr
+JNI := no
+GEN_PDF := no
