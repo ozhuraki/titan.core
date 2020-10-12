@@ -119,8 +119,8 @@ JNI := no
 GEN_PDF := no
 CXX := clang++-3.8
 CC := clang-3.8 
-OLD_LIBEDIT = yes # if the first line of /usr/include/editline/readline.h (or /usr/include/readline/readline.h) 
-                  # contains v1.34 or older i.e version of editline is 2.0.53 or older.
+OLD_LIBEDIT = yes  # if the first line of /usr/include/editline/readline.h
+                   # contains v1.34 or older i.e version of editline is 0:53:0 or older.
 
 c) JNI  enabled, gcc compiler (default)
 
@@ -136,9 +136,9 @@ XMLDIR := /usr
 JNI := yes
 GEN_PDF := no
 COMPILERFLAGS += -Wall -Wlogical-op -I/home/<user id>/jdk/include -I/usr/include
-OLD_LIBEDIT = yes # if the first line of /usr/include/editline/readline.h (or /usr/include/readline/readline.h) 
-                  # contains v1.34 or older i.e version of editline is 2.0.53 or older.
-
+OLD_LIBEDIT = yes  # if the first line of /usr/include/editline/readline.h
+                   # contains v1.34 or older i.e version of editline is 0:53:0 or older.
+                   
 d) For Alpine Linux, an appropriate flag has to be set:
 
 :
