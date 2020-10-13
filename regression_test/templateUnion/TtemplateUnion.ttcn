@@ -200,6 +200,27 @@ testcase tc_record_withWildCard3E() runs on templateUnion_mycomp {
   if(ispresent(vtl_rec2.u.i)){setverdict(fail)}else {setverdict(pass)};
 }
 
+testcase tc_logmatch_cleanup() runs on templateUnion_mycomp {
+  // bug 567844
+  // When logging the result of an unsuccessful matching operation with a union template,
+  // the matching info is not properly cleaned up, and can cause future logged matchings
+  // of the same type to also display leftover data.
+  var charstring log2_exp := " matched";
+  for (var integer i := 0; i < 5; i := i + 1) {
+    var templateUnion_myunion x := { f1 := i };
+    var charstring log1 := log2str(match(x, templateUnion_myunion: { f1 := 10 }));
+    var charstring log1_exp := ".f1 := " & int2str(i) & " with 10 unmatched";
+    if (log1 != log1_exp) {
+      setverdict(fail, "log1: ", log1, ", expected: ", log1_exp);
+    }
+    var charstring log2 := log2str(match(x, templateUnion_myunion: { f1 := ? }));
+    if (log2 != log2_exp) {
+      setverdict(fail, "log2: ", log2, ", expected: ", log2_exp);
+    }
+  }
+  setverdict(pass);
+}
+
 control {
  execute(templateUnionSpec());
  execute(templateUnionList());
@@ -209,5 +230,6 @@ control {
  execute(templateUnionAnyorNone());
 // execute(templateUnionIfpresent());
  execute(tc_record_withWildCard3E());
+ execute(tc_logmatch_cleanup());
 }
 }
