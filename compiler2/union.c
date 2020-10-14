@@ -3216,8 +3216,9 @@ void defUnionTemplate(const struct_def *sdef, output_struct *output)
     "}\n"
     "if (template_selection == SPECIFIC_VALUE && "
     "single_value.union_selection == match_value.get_selection()) {\n"
-    "size_t previous_size = TTCN_Logger::get_logmatch_buffer_len();\n"
-    "switch (single_value.union_selection) {\n", name, name);
+    "%s"
+    "switch (single_value.union_selection) {\n", name, name,
+    sdef->nElements > 0 ? "size_t previous_size = TTCN_Logger::get_logmatch_buffer_len();\n" : "");
   for (i = 0; i < sdef->nElements; i++) {
     src = mputprintf(src, "case %s_%s:\n"
     "if(TTCN_Logger::VERBOSITY_COMPACT == TTCN_Logger::get_matching_verbosity()){\n"
