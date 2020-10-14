@@ -8,20 +8,20 @@ Each section begins with a section name within square brackets. Different sectio
 
 The configuration file can contain any white space characters. There are three ways to put comments in the file: you can use the C comment delimiters (i.e. /* and */). Additionally, characters beginning with # or // are treated as comments until the end of line.
 
-Character string values shall be given between quotation marks. The non-printable characters as well as the quotation mark character within string values must be escaped using TTCN–3 or C escape sequences or quadruple notation. All kinds of escape sequences that are available in TTCN–3 and C languages (including octal and hexadecimal notation) are recognized.
+Character string values shall be given between quotation marks. The non-printable characters as well as the quotation mark character within string values must be escaped using TTCN-3 or C escape sequences or quadruple notation. All kinds of escape sequences that are available in TTCN-3 and C languages (including octal and hexadecimal notation) are recognized.
 
 All sections are optional, thus an empty file is also a valid (but meaningless) configuration file. The sections are processed in the given order. In case of duplicated sections, all sections will be processed and no warnings will be issued.
 
 In the following we present all possible sections of the configuration file. The majority of sections are applicable in both single and parallel modes with identical meaning. However, some sections or settings in a section are applicable either in single or parallel mode only.
 
-The indication (Parallel mode) following the section title signals that the concerned section is processed in parallel operation mode only. Irrelevant sections or options are ignored in each mode and a warning message is displayed during configuration file processing. For details on running TITAN TTCN–3 test suites in either single or parallel mode using see the TITAN TTCN–3 User Guide (see <<13-references.adoc#_13, [13]>>).
+The indication (Parallel mode) following the section title signals that the concerned section is processed in parallel operation mode only. Irrelevant sections or options are ignored in each mode and a warning message is displayed during configuration file processing. For details on running TITAN TTCN-3 test suites in either single or parallel mode using see the TITAN TTCN-3 User Guide (see <<13-references.adoc#_13, [13]>>).
 
 The component name defined by the `create` operation (see <<4-ttcn3_language_extensions.adoc#parameters-of-create-operation, here>>) can contain any characters. This component name can be used without quoted marks but it shall be used with quoted marks (i.e as quoted string) if it contains extra characters e.g. space (" "), hyphen ("-") or dot ("."). See also the examples of this chapter in sections <<module-parameters, [MODULE_PARAMETERS]>> and <<testport-parameters, [TESTPORT_PARAMETERS]>>.
 
 [[module-parameters]]
 == [MODULE_PARAMETERS]
 
-This section may contain the values of any parameters that are defined in your TTCN–3 modules.
+This section may contain the values of any parameters that are defined in your TTCN-3 modules.
 
 The parameters shall be specified after each other in any order. Each parameter must be given in the following order: module name (optional) <<13-references.adoc#_24, [24]>>, parameter name, field names (in case of records, sets or unions; optional) or array indexes (in case of arrays, records of or sets of; optional), assignment or concatenation operator (that is, the characters := or &=) and parameter value. An optional terminator semicolon may be used after each parameter value. The concatenation operator can be applied to list types (record of, set of). In this case only the value list notation can be used.
 
@@ -93,23 +93,23 @@ The parameter value can be one of the following:
 
 * Integer value. A number in decimal notation or an expression composed of numbers using the basic arithmetic operations to allow more flexibility with macro substitution.
 * Floating point value. A floating point number in decimal dot notation or exponential notation or an arithmetic expression composed of such values.
-* Bitstring value (in the notation of TTCN–3). String fragments can be concatenated to allow more flexible macro substitution.
-* Hexstring value (in the notation of TTCN–3). String fragments can be concatenated to allow more flexible macro substitution.
-* Octetstring value (in the notation of TTCN–3). String fragments can be concatenated to allow more flexible macro substitution.
+* Bitstring value (in the notation of TTCN-3). String fragments can be concatenated to allow more flexible macro substitution.
+* Hexstring value (in the notation of TTCN-3). String fragments can be concatenated to allow more flexible macro substitution.
+* Octetstring value (in the notation of TTCN-3). String fragments can be concatenated to allow more flexible macro substitution.
 * Charstring value (between quotation marks; escape sequences are allowed). String fragments can be concatenated to allow more flexible macro substitution.
-* Universal charstring value (sequence of concatenated fragments; each fragment can be either a printable string within quotation marks or a quadruple in TTCN–3 notation).
+* Universal charstring value (sequence of concatenated fragments; each fragment can be either a printable string within quotation marks or a quadruple in TTCN-3 notation).
 * Boolean value (`true` or `false`).
-* Object identifier (`objid`) value (in the notation of TTCN–3). Only `NumberForm` or `NameAndNumberForm` notations are allowed.
+* Object identifier (`objid`) value (in the notation of TTCN-3). Only `NumberForm` or `NameAndNumberForm` notations are allowed.
 * Verdict value (`none`, `pass`, `inconc`, `fail` or `error`).
 * Enumerated value (the symbolic value, i.e. an identifier). Numeric values are not allowed.
 * Omit value (i.e.` omit`). Valid for optional record or set fields only.
-* `null` value for TTCN–3 component and default references.
+* `null` value for TTCN-3 component and default references.
 * `NULL` value for the ASN.1 `NULL` type.
 * "?" value: AnyValue for matching
 * "*" value: AnyValueOrNone for matching
 * IntegerRange/FloatRange/StringRange: matching an integer/float/charstring range
 * Pattern for pattern matching in charstring and universal charstring
-* Bit/Hex/Octet –string matching mechanism which are bit/hex/octet strings that contain "?" and "*" for matching
+* Bit/Hex/Octet -string matching mechanism which are bit/hex/octet strings that contain "?" and "*" for matching
 * "mtc" and "system" values for component references
 * Compound value with assignment notation. One or more fields (separated by commas) with field names within brackets for types `record` and `set`.
 * Compound value with value list notation. Comma separated list of values between brackets for types `record of`, `set of` and `array`.
@@ -227,7 +227,7 @@ The default logging is the statically loaded built in logging.
 
 The dynamically loaded logging can be the built in LegacyLogger, the plugins shipped with TITAN (see <<dynamically-loaded-logger-plugins-shipped-with-titan, here>>) or user created dynamically linked plugins (for advanced users, see chapter 3 in <<13-references.adoc#_16, [16]>>.
 
-NOTE: *When using dynamically loaded logger plugins it is very important to use the dynamic runtime library of TITAN, this can be done by using the –l switch when generating the makefile.*
+NOTE: *When using dynamically loaded logger plugins it is very important to use the dynamic runtime library of TITAN, this can be done by using the -l switch when generating the makefile.*
 
 The desired logger plugins need to be set in the `LoggerPlugins` option. The `LoggerPlugins` option takes a non-empty, comma separated list of logger plugin settings. These settings can be specified in the following ways:
 
@@ -318,7 +318,7 @@ LoggerPlugins := { JUnitLogger := "libjunitlogger" }
 hello.control
 ----
 
-The makefile was generated by the command `makefilegen –fl hello.ttcn`.
+The makefile was generated by the command `makefilegen -fl hello.ttcn`.
 
 The executable was executed by the command `ttcn3_start hello cfg.cfg`.
 
@@ -353,8 +353,8 @@ Each testcase starts with two xml style comments which is followed by a <testcas
 
 Each testcase starts with the following two xml comments:
 
-* `<!– Testcase "name of the testcase" started –>`
-* `<!– Testcase "name of the testcase" finished in "execution time is seconds", verdict:"verdict" –>`
+* `<!- Testcase "name of the testcase" started ->`
+* `<!- Testcase "name of the testcase" finished in "execution time is seconds", verdict:"verdict" ->`
 
 This is followed by a <testcase> tag.
 
@@ -378,7 +378,7 @@ Has the following element content with the following attribute:
 
 <failure type=`fail-verdict'>
 
-The <failure> tag can have several of the following text contents – each in a separate line (see results log example above):
+The <failure> tag can have several of the following text contents - each in a separate line (see results log example above):
 
 * control part
 * testcase
@@ -389,9 +389,9 @@ The <failure> tag can have several of the following text contents – each in a 
 
 Each line contains `"filename:linenumber identifier definition"`, where each of the items mean the following:
 
-* filename:linenumber – the file and the line where the test failed
-* identifier – the identifier depending on the definition, e.g. the classname in case of "control part" or the name of the test in case of "testcase"
-* definition – see the list in <failure> tag text content
+* filename:linenumber - the file and the line where the test failed
+* identifier - the identifier depending on the definition, e.g. the classname in case of "control part" or the name of the test in case of "testcase"
+* definition - see the list in <failure> tag text content
 
 This is a simple stacktrace of the failure.
 
@@ -483,15 +483,15 @@ LoggerPlugins := { JUnitLogger := "libjunitlogger2" }
 +
 New attributes:
 +
-tests – number of all testcases executed
+tests - number of all testcases executed
 +
-failures – number of testcases whose final verdict is fail
+failures - number of testcases whose final verdict is fail
 +
-errors – number of testcases that encountered an error
+errors - number of testcases that encountered an error
 +
-skipped – number of testcases with a none verdict
+skipped - number of testcases with a none verdict
 +
-time – the time in seconds from the start of the tests until all the testcases executed.
+time - the time in seconds from the start of the tests until all the testcases executed.
 +
 * XML comments are not added to the output.
 * XSD:
@@ -620,7 +620,7 @@ To use the LTTng-UST logger plugin:
 . Make sure LTTng (2.7 or greater) is installed (the LTTng-tools and LTTng-UST components are required).
 . Add the following line to your runtime configuration file:LoggerPlugins := { LTTngUSTLogger := "liblttng-ust-logger" }
 . Create an LTTng tracing session:lttng create
-. Enable TITAN events:lttng enable-event –userspace titan_core:'*'
+. Enable TITAN events:lttng enable-event -userspace titan_core:'*'
 . Start tracing:lttng start
 . Run your test script.
 . When you are done, stop tracing:lttng stop
@@ -639,8 +639,8 @@ The table below contains the list of available metacharacters in alphabetical or
 [cols="m,",options="header",]
 |===
 |Meta-character |Substituted with . . .
-|%c |the name of the TTCN–3 test case that the PTC belongs to.
-|%e |the name of the TTCN–3 executable. The .exe suffix (on Windows platforms) and the directory part of the path name (if present) are truncated.
+|%c |the name of the TTCN-3 test case that the PTC belongs to.
+|%e |the name of the TTCN-3 executable. The .exe suffix (on Windows platforms) and the directory part of the path name (if present) are truncated.
 |%h |the name of the computer returned by the gethostname(2) system call. This usually does not include the domain name.
 |%i |the sequence number of the log fragment.
 |%l |the login name of the current user. If the login name cannot be determined (e.g. the current UNIX user ID has no associated login name) an empty string is returned.
@@ -651,7 +651,7 @@ The table below contains the list of available metacharacters in alphabetical or
 | %p | the process ID (`pid`) of the UNIX process that implements the current test component. The `pid` is written in decimal notation.
 | %r | the component reference or component identifier. On PTCs it is the component reference (an integer number greater or equal to 3) in decimal notation. On the Main Test Component, Host Controller or in single mode the strings `mtc`, `hc` or `single` are substituted, respectively.
 | %s | the default suffix for the log files without the leading dot. Now it always results in string log, but future versions may support log file compression. In this case the suffix will depend on the chosen compression method.
-| %t | the TTCN–3 component type. Note: The MTC and HC have no dedicated component type since they can implement several component types in different test cases.
+| %t | the TTCN-3 component type. Note: The MTC and HC have no dedicated component type since they can implement several component types in different test cases.
 | %% | a single % character.
 |===
 
@@ -717,7 +717,7 @@ It is also possible to apply the filtering on selected logger plugins of a compo
 [cols=",",options="header",]
 |===
 |Logging categories |Symbolic constantfootnote:[In order to be compatible with older configuration files, the following symbolic constants are also recognized: TTCN_ERROR, TTCN_WARNING, TTCN_PORTEVENT, TTCN_TIMEROP, TTCN_VERDICTOP, TTCN_DEFAULTOP, TTCN_TESTCASE, TTCN_ACTION, TTCN_USER, TTCN_FUNCTION, TTCN_STATISTICS, TTCN_PARALLEL, TTCN_EXECUTOR, TTCN_MATCHING and TTCN_DEBUG. These constants have the same meaning as their counterparts without the prefix TTCN_.]
-|TTCN–3 action(…) statements(No subcategory is implemented) |`ACTION`
+|TTCN-3 action(…) statements(No subcategory is implemented) |`ACTION`
 |Debug messages in Test Ports and external functions(For subcategories see Table 15) |`DEBUG`
 |Default operations (`activate`, `deactivate`, `return`)(For subcategories see Table 16) |`DEFAULTOP`
 |Dynamic test case errors (e.g. snapshot matching failures)(No subcategory is implemented) |`ERROR`
@@ -895,24 +895,24 @@ In both single and parallel modes some log events are created before processing 
 
 === `SourceInfoFormat`
 
-Option `SourceInfoFormat` controls the appearance of the location information for the test events. The location information refers to a position in the TTCN–3 source code. It consists of the name of the TTCN–3 file and the line number separated by a colon character (:). Optionally, it may contain the name of the TTCN–3 entity (function, testcase, etc.) in parentheses that the source line belongs to. See also the option <<LogEntityName, `LogEntityName`>> below.
+Option `SourceInfoFormat` controls the appearance of the location information for the test events. The location information refers to a position in the TTCN-3 source code. It consists of the name of the TTCN-3 file and the line number separated by a colon character (:). Optionally, it may contain the name of the TTCN-3 entity (function, testcase, etc.) in parentheses that the source line belongs to. See also the option <<LogEntityName, `LogEntityName`>> below.
 
-The option can take one of the three possible values: `None`, `Single` and `Stack`. In case of `Single`, the location information of the TTCN–3 statement is logged that is currently being executed. When `Stack` is used the entire TTCN–3 call stack is logged. The logged information starts from the outermost control part or testcase and ends with the innermost TTCN–3 statement. An arrow (that is, the character sequence ->) is used as separator between the stack frames. The value `None` disables the printing of location information. The default value for `SourceInfoFormat` is `None`.
+The option can take one of the three possible values: `None`, `Single` and `Stack`. In case of `Single`, the location information of the TTCN-3 statement is logged that is currently being executed. When `Stack` is used the entire TTCN-3 call stack is logged. The logged information starts from the outermost control part or testcase and ends with the innermost TTCN-3 statement. An arrow (that is, the character sequence ->) is used as separator between the stack frames. The value `None` disables the printing of location information. The default value for `SourceInfoFormat` is `None`.
 
 The location information is placed in each line of the log file between the event type or timestamp and the textual description of the event.
 
-This option works only if the command line option `–L` is passed to the compiler (see <<6-compiling_ttcn3_and_asn1_modules.adoc#command-line-syntax, here>>). This feature is useful for debugging new TTCN–3 code or for understanding the traces of complex control constructs. If the location information is not generated into the {cpp} code the executable tests run faster, which can be more important when doing performance tests.
+This option works only if the command line option `-L` is passed to the compiler (see <<6-compiling_ttcn3_and_asn1_modules.adoc#command-line-syntax, here>>). This feature is useful for debugging new TTCN-3 code or for understanding the traces of complex control constructs. If the location information is not generated into the {cpp} code the executable tests run faster, which can be more important when doing performance tests.
 
-NOTE: The reception of messages or procedure calls can only occur while the run-time environment is taking a new snapshot. A new snapshot is taken when the testcomponent is evaluating a stand-alone receiving operation, an `alt` construct or a standalone `altstep` invocation. Thus, the location information of the incoming messages or calls points to the first line of the above statements. The log event belonging to a TTCN–3 operation can be the extraction of a message from the port queue and not the reception of an incoming message.
+NOTE: The reception of messages or procedure calls can only occur while the run-time environment is taking a new snapshot. A new snapshot is taken when the testcomponent is evaluating a stand-alone receiving operation, an `alt` construct or a standalone `altstep` invocation. Thus, the location information of the incoming messages or calls points to the first line of the above statements. The log event belonging to a TTCN-3 operation can be the extraction of a message from the port queue and not the reception of an incoming message.
 
-If the event has no associated line in the TTCN–3 source code (e.g. because it belongs to test environment startup or termination) and `SourceInfoFormat` is set to either `Single` or `Stack`, a single dash character `(-)` is printed into the log instead of the location information. This makes the automated processing of log files easier.
+If the event has no associated line in the TTCN-3 source code (e.g. because it belongs to test environment startup or termination) and `SourceInfoFormat` is set to either `Single` or `Stack`, a single dash character `(-)` is printed into the log instead of the location information. This makes the automated processing of log files easier.
 
 The obsolete option `LogSourceInfo` is also accepted for backward compatibility with earlier versions. Setting `LogSourceInfo` `:= Yes` is equivalent to `SourceInfoFormat` `:= Single`, and similarly `LogSourceInfo := No` means `SourceInfoFormat := None`.
 
 [[LogEntityName]]
 === `LogEntityName`
 
-Option `LogEntityName` controls whether the name of the corresponding TTCN–3 entity (`function`, `testcase`, `altstep, control` part, etc.) shall be included in the location information. If this option is set to `Yes`, the file name and line number is followed by the name of the TTCN–3 entity within parentheses. The default value is `No`. The option has no effect if `SourceInfoFormat` is set to `None`.
+Option `LogEntityName` controls whether the name of the corresponding TTCN-3 entity (`function`, `testcase`, `altstep, control` part, etc.) shall be included in the location information. If this option is set to `Yes`, the file name and line number is followed by the name of the TTCN-3 entity within parentheses. The default value is `No`. The option has no effect if `SourceInfoFormat` is set to `None`.
 
 === `LogFileSize`
 
@@ -1145,7 +1145,7 @@ LogEventTypes := Yes
 
 In this section you can specify parameters that are passed to Test Ports. Each parameter definition consists of a component name, a port name, a parameter name and a parameter value. The component name can be either an identifier that is assigned to the component in the `create` operation (see <<4-ttcn3_language_extensions.adoc#visibility-modifiers, here>>) or an integer value, which is interpreted as component reference[31]. The port and parameter names are identifiers while the parameter value must be always a `charstring` (with quotation marks). Instead of component name or port name (or both of them) the asterisk (*) sign can be used, which means "all components" or "all ports of the component".
 
-If the keyword `system` is used as a component identifier, the parameter is passed to all ports of all components that are mapped to the given port of the test system interface. In this case the port identifier refers to the port of the test system and not the port of a TTCN–3 test component. These parameters are passed to the appropriate Test Port during the execution of map operations because the future mappings are not known at test component initialization. The asterisk ("*") sign can also be used as port name with the component identifier system. This wildcard means, of course, all ports of the Test System Interface (that is, the parameter will be passed during all `map` operations).
+If the keyword `system` is used as a component identifier, the parameter is passed to all ports of all components that are mapped to the given port of the test system interface. In this case the port identifier refers to the port of the test system and not the port of a TTCN-3 test component. These parameters are passed to the appropriate Test Port during the execution of map operations because the future mappings are not known at test component initialization. The asterisk ("*") sign can also be used as port name with the component identifier system. This wildcard means, of course, all ports of the Test System Interface (that is, the parameter will be passed during all `map` operations).
 
 The names and meaning of Test Port parameters depend on the Test Port that you are using; for this information please consult the user documentation of your Test Port. It is the Test Port writer’s responsibility to process the parameter names and values. For the details of Test Port API see the section "Parameter setting function" in <<13-references.adoc#_16, [16]>>.
 
@@ -1178,7 +1178,7 @@ system.MySystemInterface2.RemoteIPAddress := "10.1.1.2"
 
 In this section you can create macro definitions that can be used in other configuration file sections except `[INCLUDE]`. This way if the same value must be given several times in the configuration file, you can make a definition for it and only refer to the definition later on. In case of a change, you wouldn’t need to change the values all over the configuration file, but only in the definition.
 
-This section may contain zero, one or more macro definitions (assignments). Each macro definition consists of a macro identifier, which shall be a TTCN–3 identifier, an assignment operator and the macro value. The macro value is either a simple or a structured value (see the BNF below).
+This section may contain zero, one or more macro definitions (assignments). Each macro definition consists of a macro identifier, which shall be a TTCN-3 identifier, an assignment operator and the macro value. The macro value is either a simple or a structured value (see the BNF below).
 
 The simple macro value is a sequence of one or more literal values and macro references. The elements of the sequence must not be separated by anything, whitespaces or comments are not allowed.
 
@@ -1237,7 +1237,7 @@ The reference with this modifier has the same result as a simple reference.
 * `binaryoctet` +
 Transforms the value of the macro into an octetstring value so that the octets of the resulting string will contain the ASCII character code of the corresponding character from the macro value. The macro value to be substituted may contain any kind of character.
 * `identifier` +
-Transforms the value of the macro into a TTCN–3 identifier. This modifier is useful, for instance, for specifying values of enumerated types in section [`MODULE_PARAMETERS`]. The macro value shall contain a valid TTCN–3 identifier. Leading and trailing whitespace characters are not allowed in the macro value.
+Transforms the value of the macro into a TTCN-3 identifier. This modifier is useful, for instance, for specifying values of enumerated types in section [`MODULE_PARAMETERS`]. The macro value shall contain a valid TTCN-3 identifier. Leading and trailing whitespace characters are not allowed in the macro value.
 * `hostname` +
 Transforms the value of the macro into a host name, DNS name or IPv4 or IPv6 address. The modifier can be used in sections [`GROUPS`], [`COMPONENTS`] and [`MAIN_CONTROLLER`]. The value to be substituted shall contain a valid host name, DNS name or IP address formed from alphanumerical, dash (-), underscore (_), dot (.), colon(:) or percentage (%) characters. Leading and trailing whitespace is not allowed.
 ====
@@ -1429,7 +1429,7 @@ EndControlPart := ""
 
 === Example: Running `tcpdump` during test execution
 
-In case of testing IP based protocols it might be useful to monitor the network during TTCN–3 test execution. The following shell scripts show an example how to start the program `tcpdump` in the background at the beginning of every test case and how to terminate it when a test case is finished.
+In case of testing IP based protocols it might be useful to monitor the network during TTCN-3 test execution. The following shell scripts show an example how to start the program `tcpdump` in the background at the beginning of every test case and how to terminate it when a test case is finished.
 
 When `tcpdump` is running, its `pid` is stored in the file `/etc/tcpdump.pid` to inform the stopping script which process to kill. Of course, the command line options for tcpdump may be changed to fit your needs. The output of `tcpdump` is saved in the file `<testcase name>.dump` in the working directory of the executable test program, which is useful when `repgen` is used after test execution.
 
@@ -1474,9 +1474,9 @@ fi
 
 In this section you have to specify what parts of your test suite you want to execute. In single mode the configuration file is useless without this section. The section [`EXECUTE`] is optional in parallel mode. If it is missing, You shall start testcases manually from command line with the command `smtc` `[module name[.control|.testcase name|.*]]` see UG <<13-references.adoc#_17, [17]>> 4.4.2.1. In this case a parameter after smtc is mandatory. Don’t omit this section in case of using `ttcn3_start`, otherwise no testcase will be executed.
 
-You can start TTCN–3 module control parts and test cases individually. There is one limitation: only those test cases having no parameters, or only parameters with default values, can be executed from this section. Other test cases can be started from the module control part with proper actual parameters.
+You can start TTCN-3 module control parts and test cases individually. There is one limitation: only those test cases having no parameters, or only parameters with default values, can be executed from this section. Other test cases can be started from the module control part with proper actual parameters.
 
-In this section, a single identifier (or an identifier followed by the optional suffix `.control`) means the control part of that TTCN–3 module. Test case names shall be preceded by the name of module that they can be found in and a dot character. You can use the character asterisk (*) instead of test case name, which means the execution of all test cases of the corresponding module in the same order as they are defined in the TTCN–3 source code.
+In this section, a single identifier (or an identifier followed by the optional suffix `.control`) means the control part of that TTCN-3 module. Test case names shall be preceded by the name of module that they can be found in and a dot character. You can use the character asterisk (*) instead of test case name, which means the execution of all test cases of the corresponding module in the same order as they are defined in the TTCN-3 source code.
 
 The control parts and test cases are executed in the same order as you specified them in this section. If you define the same module or test case name more than once, that control part or test case will be executed, of course, many times.
 
@@ -1511,7 +1511,7 @@ This section contains any number of group specifications in the following form: 
 
 Groups may overlap, that is, the same hosts can belong to several groups. Group references, however, cannot appear on the right side. It is worth mentioning that group names are case sensitive.
 
-NOTE: The groups defined in this section have nothing to do with TTCN–3 group of definitions construct!
+NOTE: The groups defined in this section have nothing to do with TTCN-3 group of definitions construct!
 
 [[the-bnf-specification-of-this-section-0]]
 === The BNF Specification of this Section
@@ -1543,7 +1543,7 @@ The rules are described in form of assignments. The left side contains a compone
 
 Each component type or component name can appear in at most one rule. The asterisk (*) stands for all component identifiers that do not appear in any rule. The asterisk can show in a single rule only.
 
-When a TTCN–3 parallel test component is being created it is the responsibility of the MC to choose a suitable and availablefootnote:[Only those hosts participate in the component distribution algorithm that have an active HC, which has been started by the user. MC ignores all unavailable group members silently and will not start the HC on them.] host for it. First a subset of available hosts, the set of so-called candidates, is determined based on the component distribution rules. The MC implements a load balancing algorithm so that the location of the component will be the candidate with the smallest load, that is, the least number of active TTCN–3 test componentsfootnote:[This term of load has no direct relation to the load average calculated by UNIX kernels.]. Once a component is assigned to a host it, cannot be moved to another one later during its life.
+When a TTCN-3 parallel test component is being created it is the responsibility of the MC to choose a suitable and availablefootnote:[Only those hosts participate in the component distribution algorithm that have an active HC, which has been started by the user. MC ignores all unavailable group members silently and will not start the HC on them.] host for it. First a subset of available hosts, the set of so-called candidates, is determined based on the component distribution rules. The MC implements a load balancing algorithm so that the location of the component will be the candidate with the smallest load, that is, the least number of active TTCN-3 test componentsfootnote:[This term of load has no direct relation to the load average calculated by UNIX kernels.]. Once a component is assigned to a host it, cannot be moved to another one later during its life.
 
 If a newly created PTC matches more than one rule (because both its component type and name is found in the section) all available members of both assigned groups are considered to be candidates.
 
@@ -1582,7 +1582,7 @@ The value of option `TCPPort` is an integer number between 0 and 65535. The reco
 
 The optional variable `NumHCs` provides support for automated (batch) execution of distributed tests. When present, the MC will not give a command prompt, but wait for `NumHCs` HCs to connect. When the specified number of HCs are connected, the MC automatically creates MTC and executes all items of the section <<execute, [`EXECUTE`]>>. When finished, the MTC is terminated and the MC quits automatically. If `NumHCs` was omitted then the MC shall be controlled interactively, that is, you have to issue the commands `cmtc` and `smtc` yourself (see also sections 12.3, 12.3.1 of the TITAN User Guide <<13-references.adoc#_13, [13]>>).
 
-The `KillTimer` option tells the MC to wait some seconds for a busy test component (MTC or PTC) to terminate when it was requested to stopfootnote:[The MTC can be terminated from the MC’s user interface or from a PTC by executing the mtc.stop operation. The termination of a PTC can be requested either explicitly (using a TTCN–3 component stop or kill operation) or implicitly (at the end of test case).]. The MC in co-operation with the local HC kills the UNIX process if the component did not terminate properly before `KillTimer` expiry. The purpose of this function is to prevent the test system from deadlocks.
+The `KillTimer` option tells the MC to wait some seconds for a busy test component (MTC or PTC) to terminate when it was requested to stopfootnote:[The MTC can be terminated from the MC’s user interface or from a PTC by executing the mtc.stop operation. The termination of a PTC can be requested either explicitly (using a TTCN-3 component stop or kill operation) or implicitly (at the end of test case).]. The MC in co-operation with the local HC kills the UNIX process if the component did not terminate properly before `KillTimer` expiry. The purpose of this function is to prevent the test system from deadlocks.
 
 NOTE: When the UNIX process of MTC is killed all existing PTCs are destroyed at the same time.
 
@@ -1625,14 +1625,14 @@ The settings in this section control the behavior of the TTCN-3 Profiler. These 
 
 The following features can be enabled or disabled through the configuration file:
 
-* `DisableProfiler` – if set to `true`, the measurement of execution times is disabled and data related to execution times or average times will not be present in the statistics file. Default value: false
-* `DisableCoverage` – if set to `true`, the execution count of code lines and functions is not measured and data related to execution counts, average times or unused lines/functions will not be present in the statistics file. Default value: `false`
-* If both `DisableProfiler` and `DisableCoverage` are set to `true`, then the profiler acts as if it wasn’t activated in any of the modules (as if the compiler flag –z was not set). The database and statistics files are not generated.
-* `AggregateData` – if set to `true`, the data gathered in the previous run(s) is added to the current data, otherwise all previous data is discarded, default value: `false`
-* `DisableStatistics` – if set to `true`, the statistics file will not be generated at the end of execution, default value: `false`
-* `StartAutomatically` – if set to `true`, the profiler will start when the program execution starts, otherwise it will only start at the first @profiler.start command (it needs to be started individually for each component in parallel mode), default value: `true`
-* `NetLineTimes` – if set to `true`, the execution times of function calls will not be added to the caller lines’ total times, default value: `false`
-* `NetFunctionTimes` – if set to `true`, the execution times of function calls will not be added to the caller functions’ total times, default value: `false`
+* `DisableProfiler` - if set to `true`, the measurement of execution times is disabled and data related to execution times or average times will not be present in the statistics file. Default value: false
+* `DisableCoverage` - if set to `true`, the execution count of code lines and functions is not measured and data related to execution counts, average times or unused lines/functions will not be present in the statistics file. Default value: `false`
+* If both `DisableProfiler` and `DisableCoverage` are set to `true`, then the profiler acts as if it wasn’t activated in any of the modules (as if the compiler flag -z was not set). The database and statistics files are not generated.
+* `AggregateData` - if set to `true`, the data gathered in the previous run(s) is added to the current data, otherwise all previous data is discarded, default value: `false`
+* `DisableStatistics` - if set to `true`, the statistics file will not be generated at the end of execution, default value: `false`
+* `StartAutomatically` - if set to `true`, the profiler will start when the program execution starts, otherwise it will only start at the first @profiler.start command (it needs to be started individually for each component in parallel mode), default value: `true`
+* `NetLineTimes` - if set to `true`, the execution times of function calls will not be added to the caller lines’ total times, default value: `false`
+* `NetFunctionTimes` - if set to `true`, the execution times of function calls will not be added to the caller functions’ total times, default value: `false`
 
 [[setting-output-files]]
 === Setting output files
@@ -1653,7 +1653,7 @@ The table below contains the list of available metacharacters in alphabetical or
 [cols="m,",options="header",]
 |===
 |Meta-character |Substituted with . . .
-|%e |the name of the TTCN–3 executable. The `.exe` suffix (on Windows platforms) and the directory part of the path name (if present) are truncated.
+|%e |the name of the TTCN-3 executable. The `.exe` suffix (on Windows platforms) and the directory part of the path name (if present) are truncated.
 |%h |the name of the computer returned by the `gethostname(2)` system call. This usually does not include the domain name.
 |%l |the login name of the current user. If the login name cannot be determined (e.g. the current UNIX user ID has no associated login name) an empty string is returned.
 |%p |the process ID `(pid)` of the UNIX process that implements the current test component. The `pid` is written in decimal notation.

@@ -14,7 +14,7 @@ Tpd files can be used without TITAN Designer for example for generating hierarch
 
 TPD files are designed to be created by the Eclipse Designer but it can be created or modified by experts.
 
-The data is stored in XML format. The schema definition of the project descriptor is delivered with the Titan package and can be found in the `${TTCN3_DIR}/etc/xsd/TPD.xsd` file. If the type of an element is a subtype of string, for example a file name or a path, the xsd file doesn’t restrict it but uses only string or NormalizedString as type. Although the compliance of a TPD file for TPD.xsd is a necessary but not sufficient statement, it is very useful to verify the tpd file against TPD.xsd for example with this command: `xmllint –noout –schema XSD_FILE XML_FILE`
+The data is stored in XML format. The schema definition of the project descriptor is delivered with the Titan package and can be found in the `${TTCN3_DIR}/etc/xsd/TPD.xsd` file. If the type of an element is a subtype of string, for example a file name or a path, the xsd file doesn’t restrict it but uses only string or NormalizedString as type. Although the compliance of a TPD file for TPD.xsd is a necessary but not sufficient statement, it is very useful to verify the tpd file against TPD.xsd for example with this command: `xmllint -noout -schema XSD_FILE XML_FILE`
 
 Each element is designed to be extendable, so for almost all elements there is a default value defined, if the element is missing this value is used.To simplify the reviews the elements are always saved in an ordered fashion thus limiting the effects of minor changes. The lists can contain from 0 to infinite elements. The O/M column in the tables describes if the element is optional or mandatory.
 
@@ -64,7 +64,7 @@ The following tags are supported:
 |*Name of the attributes* |*Meaning* |*O/M*
 |`name` |The name of the project referenced. This will create the relation between the actual and the referenced project. The value of this attribute must be equal to the `ProjectName` of the referenced project. |M
 |`projectLocationURI` |The path of the project descriptor of the referenced project, relative to the actual descriptor. If the project is not already loaded in eclipse, it will be loaded from this path. |M
-|`tpdName` |The file name of the TPD file. This attribute is used with the `makefilegen’s` –I switch to provide search paths to find the referenced project if it is not found at `projectLocationURI`. |O
+|`tpdName` |The file name of the TPD file. This attribute is used with the `makefilegen’s` -I switch to provide search paths to find the referenced project if it is not found at `projectLocationURI`. |O
 |===
 
 Example:
@@ -136,7 +136,7 @@ Example:
 
 The ActiveConfiguration element stores the name of the active build configuration whose parameters will be used by TITAN for building the project.
 
-NOTE: This can be overwritten from TITAN Designer (from Eclipse) or from command line generating Makefile(s) by ttcn3_makefilegen using the –b flag, see <<6-compiling_ttcn3_and_asn1_modules.adoc#using-the-makefile-generator-to-generate-makefile-s-from-titan-project-descriptor-file-s, here>>.
+NOTE: This can be overwritten from TITAN Designer (from Eclipse) or from command line generating Makefile(s) by ttcn3_makefilegen using the -b flag, see <<6-compiling_ttcn3_and_asn1_modules.adoc#using-the-makefile-generator-to-generate-makefile-s-from-titan-project-descriptor-file-s, here>>.
 
 See also chapter <<configurations, Configurations>>.
 
@@ -201,7 +201,7 @@ Useful information can be found in TITAN Designer documentation <<13-references.
 |`functiontestRuntime (use function test runtime (TITAN_RUNTIME_2)` |-R |-R |false |O
 |`singleMode` |-s |- |false |O
 |`codeSplitting (select code splitting mode for the generated {cpp} code)` |-U |-U |none |O
-|`defaultTarget ("executable" or "library", if –L applied, see 6.1.2)` |-L |- |executable |O
+|`defaultTarget ("executable" or "library", if -L applied, see 6.1.2)` |-L |- |executable |O
 |`targetExecutable` |-e |- |N/A |O
 |`TTCN3preprocessor (the name of the preprocessor meaningful only in Eclipse)` |- |- |cpp |O
 |`TTCN3preprocessorIncludes` |- |- |empty |O
@@ -280,7 +280,7 @@ Contents of the `ProjectSpecificRulesGenerator` element:
 
 Exactly one `GeneratorCommand` element that specifies the external command to be run
 
-An optional Targets element that contains any number of Target elements, each element having two attributes: name – name of the target, placement – the place of where the target shall be inserted. Possible places are defined in the TPD.xsd file.
+An optional Targets element that contains any number of Target elements, each element having two attributes: name - name of the target, placement - the place of where the target shall be inserted. Possible places are defined in the TPD.xsd file.
 
 The content of the `profiledFileList` element is the path to a text file, using the same path attributes as `FileResource` elements. The text file contains the list of files (TTCN-3 modules), that will be profiled, separated by new lines. This file is stored in the variable `PROFILED_FILE_LIST` in the generated makefile.
 

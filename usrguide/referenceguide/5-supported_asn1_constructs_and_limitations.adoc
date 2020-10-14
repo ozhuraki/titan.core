@@ -7,7 +7,7 @@ All kind of comments defined in X.680 clause 11.6 can be used (<<13-references.a
 
 All tagging environment is supported: `IMPLICIT`, `EXPLICIT` and also `AUTOMATIC`.
 
-The type constraints are ignored. The BER (de)coding is not influenced by the constraints, except for the table constraints. For details, see section <<6-compiling_ttcn3_and_asn1_modules.adoc#using-component-relation-constraints-from-ttcn-3, Using Component Relation Constraints from TTCN–3>>.
+The type constraints are ignored. The BER (de)coding is not influenced by the constraints, except for the table constraints. For details, see section <<6-compiling_ttcn3_and_asn1_modules.adoc#using-component-relation-constraints-from-ttcn-3, Using Component Relation Constraints from TTCN-3>>.
 
 Table 11 summarizes how the different ASN.1 types are supported.
 

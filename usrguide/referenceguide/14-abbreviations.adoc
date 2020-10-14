@@ -10,7 +10,7 @@ ATS:: Abstract Test Suite
 
 BER:: Basic Encoding Rules (of ASN.1)
 
-BNF:: Backus–Naur Formalism
+BNF:: Backus-Naur Formalism
 
 CER:: Canonical Encoding Rules (of ASN.1)
 
@@ -88,9 +88,9 @@ TR:: Trouble Report
 
 TTCN:: Testing and Test Control Notation
 
-TTCN–2:: Tree and Tabular Combined Notation version 2
+TTCN-2:: Tree and Tabular Combined Notation version 2
 
-TTCN–3:: Tree and Tabular Combined Notation version 3 (formerly)Testing and Test Control Notation (new resolution)
+TTCN-3:: Tree and Tabular Combined Notation version 3 (formerly)Testing and Test Control Notation (new resolution)
 
 UDP:: User Datagram Protocol
 

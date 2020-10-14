@@ -4,7 +4,7 @@
 
 The TTCN-3 debugger is a feature in TITAN, which allows the user to pause (halt) the execution of a TTCN-3 program and print (or in some cases overwrite) information about the current state of the program.
 
-The compiler option `–n` activates the debugger and augments the generated {cpp} code to store debug information and to allow the addition of breakpoints at runtime. For convenience this option is available for `ttcn3_makefilegen` as well.
+The compiler option `-n` activates the debugger and augments the generated {cpp} code to store debug information and to allow the addition of breakpoints at runtime. For convenience this option is available for `ttcn3_makefilegen` as well.
 
 == Gathered information
 
@@ -43,10 +43,10 @@ These snapshots contain a time stamp, the function’s name (or the module name 
 
 The debugger provides several ways to halt a TTCN-3 program:
 
-* user breakpoints – breakpoints can be set by the user to any line or function in the TTCN-3 code;
-* automatic breakpoints – certain events can be set to halt the program automatically;
-* stepping – the user can step to the next line of code (when the program is already halted), or to a specific line or function;
-* manual halt – the user can halt the program manually (regardless of which line is currently being executed).
+* user breakpoints - breakpoints can be set by the user to any line or function in the TTCN-3 code;
+* automatic breakpoints - certain events can be set to halt the program automatically;
+* stepping - the user can step to the next line of code (when the program is already halted), or to a specific line or function;
+* manual halt - the user can halt the program manually (regardless of which line is currently being executed).
 
 When the program is halted, no further TTCN-3 code is executed, until the user manually resumes the program’s execution.
 
@@ -157,13 +157,13 @@ Description: Removes the breakpoint at the specified location (if it exists), or
 Examples:
 [source]
 ----
-Example 1 – removing one breakpoint, from module MyModule, line 114:
+Example 1 - removing one breakpoint, from module MyModule, line 114:
 drembp MyModule 114
 
-Example 2 – removing all breakpoints from module MyModule:
+Example 2 - removing all breakpoints from module MyModule:
 drembp MyModule all
 
-Example 3 – removing all breakpoints:
+Example 3 - removing all breakpoints:
 drembp all
 ----
 
@@ -177,8 +177,8 @@ Description: Activates or deactivates an automatic breakpoint, or changes the ba
 
 Automatic breakpoints are breakpoints triggered by specific events. The first argument indicates which automatic breakpoint to change:
 
-* *error* – triggered when the component’s verdict is set to `error` by a dynamic test case error (not all dynamic test case errors trigger this breakpoint, only those that actually change the local verdict to `error`);
-* *fail* – triggered when the component’s verdict is set to `fail` (by a `setverdict` operation.
+* *error* - triggered when the component’s verdict is set to `error` by a dynamic test case error (not all dynamic test case errors trigger this breakpoint, only those that actually change the local verdict to `error`);
+* *fail* - triggered when the component’s verdict is set to `fail` (by a `setverdict` operation.
 
 If the automatic breakpoint has a batch file set, then this batch file is automatically executed when the breakpoint is triggered.
 
@@ -200,7 +200,7 @@ NOTE: In parallel mode output files are created in the host’s working director
 [cols="m,",options="header",]
 |===
 |Meta-character |Substituted with . . .
-|%e |the name of the TTCN–3 executable. The `.exe` suffix (on Windows platforms) and the directory part of the path name (if present) are truncated.
+|%e |the name of the TTCN-3 executable. The `.exe` suffix (on Windows platforms) and the directory part of the path name (if present) are truncated.
 |%h |the name of the computer returned by the `gethostname`(2) system call. This usually does not include the domain name.
 |%l |the login name of the current user. If the login name cannot be determined (e.g. the current UNIX user ID has no associated login name) an empty string is returned.
 |%n a|* the name of the test component if the PTC has been given a name with the command `create` in the TTCN-3 `create` operation; an empty string otherwise. +
@@ -218,9 +218,9 @@ Default setting: all
 
 Description: Changes the method of storing function call data. The new configuration is specified by the command’s first argument:
 
-* 'all' – In this case all function calls are stored by the debugger. This option damages the program’s performance the most (specifically its memory consumption), since two long strings are stored every time a function is called and they are not deleted until the program’s execution ends.
-* _buffer size_ – This option sets an upper limit to the amount of function call snapshots stored (equal to `<buffer size>`). The function calls are stored in a ring buffer. If the buffer is full, then storing a new snapshot will cause the oldest stored snapshot to be erased. The buffer size can also be set to zero, in which case no function call data is stored.
-* 'file' – In this case the function call data is sent directly to a file and not stored by the debugger. The file is specified by the second argument.
+* 'all' - In this case all function calls are stored by the debugger. This option damages the program’s performance the most (specifically its memory consumption), since two long strings are stored every time a function is called and they are not deleted until the program’s execution ends.
+* _buffer size_ - This option sets an upper limit to the amount of function call snapshots stored (equal to `<buffer size>`). The function calls are stored in a ring buffer. If the buffer is full, then storing a new snapshot will cause the oldest stored snapshot to be erased. The buffer size can also be set to zero, in which case no function call data is stored.
+* 'file' - In this case the function call data is sent directly to a file and not stored by the debugger. The file is specified by the second argument.
 +
 The file name may contain special metacharacters, which are substituted dynamically during test execution.
 
@@ -434,7 +434,7 @@ NOTE: In parallel mode batch files are searched for in the MC’s working direct
 
 == Example
 
-This section contains an example for some of the debugger’s features. The example contains one TTCN-3 module with one test case, executed in single mode. Two tests are run. In both cases the debugging process is fully automated with the use of batch files. The executable’s –b command line option is used to run the first batch file.
+This section contains an example for some of the debugger’s features. The example contains one TTCN-3 module with one test case, executed in single mode. Two tests are run. In both cases the debugging process is fully automated with the use of batch files. The executable’s -b command line option is used to run the first batch file.
 
 The TTCN-3 module (demo.ttcn):
 [source]

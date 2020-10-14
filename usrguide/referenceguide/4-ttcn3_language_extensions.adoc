@@ -1,21 +1,21 @@
 [[ttcn-3-language-extensions]]
-= TTCN–3 Language Extensions
+= TTCN-3 Language Extensions
 :toc:
 :table-number: 3
 
-The Test Executor supports the following non-standard additions to TTCN–3 Core Language in order to improve its usability or provide backward compatibility with older versions.
+The Test Executor supports the following non-standard additions to TTCN-3 Core Language in order to improve its usability or provide backward compatibility with older versions.
 
 == Syntax Extensions
 
-The compiler does not report an error or warning if the semi-colon is missing at the end of a TTCN–3 definition although the definition does not end with a closing bracket.
+The compiler does not report an error or warning if the semi-colon is missing at the end of a TTCN-3 definition although the definition does not end with a closing bracket.
 
 The statement block is optional after the guard operations of `altsteps`, `alt` and `interleave` constructs and in the response and exception handling part of `call` statements. A missing statement block has the same meaning as an empty statement block. If the statement block is omitted, a terminating semi-colon must be present after the guard statement.
 
-The standard escape sequences of C/{cpp} programming languages are recognized and accepted in TTCN–3 character string values, that is, in literal values of `charstring` and `universal` `charstring` types, as well as in the arguments of built-in operations `log()` and `action()`.
+The standard escape sequences of C/{cpp} programming languages are recognized and accepted in TTCN-3 character string values, that is, in literal values of `charstring` and `universal` `charstring` types, as well as in the arguments of built-in operations `log()` and `action()`.
 
-NOTE: As a consequence of the extended escape sequences and in contrast with the TTCN–3 standard, the backslash character itself has to be always duplicated within character string values.
+NOTE: As a consequence of the extended escape sequences and in contrast with the TTCN-3 standard, the backslash character itself has to be always duplicated within character string values.
 
-The following table summarizes all supported escape sequences of TTCN–3 character string values:
+The following table summarizes all supported escape sequences of TTCN-3 character string values:
 
 .Character string escape sequences
 [cols=",,",options="header",]
@@ -35,18 +35,18 @@ The following table summarizes all supported escape sequences of TTCN–3 charac
 | <newline> |nothing |line continuation
 | |NNN |octal notation (NNN is the character code in at most 3 octal digits)
 | |NN |hexadecimal notation (NN is the character code in at most 2 hexadecimal digits)
-|"" |34 |quotation mark (standard notation of TTCN–3 )
+|"" |34 |quotation mark (standard notation of TTCN-3 )
 |===
 
 NOTE: Only the standardized escape sequences are recognized in matching patterns of character string templates because they have special meaning there. For example, inside string patterns `\n` denotes a set of characters rather than a single character.
 
-Although the standard requires that characters of TTCN–3 `charstring` values must be between 0 and 127, TITAN allows characters between 0 and 255. The printable representation of characters with code 128 to 255 is undefined.
+Although the standard requires that characters of TTCN-3 `charstring` values must be between 0 and 127, TITAN allows characters between 0 and 255. The printable representation of characters with code 128 to 255 is undefined.
 
-The compiler implements an ASN.1-like scoping for TTCN–3 enumerated types, which means it allows the re-use of the enumerated values as identifiers of other definitions. The enumerated values are recognized only in contexts where enumerated values are expected; otherwise the identifiers are treated as simple references. However, using identifiers this way may cause misleading error messages and complicated debugging.
+The compiler implements an ASN.1-like scoping for TTCN-3 enumerated types, which means it allows the re-use of the enumerated values as identifiers of other definitions. The enumerated values are recognized only in contexts where enumerated values are expected; otherwise the identifiers are treated as simple references. However, using identifiers this way may cause misleading error messages and complicated debugging.
 
 The compiler allows the local definitions (constants, variables, timers) to be placed in the middle of statement blocks, that is, after other behavior statements. The scope of such definitions extends from the statement following the definition to the end of the statement block. Forward-referencing of local definitions and jumping forward across them using `goto` statements are not allowed.
 
-The compiler accepts in-line compound values in the operands of TTCN–3 expressions although the BNF of the standard allows only single values. The only meaningful use of the compound operands is with the comparison operators, that is, == and !=. Two in-line compound values cannot be compared with each other because their types are unknown; at least one operand of the comparison must be a referenced value. This feature has a limitation: In the places where in-line compound templates are otherwise accepted by the syntax (e.g. in the right-hand side of a variable assignment or in the actual parameter of a function call) the referenced value shall be used as the left operand of the comparison. Otherwise the parser gets confused when seeing the comparison operator after the compound value.
+The compiler accepts in-line compound values in the operands of TTCN-3 expressions although the BNF of the standard allows only single values. The only meaningful use of the compound operands is with the comparison operators, that is, == and !=. Two in-line compound values cannot be compared with each other because their types are unknown; at least one operand of the comparison must be a referenced value. This feature has a limitation: In the places where in-line compound templates are otherwise accepted by the syntax (e.g. in the right-hand side of a variable assignment or in the actual parameter of a function call) the referenced value shall be used as the left operand of the comparison. Otherwise the parser gets confused when seeing the comparison operator after the compound value.
 
 Examples:
 [source]
@@ -174,7 +174,7 @@ control {
   v_any.MyRec := { i := 42, f := 0.5 }
   // ischosen(v_any.MyRec) == true
 
-  v_any.integer := v_any.MyRec.i – 2;
+  v_any.integer := v_any.MyRec.i - 2;
   // back to ischosen(v_any.integer) == true v_any.money := 0;
   // local money i.e. integer
   // not elsewhere.money (float)
@@ -205,18 +205,18 @@ Types imported from another module (elsewhere) can be added to the anytype of th
 
 == Ports and Test Configurations
 
-If all instances of a TTCN–3 port type are intended to be used for internal communication only (i.e. between two TTCN–3 test components) the generation and linking of an empty Test Port skeleton can be avoided. If the attribute `with { extension "internal" }` is appended to the port type definition, all {cpp} code that is needed for this port will be included in the output modules.<<13-references.adoc#_9, [9]>>
+If all instances of a TTCN-3 port type are intended to be used for internal communication only (i.e. between two TTCN-3 test components) the generation and linking of an empty Test Port skeleton can be avoided. If the attribute `with { extension "internal" }` is appended to the port type definition, all {cpp} code that is needed for this port will be included in the output modules.<<13-references.adoc#_9, [9]>>
 
-If the user wants to use `address` values in `to` and `from` clause and sender redirect of TTCN–3 port operations the `with { extension "address" }` attribute shall be used in the corresponding port type definition(s) to generate proper {cpp} code.
+If the user wants to use `address` values in `to` and `from` clause and sender redirect of TTCN-3 port operations the `with { extension "address" }` attribute shall be used in the corresponding port type definition(s) to generate proper {cpp} code.
 
 NOTE: When address is used in port operations the corresponding port must have an active mapping to a port of the test system interface, otherwise the operation will fail at runtime. Using of address values in to and from clauses implicitly means system as component reference. (See section "Support of address type" in <<13-references.adoc#_16, [16]>> for more details).<<13-references.adoc#_10, [10]>>
 
-Unlike the latest TTCN–3 standard, our run time environment allows to connect a TTCN–3 port to more than one ports of the same remote test component. When these connections persist (usually in transient states), only receiving is allowed from that remote test component, because the destination cannot be specified unambiguously in the `to` clause of the `send` operation. Similarly, it is allowed to map a TTCN–3 port to more than one ports of the system, although it is not possible to send messages to the SUT.
+Unlike the latest TTCN-3 standard, our run time environment allows to connect a TTCN-3 port to more than one ports of the same remote test component. When these connections persist (usually in transient states), only receiving is allowed from that remote test component, because the destination cannot be specified unambiguously in the `to` clause of the `send` operation. Similarly, it is allowed to map a TTCN-3 port to more than one ports of the system, although it is not possible to send messages to the SUT.
 
 [[parameters-of-create-operation]]
 == Parameters of create Operation
 
-The built-in TTCN–3 `create` operation can take a second, optional argument in the parentheses. The first argument, which is the part of the standard, can assign a name to the newly created test component. The optional, non-standard second argument specifies the location of the component. Also the second argument is a value or expression of type `charstring`.
+The built-in TTCN-3 `create` operation can take a second, optional argument in the parentheses. The first argument, which is the part of the standard, can assign a name to the newly created test component. The optional, non-standard second argument specifies the location of the component. Also the second argument is a value or expression of type `charstring`.
 
 According to the standard the component name is a user-defined attribute for a test component, which can be an arbitrary string value containing any kind of characters including whitespace. It is not necessary to assign a unique name for each test component; several active test components can have the same name at the same time. The component name is not an identifier; it cannot be used to address test components in configuration operations as component references can. The name can be assigned only at component creation and it cannot be changed later.
 
@@ -252,30 +252,30 @@ v_myCompRef := MyCompType.create(-, "159.107.198.97") alive;
 
 == Altsteps and Defaults
 
-According to the TTCN–3 standard an `altstep` can be activated as `default` only if all of its value parameters are `in` parameters. However, our compiler and run-time environment allows the activation of altsteps with `out` or `inout` value or template parameters as well. In this case the actual parameters of the activated `default` shall be the references of variables or template variables that are defined in the respective component type. This restriction is in accordance with the rules of the standard about timer parameters of activated defaults.
+According to the TTCN-3 standard an `altstep` can be activated as `default` only if all of its value parameters are `in` parameters. However, our compiler and run-time environment allows the activation of altsteps with `out` or `inout` value or template parameters as well. In this case the actual parameters of the activated `default` shall be the references of variables or template variables that are defined in the respective component type. This restriction is in accordance with the rules of the standard about timer parameters of activated defaults.
 
 NOTE: Passing local variables or timers to defaults is forbidden because the lifespan of local definitions might be shorter than the `default` itself, which might lead to unpredictable behavior if the `default` is called after leaving the statement block that the local variable is defined in. Since ports can be defined only in component types, there is no restriction about the `port` parameters of `altsteps`. These restrictions are not applicable to direct invocations of `altsteps` (e.g. in `alt` constructs).
 
-The compiler allows using a statement block after `altstep` instances within `alt` statements. The statement block is executed if the corresponding `altstep` instance was chosen during the evaluation of the alt statement and the `altstep` has finished without reaching a `repeat` or `stop` statement. This language feature makes the conversion of TTCN–2 test suites easier.
+The compiler allows using a statement block after `altstep` instances within `alt` statements. The statement block is executed if the corresponding `altstep` instance was chosen during the evaluation of the alt statement and the `altstep` has finished without reaching a `repeat` or `stop` statement. This language feature makes the conversion of TTCN-2 test suites easier.
 
-NOTE: This construct is valid according to the TTCN–3 BNF syntax, but its semantics are not mentioned anywhere in the standard text.
+NOTE: This construct is valid according to the TTCN-3 BNF syntax, but its semantics are not mentioned anywhere in the standard text.
 
 The compiler accepts `altsteps` containing only an `[else]` branch. This is not allowed by the BNF as every `altstep` must have at least one regular branch (which can be either a guard statement or an `altstep` instance). This construct is practically useful if the corresponding `altstep` is instantiated as the last branch of the alternative.
 
 == Interleave Statements
 
-The compiler realizes TTCN–3 `interleave` statements using a different approach than it is described in section 7.5 of <<13-references.adoc#_1, [1]>>. The externally visible behavior of the generated code is equivalent to that of the canonical mapping, but our algorithm has the following advantages:
+The compiler realizes TTCN-3 `interleave` statements using a different approach than it is described in section 7.5 of <<13-references.adoc#_1, [1]>>. The externally visible behavior of the generated code is equivalent to that of the canonical mapping, but our algorithm has the following advantages:
 
-* Loop constructs `for`, `while` and `do-while` loops are accepted and supported without any restriction in `interleave` statements. The transformation of statements is done in a lower level than the TTCN–3 language, which does not restrict the embedded loops.
+* Loop constructs `for`, `while` and `do-while` loops are accepted and supported without any restriction in `interleave` statements. The transformation of statements is done in a lower level than the TTCN-3 language, which does not restrict the embedded loops.
 * Statements `activate`, `deactivate` and `stop` can also be used within `interleave`. The execution of these statements is atomic so we did not see the reason why the standard forbids them.
 * The size of our generated code is linear in contrast to the exponential code growth of the canonical algorithm. In other words, the {cpp} equivalent of every embedded statement appears exactly once in the output.
 * The run-time realization does not require any extra operating system resources, such as multi-threading.
 
 == Logging Disambiguation
 
-The TTCN–3 log statement provides the means to write logging information to a file or display on console (standard error). Options <<7-the_run-time_configuration_file.adoc#filemask, `FileMask`>> and <<7-the_run-time_configuration_file.adoc#consolemask, `ConsoleMask`>> determine which events will appear in the file and on the console, respectively. The generated logging messages are of type `USER_UNQUALIFIED`.
+The TTCN-3 log statement provides the means to write logging information to a file or display on console (standard error). Options <<7-the_run-time_configuration_file.adoc#filemask, `FileMask`>> and <<7-the_run-time_configuration_file.adoc#consolemask, `ConsoleMask`>> determine which events will appear in the file and on the console, respectively. The generated logging messages are of type `USER_UNQUALIFIED`.
 
-The `log` statement accepts among others fixed character strings TTCN–3 constants, variables, timers, functions, templates and expressions; for a complete list please refer to the table 18 in <<13-references.adoc#_1, [1]>>. It is allowed to pass multiple arguments to a single `log` statement, separated by commas.
+The `log` statement accepts among others fixed character strings TTCN-3 constants, variables, timers, functions, templates and expressions; for a complete list please refer to the table 18 in <<13-references.adoc#_1, [1]>>. It is allowed to pass multiple arguments to a single `log` statement, separated by commas.
 
 The TTCN-3 standard does not specify how logging information should be presented. The following sections describe how TITAN implemented logging.
 
@@ -339,7 +339,7 @@ In case of timers the name of the timer, the default duration, the current state
 
 == Value Returning done
 
-The compiler allows starting TTCN–3 functions having return type on PTCs. Those functions must have the appropriate `runs on` clause. If such a function terminates normally on the PTC, the returned value can be matched and retrieved in a `done` operation.
+The compiler allows starting TTCN-3 functions having return type on PTCs. Those functions must have the appropriate `runs on` clause. If such a function terminates normally on the PTC, the returned value can be matched and retrieved in a `done` operation.
 
 According to the TTCN-3 standard, the value redirect in a `done` operation can only be used to store the local verdict on the PTC that executed the behavior function. In TITAN the value redirect can also be used to store the behavior function's return value with the help of an optional template argument.
 
@@ -349,7 +349,7 @@ The following rules apply to the optional template argument and the value redire
 
 * The syntax of the template and value redirect is identical with that of the `receive` operation.
 * If the template is present, then the type of the template and the variable used in the value redirect shall be identical. If the template is not present, then the type of the value redirect must be `verdicttype`.
-* In case of a value returning done the return type shall be a TTCN–3 type marked with the following attribute: `with { extension "done" }`. It is allowed to mark and use several types in done statements within one test suite. If the type to be used is defined in ASN.1 then a type alias shall be added to one of the TTCN–3 modules with the above attribute.
+* In case of a value returning done the return type shall be a TTCN-3 type marked with the following attribute: `with { extension "done" }`. It is allowed to mark and use several types in done statements within one test suite. If the type to be used is defined in ASN.1 then a type alias shall be added to one of the TTCN-3 modules with the above attribute.
 * In case of a value returning done the type of the template or variable must be visible from the module where the `done` statement is used.
 * Only those done statements can have a template or a value redirect that refer to a specific PTC component reference. That is, it is not allowed to use this construct with `any component.done` or `all component.done`.
 
@@ -399,7 +399,7 @@ testcase myTestCase2() runs on AnotherCompType
 
 == Dynamic Templates
 
-Dynamic templates (template variables, functions returning templates and passing template variables by reference) are now parts of the TTCN–3 Core Language standard (<<13-references.adoc#_1, [1]>>). These constructs have been added to the standard with the same syntax and semantics as they were supported in this Test Executor. Thus dynamic templates are not considered language extensions anymore.
+Dynamic templates (template variables, functions returning templates and passing template variables by reference) are now parts of the TTCN-3 Core Language standard (<<13-references.adoc#_1, [1]>>). These constructs have been added to the standard with the same syntax and semantics as they were supported in this Test Executor. Thus dynamic templates are not considered language extensions anymore.
 
 However, there is one extension compared to the supported version of Core Language. Unlike the standard, the compiler and the run-time environment allow the external functions to return templates.
 
@@ -476,11 +476,11 @@ DTE occurs if the `invalue` does not conform to UTF standards. The `oct2unichar`
 
 Any code unit greater than 0x10FFFF is ill-formed.
 
-UTF-32 code units in the range of 0x0000D800 – 0x0000DFFF are ill-formed.
+UTF-32 code units in the range of 0x0000D800 - 0x0000DFFF are ill-formed.
 
-UTF-16 code units in the range of 0xD800 – 0xDFFF are ill-formed.
+UTF-16 code units in the range of 0xD800 - 0xDFFF are ill-formed.
 
-UTF-8 code units in the range of 0xD800 – 0xDFFF are ill-formed.
+UTF-8 code units in the range of 0xD800 - 0xDFFF are ill-formed.
 
 Example:
 ----
@@ -539,7 +539,7 @@ the resulting nobom contains: 'C384C396C39CC3A4C3B6C3BC'O;
 
 == Additional Predefined Functions
 
-In addition to standardized TTCN–3 predefined functions given in Annex C of <<13-references.adoc#_1, [1]>> and Annex B of <<13-references.adoc#_3, [3]>> the following built-in conversion functions are supported by our compiler and run-time environment:
+In addition to standardized TTCN-3 predefined functions given in Annex C of <<13-references.adoc#_1, [1]>> and Annex B of <<13-references.adoc#_3, [3]>> the following built-in conversion functions are supported by our compiler and run-time environment:
 
 === `str2bit`
 
@@ -810,10 +810,10 @@ The boundary values used to specify range subtypes can be preceded by an exclama
 [[special-float-values-infinity-and-not-a-number]]
 == Special Float Values Infinity and not_a_number
 
-The keyword infinity (which is also used to specify value range and size limits) can be used to specify the special float values –infinity and +infinity, these are equivalent to MINUS-INFINITY and PLUS-INFINITY used in ASN.1. A new keyword not_a_number has been introduced which is equivalent to NOT-A-NUMBER used in ASN.1. The -infinity and +infinity and not_a_number special values can be used in arithmetic operations. If an arithmetic operation's operand is not_a_number then the result of the operation will also be not_a_number. The special value not_a_number cannot be used in a float range subtype because it's an unordered value, but can be added as a single value, for example subtype (0.0 .. infinity, not_a_number) contains all positive float values and the not_a_number value.
+The keyword infinity (which is also used to specify value range and size limits) can be used to specify the special float values -infinity and +infinity, these are equivalent to MINUS-INFINITY and PLUS-INFINITY used in ASN.1. A new keyword not_a_number has been introduced which is equivalent to NOT-A-NUMBER used in ASN.1. The -infinity and +infinity and not_a_number special values can be used in arithmetic operations. If an arithmetic operation's operand is not_a_number then the result of the operation will also be not_a_number. The special value not_a_number cannot be used in a float range subtype because it's an unordered value, but can be added as a single value, for example subtype (0.0 .. infinity, not_a_number) contains all positive float values and the not_a_number value.
 
 [[ttcn-3-preprocessing]]
-== TTCN–3 Preprocessing
+== TTCN-3 Preprocessing
 
 Preprocessing of the TTCN-3 files with a C preprocessor is supported by the compiler. External preprocessing is used: the Makefile Generator generates a `Makefile` which will invoke the C preprocessor to preprocess the TTCN-3 files with the suffix `."ttcnpp`. The output of the C preprocessor will be generated to an intermediate file with the suffix `."ttcn`. The intermediate files contain the TTCN-3 source code and line markers. The compiler can process these line markers along with TTCN-3. If the preprocessing is done with the `-P` option <<13-references.adoc#_13, [13]>>, the resulting code will not contain line markers; it will be compatible with any standard TTCN-3 compiler. The compiler will use the line markers to give almost <<13-references.adoc#_14, [14]>> correct error or warning messages, which will point to the original locations in the `.ttcnpp` file. The C preprocessor directive `#"include` can be used in .ttcnpp files; the Makefile Generator will treat all files with suffix `."ttcnin` as TTCN-3 include files. The `."ttcnin` files will be added to the Makefile as special TTCN-3 include files which will not be translated by the compiler, but will be checked for modification when building the test suite.
 
@@ -889,7 +889,7 @@ myFunction(p_par2 := false, 1); // unnamed part cannot follow
 
 Although TITAN supports the behaviour type package (<<13-references.adoc#_5, [5]>>) of the TTCN-3 standard, but this feature was included in the standard with a different syntax.
 
-It is allowed to create TTCN–3 types of `functions`, `altsteps` and `testcases`. Values, for example variables, of such types can carry references to the respective TTCN–3 definitions. To facilitate reference using, three new operations (`refers`, `derefers` and `apply`) were introduced. This new language feature allows to create generic algorithms in TTCN–3 with late binding, (i.e. code in which the function to be executed is specified only at runtime).
+It is allowed to create TTCN-3 types of `functions`, `altsteps` and `testcases`. Values, for example variables, of such types can carry references to the respective TTCN-3 definitions. To facilitate reference using, three new operations (`refers`, `derefers` and `apply`) were introduced. This new language feature allows to create generic algorithms in TTCN-3 with late binding, (i.e. code in which the function to be executed is specified only at runtime).
 
 [[function-types-with-a-runson-self-clause]]
 == Function Types with a RunsOn_self Clause
@@ -995,35 +995,35 @@ function f_MyCallbackFunction () runs on User_CT
 ----
 
 [[ttcn3-macros]]
-== TTCN–3 Macros
+== TTCN-3 Macros
 
-The compiler and the run-time environment support the following non-standard macro notation in TTCN–3 modules. All TTCN–3 macros consist of a percent (%) character followed by the macro identifier. Macro identifiers are case sensitive. The table below summarizes the available macros and their meaning. Macro identifiers not listed here are reserved for future extension.
+The compiler and the run-time environment support the following non-standard macro notation in TTCN-3 modules. All TTCN-3 macros consist of a percent (%) character followed by the macro identifier. Macro identifiers are case sensitive. The table below summarizes the available macros and their meaning. Macro identifiers not listed here are reserved for future extension.
 
 .TTCN-3 macros
 [cols=",",options="header",]
 |===
 |Macro |Meaning
-|`%moduleId` |name of the TTCN–3 module
-|`%definitionId` |name of the top-level TTCN–3 definition
+|`%moduleId` |name of the TTCN-3 module
+|`%definitionId` |name of the top-level TTCN-3 definition
 |`%testcaseId` |name of the test case that is currently being executed
-|`%fileName` |name of the TTCN–3 source file
+|`%fileName` |name of the TTCN-3 source file
 |`%lineNumber` |number of line in the source file
 |===
 
 The following rules apply to macros:
 
 * All macros are substituted with a value of type `charstring`. They can be used as operands of complex expressions (concatenation, comparison, etc.).
-* All macros except `%testcaseId` are evaluated during compilation and they can be used anywhere in the TTCN–3 module.
+* All macros except `%testcaseId` are evaluated during compilation and they can be used anywhere in the TTCN-3 module.
 * Macro `%testcaseId` is evaluated at runtime. It can be used only within functions and altsteps that are being run on test components (on the MTC or PTCs) and within testcases. It is not allowed to use macro `%testcaseId` in the module control part. If a function or altstep that contains macro `%testcaseId` is called directly from the control part the evaluation of the macro results in a dynamic test case error.
-* The result of macro `%testcaseId` is not a constant thus it cannot be used in the value of TTCN–3 constants. It is allowed only in those contexts where TTCN–3 variable references are permitted.
+* The result of macro `%testcaseId` is not a constant thus it cannot be used in the value of TTCN-3 constants. It is allowed only in those contexts where TTCN-3 variable references are permitted.
 * Macro `%definitionId` is always substituted with the name of the top-level module definition that it is used in. <<13-references.adoc#_15, [15]>> For instance, if the macro appears in a constant that is defined within a function then the macro will be substituted with the function's name rather than the one of the constant. When used within the control part macro `%definitionId` is substituted with the word "`control`".
 * Macro `%fileName` is substituted with the name of the source file in the same form as it was passed to the compiler. This can be a simple file name, a relative or an absolute path name.
 * The result of macro `%lineNumber` is always a string that contains the current line number as a decimal number. Numbering of lines starts from 1. All lines of the input file (including comments and empty lines) are counted. When it needs to be used in an integer expression a conversion is necessary: `str2int(%lineNumber)`. The above expression is evaluated during compilation without any runtime performance penalty.
-* Source line markers are considered when evaluating macros `%fileName` and `%lineNumber`. In preprocessed TTCN–3 modules the macros are substituted with the original file name and line number that the macro comes from provided that the preprocessor supports it.
+* Source line markers are considered when evaluating macros `%fileName` and `%lineNumber`. In preprocessed TTCN-3 modules the macros are substituted with the original file name and line number that the macro comes from provided that the preprocessor supports it.
 * When macros are used in `log()` statements, they are treated like literal strings rather than charstring value references. That is, quotation marks around the strings are not used and special characters within them are not escaped in the log file.
 * For compatibility with the C preprocessor the compiler also recognizes the following C style macros: \\__FILE__ is identical to `%fileName` and \\__LINE__ is identical to `str2int(%lineNumber)`.
 * Macros are not substituted within quotation marks (i.e. within string literals and attributes).
-* The full power of TTCN–3 macros can be exploited in combination with the C preprocessor.
+* The full power of TTCN-3 macros can be exploited in combination with the C preprocessor.
 
 Example:
 [source]
@@ -1072,7 +1072,7 @@ type component B extends A {
 }
 ----
 
-In order to provide support for existing TTCN–3 code (e.g. standardized test suites) it is allowed to explicitly signal the compatibility relation between component types using a special `extension` attribute. Using such attributes shall be avoided in newly written TTCN–3 modules. Combining component type inheritance and the attribute `extension` is possible, but not recommended.
+In order to provide support for existing TTCN-3 code (e.g. standardized test suites) it is allowed to explicitly signal the compatibility relation between component types using a special `extension` attribute. Using such attributes shall be avoided in newly written TTCN-3 modules. Combining component type inheritance and the attribute `extension` is possible, but not recommended.
 
 Thus, the compiler considers component type B to be compatible with A if B has an `extension` attribute that points to A as base component type and all definitions of A are present and identical in B.
 
@@ -1138,14 +1138,14 @@ All component types are compatible with each empty component type. Empty compone
 
 == Implicit Message Encoding
 
-The TTCN–3 standard <<13-references.adoc#_1, [1]>> does not specify a standard way of data encoding/decoding. TITAN has a common {cpp} API for encoding/decoding; to use this API external functions are usually needed. The common solution is to define a TTCN–3 external function and write the {cpp} code containing the API calls. In most cases the {cpp} code explicitly written to an auxiliary {cpp} file contains only simple code patterns which call the encoding/decoding API functions on the specified data. In TITAN there is a TTCN–3 language extension which automatically generates such external functions.
+The TTCN-3 standard <<13-references.adoc#_1, [1]>> does not specify a standard way of data encoding/decoding. TITAN has a common {cpp} API for encoding/decoding; to use this API external functions are usually needed. The common solution is to define a TTCN-3 external function and write the {cpp} code containing the API calls. In most cases the {cpp} code explicitly written to an auxiliary {cpp} file contains only simple code patterns which call the encoding/decoding API functions on the specified data. In TITAN there is a TTCN-3 language extension which automatically generates such external functions.
 
-Based on this automatic encoding/decoding mechanism, dual-faced ports are introduced. Dual-faced ports have an external and an internal interface and can automatically transform messages passed through them based on mapping rules defined in TTCN–3 source files. These dual-faced ports eliminate the need for simple port mapping components and thus simplify the test configuration.
+Based on this automatic encoding/decoding mechanism, dual-faced ports are introduced. Dual-faced ports have an external and an internal interface and can automatically transform messages passed through them based on mapping rules defined in TTCN-3 source files. These dual-faced ports eliminate the need for simple port mapping components and thus simplify the test configuration.
 
 [[dual-faced-ports]]
 === Dual-faced Ports
 
-In the TTCN–3 standard (<<13-references.adoc#_1, [1]>>), a port type is defined by listing the allowed incoming and outgoing message types. Dual-faced ports have on the other hand two different message lists: one for the external and one for the internal interface. External and internal interfaces are given in two distinct port type definitions. The dual-faced concept is applicable to message based ports and the message based part of mixed ports.
+In the TTCN-3 standard (<<13-references.adoc#_1, [1]>>), a port type is defined by listing the allowed incoming and outgoing message types. Dual-faced ports have on the other hand two different message lists: one for the external and one for the internal interface. External and internal interfaces are given in two distinct port type definitions. The dual-faced concept is applicable to message based ports and the message based part of mixed ports.
 
 Dual-faced port types must have `user` attribute to designate its external interface. The internal interface is given by the port type itself. A port type can be the external interface of several different dual-faced port types.
 
@@ -1224,7 +1224,7 @@ NOTE: Decoding with sliding should be the last decoding option in the list of de
 
 Encoder/decoder functions are used to convert between different data (message) structures. We can consider e.g. an octet string received from the remote system that should be passed to the upper layer as a TCP message.
 
-Prototypes are attributes governing data input/output rules and conversion result indication. In other words, prototypes are setting the data interface types. The compiler will verify that the parameters and return value correspond to the given prototype. Any TTCN–3 function (even external ones) may be defined with a prototype. There are four prototypes defined as follows:
+Prototypes are attributes governing data input/output rules and conversion result indication. In other words, prototypes are setting the data interface types. The compiler will verify that the parameters and return value correspond to the given prototype. Any TTCN-3 function (even external ones) may be defined with a prototype. There are four prototypes defined as follows:
 
 * prototype `convert`
 +
@@ -1346,7 +1346,7 @@ The TITAN codec API has some well defined function calls that control the behavi
 
 Possible error types and error handlings are defined in <<13-references.adoc#\_16, [16]>>, section "The common API". The value of `<error_type>` shall be a value of type `error_type_t` without the prefix `ET_`. The value of `<error_handling>` shall be a value of type `error_behavior_t` without the prefix `EB_`.
 
-The TTCN–3 attribute `errorbehavior(INCOMPL_ANY:ERROR)`, for example, will be mapped to the following {cpp} statement:
+The TTCN-3 attribute `errorbehavior(INCOMPL_ANY:ERROR)`, for example, will be mapped to the following {cpp} statement:
 [source]
 ----
 TTCN_EncDec::set_error_behavior(TTCN_EncDec::ET_INCOMPL_ANY,
@@ -1558,16 +1558,16 @@ var integer res := decvalue(bs, y); // equivalent to f_dec_per(bs, y);
 
 === Common Syntax of Attributes
 
-All information related to implicit message encoding shall be given as `extension` attributes of the relevant TTCN–3 definitions. The attributes have a common basic syntax, which is applicable to all attributes given in this section:
+All information related to implicit message encoding shall be given as `extension` attributes of the relevant TTCN-3 definitions. The attributes have a common basic syntax, which is applicable to all attributes given in this section:
 
-* Whitespace characters (spaces, tabulators, newlines, etc.) and TTCN–3 comments are allowed anywhere in the attribute text. Attributes containing only comments, whitespace or both are simply ignored +
+* Whitespace characters (spaces, tabulators, newlines, etc.) and TTCN-3 comments are allowed anywhere in the attribute text. Attributes containing only comments, whitespace or both are simply ignored +
 Example: +
 `with { extension "/* this is a comment */" }`
-* When a definition has multiple attributes, the attributes can be given either in one attribute text separated by whitespace or in separate TTCN–3 attributes. +
+* When a definition has multiple attributes, the attributes can be given either in one attribute text separated by whitespace or in separate TTCN-3 attributes. +
 Example: +
 `with { extension "address provider" }` means exactly the same as +
 `with { extension "address"; extension "provider" }`
-* Settings for a single attribute, however, cannot be split in several TTCN–3 attributes. +
+* Settings for a single attribute, however, cannot be split in several TTCN-3 attributes. +
 Example of an invalid attribute: +
 `with { extension "prototype("; extension "convert)" }`
 * Each kind of attribute can be given at most once for a definition. +
@@ -1577,13 +1577,13 @@ Example of an invalid attribute: +
 Example: +
 `with { extension "prototype(fast) encode(RAW)" }` means exactly the same as +
 `with { extension "encode(RAW) prototype(fast)" }`
-* The keywords introduced in this section, which are not TTCN–3 keywords, are not reserved words. The compiler will recognize the word properly if it has a different meaning (e.g. the name of a type) in the given context. +
+* The keywords introduced in this section, which are not TTCN-3 keywords, are not reserved words. The compiler will recognize the word properly if it has a different meaning (e.g. the name of a type) in the given context. +
 Example: the attribute +
 `with { extension "user provider in(internal -> simple: function(prototype))" }` can be a valid if there is a port type named `provider`; `internal` and `simple` are message types and `prototype` is the name of a function.
 
 === API describing External Interfaces
 
-Since the default class hierarchy of test ports does not allow sharing of {cpp} code with other port types, an alternate internal API is introduced for port types describing external interfaces. This alternate internal API is selected by giving the appropriate TTCN–3 extension attribute to the port. The following extension attributes or attribute combinations can be used:
+Since the default class hierarchy of test ports does not allow sharing of {cpp} code with other port types, an alternate internal API is introduced for port types describing external interfaces. This alternate internal API is selected by giving the appropriate TTCN-3 extension attribute to the port. The following extension attributes or attribute combinations can be used:
 
 .Port extension attributes
 [cols=",,,,,",options="header",]
@@ -1735,7 +1735,7 @@ The decoder, on the contrary, converts the received bitstream into values of abs
 
 This section covers the <<general-rules-and-restrictions, coding rules in general>>, the <<attributes, attributes controlling them>> and the <<ttcn-3-types-and-their-attributes, attributes allowed for a particular type>>.
 
-You can use the encoding rules defined in this section to encode and decode the following TTCN–3 types:
+You can use the encoding rules defined in this section to encode and decode the following TTCN-3 types:
 
 * bitstring
 * boolean
@@ -1928,7 +1928,7 @@ Description: `FIELDLENGTH` specifies the length of the encoded type. The units o
 
 The value 0 means variable length or, in case of the enumerated type, the minimum number of bits required to display the maximum `enumerated` value. `Integer` cannot be coded with variable length.
 
-NOTE: If `FIELDLENGTH` is not specified, but a TTCN–3 length restriction with a fixed length is, then the restricted length will be used as `FIELDLENGTH`.
+NOTE: If `FIELDLENGTH` is not specified, but a TTCN-3 length restriction with a fixed length is, then the restricted length will be used as `FIELDLENGTH`.
 
 Examples:
 [source]
@@ -1986,7 +1986,7 @@ Description: This attribute sets the `FIELDLENGTH`, `BYTEORDER` and `COMP` attri
 `octetstring, charstring:` N / 8; +
 `hexstring:` N / 4.
 
-NOTE: If `FIELDLENGTH` is not specified, but a TTCN–3 length restriction with a fixed length is, then the restricted length will be used as `FIELDLENGTH`.
+NOTE: If `FIELDLENGTH` is not specified, but a TTCN-3 length restriction with a fixed length is, then the restricted length will be used as `FIELDLENGTH`.
 
 The `[unsigned] <parameter> bits` syntax is also supported but the usage of `bit` keyword is preferred.
 
@@ -2960,7 +2960,7 @@ field2:='10010011'B
 
 This section describes the coding attributes of fields containing length information or serving as pointer within a `record`.
 
-The length and pointer fields must be of TTCN–3 `integer` type and must have fixed length.
+The length and pointer fields must be of TTCN-3 `integer` type and must have fixed length.
 
 The attributes described in this section are applicable to fields of a `record`.
 
@@ -2968,7 +2968,7 @@ The attributes described in this section are applicable to fields of a `record`.
 
 Attribute syntax: `LENGTHTO(<parameter>) [ (`+' | `-') <offset> ]`
 
-Parameters allowed: list of TTCN–3 field identifiers
+Parameters allowed: list of TTCN-3 field identifiers
 
 Parameter value: any field name
 
@@ -2982,7 +2982,7 @@ Description: The encoder is able to calculate the encoded length of one or sever
 
 If the offset is present, it is added to or subtracted from (the operation specified in the attribute is performed) the calculated length during encoding. During decoding, the offset is subtracted from or added to (the opposite operation to the one specified in the attribute is performed) the decoded value of the length field.
 
-NOTE: The length is expressed in units defined by the attribute UNIT The default unit is octet. The length field should be a TTCN–3 `integer` or `union` type. Special union containing only integer fields can be used for variable length field. It must not be used with `LENGTHINDEX`. The length field can be included in to the sum of the lengths of multiple fields (e.g. `lengthField` + `field2` + `field3`). The `union` field is NOT selected by the encoder. So the suitable field must be selected before encoding! The fields included in the length computing need not be continuous.
+NOTE: The length is expressed in units defined by the attribute UNIT The default unit is octet. The length field should be a TTCN-3 `integer` or `union` type. Special union containing only integer fields can be used for variable length field. It must not be used with `LENGTHINDEX`. The length field can be included in to the sum of the lengths of multiple fields (e.g. `lengthField` + `field2` + `field3`). The `union` field is NOT selected by the encoder. So the suitable field must be selected before encoding! The fields included in the length computing need not be continuous.
 
 Examples:
 [source]
@@ -3097,7 +3097,7 @@ variant (len) "LENGTHTO(field) - 2"
 
 Attribute syntax: `LENGTHINDEX(<parameter>)`
 
-Parameters allowed: TTCN–3 field identifier
+Parameters allowed: TTCN-3 field identifier
 
 Allowed values: any nested field name
 
@@ -3108,7 +3108,7 @@ Can be used with: fields of a `record`.
 Description: This attribute extends the `LENGTHTO` attribute with the identification of the nested field containing the length value within the field of the corresponding `LENGTHTO` attribute.
 
 Comment: See also the description of the `LENGTHTO` attribute.
-NOTE: The field named by `LENGTHINDEX` attribute should be a TTCN–3 integer type.
+NOTE: The field named by `LENGTHINDEX` attribute should be a TTCN-3 integer type.
 
 Example (see also example of `LENGTHTO` attribute).
 [source]
@@ -3138,7 +3138,7 @@ variant (lengthRec) "LENGTHINDEX(length)"
 
 Attribute syntax: `POINTERTO(<parameter>)`
 
-Parameters allowed: TTCN–3 field identifier
+Parameters allowed: TTCN-3 field identifier
 
 Default value: none
 
@@ -3147,7 +3147,7 @@ Can be used with: fields of a `record`.
 Description: Some record fields contain the distance to another encoded field. Records can be encoded in the form of: `ptr1`, `ptr2`, `ptr3`, `field1`, `field2`, `field3`, where the position of fieldN within the encoded stream can be determined from the value and position of field ptrN. The distance of the pointed field from the base field will be `ptrN` * `UNIT` + `PTROFFSET`. The default base field is the pointer itself. The base field can be set by the PTROFFSET attribute. When the pointed field is optional, the pointer value 0 indicates the absence of the pointed field.
 
 Comment: See also the description of `UNIT` (0) and `PTROFFSET` (0) attributes.
-NOTE: Pointer fields should be TTCN–3 `integer` type.
+NOTE: Pointer fields should be TTCN-3 `integer` type.
 
 Examples:
 [source]
@@ -3186,7 +3186,7 @@ field3 := '070809'O
 
 Attribute syntax: `PTROFFSET(<parameter>)`
 
-Parameters allowed: `integer`, TTCN–3 field identifier
+Parameters allowed: `integer`, TTCN-3 field identifier
 
 Default value: 0
 
@@ -3290,7 +3290,7 @@ Default value: none
 
 Can be used with: `optional` fields of a `record` or `set`.
 
-Description: Within records some fields may indicate the presence of another optional field. The attribute `PRESENCE` is used to describe these cases. Each optional field can have a `PRESENCE` definition. The syntax of the `PRESENCE` attribute is the following: a `PRESENCE` definition is a presence_indicator expression. `Presence_indicators` are of form `<key> = <constant> or {<key1> = <constant1>, <key2> = <constant2>, … <keyN> = <constantN>}` where each key is a field(.nestedField) of the `record`, `set` or `union` and each constant is a TTCN–3 constant expression (for example, `22`, `'25'O` or `'1001101'B`).
+Description: Within records some fields may indicate the presence of another optional field. The attribute `PRESENCE` is used to describe these cases. Each optional field can have a `PRESENCE` definition. The syntax of the `PRESENCE` attribute is the following: a `PRESENCE` definition is a presence_indicator expression. `Presence_indicators` are of form `<key> = <constant> or {<key1> = <constant1>, <key2> = <constant2>, … <keyN> = <constantN>}` where each key is a field(.nestedField) of the `record`, `set` or `union` and each constant is a TTCN-3 constant expression (for example, `22`, `'25'O` or `'1001101'B`).
 
 NOTE: The PRESENCE attribute can identify the presence of the whole record. In that case the field reference must be omitted.
 
@@ -3322,7 +3322,7 @@ Default value: none
 
 Can be used with: `record` or `set`.
 
-Description: The purpose of the attribute `TAG` is to identify specific values in certain fields of the `set`, `record` elements or `union` choices. When the `TAG` is specified to a `record` or a `set`, the presence of the given element can be identified at decoding. When the `TAG` belongs to a `union`, the union member can be identified at decoding. The attribute is a list of `field_identifications`. Each `field_identification` consists of a record, set or union field name and a `presence_indicator` expression separated by a comma (,). `Presence_indicators` are of form `<key> = <constant>` or `{ <key1> = <constant1>, <key2> = <constant2>, … <keyN> = <constantN> }` where each key is a field(.nestedField) of the `record`, `set` or `union` and each constant is a TTCN–3 constant expression (e.g.` 22`, `'25'O` or `'1001101'B`).There is a special presence_indicator: `OTHERWISE`. This indicates the default union member in a union when the TAG belongs to union.
+Description: The purpose of the attribute `TAG` is to identify specific values in certain fields of the `set`, `record` elements or `union` choices. When the `TAG` is specified to a `record` or a `set`, the presence of the given element can be identified at decoding. When the `TAG` belongs to a `union`, the union member can be identified at decoding. The attribute is a list of `field_identifications`. Each `field_identification` consists of a record, set or union field name and a `presence_indicator` expression separated by a comma (,). `Presence_indicators` are of form `<key> = <constant>` or `{ <key1> = <constant1>, <key2> = <constant2>, … <keyN> = <constantN> }` where each key is a field(.nestedField) of the `record`, `set` or `union` and each constant is a TTCN-3 constant expression (e.g.` 22`, `'25'O` or `'1001101'B`).There is a special presence_indicator: `OTHERWISE`. This indicates the default union member in a union when the TAG belongs to union.
 
 NOTE: `TAG` works on non-optional fields of a record as well. It is recommended to use the attributes `CROSSTAG` or `PRESENCE` leading to more effective decoding.
 
@@ -3386,7 +3386,7 @@ Default value: none
 
 Can be used with: `union` fields of `records`.
 
-Description: When one field of a `record` specifies the union member of another field of a record, CROSSTAG definition is used. The syntax of the CROSSTAG attribute is the following. Each union field can have a `CROSSTAG` definition. A `CROSSTAG` definition is a list of union `field_identifications`. Each `field_identification` consists of a union field name and a `presence_indicator` expression separated by a comma (,). `Presence_indicators` are of form `<key> = <constant>` or `{<key1> = <constant1>`, `<key2> = <constant2>`, `… <keyN> = <constantN>}` where each key is a field(.nestedField) of the `record`, `set` or `union` and each constant is a TTCN–3 constant expression (for example, `22`, `'25'O` or `'1001101'B`).There is a special `presence_indicator`: `OTHERWISE`. This indicates the default union member in union.
+Description: When one field of a `record` specifies the union member of another field of a record, CROSSTAG definition is used. The syntax of the CROSSTAG attribute is the following. Each union field can have a `CROSSTAG` definition. A `CROSSTAG` definition is a list of union `field_identifications`. Each `field_identification` consists of a union field name and a `presence_indicator` expression separated by a comma (,). `Presence_indicators` are of form `<key> = <constant>` or `{<key1> = <constant1>`, `<key2> = <constant2>`, `… <keyN> = <constantN>}` where each key is a field(.nestedField) of the `record`, `set` or `union` and each constant is a TTCN-3 constant expression (for example, `22`, `'25'O` or `'1001101'B`).There is a special `presence_indicator`: `OTHERWISE`. This indicates the default union member in union.
 
 NOTE: The difference between the `TAG` and `CROSSTAG` concept is that in case of `TAG` the field identifier is inside the field to be identified. In case of `CROSSTAG` the field identifier can either precede or succeed the union field it refers to. If the field identifier succeeds the union, they must be in the same record, the union field must be mandatory and all of its embedded types must have the same fixed size.
 
@@ -4192,7 +4192,7 @@ Error encountered during the encoding or decoding process are handled as defined
 
 An `attribute` determines coding and encoding rules.
 
-NOTE: the section 27.5 of the TTCN–3 standard (<<13-references.adoc#_1, [1]>>) states that an `attribute` is used to refine the current encoding scheme defined with the keyword `encode`. Because of backward compatibility the presence of the `encode` attribute is not required, but might result in a compile time warning (which in the future might turn into an error).
+NOTE: the section 27.5 of the TTCN-3 standard (<<13-references.adoc#_1, [1]>>) states that an `attribute` is used to refine the current encoding scheme defined with the keyword `encode`. Because of backward compatibility the presence of the `encode` attribute is not required, but might result in a compile time warning (which in the future might turn into an error).
 
 *BEGIN*
 
@@ -4206,7 +4206,7 @@ Parameters: `token_to_encode` +
 The token is used during encoding. +
 
 `Mandatory.matching_exp` +
-This TTCN–3 character pattern is used during decoding to identify the leading token of the type. The format of the parameter is described in clause B.1.5 of the TTCN–3 standard (<<13-references.adoc#_1, [1]>>). This parameter is optional; when omitted, the parameter token_to_encode will be used as the matching pattern. +
+This TTCN-3 character pattern is used during decoding to identify the leading token of the type. The format of the parameter is described in clause B.1.5 of the TTCN-3 standard (<<13-references.adoc#_1, [1]>>). This parameter is optional; when omitted, the parameter token_to_encode will be used as the matching pattern. +
 
 `modifier` +
 Modifies the behavior of the matching algorithm. Optional parameter. When omitted the default value will be used. The available modifiers: +
@@ -4247,7 +4247,7 @@ Parameters: `token_to_encode` +
 The token used during encoding. Mandatory.
 
 `matching_exp` +
-This TTCN–3 character pattern is used during decoding to identify the leading token of the type. The format of the parameter is described in clause B.1.5 of the TTCN–3 standard (<<13-references.adoc#_1, [1]>>). This parameter is optional; when omitted, the `token_to_encode` will be used as matching pattern.
+This TTCN-3 character pattern is used during decoding to identify the leading token of the type. The format of the parameter is described in clause B.1.5 of the TTCN-3 standard (<<13-references.adoc#_1, [1]>>). This parameter is optional; when omitted, the `token_to_encode` will be used as matching pattern.
 
 `modifier` +
 Modifies the behavior of the matching algorithm. Optional parameter. When omitted, the default value will be used. The available modifiers: +
@@ -4287,7 +4287,7 @@ Parameters: `token_to_encode` +
 The token used during encoding. Mandatory.
 
 `matching_exp` +
-This TTCN–3 character pattern is used during decoding to identify the leading token of the type. The format of the parameter is described in clause B.1.5 of the TTCN–3 standard (<<13-references.adoc#_1, [1]>>). Optional parameter. When omitted, the token to encode will be used as matching pattern.
+This TTCN-3 character pattern is used during decoding to identify the leading token of the type. The format of the parameter is described in clause B.1.5 of the TTCN-3 standard (<<13-references.adoc#_1, [1]>>). Optional parameter. When omitted, the token to encode will be used as matching pattern.
 
 `modifier` +
 Modifies the behavior of the matching algorithm. Optional parameter. When omitted, the default value will be used. The available modifiers: +
@@ -4328,7 +4328,7 @@ Controls the encoding of the value. For syntax see the two tables below.
 Controls the decoding of the value. For syntax see the two tables below.
 
 `matching_exp` +
-TTCN–3 character pattern, used during decoding to identify the value of the type. The format of the parameter is described in clause B.1.5 of the TTCN–3 standard (<<13-references.adoc#_1, [1]>>). Optional parameter.
+TTCN-3 character pattern, used during decoding to identify the value of the type. The format of the parameter is described in clause B.1.5 of the TTCN-3 standard (<<13-references.adoc#_1, [1]>>). Optional parameter.
 
 `modifier` +
 Modifies the behavior of the matching algorithm. Optional parameter. When omitted, the default value will be used. The available modifiers: +
@@ -4358,7 +4358,7 @@ The default encoded value of `true` is 'true'; the default encoded value of `fal
 The default decoding method is case sensitive
 |`enumerated` |The encoded value of enumeration: +
 `value:'token'[;value:'token']` +
-The default encoded value of enumerations is the TTCN–3 identifier of the enumerations.
+The default encoded value of enumerations is the TTCN-3 identifier of the enumerations.
  |The matching pattern of enumerations: +
 `value:{'pattern'[,modifier]}[;value:{'pattern'[,modifier]}]`
 The default decoding method is case sensitive.
@@ -4499,7 +4499,7 @@ The XML encoder and decoder are handling XML-based protocols. The encoder conver
 
 The TTCN-3 standard defines a mechanism using attributes to define encoding variants. The attributes concerning the XML encoding are standardized in <<13-references.adoc#_4, [4]>> (annex B of the standard lists the attributes and their effects).
 
-Faults in the XML encoding/decoding process are set to error by default, but it can be modified with the `errorbehavior` TTCN–3 attribute. (<<codec-error-handling, Codec error handling>>)
+Faults in the XML encoding/decoding process are set to error by default, but it can be modified with the `errorbehavior` TTCN-3 attribute. (<<codec-error-handling, Codec error handling>>)
 
 [[attributes-1]]
 === Attributes
@@ -5394,7 +5394,7 @@ This section covers the coding rules in general, the attributes controlling them
 [[general-rules-and-restrictions-1]]
 === General rules and restrictions
 
-You can use the encoding rules defined in this section to encode and decode the following TTCN–3 types:
+You can use the encoding rules defined in this section to encode and decode the following TTCN-3 types:
 
 * anytype
 * array
@@ -6009,11 +6009,11 @@ The option `-j` restricts the TTCN-3 types used in the conversion: only those th
 
 If option `-f` is set, then the schema will only validate types that have JSON encoding and/or decoding functions, otherwise all types it will validate all types included in the schema.
 
-The options `-A` and `-T` can be used before each input file to specify its type (`-A` for ASN.1 files and `–T` for TTCN-3 files). If a file is not preceeded by either of these option, then the compiler will attempt to determine its type based on its contents.
+The options `-A` and `-T` can be used before each input file to specify its type (`-A` for ASN.1 files and `-T` for TTCN-3 files). If a file is not preceeded by either of these option, then the compiler will attempt to determine its type based on its contents.
 
 The last parameter specifies the name of the JSON schema file if it is preceded by a dash (-). Otherwise the name of the schema will be created using the first input file name (its `.asn` or `.ttcn` extension will be replaced by `.json`, or, if it doesn't have either of these extension, then `.json` will simply be appended to its end).
 
-Usage examples:compiler –ttcn2json –T module1.ttcn –A module2.asn – schema.jsoncompiler –-ttcn2json –j module1.ttcn module2.asn
+Usage examples:compiler -ttcn2json -T module1.ttcn -A module2.asn - schema.jsoncompiler --ttcn2json -j module1.ttcn module2.asn
 
 The first example will generate the `schema.json` JSON document containing the schema, the second one will generate `module1.json` (and only JSON-encodable types will be included). These documents will have the "pretty" printing format mentioned in 4.26.3.
 
@@ -6024,7 +6024,7 @@ On the top level the schema contains a JSON object with 2 properties.
 
 The first property, "definitions", has the schema segments of the type definitions in the TTCN-3 and ASN.1 modules as its value. This value is a JSON object with one property (key-value pair) for each module. Each property has the module name as its key and an object containing the schema segments for the types definied in that module as its key. Similarly, each type definition's key is the type name and its value is the type's schema segment (these will be described in the next sections).
 
-The second top level property is an "anyOf" structure, which contains references to the TTCN-3 and ASN.1 types' schema segments under "definitions". The types listed here are the ones validated by the schema. If the compiler option `–f` is set, then only the schema segments of types that have either a JSON encoding or decoding function (or both) will be referenced (ASN.1 types can have JSON encoding/decoding functions declared in TTCN-3 modules that import them). Extra information related to the encoding/decoding function(s) is stored after each reference.
+The second top level property is an "anyOf" structure, which contains references to the TTCN-3 and ASN.1 types' schema segments under "definitions". The types listed here are the ones validated by the schema. If the compiler option `-f` is set, then only the schema segments of types that have either a JSON encoding or decoding function (or both) will be referenced (ASN.1 types can have JSON encoding/decoding functions declared in TTCN-3 modules that import them). Extra information related to the encoding/decoding function(s) is stored after each reference.
 
 Example:
 [source]
@@ -6105,7 +6105,7 @@ The JSON schema will be generated according to the rules of the IETF draft v4 (s
 In addition to the "definitions" keyword specified above, the schema segments of the type definitions can use the following extra keywords:
 
 * `"subType"`: distinguishes 2 or more types from each other, that otherwise have no other differences in their schema segments (such as: charstring and universal charstring; record and set; record of and set of)
-* `"fieldOrder"`: stores the order of the fields of a record or set (value: an array containing the field names) – only needed if there are at least 2 fields
+* `"fieldOrder"`: stores the order of the fields of a record or set (value: an array containing the field names) - only needed if there are at least 2 fields
 * `"originalName"`: stores the original name of a record/set field (see <<effect-of-coding-instructions-on-the-schema, here>>)
 * `"unusedAlias"`: stores the alias of a record/set/union field name, if it doesn't appear under a "properties" keyword (see <<effect-of-coding-instructions-on-the-schema, here>>)
 * `"omitAsNull"`: specifies if the "omit as null" JSON encoding instruction is present for an optional field of a record or set (see <<schema-segments-for-records-and-sets, here>> and <<effect-of-coding-instructions-on-the-schema, here>>)
@@ -6673,13 +6673,13 @@ NumRec ::= rec < Thing
 
 For the list of JSON coding instructions see <<attributes-1, here>>. As mentioned before, only TTCN-3 types can have coding instructions, ASN.1 types can't.
 
-* _omit as null_ – its presence is indicated by the "omitAsNull" keyword (true, if it's present)
+* _omit as null_ - its presence is indicated by the "omitAsNull" keyword (true, if it's present)
 * _name as …_ - the alias is used under "properties" instead of the field's name in TTCN-3; the original name is stored under the "originalName" key
-* _as value_ – the union's "anyOf" structure contains the fields' schema segments instead of the JSON objects with one property; the field's name is stored under the "originalName" key
-* _default_ – specified by the "default" keyword
-* _extend_ – adds a custom key-value pair to the type's schema segment
+* _as value_ - the union's "anyOf" structure contains the fields' schema segments instead of the JSON objects with one property; the field's name is stored under the "originalName" key
+* _default_ - specified by the "default" keyword
+* _extend_ - adds a custom key-value pair to the type's schema segment
 * _as value_ + _name as …_ - the field name aliases are stored under the "unusedAlias" keyword, as there are no more JSON objects with one property to store them in (they are also ignored by both the schema and the encoder/decoder, and a compiler warning is displayed in this case)
-* _metainfo for unbound_ – is ignored by the schema generator
+* _metainfo for unbound_ - is ignored by the schema generator
 
 Examples:
 [source]
@@ -6954,7 +6954,7 @@ module Mod {
 
 ==== Schema segments for type restrictions
 
-The compiler's `–ttcn2json` option also generates schema segments for type restrictions (subtyping constraints), even though these are ignored by the JSON encoder and decoder. Only restrictions of TTCN-3 types are converted to JSON schema format, ASN.1 type restrictions are ignored.
+The compiler's `-ttcn2json` option also generates schema segments for type restrictions (subtyping constraints), even though these are ignored by the JSON encoder and decoder. Only restrictions of TTCN-3 types are converted to JSON schema format, ASN.1 type restrictions are ignored.
 
 The generated schema segments only contain basic JSON schema keywords, no extra keywords are needed.
 
@@ -7797,7 +7797,7 @@ with { erroneous (b) "value := MyInteger:1" }
 
 Main features of negative testing in TITAN:
 
-* This feature is supported only by the Function Test runtime of TITAN; when doing negative testing this feature must be turned on using the *–R* switch to switch from the default Load Test runtime to the Function Test runtime
+* This feature is supported only by the Function Test runtime of TITAN; when doing negative testing this feature must be turned on using the *-R* switch to switch from the default Load Test runtime to the Function Test runtime
 
 * Performance and functionality in case of positive testing is not affected by this feature
 
@@ -8229,7 +8229,7 @@ function func2() {
   var integer x := 7;
   @update(c_myrec) with {
     erroneous(i) "value := x + 6";
-    erroneous(b) "value := int2str(1 + f_sqr(x – 3)) & \"x\" ";
+    erroneous(b) "value := int2str(1 + f_sqr(x - 3)) & \"x\" ";
   }
   log(encvalue(c_myrec)); // output: {"i":13,"b":"17x"}
 }
@@ -8628,9 +8628,9 @@ When a TTCN-3 project (with profiling enabled) finishes execution, a statistics 
 
 The profiler can be activated in the desired TTCN-3 modules with the compiler option `-z`, followed by a text file containing the list of TTCN-3 file names to be profiled separated by new line characters (this list can also contain `ttcnpp` files).
 
-The TTCN-3 makefile generator can set this option automatically with its own `–z` option (with the same file argument) or through the TPD file.
+The TTCN-3 makefile generator can set this option automatically with its own `-z` option (with the same file argument) or through the TPD file.
 
-When `–z` is set, the compiler generates extra code for profiling and code coverage in the code generated for these modules.
+When `-z` is set, the compiler generates extra code for profiling and code coverage in the code generated for these modules.
 
 The compiler option `-L` must also be specified.
 
@@ -8718,7 +8718,7 @@ Here is an example of the sorted average times in the previously mentioned modul
 
 The statistics file contains the following lists:
 
-* Number of code lines and functions – this list is an exception from the previously mentioned rules; this list contains one element per module and specifies the number of code lines and function in that module, ending with a line made of dashes and the total number of code lines and functions
+* Number of code lines and functions - this list is an exception from the previously mentioned rules; this list contains one element per module and specifies the number of code lines and function in that module, ending with a line made of dashes and the total number of code lines and functions
 +
 Example:
 +
@@ -8734,12 +8734,12 @@ prof3.ttcn:	13 lines,	3 functions
 Total:		36 lines,	10 functions
 ----
 
-* Raw data (4 lists) – one list containing both the total time and execution count for each code line and one list containing their average times, followed by one list with the total times and execution counts of functions and one list with their average times
-* Sorted total times (4 lists) – one list for code lines grouped by module and one (global) for the code lines in all modules, followed by the same for functions (these lists only contain the total execution time of each code line and function)
-* Sorted execution counts (4 lists) – same as the lists of total times
-* Sorted average times (4 lists) – same as the previous two
-* Top 10 total times, execution counts and average times (6 lists) – these contain the first 10 entries from every sorted global list (in the order mentioned in the previous three)
-* Unused code lines and functions (2 lists) – these don't contain any data, only the code line / function specification, they are grouped by module, first the unused lines, then the functions
+* Raw data (4 lists) - one list containing both the total time and execution count for each code line and one list containing their average times, followed by one list with the total times and execution counts of functions and one list with their average times
+* Sorted total times (4 lists) - one list for code lines grouped by module and one (global) for the code lines in all modules, followed by the same for functions (these lists only contain the total execution time of each code line and function)
+* Sorted execution counts (4 lists) - same as the lists of total times
+* Sorted average times (4 lists) - same as the previous two
+* Top 10 total times, execution counts and average times (6 lists) - these contain the first 10 entries from every sorted global list (in the order mentioned in the previous three)
+* Unused code lines and functions (2 lists) - these don't contain any data, only the code line / function specification, they are grouped by module, first the unused lines, then the functions
 
 Any of these lists can be disabled in the configuration file (either one by one or grouped).
 
@@ -8802,7 +8802,7 @@ ttcn3_profmerge [-pc] [-o file] [-s file] [-f filter] db_file1 [db_file2 …]
 or
 
 [source]
-ttcn3_profmerge –v
+ttcn3_profmerge -v
 
 The command line arguments are the input database files, these must always be listed after the switches, and there must be at least one of them.
 

@@ -1,9 +1,9 @@
 [[compiling-ttcn-3-and-asn-1-modules]]
-= Compiling TTCN–3 and ASN.1 Modules
+= Compiling TTCN-3 and ASN.1 Modules
 :toc:
 :table-number: 11
 
-You can translate your TTCN–3 and ASN.1 modules to {cpp} source code using the program compiler.
+You can translate your TTCN-3 and ASN.1 modules to {cpp} source code using the program compiler.
 
 [[command-line-syntax]]
 == Command Line Syntax
@@ -30,11 +30,11 @@ or
 [source]
 compiler --ttcn2json [ -jf ] … [ -T ] module.ttcn [ -A ] module.asn … [ - schema.json ]
 
-The compiler takes the name of files containing TTCN–3 and ASN.1 modules as arguments. The usual and recommended suffix is `.ttcn` for TTCN–3 and `.asn` for ASN.1 source files, but it is not stringentfootnote:[Other tool vendors may use .mp, .3mp or .asn1 suffixes as well.]. For TTCN–3 and ASN.1 modules, the names of the output files are the same as the name of the modules, except for the suffixes which are `.hh` and `.cc`.
+The compiler takes the name of files containing TTCN-3 and ASN.1 modules as arguments. The usual and recommended suffix is `.ttcn` for TTCN-3 and `.asn` for ASN.1 source files, but it is not stringentfootnote:[Other tool vendors may use .mp, .3mp or .asn1 suffixes as well.]. For TTCN-3 and ASN.1 modules, the names of the output files are the same as the name of the modules, except for the suffixes which are `.hh` and `.cc`.
 
 NOTE: In the ASN.1 module names hyphens are replaced by underscore character.
 
-WARNING: If you have a modular test suite, you have to translate all modules of the test suite in one step, i.e. you have to specify all TTCN–3 and ASN.1 files in the argument list.
+WARNING: If you have a modular test suite, you have to translate all modules of the test suite in one step, i.e. you have to specify all TTCN-3 and ASN.1 files in the argument list.
 
 The switches denoted by square brackets are optional. More than one option may be merged for abbreviation. For example, `-r` `-u` has exactly the same meaning as `-ru`.
 
@@ -70,7 +70,7 @@ This switch changes the way fields of ASN.1 SEQUENCE /SET types with DEFAULT val
 +
 [cols=",,",options="header",]
 |===
-|Sending |Without –d |With –d
+|Sending |Without -d |With -d
 |Explicit value |Send value |Send value
 |Default value |Do not send (omit) |Send default value
 |omit |N/A |Do not send (omit)
@@ -78,7 +78,7 @@ This switch changes the way fields of ASN.1 SEQUENCE /SET types with DEFAULT val
 +
 [cols=",,",options="header",]
 |===
-|Receiving |Without –d |With –d
+|Receiving |Without -d |With -d
 |Receive explicit value |TTCN sees value |TTCN sees value
 |Receive default value |TTCN sees default value* |TTCN sees default value
 |Omitted |TTCN sees default value** |TTCN sees `omit'
@@ -116,7 +116,7 @@ This option is used internally for pre-generating the mentioned {cpp} classes.
 +
 The compiler error/warning messages will contain the starting line number, and the starting column number if available. This option provides compatibility with the GNU compiler and many tools which are able to interpret its output (including Eclipse).
 +
-If both `–g` and `–i` are specified, `-g` takes precedence.
+If both `-g` and `-i` are specified, `-g` takes precedence.
 
 * `-h`
 +
@@ -132,7 +132,7 @@ Enables the use of real-time testing features, i.e. the test system clock ('now'
 
 * `-j`
 +
-Disables the generation of JSON encoder/decoder routines for all TTCN–3 types.
+Disables the generation of JSON encoder/decoder routines for all TTCN-3 types.
 
 * `-k`
 +
@@ -164,7 +164,7 @@ Because of the `-T` flag the `Third.ttcn` will be treated as a TTCN-3 file, and 
 
 * `-l`
 +
-Instructs the compiler to generate source file and line information (that is, #line directives) into the output code so that the error messages of the {cpp} compiler refer back to the lines of the original TTCN–3 input module. This makes finding the reason of {cpp} error messages easier. This option has effect only in the equivalent {cpp} code of TTCN–3 functions, test cases and control parts and this feature is not provided in other TTCN–3 definitions such as types, constants or templates.WARNING! This is an experimental feature and the {cpp} compiler may report misleading error messages that refer to totally wrong (e.g. non-existent) TTCN–3 line numbers. In these cases please turn off this flag, repeat the compilation and analyze the generated code manually. Without this flag, the compiler also inserts the source code information for the better understanding of {cpp} error messages, but only as {cpp} comments. This option has no impact on the run-time performance of the generated code. The compiler performs full semantic analysis on its entire input; it normally does not generate erroneous {cpp} code. So this option became obsolete and will be removed in future versions.
+Instructs the compiler to generate source file and line information (that is, #line directives) into the output code so that the error messages of the {cpp} compiler refer back to the lines of the original TTCN-3 input module. This makes finding the reason of {cpp} error messages easier. This option has effect only in the equivalent {cpp} code of TTCN-3 functions, test cases and control parts and this feature is not provided in other TTCN-3 definitions such as types, constants or templates.WARNING! This is an experimental feature and the {cpp} compiler may report misleading error messages that refer to totally wrong (e.g. non-existent) TTCN-3 line numbers. In these cases please turn off this flag, repeat the compilation and analyze the generated code manually. Without this flag, the compiler also inserts the source code information for the better understanding of {cpp} error messages, but only as {cpp} comments. This option has no impact on the run-time performance of the generated code. The compiler performs full semantic analysis on its entire input; it normally does not generate erroneous {cpp} code. So this option became obsolete and will be removed in future versions.
 
 * `-L`
 +
@@ -192,9 +192,9 @@ Disable the generation of OER encoding and decoding functions.
 
 * `-p`
 +
-Instructs the compiler only to parse the given TTCN–3 and ASN.1 modules. This will detect only the syntax errors in them because semantic checks are not performed. The presence of all imported modules is not necessary, thus, it is allowed (and recommended) to parse the modules one-by-one. All options that influence the code generation are silently ignored when used together with `-p`.
+Instructs the compiler only to parse the given TTCN-3 and ASN.1 modules. This will detect only the syntax errors in them because semantic checks are not performed. The presence of all imported modules is not necessary, thus, it is allowed (and recommended) to parse the modules one-by-one. All options that influence the code generation are silently ignored when used together with `-p`.
 +
-NOTE: This option includes complete syntax checks for TTCN–3 modules, but in ASN.1 there are some special constructs (e.g. the user-defined syntaxes) that cannot be parsed without semantic analysis. So there is no guarantee that an ASN.1 module is free of syntax errors if it was analyzed with compiler using the -p flag.
+NOTE: This option includes complete syntax checks for TTCN-3 modules, but in ASN.1 there are some special constructs (e.g. the user-defined syntaxes) that cannot be parsed without semantic analysis. So there is no guarantee that an ASN.1 module is free of syntax errors if it was analyzed with compiler using the -p flag.
 
 * `-P top level pdu …`
 +
@@ -212,7 +212,7 @@ NOTE: Errors count is cumulative across all modules. Using this option may cause
 
 * `-r`
 +
-Disables the generation of RAW encoder/decoder routines for all TTCN–3 types.
+Disables the generation of RAW encoder/decoder routines for all TTCN-3 types.
 
 * `-R`
 +
@@ -220,11 +220,11 @@ Instructs the compiler to generate code for use with the function test runtime. 
 
 * `-s`
 +
-Instructs the compiler to parse the given TTCN–3 and ASN.1 modules and perform semantic analysis on them, but not to generate {cpp} output.
+Instructs the compiler to parse the given TTCN-3 and ASN.1 modules and perform semantic analysis on them, but not to generate {cpp} output.
 The list of given modules shall be complete so it is not allowed to import from a module that is not in the list.
 All options that influence the code generation are silently ignored when used together with `-s`.
 +
-NOTE: The TTCN–3 semantic analyzer of the compiler is still under development, thus, it is not capable of detecting every kind of semantic error.
+NOTE: The TTCN-3 semantic analyzer of the compiler is still under development, thus, it is not capable of detecting every kind of semantic error.
 
 * `-S`
 +
@@ -242,7 +242,7 @@ The `-S` option causes the compiler to output only the error (last line), withou
 
 * `-t`
 +
-Generates Test Port skeleton header and source files for all port types in the input TTCN–3 modules. Existing Test Port files will not be overwritten unless the -f option is used.
+Generates Test Port skeleton header and source files for all port types in the input TTCN-3 modules. Existing Test Port files will not be overwritten unless the -f option is used.
 +
 NOTE: In versions 1.1 and earlier this was the default behavior of the compiler, but if the existing Test Port source files were stored in a different directory, the generated new skeletons could be confusing.
 
@@ -308,7 +308,7 @@ Disables attribute checks for `encvalue` and `decvalue`. Must be used together w
 
 * `-`
 +
-The single dash character as command line argument has a special meaning: it controls the selective code generation. After the list of all TTCN–3 and ASN.1 modules a subset of these files can be given separated by a dash. This option instructs the compiler to parse all modules, perform the semantic analysis on the entire module hierarchy, but generate code only for those modules that are listed after the dash again. It is not allowed to specify a file name after the dash that was not present in the list before the dash. If the single dash is not present in the command line the compiler will generate code for all modules.
+The single dash character as command line argument has a special meaning: it controls the selective code generation. After the list of all TTCN-3 and ASN.1 modules a subset of these files can be given separated by a dash. This option instructs the compiler to parse all modules, perform the semantic analysis on the entire module hierarchy, but generate code only for those modules that are listed after the dash again. It is not allowed to specify a file name after the dash that was not present in the list before the dash. If the single dash is not present in the command line the compiler will generate code for all modules.
 
 * `-ttcn2json`
 +
@@ -328,7 +328,7 @@ Only types that have JSON encoding or decoding functions (or both) are validated
 +
 The single dash character as command line argument can be used to specify the name of the generated JSON schema file (it must be followed by exactly one argument, which is the file name). If it is not present, the schema file name is generated from the name of the first input file (the extension "`.ttcn`" or "`.asn`" is replaced by "`.json`", or "`.json`" is appended to the end of the file name if neither extension is present).
 +
-The meaning of options is also included in the manual page of the compiler. If your TTCN–3 installation is correct, the command `man compiler` will show you this manual page. If not, check the `MANPATH` environment variable.
+The meaning of options is also included in the manual page of the compiler. If your TTCN-3 installation is correct, the command `man compiler` will show you this manual page. If not, check the `MANPATH` environment variable.
 
 === Makefile Generator
 
@@ -357,7 +357,7 @@ The switches denoted by square brackets are optional. More than one option may b
 
 * `-a`
 +
-The flag refers to files using absolute path names in the generated Makefile. Makefile uses by default relative path names to access files located outside the current working directory of the compiler. Files from the current working directory are always referenced using only the file name without any directory. The flag generates a Makefile that is capable of using pre-compiled {cpp} and object files from central directories in order to save disk space and compilation time. WARNING! This feature works only if the generated files of the central directory is kept up-to-date and all directories use exactly the same environment (platform, TTCN–3 Executor and {cpp} compiler version, etc.).
+The flag refers to files using absolute path names in the generated Makefile. Makefile uses by default relative path names to access files located outside the current working directory of the compiler. Files from the current working directory are always referenced using only the file name without any directory. The flag generates a Makefile that is capable of using pre-compiled {cpp} and object files from central directories in order to save disk space and compilation time. WARNING! This feature works only if the generated files of the central directory is kept up-to-date and all directories use exactly the same environment (platform, TTCN-3 Executor and {cpp} compiler version, etc.).
 
 * `-c`
 +
@@ -369,7 +369,7 @@ Dumps the data used for Makefile generation.
 
 * `-e <ETS name>`
 +
-Sets the name of the target binary program (i.e. the executable test suite) to <ETS name> in the generated Makefile. If this option is omitted, the name of the first TTCN–3 module will be used as default.
+Sets the name of the target binary program (i.e. the executable test suite) to <ETS name> in the generated Makefile. If this option is omitted, the name of the first TTCN-3 module will be used as default.
 
 * `-E`
 +
@@ -397,7 +397,7 @@ Enables the use of real-time testing features, i.e. the test system clock ('now'
 
 * `-I path`
 +
-Add path to the list of search paths which are used to search for referred TPD-s. `path` must be an absolute path and multiple `–I` switches can be used. The search paths are used when the `–t` switch is also present and a referred TPD project cannot be found at the location specified by `projectRelativeURI`. In this case the `makefilegen` tool tries to find the TPD file using the paths provided by `path`. If the `tpdName` attribute of a `ReferencedProject` element is present in the TPD, then the value of the `tpdName` attribute will be used as a TPD filename during the search. However if the `tpdName` attribute is missing, then the name attribute’s value with the `.tpd` suffix will be used. If there are multiple paths specified then the first `.tpd` file with the correct name found in the list of search paths is taken. See 6.1.3.4 for an example.
+Add path to the list of search paths which are used to search for referred TPD-s. `path` must be an absolute path and multiple `-I` switches can be used. The search paths are used when the `-t` switch is also present and a referred TPD project cannot be found at the location specified by `projectRelativeURI`. In this case the `makefilegen` tool tries to find the TPD file using the paths provided by `path`. If the `tpdName` attribute of a `ReferencedProject` element is present in the TPD, then the value of the `tpdName` attribute will be used as a TPD filename during the search. However if the `tpdName` attribute is missing, then the name attribute’s value with the `.tpd` suffix will be used. If there are multiple paths specified then the first `.tpd` file with the correct name found in the list of search paths is taken. See 6.1.3.4 for an example.
 
 * `-J file`
 +
@@ -413,7 +413,7 @@ Enable code coverage for TTCN-3 modules listed in `file`. `file` is an ASCII tex
 
 * `-l`
 +
-Enable dynamic linking. All files of the project will be compiled with `–fPIC` and for each (static) object, a new shared object will be created. Then, these shared objects will be linked to the final executable instead of the (static) objects. It can be used to speed up the linking phase, in the price of somewhat lower performance and increased memory usage. It’s recommended to use this flag only in the development phase of the project. Please note, that both the project’s working directory (which holds the TITAN generated `.so` files) and the directory of TITAN libraries, most probably `${TTCN3_DIR}/lib`, should be appended to the `LD_LIBRARY_PATH` environment variable. Otherwise, the dynamic linker (or loader) won’t be able to locate the shared objects required by the executable. This option is not supported on Windows (platform string `WIN32`).
+Enable dynamic linking. All files of the project will be compiled with `-fPIC` and for each (static) object, a new shared object will be created. Then, these shared objects will be linked to the final executable instead of the (static) objects. It can be used to speed up the linking phase, in the price of somewhat lower performance and increased memory usage. It’s recommended to use this flag only in the development phase of the project. Please note, that both the project’s working directory (which holds the TITAN generated `.so` files) and the directory of TITAN libraries, most probably `${TTCN3_DIR}/lib`, should be appended to the `LD_LIBRARY_PATH` environment variable. Otherwise, the dynamic linker (or loader) won’t be able to locate the shared objects required by the executable. This option is not supported on Windows (platform string `WIN32`).
 
 * `-L`
 +
@@ -445,7 +445,7 @@ Add file to the list of other files in the generated `Makefile` without analyzin
 
 * `-p`
 +
-Generates `Makefile` with TTCN–3 preprocessing. All the TTCN–3 source files with the suffix `.ttcnpp` will be preprocessed using the C preprocessor. For details see <<12-tips_&_troubleshooting.adoc#using-the-ttcn-3-preprocessing-functionality, Using the TTCN-3 Preprocessing Functionality>>.
+Generates `Makefile` with TTCN-3 preprocessing. All the TTCN-3 source files with the suffix `.ttcnpp` will be preprocessed using the C preprocessor. For details see <<12-tips_&_troubleshooting.adoc#using-the-ttcn-3-preprocessing-functionality, Using the TTCN-3 Preprocessing Functionality>>.
 
 * `-R`
 +
@@ -477,7 +477,7 @@ Enforces legacy behaviour of the "out" function parameters (the "out" parameter 
 
 * `-z file`
 +
-Enables code coverage and profiling in the TTCN-3 files listed in the `file` argument. The TTCN-3 files in the list must be separated by new lines and must also appear among the makefile generator’s arguments (this switch is ignored if the –t option is present).
+Enables code coverage and profiling in the TTCN-3 files listed in the `file` argument. The TTCN-3 files in the list must be separated by new lines and must also appear among the makefile generator’s arguments (this switch is ignored if the -t option is present).
 +
 If any of the source (TTCN-3, ASN.1, user-written {cpp}) files does not exist or cannot be accessed, `ttcn3_makefilegen` exits with an error.
 +
@@ -533,7 +533,7 @@ The following TPD related command line options are available:
 
 * `-t filename.tpd [-b buildconfig]`
 +
-Use the supplied Titan Project Descriptor file to generate the Makefile. Information about directories, files and certain options is extracted from the TPD file and used to generate the Makefile(s). Additional files can be specified on the command line. Options from the command line override any option specified in the TPD file. If hierarchical makefilegen is ordered (-Frcg or –FrcgWp) then the immediately referred projects will be generated according to the element <requiredConfiguration> of the ordered top level active configuration. This is applied recursively.
+Use the supplied Titan Project Descriptor file to generate the Makefile. Information about directories, files and certain options is extracted from the TPD file and used to generate the Makefile(s). Additional files can be specified on the command line. Options from the command line override any option specified in the TPD file. If hierarchical makefilegen is ordered (-Frcg or -FrcgWp) then the immediately referred projects will be generated according to the element <requiredConfiguration> of the ordered top level active configuration. This is applied recursively.
 
 * `-b buildconfig`
 +
@@ -581,7 +581,7 @@ Use the improved linking method. It generates a flexible hierarchy of static and
 
 * `-H`
 +
-Use hierarchical project generation. Use it with –Z option. It provides makefiles for generating hierarchical binaries without flattening the project hierarchy. make can be called in any working directory, the lower level projects will be handled properly. All project can be regarded as top level project. Execution time of make is higher than in case of applying –Z without –H. (The difference is 50-100% for top level modification, 0-10% for lower level modification.)
+Use hierarchical project generation. Use it with -Z option. It provides makefiles for generating hierarchical binaries without flattening the project hierarchy. make can be called in any working directory, the lower level projects will be handled properly. All project can be regarded as top level project. Execution time of make is higher than in case of applying -Z without -H. (The difference is 50-100% for top level modification, 0-10% for lower level modification.)
 
 Examples:
 
@@ -853,9 +853,9 @@ If we execute the command: compiler `-U 4 My_Types.ttcn My_Functions.ttcn My_Con
 * `My_Constants_part_4.cc` (contains approximately 0 effective characters)
 
 [[the-compilation-process-for-ttcn-3-and-asn-1-modules]]
-== The Compilation Process for TTCN–3 and ASN.1 Modules
+== The Compilation Process for TTCN-3 and ASN.1 Modules
 
-Before analyzing the input modules the compiler applies some heuristics for each source file to determine whether it contains a TTCN–3 or ASN.1 module. These so-called pre-parsing algorithms consider only the first few words of the files so it can happen that the compiler is unable to recognize its input and stops immediately with an error message. This is the case, for example, if the beginning of the module is either erroneous or contains strange and misleading comments. In this case using the command-line options `-T` and `-A` you can bypass the pre-parsers and force to interpret the corresponding file as a TTCN–3 or ASN.1 module, respectively.
+Before analyzing the input modules the compiler applies some heuristics for each source file to determine whether it contains a TTCN-3 or ASN.1 module. These so-called pre-parsing algorithms consider only the first few words of the files so it can happen that the compiler is unable to recognize its input and stops immediately with an error message. This is the case, for example, if the beginning of the module is either erroneous or contains strange and misleading comments. In this case using the command-line options `-T` and `-A` you can bypass the pre-parsers and force to interpret the corresponding file as a TTCN-3 or ASN.1 module, respectively.
 
 During its run, the compiler reports its activities on its standard error stream like the following. The level of detail for these messages can be controlled with the flag `-V`.
 [source]
@@ -871,11 +871,11 @@ Notify: File 'MyAsnModule.cc' updated.
 Notify: 4 files updated.
 ----
 
-First, the compiler reads the TTCN–3 and ASN.1 input files and performs syntax check according to the BNF of TTCN–3 <<13-references.adoc#_1, [1]>> (including the additions of <<13-references.adoc#_3, [3]>>) or ASN.1 <<13-references.adoc#_4, [4]>>, <<13-references.adoc#_7, [7]>>, <<13-references.adoc#_8, [8]>>, <<13-references.adoc#_9, [9]>>. The syntax errors are reported with the appropriate line number. Whenever it is possible, the compiler tries to recover from syntax errors and continue the analysis in order to detect further errors.
+First, the compiler reads the TTCN-3 and ASN.1 input files and performs syntax check according to the BNF of TTCN-3 <<13-references.adoc#_1, [1]>> (including the additions of <<13-references.adoc#_3, [3]>>) or ASN.1 <<13-references.adoc#_4, [4]>>, <<13-references.adoc#_7, [7]>>, <<13-references.adoc#_8, [8]>>, <<13-references.adoc#_9, [9]>>. The syntax errors are reported with the appropriate line number. Whenever it is possible, the compiler tries to recover from syntax errors and continue the analysis in order to detect further errors.
 
 NOTE: Error recovery is not always successful and it might result in additional undesired error messages when the parser gets out of synchronization. Therefore it is recommended to study the first lines on the compiler’s error listings because the error messages at the end are not always relevant.
 
-After the syntax check the compiler performs semantic analysis on TTCN–3 /ASN.1 module(s) and verifies whether the various definitions and language elements are used in the appropriate way according to the static semantics of TTCN–3 and ASN.1 languages. In addition to error messages the compiler reports a warning when the corresponding definition is correct, but it might have unwanted effects.
+After the syntax check the compiler performs semantic analysis on TTCN-3 /ASN.1 module(s) and verifies whether the various definitions and language elements are used in the appropriate way according to the static semantics of TTCN-3 and ASN.1 languages. In addition to error messages the compiler reports a warning when the corresponding definition is correct, but it might have unwanted effects.
 
 If both syntax and semantic checks were successful, the compiler generates a {cpp} header and source file that contains the translated module. If the name of the input module is `MyModule` (i.e. it begins with module `MyModule`), the name of the generated header and source file will be `MyModule.hh` and `MyModule.cc`, respectively. Note that the name of the output file does NOT depend on the name of input file. In ASN.1 module names the hyphens are converted to underscore characters (e.g. the {cpp} code for `My-Asn-Module` will be placed into `My_Asn_Module.hh` and `My_Asn_Module.cc`).
 
@@ -883,14 +883,14 @@ By default, the compiler generates the {cpp} code for all input modules. This ca
 
 This sophisticated command line syntax is necessary because in general case it is impossible to perform the semantic analysis on a subset of the modules because those may import from modules outside the list. Moreover, to avoid undesirable side-effects of the code optimization techniques implemented in the compiler (e.g. type and value folding) the {cpp} code is generated not only for the modified modules, but for all modules that import definitions (either directly or indirectly) from the modified ones.
 
-When the compiler translates an ASN.1 module, the different ASN.1 types are mapped to TTCN–3 types as described in the table below.
+When the compiler translates an ASN.1 module, the different ASN.1 types are mapped to TTCN-3 types as described in the table below.
 
-.Mapping of ASN.1 types to TTCN–3 types
+.Mapping of ASN.1 types to TTCN-3 types
 [cols=",",options="header",]
 |===
-|ASN.1 |TTCN–3
+|ASN.1 |TTCN-3
 |Simple types |
-|NULL |– *
+|NULL |- *
 |BOOLEAN |boolean
 |INTEGER |integer
 |ENUMERATED |enumerated
@@ -910,7 +910,7 @@ When the compiler translates an ASN.1 module, the different ASN.1 types are mapp
 |SET OF |set of
 |===
 
-\* there is no corresponding TTCN–3 type +
+\* there is no corresponding TTCN-3 type +
 † IA5String, NumericString, PrintableString, VisibleString (ISO646String) +
 ‡ GeneralString, GraphicString, TeletexString (T61String), VideotexString +
 § BMPString, UniversalString, UTF8String +
@@ -1015,9 +1015,9 @@ Illegal-type ::= SET {
 The problem is that the (BER) decoder of a version 1 system cannot attribute an unknown element (received from a version 2 system) unambiguously to a specific insertion point.
 
 [[using-component-relation-constraints-from-ttcn-3]]
-== Using Component Relation Constraints from TTCN–3
+== Using Component Relation Constraints from TTCN-3
 
-To handle constructs defined in X.681, X.682 and X.683 is not easy from TTCN–3. There is an ETSI technical reportfootnote:[TR 101 295] which describes how to transform these constructs to equivalent X.680 constructs. The clause 4.4 of this document is about transforming information objects.
+To handle constructs defined in X.681, X.682 and X.683 is not easy from TTCN-3. There is an ETSI technical reportfootnote:[TR 101 295] which describes how to transform these constructs to equivalent X.680 constructs. The clause 4.4 of this document is about transforming information objects.
 
 "The transformation rules presented in this clause cannot reproduce the full semantics of the information objects they replace. The transformation rules cannot preserve component relation constraints. These constraints provide the ability to constrain a type or value with reference to a different field within an information object set."
 

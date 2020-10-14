@@ -7,7 +7,7 @@ The purpose of this document is to provide detailed information on writing compo
 
 == Target Groups
 
-This document is intended for programmers of TTCN–3 test suites with information in addition to that provided in the <<_13, TITAN User Guide>>. It is recommended that the programmer reads the TITAN User Guide before reading this document.
+This document is intended for programmers of TTCN-3 test suites with information in addition to that provided in the <<_13, TITAN User Guide>>. It is recommended that the programmer reads the TITAN User Guide before reading this document.
 
 == Typographical Conventions
 

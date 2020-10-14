@@ -4,13 +4,13 @@
 * [1] link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187301/04.01.01_60/es_20187301v040101p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 1: Core Language European Telecommunications Standards Institute ES 201 873-1 Version 4.1.1, July 2009]
 
 [[_2]]
-* [2] link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187304/04.01.01_60/es_20187304v040101p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 4: TTCN–3 Operational Semantics European Telecommunications Standards Institute. ES 201 873-4 Version 4.1.1, June 2009]
+* [2] link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187304/04.01.01_60/es_20187304v040101p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 4: TTCN-3 Operational Semantics European Telecommunications Standards Institute. ES 201 873-4 Version 4.1.1, June 2009]
 
 [[_3]]
-* [3] link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187307/04.01.01_60/es_20187307v040101p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 7: Using ASN.1 with TTCN–3 European Telecommunications Standards Institute. ES 201 873-7 Version 4.1.1, July 2009]
+* [3] link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187307/04.01.01_60/es_20187307v040101p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 7: Using ASN.1 with TTCN-3 European Telecommunications Standards Institute. ES 201 873-7 Version 4.1.1, July 2009]
 
 [[_4]]
-* [4] link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187309/04.01.01_60/es_20187309v040101p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 9: Using XML Schema with TTCN–3 European Telecommunications Standards Institute. ES 201 873-9 Version 4.1.1, June 2009]
+* [4] link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187309/04.01.01_60/es_20187309v040101p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 9: Using XML Schema with TTCN-3 European Telecommunications Standards Institute. ES 201 873-9 Version 4.1.1, June 2009]
 
 [[_5]]
 * [5] link:https://www.etsi.org/deliver/etsi_es/202700_202799/202785/01.05.01_60/es_202785v010501p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. TTCN-3 Language Extensions: Behaviour Types European Telecommunications Standards Institute. ES 202 785 Version 1.5.1, Aug 2017]
@@ -31,7 +31,7 @@
 * [10] link:https://www.itu.int/rec/T-REC-X.690-200207-S[ITU-T, X.690, Information Technology ASN.1 encoding rules: Specification of Basic Encoding Rules (BER), Canonical Encoding Rules (CER) and Distinguished Encoding Rules (DER)International Telecommunication Union, July 2002]
 
 [[_11]]
-* [11] ISO/IEC 10646-1, Information technology – Universal Multiple-Octet Coded Character Set (UCS) – Part 1: Architecture and Basic Multilingual Plane, Second edition, 200009-15
+* [11] ISO/IEC 10646-1, Information technology - Universal Multiple-Octet Coded Character Set (UCS) - Part 1: Architecture and Basic Multilingual Plane, Second edition, 200009-15
 
 [[_12]]
 * [12] link:https://tools.ietf.org/html/rfc3629[RFC3629: UTF-8, a transformation format of ISO 10646]
@@ -73,7 +73,7 @@
 * [24] link:https://docs.mongodb.com/manual/reference/mongodb-extended-json/#bson-data-types-and-associated-representations[MongoDB Extended JSON document]
 
 [[_25]]
-* [25] link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187311/04.08.01_60/es_20187311v040801p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 11: Using JSON with TTCN–3 European Telecommunications Standards Institute. ES 201 873-11 Version 4.8.1, May 2018]
+* [25] link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187311/04.08.01_60/es_20187311v040801p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3. Part 11: Using JSON with TTCN-3 European Telecommunications Standards Institute. ES 201 873-11 Version 4.8.1, May 2018]
 
 [[_26]]
 * [26] link:https://www.etsi.org/deliver/etsi_es/202700_202799/202782/01.03.01_60/es_202782v010301p.pdf[ETSI ES 202 782 V1.3.1. (2015-06 Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: TTCN-3 Performance and Real Time Testing)]

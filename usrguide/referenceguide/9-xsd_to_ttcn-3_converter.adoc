@@ -295,7 +295,7 @@ Information in the `appinfo` tags are not translated.
 
 == Extensions
 
-The XSD to TTCN-3 Converted has the following non-standard additions to the Using XML Schema with TTCN–3 <<13-references.adoc#_4, [4]>> .
+The XSD to TTCN-3 Converted has the following non-standard additions to the Using XML Schema with TTCN-3 <<13-references.adoc#_4, [4]>> .
 
 TITAN allows the usage of constants and module parameters in the value of a `defaultForEmpty` encoding instruction. The `xsd2ttcn` tool generates the `defaultForEmpty` encoding instructions with a constant definition as a value to provide reusability of the `defaultForEmpty` values. Only the conversion of `default` and `fixed` attributes of elements is changed.
 

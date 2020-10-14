@@ -33,7 +33,7 @@ tcov2lcov
 . Generate HTML using LCOV’s `genhtml` and the generated `output.info` (see <<converting-code-coverage-data-from-xml-to-html, here>> for more information):
 +
 [source]
-genhtml –no-branch-coverage –t "Titan Coverage" –legend output.info –o titan_coverage
+genhtml -no-branch-coverage -t "Titan Coverage" -legend output.info -o titan_coverage
 
 . Open `titan_coverage/index.html` in a browser.
 
@@ -43,7 +43,7 @@ genhtml –no-branch-coverage –t "Titan Coverage" –legend output.info –o t
 The `tcov2lcov` tool (binary tool) shipped with Titan and LCOV’s `genhtml` tool (Perl script) are provided to generate human readable HTML from the Titan generated .tcd XML code coverage data files. LCOV’s `genhtml` is not part of the Titan distribution and needs to be installed separately. The basic process is the following:
 
 . Execute `tcov2lcov` to collect and merge all the .tcd files generated during test execution. One .tcd file per component. By default an `output.info` file will be generated in the current working directory, which can be processed directly by LCOV’s `genhtml`. More detailed information about `tcov2lcov` can be found in 10.3.
-. Execute `genhtml` with `output.info` as its input parameter. The recommended parameters are the following:` genhtml –no-branch-coverage -t "Titan Coverage" –legend output.info -o titan_coverage`. For more detailed introduction to `genhtml` and LCOV in general please read their user manuals at http://ltp.sourceforge.net/coverage/lcov.php.
+. Execute `genhtml` with `output.info` as its input parameter. The recommended parameters are the following:` genhtml -no-branch-coverage -t "Titan Coverage" -legend output.info -o titan_coverage`. For more detailed introduction to `genhtml` and LCOV in general please read their user manuals at http://ltp.sourceforge.net/coverage/lcov.php.
 
 [[command-line-syntax-of-tcov2lcov]]
 == Command Line Syntax of tcov2lcov
@@ -86,4 +86,4 @@ The Titan compiler implements some optimizations which can affect the accuracy o
 
 External functions are not yet supported and they’re not shown in the statistics.
 
-The Titan code coverage implementation is based on Titan’s internal location tracking mechanism enabled by the `–L` compiler flag, which must be used together with `-K`. Sometimes it can lead to a little bit confusing or strange code coverage output. E.g. multiple location objects are generated when multiple variable declarations appear on the same line in the TTCN-3 source code. In this case the code coverage output will show that the given line is executed twice. For more complex statements like `for` three location objects are generated etc.
+The Titan code coverage implementation is based on Titan’s internal location tracking mechanism enabled by the `-L` compiler flag, which must be used together with `-K`. Sometimes it can lead to a little bit confusing or strange code coverage output. E.g. multiple location objects are generated when multiple variable declarations appear on the same line in the TTCN-3 source code. In this case the code coverage output will show that the given line is executed twice. For more complex statements like `for` three location objects are generated etc.
