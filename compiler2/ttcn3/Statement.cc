@@ -189,7 +189,10 @@ namespace Ttcn {
         // is the same as the type of 'mtc' (which is given in 'runs on' clause)
       }
       return my_def->get_RunsOnType();
-    } else if (asstype == Common::Assignment::A_FUNCTION || asstype == Common::Assignment::A_ALTSTEP) {
+    } else if (asstype == Common::Assignment::A_FUNCTION ||
+               asstype == Common::Assignment::A_FUNCTION_RVAL ||
+               asstype == Common::Assignment::A_FUNCTION_RTEMP ||
+               asstype == Common::Assignment::A_ALTSTEP) {
       if (is_system) {
         return my_def->get_SystemType();
       } else {
