@@ -758,6 +758,7 @@ namespace Ttcn {
     void chk_connect();
     /* checks map and unmap */
     void chk_map();
+    void chk_map_params(PortTypeBody* p_system_port);
     void chk_start_timer();
     void chk_stop_timer();
     void chk_timer_timeout();

@@ -25,4 +25,9 @@ testcase tc_single_retval() runs on CT {
   f_check_calls();
 }
 
+testcase tc_single_mtc() runs on CT {
+  f_test_params_mtc();
+  f_check_calls();
+}
+
 }

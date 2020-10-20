@@ -5151,6 +5151,7 @@ error:
         error("Cannot determine system component in `%s' operation with "
           "`param' clause", get_stmt_name());
       }
+      chk_map_params(cref1_is_system ? ptb1 : (cref2_is_system ? ptb2 : NULL));
       return;
     }
     if (cref1_is_tc || cref2_is_system) {
@@ -5220,30 +5221,33 @@ error:
         }
       }
     }
-    
-    if (config_op.parsed_params != NULL) {
-      if (cref1_is_system) {
-        config_op.fp_list = ptb1->get_map_parameters(statementtype == S_MAP);
-      }
-      else if (cref2_is_system) {
-        config_op.fp_list = ptb2->get_map_parameters(statementtype == S_MAP);
-      }
-      else {
-        error("Cannot determine system component in `%s' operation with "
-          "`param' clause", get_stmt_name());
-      }
-      if (config_op.fp_list != NULL) {
-        ActualParList* parlist = new ActualParList;
-        if (config_op.fp_list->fold_named_and_chk(config_op.parsed_params, parlist)) {
-          delete parlist;
-          delete config_op.parsed_params;
-          config_op.ap_list = NULL;
-        } else {
-          delete config_op.parsed_params;
-          parlist->set_fullname(get_fullname());
-          parlist->set_my_scope(my_sb);
-          config_op.ap_list = parlist;
-        }
+
+    chk_map_params(cref1_is_system ? ptb1 : (cref2_is_system ? ptb2 : NULL));
+  }
+
+  void Statement::chk_map_params(PortTypeBody* p_system_port)
+  {
+    if (config_op.parsed_params == NULL) {
+      return;
+    }
+    if (p_system_port != NULL) {
+      config_op.fp_list = p_system_port->get_map_parameters(statementtype == S_MAP);
+    }
+    else {
+      error("Cannot determine system component in `%s' operation with "
+        "`param' clause", get_stmt_name());
+    }
+    if (config_op.fp_list != NULL) {
+      ActualParList* parlist = new ActualParList;
+      if (config_op.fp_list->fold_named_and_chk(config_op.parsed_params, parlist)) {
+        delete parlist;
+        delete config_op.parsed_params;
+        config_op.ap_list = NULL;
+      } else {
+        delete config_op.parsed_params;
+        parlist->set_fullname(get_fullname());
+        parlist->set_my_scope(my_sb);
+        config_op.ap_list = parlist;
       }
     }
   }
