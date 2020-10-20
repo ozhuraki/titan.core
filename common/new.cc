@@ -18,33 +18,33 @@
 
 static void *dummy = NULL;
 
-void *operator new(size_t size) throw (std::bad_alloc)
+void *operator new(size_t size)
 {
     return Malloc(size);
 }
 
-void *operator new[](size_t size) throw (std::bad_alloc)
+void *operator new[](size_t size)
 {
     if (size == 0) return &dummy;
     else return Malloc(size);
 }
 
-void operator delete(void *ptr) throw()
+void operator delete(void *ptr)
 {
     Free(ptr);
 }
 
-void operator delete(void *ptr, std::size_t) throw()
+void operator delete(void *ptr, std::size_t)
 {
     Free(ptr);
 }
 
-void operator delete[](void *ptr) throw()
+void operator delete[](void *ptr)
 {
     if (ptr != static_cast<void*>(&dummy)) Free(ptr);
 }
 
-void operator delete[](void *ptr, std::size_t) throw()
+void operator delete[](void *ptr, std::size_t)
 {
     if (ptr != static_cast<void*>(&dummy)) Free(ptr);
 }
@@ -75,6 +75,19 @@ void* operator new[](size_t size, const std::nothrow_t&, const char* file, int l
     if (size == 0) return &dummy;
     else return Malloc_dbg(file, line, size);
 }
+
+#if __cplusplus >= 201703L
+void* operator new(size_t size, std::align_val_t, const char* file, int line)
+{
+    return Malloc_dbg(file, line, size);
+}
+
+void* operator new[](size_t size, std::align_val_t, const char* file, int line)
+{
+    if (size == 0) return &dummy;
+    else return Malloc_dbg(file, line, size);
+}
+#endif // C++11
 
 int debug_new_counter_t::count = 0; // initial value
 

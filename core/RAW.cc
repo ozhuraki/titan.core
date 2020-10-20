@@ -382,8 +382,8 @@ RAW_enc_tree* RAW_enc_tree::get_node(RAW_enc_tr_pos &req_pos)
  */
 int min_bits(int a)
 {
-  register int bits = 0;
-  register int tmp = a;
+  int bits = 0;
+  int tmp = a;
   if (a < 0) {
     bits = 1;
     tmp = -a;
@@ -398,7 +398,7 @@ int min_bits(int a)
 int min_bits(BIGNUM *a)
 {
   if (!a) return 0;
-  register int bits = BN_num_bits(a) + BN_is_negative(a);
+  int bits = BN_num_bits(a) + BN_is_negative(a);
   return bits;
 }
 

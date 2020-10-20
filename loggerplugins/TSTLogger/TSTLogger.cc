@@ -76,19 +76,19 @@ class TCPClient
 public:
   TCPClient(): socket_fd(-1), timeout_time(30) {}
   // opens connection and returns socket file descriptor, throws exception on error
-  void open_connection(const string host_name, const string service_name) throw(SocketException);
+  void open_connection(const string host_name, const string service_name);
   // send a string to a socket, don't return until the whole string is sent
-  void send_string(const string& str) throw(SocketException);
+  void send_string(const string& str);
   // receive available data to the end of the parameter string, blocks until at least wait_for_bytes chars have arrived,
   // returns false if connection was closed
-  bool receive_string(string& str, const size_t wait_for_bytes) throw(SocketException);
+  bool receive_string(string& str, const size_t wait_for_bytes);
   // close connection
-  void close_connection() throw(SocketException);
+  void close_connection();
   time_t get_timeout() const { return timeout_time; }
   void set_timeout(time_t t) { timeout_time = t; }
 };
 
-void TCPClient::open_connection(const string host_name, const string service_name) throw(SocketException)
+void TCPClient::open_connection(const string host_name, const string service_name)
 {
   if (socket_fd!=-1) {
     close_connection();
@@ -116,7 +116,7 @@ void TCPClient::open_connection(const string host_name, const string service_nam
   }
 }
 
-void TCPClient::close_connection() throw(SocketException)
+void TCPClient::close_connection()
 {
   if (socket_fd==-1) {
     return;
@@ -157,7 +157,7 @@ wait_reset:
   }
 }
 
-void TCPClient::send_string(const string& str) throw(SocketException)
+void TCPClient::send_string(const string& str)
 {
   if (socket_fd==-1) {
     throw SocketException("Connection is not open");
@@ -177,7 +177,7 @@ void TCPClient::send_string(const string& str) throw(SocketException)
 
 // wait_for_bytes - wait until at least so many bytes arrived or timeout or connection closed,
 //                  if zero then wait until connection is closed
-bool TCPClient::receive_string(string& str, const size_t wait_for_bytes) throw(SocketException)
+bool TCPClient::receive_string(string& str, const size_t wait_for_bytes)
 {
   if (socket_fd==-1) {
     throw SocketException("Connection is not open");
@@ -220,7 +220,7 @@ class HTTPClient : public TCPClient
 public:
   HTTPClient(): TCPClient() {}
   string url_encode(const string& str);
-  string post_request(const string& host, const string& uri, const string& user_agent, const string_map& req_params) throw(SocketException);
+  string post_request(const string& host, const string& uri, const string& user_agent, const string_map& req_params);
 };
 
 string HTTPClient::url_encode(const string& str)
@@ -240,7 +240,7 @@ string HTTPClient::url_encode(const string& str)
   return ss.str();
 }
 
-string HTTPClient::post_request(const string& host, const string& uri, const string& user_agent, const string_map& req_params) throw(SocketException)
+string HTTPClient::post_request(const string& host, const string& uri, const string& user_agent, const string_map& req_params)
 {
   // compose request message
   stringstream req_ss;

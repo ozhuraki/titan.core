@@ -2016,7 +2016,7 @@ int UNIVERSAL_CHARSTRING::XER_encode(const XERdescriptor_t& p_td,
  */
 inline
 static unsigned int
-hash (register const char *str, register unsigned int len)
+hash (const char *str, unsigned int len)
 {
   static unsigned char asso_values[] =
     {
@@ -2122,11 +2122,11 @@ in_word_set (const char *str, unsigned int len)
 
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
-      register int key = hash (str, len);
+      int key = hash (str, len);
 
       if (key <= MAX_HASH_VALUE && key >= 0)
         {
-          register const char s = wordlist[key];
+          const char s = wordlist[key];
           return s;
         }
     }

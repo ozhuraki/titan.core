@@ -140,8 +140,8 @@ template<typename T>
 size_t min_needed_bits(T p)
 {
   if(p==0) return 1;
-  register size_t n=0;
-  register T tmp=p;
+  size_t n=0;
+  T tmp=p;
   while(tmp!=0) n++, tmp/=2;
   return n;
 }

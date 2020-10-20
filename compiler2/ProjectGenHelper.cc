@@ -491,7 +491,7 @@ size_t ProjectGenHelper::numOfLibs() const
 
 struct CompareStr
 {
-  bool operator () (const char* lhs, const char* rhs) {
+  bool operator () (const char* lhs, const char* rhs) const {
     int ret = strcmp(lhs, rhs);
     return (0 > ret);
   }
