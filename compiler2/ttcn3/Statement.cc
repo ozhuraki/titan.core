@@ -5145,12 +5145,6 @@ error:
           "endpoint is unknown",
           ptb1 != NULL ? "second" : "first");
       }
-      if (config_op.parsed_params != NULL &&
-          ((cref1_is_system && ptb1 == NULL) ||
-           (cref2_is_system && ptb2 == NULL))) {
-        error("Cannot determine system component in `%s' operation with "
-          "`param' clause", get_stmt_name());
-      }
       chk_map_params(cref1_is_system ? ptb1 : (cref2_is_system ? ptb2 : NULL));
       return;
     }
