@@ -73,6 +73,7 @@ Cygwin setup
     Editors: <any editor of your preference> (optional)
     Libs: libncurses-devel
     Libs: libreadline-devel
+    Libs: libedit-devel
     
   If, after selecting the required packages and clicking on the 
   "Next" button, a "Resolving Dependcies" window lists further 
