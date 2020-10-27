@@ -11,7 +11,7 @@
  *   Gecse, Roland
  *   Raduly, Csaba
  *   Szabados, Kristof
- *   Szabo, Janos Zoltan – initial implementation
+ *   Szabo, Janos Zoltan - initial implementation
  *
  ******************************************************************************/
 #include <stdio.h>
@@ -34,12 +34,12 @@
 #include "../common/memory.h"
 #include "../common/license.h"
 
-#define MYSQL_HOST "mwlx122.eth.ericsson.se"
-#define MYSQL_USER "ttcn3"
-#define MYSQL_PASSWORD "ttcn3"
+#define MYSQL_HOST "ttcn3-mysql-775.seli.gic.ericsson.se"
+#define MYSQL_USER "titan_dbu"
+#define MYSQL_PASSWORD "xxx"
 #define MYSQL_DATABASE "ttcn3"
-
-#define LICENSE_DIR "/mnt/TTCN/license"
+#define MYSQL_PORT 6446
+#define LICENSE_DIR "/proj/ttcn3titan/license"
 #define PRIVATE_KEY LICENSE_DIR "/key.pem"
 
 #define SECS_IN_DAY 86400
@@ -158,15 +158,16 @@ static uid_t my_uid = -1;
 
 static void check_user(void)
 {
-    if (geteuid() != 45719) {
-        error("This program must have set-uid to user etccadmi1 (uid 45719)");
-    }
+//    if (geteuid() != 45719) {
+//        error("This program must have set-uid to user etccadmi1 (uid 45719)");
+//    }
     my_uid = getuid();
     switch (my_uid) {
     case 45719: /* etccadmi1 */
 	privileged_user = 1;
     case 34217: /* ethjra */
     case 34385: /* ethgasz */
+    case 98994: /* titanrt */
         break;
     default:
         error("You are not allowed to use this program");
@@ -179,7 +180,7 @@ static void connect_database(MYSQL *mysql)
 	error("MySQL structure initialization failed");
     }
     if (!mysql_real_connect(mysql, MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD,
-	MYSQL_DATABASE, 0, NULL, 0)) {
+	MYSQL_DATABASE, MYSQL_PORT, NULL, 0)) {
 	error("MySQL database connection failed: %s", mysql_error(mysql));
     } else {
 	fputs("Connected to MySQL database.\n", stderr);
@@ -319,7 +320,9 @@ static void fill_from_database_c(MYSQL *mysql, license_struct *plic, int unique_
 	    if (!strcmp(row[i], "Yes")) plic->feature_list |= FEATURE_HC;
 	} else if (!strcmp(field_name, "feature_logformat")) {
 	    if (!strcmp(row[i], "Yes")) plic->feature_list |= FEATURE_LOGFORMAT;
-	} else if (!strcmp(field_name, "limit_host")) {
+	} else if (!strcmp(field_name, "feature_gui")) {
+            if (!strcmp(row[i], "Yes")) plic->feature_list |= FEATURE_GUI;
+        } else if (!strcmp(field_name, "limit_host")) {
 	    if (!strcmp(row[i], "Yes")) plic->limitation_type |= LIMIT_HOST;
 	} else if (!strcmp(field_name, "limit_user")) {
 	    if (!strcmp(row[i], "Yes")) plic->limitation_type |= LIMIT_USER;
@@ -405,23 +408,24 @@ static const char *get_email_signature(void)
     case 34217: /* ethjra */
 	return
 "Julianna Rózsa                           Ericsson Hungary Ltd.\n"
-"Configuration Manager                    H-1117 Budapest, Irinyi József u.4-20.\n"
+"Configuration Manager                    \n"
 "Test Competence Center                   Phone: +36 1 437 7895\n"
 "Julianna.Rozsa@ericsson.com              Fax:   +36 1 439 5176\n";
     case 34385: /* ethgasz */
 	return
 "Gábor Szalai                             Gabor.Szalai@ericsson.com\n"
 "Test Competence Center                   Tel: +36-1-437-7591\n"
-"Ericsson Telecommunications Ltd.         Fax: +36-1-439-5176\n"
-"H-1037 Budapest, Laborc u. 1., Hungary   Mob: +36-30-743-7669\n"
-"Intranet: http://ttcn.ericsson.se/       ECN: 831-7591\n";
+"Ericsson Hungary Ltd.                    Fax: +36-1-439-5176\n"
+"H-1117 Budapest, Magyar tudósok körútja 11., Hungary   Mob: +36-30-743-7669\n"
+"Intranet: http://ttcn.ericsson.se/\n";
     case 45719: /* etccadmi1 */
 	return
 "TCC License Administrator                Julianna.Rozsa@ericsson.com\n"
 "Test Competence Center                   \n"
-"Ericsson Telecommunications Ltd.         Fax: +36-1-439-5176\n"
-"H-1037 Budapest, Laborc u. 1., Hungary   \n"
-"Intranet: http://ttcn.ericsson.se/       \n";
+"Ericsson Hungary Ltd.                    Fax: +36-1-439-5176\n"
+"H-1117 Budapest, \n"
+"Magyar tudósok körútja, Hungary\n"
+"Intranet: http://ttcn.ericsson.se/\n";
     default:
 	return "";
     }
