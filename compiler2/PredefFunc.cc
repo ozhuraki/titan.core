@@ -621,6 +621,16 @@ namespace Common {
   string* regexp(const string& instr, const string& expression,
                  const Int& groupno, bool nocase)
   {
+    string* retval = regexp_internal(instr, expression, groupno, nocase);
+    if (retval != NULL) {
+      return retval;
+    }
+    return new string();
+  }
+
+  string* regexp_internal(const string& instr, const string& expression,
+                          const Int& groupno, bool nocase)
+  {
     string *retval=0;
 
     if(groupno<0) {
@@ -664,13 +674,11 @@ namespace Common {
       if(pmatch[nmatch].rm_so != -1 && pmatch[nmatch].rm_eo != -1)
         retval = new string(instr.substr(pmatch[nmatch].rm_so,
           pmatch[nmatch].rm_eo - pmatch[nmatch].rm_so));
-      else retval=new string();
     }
     Free(pmatch);
     if(ret_val!=0) {
       if(ret_val==REG_NOMATCH) {
         regfree(&posix_regexp);
-        retval=new string();
       }
       else {
         /* regexp error */

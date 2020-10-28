@@ -508,8 +508,8 @@ tribool StringPatternConstraint::match(const string& str) const
 {
   string patt = pattern->get_full_str();
   if (patt.size()==0) return TRIBOOL(str.size()==0);
-  string *result = regexp(str, string('(')+patt+string(')'), 0, pattern->get_nocase());
-  bool rv = (result->size()!=0);
+  string *result = regexp_internal(str, string('(')+patt+string(')'), 0, pattern->get_nocase());
+  bool rv = (result!=0);
   delete result;
   return TRIBOOL(rv);
 }
