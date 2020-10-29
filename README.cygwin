@@ -14,7 +14,7 @@ Please be aware that due to the incompatibility of EPL and GPL licenses, one may
 and distribute the result. ( see https://mmilinkov.wordpress.com/2010/04/06/epl-gpl-commentary/). However 
 from pure technical standpoint Titan can be compiled on GPL-licensed Cygwin as detailed below.
 
-Last tested cygwin version: 3.1.2
+Last tested cygwin version: 3.1.7
 
 Cygwin setup
     - If Cygwin is installed already, refresh your Cygwin installation
@@ -148,7 +148,8 @@ Cygwin setup
             GUI := no
             GEN_PDF := no
             DEBUG := no
-            OLD_LIBEDIT := yes
+            OLD_LIBEDIT := yes # if the first line of /usr/include/editline/readline.h
+                               # contains v1.34 or older i.e version of editline is 0:53:0 or older.
     Compile Titan:
           cd titan
           make dep
