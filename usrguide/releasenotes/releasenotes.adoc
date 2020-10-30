@@ -1,13 +1,13 @@
 ---
 Author: Kristof Szabados
-Version: 109 47-CRL 113 200/7 Uen, Rev. A
-Date: 2020-05-29
+Version: 7.2.0
+Date: 2020-10-30
 
 ---
 = Release Notes for TITAN TTCN-3 Test Executor
 :author: Kristof Szabados
-:revnumber: 109 47-CRL 113 200/7 Uen, Rev. A
-:revdate: 2020-05-29
+:revnumber: 7.2.0
+:revdate: 2020-10-30
 :title-logo-image: images/titan_logo.png
 :sectnums:
 :doctype: book
