@@ -17,9 +17,15 @@ Build and install Titan on Linux
 
 1.Install required libraries: 
 (Examples are given for Ubuntu 12.04/14.04/16.04/18.04; for other Linuxes, pls. use the relevant library installation method)
+
 UBUNTU :
 sudo apt-get update -y
 sudo apt-get install g++ expect libssl-dev libxml2-dev libncurses5-dev flex bison libedit2 libedit-dev
+
+NOTE: If You run into an error "E: Unable to locate package libedit-dev
+" then enabling Universe repository mey be needed:
+sudo add-apt-repository universe
+
 SLES 11: sudo zypper in libopenssl-devel  g++ libedit0 libedit-devel
 SLED 14.0: sudo zypper in libopenssl-devel libedit0 libedit-devel,  g++, flex, bison already installed
 RHEL8: sudo yum libedit; g++, flex, bison already installed
