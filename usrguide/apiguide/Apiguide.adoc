@@ -1,13 +1,13 @@
 ---
 Author: Jenő Balaskó
-Version: 6/198 17-CRL 113 200/7, Rev. A
-Date: 2020-05-29
+Version: 7.2.0
+Date: 2020-10-30
 
 ---
 = API Technical Reference for TITAN TTCN-3 Test Executor
 :author: Jenő Balaskó
-:revnumber: 6/198 17-CRL 113 200/7, Rev. A
-:revdate: 2020-05-29
+:revnumber: 7.2.0
+:revdate: 2020-10-30
 :title-logo-image: images/titan_logo.png
 :sectnums:
 :doctype: book
