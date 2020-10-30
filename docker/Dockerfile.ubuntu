@@ -24,9 +24,9 @@ ENV PATH=$TTCN3_DIR/bin:$PATH \
 ## CLONE TITAN
 WORKDIR /home/titan/
 RUN git clone https://github.com/eclipse/titan.core.git
-# Checkout release 7.1.1
+# Checkout release 7.2.0
 WORKDIR /home/titan/titan.core
-RUN git checkout tags/7.1.1
+RUN git checkout tags/7.2.0
 
 ## SET Makefile.personal
 # TTCN3_DIR := /home/titan/titan.core/Install
