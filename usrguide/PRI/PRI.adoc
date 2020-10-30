@@ -1,13 +1,13 @@
 ---
 Author: Jenő Balaskó
-Version: 109 21-CRL 113 200/7-1, Rev. A
-Date: 2020-05-29
+Version: 7.2.0
+Date: 2020-10-30
 
 ---
 = Product Revision Information for TITAN
 :author: Jenő Balaskó
-:revnumber: 109 21-CRL 113 200/7-1, Rev. A
-:revdate: 2020-05-29
+:revnumber: 7.2.0
+:revdate: 2020-10-30
 :sectnums:
 :doctype: book
 :leveloffset: +1
@@ -19,8 +19,8 @@ Date: 2020-05-29
 
 [cols=",,,",options="header",]
 |===
-|Product number |Old Rev |New Rev |Function designation
-|CRL 113 200    |/6 R6B  | /7 R1A |TTCN-3 Executor
+|Old Product number   | Oldev  | New Product Number | New Rev | Function designation
+|CRL 113 200/7 R1A    |  7.1.0 | 7/CAX 105 7730 R2A |7.2.0 | TTCN-3 Executor
 |===
 
 This release is done to deliver updated and improved TTCN related products to all customers within and outside Ericsson.
@@ -32,7 +32,7 @@ Legend: R = Revised, N = New, C = Cancelled, E = Equal
 [cols=",,,,",options="header",]
 |===
 |Name |Product |Old R-State |New R-State |Status
-|*Titan* |*CRL 113 200* |*/6 R6B* |*/7 R1A* |R
+|*Titan* |*CRL 113 200* |*/7 R1A* |*/7 R2A* |R
 |Editline Library (libedit) |2/CAX 105 4373 | |R1A |E
 |GNU C Library (glibc) |22/CAX 105 3195 | |R1A |E
 |LibXML2 |8/CAX 105 3282 | |R1A |E
