@@ -9,7 +9,7 @@
  *   Baranyi, Botond
  *
  ******************************************************************************/
-module common {
+module map_param_common {
 
 type record of integer IntList;
 

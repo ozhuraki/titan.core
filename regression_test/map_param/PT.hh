@@ -10,9 +10,9 @@
 #ifndef PT_HH
 #define PT_HH
 
-#include "common.hh"
+#include "map_param_common.hh"
 
-namespace common {
+namespace map_param_common {
 
 class PT : public PT_BASE {
 public:

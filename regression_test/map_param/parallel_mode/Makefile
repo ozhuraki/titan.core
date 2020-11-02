@@ -14,10 +14,10 @@ include $(TOPDIR)/Makefile.regression
 
 .PHONY: all clean dep run
 
-TTCN3_LIB = ttcn3$(RT2_SUFFIX)$(DYNAMIC_SUFFIX)
+TTCN3_LIB = ttcn3$(RT2_SUFFIX)-parallel$(DYNAMIC_SUFFIX)
 
 COMMON_TTCN3_MODULES = map_param_common.ttcn
-TTCN3_MODULES = $(COMMON_TTCN3_MODULES) map_param_single_test.ttcn
+TTCN3_MODULES = $(COMMON_TTCN3_MODULES) map_param_parallel_test.ttcn
 
 GENERATED_SOURCES = $(TTCN3_MODULES:.ttcn=.cc)
 GENERATED_HEADERS = $(GENERATED_SOURCES:.cc=.hh)
@@ -36,7 +36,7 @@ PORT_HEADERS = $(PORT_SOURCES:.cc=.hh)
 
 OBJECTS = $(GENERATED_SOURCES:.cc=.o) $(PORT_SOURCES:.cc=.o) 
 
-TARGET = map_param_single$(EXESUFFIX)
+TARGET = map_param_parallel$(EXESUFFIX)
 
 all: $(TARGET)
 
@@ -59,7 +59,7 @@ clean distclean:
 dep: $(GENERATED_SOURCES)
 	makedepend $(CPPFLAGS) $(GENERATED_SOURCES)
 
-run: $(TARGET) single.cfg
-	./$^
+run: $(TARGET)
+	$(TTCN3_DIR)/bin/ttcn3_start $(TARGET) parallel.cfg
 
 

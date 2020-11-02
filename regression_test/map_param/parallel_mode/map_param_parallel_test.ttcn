@@ -10,24 +10,21 @@
  *
  ******************************************************************************/
 
-// this module contains tests for 'map'/'unmap' parameters in single mode
-module single_test {
+// this module contains tests for 'map'/'unmap' parameters in parallel mode
+module map_param_parallel_test {
 
-import from common all;
+import from map_param_common all;
 
-testcase tc_single() runs on CT {
+testcase tc_parallel_mtc() runs on CT {
   f_test_params(mtc);
   f_check_calls();
 }
 
-testcase tc_single_retval() runs on CT {
-  f_test_params_retval(mtc);
-  f_check_calls();
-}
-
-testcase tc_single_mtc() runs on CT {
-  f_test_params_mtc();
-  f_check_calls();
+testcase tc_parallel_ptc() runs on CT {
+  var CT ptc := CT.create;
+  f_test_params(ptc);
+  ptc.start(f_check_calls());
+  ptc.done;
 }
 
 }

@@ -9,7 +9,7 @@
 
 #include "PT.hh"
 
-namespace common {
+namespace map_param_common {
 
 PT::PT(const char *par_port_name)
 	: PT_BASE(par_port_name)

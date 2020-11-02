@@ -1,0 +1,12 @@
+map_param_parallel
+map_param_parallel.exe
+map_param_common.cc
+map_param_common.hh
+map_param_parallel_test.cc
+map_param_parallel_test.hh
+*.o
+*.d
+PT.cc
+PT.hh
+map_param_common.ttcn
+map_param_parallel*.log
