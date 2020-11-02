@@ -36,7 +36,7 @@ struct disk_full_action_t;
 #define MUST_CHECK
 #endif
 
-namespace LoggerAPI
+namespace TitanLoggerApi
 {
   class TitanLogEvent;
 }
