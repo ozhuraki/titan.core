@@ -41,7 +41,7 @@ TARGET = map_param_single$(EXESUFFIX)
 all: $(TARGET)
 
 $(COMMON_TTCN3_MODULES) $(PORT_SOURCES) $(PORT_HEADERS):
-	ln -s ../$@
+	ln -s ../$@ .
 
 $(TARGET): $(OBJECTS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJECTS) -L$(TTCN3_DIR)/lib -l$(TTCN3_LIB) -L$(OPENSSL_DIR)/lib -lcrypto $($(PLATFORM)_LIBS)
@@ -54,7 +54,7 @@ $(GENERATED_SOURCES) $(GENERATED_HEADERS): $(TTCN3_MODULES) $(PORT_HEADERS)
 
 clean distclean:
 	-rm -f $(TARGET) $(OBJECTS) $(GENERATED_HEADERS) \
-	$(GENERATED_SOURCES) *.log Makefile.bak
+	$(GENERATED_SOURCES) *.log Makefile.bak $(COMMON_TTCN3_MODULES) $(PORT_SOURCES) $(PORT_HEADERS)
 
 dep: $(GENERATED_SOURCES)
 	makedepend $(CPPFLAGS) $(GENERATED_SOURCES)
