@@ -12,7 +12,7 @@
 
 #include "map_param_common.hh"
 
-namespace map_param_common {
+namespace map__param__common {
 
 class PT : public PT_BASE {
 public:
