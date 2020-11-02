@@ -840,7 +840,7 @@ boolean MainController::check_version(unknown_connection *conn)
       } else module_checksum = NULL;
       if (checksum_length != modules[found_index].checksum_length) {
         send_error(conn->fd, "The checksum of module %s in this ETS "
-          "hass different length (%d) than that of the firstly connected ETS (%d).",
+          "has different length (%d) than that of the firstly connected ETS (%d).",
           module_name, checksum_length, modules[found_index].checksum_length);
         delete [] module_checksum;
         delete [] module_name;
