@@ -18,25 +18,20 @@ module high_titan_SE {	//^In TTCN-3 module `high_titan_SE':$//
 }
 with {
   extension "requiresTITAN R1A01"; /* surely this can be satisfied, but not the next one */
-  extension "requiresTITAN CRL 113 200/65535 R99Z"; //^error: This module needs to be compiled with TITAN version CRL 113 200/\d+ R\d{1,2}[A-HJ-NS-VX-Z](\d{1,2})? or higher; version CRL 113 200(\/\d+ )?R\d{1,2}[A-HJ-NS-VX-Z](\d{1,2})? detected
-  /* NEW: extension "requiresTITAN 65535/CAX 105 7730 R99Z"; //^error: This module needs to be compiled with TITAN version 7/CAX 105 7730 R\d{1,2}[A-HJ-NS-VX-Z](\d{1,2})? or higher; version (\d+)\/CAX 105 7730 R\d{1,2}[A-HJ-NS-VX-Z](\d{1,2})? detected//  */
+  extension "requiresTITAN CRL 113 200/65535 R99Z"; //^error: This module needs to be compiled with TITAN version CRL 113 200/\d+ R\d{1,2}[A-HJ-NS-VX-Z](\d{1,2})? or higher; version CRL 113 200(\/\d+ )?R\d{1,2}[A-HJ-NS-VX-Z](\d{1,2})? detected//
   // WARNING! Different regexes, where one is a stricter version of the other, are not allowed
   // (a limitation of the checker script logic).
   // So we can't have the above regex check for precisely /R9Z/ and the one below
   // check for the more general /R\d[A-HJ-NS-VX-Z](\d{1,2})?/
-
   /* Test needs to be adjusted for every release !!!!!!! */
   extension "requiresTITAN CRL 113 200/7 R2A"; /* This one must just pass, the next one must just fail */
   // extension "requiresTITAN 7/CAX 105 7730 R2A"; /* This one must just pass, the next one must just fail */
   extension "requiresTITAN CRL 113 200/7 R2B01"; //^error: This module needs to be compiled with TITAN version (C[RN]L \d+ \d+\/\d+ )?R\d{1,2}[A-HJ-NS-VX-Z](\d{1,2})? or higher; version (C[RN]L \d+ \d+\/\d+ )?R\d{1,2}[A-HJ-NS-VX-Z](\d{1,2})? detected//
-  /* NEW: extension "requiresTITAN 7/CAX 105 7730 R2B01"; //^error: This module needs to be compiled with TITAN version (C[RNA][LX] \d+ \d+\/\d+ )?R\d{1,2}[A-HJ-NS-VX-Z](\d{1,2})? or higher; version 7\/(C[RNA][LX] \d+ \d+\/\d+ )?R\d{1,2}[A-HJ-NS-VX-Z](\d{1,2})? detected// */
-
   /* The old style RnXnn, without the CRL 113 200 and the suffix, implies major version 1
    * Now that Titan is at version 6, the following will always pass:
    */
   extension "requiresTITAN R99A"; /* highest version without the suffix is still only v1 */
   extension "requiresTITAN R99AA";
-
   extension "requiresTITAN	CRL		113		200/1 R8H";
   extension "requiresTITAN	CRL		113		200/1 R8HH";
   
