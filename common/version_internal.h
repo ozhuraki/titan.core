@@ -41,85 +41,89 @@
 #endif
 
 /* Product number */
-#define PRODNR_EXECUTOR  "CRL 113 200"
+#define PRODNR_EXECUTOR  "CAX 105 7730"
+#define LEGACY_PRODNR_EXECUTOR "CRL 113 200"
 
-/* Ericsson revision: /m Rnx
+/* Ericsson (legacy) revision: /m Rnx
  * m = TTCN3_MAJOR
  * n = TTCN3_MINOR
  * x = 'A' + TTCN3_PATCHLEVEL
  * Example: 1.4.pl3 = R4D */
 
-#define GEN_ERICSSON_SUFFIX2(num) #num
-#define GEN_ERICSSON_SUFFIX(num) GEN_ERICSSON_SUFFIX2(num)
-#define ERICSSON_SUFFIX GEN_ERICSSON_SUFFIX(TTCN3_MAJOR)
+#define GEN_SUFFIX2(num) #num
+#define GEN_SUFFIX(num) GEN_SUFFIX2(num)
+#define MAJOR_SUFFIX GEN_SUFFIX(TTCN3_MAJOR)
 
-#define GEN_ERICSSON_NUMBER2(num) #num
-#define GEN_ERICSSON_NUMBER(num) GEN_ERICSSON_NUMBER2(num)
-#define ERICSSON_NUMBER GEN_ERICSSON_NUMBER(TTCN3_MINOR)
+#define GEN_NUMBER2(num) #num
+#define GEN_NUMBER(num) GEN_NUMBER2(num)
+#define MINOR_NUMBER GEN_NUMBER(TTCN3_MINOR)
 
 #if TTCN3_PATCHLEVEL == 0
-#define ERICSSON_LETTER "A"
+#define PATCH_LETTER "A"
 #elif TTCN3_PATCHLEVEL == 1
-#define ERICSSON_LETTER "B"
+#define PATCH_LETTER "B"
 #elif TTCN3_PATCHLEVEL == 2
-#define ERICSSON_LETTER "C"
+#define PATCH_LETTER "C"
 #elif TTCN3_PATCHLEVEL == 3
-#define ERICSSON_LETTER "D"
+#define PATCH_LETTER "D"
 #elif TTCN3_PATCHLEVEL == 4
-#define ERICSSON_LETTER "E"
+#define PATCH_LETTER "E"
 #elif TTCN3_PATCHLEVEL == 5
-#define ERICSSON_LETTER "F"
+#define PATCH_LETTER "F"
 #elif TTCN3_PATCHLEVEL == 6
-#define ERICSSON_LETTER "G"
+#define PATCH_LETTER "G"
 #elif TTCN3_PATCHLEVEL == 7
-#define ERICSSON_LETTER "H"
+#define PATCH_LETTER "H"
 #elif TTCN3_PATCHLEVEL == 8
 /* I: forbidden */
-#define ERICSSON_LETTER "J"
+#define PATCH_LETTER "J"
 #elif TTCN3_PATCHLEVEL == 9
-#define ERICSSON_LETTER "K"
+#define PATCH_LETTER "K"
 #elif TTCN3_PATCHLEVEL == 10
-#define ERICSSON_LETTER "L"
+#define PATCH_LETTER "L"
 #elif TTCN3_PATCHLEVEL == 11
-#define ERICSSON_LETTER "M"
+#define PATCH_LETTER "M"
 #elif TTCN3_PATCHLEVEL == 12
-#define ERICSSON_LETTER "N"
+#define PATCH_LETTER "N"
 /* O, P, Q, R: forbidden */
 #elif TTCN3_PATCHLEVEL == 13
-#define ERICSSON_LETTER "S"
+#define PATCH_LETTER "S"
 #elif TTCN3_PATCHLEVEL == 14
-#define ERICSSON_LETTER "T"
+#define PATCH_LETTER "T"
 #elif TTCN3_PATCHLEVEL == 15
-#define ERICSSON_LETTER "U"
+#define PATCH_LETTER "U"
 #elif TTCN3_PATCHLEVEL == 16
-#define ERICSSON_LETTER "V"
+#define PATCH_LETTER "V"
 #elif TTCN3_PATCHLEVEL == 17
 /* W: forbidden */
-#define ERICSSON_LETTER "X"
+#define PATCH_LETTER "X"
 #elif TTCN3_PATCHLEVEL == 18
-#define ERICSSON_LETTER "Y"
+#define PATCH_LETTER "Y"
 #elif TTCN3_PATCHLEVEL == 19
-#define ERICSSON_LETTER "Z"
+#define PATCH_LETTER "Z"
 #else
-#error "Ericsson revision letter is not defined."
+#error "Patch-level revision letter is not defined."
 #endif
 
 #ifdef TTCN3_BUILDNUMBER
 /* The Ericsson version is suffixed with the build number (at least 2 digits)
  * in preliminary releases (like this: "R6E01") */
 # if TTCN3_BUILDNUMBER < 10
-#  define ERICSSON_BUILDNUMBER "0" GEN_ERICSSON_NUMBER(TTCN3_BUILDNUMBER)
+#  define DOUBLEDIGIT_BUILDNUMBER "0" GEN_NUMBER(TTCN3_BUILDNUMBER)
 # else
-#  define ERICSSON_BUILDNUMBER GEN_ERICSSON_NUMBER(TTCN3_BUILDNUMBER)
+#  define DOUBLEDIGIT_BUILDNUMBER GEN_NUMBER(TTCN3_BUILDNUMBER)
 # endif
 #else
-# define ERICSSON_BUILDNUMBER
+# define DOUBLEDIGIT_BUILDNUMBER
 #endif
 
-#define ERICSSON_VERSION "/" ERICSSON_SUFFIX " R" ERICSSON_NUMBER ERICSSON_LETTER \
-  ERICSSON_BUILDNUMBER
+#define LEGACY_VERSION "/" MAJOR_SUFFIX " R" MINOR_NUMBER PATCH_LETTER \
+  DOUBLEDIGIT_BUILDNUMBER
 
-#define PRODUCT_NUMBER  PRODNR_EXECUTOR ERICSSON_VERSION
+#define LEGACY_PRODUCT_NUMBER  LEGACY_PRODNR_EXECUTOR LEGACY_VERSION
+
+#define PRODUCT_NUMBER MAJOR_SUFFIX "/" PRODNR_EXECUTOR " R" MINOR_NUMBER PATCH_LETTER \
+  DOUBLEDIGIT_BUILDNUMBER
 
 /* Version of the C/C++ compiler */
 

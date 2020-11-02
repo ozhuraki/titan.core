@@ -305,7 +305,7 @@ ExtensionAttribute:
 VersionAttribute:
 VersionKeyword IDentifier
 { // version   R2D2
-  $$ = new ExtensionAttribute(NULL, 0, 0, 0, $2); // VERSION
+  $$ = new ExtensionAttribute(NULL, 0, 0, 0, $2, TUNKNOWN); // VERSION
   $$->set_location(coding_attrib_infile, @$);
   if ($$->get_type() == ExtensionAttribute::NONE) {
     $$->error("Incorrect version data '%s'", $2->get_name().c_str());
@@ -316,7 +316,7 @@ VersionKeyword IDentifier
 }
 | VersionKeyword '<' IDentifier '>'
 { // version      <RnXnn>
-  $$ = new ExtensionAttribute(NULL, 0, 0, 0, $3, ExtensionAttribute::VERSION_TEMPLATE);
+  $$ = new ExtensionAttribute(NULL, 0, 0, 0, $3, ExtensionAttribute::VERSION_TEMPLATE, TTRUE);
   $$->set_location(coding_attrib_infile, @$);
   if ($$->get_type() == ExtensionAttribute::NONE) {
     $$->error("Incorrect version template '<%s>'", $3->get_name().c_str());
@@ -327,7 +327,7 @@ VersionKeyword IDentifier
 }
 | VersionKeyword IDentifier Number Number IDentifier
 { // version     CNL        113    200    R2D2
-  $$ = new ExtensionAttribute($2->get_dispname().c_str(), $3, $4, 0, $5); // VERSION
+  $$ = new ExtensionAttribute($2->get_dispname().c_str(), $3, $4, 0, $5, TUNKNOWN); // VERSION
   $$->set_location(coding_attrib_infile, @$);
   if ($$->get_type() == ExtensionAttribute::NONE) {
     $$->error("Incorrect version data '%s %d %d %s'",
@@ -340,7 +340,7 @@ VersionKeyword IDentifier
 }
 | VersionKeyword IDentifier Number Number '<' IDentifier '>'
 { // version     CNL        113    200    <RnXnn>
-  $$ = new ExtensionAttribute($2->get_dispname().c_str(), $3, $4, 0, $6, ExtensionAttribute::VERSION_TEMPLATE); // VERSION
+  $$ = new ExtensionAttribute($2->get_dispname().c_str(), $3, $4, 0, $6, ExtensionAttribute::VERSION_TEMPLATE, TTRUE); // VERSION
   $$->set_location(coding_attrib_infile, @$);
   if ($$->get_type() == ExtensionAttribute::NONE) {
     $$->error("Incorrect version data '%s %d %d <%s>'",
@@ -353,7 +353,7 @@ VersionKeyword IDentifier
 }
 | VersionKeyword IDentifier Number Number '/' Number IDentifier
 { // version     CNL        113    200     /  1      R2D2
-  $$ = new ExtensionAttribute($2->get_dispname().c_str(), $3, $4, $6, $7); // VERSION
+  $$ = new ExtensionAttribute($2->get_dispname().c_str(), $3, $4, $6, $7, TTRUE); // VERSION
   $$->set_location(coding_attrib_infile, @$);
   if ($$->get_type() == ExtensionAttribute::NONE) {
     $$->error("Incorrect version data '%s %d %d / %d %s'",
@@ -364,9 +364,22 @@ VersionKeyword IDentifier
   }
   delete $2;
 }
+| VersionKeyword Number '/' IDentifier Number Number IDentifier
+{ // version     1       /  CAX        105    7730   R2D2
+  $$ = new ExtensionAttribute($4->get_dispname().c_str(), $5, $6, $2, $7, TFALSE); // VERSION
+  $$->set_location(coding_attrib_infile, @$);
+  if ($$->get_type() == ExtensionAttribute::NONE) {
+    $$->error("Incorrect version data '%d / %s %d %d %s'",
+      $2, $4->get_dispname().c_str(), $5, $6, $7->get_dispname().c_str());
+    delete $7;
+    delete $$;
+    $$ = NULL;
+  }
+  delete $4;
+}
 | VersionKeyword IDentifier Number Number '/' Number '<' IDentifier '>'
 { // version     CNL        113    200     /  1      <RnXnn>
-  $$ = new ExtensionAttribute($2->get_dispname().c_str(), $3, $4, $6, $8, ExtensionAttribute::VERSION_TEMPLATE); // VERSION
+  $$ = new ExtensionAttribute($2->get_dispname().c_str(), $3, $4, $6, $8, ExtensionAttribute::VERSION_TEMPLATE, TTRUE); // VERSION
   $$->set_location(coding_attrib_infile, @$);
   if ($$->get_type() == ExtensionAttribute::NONE) {
     $$->error("Incorrect version data '%s %d %d / %d <%s>'",
@@ -382,7 +395,7 @@ VersionKeyword IDentifier
 RequiresAttribute:
 RequiresKeyword IDentifier IDentifier
 { //            module     R1B
-  $$ = new ExtensionAttribute($2, NULL, 0, 0, 0, $3); // REQUIRES
+  $$ = new ExtensionAttribute($2, NULL, 0, 0, 0, $3, TUNKNOWN); // REQUIRES
   $$->set_location(coding_attrib_infile, @$);
   if ($$->get_type() == ExtensionAttribute::NONE) {
     /* parsing the version has failed */
@@ -395,7 +408,7 @@ RequiresKeyword IDentifier IDentifier
 }
 | RequiresKeyword IDentifier IDentifier Number Number IDentifier
 { //              module     CNL        xxx    xxx    R1A
-  $$ = new ExtensionAttribute($2, $3->get_dispname().c_str(), $4, $5, 0, $6); // REQUIRES
+  $$ = new ExtensionAttribute($2, $3->get_dispname().c_str(), $4, $5, 0, $6, TUNKNOWN); // REQUIRES
   $$->set_location(coding_attrib_infile, @$);
   if ($$->get_type() == ExtensionAttribute::NONE) {
     $$->error("Incorrect version data '%s %d %d %s'",
@@ -409,7 +422,7 @@ RequiresKeyword IDentifier IDentifier
 }
 | RequiresKeyword IDentifier IDentifier Number Number '/' Number IDentifier
 { //              module     CNL        xxx    xxx     /  1      R9A
-  $$ = new ExtensionAttribute($2, $3->get_dispname().c_str(), $4, $5, $7, $8); // REQUIRES
+  $$ = new ExtensionAttribute($2, $3->get_dispname().c_str(), $4, $5, $7, $8, TTRUE); // REQUIRES
   $$->set_location(coding_attrib_infile, @$);
   if ($$->get_type() == ExtensionAttribute::NONE) {
     $$->error("Incorrect version data '%s %d %d / %d %s'",
@@ -421,9 +434,23 @@ RequiresKeyword IDentifier IDentifier
   }
   delete $3;
 }
+| RequiresKeyword IDentifier Number '/' IDentifier Number Number IDentifier
+{ //              module     1       /  CAX        xxx    xxx    R9A
+  $$ = new ExtensionAttribute($2, $5->get_dispname().c_str(), $6, $7, $3, $8, TFALSE); // REQUIRES
+  $$->set_location(coding_attrib_infile, @$);
+  if ($$->get_type() == ExtensionAttribute::NONE) {
+    $$->error("Incorrect version data '%d / %s %d %d %s'",
+      $3, $5->get_dispname().c_str(), $6, $7, $8->get_dispname().c_str());
+    delete $2;
+    delete $8;
+    delete $$;
+    $$ = NULL;
+  }
+  delete $5;
+}
 | ReqTitanKeyword IDentifier
 { //              R1A
-  $$ = new ExtensionAttribute(NULL, 0, 0, 0, $2, ExtensionAttribute::REQ_TITAN);
+  $$ = new ExtensionAttribute(NULL, 0, 0, 0, $2, ExtensionAttribute::REQ_TITAN, TUNKNOWN);
   $$->set_location(coding_attrib_infile, @$);
   if ($$->get_type() == ExtensionAttribute::NONE) {
     /* parsing the version has failed */
@@ -435,7 +462,7 @@ RequiresKeyword IDentifier IDentifier
 }
 | ReqTitanKeyword IDentifier Number Number IDentifier
 { //              CRL        113    200    R1A
-  $$ = new ExtensionAttribute($2->get_dispname().c_str(), $3, $4, 0, $5, ExtensionAttribute::REQ_TITAN);
+  $$ = new ExtensionAttribute($2->get_dispname().c_str(), $3, $4, 0, $5, ExtensionAttribute::REQ_TITAN, TUNKNOWN);
   $$->set_location(coding_attrib_infile, @$);
   if ($$->get_type() == ExtensionAttribute::NONE) {
     $$->error("Incorrect version data '%s %d %d %s'",
@@ -448,7 +475,7 @@ RequiresKeyword IDentifier IDentifier
 }
 | ReqTitanKeyword IDentifier Number Number '/' Number IDentifier
 { //              CRL        113    200     /  2      R1A
-  $$ = new ExtensionAttribute($2->get_dispname().c_str(), $3, $4, $6, $7, ExtensionAttribute::REQ_TITAN);
+  $$ = new ExtensionAttribute($2->get_dispname().c_str(), $3, $4, $6, $7, ExtensionAttribute::REQ_TITAN, TTRUE);
   $$->set_location(coding_attrib_infile, @$);
   if ($$->get_type() == ExtensionAttribute::NONE) {
     $$->error("Incorrect version data '%s %d %d / %d %s'",
@@ -458,6 +485,19 @@ RequiresKeyword IDentifier IDentifier
     $$ = NULL;
   }
   delete $2;
+}
+| ReqTitanKeyword Number '/' IDentifier Number Number IDentifier
+{ //              2       /  CAX        105    7730   R1A
+  $$ = new ExtensionAttribute($4->get_dispname().c_str(), $5, $6, $2, $7, ExtensionAttribute::REQ_TITAN, TFALSE);
+  $$->set_location(coding_attrib_infile, @$);
+  if ($$->get_type() == ExtensionAttribute::NONE) {
+    $$->error("Incorrect version data '%d / %s %d %d %s'",
+      $2, $4->get_dispname().c_str(), $5, $6, $7->get_dispname().c_str());
+    delete $7;
+    delete $$;
+    $$ = NULL;
+  }
+  delete $4;
 }
 ;
 

@@ -1319,7 +1319,7 @@ namespace Common {
     control_ns_prefix(p_mt == MOD_ASN ? mcopystr("asn1") : NULL),
     // only ASN.1 modules have default control namespace (X.693 amd1, 16.9)
     used_namespaces(), type_conv_v(), product_number(NULL),
-    suffix(0), release(UINT_MAX), patch(UINT_MAX), build(UINT_MAX), extra(NULL)
+    suffix(0), release(UINT_MAX), patch(UINT_MAX), build(UINT_MAX), extra(NULL), legacy_version(TUNKNOWN)
   {
     if(!p_modid)
       FATAL_ERROR("NULL parameter: Common::Module::Module()");
@@ -1481,7 +1481,7 @@ namespace Common {
 
     if (release <= 999999 && patch < 30 && build < 100) {
       char *product_identifier =
-        get_product_identifier(product_number, suffix, release, patch, build, extra);
+        get_product_identifier(product_number, suffix, release, patch, build, extra, legacy_version);
       fprintf(stderr, " %s", product_identifier);
       Free(product_identifier);
     }
@@ -1491,7 +1491,7 @@ namespace Common {
 
   char* Module::get_product_identifier(const char* product_number,
         const unsigned int suffix, unsigned int release, unsigned int patch,
-        unsigned int build, const char* extra)
+        unsigned int build, const char* extra, tribool legacy)
   {
     expstring_t ret_val = memptystr();
     if ( product_number == NULL
@@ -1503,8 +1503,11 @@ namespace Common {
       return ret_val;
     }
     if (product_number != NULL) {
+      if (legacy != TTRUE && suffix != 0) {
+        ret_val = mputprintf(ret_val, "%d/", suffix);
+      }
       ret_val = mputstr(ret_val, product_number);
-      if (suffix != 0) {
+      if (legacy == TTRUE && suffix != 0) {
         ret_val = mputprintf(ret_val, "/%d", suffix);
       }
       ret_val = mputc(ret_val, ' ');

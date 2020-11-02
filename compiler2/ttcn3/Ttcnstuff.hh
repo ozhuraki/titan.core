@@ -595,7 +595,7 @@ public:
    * becomes responsible for \p ver, otherwise the caller has to free it.
    */
   ExtensionAttribute(const char* ABCClass, int type_number, int sequence,
-    int suffix, Identifier *ver);
+    int suffix, Identifier *ver, tribool legacy);
 
   /** Constructor for the REQUIRES type
    *
@@ -608,7 +608,7 @@ public:
    * If unsuccessful, freeing the identifiers remains the caller's duty.
    */
   ExtensionAttribute(Identifier *mod, const char* ABCClass, int type_number,
-    int sequence, int suffix, Identifier *ver);
+    int sequence, int suffix, Identifier *ver, tribool legacy);
 
   /** Constructor for the REQ_TITAN type or the VERSION_TEMPLATE type
    *
@@ -621,7 +621,7 @@ public:
    * becomes responsible for \p ver, otherwise the caller has to free it.
    */
   ExtensionAttribute(const char* ABCClass, int type_number, int sequence,
-    int suffix, Identifier* ver, extension_t et);
+    int suffix, Identifier* ver, extension_t et, tribool legacy);
 
   ~ExtensionAttribute();
 
@@ -687,7 +687,7 @@ public:
    * @return pointer to the identifier of the module; the caller must not free
    */
   Common::Identifier *get_id(char*& product_number, unsigned int& suffix,
-      unsigned int& rel, unsigned int& patch, unsigned int& bld, char*& extra);
+      unsigned int& rel, unsigned int& patch, unsigned int& bld, char*& extra, tribool& legacy);
   /// @}
 private:
   /// Attribute type.
@@ -715,12 +715,13 @@ private:
     Types *anytypes_;
     struct {
       Common::Identifier *module_;
-      char* productNumber_; ///< "CRL 113 200"
+      char* productNumber_; ///< "CRL 113 200" for legacy versions, "CAX 105 7730" for current versions
       unsigned int suffix_; ///< The "/3"
       unsigned int release_;///< release
       unsigned int patch_;  ///< patch
       unsigned int build_;  ///< build number
       char* extra_; ///< extra junk at the end, for titansim
+      tribool legacy_; ///< 'true' for legacy versions, 'false' for current versions, or 'unknown'
     } version_;
     PrintingType *pt_;
   } value_;

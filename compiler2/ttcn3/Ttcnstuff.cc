@@ -2720,11 +2720,12 @@ namespace Ttcn {
   }
 
   ExtensionAttribute::ExtensionAttribute(const char* ABCClass, int type_number,
-    int sequence, int suffix, Identifier *ver)
+    int sequence, int suffix, Identifier *ver, tribool legacy)
   : Location(), type_(VERSION), value_()
   {
     if (ver == NULL) FATAL_ERROR("ExtensionAttribute::ExtensionAttribute()");
     value_.version_.module_ = NULL;
+    value_.version_.legacy_ = legacy;
 
     check_product_number(ABCClass, type_number, sequence);
     parse_version(ver);
@@ -2737,13 +2738,14 @@ namespace Ttcn {
   }
 
   ExtensionAttribute::ExtensionAttribute(Identifier *mod, const char* ABCClass,
-    int type_number, int sequence, int suffix, Identifier *ver)
+    int type_number, int sequence, int suffix, Identifier *ver, tribool legacy)
   : Location(), type_(REQUIRES), value_()
   {
     if (mod == NULL || ver == NULL)
       FATAL_ERROR("ExtensionAttribute::ExtensionAttribute()");
     // store the module identifier
     value_.version_.module_ = mod;
+    value_.version_.legacy_ = legacy;
 
     check_product_number(ABCClass, type_number, sequence);
     parse_version(ver);
@@ -2759,10 +2761,11 @@ namespace Ttcn {
   }
 
   ExtensionAttribute::ExtensionAttribute(const char* ABCClass, int type_number,
-    int sequence, int suffix, Identifier* ver, extension_t et)
+    int sequence, int suffix, Identifier* ver, extension_t et, tribool legacy)
   : Location(), type_(et), value_()
   {
     if (ver == NULL) FATAL_ERROR("ExtensionAttribute::ExtensionAttribute()");
+    value_.version_.legacy_ = legacy;
 
     switch (et) {
     case REQ_TITAN:
@@ -2936,7 +2939,7 @@ namespace Ttcn {
   //FIXME ot is update -elni kell.
   Common::Identifier *ExtensionAttribute::get_id(
       char*& product_number, unsigned int& suffix,
-    unsigned int& rel, unsigned int& patch, unsigned int& bld, char*& extra)
+    unsigned int& rel, unsigned int& patch, unsigned int& bld, char*& extra, tribool& legacy)
   {
     if ( type_ != REQUIRES && type_ != REQ_TITAN
       && type_ != VERSION  && type_ != VERSION_TEMPLATE) {
@@ -2948,6 +2951,7 @@ namespace Ttcn {
     patch = value_.version_.patch_;
     bld   = value_.version_.build_;
     extra = value_.version_.extra_;
+    legacy = value_.version_.legacy_;
     return  value_.version_.module_;
   }
 

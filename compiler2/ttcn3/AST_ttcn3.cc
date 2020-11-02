@@ -2910,7 +2910,8 @@ namespace Ttcn {
             char* act_product_number;
             unsigned int act_suffix, act_rel, act_patch, act_build;
             char* extra_junk;
-            (void)ex.get_id(act_product_number, act_suffix, act_rel, act_patch, act_build, extra_junk);
+            tribool legacy;
+            (void)ex.get_id(act_product_number, act_suffix, act_rel, act_patch, act_build, extra_junk, legacy);
 
             if (release != UINT_MAX) {
               ex.error("Duplicate 'version' attribute");
@@ -2922,6 +2923,7 @@ namespace Ttcn {
               patch   = act_patch;
               build   = act_build;
               extra = mcopystr(extra_junk);
+              legacy_version = legacy;
             }
             // Avoid propagating the attribute needlessly
             multi->delete_element(i--);
@@ -2933,8 +2935,9 @@ namespace Ttcn {
             char* exp_product_number;
             unsigned int exp_suffix, exp_rel, exp_patch, exp_build;
             char* exp_extra;
+            tribool legacy;
             Common::Identifier *req_id = ex.get_id(exp_product_number,
-                exp_suffix, exp_rel, exp_patch, exp_build, exp_extra);
+                exp_suffix, exp_rel, exp_patch, exp_build, exp_extra, legacy);
             // We own req_id
             if (imp->has_impmod_withId(*req_id)) {
               Common::Module* m = modules->get_mod_byId(*req_id);
@@ -2952,33 +2955,46 @@ namespace Ttcn {
                   ", while it specifies '%s'",
                     this->modid->get_dispname().c_str(),
                     req_id->get_dispname().c_str(), m->product_number);
-              } else if (m->product_number != NULL && exp_product_number != NULL
-                  &&  0 != strcmp(m->product_number, exp_product_number)) {
-                char *req_product_identifier =
-                    get_product_identifier(exp_product_number,
-                    exp_suffix, exp_rel, exp_patch, exp_build);
-                char *mod_product_identifier =
-                    get_product_identifier(m->product_number,
-                    m->suffix, m->release, m->patch, m->build);
+              } else if (m->product_number != NULL && exp_product_number != NULL) {
+                bool prod_match = false;
+                if (legacy == m->legacy_version || (legacy != TFALSE && m->legacy_version != TFALSE)) {
+                  prod_match = (0 == strcmp(m->product_number, exp_product_number));
+                }
+                else if (legacy == TTRUE && m->legacy_version == TFALSE) {
+                  prod_match = (0 == strcmp(exp_product_number, LEGACY_PRODNR_EXECUTOR) &&
+                      0 == strcmp(m->product_number, PRODNR_EXECUTOR));
+                }
+                else if (legacy == TFALSE && m->legacy_version == TTRUE) {
+                  prod_match = (0 == strcmp(exp_product_number, PRODNR_EXECUTOR) &&
+                      0 == strcmp(m->product_number, LEGACY_PRODNR_EXECUTOR));
+                }
+                if (!prod_match) {
+                  char *req_product_identifier =
+                      get_product_identifier(exp_product_number,
+                      exp_suffix, exp_rel, exp_patch, exp_build, NULL, legacy);
+                  char *mod_product_identifier =
+                      get_product_identifier(m->product_number,
+                      m->suffix, m->release, m->patch, m->build, NULL, m->legacy_version);
 
-                ex.error("Module '%s' requires version %s of module"
-                  " '%s', but only %s is available",
-                    this->modid->get_dispname().c_str(), req_product_identifier,
-                    req_id->get_dispname().c_str(), mod_product_identifier);
-                Free(req_product_identifier);
-                Free(mod_product_identifier);
-                multi->delete_element(i--);
-                single = 0;
-                break;
+                  ex.error("Module '%s' requires version %s of module"
+                    " '%s', but only %s is available",
+                      this->modid->get_dispname().c_str(), req_product_identifier,
+                      req_id->get_dispname().c_str(), mod_product_identifier);
+                  Free(req_product_identifier);
+                  Free(mod_product_identifier);
+                  multi->delete_element(i--);
+                  single = 0;
+                  break;
+                }
               }
               // different suffixes are always incompatible
               // unless the special version number is used
               if (m->suffix != exp_suffix && (m->suffix != UINT_MAX)) {
                 char *req_product_identifier =
-                    get_product_identifier(exp_product_number,exp_suffix, exp_rel, exp_patch, exp_build);
+                    get_product_identifier(exp_product_number,exp_suffix, exp_rel, exp_patch, exp_build, NULL, legacy);
                 char *mod_product_identifier =
                     get_product_identifier(m->product_number,
-                    m->suffix, m->release, m->patch, m->build);
+                    m->suffix, m->release, m->patch, m->build, NULL, m->legacy_version);
 
                 ex.error("Module '%s' requires version %s of module"
                   " '%s', but only %s is available",
@@ -3018,8 +3034,10 @@ namespace Ttcn {
             char* exp_product_number;
             unsigned int exp_suffix, exp_minor, exp_patch, exp_build;
             char* exp_extra;
-            (void)ex.get_id(exp_product_number, exp_suffix, exp_minor, exp_patch, exp_build, exp_extra);
-            if (exp_product_number != NULL && strcmp(exp_product_number,"CRL 113 200") != 0) {
+            tribool legacy;
+            (void)ex.get_id(exp_product_number, exp_suffix, exp_minor, exp_patch, exp_build, exp_extra, legacy);
+            if (exp_product_number != NULL && ((legacy != TTRUE && strcmp(exp_product_number, PRODNR_EXECUTOR) != 0) ||
+                (legacy == TTRUE && strcmp(exp_product_number, LEGACY_PRODNR_EXECUTOR) != 0))) {
               ex.error("This module needs to be compiled with TITAN, but "
                 " product number %s is not TITAN"
                 , exp_product_number);
@@ -3032,10 +3050,10 @@ namespace Ttcn {
               + exp_minor * 10000 + exp_patch * 100 + exp_build;
             if (expected_version > TTCN3_VERSION_MONOTONE) {
               char *exp_product_identifier =
-                    get_product_identifier(exp_product_number, exp_suffix, exp_minor, exp_patch, exp_build);
+                    get_product_identifier(exp_product_number, exp_suffix, exp_minor, exp_patch, exp_build, NULL, legacy);
               ex.error("This module needs to be compiled with TITAN version"
                 " %s or higher; version %s detected"
-                , exp_product_identifier, PRODUCT_NUMBER);
+                , exp_product_identifier, legacy == TTRUE ? LEGACY_PRODUCT_NUMBER : PRODUCT_NUMBER);
               Free(exp_product_identifier);
             }
             multi->delete_element(i--);

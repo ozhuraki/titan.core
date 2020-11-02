@@ -19,6 +19,7 @@ import from CRL_111_222_R2D_SE all;
 import from CRL_111_222_3_R2D_SE all;
 import from unreleased_SE all;
 import from noversion_SE all;
+import from titan_OK all;
 
 }
 with {
@@ -55,4 +56,8 @@ with {
   extension "requires noversion_SE R9Z"; // highest possible version
   extension "requires noversion_SE CNL 111 222 R9Z"; //^error: Module 'importer' requires module 'noversion_SE' of product CNL 111 222, but it is not specified//
   extension "requires noversion_SE CNL 111 222/2 R9Z"; //^error: Module 'importer' requires module 'noversion_SE' of product CNL 111 222, but it is not specified//
+  
+  extension "requires titan_OK 7/CAX 105 7730 R2A";
+  extension "requires titan_OK CRL 113 200/7 R2A";
+  
 }
