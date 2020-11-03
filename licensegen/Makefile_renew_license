@@ -10,9 +10,10 @@
 #   Gecse, Roland
 #
 ##############################################################################
-GCC_DIR=/mnt/TTCN/Tools/gcc-4.1.1-sol8
+GCC_DIR=/usr/
 CGIC_DIR=/mnt/TTCN/Tools/cgic205-gcc3.0.4-sol8
-MYSQL_DIR=/mnt/TTCN/Tools/mysql-standard-4.1.22-sun-solaris2.8-sparc
+#valid on on $TITAN7, RHEL7 :
+MYSQL_DIR := /app/vbuild/RHEL7-x86_64/mysql/5.5.30/
 
 CC=${GCC_DIR}/bin/gcc
 
