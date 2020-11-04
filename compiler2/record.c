@@ -379,10 +379,10 @@ char* generate_raw_coding(char* src,
       "RAW_Force_Omit field_%d_force_omit(%d, force_omit, "
       "%s_descr_.raw->forceomit);\n"
 	    "int decoded_field_length = field_%s%s.RAW_decode(%s_descr_, "
-	      "p_buf, limit, local_top_order, TRUE, -1, ",
+	      "p_buf, limit, local_top_order, TRUE, %s, ",
       i, i, sdef->elements[i].typedescrname,
 	    sdef->elements[i].name, sdef->elements[i].isOptional ? "()" : "",
-	    sdef->elements[i].typedescrname);
+	    sdef->elements[i].typedescrname, repeatable?"1":"-1");
 	  if (repeatable)
             src = mputprintf(src, "field_map[%lu] == 0",
               (unsigned long) i);
