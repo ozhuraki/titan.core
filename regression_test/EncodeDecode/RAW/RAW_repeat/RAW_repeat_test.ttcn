@@ -1,0 +1,159 @@
+/******************************************************************************
+* Copyright (c) 2000-2020 Ericsson Telecom AB
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v2.0
+* which accompanies this distribution, and is available at
+* https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+*
+* Contributors:
+*   Szalai, Gabor -first draft
+*   Balasko, Jeno -second version
+******************************************************************************/
+// This test is based on Bug 568518, reported in Bugzilla at 2020.11.04
+// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=568518
+
+module RAW_repeat_test {
+
+type component CT {}
+
+type octetstring OCT1 length(1)
+
+type record IE1{
+  OCT1   ie_type,
+  integer len,
+  octetstring data
+} with {
+  variant "PRESENCE(ie_type = '01'O)"
+  variant (len) "LENGTHTO(data)"
+}
+
+type record IE2{
+  OCT1   ie_type,
+  integer len,
+  octetstring data
+} with {
+  variant "PRESENCE(ie_type = '02'O)"
+  variant (len) "LENGTHTO(data)"
+}
+
+type record unknown_IE{
+  OCT1   ie_type,
+  integer len,
+  octetstring data
+} with {
+  variant (len) "LENGTHTO(data)"
+}
+
+type record of unknown_IE unknown_IE_list
+
+type set PDU{
+  IE1   ie1_field,
+  IE2   ie2_field optional,
+  unknown_IE_list unknown_ies optional
+} with {
+  variant (unknown_ies) "REPEATABLE(yes)"
+}
+
+external function dec_PDU_backtrack(in octetstring stream, out PDU pdu) return integer
+with { extension "prototype(backtrack) decode(RAW)" }
+
+// no spread record of
+testcase tc_1() runs on CT {
+  var octetstring stream;
+  var PDU pdu_decoded;
+  var PDU pdu_expected := {
+    ie1_field := { ie_type := '01'O, len:=1, data := '00'O },
+    ie2_field := { ie_type := '02'O, len:=1, data := '00'O },
+    unknown_ies := {
+      {  ie_type := '03'O, len:=1, data := '00'O},
+      {  ie_type := '04'O, len:=1, data := '00'O}
+    }
+  }
+  var integer result;
+
+  stream := '010100020100030100040100'O   // IE1, IE2, unknown IE
+  result:=dec_PDU_backtrack(stream,pdu_decoded);
+  log(stream);
+  log(result)  // { ie1_field := { ie_type := '01'O, len := 1, data := '00'O }, ie2_field := { ie_type := '02'O, len := 1, data := '00'O }, unknown_ies := { { ie_type := '03'O, len := 1, data := '00'O }, { ie_type := '04'O, len := 1, data := '00'O }  } }
+  log(pdu_decoded);
+
+  if (result != 0) {
+    setverdict(fail, "decoding failed");
+  } else if ( pdu_decoded != pdu_expected) {
+    setverdict(fail,"Unexpected decoding result:");
+    log("Expected:", pdu_expected);
+    log("Got     :", pdu_decoded);
+  } else {
+    setverdict(pass)
+  }
+}
+
+// spread record of
+testcase tc_2() runs on CT {
+  var octetstring stream := '010100030100020100040100'O   // IE1, unknown IE, IE2  -> IE2 added to the unknown_ies 
+  var PDU pdu_decoded;
+  var PDU pdu_expected := {
+    ie1_field := { ie_type := '01'O, len:=1, data := '00'O },
+    ie2_field := { ie_type := '02'O, len:=1, data := '00'O },
+    unknown_ies := {
+      {  ie_type := '03'O, len:=1, data := '00'O},
+      {  ie_type := '04'O, len:=1, data := '00'O}
+    }
+  }
+  var integer result;
+  //  stream := '010100030100020100040100'O   // IE1, unknown IE, IE2  -> IE2 added to the unknown_ies 
+  result:=dec_PDU_backtrack(stream,pdu_decoded);
+  log(stream)
+  log(result) // { ie1_field := { ie_type := '01'O, len := 1, data := '00'O }, ie2_field := omit, unknown_ies := { { ie_type := '03'O, len := 1, data := '00'O }, { ie_type := '02'O, len := 1, data := '00'O }, { ie_type := '04'O, len := 1, data := '00'O }  } }
+  log(pdu_decoded)
+  if (result != 0) {
+    setverdict(fail, "decoding failed");
+  } else if ( pdu_decoded != pdu_expected) {
+    setverdict(fail,"Unexpected decoding result:");
+    log("Expected:", pdu_expected);
+    log("Got     :", pdu_decoded);
+  } else {
+    setverdict(pass)
+  }
+}
+
+// spread record of
+testcase tc_3() runs on CT {
+  var octetstring stream := '010100030100020100020100040100020100'O;   // IE1, unknown IE, IE2 , IE2, unknown IE, IE2 which should be at the unknown_ies list. The ie2_field is not repeatable
+  var PDU pdu_decoded;
+  var PDU pdu_expected := {
+    ie1_field := { ie_type := '01'O, len:=1, data := '00'O },
+    ie2_field := { ie_type := '02'O, len:=1, data := '00'O },
+    unknown_ies := {
+      {  ie_type := '03'O, len:=1, data := '00'O},
+      {  ie_type := '02'O, len:=1, data := '00'O},
+      {  ie_type := '04'O, len:=1, data := '00'O},
+      {  ie_type := '02'O, len:=1, data := '00'O}
+    }
+  }
+  var integer result;
+
+  result:=dec_PDU_backtrack(stream,pdu_decoded);
+  log(stream)
+  log(result) // { ie1_field := { ie_type := '01'O, len := 1, data := '00'O }, ie2_field := omit, unknown_ies := { { ie_type := '03'O, len := 1, data := '00'O }, { ie_type := '02'O, len := 1, data := '00'O }, { ie_type := '04'O, len := 1, data := '00'O }  } }
+  log(pdu_decoded)
+  if (result != 0) {
+    setverdict(fail, "decoding failed");
+  } else if ( pdu_decoded != pdu_expected) {
+    setverdict(fail,"Unexpected decoding result:");
+    log("Expected:", pdu_expected);
+    log("Got     :", pdu_decoded);
+  } else {
+    setverdict(pass)
+  }
+}
+
+control{
+  execute(tc_1());
+  execute(tc_2());
+  execute(tc_3());
+}
+
+} with {
+encode "RAW"
+}
