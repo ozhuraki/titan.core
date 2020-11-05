@@ -1586,6 +1586,32 @@ testcase tc_bug_532060() runs on C {
   setverdict(pass);
 }
 
+
+function commMessageHaltPort_behavior() runs on commMessage_comp1 {
+  Port1.send(1);
+}
+
+testcase commMessageHaltPort() runs on commMessage_comp1 {
+  var commMessage_comp1 comp := commMessage_comp1.create alive;
+  connect(self:Port1, comp:Port1);
+  comp.start(commMessageHaltPort_behavior());
+  comp.done;
+  Port1.halt;
+  comp.start(commMessageHaltPort_behavior());
+  comp.done;
+  timer t;
+  t.start(0.5);
+  alt {
+    [] Port1.receive(integer: ?) { t.stop; }
+    [] t.timeout { setverdict(fail, "Message 1 not received."); }
+  }
+  t.start(0.5);
+  alt {
+    [] Port1.receive(integer: ?) { setverdict(fail, "Message 2 not discarded."); }
+    [] t.timeout { setverdict(pass); }
+  }
+}
+
 control {
  execute(commMessageIntegerEncode());
  execute(commMessageValue());
@@ -1628,5 +1654,6 @@ control {
  execute(commMessageReceiveAnyOrOmit());
  execute(commMessageBehaviorFunctionParams());
  execute(tc_bug_532060());
+ execute(commMessageHaltPort());
 }
 }
