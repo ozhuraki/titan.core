@@ -89,7 +89,7 @@ LINECOMMENT "//"[^\r\n]*{NEWLINE}
   BEGIN(SC_ttcn3modulebody);
 }
 
-<SC_ttcn3modulebody>"{"|"."|"language" return 1;
+<SC_ttcn3modulebody>"{"|"."|"language"|"\"TTCN-3:2018 Object-Oriented\"" return 1;
 
 .          |
 <*><<EOF>> return 0;
