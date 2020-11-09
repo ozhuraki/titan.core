@@ -431,6 +431,7 @@ void QuadSet::add(QuadInterval* interval) {
         if (it == set)
           set = it->next;
         quadset_node_t* p = it;
+        it_old->next = it->next;
         it = it->next;
         delete p;
         continue;

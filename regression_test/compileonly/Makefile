@@ -31,7 +31,7 @@ CODIRS := dynamicTemplate styleGuide topLevelPdu \
 	asn1_hyphen nameClash portTranslation UntaggedOnTopLevelUnionSwitch \
 	typeDescrGenWIthNoXER languageSpec asn1_opentype openTypeXER \
 	asnStringSubtypes componentParameter realtimeKeywords Bug550526 \
-	Bug550623 Bug552232 Bug568340
+	Bug550623 Bug552232 Bug568340 Bug568592
 
 ifdef DYN
 CODIRS +=  mfgen-xsd
