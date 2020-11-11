@@ -13,7 +13,8 @@
 module JsonFunctions
 {
 
-import from JsonTypes all;
+import from JsonTypes0 all;
+import from  JsonTypes1 all;
 import from JsonData language "ASN.1" all;
 import from OtherTypes all;
 
@@ -454,7 +455,7 @@ external function f_dec_pduwithid2(in octetstring x) return PduWithId2
 //============== Internal Functions ====================
   
 function f_check_encoding(in octetstring encoded, in octetstring expected) {
-   log("encoded: ",encoded," expected: ",expected)
+   //log("encoded: ",encoded," expected: ",expected)
    if(encoded == expected) {
      setverdict(pass);
    } else {
@@ -463,7 +464,7 @@ function f_check_encoding(in octetstring encoded, in octetstring expected) {
  } with { extension "transparent"}
  
  function f_check_encoding_bit(in bitstring encoded, in bitstring expected) {
-   log("encoded: ",encoded," expected: ",expected)
+   //log("encoded: ",encoded," expected: ",expected)
    if(encoded == expected) {
      setverdict(pass);
    } else {
