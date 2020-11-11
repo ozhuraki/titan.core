@@ -395,6 +395,29 @@ with {
 
 type record of EnumNumber EnumNumberList;
 
+type union Uni568645 {
+  Set568645a field1,
+  Set568645b field2,
+  Set568645c field3
+}
+with {
+  variant "JSON: as value"
+}
+
+type set Set568645a {
+  integer i1
+}
+
+type set Set568645b {
+  integer i1,
+  integer i2
+}
+
+type set Set568645c {
+  integer i1,
+  record of integer i2
+}
+
 } with {
   encode "JSON";
   extension "anytype integer, charstring, R, RoI, Thing";

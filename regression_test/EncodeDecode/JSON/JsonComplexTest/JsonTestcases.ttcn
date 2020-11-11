@@ -844,6 +844,34 @@ testcase tc_bug_522660() runs on MTC {
   }
 }
 
+testcase tc_bug_568645() runs on MTC {
+  var universal charstring stream := "{ \"i1\":123}";
+  var Uni568645 pdu_decoded;
+  var Uni568645 pdu_expected := { field1 := { i1 := 123 } };
+  var integer result := decvalue_unichar(stream, pdu_decoded);
+  if (result != 0 or pdu_decoded != pdu_expected) {
+    setverdict(fail, "Test #1 failed. Result: ", result, ". Decoded value: ",
+      pdu_decoded, ", expected: ", pdu_expected);
+  }
+  
+  stream := "{ \"i1\":123, \"i2\":456}";
+  pdu_expected := { field2 := { i1 := 123, i2 := 456 } };
+  result := decvalue_unichar(stream, pdu_decoded);
+  if (result != 0 or pdu_decoded != pdu_expected) {
+    setverdict(fail, "Test #2 failed. Result: ", result, ". Decoded value: ",
+      pdu_decoded, ", expected: ", pdu_expected);
+  }
+  
+  stream := "{ \"i1\":123, \"i2\":[1,2,3]}";
+  pdu_expected := { field3 := { i1 := 123, i2 := { 1, 2, 3 } } };
+  result := decvalue_unichar(stream, pdu_decoded);
+  if (result != 0 or pdu_decoded != pdu_expected) {
+    setverdict(fail, "Test #3 failed. Result: ", result, ". Decoded value: ",
+      pdu_decoded, ", expected: ", pdu_expected);
+  }
+  setverdict(pass);
+}
+
 //=========================================================================
 // Control
 //=========================================================================
@@ -935,6 +963,7 @@ control {
   execute(tc_multi_level_recordof());
   
   execute(tc_bug_522660());
+  execute(tc_bug_568645());
 }
 
 

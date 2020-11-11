@@ -3512,6 +3512,9 @@ char* generate_json_decoder(char* src, const struct_def* sdef)
     src = mputprintf(src,
       "{\n"
                // invalid field name
+      "        if (p_silent) {\n"
+      "          return JSON_ERROR_INVALID_TOKEN;\n"
+      "        }\n"
       "        JSON_ERROR(TTCN_EncDec::ET_INVAL_MSG, %sJSON_DEC_INVALID_NAME_ERROR, (int)name_len, fld_name);\n"
                // if this is set to a warning, skip the value of the field
       "        dec_len += p_tok.get_next_token(&j_token, NULL, NULL);\n"
