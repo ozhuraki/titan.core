@@ -6301,6 +6301,9 @@ int Record_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& 
       }
       if (field_count == field_idx) {
         // invalid field name
+        if (p_silent) {
+          return JSON_ERROR_INVALID_TOKEN;
+        }
         JSON_ERROR(TTCN_EncDec::ET_INVAL_MSG, is_metainfo ?
           JSON_DEC_METAINFO_NAME_ERROR : JSON_DEC_INVALID_NAME_ERROR, (int)name_len, name);
         // if this is set to a warning, skip the value of the field
