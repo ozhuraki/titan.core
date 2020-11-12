@@ -3267,7 +3267,10 @@ void MainController::send_create_ptc(host_struct *hc,
   text_buf.push_string(component_name);
   text_buf.push_int(is_alive ? 1 : 0);
   text_buf.push_qualified_name(current_testcase);
-  text_buf.push_int(testcase_start_time.tv_sec);
+  int upper_int = testcase_start_time.tv_sec / 0xffffffff;
+  int lower_int = testcase_start_time.tv_sec % 0xffffffff;
+  text_buf.push_int(upper_int);
+  text_buf.push_int(lower_int);
   text_buf.push_int(testcase_start_time.tv_usec);
   send_message(hc->hc_fd, text_buf);
 }
@@ -4171,7 +4174,9 @@ void MainController::process_create_req(component_struct *tc)
     component_location = NULL;
   }
   boolean is_alive = text_buf.pull_int().get_val();
-  testcase_start_time.tv_sec = text_buf.pull_int().get_val();
+  int upper_int = text_buf.pull_int().get_val();
+  int lower_int = text_buf.pull_int().get_val();
+  testcase_start_time.tv_sec = upper_int * 0xffffffff + lower_int;
   testcase_start_time.tv_usec = text_buf.pull_int().get_val();
 
   host_struct *host = choose_ptc_location(component_type.definition_name,
