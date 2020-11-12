@@ -3709,6 +3709,11 @@ ConstructorDef:
     $$ = new Def_Constructor($3, $5, $6);
     $$->set_location(infile, @$);
   }
+| CreateKeyword '(' optFunctionFormalParList ')'
+  {
+	$$ = new Def_Constructor($3, NULL, NULL);
+    $$->set_location(infile, @$);
+  }
 ;
 
 optBaseConstructorCall:

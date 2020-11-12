@@ -26,6 +26,9 @@
 #include "Statement.hh"
 #include "Templatestuff.hh"
 #include "TtcnTemplate.hh"
+#include "../../common/path.h"
+#include "../../common/userinfo.h"
+#include "../../common/version_internal.h"
 
 // implemented in coding_attrib_p.y
 extern Ttcn::ExtensionAttributes * parse_extattributes(
@@ -3476,7 +3479,7 @@ namespace Ttcn {
       // create a default constructor
       Reference* base_call = NULL;
       FormalParList* fp_list = NULL;
-      if (base_class != NULL) {
+      if (!external && base_class != NULL) {
         Def_Constructor* base_constructor = base_class->get_constructor();
         if (base_constructor != NULL) {
           FormalParList* base_fp_list = base_constructor->get_FormalParList();
@@ -3499,36 +3502,39 @@ namespace Ttcn {
       if (fp_list == NULL) {
         fp_list = new FormalParList;
       }
-      StatementBlock* block = new StatementBlock();
-      for (size_t i = 0; i < members->get_nof_asss(); ++i) {
-        // note: the Definitions class rearranges its element alphabetically;
-        // here the members must be accessed in their original order
-        Common::Assignment* member = members->get_ass_byIndex(i, false);
-        bool is_template = false;
-        switch (member->get_asstype()) {
-        case Common::Assignment::A_TEMPLATE:
-        case Common::Assignment::A_VAR_TEMPLATE:
-          is_template = true;
-          // no break
-        case Common::Assignment::A_CONST:
-        case Common::Assignment::A_VAR: {
-          // add a formal parameter for this member
-          Common::Identifier* id = member->get_id().clone();
-          FormalPar* fp = new FormalPar(is_template ?
-            Common::Assignment::A_PAR_TEMPL_IN : Common::Assignment::A_PAR_VAL_IN,
-            member->get_Type()->clone(), id, NULL);
-          fp_list->add_fp(fp);
-          // add a statement, that assigns the parameter's value to the member
-          Reference* ref_lhs = new Reference(NULL, id->clone(), Ref_simple::REF_THIS);
-          Reference* ref_rhs = new Reference(NULL, id->clone());
-          Common::Value* val_rhs = new Value(Common::Value::V_REFD, ref_rhs);
-          Template* temp_rhs = new Template(val_rhs);
-          Assignment* par_ass = new Assignment(ref_lhs, temp_rhs);
-          Statement* stmt = new Statement(Statement::S_ASSIGNMENT, par_ass);
-          block->add_stmt(stmt);
-          break; }
-        default:
-          break;
+      StatementBlock* block = NULL;
+      if (!external) {
+        block = new StatementBlock();
+        for (size_t i = 0; i < members->get_nof_asss(); ++i) {
+          // note: the Definitions class rearranges its element alphabetically;
+          // here the members must be accessed in their original order
+          Common::Assignment* member = members->get_ass_byIndex(i, false);
+          bool is_template = false;
+          switch (member->get_asstype()) {
+          case Common::Assignment::A_TEMPLATE:
+          case Common::Assignment::A_VAR_TEMPLATE:
+            is_template = true;
+            // no break
+          case Common::Assignment::A_CONST:
+          case Common::Assignment::A_VAR: {
+            // add a formal parameter for this member
+            Common::Identifier* id = member->get_id().clone();
+            FormalPar* fp = new FormalPar(is_template ?
+              Common::Assignment::A_PAR_TEMPL_IN : Common::Assignment::A_PAR_VAL_IN,
+              member->get_Type()->clone(), id, NULL);
+            fp_list->add_fp(fp);
+            // add a statement, that assigns the parameter's value to the member
+            Reference* ref_lhs = new Reference(NULL, id->clone(), Ref_simple::REF_THIS);
+            Reference* ref_rhs = new Reference(NULL, id->clone());
+            Common::Value* val_rhs = new Value(Common::Value::V_REFD, ref_rhs);
+            Template* temp_rhs = new Template(val_rhs);
+            Assignment* par_ass = new Assignment(ref_lhs, temp_rhs);
+            Statement* stmt = new Statement(Statement::S_ASSIGNMENT, par_ass);
+            block->add_stmt(stmt);
+            break; }
+          default:
+            break;
+          }
         }
       }
       constructor = new Def_Constructor(fp_list, base_call, block);
@@ -3549,6 +3555,7 @@ namespace Ttcn {
         case Common::Assignment::A_EXT_FUNCTION:
         case Common::Assignment::A_EXT_FUNCTION_RVAL:
         case Common::Assignment::A_EXT_FUNCTION_RTEMP:
+        case Common::Assignment::A_CONSTRUCTOR:
           // OK
           break;
         default:
@@ -3649,28 +3656,34 @@ namespace Ttcn {
     }
     target->header.class_decls = mputprintf(target->header.class_decls,
       "class %s;\n", class_id->get_name().c_str());
-    if (!external) {
+    if (!external || generate_skeleton) {
       string base_type_name = base_type != NULL ?
         base_type->get_type_refd_last()->get_genname_own(this) : string("OBJECT");
+      output_struct* local_struct;
+      if (external) {
+        local_struct = new output_struct;
+        Code::init_output(local_struct, TRUE);
+      }
+      else {
+        local_struct = target;
+      }
       
-      target->header.class_defs = mputprintf(target->header.class_defs,
+      local_struct->header.class_defs = mputprintf(local_struct->header.class_defs,
         "class %s : public %s {\n",
         class_id->get_name().c_str(), base_type_name.c_str());
       
       // class name
-      target->header.class_defs = mputprintf(target->header.class_defs,
+      local_struct->header.class_defs = mputprintf(local_struct->header.class_defs,
         "public:\n"
-        "static const char* class_name() { return \"%s\"; }\n\n",
+        "static const char* class_name() { return \"%s\"; }\n",
         class_id->get_dispname().c_str());
       
       // members
-      members->generate_code(target);
+      members->generate_code(local_struct);
       if (default_constructor) {
-        target->source.methods = mputstr(target->source.methods,
-          "/* default constructor */\n");
         // code has not been generated for the constructor yet, since it's not
         // in 'members' in this case
-        constructor->generate_code(target);
+        constructor->generate_code(local_struct);
       }
       
       // constructor
@@ -3684,16 +3697,17 @@ namespace Ttcn {
       // generate code for the base call first, so the formal parameter list
       // knows which parameters are used and which aren't
       formal_par_list_str = constructor->get_FormalParList()->generate_code(
-        memptystr());
+        memptystr(), external ? constructor->get_FormalParList()->get_nof_fps() : 0);
       if (base_call_expr.expr == NULL) {
         base_call_expr.expr = mprintf("%s()", base_type_name.c_str());
       }
-      target->header.class_defs = mputprintf(target->header.class_defs,
-        "public:\n"
-        "%s(%s);\n",
+      local_struct->header.class_defs = mputprintf(local_struct->header.class_defs,
+        "\npublic:\n%s"
+        "%s(%s);\n\n",
+        default_constructor ? "/* default constructor */\n" : "",
         class_id->get_name().c_str(),
         formal_par_list_str != NULL ? formal_par_list_str : "");
-      target->source.methods = mputprintf(target->source.methods,
+      local_struct->source.methods = mputprintf(local_struct->source.methods,
         "%s::%s(%s)\n"
         ": %s",
         class_id->get_name().c_str(), class_id->get_name().c_str(),
@@ -3701,46 +3715,57 @@ namespace Ttcn {
         base_call_expr.expr);
       Free(formal_par_list_str);
       Code::free_expr(&base_call_expr);
-      if (target->temp.constructor_init != NULL) {
-        target->source.methods = mputstr(target->source.methods,
-          target->temp.constructor_init);
-        Free(target->temp.constructor_init);
-        target->temp.constructor_init = NULL;
+      if (local_struct->temp.constructor_init != NULL) {
+        local_struct->source.methods = mputstr(local_struct->source.methods,
+          local_struct->temp.constructor_init);
+        Free(local_struct->temp.constructor_init);
+        local_struct->temp.constructor_init = NULL;
       }
-      target->source.methods = mputstr(target->source.methods, "\n{\n");
-      if (target->temp.constructor_preamble != NULL ||
-          target->temp.constructor_block != NULL) {
-        target->source.methods = create_location_object(
-          target->source.methods, "FUNCTION", class_id->get_name().c_str());
-        target->source.methods = mputstr(target->source.methods,
-          target->temp.constructor_preamble);
-        target->source.methods = mputstr(target->source.methods,
-          target->temp.constructor_block);
-        Free(target->temp.constructor_preamble);
-        Free(target->temp.constructor_block);
-        target->temp.constructor_preamble = NULL;
-        target->temp.constructor_block = NULL;
+      local_struct->source.methods = mputstr(local_struct->source.methods, "\n{\n");
+      if (local_struct->temp.constructor_preamble != NULL ||
+          local_struct->temp.constructor_block != NULL) {
+        local_struct->source.methods = create_location_object(
+          local_struct->source.methods, "FUNCTION", class_id->get_name().c_str());
+        local_struct->source.methods = mputstr(local_struct->source.methods,
+          local_struct->temp.constructor_preamble);
+        local_struct->source.methods = mputstr(local_struct->source.methods,
+          local_struct->temp.constructor_block);
+        Free(local_struct->temp.constructor_preamble);
+        Free(local_struct->temp.constructor_block);
+        local_struct->temp.constructor_preamble = NULL;
+        local_struct->temp.constructor_block = NULL;
       }
-      target->source.methods = mputstr(target->source.methods, "}\n\n");
+      else if (external) {
+        local_struct->source.methods = mputc(local_struct->source.methods, '\n');
+      }
+      local_struct->source.methods = mputstr(local_struct->source.methods, "}\n\n");
 
       // destructor
-      target->header.class_defs = mputprintf(target->header.class_defs,
+      bool desctructor_body = finally_block != NULL || external;
+      local_struct->header.class_defs = mputprintf(local_struct->header.class_defs,
         "public:\n"
-        "virtual ~%s()%s\n",
-        class_id->get_name().c_str(), finally_block != NULL ? ";" : " { }");
-      if (finally_block != NULL) {
-        target->source.methods = mputprintf(target->source.methods,
+        "virtual ~%s()%s\n\n",
+        class_id->get_name().c_str(), desctructor_body ? ";" : " { }");
+      if (desctructor_body) {
+        local_struct->source.methods = mputprintf(local_struct->source.methods,
           "%s::~%s()\n"
           "{\n", class_id->get_name().c_str(), class_id->get_name().c_str());
         char* destructor_str = mprintf("~%s", class_id->get_name().c_str());
-        target->source.methods = finally_block->create_location_object(
-          target->source.methods, "FUNCTION", destructor_str);
+        if (finally_block != NULL) {
+          local_struct->source.methods = finally_block->create_location_object(
+            local_struct->source.methods, "FUNCTION", destructor_str);
+        }
         Free(destructor_str);
-        target->source.methods = mputstr(target->source.methods, "try {\n");
-        target->source.methods = finally_block->generate_code(
-          target->source.methods, target->header.global_vars,
-          target->source.global_vars);
-        target->source.methods = mputprintf(target->source.methods,
+        local_struct->source.methods = mputstr(local_struct->source.methods, "try {\n");
+        if (finally_block != NULL) {
+          local_struct->source.methods = finally_block->generate_code(
+            local_struct->source.methods, local_struct->header.global_vars,
+            local_struct->source.global_vars);
+        }
+        else {
+          local_struct->source.methods = mputc(local_struct->source.methods, '\n');
+        }
+        local_struct->source.methods = mputprintf(local_struct->source.methods,
           "} catch (...) {\n"
           "fprintf(stderr, \"Unhandled exception or dynamic test case error in "
           "destructor of class `%s'\");\n"
@@ -3751,17 +3776,17 @@ namespace Ttcn {
       
       // logging function (similar to logging a record value, but with the 
       // class name and the base class' log at the beginning)
-      target->header.class_defs = mputstr(target->header.class_defs,
+      local_struct->header.class_defs = mputstr(local_struct->header.class_defs,
         "public:\n"
         "virtual void log() const;\n");
-      target->source.methods = mputprintf(target->source.methods,
+      local_struct->source.methods = mputprintf(local_struct->source.methods,
         "void %s::log() const\n"
         "{\n"
         "TTCN_Logger::log_event_str(\"%s: { \");\n",
         class_id->get_name().c_str(), class_id->get_dispname().c_str());
       bool first_logged = false;
       if (base_type != NULL) {
-        target->source.methods = mputprintf(target->source.methods,
+        local_struct->source.methods = mputprintf(local_struct->source.methods,
           "%s::log();\n",
           base_type_name.c_str());
         first_logged = true;
@@ -3775,10 +3800,10 @@ namespace Ttcn {
         case Common::Assignment::A_VAR_TEMPLATE:
         case Common::Assignment::A_TIMER: // ?
           if (first_logged) {
-            target->source.methods = mputstr(target->source.methods,
+            local_struct->source.methods = mputstr(local_struct->source.methods,
               "TTCN_Logger::log_event_str(\", \");\n");
           }
-          target->source.methods = mputprintf(target->source.methods,
+          local_struct->source.methods = mputprintf(local_struct->source.methods,
             "TTCN_Logger::log_event_str(\"%s := \");\n"
             "%s.log();\n",
             member->get_id().get_dispname().c_str(), member->get_id().get_name().c_str());
@@ -3788,18 +3813,125 @@ namespace Ttcn {
           break; // don't log anything for methods
         }
       }
-      target->source.methods = mputstr(target->source.methods,
+      local_struct->source.methods = mputstr(local_struct->source.methods,
         "TTCN_Logger::log_event_str(\" }\");\n"
         "}\n\n");
       
-      target->header.class_defs = mputstr(target->header.class_defs, "};\n\n");
+      local_struct->header.class_defs = mputstr(local_struct->header.class_defs, "};\n\n");
+
+      if (external) {
+        generate_class_skeleton(local_struct);
+        Code::free_output(local_struct);
+        delete local_struct;
+      }
     }
-    else { // external class
+    if (external) {
       target->header.class_defs = mputprintf(target->header.class_defs,
         "#include \"%s.hh\"\n\n",
         duplicate_underscores ? class_id->get_name().c_str() :
           class_id->get_dispname().c_str());
     }
+  }
+
+#undef COMMENT_PREFIX
+#define COMMENT_PREFIX "// "
+
+  void ClassTypeBody::generate_class_skeleton(output_struct* target)
+  {
+    string file_prefix = duplicate_underscores ? class_id->get_name() :
+      class_id->get_dispname();
+
+    DEBUG(1, "Generating external class skeleton for class type `%s' ...",
+      class_id->get_dispname().c_str());
+
+    string header_name;
+    string source_name;
+    string base_header_include;
+    if (output_dir != NULL) {
+      header_name = string(output_dir) + string("/");
+      source_name = string(output_dir) + string("/");
+    }
+    header_name += file_prefix + string(".hh");
+    source_name += file_prefix + string(".cc");
+
+    if (base_class != NULL) {
+      base_header_include = string("#include \"");
+      base_header_include += duplicate_underscores ? base_class->class_id->get_name() :
+          base_class->class_id->get_dispname();
+      base_header_include += string(".hh\"\n\n");
+    }
+
+    char* user_info = NULL;
+    if (disable_user_info == FALSE) {
+      user_info = get_user_info();
+    } else {
+      user_info = mputstr(user_info, "The generation of user and time information were disabled by the -D flag.\n");
+    }
+
+    if (force_overwrite || get_path_status(header_name.c_str()) == PS_NONEXISTENT) {
+      FILE *fp = fopen(header_name.c_str(), "w");
+      if (fp == NULL) {
+        ERROR("Cannot open output external class skeleton header file `%s' for "
+          "writing: %s", header_name.c_str(), strerror(errno));
+        exit(EXIT_FAILURE);
+      }
+      fprintf(fp,
+        "// This external class skeleton header file was generated by the\n"
+        "// TTCN-3 Compiler of the TTCN-3 Test Executor version "
+        PRODUCT_NUMBER "\n"
+        "// %s%s\n"
+        COPYRIGHT_STRING "\n\n"
+        "// You may modify this file. Add your attributes and prototypes of your\n"
+        "// member functions here.\n\n"
+        "#ifndef %s_HH\n"
+        "#define %s_HH\n\n"
+        "%s%s"
+        "#endif\n",
+        disable_user_info == FALSE ? "for " : "", user_info,
+        class_id->get_name().c_str(), class_id->get_name().c_str(),
+        base_header_include.c_str(), target->header.class_defs);
+      fclose(fp);
+      NOTIFY("External class skeleton header file `%s' was generated for class "
+        "type `%s'.", header_name.c_str(), class_id->get_dispname().c_str());
+    }
+    else {
+      DEBUG(1, "External class header file `%s' already exists. It was not "
+        "overwritten.", header_name.c_str());
+    }
+
+    if (force_overwrite || get_path_status(source_name.c_str()) == PS_NONEXISTENT) {
+      FILE *fp = fopen(source_name.c_str(), "w");
+      if (fp == NULL) {
+        ERROR("Cannot open output external class skeleton source file `%s' for "
+          "writing: %s", source_name.c_str(), strerror(errno));
+        exit(EXIT_FAILURE);
+      }
+      fprintf(fp,
+        "// This external class skeleton source file was generated by the\n"
+        "// TTCN-3 Compiler of the TTCN-3 Test Executor version "
+        PRODUCT_NUMBER "\n"
+        "// %s%s\n"
+        COPYRIGHT_STRING "\n\n"
+        "// You may modify this file. Complete the bodies of empty functions and\n"
+        "// add your member functions here.\n\n"
+        "#include <TTCN3.hh>\n\n"
+        "namespace %s {\n\n"
+        "#include \"%s.hh\"\n\n"
+        "%s\n"
+        "} /* end of namespace */\n\n",
+        disable_user_info == FALSE ? "for " : "", user_info,
+        get_scope_mod_gen()->get_modid().get_name().c_str(), class_id->get_dispname().c_str(),
+        target->source.methods);
+      fclose(fp);
+      NOTIFY("External class skeleton source file `%s' was generated for class "
+        "type `%s'.", source_name.c_str(), file_prefix.c_str());
+    }
+    else {
+      DEBUG(1, "External class source file `%s' already exists. It was not "
+        "overwritten.", source_name.c_str());
+    }
+
+    Free(user_info);
   }
 
 } // namespace Ttcn

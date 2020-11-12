@@ -1974,7 +1974,7 @@ static void print_makefile(struct makefile_struct *makefile)
       "# - make archive        Archives all source files.\n"
       "# - make check          Checks the semantics of TTCN-3 and ASN.1"
       "modules.\n"       
-      "# - make port           Generates port skeletons.\n"
+      "# - make port           Generates test port and external class skeletons.\n"
       "%s" // clean:
       "%s" //clean-all
       "# - make compile        Translates TTCN-3 and ASN.1 modules to C++.\n"

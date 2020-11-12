@@ -2306,7 +2306,7 @@ namespace Ttcn {
       if (in_class && ass_v[i]->get_asstype() != Common::Assignment::A_CONSTRUCTOR) {
         visibility_t vis = ass_v[i]->get_visibility();
         target->header.class_defs = mputprintf(target->header.class_defs,
-          "%s:\n", vis == PUBLIC ? "public" : (vis == PRIVATE ? "private" :
+          "\n%s:\n", vis == PUBLIC ? "public" : (vis == PRIVATE ? "private" :
           "protected"));
       }
       ass_v[i]->generate_code(target);
@@ -7969,6 +7969,14 @@ namespace Ttcn {
         body);
       Free(body);
     }
+    else if (in_class && my_scope->get_scope_class()->is_external()) {
+      target->source.methods = mputprintf(target->source.methods,
+        "%s %s::%s(%s)\n"
+        "{\n\n"
+        "}\n\n", return_type_str,
+        my_scope->get_scope_class()->get_id()->get_name().c_str(),
+        genname_str, formal_par_list);
+    }
 
     Free(formal_par_list);
 
@@ -8818,11 +8826,13 @@ namespace Ttcn {
     Common::Identifier::ID_TTCN, string("create"), true)),
     fp_list(p_fp_list), base_call(p_base_call), block(p_block)
   {
-    if (p_fp_list == NULL || block == NULL) {
+    if (p_fp_list == NULL) {
       FATAL_ERROR("Def_Constructor::Def_Constructor");
     }
     fp_list->set_my_def(this);
-    block->set_my_def(this);
+    if (block != NULL) {
+      block->set_my_def(this);
+    }
   }
   
   Def_Constructor::~Def_Constructor()
@@ -8844,7 +8854,9 @@ namespace Ttcn {
     if (base_call != NULL) {
       base_call->set_fullname(p_fullname + ".<base_call>");
     }
-    block->set_fullname(p_fullname + ".<statement_block>");
+    if (block != NULL) {
+      block->set_fullname(p_fullname + ".<statement_block>");
+    }
   }
 
   void Def_Constructor::set_my_scope(Scope* p_scope)
@@ -8858,7 +8870,9 @@ namespace Ttcn {
     if (base_call != NULL) {
       base_call->set_my_scope(fp_list);
     }
-    block->set_my_scope(fp_list);
+    if (block != NULL) {
+      block->set_my_scope(fp_list);
+    }
   }
 
   FormalParList* Def_Constructor::get_FormalParList()
@@ -8905,7 +8919,7 @@ namespace Ttcn {
         }
       }
     }
-    else if (base_class != NULL) {
+    else if (base_class != NULL && !my_class->is_external()) {
       Def_Constructor* base_constructor = base_class->get_constructor();
       if (base_constructor != NULL &&
           !base_constructor->get_FormalParList()->has_only_default_values()) {
@@ -8913,14 +8927,24 @@ namespace Ttcn {
       }
     }
     
-    block->chk();
+    if (block != NULL) {
+      if (my_class->is_external()) {
+        error("The constructor of an external class cannot have a body");
+      }
+      block->chk();
+    }
+    else if (!my_class->is_external()) {
+      error("Missing constructor body");
+    }
     
     if (!semantic_check_only) {
       // prefix 'create' with the class name when forming parameter names
       // to avoid collisions in the generated code
       fp_list->set_genname(my_scope->get_scope_class()->get_id()->get_name() +
         string("_") + get_genname());
-      block->set_code_section(GovernedSimple::CS_INLINE);
+      if (block != NULL) {
+        block->set_code_section(GovernedSimple::CS_INLINE);
+      }
     }
   }
   
@@ -8931,19 +8955,23 @@ namespace Ttcn {
         target->temp.constructor_block);
     }
     
-    char* block_gen_str = block->generate_code(memptystr(),
-      target->header.global_vars, target->source.global_vars);
+    char* block_gen_str = block != NULL ? block->generate_code(memptystr(),
+      target->header.global_vars, target->source.global_vars) : NULL;
     fp_list->generate_code_defval(target);
-    target->temp.constructor_block = fp_list->generate_shadow_objects(
-      target->temp.constructor_block);
-    target->temp.constructor_block = mputstr(target->temp.constructor_block, block_gen_str);
+    if (block != NULL) {
+      target->temp.constructor_block = fp_list->generate_shadow_objects(
+        target->temp.constructor_block);
+      target->temp.constructor_block = mputstr(target->temp.constructor_block, block_gen_str);
+    }
     Free(block_gen_str);
   }
   
   void Def_Constructor::set_parent_path(WithAttribPath* p_path)
   {
     Definition::set_parent_path(p_path);
-    block->set_parent_path(w_attrib_path);
+    if (block != NULL) {
+      block->set_parent_path(w_attrib_path);
+    }
   }
 
   // =================================

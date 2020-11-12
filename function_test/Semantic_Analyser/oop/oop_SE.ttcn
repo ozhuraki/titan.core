@@ -430,19 +430,21 @@ function f_default() { //^In function definition//
 
 
 type external class C40 {
+  create(in integer x);
   function f1(in integer p) return octetstring;
   external function f2();
 }
 
-type external class C41 { //^In type definition//
+type external class C41 extends C40 { //^In type definition//
+  create();
   const charstring c := "a"; //An external class cannot contain a constant//
   template charstring t := "b"; //An external class cannot contain a template//
   var charstring v; //An external class cannot contain a variable//
   var template charstring vt; //An external class cannot contain a template variable//
   timer tmr; //An external class cannot contain a timer//
-  function f1() { } //An external class cannot contain a function//
-  function f2(in charstring x) return charstring { return x; } //An external class cannot contain a function//
-  function f3() return template charstring { return ?; } //An external class cannot contain a function//
+  function g1() { } //An external class cannot contain a function//
+  function g2(in charstring x) return charstring { return x; } //An external class cannot contain a function//
+  function g3() return template charstring { return ?; } //An external class cannot contain a function//
 }
 
 type external class @abstract C42 { //^In type definition// //External classes cannot be abstract//
@@ -451,8 +453,9 @@ type external class @abstract C42 { //^In type definition// //External classes c
 
 type external class C43 extends C39 { } //^In type definition// //^In superclass definition// //An external class cannot extend an internal class//
 
-type class C44 extends C40 {
+type class C44 extends C40 { //^In type definition//
   external function f();
+  create(); //^In constructor definition// //Missing super-constructor call// //Missing constructor body//
 }
 
 type class C45 { //^In type definition//

@@ -435,7 +435,7 @@ static void usage()
     "	-R:		use function test runtime (TITAN_RUNTIME_2)\n"
     "	-s:		parse and semantic check only (no code generation)\n"
     "	-S:		suppress context information\n"
-    "	-t:		generate Test Port skeleton\n"
+    "	-t:		generate skeletons for test ports and external classes\n"
     "	-u:		duplicate underscores in file names\n"
     "	-U none|type|'number':	select code splitting mode for the generated C++ code\n"
     "	-V verb_level:	set verbosity level bitmask (decimal)\n"

@@ -821,6 +821,7 @@ public:
   void chk_recursions(ReferenceChain& refch);
   
   void generate_code(output_struct* target);
+  void generate_class_skeleton(output_struct* target);
 };
 
 }

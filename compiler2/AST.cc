@@ -1863,6 +1863,8 @@ namespace Common {
       return "timer parameter";
     case A_PAR_PORT:
       return "port parameter";
+    case A_CONSTRUCTOR:
+      return "constructor";
     default:
       return "<unknown>";
     }
