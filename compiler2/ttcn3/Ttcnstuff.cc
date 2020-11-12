@@ -3407,10 +3407,7 @@ namespace Ttcn {
       // inherit `system' component from the superclass
       system_type = base_class->get_SystemType();
     }
-
-    members->chk_uniq();
-    members->chk();
-
+    
     for (size_t i = 0; i < members->get_nof_asss(); ++i) {
       Common::Assignment* ass = members->get_ass_byIndex(i, false);
       if (ass->get_asstype() == Common::Assignment::A_CONSTRUCTOR) {
@@ -3421,7 +3418,26 @@ namespace Ttcn {
         break;
       }
     }
+
+    members->chk_uniq();
+    members->chk();
     
+    for (size_t i = 0; i < members->get_nof_asss(); ++i) {
+      Common::Assignment* ass = members->get_ass_byIndex(i, false);
+      switch (ass->get_asstype()) {
+      case Common::Assignment::A_CONST:
+      case Common::Assignment::A_VAR:
+      case Common::Assignment::A_TEMPLATE:
+      case Common::Assignment::A_VAR_TEMPLATE:
+        if (ass->get_visibility() == PUBLIC) {
+          ass->error("Class members cannot be public");
+        }
+        break;
+      default:
+        break;
+      }
+    }
+
     bool name_clash = false;
     if (base_class != NULL) {
       for (size_t i = 0; i < members->get_nof_asss(); ++i) {

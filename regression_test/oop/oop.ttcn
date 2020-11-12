@@ -38,11 +38,11 @@ function f_this_as_param(object p) {
 }
 
 type class BaseClass runs on CT mtc CT system CT {
-  public const integer m_const := 1;
+  /*protected*/ const integer m_const := 1;
   private const IntList m_const2 := { 1, 2, 3 };
   /*protected*/ var charstring m_var;
   private template octetstring m_temp := ? length (1..4);
-  public var template float m_var_temp;
+  /*protected*/ var template float m_var_temp;
   //private PT m_port; // port members not supported
   /*protected*/ timer m_timer;
   private timer m_timer_array[3];
@@ -78,6 +78,54 @@ type class BaseClass runs on CT mtc CT system CT {
   
   public function get_var() return charstring {
     return m_var;
+  }
+  
+  public function get_var_temp() return template float {
+    return m_var_temp;
+  }
+  
+  public function members_and_methods_test() {
+    var BaseClass v_base := BaseClass.create(4, { 1, 2, 4 }, "a", 'FF'O, (0.0 .. 10.0));
+    var IntList il := { 1, 2, 4 };
+    var template float tf := (0.0 .. 10.0);
+    var BaseClass v_sub := SubClass.create(4, il, "a", 'FF'O, tf);
+    var BaseClass v_final := FinalClass.create(4, il, "a", 'FF'O, tf, 8, "x", -1.5, *);
+    
+    log(v_base.f(6));
+    log(v_sub.f(6));
+    log(v_final.f(6));
+    
+    log(v_base.m_const);
+    log(v_sub.m_var_temp);
+    log(v_final.get_var());
+    log(v_final.f2(3).list[1]);
+    
+    if (v_base.f(6) != 6) {
+      setverdict(fail, "v_base.f(6) = ", v_base.f(6));
+    }
+    if (v_sub.f(6) != 5) {
+      setverdict(fail, "v_sub.f(6) = ", v_sub.f(6));
+    }
+    if (v_final.f(6) != 14) {
+      setverdict(fail, "v_final.f(6) = ", v_final.f(6));
+    }
+    
+    if (log2str(v_base.f(6)) != "6") {
+      setverdict(fail, "log2str(v_base.f(6)) = ", log2str(v_base.f(6)));
+    }
+    
+    if (v_base.m_const != 2) {
+      setverdict(fail, "v_base.m_const = ", v_base.m_const);
+    }
+    if (log2str(v_sub.m_var_temp) != "(0.000000 .. 10.000000)") {
+      setverdict(fail, "v_sub.m_var_temp = ", v_sub.m_var_temp);
+    }
+    if (v_final.get_var() != "ax66") {
+      setverdict(fail, "v_final.get_var() = ", v_final.get_var());
+    }
+    if (v_final.f2(3).list[1] != 1) {
+      setverdict(fail, "v_final.f2(3).list[1] = ", v_final.f2(3).list[1]);
+    }
   }
   
   public function this_test(in integer get_var, in charstring p_log_str) {
@@ -179,46 +227,7 @@ type class InternalClass extends ExternalClass {
 
 testcase tc_members_and_methods() runs on CT {
   var BaseClass v_base := BaseClass.create(4, { 1, 2, 4 }, "a", 'FF'O, (0.0 .. 10.0));
-  var IntList il := { 1, 2, 4 };
-  var template float tf := (0.0 .. 10.0);
-  var BaseClass v_sub := SubClass.create(4, il, "a", 'FF'O, tf);
-  var BaseClass v_final := FinalClass.create(4, il, "a", 'FF'O, tf, 8, "x", -1.5, *);
-  
-  log(v_base.f(6));
-  log(v_sub.f(6));
-  log(v_final.f(6));
-  
-  log(v_base.m_const);
-  log(v_sub.m_var_temp);
-  log(v_final.get_var());
-  log(v_final.f2(3).list[1]);
-  
-  if (v_base.f(6) != 6) {
-    setverdict(fail, "v_base.f(6) = ", v_base.f(6));
-  }
-  if (v_sub.f(6) != 5) {
-    setverdict(fail, "v_sub.f(6) = ", v_sub.f(6));
-  }
-  if (v_final.f(6) != 14) {
-    setverdict(fail, "v_final.f(6) = ", v_final.f(6));
-  }
-  
-  if (log2str(v_base.f(6)) != "6") {
-    setverdict(fail, "log2str(v_base.f(6)) = ", log2str(v_base.f(6)));
-  }
-  
-  if (v_base.m_const != 2) {
-    setverdict(fail, "v_base.m_const = ", v_base.m_const);
-  }
-  if (log2str(v_sub.m_var_temp) != "(0.000000 .. 10.000000)") {
-    setverdict(fail, "v_sub.m_var_temp = ", v_sub.m_var_temp);
-  }
-  if (v_final.get_var() != "ax66") {
-    setverdict(fail, "v_final.get_var() = ", v_final.get_var());
-  }
-  if (v_final.f2(3).list[1] != 1) {
-    setverdict(fail, "v_final.f2(3).list[1] = ", v_final.f2(3).list[1]);
-  }
+  v_base.members_and_methods_test();
   setverdict(pass);
 }
 
@@ -354,10 +363,10 @@ testcase tc_references() runs on CT {
   if (not isbound(v_final.f2(3).list[1])) {
     setverdict(fail, "#5");
   }
-  if (not isvalue(v_base.m_var_temp)) {
+  if (not isvalue(v_base.get_var_temp())) {
     setverdict(fail, "#6");
   }
-  if (not ispresent(v_base.m_var_temp)) {
+  if (not ispresent(v_base.get_var_temp())) {
     setverdict(fail, "#7");
   }
   if (ischosen(v_final.get_uni().cs)) {
@@ -366,8 +375,8 @@ testcase tc_references() runs on CT {
   if (not ischosen(v_final.get_uni_temp().cs)) {
     setverdict(fail, "#9");
   }
-  if (v_final.f2(3).list[1] + v_final.f(-6) != v_base.f(3) * float2int(valueof(v_sub.m_var_temp))) {
-    setverdict(fail, "#10, ", v_final.f2(3).list[1] + v_final.f(-6), " != ", v_base.f(3) * float2int(valueof(v_sub.m_var_temp)));
+  if (v_final.f2(3).list[1] + v_final.f(-6) != v_base.f(3) * float2int(valueof(v_sub.get_var_temp()))) {
+    setverdict(fail, "#10, ", v_final.f2(3).list[1] + v_final.f(-6), " != ", v_base.f(3) * float2int(valueof(v_sub.get_var_temp())));
   }
   if (match(v_final.get_uni(), v_final.get_uni_temp())) {
     setverdict(fail, "#11, ", match(v_final.get_uni(), v_final.get_uni_temp()));
@@ -399,8 +408,9 @@ testcase tc_references() runs on CT {
 
 
 type class Node {
-  public var integer data;
-  public var Node next;
+  var integer data;
+  var Node next;
+  public function get_next() return Node { return next; }
   public function f() return integer { return 1; }
 }
 
@@ -450,26 +460,27 @@ testcase tc_function_pars_and_retval() runs on CT {
 }
 
 type class Node2 {
-  public var object data;
-  public var Node2 next;
+  var object data;
+  var Node2 next;
+  public function get_data() return object { return data; }
   public function f(in object p) { data := p; }
 }
 
-function f_test_in(Node p1, Node2 p2) {
-  p2.f(p1.next);
+/*function f_test_in(Node p1, Node2 p2) {
+  p2.f(p1.get_next());
 }
 
 testcase tc_function_pars_in() runs on CT {
   var Node n1 := Node.create(1, Node.create(2, null));
   var Node2 n2 := Node2.create(null, null);
   f_test_in(n1, n2);
-  if (log2str(n2.data) != log2str(n1.next)) {
-    setverdict(fail, "Expected: ", n1.next, ", got: ", n2.data);
+  if (log2str(n2.get_data()) != log2str(n1.get_next())) {
+    setverdict(fail, "Expected: ", n1.get_next(), ", got: ", n2.get_data());
   }
   else {
     setverdict(pass);
   }
-}
+}*/
 
 type class Something {
   public function toString() return universal charstring {
@@ -716,7 +727,7 @@ control {
   execute(tc_this());
   execute(tc_references());
   execute(tc_function_pars_and_retval());
-  execute(tc_function_pars_in());
+  //execute(tc_function_pars_in());
   execute(tc_object());
   execute(tc_order());
   execute(tc_abstract());

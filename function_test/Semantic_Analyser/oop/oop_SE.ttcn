@@ -40,10 +40,10 @@ type class C2 extends c { } //^In type definition// //^In superclass definition/
 type class C3 extends Rec { } //^In type definition// //^In superclass definition// //Class type expected instead of `@oop_SE.Rec'//
 
 
-type class C4 {
+type class C4 { //^In type definition//
   private var integer m_private_inherited;
   /*protected*/ var charstring m_protected_inherited;
-  public var Rec m_public_inherited;
+  public var Rec m_public_inherited; //Class members cannot be public//
   private function f_private_inherited() {}
   /*protected*/ function f_protected_inherited() {}
   public function f_public_inherited() {}
@@ -52,7 +52,7 @@ type class C4 {
 type class C5 extends C4 { //^In type definition//
   private var boolean m_private_own;
   /*protected*/ var float m_protected_own;
-  public var octetstring m_public_own;
+  public var octetstring m_public_own; //Class members cannot be public//
   private function f_private_own() {}
   /*protected*/ function f_protected_own() {}
   public function f_public_own() {}
@@ -271,22 +271,23 @@ function f_no_comp_usage() { //^In function definition//
 }
 
 
-type class C15 {
-  public var integer v;
-  public function f() { }
-  public function g() return boolean { return true; }
+type class C15 { //^In type definition//
+  var integer v;
+  function f() { }
+  function g() return boolean { return true; }
+  function f_access_with_class_name() { //^In function definition//
+    log(C5.v); //^In log statement// //Reference to a value, template, timer, port or class object was expected instead of type `@oop_SE.C5'//
+    log(C5.g()); //^In log statement// //Reference to a value, template, timer, port or class object was expected instead of type `@oop_SE.C5'//
+    C5.f(); //Reference to a function or altstep was expected instead of type `@oop_SE.C5', which cannot be invoked//
+    C5.g(); //Reference to a function or altstep was expected instead of type `@oop_SE.C5', which cannot be invoked//
+    if (C5.g()) { log(1); } //^In if statement// //Reference to a value was expected instead of type `@oop_SE.C5'//
+    if (C5.v == 1) { log(2); } //^In if statement// //Reference to a value was expected instead of type `@oop_SE.C5'//
+    var integer x1 := C5.v + 1; //^In variable definition// //^In the left operand of operation// //Reference to a value was expected instead of type `@oop_SE.C5'//
+    var boolean x2 := C5.g(); //^In variable definition// //Reference to a value was expected instead of type `@oop_SE.C5'//
+  }
 }
 
-function f_access_with_class_name() { //^In function definition//
-  log(C5.v); //^In log statement// //Reference to a value, template, timer, port or class object was expected instead of type `@oop_SE.C5'//
-  log(C5.g()); //^In log statement// //Reference to a value, template, timer, port or class object was expected instead of type `@oop_SE.C5'//
-  C5.f(); //Reference to a function or altstep was expected instead of type `@oop_SE.C5', which cannot be invoked//
-  C5.g(); //Reference to a function or altstep was expected instead of type `@oop_SE.C5', which cannot be invoked//
-  if (C5.g()) { log(1); } //^In if statement// //Reference to a value was expected instead of type `@oop_SE.C5'//
-  if (C5.v == 1) { log(2); } //^In if statement// //Reference to a value was expected instead of type `@oop_SE.C5'//
-  var integer x1 := C5.v + 1; //^In variable definition// //^In the left operand of operation// //Reference to a value was expected instead of type `@oop_SE.C5'//
-  var boolean x2 := C5.g(); //^In variable definition// //Reference to a value was expected instead of type `@oop_SE.C5'//
-}
+
 
 
 function f_init_values() { //^In function definition//
@@ -349,7 +350,7 @@ type class @abstract C26 extends C25 {
 type class C27 extends C26 { } //^In type definition// //Missing implementation of abstract method `@oop_SE.C25.f_abs'// //Missing implementation of abstract method `@oop_SE.C26.f_abs2'//
 
 type class C28 extends C25 { //^In type definition//
-  public var integer f_abs; //variable `@oop_SE.C28.f_abs' shadows inherited method `@oop_SE.C25.f_abs'//
+  var integer f_abs; //variable `@oop_SE.C28.f_abs' shadows inherited method `@oop_SE.C25.f_abs'//
 }
 
 type class C29 extends C26 { //^In type definition// //Missing implementation of abstract method `@oop_SE.C25.f_abs'//
@@ -387,8 +388,8 @@ type class C36 extends C35 {
 
 
 type class C37 {
-  public const integer c := 3;
-  public template charstring t := "";
+  const integer c := 3;
+  template charstring t := "";
   public function f1() return Rec { return { 2, "a" }; }
   public function f2() return template charstring { return ?; }
   create() {}
@@ -396,8 +397,6 @@ type class C37 {
 
 function f_global_left_hand_side() { //^In function definition//
   var C37 x := C37.create;
-  x.c := 2; //^In variable assignment// //Reference to a variable or template variable was expected instead of constant `@oop_SE.C37.c'//
-  x.t := *; //^In variable assignment// //Reference to a variable or template variable was expected instead of template `@oop_SE.C37.t'//
   x.f1() := { 3, "b" }; //^In variable assignment// //Reference to a variable or template variable was expected instead of function `@oop_SE.C37.f1'//
   x.f1().num := 3; //^In variable assignment// //Reference to a variable or template variable was expected instead of function `@oop_SE.C37.f1'//
   x.f2() := "x"; //^In variable assignment// //Reference to a variable or template variable was expected instead of function `@oop_SE.C37.f2'//
@@ -407,6 +406,9 @@ type class C38 extends C37 { //^In type definition//
   public function f1() return Rec { return { 3, "b" }; }
   public function f2() return template charstring { return omit; }
   function f_class_left_hand_side() { //^In function definition//
+    var C37 x := C37.create;
+    x.c := 2; //^In variable assignment// //Reference to a variable or template variable was expected instead of constant `@oop_SE.C37.c'//
+    x.t := *; //^In variable assignment// //Reference to a variable or template variable was expected instead of template `@oop_SE.C37.t'//
     this := null; //^In variable assignment// //Reference to a variable or template variable was expected instead of type `@oop_SE.C38'//
     this.c := 4; //^In variable assignment// //Reference to a variable or template variable was expected instead of constant `@oop_SE.C37.c'//
     this.t := ?; //^In variable assignment// //Reference to a variable or template variable was expected instead of template `@oop_SE.C37.t'//
