@@ -286,6 +286,7 @@ namespace Ttcn {
     /** Appends the string representation of sub-references to \a str. */
     void append_stringRepr(string &str) const;
     bool refers_to_string_element() const { return refs_str_element; }
+    bool has_function_ref() const;
     void set_string_element_ref() { refs_str_element = true; }
     void clear_string_element_ref() { refs_str_element = false; }
     /** Adds a new field ref for the union type's @default alternative at the specified index.

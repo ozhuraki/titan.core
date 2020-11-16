@@ -466,7 +466,7 @@ type class Node2 {
   public function f(in object p) { data := p; }
 }
 
-/*function f_test_in(Node p1, Node2 p2) {
+function f_test_in(Node p1, Node2 p2) {
   p2.f(p1.get_next());
 }
 
@@ -480,7 +480,7 @@ testcase tc_function_pars_in() runs on CT {
   else {
     setverdict(pass);
   }
-}*/
+}
 
 type class Something {
   public function toString() return universal charstring {
@@ -727,7 +727,7 @@ control {
   execute(tc_this());
   execute(tc_references());
   execute(tc_function_pars_and_retval());
-  //execute(tc_function_pars_in());
+  execute(tc_function_pars_in());
   execute(tc_object());
   execute(tc_order());
   execute(tc_abstract());

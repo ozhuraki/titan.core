@@ -555,6 +555,16 @@ namespace Ttcn {
     for (size_t i = 0; i < refs.size(); i++) refs[i]->append_stringRepr(str);
   }
   
+  bool FieldOrArrayRefs::has_function_ref() const
+  {
+    for (size_t i = 0; i < refs.size(); ++i) {
+      if (refs[i]->get_type() == FieldOrArrayRef::FUNCTION_REF) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
   void FieldOrArrayRefs::use_default_alternative(size_t p_idx, const Identifier& p_alt_name)
   {
     FieldOrArrayRef* alt_ref = new FieldOrArrayRef(new Identifier(p_alt_name));
@@ -1042,8 +1052,17 @@ namespace Ttcn {
     if (reftype == REF_THIS && id == NULL) {
       return false;
     }
+    Common::Assignment* ass = get_refd_assignment();
+    if (subrefs.has_function_ref()) {
+      Common::Assignment* last_method = NULL;
+      Type* field_type = ass->get_Type()->get_field_type(&subrefs,
+        Common::Type::EXPECTED_DYNAMIC_VALUE, NULL, false, &last_method);
+      if (field_type != NULL &&
+          field_type->get_type_refd_last()->get_typetype() == Common::Type::T_CLASS) {
+        return false;
+      }
+    }
     if (parlist != NULL) {
-      Common::Assignment* ass = get_refd_assignment();
       const FormalParList* fplist = (ass != NULL) ? ass->get_FormalParList() : NULL;
       for (size_t i = 0; i < parlist->get_nof_pars(); i++) {
         if (!parlist->get_par(i)->has_single_expr(
@@ -1246,12 +1265,34 @@ namespace Ttcn {
 
     t_subrefs->generate_code(&this_expr, ass, my_scope, true);
     
-    expr->expr = mputstr(expr->expr, this_expr.expr);
     if (this_expr.preamble != NULL) {
       expr->preamble = mputstr(expr->preamble, this_expr.preamble);
     }
-    if (this_expr.postamble != NULL) {
-      expr->postamble = mputstr(expr->postamble, this_expr.postamble);
+    
+    Common::Assignment* last_method = NULL;
+    Type* field_type = refd_gov->get_field_type(t_subrefs,
+      Common::Type::EXPECTED_DYNAMIC_VALUE, NULL, false, &last_method);
+    if (field_type != NULL && t_subrefs->has_function_ref() &&
+        field_type->get_type_refd_last()->get_typetype() == Common::Type::T_CLASS) {
+      // If the reference contains a class method call, then the end result is a temporary
+      // object in C++. If it's of a class type, then the C++ compiler can't automatically
+      // convert the temporary object to a constant reference of a base class (in case the
+      // reference is used as an 'in' actual parameter).
+      // For safety, the end result is copied in these cases.
+      string tmp_str = my_scope->get_scope_mod_gen()->get_temporary_id();
+      expr->preamble = mputprintf(expr->preamble,
+        "%s %s(%s);\n",
+        field_type->get_genname_value(my_scope).c_str(), tmp_str.c_str(), this_expr.expr);
+      if (this_expr.postamble != NULL) {
+        expr->preamble = mputstr(expr->preamble, this_expr.postamble);
+      }
+      expr->expr = mputstr(expr->expr, tmp_str.c_str());
+    }
+    else {
+      expr->expr = mputstr(expr->expr, this_expr.expr);
+      if (this_expr.postamble != NULL) {
+        expr->postamble = mputstr(expr->postamble, this_expr.postamble);
+      }
     }
     Code::free_expr(&this_expr);
   }
