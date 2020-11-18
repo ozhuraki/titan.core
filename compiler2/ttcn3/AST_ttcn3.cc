@@ -236,14 +236,23 @@ namespace Ttcn {
     return u.ff.ap_list;
   }
   
-  void FieldOrArrayRef::set_actual_par_list(ActualParList* p_ap_list)
+  FormalParList* FieldOrArrayRef::get_formal_par_list() const
+  {
+    if (ref_type != FUNCTION_REF || !u.ff.checked) {
+      FATAL_ERROR("FieldOrArrayRef::get_formal_par_list()");
+    }
+    return u.ff.fp_list;
+  }
+  
+  void FieldOrArrayRef::set_parameter_list(ActualParList* p_ap_list, FormalParList* p_fp_list)
   {
     if (ref_type != FUNCTION_REF || u.ff.checked) {
-      FATAL_ERROR("FieldOrArrayRef::set_actual_par_list()");
+      FATAL_ERROR("FieldOrArrayRef::set_parameter_list()");
     }
     u.ff.checked = true;
     delete u.ff.parsed_pars;
     u.ff.ap_list = p_ap_list;
+    u.ff.fp_list = p_fp_list;
   }
 
   void FieldOrArrayRef::append_stringRepr(string& str) const
@@ -1075,6 +1084,19 @@ namespace Ttcn {
         for (size_t i = 0; i < num_formal; ++i) {
           const FormalPar *fp = fplist->get_fp_byIndex(i);
           if (fp->get_eval_type() != NORMAL_EVAL) {
+            return false;
+          }
+        }
+      }
+    }
+    for (size_t i = 0; i < subrefs.get_nof_refs(); ++i) {
+      FieldOrArrayRef* subref = subrefs.get_ref(i);
+      if (subref->get_type() == FieldOrArrayRef::FUNCTION_REF) {
+        ActualParList* ap_list = subref->get_actual_par_list();
+        FormalParList* fp_list = subref->get_formal_par_list();
+        for (size_t j = 0; j < ap_list->get_nof_pars(); ++j) {
+          if (!ap_list->get_par(j)->has_single_expr(
+              fp_list != NULL ? fp_list->get_fp_byIndex(i) : NULL)) {
             return false;
           }
         }

@@ -470,6 +470,12 @@ function f_test_in(Node p1, Node2 p2) {
   p2.f(p1.get_next());
 }
 
+type class InParTester {
+  public function test(object x) return boolean {
+    return x of Node;
+  }
+}
+
 testcase tc_function_pars_in() runs on CT {
   var Node n1 := Node.create(1, Node.create(2, null));
   var Node2 n2 := Node2.create(null, null);
@@ -477,9 +483,11 @@ testcase tc_function_pars_in() runs on CT {
   if (log2str(n2.get_data()) != log2str(n1.get_next())) {
     setverdict(fail, "Expected: ", n1.get_next(), ", got: ", n2.get_data());
   }
-  else {
-    setverdict(pass);
+  var InParTester t := InParTester.create;
+  if (not t.test(n1.get_next())) {
+    setverdict(fail, "InParTester failed");
   }
+  setverdict(pass);
 }
 
 type class Something {
