@@ -19,8 +19,8 @@ text.
 :lang eng.
 .*
 :docname.Test Description
-:docno.xz/152 91-CRL 113 200 Uen
-:rev.PA1
+:docno.-
+:rev.7.2.0
 :date.2016-04-04
 .*
 :prep.ETH/XZ EADRKIR
@@ -133,7 +133,7 @@ module Neg_050103_imports_001 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -269,7 +269,7 @@ module Neg_060101_length_001 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -409,7 +409,7 @@ module Neg_060105_enumeration_001 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -549,7 +549,7 @@ module Neg_060105_enumeration_002 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -691,7 +691,7 @@ module Neg_060105_enumeration_003 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -988,7 +988,7 @@ module Neg_060109_minexclusive_001 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -1127,7 +1127,7 @@ module Neg_060109_minexclusive_002 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -1264,7 +1264,7 @@ module Neg_060110_maxexclusive_001 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -1397,7 +1397,7 @@ module Neg_060111_total_digits_001 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -1535,7 +1535,7 @@ module Neg_060111_total_digits_002 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -1674,7 +1674,7 @@ module Neg_060111_total_digits_003 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -1812,7 +1812,7 @@ module Neg_060111_total_digits_004 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -1951,7 +1951,7 @@ module Neg_060212_any_uri_001 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -2089,7 +2089,7 @@ module Neg_060212_any_uri_002 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -2228,7 +2228,7 @@ module Neg_060502_date_and_time_001 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -2367,7 +2367,7 @@ module Neg_060502_date_and_time_002 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -2505,7 +2505,7 @@ module Neg_060502_date_and_time_003 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -2644,7 +2644,7 @@ module Neg_060502_date_and_time_004 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -2782,7 +2782,7 @@ module Neg_060504_date_001 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -2919,7 +2919,7 @@ module Neg_060504_date_002 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -3057,7 +3057,7 @@ module Neg_060504_date_003 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -3195,7 +3195,7 @@ module Neg_060504_date_004 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -3334,7 +3334,7 @@ module Neg_060505_gregorian_year_and_month_001 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -3472,7 +3472,7 @@ module Neg_060505_gregorian_year_and_month_002 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -3610,7 +3610,7 @@ module Neg_060505_gregorian_year_and_month_003 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -3748,7 +3748,7 @@ module Neg_060505_gregorian_year_and_month_004 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -3886,7 +3886,7 @@ module Neg_060506_gregorian_year_001 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -4024,7 +4024,7 @@ module Neg_070104_minoccurs_and_maxoccurs_001 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -4169,7 +4169,7 @@ module Neg_070104_minoccurs_and_maxoccurs_002 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -4314,7 +4314,7 @@ module Neg_070104_minoccurs_and_maxoccurs_003 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -4467,7 +4467,7 @@ module Neg_070105_default_and_fixed_001 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -4609,7 +4609,7 @@ module Neg_070112_use_001 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -5035,7 +5035,7 @@ module Neg_07060102_restricting_simple_content_001 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -5226,7 +5226,7 @@ module Neg_080101_head_elements_of_substitution_groups_002 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -5469,7 +5469,7 @@ module Neg_080101_head_elements_of_substitution_groups_003 {
 /*******************************************************************************
 * Copyright (c) 2000-2020 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator version: CRL 113 200/5 R5A
+* XSD to TTCN-3 Translator version: 7/CAX 105 7730 R2A
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0

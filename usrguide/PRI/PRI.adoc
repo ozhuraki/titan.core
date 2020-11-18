@@ -1,13 +1,13 @@
 ---
 Author: Jenő Balaskó
 Version: 7.2.0
-Date: 2020-10-30
+Date: 2020-11-27
 
 ---
 = Product Revision Information for TITAN
 :author: Jenő Balaskó
 :revnumber: 7.2.0
-:revdate: 2020-10-30
+:revdate: 2020-11-27
 :sectnums:
 :doctype: book
 :leveloffset: +1
@@ -49,15 +49,15 @@ Legend: R = Revised, N = New, C = Cancelled, E = Equal
 [width="100%",cols="25%,25%,25%,25%",options="header",]
 |===
 |Name |Old Revision |New Revision |
-|link:https://github.com/eclipse/titan.core/blob/master/usrguide/releasenotes/releasenotes.adoc[Release Notes for TITAN TTCN-3 Test Executor 109 47-CRL 113 200/7] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.core/blob/master/usrguide/installationguide/installationguide.adoc[Installation guide for TITAN TTCN-3 Test Executor 1/1531-CRL 113 200/7] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.EclipsePlug-ins/blob/master/org.eclipse.titan.help/docs/Eclipse_installationguide/Eclipse_installationguide.adoc[Installation Guide for TITAN Designer and TITAN Executor for the Eclipse IDE 3/1531-CRL 113 200/7] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.core/blob/master/usrguide/userguide/UserGuide.adoc[User Guide for TITAN 1/198 17-CRL 113 200/7] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.core/blob/master/usrguide/referenceguide/ReferenceGuide.adoc[Programmers Technical Reference for TITAN TTCN-3 Test Executor 2/198 17-CRL 113 200/7] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.EclipsePlug-ins/tree/master/org.eclipse.titan.designer/docs/Eclipse_Designer_userguide/DesignerUserGuide.adoc[User Guide for the TITAN Designer for the Eclipse IDE 4/198 17-CRL 113 200/7] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.EclipsePlug-ins/tree/master/org.eclipse.titan.executor/docs/Eclipse_Executor_userguide/ExecutorUserGuide.adoc[User Guide for the TITAN Executor for the Eclipse IDE 5/198 17-CRL 113 200/7] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.core/blob/master/usrguide/apiguide/Apiguide.adoc[API Technical Reference for TITAN TTCN-3 Test Executor 6/198 17-CRL 113 200/7] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.core/blob/master/titan_executor_api/doc/Titan_Executor_API_User_Guide.adoc[Titan Executor API user guide 8/198 17-CRL 113 200/7] |Cloud stored |Cloud stored |R
+|link:https://github.com/eclipse/titan.core/blob/master/usrguide/releasenotes/releasenotes.adoc[Release Notes for TITAN TTCN-3 Test Executor 7.2.0] |Cloud stored |Cloud stored |R
+|link:https://github.com/eclipse/titan.core/blob/master/usrguide/installationguide/installationguide.adoc[Installation guide for TITAN TTCN-3 Test Executor 7.2.0] |Cloud stored |Cloud stored |R
+|link:https://github.com/eclipse/titan.EclipsePlug-ins/blob/master/org.eclipse.titan.help/docs/Eclipse_installationguide/Eclipse_installationguide.adoc[Installation Guide for TITAN Designer and TITAN Executor for the Eclipse IDE 7.2.0] |Cloud stored |Cloud stored |R
+|link:https://github.com/eclipse/titan.core/blob/master/usrguide/userguide/UserGuide.adoc[User Guide for TITAN 7.2.0] |Cloud stored |Cloud stored |R
+|link:https://github.com/eclipse/titan.core/blob/master/usrguide/referenceguide/ReferenceGuide.adoc[Programmers Technical Reference for TITAN TTCN-3 Test Executor 7.2.0] |Cloud stored |Cloud stored |R
+|link:https://github.com/eclipse/titan.EclipsePlug-ins/tree/master/org.eclipse.titan.designer/docs/Eclipse_Designer_userguide/DesignerUserGuide.adoc[User Guide for the TITAN Designer for the Eclipse IDE 7.2.0] |Cloud stored |Cloud stored |R
+|link:https://github.com/eclipse/titan.EclipsePlug-ins/tree/master/org.eclipse.titan.executor/docs/Eclipse_Executor_userguide/ExecutorUserGuide.adoc[User Guide for the TITAN Executor for the Eclipse IDE 7.2.0] |Cloud stored |Cloud stored |R
+|link:https://github.com/eclipse/titan.core/blob/master/usrguide/apiguide/Apiguide.adoc[API Technical Reference for TITAN TTCN-3 Test Executor 7.2.0] |Cloud stored |Cloud stored |R
+|link:https://github.com/eclipse/titan.core/blob/master/titan_executor_api/doc/Titan_Executor_API_User_Guide.adoc[Titan Executor API user guide 7.2.0] |Cloud stored |Cloud stored |R
 |link:https://github.com/eclipse/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium/docs/Titanium_referenceguide/Titanium_referenceguide.adoc[Programmers Tech. Reference Guide for Titanium] |Cloud stored |Cloud stored |R
 |link:https://github.com/eclipse/titan.core/blob/master/usrguide/java_referenceguide/JavaReferenceGuide.adoc[Programmers Tech. Reference Guide for the Java Codegenerator] | Cloud stored |Cloud stored |R
 |link:https://github.com/eclipse/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium.refactoring/docs/Titanium_Refactoring_Description/Titanium_Refactoring_Description.adoc[Titanium Refactoring Description] | Cloud stored |Cloud stored |R

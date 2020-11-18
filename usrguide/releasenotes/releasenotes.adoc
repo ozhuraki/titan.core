@@ -1,13 +1,13 @@
 ---
 Author: Kristof Szabados
 Version: 7.2.0
-Date: 2020-10-30
+Date: 2020-11-27
 
 ---
 = Release Notes for TITAN TTCN-3 Test Executor
 :author: Kristof Szabados
 :revnumber: 7.2.0
-:revdate: 2020-10-30
+:revdate: 2020-11-27
 :title-logo-image: images/titan_logo.png
 :sectnums:
 :doctype: book
