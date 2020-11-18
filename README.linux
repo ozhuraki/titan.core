@@ -26,8 +26,8 @@ NOTE: If You run into an error "E: Unable to locate package libedit-dev
 " then enabling Universe repository mey be needed:
 sudo add-apt-repository universe
 
-SLES 11: sudo zypper in libopenssl-devel  g++ libedit0 libedit-devel
-SLED 14.0: sudo zypper in libopenssl-devel libedit0 libedit-devel,  g++, flex, bison already installed
+SLES 11.4: sudo zypper in libopenssl-devel libedit0 libedit-devel (g++ flex bison, expect, libncurses5 already installed)
+SLED 14.0: sudo zypper in libopenssl-devel libedit0 libedit-devel ( g++, flex, bison libncurses5 already installed)
 RHEL8: sudo yum libedit; g++, flex, bison already installed
 
 xutils-dev is needed by makedepend:
@@ -44,7 +44,7 @@ Ubuntu: sudo apt-get install ant xsltproc ant-junit
 
 The regression test requires xmllint. The package containing it: libxml2-utils
 ubuntu: sudo apt install libxml2-utils
-suse: sudo zypper install libxml2-tools
+suse: sudo zypper install libxml2-tools or libxml2
 rhel: sudo yum install libxml2-devel
 
 
