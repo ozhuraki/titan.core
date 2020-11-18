@@ -971,7 +971,7 @@ namespace Ttcn {
 
   Type *Reference::chk_variable_ref()
   {
-    Common::Assignment *t_ass = get_refd_assignment();
+    Common::Assignment *t_ass = get_refd_assignment_last();
     if (!t_ass) return 0;
     switch (t_ass->get_asstype()) {
     case Common::Assignment::A_PAR_VAL_IN:
@@ -9570,7 +9570,7 @@ namespace Ttcn {
     Template *ap_template = actual_par->get_Template();
     if (ap_template->is_Ref()) {
       Reference *ref = ap_template->get_Ref();
-      Common::Assignment *ass = ref->get_refd_assignment();
+      Common::Assignment *ass = ref->get_refd_assignment_last();
       if (!ass) {
         delete ref;
         return new ActualPar();

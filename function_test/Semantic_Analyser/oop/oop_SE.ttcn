@@ -470,7 +470,7 @@ type class C46 extends object { }
 
 type class C47 {
   const integer m1 := 3;
-  function m2() return boolean { return true; }
+  public function m2() return boolean { return true; }
   function m3(in integer p) return charstring { return int2str(p); }
   function @final m4() { }
 }
@@ -515,6 +515,13 @@ function f_casting() { //^In function definition//
   var C36 x5 := c => C36; //^In variable definition// //^In the first operand of operation `=>'// //Reference to a variable or value parameter was expected instead of constant `@oop_SE.c'//
   var Rec x6 := x1 => Rec; //^In variable definition// //^In the second operand of operation `=>'// //Class type was expected//
   var integer x7 := x1 => (x6); //^In variable definition// //^In the second operand of operation `=>'// //Class type was expected//
+}
+
+function f_parameters(in boolean p1, inout boolean p2, out boolean p3) { }
+
+function f_param_test() { //^In function definition//
+  var C47 x := C47.create(1);
+  f_parameters(x.m2(), x.m2(), x.m2()); //^In function instance// //^In actual parameter list of function// //^In parameter #2// //^In parameter #3// //Reference to a variable or value parameter was expected for an \`inout\' value parameter instead of function// //Reference to a variable or value parameter was expected for an \`out\' value parameter instead of function//
 }
 
 
