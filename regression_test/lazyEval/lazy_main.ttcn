@@ -15,7 +15,7 @@ module lazy_main {
 // The goal of this project is to test the feature "Lazy Parameter Evaluation" 
 // described in chapter 4.29 of referenceguide.doc 
 // Reference: Programmers's Technical Reference Guide for TITAN TTCN-3 Test Executor 
-//            2/19817-CRL 113 200/3 Uen Rev C
+//            CAX 105 7730 rev 7.2.0
 //
 // Import chain: lazy_main<-lazy_A<-lazy_B<-lazy_C
 //
