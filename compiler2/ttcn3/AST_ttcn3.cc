@@ -971,7 +971,7 @@ namespace Ttcn {
 
   Type *Reference::chk_variable_ref()
   {
-    Common::Assignment *t_ass = get_refd_assignment_last();
+    Common::Assignment *t_ass = get_refd_assignment();
     if (!t_ass) return 0;
     switch (t_ass->get_asstype()) {
     case Common::Assignment::A_PAR_VAL_IN:
