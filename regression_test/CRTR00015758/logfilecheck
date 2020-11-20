@@ -9,7 +9,7 @@ BEGIN { # @expected_filenames must be set at compile time
 my    $host = $ENV{HOSTNAME} || $ENV{HOSTNAME} || `hostname`;
 
 $host =~ s/\r|\n//g;
-$host =~ s/\.\S+//;
+#$host =~ s/\.\S+//;
 
 my    $user = $ENV{USER} || $ENV{USERNAME};
 
