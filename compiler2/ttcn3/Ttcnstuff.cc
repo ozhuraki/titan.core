@@ -29,6 +29,7 @@
 #include "../../common/path.h"
 #include "../../common/userinfo.h"
 #include "../../common/version_internal.h"
+#include <stdlib.h>
 
 // implemented in coding_attrib_p.y
 extern Ttcn::ExtensionAttributes * parse_extattributes(
