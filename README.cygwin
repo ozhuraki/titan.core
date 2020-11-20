@@ -74,6 +74,7 @@ Cygwin setup
     Libs: libncurses-devel
     Libs: libreadline-devel
     Libs: libedit-devel
+    Doc or Text: asciidoc
     
   If, after selecting the required packages and clicking on the 
   "Next" button, a "Resolving Dependcies" window lists further 
