@@ -17,10 +17,10 @@ Date: 2020-11-27
 
 == Product
 
-[cols=",,,",options="header",]
+[cols=",,,,",options="header",]
 |===
-|Old Product number   | Oldev  | New Product Number | New Rev | Function designation
-|CRL 113 200/7 R1A    |  7.1.0 | 7/CAX 105 7730 R2A |7.2.0 | TTCN-3 Executor
+|Old Product number   | Old Rev  | New Product Number | New Rev | Function designation
+|CRL 113 200/7 R1A    |  7.1.0   | 7/CAX 105 7730 R2A |  7.2.0  | TTCN-3 Executor
 |===
 
 This release is done to deliver updated and improved TTCN related products to all customers within and outside Ericsson.
@@ -32,7 +32,7 @@ Legend: R = Revised, N = New, C = Cancelled, E = Equal
 [cols=",,,,",options="header",]
 |===
 |Name |Product |Old R-State |New R-State |Status
-|*Titan* |*CRL 113 200* |*/7 R1A* |*/7 R2A* |R
+|*Titan* |*CRL 113 200* |*/7 R1A* |*7/ R2A* |R
 |Editline Library (libedit) |2/CAX 105 4373 | |R1A |E
 |GNU C Library (glibc) |22/CAX 105 3195 | |R1A |E
 |LibXML2 |8/CAX 105 3282 | |R1A |E
@@ -49,21 +49,21 @@ Legend: R = Revised, N = New, C = Cancelled, E = Equal
 [width="100%",cols="25%,25%,25%,25%",options="header",]
 |===
 |Name |Old Revision |New Revision |
-|link:https://github.com/eclipse/titan.core/blob/master/usrguide/releasenotes/releasenotes.adoc[Release Notes for TITAN TTCN-3 Test Executor 7.2.0] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.core/blob/master/usrguide/installationguide/installationguide.adoc[Installation guide for TITAN TTCN-3 Test Executor 7.2.0] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.EclipsePlug-ins/blob/master/org.eclipse.titan.help/docs/Eclipse_installationguide/Eclipse_installationguide.adoc[Installation Guide for TITAN Designer and TITAN Executor for the Eclipse IDE 7.2.0] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.core/blob/master/usrguide/userguide/UserGuide.adoc[User Guide for TITAN 7.2.0] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.core/blob/master/usrguide/referenceguide/ReferenceGuide.adoc[Programmers Technical Reference for TITAN TTCN-3 Test Executor 7.2.0] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.EclipsePlug-ins/tree/master/org.eclipse.titan.designer/docs/Eclipse_Designer_userguide/DesignerUserGuide.adoc[User Guide for the TITAN Designer for the Eclipse IDE 7.2.0] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.EclipsePlug-ins/tree/master/org.eclipse.titan.executor/docs/Eclipse_Executor_userguide/ExecutorUserGuide.adoc[User Guide for the TITAN Executor for the Eclipse IDE 7.2.0] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.core/blob/master/usrguide/apiguide/Apiguide.adoc[API Technical Reference for TITAN TTCN-3 Test Executor 7.2.0] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.core/blob/master/titan_executor_api/doc/Titan_Executor_API_User_Guide.adoc[Titan Executor API user guide 7.2.0] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium/docs/Titanium_referenceguide/Titanium_referenceguide.adoc[Programmers Tech. Reference Guide for Titanium] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.core/blob/master/usrguide/java_referenceguide/JavaReferenceGuide.adoc[Programmers Tech. Reference Guide for the Java Codegenerator] | Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium.refactoring/docs/Titanium_Refactoring_Description/Titanium_Refactoring_Description.adoc[Titanium Refactoring Description] | Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium/docs/Titanium_Description/Titanium_Description.adoc[Titanium Description] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.core/blob/master/usrguide/SoC_TITAN/SoC_TITAN.adoc[Statement of Compliance for Eclipse Titan] |Cloud stored |Cloud stored |R
-|link:https://github.com/eclipse/titan.core/blob/master/usrguide/SoC_XML_TITAN/SoC_XML_TITAN.adoc[Statement of Compliance for use of XML schema in Eclipse Titan] |Cloud stored |Cloud stored |R
+|link:https://github.com/eclipse/titan.core/blob/master/usrguide/releasenotes/releasenotes.adoc[Release Notes for TITAN TTCN-3 Test Executor] | 7.1.0 | 7.2.0 |R
+|link:https://github.com/eclipse/titan.core/blob/master/usrguide/installationguide/installationguide.adoc[Installation guide for TITAN TTCN-3 Test Executor] | 7.1.0 | 7.2.0 |R
+|link:https://github.com/eclipse/titan.EclipsePlug-ins/blob/master/org.eclipse.titan.help/docs/Eclipse_installationguide/Eclipse_installationguide.adoc[Installation Guide for TITAN Designer and TITAN Executor for the Eclipse IDE 7.2.0] | 7.1.0 | 7.2.0 |R
+|link:https://github.com/eclipse/titan.core/blob/master/usrguide/userguide/UserGuide.adoc[User Guide for TITAN] | 7.1.0 | 7.2.0 |R
+|link:https://github.com/eclipse/titan.core/blob/master/usrguide/referenceguide/ReferenceGuide.adoc[Programmers Technical Reference for TITAN TTCN-3 Test Executor] | 7.1.0 | 7.2.0 |R
+|link:https://github.com/eclipse/titan.EclipsePlug-ins/tree/master/org.eclipse.titan.designer/docs/Eclipse_Designer_userguide/DesignerUserGuide.adoc[User Guide for the TITAN Designer for the Eclipse IDE] | 7.1.0 | 7.2.0 |R
+|link:https://github.com/eclipse/titan.EclipsePlug-ins/tree/master/org.eclipse.titan.executor/docs/Eclipse_Executor_userguide/ExecutorUserGuide.adoc[User Guide for the TITAN Executor for the Eclipse IDE] | 7.1.0 | 7.2.0 |R
+|link:https://github.com/eclipse/titan.core/blob/master/usrguide/apiguide/Apiguide.adoc[API Technical Reference for TITAN TTCN-3 Test Executor] | 7.1.0 | 7.2.0 |R
+|link:https://github.com/eclipse/titan.core/blob/master/titan_executor_api/doc/Titan_Executor_API_User_Guide.adoc[Titan Executor API user guide] | 7.1.0 | 7.2.0 |R
+|link:https://github.com/eclipse/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium/docs/Titanium_referenceguide/Titanium_referenceguide.adoc[Programmers Tech. Reference Guide for Titanium] | 7.1.0 | 7.2.0 |R
+|link:https://github.com/eclipse/titan.core/blob/master/usrguide/java_referenceguide/JavaReferenceGuide.adoc[Programmers Tech. Reference Guide for the Java Codegenerator] | 7.1.0 | 7.2.0 |R
+|link:https://github.com/eclipse/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium.refactoring/docs/Titanium_Refactoring_Description/Titanium_Refactoring_Description.adoc[Titanium Refactoring Description] | 7.1.0 | 7.2.0 |R
+|link:https://github.com/eclipse/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium/docs/Titanium_Description/Titanium_Description.adoc[Titanium Description] | 7.1.0 | 7.2.0 |R
+|link:https://github.com/eclipse/titan.core/blob/master/usrguide/SoC_TITAN/SoC_TITAN.adoc[Statement of Compliance for Eclipse Titan] | 7.1.0 | 7.2.0 |R
+|link:https://github.com/eclipse/titan.core/blob/master/usrguide/SoC_XML_TITAN/SoC_XML_TITAN.adoc[Statement of Compliance for use of XML schema in Eclipse Titan] | 7.1.0 | 7.2.0 |R
 |===
 
 = Reason for revision

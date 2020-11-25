@@ -1,11 +1,11 @@
 ---
-Author: Kristof Szabados
+Author: Elemer Lelik
 Version: 7.2.0
 Date: 2020-11-27
 
 ---
 = Release Notes for TITAN TTCN-3 Test Executor
-:author: Kristof Szabados
+:author: Elemer Lelik
 :revnumber: 7.2.0
 :revdate: 2020-11-27
 :title-logo-image: images/titan_logo.png
@@ -26,6 +26,28 @@ The document is organized as follows: <<what-s-new-in-this-version,What's new in
 
 [[what-s-new-in-this-version]]
 = What’s new in this version?
+
+[[version-7-2-7-cax-105-7730-r2a]]
+== Version 7.2 (7/CAX 105 7730 R2A)
+
+This release contains some new features and bugfixes.
+
+New Features:
+
+* Changes in Titan product code(Bug 565875 )
+* Changes in licensing(relevant for internal users only ):
+  ** License ordering/extension  page moved
+  ** License ordering/extension API to automate license renewal
+* Changes in shipping libedit (Bug 565893 )
+* Titan image added to ADP marketplace(relevant for internal users only)
+* Relaxing the C/C++ compiler version check for Titan 7.1.1 and upwards
+(Bug 564194 )
+* Object-oriented language features (Bug 563718 )
+* Allow unsafe universal charstring to charstring conversion (Bug 564585 )
+* Support for @default in the compiler and in the xsd2ttcn converter (Bugs 564919, 564920)
+* Java-based Main Controller implemented
+* Java-based JSON codec implemented
+
 
 [[version-7-1-crl-113-200-7-r1a]]
 == Version 7.1 (CRL 113 200/7 R1A)
@@ -49,9 +71,8 @@ Backward incompatible changes:
 * Compilation issue in the Java code generator when used with very large modules
 
 
-
 [[version-6-6-crl-113-200-6-r6b]]
-== Version 6.6 (CRL 113 200/6 R6B)
+== Version 6.6.1 (CRL 113 200/6 R6B)
 
 This a bugfix release, with the following new features:
 
@@ -66,7 +87,7 @@ This a bugfix release, with the following new features:
 
 
 [[version-6-6-crl-113-200-6-r6a]]
-== Version 6.6 (CRL 113 200/6 R6A)
+== Version 6.6.0 (CRL 113 200/6 R6A)
 
 This release introduces two major new features in the form of two new experimental Eclipse plug-ins:
 
@@ -683,6 +704,29 @@ Version 1.1 has the following new features:
 
 [[version-history]]
 = Version history
+
+[[version-7-cax-105-7730-r2a]]
+== Version 7/CAX 105 7730 R2A
+
+Release date: 27th of November 2020
+
+This release contains some new features and bugfixes.
+
+New Features:
+
+* Changes in Titan product code(Bug 565875 )
+* Changes in licensing(relevant for internal users only ):
+  ** License ordering/extension  page moved
+  ** License ordering/extension API to automate license renewal
+* Changes in shipping libedit (Bug 565893 )
+* Titan image added to ADP marketplace(relevant for internal users only)
+* Relaxing the C/C++ compiler version check for Titan 7.1.1 and upwards
+(Bug 564194 )
+* Object-oriented language features (Bug 563718 )
+* Allow unsafe universal charstring to charstring conversion (Bug 564585 )
+* Support for @default in the compiler and in the xsd2ttcn converter (Bugs 564919, 564920)
+* Java-based Main Controller implemented
+* Java-based JSON codec implemented
 
 [[version-crl-113-200-7-r1a]]
 == Version CRL 113 200/7 R1A
