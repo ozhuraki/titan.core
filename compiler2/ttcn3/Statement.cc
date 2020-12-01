@@ -6891,7 +6891,7 @@ error:
   {
     expression_struct expr;
     Code::init_expr(&expr);
-    ref_pard->generate_code_const_ref(&expr);
+    ref_pard->generate_code(&expr);
     str=Code::merge_free_expr(str, &expr);
     return str;
   }

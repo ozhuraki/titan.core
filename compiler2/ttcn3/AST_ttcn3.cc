@@ -8033,12 +8033,16 @@ namespace Ttcn {
       Free(body);
     }
     else if (in_class && my_scope->get_scope_class()->is_external()) {
+      char* out_par_str = enable_set_bound_out_param ? memptystr() :
+        fp_list->generate_code_set_unbound(memptystr());
       target->source.methods = mputprintf(target->source.methods,
         "%s %s::%s(%s)\n"
-        "{\n\n"
+        "{\n"
+        "%s\n"
         "}\n\n", return_type_str,
         my_scope->get_scope_class()->get_id()->get_name().c_str(),
-        genname_str, formal_par_list);
+        genname_str, formal_par_list, out_par_str);
+      Free(out_par_str);
     }
 
     Free(formal_par_list);
