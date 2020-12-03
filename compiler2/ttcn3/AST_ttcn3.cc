@@ -883,6 +883,9 @@ namespace Ttcn {
             // if the referred assignment is a class type, then the reference and
             // its parameters are meant for the constructor instead
             ass = type->get_class_type_body()->get_constructor();
+            if (ass == NULL) {
+              return NULL;
+            }
           }
         }
         FormalParList* fplist = ass->get_FormalParList();
