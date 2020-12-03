@@ -1,0 +1,48 @@
+/******************************************************************************
+ * Copyright (c) ETSI 2020.
+ *
+ * This file is subject to copyrights owned by ETSI. Non-exclusive permission
+ * is hereby granted, free of charge, to copy, reproduce and amend this file
+ * under the following conditions: It is provided "as is", without warranty of any
+ * kind, expressed or implied.
+ * 
+ * ETSI shall never be liable for any claim, damages, or other liability arising
+ * from its use or inability of use.This permission does not apply to any documentation
+ * associated with this file for which ETSI keeps all rights reserved. The present
+ * copyright notice shall be included in all copies of whole or part of this
+ * file and shall not imply any sub-license right.
+ *
+ * Modified by: Elemer Lelik
+ *
+ /*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that a class can declare a timer as its member.
+ ** @verdict pass accept
+*****************************************************************/
+module Sem_50101_top_level_006 "TTCN-3:2018 Object-Oriented" {
+
+    type component GeneralComp {
+    }
+    
+    public type class t_class_timer_field {
+        timer t_timer := 5.0;
+
+        public function getTimer() return timer {
+            return this.t_timer;
+        }
+    }
+
+
+    testcase TC_Sem_50101_top_level_006() runs on GeneralComp {
+        var t_class_timer_field v_a := t_class_timer_field.create();
+        v_a.getTimer().start;
+        alt {
+            [] v_a.getTimer().timeout { setverdict(pass); }
+        };
+    }
+
+    control {
+        execute(TC_Sem_50101_top_level_006());
+    }
+}

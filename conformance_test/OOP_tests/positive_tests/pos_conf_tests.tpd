@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TITAN_Project_File_Information version="1.0">
+  <ProjectName>Comf_Test</ProjectName>
+  <Folders>
+    <FolderResource projectRelativePath="501_classes_and_objects" relativeURI="501_classes_and_objects"/>
+    <FolderResource projectRelativePath="501_classes_and_objects/50101_classes" relativeURI="501_classes_and_objects/50101_classes"/>
+    <FolderResource projectRelativePath="501_classes_and_objects/50101_classes/5010101_scope_rules" relativeURI="501_classes_and_objects/50101_classes/5010101_scope_rules"/>
+    <FolderResource projectRelativePath="501_classes_and_objects/50101_classes/5010102_abstract_classes" relativeURI="501_classes_and_objects/50101_classes/5010102_abstract_classes"/>
+    <FolderResource projectRelativePath="501_classes_and_objects/50101_classes/5010103_external_classes" relativeURI="501_classes_and_objects/50101_classes/5010103_external_classes"/>
+    <FolderResource projectRelativePath="501_classes_and_objects/50101_classes/5010104_final_classes" relativeURI="501_classes_and_objects/50101_classes/5010104_final_classes"/>
+    <FolderResource projectRelativePath="501_classes_and_objects/50101_classes/5010105_constructors" relativeURI="501_classes_and_objects/50101_classes/5010105_constructors"/>
+    <FolderResource projectRelativePath="501_classes_and_objects/50101_classes/5010106_destructors" relativeURI="501_classes_and_objects/50101_classes/5010106_destructors"/>
+    <FolderResource projectRelativePath="501_classes_and_objects/50101_classes/5010107_methods" relativeURI="501_classes_and_objects/50101_classes/5010107_methods"/>
+    <FolderResource projectRelativePath="501_classes_and_objects/50101_classes/5010108_method_invocation" relativeURI="501_classes_and_objects/50101_classes/5010108_method_invocation"/>
+    <FolderResource projectRelativePath="501_classes_and_objects/50101_classes/5010109_visibility" relativeURI="501_classes_and_objects/50101_classes/5010109_visibility"/>
+    <FolderResource projectRelativePath="501_classes_and_objects/50101_classes/50101_top_level" relativeURI="501_classes_and_objects/50101_classes/50101_top_level"/>
+    <FolderResource projectRelativePath="501_classes_and_objects/50102_objects" relativeURI="501_classes_and_objects/50102_objects"/>
+    <FolderResource projectRelativePath="501_classes_and_objects/50102_objects/5010202_object_references" relativeURI="501_classes_and_objects/50102_objects/5010202_object_references"/>
+    <FolderResource projectRelativePath="501_classes_and_objects/50102_objects/5010203_null_reference" relativeURI="501_classes_and_objects/50102_objects/5010203_null_reference"/>
+    <FolderResource projectRelativePath="501_classes_and_objects/50102_objects/5010204_select_class-statement" relativeURI="501_classes_and_objects/50102_objects/5010204_select_class-statement"/>
+    <FolderResource projectRelativePath="501_classes_and_objects/50102_objects/5010205_of_operator" relativeURI="501_classes_and_objects/50102_objects/5010205_of_operator"/>
+    <FolderResource projectRelativePath="501_classes_and_objects/50102_objects/5010206_casting" relativeURI="501_classes_and_objects/50102_objects/5010206_casting"/>
+    <FolderResource projectRelativePath="502_exception_handling" relativeURI="502_exception_handling"/>
+    <FolderResource projectRelativePath="502_exception_handling/50201_functions" relativeURI="502_exception_handling/50201_functions"/>
+    <FolderResource projectRelativePath="502_exception_handling/50202_external_functions" relativeURI="502_exception_handling/50202_external_functions"/>
+    <FolderResource projectRelativePath="502_exception_handling/50203_invoking_functions" relativeURI="502_exception_handling/50203_invoking_functions"/>
+    <FolderResource projectRelativePath="502_exception_handling/50204_altsteps" relativeURI="502_exception_handling/50204_altsteps"/>
+    <FolderResource projectRelativePath="502_exception_handling/50205_test_cases" relativeURI="502_exception_handling/50205_test_cases"/>
+
+  </Folders>
+  <Files>
+	<FileResource projectRelativePath="pos_conf_tests.ttcn" relativeURI="pos_conf_tests.ttcn"/>
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010101_scope_rules/Sem_5010101_scopeRules_001.ttcn" relativeURI="501_classes_and_objects/50101_classes/5010101_scope_rules/Sem_5010101_scopeRules_001.ttcn"/>
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010101_scope_rules/Sem_5010101_scopeRules_002.ttcn" relativeURI="501_classes_and_objects/50101_classes/5010101_scope_rules/Sem_5010101_scopeRules_002.ttcn"/>    
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010102_abstract_classes/Sem_5010102_abstractClasses_001.ttcn" relativeURI="501_classes_and_objects/50101_classes/5010102_abstract_classes/Sem_5010102_abstractClasses_001.ttcn"/>
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010103_external_classes/Sem_5010103_externalClasses_001.ttcn" relativeURI="501_classes_and_objects/50101_classes/5010103_external_classes/Sem_5010103_externalClasses_001.ttcn"/>
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010103_external_classes/Int_List.cc" relativeURI="501_classes_and_objects/50101_classes/5010103_external_classes/Int_List.cc"/>
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010103_external_classes/Int_List.hh" relativeURI="501_classes_and_objects/50101_classes/5010103_external_classes/Int_List.hh"/> 
+    <!-- FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010103_external_classes/Sem_5010103_externalClasses_002.ttcn" relativeURI="501_classes_and_objects/50101_classes/5010103_external_classes/Sem_5010103_externalClasses_002.ttcn"/-->
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010104_final_classes/Sem_5010104_finalClasses_001.ttcn" relativeURI="501_classes_and_objects/50101_classes/5010104_final_classes/Sem_5010104_finalClasses_001.ttcn"/>
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010105_constructors/Sem_5010105_Constructors_001.ttcn" relativeURI="501_classes_and_objects/50101_classes/5010105_constructors/Sem_5010105_Constructors_001.ttcn"/>
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010105_constructors/Sem_5010105_Constructors_002.ttcn" relativeURI="501_classes_and_objects/50101_classes/5010105_constructors/Sem_5010105_Constructors_002.ttcn"/>
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010106_destructors/Sem_5010106_Destructors_001.ttcn" relativeURI="501_classes_and_objects/50101_classes/5010106_destructors/Sem_5010106_Destructors_001.ttcn"/>  
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010106_destructors/MyPort.cc" relativeURI="501_classes_and_objects/50101_classes/5010106_destructors/MyPort.cc"/>
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010106_destructors/MyPort.hh" relativeURI="501_classes_and_objects/50101_classes/5010106_destructors/MyPort.hh"/>    
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010107_methods/Sem_5010107_Methods_001.ttcn" relativeURI="501_classes_and_objects/50101_classes/5010107_methods/Sem_5010107_Methods_001.ttcn"/>
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010107_methods/Sem_5010107_Methods_002.ttcn" relativeURI="501_classes_and_objects/50101_classes/5010107_methods/Sem_5010107_Methods_002.ttcn"/>
+     <FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010107_methods/Sem_5010107_Methods_003.ttcn" relativeURI="501_classes_and_objects/50101_classes/5010107_methods/Sem_5010107_Methods_003.ttcn"/> 
+     <FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010107_methods/NegSem_5010107_Methods_003.ttcn" relativeURI="501_classes_and_objects/50101_classes/5010107_methods/NegSem_5010107_Methods_003.ttcn"/>            
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010108_method_invocation/Sem_5010108_MethodInvocation_001.ttcn" relativeURI="501_classes_and_objects/50101_classes/5010108_method_invocation/Sem_5010108_MethodInvocation_001.ttcn"/>    
+    <!--FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010109_visibility/Sem_5010109_Visibility_001.ttcn" relativeURI="501_classes_and_objects/50101_classes/5010109_visibility/Sem_5010109_Visibility_001.ttcn"/-->
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010109_visibility/Sem_5010109_Visibility_002.ttcn" relativeURI="501_classes_and_objects/50101_classes/5010109_visibility/Sem_5010109_Visibility_002.ttcn"/>    
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/5010109_visibility/Sem_5010109_Visibility_003.ttcn" relativeURI="501_classes_and_objects/50101_classes/5010109_visibility/Sem_5010109_Visibility_003.ttcn"/>        
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/50101_top_level/Sem_50101_top_level_001.ttcn" relativeURI="501_classes_and_objects/50101_classes/50101_top_level/Sem_50101_top_level_001.ttcn"/>
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/50101_top_level/Sem_50101_top_level_002.ttcn" relativeURI="501_classes_and_objects/50101_classes/50101_top_level/Sem_50101_top_level_002.ttcn"/>   
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/50101_top_level/Sem_50101_top_level_003.ttcn" relativeURI="501_classes_and_objects/50101_classes/50101_top_level/Sem_50101_top_level_003.ttcn"/>
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/50101_top_level/Sem_50101_top_level_004.ttcn" relativeURI="501_classes_and_objects/50101_classes/50101_top_level/Sem_50101_top_level_004.ttcn"/>      
+    <!--FileResource projectRelativePath="501_classes_and_objects/50101_classes/50101_top_level/Sem_50101_top_level_005.ttcn" relativeURI="501_classes_and_objects/50101_classes/50101_top_level/Sem_50101_top_level_005.ttcn"/-->
+    <!--FileResource projectRelativePath="501_classes_and_objects/50101_classes/50101_top_level/Sem_50101_top_level_006.ttcn" relativeURI="501_classes_and_objects/50101_classes/50101_top_level/Sem_50101_top_level_006.ttcn" /-->   
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/50101_top_level/Sem_50101_top_level_007.ttcn" relativeURI="501_classes_and_objects/50101_classes/50101_top_level/Sem_50101_top_level_007.ttcn"/>
+    <FileResource projectRelativePath="501_classes_and_objects/50101_classes/50101_top_level/Sem_50101_top_level_008.ttcn" relativeURI="501_classes_and_objects/50101_classes/50101_top_level/Sem_50101_top_level_008.ttcn"/> 
+   <FileResource projectRelativePath="501_classes_and_objects/50101_classes/50101_top_level/MyPort.cc" relativeURI="501_classes_and_objects/50101_classes/50101_top_level/Myport.cc"/> 
+   <FileResource projectRelativePath="501_classes_and_objects/50101_classes/50101_top_level/MyPort.hh" relativeURI="501_classes_and_objects/50101_classes/50101_top_level/Myport.hh"/>     
+    <FileResource projectRelativePath="501_classes_and_objects/50102_objects/5010202_object_references/Sem_5010202_ObjectReferences_001.ttcn" relativeURI="501_classes_and_objects/50102_objects/5010202_object_references/Sem_5010202_ObjectReferences_001.ttcn"/>   
+    <FileResource projectRelativePath="501_classes_and_objects/50102_objects/5010203_null_reference/Sem_5010203_NullReference_001.ttcn" relativeURI="501_classes_and_objects/50102_objects/5010203_null_reference/Sem_5010203_NullReference_001.ttcn"/>
+    <FileResource projectRelativePath="501_classes_and_objects/50102_objects/5010203_null_reference/NegSem_5010203_NullReference_001.ttcn" relativeURI="501_classes_and_objects/50102_objects/5010203_null_reference/NegSem_5010203_NullReference_001.ttcn"/> 
+    <FileResource projectRelativePath="501_classes_and_objects/50102_objects/5010204_select_class-statement/Sem_5010204_SelectClassStatement_001.ttcn" relativeURI="501_classes_and_objects/50102_objects/5010204_select_class-statement/Sem_5010204_SelectClassStatement_001.ttcn"/>
+    <FileResource projectRelativePath="501_classes_and_objects/50102_objects/5010205_of_operator/Sem_5010205_OfOperator_001.ttcn" relativeURI="501_classes_and_objects/50102_objects/5010205_of_operator/Sem_5010205_OfOperator_001.ttcn"/>
+    <FileResource projectRelativePath="501_classes_and_objects/50102_objects/5010206_casting/Sem_5010206_Casting_001.ttcn" relativeURI="501_classes_and_objects/50102_objects/5010206_casting/Sem_5010206_Casting_001.ttcn"/>
+    <!--FileResource projectRelativePath="502_exception_handling/50201_functions/Sem_50201_Functions_001.ttcn" relativeURI="502_exception_handling/50201_functions/Sem_50201_Functions_001.ttcn"/>
+    <FileResource projectRelativePath="502_exception_handling/50202_external_functions/Sem_50202_ExternalFunctions_001.ttcn" relativeURI="502_exception_handling/50202_external_functions/Sem_50202_ExternalFunctions_001.ttcn"/>
+    <FileResource projectRelativePath="502_exception_handling/50203_invoking_functions/Sem_50203_invoking_functions_001.ttcn" relativeURI="502_exception_handling/50203_invoking_functions/Sem_50203_invoking_functions_001.ttcn"/>
+    <FileResource projectRelativePath="502_exception_handling/50204_altsteps/Sem_50204_altsteps_001.ttcn" relativeURI="502_exception_handling/50204_altsteps/Sem_50204_altsteps_001.ttcn"/>
+    <FileResource projectRelativePath="502_exception_handling/50205_test_cases/Sem_50205_test_cases_001.ttcn" relativeURI="502_exception_handling/50205_test_cases/Sem_50205_test_cases_001.ttcn"/-->
+  </Files>
+  <ActiveConfiguration>Default</ActiveConfiguration>
+  <Configurations>
+    <Configuration name="Default">
+      <ProjectProperties>
+        <MakefileSettings>
+          <targetExecutable>bin/pos_conf_tests</targetExecutable>
+          <useGoldLinker>false</useGoldLinker>
+          <freeTextLinkerOptions></freeTextLinkerOptions>
+        </MakefileSettings>
+        <LocalBuildSettings>
+          <workingDirectory>bin</workingDirectory>
+        </LocalBuildSettings>
+      </ProjectProperties>
+    </Configuration>
+  </Configurations>
+</TITAN_Project_File_Information>

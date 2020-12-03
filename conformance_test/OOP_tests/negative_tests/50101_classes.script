@@ -1,0 +1,1844 @@
+.******************************************************************************
+.* Copyright (c) ETSI 2020.
+.*
+.* This file is subject to copyrights owned by ETSI. Non-exclusive permission 
+.* is hereby granted, free of charge, to copy, reproduce and amend this file 
+.* under the following conditions: It is provided "as is", without warranty of any 
+.* kind, expressed or implied. 
+.*
+.* ETSI shall never be liable for any claim, damages, or other liability arising 
+.* from its use or inability of use.This permission does not apply to any documentation 
+.* associated with this file for which ETSI keeps all rights reserved. The present 
+.* copyright notice shall be included in all copies of whole or part of this 
+.* file and shall not imply any sub-license right.
+.*
+.*  Modified by: Elemer Lelik
+.*
+.******************************************************************************/
+text.
+:lang eng.
+.*
+:docname.Test Description
+:docno.
+:rev.
+:date.2020-11-11
+.*
+:prep. Elemer Lelik
+:subresp.
+:appr.
+:checked.
+.*
+:title.ETSI TTCN3 Negative Conformance Test
+:contents level=3.
+.*---------------------------------------------------------------------*
+:h1.PREREQUISITES AND PREPARATIONS
+.*---------------------------------------------------------------------*	
+.*---------------------------------------------------------------------*
+:h2.Scope of the Test Object
+.*---------------------------------------------------------------------*
+:xmp tab=1 nokeep.
+This TD contains negative OOP test  modules from ETSI TTCN3 Conformance Test's 50101_modules folders. 
+
+:exmp.
+
+.*---------------------------------------------------------------------*
+:h2.Test Tools
+.*---------------------------------------------------------------------*
+:p.:us.Software Tools:eus.
+:xmp tab=2 nokeep.
+
+	SAtester_OOP.pl
+
+:exmp.
+:np.
+
+.*---------------------------------------------------------------------*
+:h1.REQUIREMENT-BASED TESTS
+.*---------------------------------------------------------------------*
+.*---------------------------------------------------------------------*
+:h2. 5010101_scope_rules folder
+.*---------------------------------------------------------------------*
+
+*---------------------------------------------------------------------*
+:h3. NegSem_5010101_scopeRules_001 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_5010101_scopeRules_001 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_5010101_scopeRules_001 NegSem_5010101_scopeRules_001.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.1, Ensure that reusing identifiers of members of the component type specified in the runs on clause of the class for members and inside methods for formal parameters and local declarations is not allowed
+ ** @verdict pass reject
+*****************************************************************/
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=568714
+module NegSem_5010101_scopeRules_001 "TTCN-3:2018 Object-Oriented" {
+    
+    type component GeneralComp {
+        const integer c_i := 5;
+    }
+
+ public type class MyClass runs on GeneralComp {
+        public const integer c_i := 8; //not allowed
+
+        function DoNothing(integer c_i := 11) { //not allowed
+            log("Not allowed this type of reusing IDs.");
+        }
+    }
+
+    testcase TC_NegSem_5010101_scopeRules_001() runs on GeneralComp {
+        //var MyClass v_a := MyClass.create();  FIXME!!!
+        var MyClass v_a := MyClass.create(8);
+        if (v_a.c_i != c_i) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_5010101_scopeRules_001());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+.*---------------------------------------------------------------------*
+:h2. 5010102_abstract_classes folder
+.*---------------------------------------------------------------------*
+
+*---------------------------------------------------------------------*
+:h3. NegSem_5010102_abstractClasses_001 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_5010102_abstractClasses_001 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_5010102_abstractClasses_001 NegSem_5010102_abstractClasses_001.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.2, Ensure that abstract classes cannot be explicitly instantiated.  
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_5010102_abstractClasses_001 "TTCN-3:2018 Object-Oriented" {
+    
+    type component GeneralComp {
+    }
+
+    public type class @abstract t_class_abstract {
+       // public function log_sending(); //FIXME!!
+        public function log_sending() {}; 
+    }
+
+    public type class t_class_subclass extends t_class_abstract {  // ???? not needed
+
+        public function log_sending() {
+            log("Sending messages!!!");
+        }
+    }
+
+    testcase TC_NegSem_5010102_abstractClasses_001() runs on GeneralComp {
+        var t_class_abstract v_a := t_class_abstract.create(); //not allowed
+        setverdict(pass);
+    }
+
+    control {
+        execute(TC_NegSem_5010102_abstractClasses_001());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: Cannot create an instance of abstract class type
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+.*---------------------------------------------------------------------*
+:h2. 5010103_external_classes folder
+.*---------------------------------------------------------------------*
+
+*---------------------------------------------------------------------*
+:h3. NegSem_5010103_externalClasses_001a negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_5010103_externalClasses_001a >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_5010103_externalClasses_001a NegSem_5010103_externalClasses_001a.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.3, Ensure that external classes shall not contain fields or functions with a body.
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_5010103_externalClasses_001a "TTCN-3:2018 Object-Oriented" {
+    
+    type component GeneralComp {
+    }
+
+    type external class Java_Int_List {
+        function add(integer v) {  //not allowed
+            log("Add v to integer list"); 
+        }
+        function get(integer index) return integer;
+       // const charstring c_a := "ret"; //not allowed
+    }
+
+    testcase TC_NegSem_5010103_externalClasses_001a() runs on GeneralComp {
+        //empty testcase
+        setverdict(pass);
+    }
+
+    control {
+        execute(TC_NegSem_5010103_externalClasses_001a());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: An external class cannot contain a function
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_5010103_externalClasses_001b negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_5010103_externalClasses_001b >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_5010103_externalClasses_001b NegSem_5010103_externalClasses_001b.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.3, Ensure that external classes shall not contain fields or functions with a body.
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_5010103_externalClasses_001b "TTCN-3:2018 Object-Oriented" {
+    
+    type component GeneralComp {
+    }
+
+    type external class Java_Int_List {
+       // function add(integer v) {  //not allowed
+       //     log("Add v to integer list"); 
+       // }
+        function get(integer index) return integer;
+       const charstring c_a := "ret"; //not allowed
+    }
+
+    testcase TC_NegSem_5010103_externalClasses_001b() runs on GeneralComp {
+        //empty testcase
+        setverdict(pass);
+    }
+
+    control {
+        execute(TC_NegSem_5010103_externalClasses_001b());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: An external class cannot contain a constant
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_5010103_externalClasses_002 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_5010103_externalClasses_002 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_5010103_externalClasses_002 NegSem_5010103_externalClasses_002.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.3, Ensure that external classes shall not be derived from non-external classes.
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_5010103_externalClasses_002 "TTCN-3:2018 Object-Oriented" {
+    
+    type component GeneralComp {
+    }
+
+    type class @abstract Collection_Interface {
+        //function add(integer v) ; //FIXME!!!
+        function add(integer v) {};
+    }
+
+    type external class Java_Int_List extends Collection_Interface { //not allowed
+        function add(integer v);
+        function get(integer index) return integer;
+    }
+
+    testcase TC_NegSem_5010103_externalClasses_002() runs on GeneralComp {
+        //empty testcase
+        setverdict(pass);
+    }
+
+    control {
+        execute(TC_NegSem_5010103_externalClasses_002());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: An external class cannot extend an internal class
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_5010104_finalClasses_001 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_5010104_finalClasses_001 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_5010104_finalClasses_001 NegSem_5010104_finalClasses_001.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.4, Ensure that final classes cannot be abstract.
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_5010104_finalClasses_001 "TTCN-3:2018 Object-Oriented" {
+    
+    type component GeneralComp {
+    }
+
+    type class @final @abstract FinalClass { //not allowed
+        function doSomething() return charstring  { //not allowed
+            return "something";
+        }
+    }
+
+    testcase TC_NegSem_5010104_finalClasses_001() runs on GeneralComp {
+        var FinalClass v_a := FinalClass.create();
+        if (v_a.doSomething() == "something") {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_5010104_finalClasses_001());
+    }
+}
+
+<END_MODULE>
+
+<RESULT COUNT>
+error: Final classes cannot be abstract
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+.*---------------------------------------------------------------------*
+:h2. 5010107_methods folder
+.*---------------------------------------------------------------------*
+
+*---------------------------------------------------------------------*
+:h3. NegSem_5010107_Methods_001 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_5010107_Methods_001 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_5010107_Methods_001 NegSem_5010107_Methods_001.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.7, Ensure that public methods shall be overridden only by public methods.
+ ** @verdict pass reject
+*****************************************************************/
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=568716
+module NegSem_5010107_Methods_001 "TTCN-3:2018 Object-Oriented" {
+
+    type component GeneralComp {
+    }
+    
+    type class MySuperClass {
+        var octetstring v_o;
+
+        public function doSomething() return integer {
+            return oct2int(this.v_o);
+        }
+    }
+
+    type class MySubClass extends MySuperClass {
+
+        private function doSomething() return integer { //not allowed  FIXME !!!error should be thrown here !!!
+            return 1; 
+        }
+    }
+
+ /*   testcase TC_NegSem_5010107_Methods_001() runs on GeneralComp {
+        var MySubClass v_a := MySubClass.create('AAFF'O) //: MySuperClass(); FIXME !!!
+        if (v_a.doSomething() == 1) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_5010107_Methods_001());
+    }
+ */   
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_5010107_Methods_002 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_5010107_Methods_002 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_5010107_Methods_002 NegSem_5010107_Methods_002.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.7, Ensure that protected methods may be overridden by public or protected methods only.
+ ** @verdict pass reject
+*****************************************************************/
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=568742
+module NegSem_5010107_Methods_002 "TTCN-3:2018 Object-Oriented" {
+
+    type component GeneralComp {
+    }
+    
+    type class MySuperClass {
+        var octetstring v_o;
+
+         function doSomething() return integer { //protected method
+            return oct2int(this.v_o);
+        }
+    }
+
+    type class MySubClass extends MySuperClass {
+
+        private function doSomething() return integer { //not allowed  error should be thrown here FIXME!!!
+            return 1;
+        }
+    }
+
+  /*  testcase TC_NegSem_5010107_Methods_002() runs on GeneralComp {
+        var MySubClass v_a := MySubClass.create('AAFF'O) // : MySuperClass(); FIXME!!!
+        if (v_a.doSomething() == 1) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_5010107_Methods_002());
+    }
+    */
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_5010107_Methods_003a negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_5010107_Methods_003a >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_5010107_Methods_003a NegSem_5010107_Methods_003a.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.7, Ensure that The return type of an overriding function shall be the same as the return type of the overridden function with the same template restrictions and modifiers.
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_5010107_Methods_003 "TTCN-3:2018 Object-Oriented" {
+
+    type component GeneralComp {
+    }
+
+    type integer Mytype1;
+    type charstring Mytype2;
+    
+    type class MySuperClass {
+        var octetstring v_o;
+
+         function doSomething() return Mytype1 {
+            return oct2int(this.v_o);
+        }
+    }
+
+    type class MySubClass extends MySuperClass {
+
+        // /*protected*/ function doSomething() return Mytype2 { // not allowed
+        public  function doSomething() return Mytype2 { //not allowed
+            return "1";
+        }
+    }
+
+    testcase TC_NegSem_5010107_Methods_003() runs on GeneralComp {
+        var MySubClass v_a := MySubClass.create('AAFF'O) //: MySuperClass(); FIXME!!!
+        if (v_a.doSomething() == "1") {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_5010107_Methods_003());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: The prototype of method `doSomething' is not identical to that of inherited method
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_5010107_Methods_004 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_5010107_Methods_004 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_5010107_Methods_004 NegSem_5010107_Methods_004.ttcn >
+ /*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+  ** @purpose 5.1.1.7, Ensure that is  'runs on, mtc, system' clauses are not permitted  on  methods.
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_5010107_Methods_004 "TTCN-3:2018 Object-Oriented" {
+
+    type component GeneralComp {
+    }
+    
+    type class MySuperClass runs on GeneralComp {
+        var octetstring v_o;
+
+         function doSomething() return integer runs on GeneralComp { //not allowed
+            return oct2int(this.v_o);
+        }
+    }
+
+    type class MySubClass extends MySuperClass {
+
+        function doSomething() return integer runs on GeneralComp {
+            return 1;
+        }
+    }
+
+    testcase TC_NegSem_5010107_Methods_004() runs on GeneralComp {
+        var MySubClass v_a := MySubClass.create('AAFF'O) //: MySuperClass(); FIXME!!!
+        if (v_a.doSomething() == 1) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_5010107_Methods_004());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: at or before token `runs': syntax error, unexpected RunsKeyword
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+.*---------------------------------------------------------------------*
+:h2. 5010109_visibility folder
+.*---------------------------------------------------------------------*
+
+*---------------------------------------------------------------------*
+:h3. NegSem_5010109_Visibility_001 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_5010109_Visibility_001 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_5010109_Visibility_001 NegSem_5010109_Visibility_001.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.9, Ensure that fields can be declared as private or protected only.
+ ** @verdict pass reject
+*****************************************************************/
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=568755
+module NegSem_5010109_Visibility_001 "TTCN-3:2018 Object-Oriented" {
+    
+    type component GeneralComp {
+    }
+
+    type class MyClass {
+        public var integer v_i; // not allowed   should not compile!!!  FIXME!!!
+    }
+
+ /*   testcase TC_NegSem_5010109_Visibility_001() runs on GeneralComp {
+        var MyClass v_a := MyClass.create(1);
+        if (v_a.v_i == 1) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_5010109_Visibility_001());
+    }
+  */  
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: Class members cannot be public
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_5010109_Visibility_002 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_5010109_Visibility_002 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_5010109_Visibility_002 NegSem_5010109_Visibility_002.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+  ** @purpose 5.1.1.9, Ensure that a field of any visibility cannot be overridden in a subclass.  
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_5010109_Visibility_002 "TTCN-3:2018 Object-Oriented" {
+    
+    type component GeneralComp {
+    }
+
+    type charstring MyType;
+
+    type class MySuperClass {
+        private var MyType v_my;
+    }
+
+    type class MySubClass extends MySuperClass {
+        var MyType v_my; //not allowed
+    }
+
+    testcase TC_NegSem_5010109_Visibility_002() runs on GeneralComp {
+        var MySubClass v_a := MySubClass.create("abc");
+        if (v_a.v_my == "abc") {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_5010109_Visibility_002());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: variable `@NegSem_5010109_Visibility_002.MySubClass.v_my' shadows inherited member
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_5010109_Visibility_003 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_5010109_Visibility_003 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_5010109_Visibility_003 NegSem_5010109_Visibility_003.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.9, Ensure that a public member function can only be overridden by another public member function. 
+ ** @verdict pass reject
+*****************************************************************/
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=568743
+module NegSem_5010109_Visibility_003 "TTCN-3:2018 Object-Oriented" {
+
+    type component GeneralComp {
+    }
+
+    type class MySuperClass {
+        var integer v_i;
+
+        public function f_add(integer inint) return integer {
+            return this.v_i + inint;
+        }
+    }
+
+    type class MySubClass extends MySuperClass {
+
+            function f_add(integer inint) return integer { //not allowed  should throw an error here FIXME!!!
+             return this.v_i + 1;
+        }
+    }
+
+ /*   testcase TC_NegSem_5010109_Visibility_003() runs on GeneralComp {
+        var MySubClass v_a := MySubClass.create(1);
+        if (v_a.f_add(2) == 3) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_5010109_Visibility_003());
+    }
+  */  
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_5010109_Visibility_004 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_5010109_Visibility_004 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_5010109_Visibility_004 NegSem_5010109_Visibility_004.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.9, Ensure that private members can only be accessed directly from inside their surrounding class's scope.  
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_5010109_Visibility_004 "TTCN-3:2018 Object-Oriented" {
+
+    type component GeneralComp {
+    }
+
+    type class MyClass {
+        private var integer v_i;
+    }
+
+    testcase TC_NegSem_5010109_Visibility_004() runs on GeneralComp {
+        var MyClass v_a := MyClass.create(1);
+        if (v_a.v_i == 1) { //not allowed
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_5010109_Visibility_004());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: The member definition `v_i' in class type `MyClass' is not visible in this scope
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+
+.*---------------------------------------------------------------------*
+:h2. 50101_top_level folder
+.*---------------------------------------------------------------------*
+
+*---------------------------------------------------------------------*
+:h3. NegSem_50101_top_level_001 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_50101_top_level_001 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_50101_top_level_001 NegSem_50101_top_level_001.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that a class members' names are unique.
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_50101_top_level_001 "TTCN-3:2018 Object-Oriented" {
+
+    type component GeneralComp {
+    }
+
+    public type class t_class_member_overloading {
+        
+        var integer v_i := 10;
+        var integer v_i := 5; // not allowed
+    }
+
+    testcase TC_NegSem_50101_top_level_001() runs on GeneralComp {
+        //var t_class_member_overloading v_a := t_class_member_overloading.create(); FIXME!!!
+        var t_class_member_overloading v_a := t_class_member_overloading.create(10);
+        if (v_a.v_i == 5) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_50101_top_level_001());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: Duplicate definition with name `v_i'
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_50101_top_level_002 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_50101_top_level_002 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_50101_top_level_002 NegSem_50101_top_level_002.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that a class members' names are unique.
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_50101_top_level_002 "TTCN-3:2018 Object-Oriented" {
+
+    type component GeneralComp {
+    }
+
+    public type class t_class_member_overloading {
+        
+        var integer v_i := 10;
+        public function v_i() return integer { // not allowed
+            return 5;
+        }
+    }
+
+    testcase TC_NegSem_50101_top_level_002() runs on GeneralComp {
+        //var t_class_member_overloading v_a := t_class_member_overloading.create();  FIXME!!!
+        var t_class_member_overloading v_a := t_class_member_overloading.create(10);
+        if (v_a.v_i() == 5) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_50101_top_level_002());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: Duplicate definition with name `v_i'
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+
+*---------------------------------------------------------------------*
+:h3. NegSem_50101_top_level_003 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_50101_top_level_003 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_50101_top_level_003 NegSem_50101_top_level_003.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that templates are not allowed for class types.
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_50101_top_level_003 "TTCN-3:2018 Object-Oriented" {
+
+     type component GeneralComp {
+     }
+
+    public type template class t_templ_class_const_field { //not allowed
+        private const charstring cons_ver_id := "0.0.1";
+
+        public function get_cons_verid() return charstring {
+            return this.cons_ver_id;
+        }
+    }
+
+    testcase TC_NegSem_50101_top_level_003() runs on GeneralComp {
+        //var t_templ_class_const_field v_a := t_templ_class_const_field.create();  FIXME!!!
+        var t_templ_class_const_field v_a := t_templ_class_const_field.create("0.0.1");
+        if (v_a.get_cons_verid() == "0.0.1") {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_50101_top_level_003());
+    }   
+    
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: at or before token `template': syntax error, unexpected TemplateKeyword, expecting ClassKeyword
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_50101_top_level_004 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_50101_top_level_004 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_50101_top_level_004 NegSem_50101_top_level_004.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that passing of object references to the create operation of a component type or a function started on another component is not allowed.
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_50101_top_level_004 "TTCN-3:2018 Object-Oriented" {
+    
+    type component GeneralComp {
+
+    }
+
+ /*   type component MyNotEmptyComponent{
+        const charstring c_MyCstr := "def";
+
+        function doSomething(in MyEmptyClass e) {
+            log("Nothing in MyEmptyClass e");
+        }
+    }
+*/  //FIXME!!!
+
+    type component MyNotEmptyComponent{
+        const charstring c_MyCstr := "def";
+
+    }
+
+    function doSomething(in MyEmptyClass e) runs on MyNotEmptyComponent {
+            log("Nothing in MyEmptyClass e");
+    }
+
+    public type class MyEmptyClass runs on GeneralComp {
+
+    }
+
+    testcase TC_NegSem_50101_top_level_004_01() runs on GeneralComp {
+        var MyEmptyClass v_MyClass := MyEmptyClass.create();
+        var GeneralComp v_MyComponent := GeneralComp.create(v_MyClass); //not allowed
+        setverdict(pass);
+    }
+
+  /*  testcase TC_NegSem_50101_top_level_004_02() runs on GeneralComp {
+        var MyEmptyClass v_MyClass := MyEmptyClass.create();
+        var MyNotEmptyComponent v_MyComponent := MyNotEmptyComponent.create alive;
+        v_MyComponent.start(doSomething(v_MyClass)); //not allowed
+        setverdict(pass);
+    }
+*/
+    control {
+        execute(TC_NegSem_50101_top_level_004_01());
+     //   execute(TC_NegSem_50101_top_level_004_02());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: First operand of operation 
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+
+*---------------------------------------------------------------------*
+:h3. NegSem_50101_top_level_004a negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_50101_top_level_004a >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_50101_top_level_004a NegSem_50101_top_level_004a.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that passing of object references to the create operation of a component type or a function started on another component is not allowed.
+ ** @verdict pass reject
+*****************************************************************/
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=568744
+module NegSem_50101_top_level_004a "TTCN-3:2018 Object-Oriented" {
+    
+    type component GeneralComp {
+
+    }
+
+ /*   type component MyNotEmptyComponent{
+        const charstring c_MyCstr := "def";
+
+        function doSomething(in MyEmptyClass e) {
+            log("Nothing in MyEmptyClass e");
+        }
+    }
+*/  //FIXME!!!
+
+    type component MyNotEmptyComponent{
+        const charstring c_MyCstr := "def";
+
+    }
+
+    function doSomething(in MyEmptyClass e) runs on MyNotEmptyComponent {
+            log("Nothing in MyEmptyClass e");
+    }
+
+    public type class MyEmptyClass runs on GeneralComp {
+
+    }
+
+ /*   testcase TC_NegSem_50101_top_level_004_01() runs on GeneralComp {
+        var MyEmptyClass v_MyClass := MyEmptyClass.create();
+        var GeneralComp v_MyComponent := GeneralComp.create(v_MyClass); //not allowed
+        setverdict(pass);
+    }
+*/
+    testcase TC_NegSem_50101_top_level_004_02() runs on GeneralComp {
+        var MyEmptyClass v_MyClass := MyEmptyClass.create();
+        var MyNotEmptyComponent v_MyComponent := MyNotEmptyComponent.create alive;
+        v_MyComponent.start(doSomething(v_MyClass)); //not allowed
+        setverdict(pass);
+    }
+
+    control {
+     //   execute(TC_NegSem_50101_top_level_004_01());
+        execute(TC_NegSem_50101_top_level_004_02());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: TBD
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_50101_top_level_005 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_50101_top_level_005 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_50101_top_level_005 NegSem_50101_top_level_005.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that subtyping definition is not allowed for class types via the normal subtype definition. 
+ ** @verdict pass reject
+*****************************************************************/
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=568745
+module NegSem_50101_top_level_005  "TTCN-3:2018 Object-Oriented"{
+    
+    type component GeneralComp {
+    }
+
+    public type class t_empty_class {
+    }
+
+    type t_empty_class MyClassType; //not allowed  FIXME!!!
+
+    testcase TC_NegSem_50101_top_level_005() runs on GeneralComp {
+        var t_empty_class v_a := t_empty_class.create()
+        setverdict(pass);
+    }
+
+    control {
+        execute(TC_NegSem_50101_top_level_005());
+    }   
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: 
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_50101_top_level_006 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_50101_top_level_006 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_50101_top_level_006 NegSem_50101_top_level_006.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that local/global constants or module parameters of class type or containing class type fields or elements are not allowed.
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_50101_top_level_006 "TTCN-3:2018 Object-Oriented" {
+
+    type component GeneralComp {
+    }
+
+    public type class t_class_simple_class {
+        private var hexstring v_hstr := 'AF37D'H;
+
+        public function get_hexstr() return hexstring {
+            return v_hstr;
+        }
+    }
+
+    const t_class_simple_class const_simple := t_class_simple_class.create(); // not allowed
+    //modulepar t_class_simple_class mod_par_simple; // not allowed
+
+    testcase TC_NegSem_50101_top_level_006() runs on GeneralComp {
+        //var t_class_simple_class v_a := t_class_simple_class.create();  FIXME!!!
+        var t_class_simple_class v_a := t_class_simple_class.create('AF37D'H);
+        if (v_a.get_hexstr() == 'AF37D'H) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_50101_top_level_006());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: Constant cannot be defined for class type
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_50101_top_level_006a negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_50101_top_level_006a >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_50101_top_level_006a NegSem_50101_top_level_006a.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that local/global constants or module parameters of class type or containing class type fields or elements are not allowed.
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_50101_top_level_006 "TTCN-3:2018 Object-Oriented" {
+
+    type component GeneralComp {
+    }
+
+    public type class t_class_simple_class {
+        private var hexstring v_hstr := 'AF37D'H;
+
+        public function get_hexstr() return hexstring {
+            return v_hstr;
+        }
+    }
+
+    //const t_class_simple_class const_simple := t_class_simple_class.create(); // not allowed
+    modulepar t_class_simple_class mod_par_simple; // not allowed
+
+    testcase TC_NegSem_50101_top_level_006() runs on GeneralComp {
+        //var t_class_simple_class v_a := t_class_simple_class.create();  FIXME!!!
+        var t_class_simple_class v_a := t_class_simple_class.create('AF37D'H);
+        if (v_a.get_hexstr() == 'AF37D'H) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_50101_top_level_006());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: Type of module parameter cannot be or embed class type
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_50101_top_level_007 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_50101_top_level_007 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_50101_top_level_007 NegSem_50101_top_level_007.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that class type cannot be the contained value of an anytype value.
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_50101_top_level_007 "TTCN-3:2018 Object-Oriented" {
+    
+    type component GeneralComp {
+    }
+
+    public type class t_class_anytype_class {
+        //empty class
+    }
+
+    testcase TC_NegSem_50101_top_level_007() runs on GeneralComp {
+        var t_class_anytype_class v_class := t_class_anytype_class.create(); 
+        var anytype v_Myanytype;
+        v_Myanytype.t_class_anytype_class := v_class; // not allowed
+        setverdict(pass);
+    }
+
+    control {
+        execute(TC_NegSem_50101_top_level_007());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: Reference to non-existent field
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_50101_top_level_008 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_50101_top_level_008 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_50101_top_level_008 NegSem_50101_top_level_008.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that the functions of a class shall not have a runs on, mtc or system clause.
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_50101_top_level_008 "TTCN-3:2018 Object-Oriented" {
+    
+    type component GeneralComp {
+    }
+
+    public type class t_class_with_utility_functions {
+
+        public function isRightCharstring(in charstring arg_cstr) runs on GeneralComp return boolean { //not allowed
+            if (arg_cstr == "def") {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+ /*      public function isPositive(in integer arg_int) mtc GeneralComp return boolean { //not allowed
+            if (arg_int > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        public function isNegative(in integer arg_int) system GeneralComp return boolean { //not allowed
+            if (arg_int < 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+*/
+        const integer c_int := 5057;
+    }
+
+    testcase TC_NegSem_50101_top_level_008() runs on GeneralComp {
+        var t_class_with_utility_functions v_a := t_class_with_utility_functions.create();
+        if (v_a.c_int == 5057) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_50101_top_level_008());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: at or before token `runs': syntax error
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+
+*---------------------------------------------------------------------*
+:h3. NegSem_50101_top_level_008a negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_50101_top_level_008a >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_50101_top_level_008a NegSem_50101_top_level_008a.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that the functions of a class shall not have a runs on, mtc or system clause.
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_50101_top_level_008a "TTCN-3:2018 Object-Oriented" {
+    
+    type component GeneralComp {
+    }
+
+    public type class t_class_with_utility_functions {
+
+   /*     public function isRightCharstring(in charstring arg_cstr) runs on GeneralComp return boolean { //not allowed
+            if (arg_cstr == "def") {
+                return true;
+            } else {
+                return false;
+            }
+        }
+*/
+        public function isPositive(in integer arg_int) mtc GeneralComp return boolean { //not allowed
+            if (arg_int > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+ /*       public function isNegative(in integer arg_int) system GeneralComp return boolean { //not allowed
+            if (arg_int < 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+*/
+        const integer c_int := 5057;
+    }
+
+    testcase TC_NegSem_50101_top_level_008() runs on GeneralComp {
+        var t_class_with_utility_functions v_a := t_class_with_utility_functions.create();
+        if (v_a.c_int == 5057) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_50101_top_level_008());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: at or before token `mtc': syntax error
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_50101_top_level_008b negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_50101_top_level_008b >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_50101_top_level_008b NegSem_50101_top_level_008b.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that the functions of a class shall not have a runs on, mtc or system clause.
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_50101_top_level_008 "TTCN-3:2018 Object-Oriented" {
+    
+    type component GeneralComp {
+    }
+
+    public type class t_class_with_utility_functions {
+
+   /*     public function isRightCharstring(in charstring arg_cstr) runs on GeneralComp return boolean { //not allowed
+            if (arg_cstr == "def") {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public function isPositive(in integer arg_int) mtc GeneralComp return boolean { //not allowed
+            if (arg_int > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+*/        public function isNegative(in integer arg_int) system GeneralComp return boolean { //not allowed
+            if (arg_int < 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        const integer c_int := 5057;
+    }
+
+    testcase TC_NegSem_50101_top_level_008() runs on GeneralComp {
+        var t_class_with_utility_functions v_a := t_class_with_utility_functions.create();
+        if (v_a.c_int == 5057) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_50101_top_level_008());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: at or before token `system': syntax error
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_50101_top_level_009 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_50101_top_level_009 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_50101_top_level_009 NegSem_50101_top_level_009.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that the runs on type of a class shall be runs on compatible with the runs on type of the behaviour creating a class. 
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_50101_top_level_009 "TTCN-3:2018 Object-Oriented" {
+    
+    type port MyPort message {
+        inout integer;
+    }  with { extension "internal"}
+
+    type component GeneralComp {
+    var integer v_c:=1;
+    }
+
+    type component TestComp {
+        const charstring c_cstr := "Sunday";
+       port MyPort p1; 
+    }
+
+    public type class t_class_non_compatible runs on GeneralComp {
+
+        public function f_skip_weekend() return charstring {
+            return "Monday";
+        }
+    }
+
+    testcase TC_NegSem_50101_top_level_009() runs on TestComp { 
+        var t_class_non_compatible v_a := t_class_non_compatible.create(); // not allowed  
+        if (v_a.f_skip_weekend() == "Monday") {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_50101_top_level_009());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: Runs on clause mismatch
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+
+*---------------------------------------------------------------------*
+:h3. NegSem_50101_top_level_010 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_50101_top_level_010 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_50101_top_level_010 NegSem_50101_top_level_010.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that The runs on type of a class shall be runs on compatible with the runs on type of the superclass. 
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_50101_top_level_010 "TTCN-3:2018 Object-Oriented" {
+
+    type component GeneralComp {
+    }
+
+    type port Myport message {
+        inout octetstring;
+    } with  { extension "internal" }  //FIXME !!!!
+
+    type component MessageComp {
+        port Myport p1;
+    };
+
+    public type class t_superclass_with_incompatible runs on MessageComp {
+        var octetstring v_o := '1100'O;
+
+        public function sending_vo() {
+            log(this.v_o);
+        }
+    }
+
+    public type class t_subclass extends t_superclass_with_incompatible runs on GeneralComp { 
+
+    }
+
+   
+    testcase TC_NegSem_50101_top_level_010() runs on GeneralComp {
+        //var t_subclass v_a := t_subclass.create(); // not allowed  FIXME!!!
+        var t_subclass v_a := t_subclass.create('1100'O); // not allowed
+        if (v_a.v_o == '1100'O) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_NegSem_50101_top_level_010());
+    }
+    
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: The `runs on' component type of the subclass, `@NegSem_50101_top_level_010.GeneralComp', is not compatible with the `runs on' component type of the superclass
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_50101_top_level_011 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_50101_top_level_011 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_50101_top_level_011 NegSem_50101_top_level_011.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that The mtc and system type of a class shall be mtc and system compatible with the mtc and system types of the superclass, respectively.
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_50101_top_level_011 "TTCN-3:2018 Object-Oriented" {
+    
+    type component GeneralComp {
+    var integer v_c:=1;
+    }
+
+    type port Myport message {
+        inout octetstring;
+    } with { extension "internal"}
+
+    type component MessageComp {
+        port Myport p1;
+    }
+
+    public type class t_superclass_with_incompatible_system system GeneralComp {
+        var hexstring v_h := '1100FAD'H;
+    }
+
+    public type class t_subclass_system extends t_superclass_with_incompatible_system system MessageComp { // not allowed  FIXME!!!
+ 
+    }
+
+    public type class t_superclass_with_incompatible_mtc mtc GeneralComp {
+        var integer v_i := 9919;
+    }
+
+  //  public type class t_subclass_mtc extends t_superclass_with_incompatible_mtc mtc MessageComp { // not allowed  FIXME!!!
+
+  //  }
+
+    //testcase TC_NegSem_50101_top_level_011_01() system GeneralComp runs on MessageComp {  FIXME!!!
+    testcase TC_NegSem_50101_top_level_011_01() runs on MessageComp  system GeneralComp {
+        //    var t_subclass_system v_a := t_subclass_system.create(); // not allowed  FIXME!!!
+        var t_subclass_system v_a := t_subclass_system.create('1100FAD'H); // not allowed 
+        if (v_a.v_h == '1100FAD'H) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+ /*   testcase TC_NegSem_50101_top_level_011_02() runs on MessageComp {
+           // var t_subclass_mtc v_a := t_subclass_mtc.create(); // not allowed  FIXME!!!
+        var t_subclass_mtc v_a := t_subclass_mtc.create(9919); // not allowed
+        if (v_a.v_i == 9919) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+*/
+    control {
+        execute(TC_NegSem_50101_top_level_011_01());
+  //      execute(TC_NegSem_50101_top_level_011_02());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: The `system' component type of the subclass, `@NegSem_50101_top_level_011.MessageComp', is not compatible with the `system' component type of the superclass
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+*---------------------------------------------------------------------*
+:h3. NegSem_50101_top_level_011a negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_50101_top_level_011a >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_50101_top_level_011a NegSem_50101_top_level_011a.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that The mtc and system type of a class shall be mtc and system compatible with the mtc and system types of the superclass, respectively.
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_50101_top_level_011 "TTCN-3:2018 Object-Oriented" {
+    
+    type component GeneralComp {
+    var integer v_c:=1;
+    }
+
+    type port Myport message {
+        inout octetstring;
+    } with { extension "internal"}
+
+    type component MessageComp {
+        port Myport p1;
+    }
+
+    public type class t_superclass_with_incompatible_system system GeneralComp {
+        var hexstring v_h := '1100FAD'H;
+    }
+
+ //   public type class t_subclass_system extends t_superclass_with_incompatible_system system MessageComp { // not allowed  FIXME!!!
+ 
+ //   }
+
+    public type class t_superclass_with_incompatible_mtc mtc GeneralComp {
+        var integer v_i := 9919;
+    }
+
+    public type class t_subclass_mtc extends t_superclass_with_incompatible_mtc mtc MessageComp { // not allowed  FIXME!!!
+
+    }
+
+  /*  //testcase TC_NegSem_50101_top_level_011_01() system GeneralComp runs on MessageComp {  FIXME!!!
+    testcase TC_NegSem_50101_top_level_011_01() runs on MessageComp  system GeneralComp {
+        //    var t_subclass_system v_a := t_subclass_system.create(); // not allowed  FIXME!!!
+        var t_subclass_system v_a := t_subclass_system.create('1100FAD'H); // not allowed 
+        if (v_a.v_h == '1100FAD'H) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+*/
+    testcase TC_NegSem_50101_top_level_011_02() runs on MessageComp {
+           // var t_subclass_mtc v_a := t_subclass_mtc.create(); // not allowed  FIXME!!!
+        var t_subclass_mtc v_a := t_subclass_mtc.create(9919); // not allowed
+        if (v_a.v_i == 9919) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+    //    execute(TC_NegSem_50101_top_level_011_01());
+       execute(TC_NegSem_50101_top_level_011_02());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: The `mtc' component type of the subclass, `@NegSem_50101_top_level_011.MessageComp', is not compatible with the `mtc' component type of the superclass
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+.*---------------------------------------------------------------------*
+:h1.References
+.*---------------------------------------------------------------------*
+:list.
+:li D='[1]'.1/1/174 02-CRL 113 200/5 Uen
+:nl.Statement of Compliance for TITAN project
+:li D='[2]'.ETSI ES 203 790 V1.1.1
+:nl.Testing and Test Control Notation version 3.,
+:nl.TTCN-3 Language Extensions: Object-Oriented Features 
+:elist.
