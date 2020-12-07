@@ -1,0 +1,51 @@
+/******************************************************************************
+ * Copyright (c) ETSI 2020.
+ *
+ * This file is subject to copyrights owned by ETSI. Non-exclusive permission
+ * is hereby granted, free of charge, to copy, reproduce and amend this file
+ * under the following conditions: It is provided "as is", without warranty of any
+ * kind, expressed or implied.
+ * 
+ * ETSI shall never be liable for any claim, damages, or other liability arising
+ * from its use or inability of use.This permission does not apply to any documentation
+ * associated with this file for which ETSI keeps all rights reserved. The present
+ * copyright notice shall be included in all copies of whole or part of this
+ * file and shall not imply any sub-license right.
+ *
+ * Modified by: Elemer Lelik
+ *
+ /*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that a class can declare templates as its members.
+ ** @verdict pass accept
+*****************************************************************/
+module Sem_50101_top_level_004 "TTCN-3:2018 Object-Oriented" {
+
+    type component GeneralComp {
+    }
+
+    public type class t_class_template_field {
+        var template charstring vt_cs := pattern "[abc]";
+
+        public function get_vtcs() return template charstring {
+            return this.vt_cs;
+        }
+    }
+
+    testcase TC_Sem_50101_top_level_004() runs on GeneralComp {
+        var charstring v_cs := "b";
+        //var t_class_template_field v_a := t_class_template_field.create(); FIXME!!!
+        var t_class_template_field v_a := t_class_template_field.create(pattern "[abc]");
+
+        if (match(v_cs, v_a.get_vtcs())) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_Sem_50101_top_level_004());
+    }
+}

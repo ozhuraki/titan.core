@@ -1,0 +1,210 @@
+
+
+Positive tests
+
++  included
+-  excluded
+
+
+tree -P *.ttcn
+.
+├── 50101_classes
+│   ├── 5010101_scope_rules
+│   │   ├── Sem_5010101_scopeRules_001.ttcn  +
+│   │   └── Sem_5010101_scopeRules_002.ttcn  +
+│   ├── 5010102_abstract_classes
+│   │   └── Sem_5010102_abstractClasses_001.ttcn  +
+│   ├── 5010103_external_classes
+│   │   ├── Sem_5010103_externalClasses_001.ttcn  +
+│   │   └── Sem_5010103_externalClasses_002.ttcn  -
+│   ├── 5010104_final_classes
+│   │   └── Sem_5010104_finalClasses_001.ttcn  +
+│   ├── 5010105_constructors
+│   │   ├── Sem_5010105_Constructors_001.ttcn  +
+│   │   └── Sem_5010105_Constructors_002.ttcn  +
+│   ├── 5010106_destructors
+│   │   └── Sem_5010106_Destructors_001.ttcn  +
+│   ├── 5010107_methods
+│   │   ├── NegSem_5010107_Methods_003.ttcn   !!!
+│   │   ├── Sem_5010107_Methods_001.ttcn  +
+│   │   ├── Sem_5010107_Methods_002.ttcn  +
+│   │   └── Sem_5010107_Methods_003.ttcn  +
+│   ├── 5010108_method_invocation
+│   │   └── Sem_5010108_MethodInvocation_001.ttcn  +
+│   ├── 5010109_visibility
+│   │   ├── Sem_5010109_Visibility_001.ttcn  -
+│   │   ├── Sem_5010109_Visibility_002.ttcn  +
+│   │   └── Sem_5010109_Visibility_003.ttcn  +
+│   └── 50101_top_level
+│       ├── Sem_50101_top_level_001.ttcn  +
+│       ├── Sem_50101_top_level_002.ttcn  +
+│       ├── Sem_50101_top_level_003.ttcn  +
+│       ├── Sem_50101_top_level_004.ttcn  +
+│       ├── Sem_50101_top_level_005.ttcn  -
+│       ├── Sem_50101_top_level_006.ttcn  -
+│       ├── Sem_50101_top_level_007.ttcn  +
+│       └── Sem_50101_top_level_008.ttcn  +
+└── 50102_objects
+    ├── 5010202_object_references
+    │   └── Sem_5010202_ObjectReferences_001.ttcn  +
+    ├── 5010203_null_reference
+    │   ├── NegSem_5010203_NullReference_001.ttcn !!!
+    │   └── Sem_5010203_NullReference_001.ttcn  +
+    ├── 5010204_select_class-statement
+    │   └── Sem_5010204_SelectClassStatement_001.ttcn  +
+    ├── 5010205_of_operator
+    │   └── Sem_5010205_OfOperator_001.ttcn  +
+    └── 5010206_casting
+        └── Sem_5010206_Casting_001.ttcn  +
+
+
+
+Sem_5010101_scopeRules_001.ttcn
+Sem_5010101_scopeRules_002.ttcn
+Sem_5010102_abstractClasses_001.ttcn
+Sem_5010103_externalClasses_001.ttcn
+#Sem_5010103_externalClasses_002.ttcn
+Sem_5010104_finalClasses_001.ttcn
+Sem_5010105_Constructors_001.ttcn
+Sem_5010105_Constructors_002.ttcn
+Sem_5010106_Destructors_001.ttcn
+Sem_5010107_Methods_001.ttcn
+Sem_5010107_Methods_002.ttcn
+Sem_5010107_Methods_003.ttcn
+NegSem_5010107_Methods_003.ttcn
+Sem_5010108_MethodInvocation_001.ttcn
+#Sem_5010109_Visibility_001.ttcn
+Sem_5010109_Visibility_002.ttcn
+Sem_5010109_Visibility_003.ttcn
+Sem_50101_top_level_001.ttcn
+Sem_50101_top_level_002.ttcn
+Sem_50101_top_level_003.ttcn
+Sem_50101_top_level_004.ttcn
+#Sem_50101_top_level_005.ttcn
+#Sem_50101_top_level_006.ttcn
+Sem_50101_top_level_007.ttcn
+Sem_50101_top_level_008.ttcn
+Sem_5010202_ObjectReferences_001.ttcn
+Sem_5010203_NullReference_001.ttcn
+NegSem_5010203_NullReference_001.ttcn
+Sem_5010204_SelectClassStatement_001.ttcn
+Sem_5010205_OfOperator_001.ttcn
+Sem_5010206_Casting_001.ttcn
+#Sem_50201_Functions_001.ttcn
+#Sem_50202_ExternalFunctions_001.ttcn
+#Sem_50203_invoking_functions_001.ttcn
+#Sem_50204_altsteps_001.ttcn
+#Sem_50205_test_cases_001.ttcn
+
+
+Negative tests
+
+├── 50101_classes
+│   ├── 5010101_scope_rules
+│   │   └── NegSem_5010101_scopeRules_001.ttcn  +
+│   ├── 5010102_abstract_classes
+│   │   └── NegSem_5010102_abstractClasses_001.ttcn  +
+│   ├── 5010103_external_classes
+│   │   ├── NegSem_5010103_externalClasses_001.ttcn  +
+│   │   └── NegSem_5010103_externalClasses_002.ttcn  +
+│   ├── 5010104_final_classes
+│   │   └── NegSem_5010104_finalClasses_001.ttcn  +
+│   ├── 5010105_constructors
+│   ├── 5010106_destructors
+│   ├── 5010107_methods
+│   │   ├── NegSem_5010107_Methods_001.ttcn  +
+│   │   ├── NegSem_5010107_Methods_002.ttcn  +
+│   │   ├── NegSem_5010107_Methods_003a.ttcn  + (NegSem_5010107_Methods_003.ttcn --> @ positive test cases)
+│   │   └── NegSem_5010107_Methods_004.ttcn  +
+│   ├── 5010108_method_invocation
+│   ├── 5010109_visibility
+│   │   ├── NegSem_5010109_Visibility_001.ttcn  +
+│   │   ├── NegSem_5010109_Visibility_002.ttcn  +
+│   │   ├── NegSem_5010109_Visibility_003.ttcn  +
+│   │   └── NegSem_5010109_Visibility_004.ttcn  +
+│   └── 50101_top_level
+│       ├── NegSem_50101_top_level_001.ttcn  +
+│       ├── NegSem_50101_top_level_002.ttcn  +
+│       ├── NegSem_50101_top_level_003.ttcn  +
+│       ├── NegSem_50101_top_level_004a.ttcn  +
+│       ├── NegSem_50101_top_level_004.ttcn  +
+│       ├── NegSem_50101_top_level_005.ttcn  +
+│       ├── NegSem_50101_top_level_006a.ttcn  +
+│       ├── NegSem_50101_top_level_006.ttcn  +
+│       ├── NegSem_50101_top_level_007.ttcn  +
+│       ├── NegSem_50101_top_level_008.ttcn  +
+│       ├── NegSem_50101_top_level_009.ttcn  +
+│       ├── NegSem_50101_top_level_010.ttcn  +
+│       └── NegSem_50101_top_level_011.ttcn  +
+└── 50102_objects
+    ├── 5010202_object_references
+    │   ├── NegSem_5010202_ObjectReferences_001.ttcn  +
+    │   └── NegSem_5010202_ObjectReferences_002.ttcn -
+    ├── 5010203_null_reference
+    │   └── NegSem_5010203_NullReference_001.ttcn --> @positive tet cases
+    ├── 5010204_select_class-statement
+    │   └── NegSem_5010204_SelectClassStatement_001.ttcn  -
+    ├── 5010205_of_operator
+    └── 5010206_casting
+        └── NegSem_5010206_Casting_001.ttcn -
+
+===============================================================
+The following test cases passed:
+================================
+ [50101_classes.script]: 'NegSem_5010101_scopeRules_001'   
+ [50101_classes.script]: 'NegSem_5010102_abstractClasses_001'   
+ [50101_classes.script]: 'NegSem_5010103_externalClasses_001a'   
+ [50101_classes.script]: 'NegSem_5010103_externalClasses_001b'   
+ [50101_classes.script]: 'NegSem_5010103_externalClasses_002'   
+ [50101_classes.script]: 'NegSem_5010104_finalClasses_001'   
+ [50101_classes.script]: 'NegSem_5010107_Methods_003a'   
+ [50101_classes.script]: 'NegSem_5010107_Methods_004'   
+ [50101_classes.script]: 'NegSem_5010109_Visibility_001'   
+ [50101_classes.script]: 'NegSem_5010109_Visibility_002'   
+ [50101_classes.script]: 'NegSem_5010109_Visibility_004'   
+ [50101_classes.script]: 'NegSem_50101_top_level_001'   
+ [50101_classes.script]: 'NegSem_50101_top_level_002'   
+ [50101_classes.script]: 'NegSem_50101_top_level_003'   
+ [50101_classes.script]: 'NegSem_50101_top_level_004'   
+ [50101_classes.script]: 'NegSem_50101_top_level_006'   
+ [50101_classes.script]: 'NegSem_50101_top_level_006a'   
+ [50101_classes.script]: 'NegSem_50101_top_level_007'   
+ [50101_classes.script]: 'NegSem_50101_top_level_008'   
+ [50101_classes.script]: 'NegSem_50101_top_level_008a'   
+ [50101_classes.script]: 'NegSem_50101_top_level_008b'   
+ [50101_classes.script]: 'NegSem_50101_top_level_009'   
+ [50101_classes.script]: 'NegSem_50101_top_level_010'   
+ [50101_classes.script]: 'NegSem_50101_top_level_011'   
+ [50101_classes.script]: 'NegSem_50101_top_level_011a'   
+ [50101_objects.script]: 'NegSem_5010206_Casting_001'   
+The following test cases failed:
+================================
+ [50101_classes.script]: 'NegSem_5010107_Methods_001'   
+ [50101_classes.script]: 'NegSem_5010107_Methods_002'   
+ [50101_classes.script]: 'NegSem_5010109_Visibility_003'   
+ [50101_classes.script]: 'NegSem_50101_top_level_004a'   
+ [50101_classes.script]: 'NegSem_50101_top_level_005'   
+ [50101_objects.script]: 'NegSem_5010202_ObjectReferences_001'   
+
+The following test cases are inconclusive:
+==========================================
+ None.
+
+Memory leak detected in the following test cases:
+ None.
+
+Abnormal termination occured during the following test cases:
+ None.
+
+
+===============================================================
+32 test cases from 2 script files were executed
+Total number of executed test cases: 32
+  PASSED                 test cases: 26
+  FAILED                 test cases: 6
+  INCONCLUSIVE           test cases: 0
+  Abnormally terminated  test cases: 0
+  Memory leaked          test cases: 0
+Session saved to log file 'SA_log.report'
+Elapsed time in this session: 1 seconds
+

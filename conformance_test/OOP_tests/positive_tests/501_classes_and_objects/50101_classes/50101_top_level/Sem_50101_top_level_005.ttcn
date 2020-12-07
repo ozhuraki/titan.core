@@ -1,0 +1,49 @@
+/******************************************************************************
+ * Copyright (c) ETSI 2020.
+ *
+ * This file is subject to copyrights owned by ETSI. Non-exclusive permission
+ * is hereby granted, free of charge, to copy, reproduce and amend this file
+ * under the following conditions: It is provided "as is", without warranty of any
+ * kind, expressed or implied.
+ * 
+ * ETSI shall never be liable for any claim, damages, or other liability arising
+ * from its use or inability of use.This permission does not apply to any documentation
+ * associated with this file for which ETSI keeps all rights reserved. The present
+ * copyright notice shall be included in all copies of whole or part of this
+ * file and shall not imply any sub-license right.
+ *
+ * Modified by: Elemer Lelik
+ *
+ /*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that a class can declare a port as its member.
+ ** @verdict pass accept
+*****************************************************************/
+module Sem_50101_top_level_005 "TTCN-3:2018 Object-Oriented" {
+
+    type port PortType message {
+        inout integer;
+    }
+
+    type component TestComp {
+        
+    }
+
+/*    type component TestComp1 {
+        port PortType p1;
+    }
+*/
+    type component TestComp2 {
+        var t_class_port_field tc := t_class_port_field.create();
+    }
+
+    public type class t_class_port_field {
+    port PortType p1;
+    }
+
+    //TODO: if port members in classes are not allowed this testcase is unnecessary.
+    //testcase TC_Sem_50101_top_level_005 runs on TestComp {  //FIXME!!! typo
+      testcase TC_Sem_50101_top_level_005() runs on TestComp {   
+    }
+}

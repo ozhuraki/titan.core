@@ -1,0 +1,53 @@
+/******************************************************************************
+ * Copyright (c) ETSI 2020.
+ *
+ * This file is subject to copyrights owned by ETSI. Non-exclusive permission
+ * is hereby granted, free of charge, to copy, reproduce and amend this file
+ * under the following conditions: It is provided "as is", without warranty of any
+ * kind, expressed or implied.
+ * 
+ * ETSI shall never be liable for any claim, damages, or other liability arising
+ * from its use or inability of use.This permission does not apply to any documentation
+ * associated with this file for which ETSI keeps all rights reserved. The present
+ * copyright notice shall be included in all copies of whole or part of this
+ * file and shall not imply any sub-license right.
+ *
+ * Modified by: Elemer Lelik
+ *
+ /*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that a class can declare a subtype variable as its field member.
+ ** @verdict pass accept
+*****************************************************************/
+module Sem_50101_top_level_002 "TTCN-3:2018 Object-Oriented" {
+
+    type component GeneralComp {
+    } 
+
+    type integer MyType;
+
+    public type class t_class_subt_var_field {
+        var MyType v_mytype := 345;
+
+     // /* protected */ function get_v_mytype() return MyType { //FIXME!!!  without visibility qualifier, protected is assumed
+ 
+     public   function get_v_mytype() return MyType {
+            return this.v_mytype;
+        }
+    }
+
+    testcase TC_Sem_50101_top_level_002() runs on GeneralComp {
+        //var t_class_subt_var_field v_a := t_class_subt_var_field.create(); FIXME!!!
+        var t_class_subt_var_field v_a := t_class_subt_var_field.create(345);
+        if (v_a.get_v_mytype() == 345) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(TC_Sem_50101_top_level_002());
+    }  
+}

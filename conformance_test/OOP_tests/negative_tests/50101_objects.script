@@ -1,0 +1,192 @@
+.******************************************************************************
+.* Copyright (c) ETSI 2020.
+.*
+.* This file is subject to copyrights owned by ETSI. Non-exclusive permission 
+.* is hereby granted, free of charge, to copy, reproduce and amend this file 
+.* under the following conditions: It is provided "as is", without warranty of any 
+.* kind, expressed or implied. 
+.*
+.* ETSI shall never be liable for any claim, damages, or other liability arising 
+.* from its use or inability of use.This permission does not apply to any documentation 
+.* associated with this file for which ETSI keeps all rights reserved. The present 
+.* copyright notice shall be included in all copies of whole or part of this 
+.* file and shall not imply any sub-license right.
+.*
+.*  Modified by: Elemer Lelik
+.*
+.******************************************************************************/
+text.
+:lang eng.
+.*
+:docname.Test Description
+:docno.
+:rev.
+:date.2020-11-11
+.*
+:prep. Elemer Lelik
+:subresp.
+:appr.
+:checked.
+.*
+:title.ETSI TTCN3 Negative Conformance Test
+:contents level=3.
+.*---------------------------------------------------------------------*
+:h1.PREREQUISITES AND PREPARATIONS
+.*---------------------------------------------------------------------*	
+.*---------------------------------------------------------------------*
+:h2.Scope of the Test Object
+.*---------------------------------------------------------------------*
+:xmp tab=1 nokeep.
+This TD contains negative OOP test  modules from ETSI TTCN3 Conformance Test's 50101_modules folders. 
+
+:exmp.
+
+.*---------------------------------------------------------------------*
+:h2.Test Tools
+.*---------------------------------------------------------------------*
+:p.:us.Software Tools:eus.
+:xmp tab=2 nokeep.
+
+	SAtester_OOP.pl
+
+:exmp.
+:np.
+
+.*---------------------------------------------------------------------*
+:h1.REQUIREMENT-BASED TESTS
+.*---------------------------------------------------------------------*
+.*---------------------------------------------------------------------*
+:h2. 5010202_object_references folder
+.*---------------------------------------------------------------------*
+
+*---------------------------------------------------------------------*
+:h3. NegSem_5010202_ObjectReferences_001 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_5010202_ObjectReferences_001 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_5010202_ObjectReferences_001 NegSem_5010202_ObjectReferences_001.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.2.2, Ensure that Object References shall not be passed as actual parameter or part of an actual parameter.
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_5010202_ObjectReferences_001 "TTCN-3:2018 Object-Oriented" {
+    
+    type component GeneralComp {
+    }
+
+    type class MyClass {
+        var integer x;
+
+        public function setX(integer x) {
+            this.x := x;
+        }
+
+        public function getX() return integer {
+            return this.x;
+        }
+    }
+
+    function f_something(MyClass my) runs on GeneralComp {
+        my.setX(1);
+    }
+
+    testcase TC_NegSem_5010202_ObjectReferences_001() runs on GeneralComp {
+        var MyClass v_a := MyClass.create(7);
+        var GeneralComp v_MyGeneralComp := GeneralComp.create;
+       v_MyGeneralComp.start(f_something(v_a)); //not allowed   // C++ error is thrown 
+        if (v_a.getX() == 7) { 
+            setverdict(pass);
+        } else {
+            setverdict(fail);
+        }
+    }
+    control {
+        execute(TC_NegSem_5010202_ObjectReferences_001());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: TBD
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+.*---------------------------------------------------------------------*
+:h2. 5010206_casting folder
+.*---------------------------------------------------------------------*
+
+*---------------------------------------------------------------------*
+:h3. NegSem_5010206_Casting_001 negative test
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - NegSem_5010206_Casting_001 >
+
+<COMPILE>
+
+<MODULE TTCN NegSem_5010206_Casting_001 NegSem_5010206_Casting_001.ttcn >
+/*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.2.6, Ensure that if the class the object is being cast to is not in the set of superclasses or the concrete class of the object, the cast operation shall result in an error. 
+ ** @verdict pass reject
+*****************************************************************/
+module NegSem_5010206_Casting_001 "TTCN-3:2018 Object-Oriented" {
+
+    type component GeneralComp {
+    }
+
+    type class MySuperClass {
+        //empty class
+    }
+
+    type class MySubClass extends MySuperClass {
+        //empty class
+    }
+
+    type class MyOtherClass {
+        const integer x:= 111;
+    }
+
+    testcase TC_NegSem_5010206_Casting_001 () runs on GeneralComp {
+ //FIXME !!!       var MyOtherClass v_a := MyOtherClass.create();
+        var MyOtherClass v_a := MyOtherClass.create(111);
+        var MySubClass v_b := v_a => MySubClass; //not allowed
+        if (v_b of MySubClass) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);        
+        }
+    }
+    
+    control {
+        execute(TC_NegSem_5010206_Casting_001());
+    }
+}
+<END_MODULE>
+
+<RESULT COUNT>
+error: Cannot cast an object of class type
+<END_RESULT>
+
+<END_TC>
+:exmp
+
+.*---------------------------------------------------------------------*
+:h1.References
+.*---------------------------------------------------------------------*
+:list.
+:li D='[1]'.1/1/174 02-CRL 113 200/5 Uen
+:nl.Statement of Compliance for TITAN project
+:li D='[2]'.ETSI ES 203 790 V1.1.1
+:nl.Testing and Test Control Notation version 3.,
+:nl.TTCN-3 Language Extensions: Object-Oriented Features 
+:elist.

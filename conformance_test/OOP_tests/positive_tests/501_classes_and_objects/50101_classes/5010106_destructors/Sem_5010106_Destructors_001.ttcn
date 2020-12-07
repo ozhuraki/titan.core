@@ -1,0 +1,64 @@
+/******************************************************************************
+ * Copyright (c) ETSI 2020.
+ *
+ * This file is subject to copyrights owned by ETSI. Non-exclusive permission
+ * is hereby granted, free of charge, to copy, reproduce and amend this file
+ * under the following conditions: It is provided "as is", without warranty of any
+ * kind, expressed or implied.
+ * 
+ * ETSI shall never be liable for any claim, damages, or other liability arising
+ * from its use or inability of use.This permission does not apply to any documentation
+ * associated with this file for which ETSI keeps all rights reserved. The present
+ * copyright notice shall be included in all copies of whole or part of this
+ * file and shall not imply any sub-license right.
+ *
+ * Modified by: Elemer Lelik
+ *
+ /*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.6, Ensure that class destructors can be used.
+ ** @verdict pass accept
+*****************************************************************/
+module Sem_5010106_Destructors_001 "TTCN-3:2018 Object-Oriented" {
+    
+    type component GeneralComp {
+        port MyPort p1;
+    }
+
+    type port MyPort message {
+        inout integer;
+    }
+
+    type class MyClass {
+        var integer v_i;
+
+        create(integer v_i) {
+            this.v_i := v_i;
+        }
+
+        public function get_vi() return integer {
+            return this.v_i;
+        }
+    } finally {
+        this.v_i := 0;
+    }
+
+    testcase TC_Sem_5010106_Destructors_001() runs on GeneralComp {
+        var MyClass v_a := MyClass.create(7);
+        timer T1 := 5.0;
+        connect(self:p1, self:p1);
+        p1.send(v_a.get_vi()); //test port with loopback
+        alt {
+            [] p1.receive(7) { T1.stop; setverdict(pass); }
+            [] p1.receive { T1.stop; setverdict(fail); }
+            [] T1.timeout { setverdict(fail); }
+        }
+        disconnect(self:p1, self:p1);
+    }
+
+    control {
+        execute(TC_Sem_5010106_Destructors_001());
+    }
+
+}

@@ -1,0 +1,49 @@
+/******************************************************************************
+ * Copyright (c) ETSI 2020.
+ *
+ * This file is subject to copyrights owned by ETSI. Non-exclusive permission
+ * is hereby granted, free of charge, to copy, reproduce and amend this file
+ * under the following conditions: It is provided "as is", without warranty of any
+ * kind, expressed or implied.
+ * 
+ * ETSI shall never be liable for any claim, damages, or other liability arising
+ * from its use or inability of use.This permission does not apply to any documentation
+ * associated with this file for which ETSI keeps all rights reserved. The present
+ * copyright notice shall be included in all copies of whole or part of this
+ * file and shall not imply any sub-license right.
+ *
+ * Modified by: Elemer Lelik
+ *
+ /*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.2.6, Ensure that an object can be cast into an other class.
+ ** @verdict pass accept
+*****************************************************************/
+module Sem_5010206_Casting_001 "TTCN-3:2018 Object-Oriented" {
+
+    type component GeneralComp {
+    }
+
+    type class MySuperClass {
+        //empty class
+    }
+
+    type class MySubClass extends MySuperClass {
+        //empty class
+    }
+
+    testcase TC_Sem_5010206_Casting_001() runs on GeneralComp {
+        var MySuperClass v_a := MySubClass.create();
+        var MySubClass v_b := v_a => MySubClass;
+        if (v_b of MySubClass) {
+            setverdict(pass);
+        } else {
+            setverdict(fail);        
+        }
+    }
+    
+    control {
+        execute(TC_Sem_5010206_Casting_001());
+    }
+}

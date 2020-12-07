@@ -1,0 +1,81 @@
+/******************************************************************************
+ * Copyright (c) ETSI 2020.
+ *
+ * This file is subject to copyrights owned by ETSI. Non-exclusive permission
+ * is hereby granted, free of charge, to copy, reproduce and amend this file
+ * under the following conditions: It is provided "as is", without warranty of any
+ * kind, expressed or implied.
+ * 
+ * ETSI shall never be liable for any claim, damages, or other liability arising
+ * from its use or inability of use.This permission does not apply to any documentation
+ * associated with this file for which ETSI keeps all rights reserved. The present
+ * copyright notice shall be included in all copies of whole or part of this
+ * file and shall not imply any sub-license right.
+ *
+ * Modified by: Elemer Lelik
+ *
+ /*****************************************************************
+ ** @author  STF 572
+ ** @version 0.0.1
+ ** @purpose 5.1.1.0, Ensure that a class can have an optional "runs on", "mtc", or "system" clause.
+ ** @verdict pass accept
+*****************************************************************/
+module Sem_50101_top_level_008 "TTCN-3:2018 Object-Oriented" {
+    
+    type component GeneralComp {
+    }
+
+    type port Myport message {
+        inout charstring;
+    }
+
+    type component TestComp {
+        port Myport p1;
+    }
+
+    public type class t_class_with_runs_on runs on GeneralComp {
+        var octetstring v_o := '11AD0000'O;
+
+        public function get_vo() return octetstring{
+            return this.v_o;
+        }
+    }
+
+    public type class t_class_with_runs_on_with_system runs on TestComp system TestComp {
+        const charstring c_cstr := "Finally";
+
+         public function get_ccstr() return charstring{
+            return this.c_cstr;
+        }
+
+    }
+
+    testcase TC_Sem_50101_top_level_008_01() runs on GeneralComp {
+        //var t_class_with_runs_on v_a := t_class_with_runs_on.create();  FIXME!!!
+        var t_class_with_runs_on v_a := t_class_with_runs_on.create('11AD0000'O);
+        if (v_a.get_vo() == '11AD0000'O) {
+            setverdict(pass)
+        } else {
+            setverdict(fail);
+        }
+    }
+
+    testcase TC_Sem_50101_top_level_008_02() runs on TestComp system TestComp {
+        map(self:p1,system:p1);
+        timer T1 := 5.0;
+        //var t_class_with_runs_on_with_system v_a := t_class_with_runs_on_with_system.create(); FIXME!!!
+        var t_class_with_runs_on_with_system v_a := t_class_with_runs_on_with_system.create("Finally");
+        p1.send(v_a.get_ccstr());
+        alt {
+            [] p1.receive("Finally") { T1.stop; setverdict(pass); }
+            [] p1.receive { T1.stop; setverdict(fail); }
+            [] T1.timeout { setverdict(fail); }
+        }
+        unmap(self:p1,system:p1);
+    }
+
+    control {
+        execute(TC_Sem_50101_top_level_008_01());
+        execute(TC_Sem_50101_top_level_008_02());
+    }
+}
