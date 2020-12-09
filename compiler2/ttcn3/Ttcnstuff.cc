@@ -3463,7 +3463,7 @@ namespace Ttcn {
             case Common::Assignment::A_EXT_FUNCTION_RTEMP: {
               Def_Function_Base* local_func = dynamic_cast<Def_Function_Base*>(local_def);
               Def_Function_Base* base_func = dynamic_cast<Def_Function_Base*>(base_def);
-              if (!local_func->is_identical(base_func)) {
+              if (base_func->get_visibility() != PRIVATE && !local_func->is_identical(base_func)) {
                 local_def->error("The prototype of method `%s' is not identical "
                   "to that of inherited method `%s'",
                   local_id.get_dispname().c_str(), base_def->get_fullname().c_str());
