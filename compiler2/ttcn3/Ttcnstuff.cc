@@ -3472,6 +3472,17 @@ namespace Ttcn {
                 local_def->error("Cannot override final method `%s'",
                   base_def->get_fullname().c_str());
               }
+              else if (local_func->is_identical(base_func)) {
+            	  if (base_func->get_visibility() == PUBLIC && local_func->get_visibility() != PUBLIC) {
+            		  local_def->error("Public methods can be only overridden by public methods `%s'",
+            		    local_id.get_dispname().c_str());
+            	  }
+            	  else if (base_func->get_visibility() == NOCHANGE &&
+            			   (local_func->get_visibility() != PUBLIC || local_func->get_visibility() != NOCHANGE)) {
+            		  local_def->error("Protected methods can be only overridden by "
+            		    "public or protected methods `%s'", local_id.get_dispname().c_str());
+            	  }
+              }
               break; }
             default:
               local_def->error("%s shadows inherited member `%s'",
