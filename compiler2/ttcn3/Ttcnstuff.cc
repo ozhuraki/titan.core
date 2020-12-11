@@ -3478,7 +3478,7 @@ namespace Ttcn {
             		    local_id.get_dispname().c_str());
             	  }
             	  else if (base_func->get_visibility() == NOCHANGE &&
-            			   (local_func->get_visibility() != PUBLIC || local_func->get_visibility() != NOCHANGE)) {
+            			   local_func->get_visibility() != PUBLIC && local_func->get_visibility() != NOCHANGE) {
             		  local_def->error("Protected methods can be only overridden by "
             		    "public or protected methods `%s'", local_id.get_dispname().c_str());
             	  }
