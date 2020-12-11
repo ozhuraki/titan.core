@@ -4003,14 +4003,12 @@ int Record_Type::TEXT_decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& buf
         int tl;
         if ((tl=p_td.text->separator_decode->match_begin(buff))<0) {
           if (p_td.text->end_decode) {
-            int tl2;
-            if ((tl2=p_td.text->end_decode->match_begin(buff))!=-1) {
+            if (p_td.text->end_decode->match_begin(buff)!=-1) {
               sep_found=FALSE;
               break;
             }
           } else if (limit.has_token(ml)) {
-            int tl2;
-            if ((tl2=limit.match(buff,ml))==0) {
+            if (limit.match(buff,ml)==0) {
               sep_found=FALSE;
               break;
             }
@@ -4059,8 +4057,7 @@ int Record_Type::TEXT_decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& buf
           goto bail;
         }
       } else if(limit.has_token(ml)){
-        int tl;
-        if ((tl=limit.match(buff,ml))==0) {
+        if (limit.match(buff,ml)==0) {
           sep_found=FALSE;
           break;
         }
