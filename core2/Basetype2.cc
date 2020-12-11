@@ -1098,8 +1098,7 @@ int Record_Of_Type::TEXT_decode(const TTCN_Typedescriptor_t& p_td,
         return decoded_length;
       }
     } else if(limit.has_token(ml)){
-      int tl;
-      if((tl=limit.match(buff,ml))==0){
+      if(limit.match(buff,ml)==0){
         //sep_found=FALSE;
         break;
       }
