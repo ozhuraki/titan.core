@@ -780,11 +780,11 @@ void defEnumClass(const enum_def *edef, output_struct *output)
       "      for (rd_ok = p_reader.Read(); rd_ok == 1; rd_ok = p_reader.Read()) {\n"
       "        type = p_reader.NodeType();\n"
       "        if (XML_READER_TYPE_END_ELEMENT == type) {\n"
-      "          rd_ok = p_reader.Read();\n"
+      "          p_reader.Read();\n"
       "          break;\n"
       "        }\n"
       "      }\n"
-      "    else rd_ok = p_reader.Read();\n"
+      "    else p_reader.Read();\n"
       "  }\n"
       "  if (e_xer && (p_flavor & EXIT_ON_ERROR) && %s == enum_value) clean_up();\n" // set to unbound if decoding failed
       "  int decoded_length = 0;\n"
