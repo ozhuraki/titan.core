@@ -176,7 +176,7 @@ void def_encdec(const char *p_classname,
      " TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...)\n"
      "{\n"
      "  va_list pvar;\n"
-     "  va_start(pvar, p_coding);\n"
+     "  va_start(pvar, (int)p_coding);\n"
      "  switch(p_coding) {\n"
      "  case TTCN_EncDec::CT_BER: {\n"
      "    TTCN_EncDec_ErrorContext ec(\"While BER-decoding type"

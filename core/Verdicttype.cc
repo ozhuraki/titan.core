@@ -208,7 +208,7 @@ void VERDICTTYPE::decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
                      TTCN_EncDec::coding_t p_coding, ...)
 {
   va_list pvar;
-  va_start(pvar, p_coding);
+  va_start(pvar, (int)p_coding);
   switch(p_coding) {
 #if 0
   case TTCN_EncDec::CT_RAW: {

@@ -3271,7 +3271,7 @@ void CHARACTER_STRING::encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_
 void CHARACTER_STRING::decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...)
 {
   va_list pvar;
-  va_start(pvar, p_coding);
+  va_start(pvar, (int)p_coding);
   switch(p_coding) {
   case TTCN_EncDec::CT_BER: {
     TTCN_EncDec_ErrorContext ec("While BER-decoding type '%s': ", p_td.name);
