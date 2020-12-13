@@ -1503,10 +1503,10 @@ void defRecordOfClass1(const struct_of_def *sdef, output_struct *output)
       "          }\n"
       "        }\n"
       "        else if (XML_READER_TYPE_END_ELEMENT == type) {\n"
-      "          for (; p_reader.Depth() > xml_depth; rd_ok = p_reader.Read()) ;\n"
+      "          for (; p_reader.Depth() > xml_depth; p_reader.Read()) ;\n"
       "          if (own_tag) {\n"
       "            verify_end(p_reader, p_td, xml_depth, e_xer);\n"
-      "            rd_ok = p_reader.Read();\n" /* move forward one last time */
+      "            p_reader.Read();\n" /* move forward one last time */
       "          }\n"
       "          break;\n"
       "        }\n"
@@ -3026,10 +3026,10 @@ void defRecordOfClassMemAllocOptimized(const struct_of_def *sdef, output_struct 
       "          }\n"
       "        }\n"
       "        else if (XML_READER_TYPE_END_ELEMENT == type) {\n"
-      "          for (; p_reader.Depth() > xml_depth; rd_ok = p_reader.Read()) ;\n"
+      "          for (; p_reader.Depth() > xml_depth; p_reader.Read()) ;\n"
       "          if (own_tag) {\n"
       "            verify_end(p_reader, p_td, xml_depth, e_xer);\n"
-      "            rd_ok = p_reader.Read();\n" /* move forward one last time */
+      "            p_reader.Read();\n" /* move forward one last time */
       "          }\n"
       "          break;\n"
       "        }\n"
