@@ -151,41 +151,40 @@ Negative tests
 ===============================================================
 The following test cases passed:
 ================================
- [50101_classes.script]: 'NegSem_5010101_scopeRules_001'   
- [50101_classes.script]: 'NegSem_5010102_abstractClasses_001'   
- [50101_classes.script]: 'NegSem_5010103_externalClasses_001a'   
- [50101_classes.script]: 'NegSem_5010103_externalClasses_001b'   
- [50101_classes.script]: 'NegSem_5010103_externalClasses_002'   
- [50101_classes.script]: 'NegSem_5010104_finalClasses_001'   
- [50101_classes.script]: 'NegSem_5010107_Methods_003a'   
- [50101_classes.script]: 'NegSem_5010107_Methods_004'   
- [50101_classes.script]: 'NegSem_5010109_Visibility_001'   
- [50101_classes.script]: 'NegSem_5010109_Visibility_002'   
- [50101_classes.script]: 'NegSem_5010109_Visibility_004'   
- [50101_classes.script]: 'NegSem_50101_top_level_001'   
- [50101_classes.script]: 'NegSem_50101_top_level_002'   
- [50101_classes.script]: 'NegSem_50101_top_level_003'   
- [50101_classes.script]: 'NegSem_50101_top_level_004'   
- [50101_classes.script]: 'NegSem_50101_top_level_006'   
- [50101_classes.script]: 'NegSem_50101_top_level_006a'   
- [50101_classes.script]: 'NegSem_50101_top_level_007'   
- [50101_classes.script]: 'NegSem_50101_top_level_008'   
- [50101_classes.script]: 'NegSem_50101_top_level_008a'   
- [50101_classes.script]: 'NegSem_50101_top_level_008b'   
- [50101_classes.script]: 'NegSem_50101_top_level_009'   
- [50101_classes.script]: 'NegSem_50101_top_level_010'   
- [50101_classes.script]: 'NegSem_50101_top_level_011'   
- [50101_classes.script]: 'NegSem_50101_top_level_011a'   
- [50101_objects.script]: 'NegSem_5010206_Casting_001'   
+[50101_classes.script]: 'NegSem_5010101_scopeRules_001'
+ [50101_classes.script]: 'NegSem_5010102_abstractClasses_001'
+ [50101_classes.script]: 'NegSem_5010103_externalClasses_001a'
+ [50101_classes.script]: 'NegSem_5010103_externalClasses_001b'
+ [50101_classes.script]: 'NegSem_5010103_externalClasses_002'
+ [50101_classes.script]: 'NegSem_5010104_finalClasses_001'
+ [50101_classes.script]: 'NegSem_5010107_Methods_001'
+ [50101_classes.script]: 'NegSem_5010107_Methods_002'
+ [50101_classes.script]: 'NegSem_5010107_Methods_003a'
+ [50101_classes.script]: 'NegSem_5010107_Methods_004'
+ [50101_classes.script]: 'NegSem_5010109_Visibility_001'
+ [50101_classes.script]: 'NegSem_5010109_Visibility_002'
+ [50101_classes.script]: 'NegSem_5010109_Visibility_003'
+ [50101_classes.script]: 'NegSem_5010109_Visibility_004'
+ [50101_classes.script]: 'NegSem_50101_top_level_001'
+ [50101_classes.script]: 'NegSem_50101_top_level_002'
+ [50101_classes.script]: 'NegSem_50101_top_level_003'
+ [50101_classes.script]: 'NegSem_50101_top_level_004'
+ [50101_classes.script]: 'NegSem_50101_top_level_006'
+ [50101_classes.script]: 'NegSem_50101_top_level_006a'
+ [50101_classes.script]: 'NegSem_50101_top_level_007'
+ [50101_classes.script]: 'NegSem_50101_top_level_008'
+ [50101_classes.script]: 'NegSem_50101_top_level_008a'
+ [50101_classes.script]: 'NegSem_50101_top_level_008b'
+ [50101_classes.script]: 'NegSem_50101_top_level_009'
+ [50101_classes.script]: 'NegSem_50101_top_level_010'
+ [50101_classes.script]: 'NegSem_50101_top_level_011'
+ [50101_classes.script]: 'NegSem_50101_top_level_011a'
+ [50101_objects.script]: 'NegSem_5010206_Casting_001'
 The following test cases failed:
 ================================
- [50101_classes.script]: 'NegSem_5010107_Methods_001'   
- [50101_classes.script]: 'NegSem_5010107_Methods_002'   
- [50101_classes.script]: 'NegSem_5010109_Visibility_003'   
- [50101_classes.script]: 'NegSem_50101_top_level_004a'   
- [50101_classes.script]: 'NegSem_50101_top_level_005'   
- [50101_objects.script]: 'NegSem_5010202_ObjectReferences_001'   
-
+ [50101_classes.script]: 'NegSem_50101_top_level_004a'
+ [50101_classes.script]: 'NegSem_50101_top_level_005'
+ [50101_objects.script]: 'NegSem_5010202_ObjectReferences_001'
 The following test cases are inconclusive:
 ==========================================
  None.
@@ -200,11 +199,10 @@ Abnormal termination occured during the following test cases:
 ===============================================================
 32 test cases from 2 script files were executed
 Total number of executed test cases: 32
-  PASSED                 test cases: 26
-  FAILED                 test cases: 6
+  PASSED                 test cases: 29
+  FAILED                 test cases: 3
   INCONCLUSIVE           test cases: 0
   Abnormally terminated  test cases: 0
   Memory leaked          test cases: 0
 Session saved to log file 'SA_log.report'
-Elapsed time in this session: 1 seconds
-
+Elapsed time in this session: 2 seconds

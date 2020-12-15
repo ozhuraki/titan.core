@@ -386,7 +386,6 @@ error: Final classes cannot be abstract
  ** @purpose 5.1.1.7, Ensure that public methods shall be overridden only by public methods.
  ** @verdict pass reject
 *****************************************************************/
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=568716
 module NegSem_5010107_Methods_001 "TTCN-3:2018 Object-Oriented" {
 
     type component GeneralComp {
@@ -424,7 +423,7 @@ module NegSem_5010107_Methods_001 "TTCN-3:2018 Object-Oriented" {
 <END_MODULE>
 
 <RESULT COUNT>
-error
+error: Public methods can be only overridden by public methods
 <END_RESULT>
 
 <END_TC>
@@ -446,7 +445,6 @@ error
  ** @purpose 5.1.1.7, Ensure that protected methods may be overridden by public or protected methods only.
  ** @verdict pass reject
 *****************************************************************/
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=568742
 module NegSem_5010107_Methods_002 "TTCN-3:2018 Object-Oriented" {
 
     type component GeneralComp {
@@ -484,7 +482,7 @@ module NegSem_5010107_Methods_002 "TTCN-3:2018 Object-Oriented" {
 <END_MODULE>
 
 <RESULT COUNT>
-error
+error: Protected methods can be only overridden by public or protected methods
 <END_RESULT>
 
 <END_TC>
@@ -733,7 +731,6 @@ error: variable `@NegSem_5010109_Visibility_002.MySubClass.v_my' shadows inherit
  ** @verdict pass reject
 *****************************************************************/
 
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=568743
 module NegSem_5010109_Visibility_003 "TTCN-3:2018 Object-Oriented" {
 
     type component GeneralComp {
@@ -771,7 +768,7 @@ module NegSem_5010109_Visibility_003 "TTCN-3:2018 Object-Oriented" {
 <END_MODULE>
 
 <RESULT COUNT>
-error
+error: Public methods can be only overridden by public methods
 <END_RESULT>
 
 <END_TC>
