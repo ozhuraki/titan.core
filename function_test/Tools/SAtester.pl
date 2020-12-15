@@ -65,7 +65,7 @@ my @sa_tcList2Execute;
 # Store test case data
 my @sa_TCInfo;
 # Timeout for system calls in seconds
-my $sa_timeout = 40;
+my $sa_timeout = 60;
 # Max time to wait for a license, in multiple of 10 minutes
 my $max_cycles = 6;
 # Execution statistics
