@@ -89,6 +89,7 @@ Cygwin setup
        If you are (also) working in command line mode, it is a good 
        practice to change this to the folder where your TTCN-3 projects 
        are.
+
        In older cygwins: 
        Edit the file <your cygwin installation directory>/etc/passw:
        In the line:
@@ -105,6 +106,10 @@ Cygwin setup
        Starting with Cygwin 1.7.34 or later, set "db_home" in file "/etc/nsswitch.conf".
        Fore example set:
        "db_home:  /cygdrive/c/Users/<yourUserId>/My_Home".
+
+       After changing the your home directory,
+       copy the .bashrc and the .profile file from the old home directory to the new home directory
+       (from <your cygwin installation directory>/home/<yourUserId> to "/cygdrive/c/Users/<yourUserId>/Documents/My_Home")
        
        WARNING: The path of your "unix" home directory shall not contain
                 any space!
