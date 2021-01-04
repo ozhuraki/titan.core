@@ -46,7 +46,7 @@ The generated skeleton header file (that is, `MyMessagePort.hh`) will look as fo
 // TTCN-3 Compiler of the TTCN-3 Test Executor version 7/CAX 105 7730 R2A
 // for U-ERICSSON\ethbaat (ethbaat@HU-00000670) on Wed Nov 18 14:49:55 2020
 
-// Copyright (c) 2000-2020 Ericsson Telecom AB
+// Copyright (c) 2000-2021 Ericsson Telecom AB
 
 // You may modify this file. Add your attributes and prototypes of your
 // member functions here.
@@ -97,7 +97,7 @@ And the generated skeleton source file, that is, `MyMessagePort.cc`, will be the
 // TTCN-3 Compiler of the TTCN-3 Test Executor version  7/CAX 105 7730 R2A
 // for U-ERICSSON\ethbaat (ethbaat@HU-00000670) on Wed Nov 18 14:49:55 2020
 
-// Copyright (c) 2000-2020 Ericsson Telecom AB
+// Copyright (c) 2000-2021 Ericsson Telecom AB
 
 // You may modify this file. Complete the body of empty functions and
 // add your member functions here.
@@ -203,7 +203,7 @@ The generated skeleton header file (that is, `MyProcedurePort.hh`) will look as 
 // TTCN-3 Compiler of the TTCN-3 Test Executor version 1.7.pre4 build 4
 // for Csaba Feher (ecsafeh@ehubuux110) on Tue Jul 29 18:53:35 2008
 
-// Copyright (c) 2000-2020 Ericsson Telecom AB
+// Copyright (c) 2000-2021 Ericsson Telecom AB
 
 // You may modify this file. Add your attributes and prototypes of your
 // member functions here.
@@ -255,7 +255,7 @@ The generated skeleton source file for `MyProcedurePort` (that is, `MyProcedureP
 // TTCN-3 Compiler of the TTCN-3 Test Executor version 1.7.pre4 build 4
 // for Csaba Feher (ecsafeh@ehubuux110) on Tue Jul 29 18:53:35 2008
 
-// Copyright (c) 2000-2020 Ericsson Telecom AB
+// Copyright (c) 2000-2021 Ericsson Telecom AB
 
 // You may modify this file. Complete the body of empty functions and
 // add your member functions here.
@@ -782,7 +782,7 @@ Header file `MyMessagePort.hh`:
 // on Wed Mar 7 18:14:33 2007
 
 
-// Copyright (c) 2000-2020 Ericsson Telecom AB
+// Copyright (c) 2000-2021 Ericsson Telecom AB
 
 // You may modify this file. Add your attributes and prototypes of your
 // member functions here.
@@ -849,7 +849,7 @@ Source file `MyMessagePort.cc`:
 // TTCN-3 Compiler of the TTCN-3 Test Executor version 1.7.pl0
 // for Janos Zoltan Szabo (ejnosza@EG70E00202E46JR)
 // on Wed Mar 7 18:14:33 2007
-// Copyright (c) 2000-2020 Ericsson Telecom AB
+// Copyright (c) 2000-2021 Ericsson Telecom AB
 // You may modify this file. Complete the body of empty functions and
 // add your member functions here.
 

@@ -36,7 +36,7 @@ Build date: Nov 29 2020 08:48:17
 Compiled with: GCC 10.2.1
 Using OpenSSL 1.1.1h  22 Sep 2020
 
-Copyright (c) 2000-2020 Ericsson Telecom AB
+Copyright (c) 2000-2021 Ericsson Telecom AB
 
 
 //----------------------------------------------titan-ubuntu image
@@ -51,7 +51,7 @@ Build date: Nov 29 2020 08:21:02
 Compiled with: GCC 9.3.0
 Using OpenSSL 1.1.1f  31 Mar 2020
 
-Copyright (c) 2000-2020 Ericsson Telecom AB
+Copyright (c) 2000-2021 Ericsson Telecom AB
 
 To run a command as administrator (user "root"), use "sudo <command>".
 See "man sudo_root" for details.
@@ -80,7 +80,7 @@ Build date: Nov 29 2020 08:21:02
 Compiled with: GCC 9.3.0
 Using OpenSSL 1.1.1f  31 Mar 2020
 
-Copyright (c) 2000-2020 Ericsson Telecom AB
+Copyright (c) 2000-2021 Ericsson Telecom AB
 
 
 titan@a5b1b797ed75:~$ gcc -v

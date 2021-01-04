@@ -2,7 +2,7 @@
 // TTCN-3 Compiler of the TTCN-3 Test Executor version 7/CAX 105 7730 R2A
 // for Arpad Lovassy (earplov@esekilxxen1841) on Tue Jul 22 16:49:55 2020
 
-// Copyright (c) 2000-2020 Ericsson Telecom AB
+// Copyright (c) 2000-2021 Ericsson Telecom AB
 
 // You may modify this file. Add your attributes and prototypes of your
 // member functions here.

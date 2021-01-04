@@ -2,7 +2,7 @@
 // TTCN-3 Compiler of the TTCN-3 Test Executor version CRL 113 200/4 R2A
 // for Arpad Lovassy (earplov@esekilxxen1841) on Tue Jul 22 16:49:55 2014
 
-// Copyright (c) 2000-2020 Ericsson Telecom AB
+// Copyright (c) 2000-2021 Ericsson Telecom AB
 
 // You may modify this file. Complete the body of empty functions and// add your member functions here.
 

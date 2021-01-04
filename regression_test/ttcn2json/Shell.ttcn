@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2000-2020 Ericsson Telecom AB
+ * Copyright (c) 2000-2021 Ericsson Telecom AB
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
@@ -57,7 +57,7 @@ const integer c_shell_error:=256;
 const integer c_shell_error_noSuchFileOrDirectory:=512;
 
 //Expected and accepted diffs:
-// Line "Copyright (c) 2000-2020 Ericsson Telecom AB"        - 4 diffs
+// Line "Copyright (c) 2000-2021 Ericsson Telecom AB"        - 4 diffs
 // Line "XSD to TTCN-3 Translator version:" - 4 diffs
 // Line "File"                              - 4 diffs
 // Line "Updated: "                         - 4 diffs
