@@ -33,8 +33,7 @@ endif
 # hardcode a path for Jenkinks to workaround XML/XmlWorkflow/bin/prj2mk.pl
 ifneq ($(origin TTCN3_DIR), file)
 # The directory that the Test Executor is installed in:
-#TTCN3_DIR := $(shell cd $(TOPDIR)/..; pwd)/Install
-TTCN3_DIR := ${HOME}/titan.core/Install
+TTCN3_DIR := $(shell cd $(TOPDIR)/..; pwd)/Install
 export TTCN3_DIR
 # The following would be nicer, but abspath requires make 3.81 (rhea has only 3.79.1)
 #TTCN3_DIR := $(abspath $(TOPDIR)/../Install)
