@@ -10270,6 +10270,7 @@ namespace Ttcn {
         pars_m.add(name, par);
         if (parent_scope && parent_scope->has_ass_withId(id)) {
           Reference ref(0, id.clone());
+          ref.set_my_scope(this);
           Common::Assignment *ass = parent_scope->get_ass_bySRef(&ref);
           if (!ass) FATAL_ERROR("FormalParList::chk()");
           if (parent_scope->get_scope_class() == NULL ||
