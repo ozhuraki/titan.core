@@ -10268,15 +10268,17 @@ namespace Ttcn {
         pars_m[name]->note("Previous definition of `%s' is here", dispname);
       } else {
         pars_m.add(name, par);
-        if (parent_scope && parent_scope->get_scope_class() == NULL &&
-            parent_scope->has_ass_withId(id)) {
-          par->error("Parameter name `%s' is not unique in the scope "
-            "hierarchy", dispname);
+        if (parent_scope && parent_scope->has_ass_withId(id)) {
           Reference ref(0, id.clone());
           Common::Assignment *ass = parent_scope->get_ass_bySRef(&ref);
           if (!ass) FATAL_ERROR("FormalParList::chk()");
-          ass->note("Symbol `%s' is already defined here in a higher scope "
-            "unit", dispname);
+          if (parent_scope->get_scope_class() == NULL ||
+              !ass->get_my_scope()->is_class_scope()) {
+            par->error("Parameter name `%s' is not unique in the scope "
+              "hierarchy", dispname);
+            ass->note("Symbol `%s' is already defined here in a higher scope "
+              "unit", dispname);
+          }
         }
       }
       Error_Context cntxt2(par, "In parameter `%s'", dispname);

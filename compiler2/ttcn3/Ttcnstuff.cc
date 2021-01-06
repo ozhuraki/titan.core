@@ -26,6 +26,7 @@
 #include "Statement.hh"
 #include "Templatestuff.hh"
 #include "TtcnTemplate.hh"
+#include "../CompType.hh"
 #include "../../common/path.h"
 #include "../../common/userinfo.h"
 #include "../../common/version_internal.h"
@@ -3440,11 +3441,12 @@ namespace Ttcn {
     }
 
     bool name_clash = false;
-    if (base_class != NULL) {
+    if (base_class != NULL || runs_on_type != NULL || mtc_type != NULL || system_type != NULL) {
       for (size_t i = 0; i < members->get_nof_asss(); ++i) {
         Common::Assignment* local_def = members->get_ass_byIndex(i, false);
         const Common::Identifier& local_id = local_def->get_id();
-        if (local_def->get_asstype() != Common::Assignment::A_CONSTRUCTOR &&
+        if (base_class != NULL &&
+            local_def->get_asstype() != Common::Assignment::A_CONSTRUCTOR &&
             base_class->has_local_ass_withId(local_id)) {
           Common::Assignment* base_def = base_class->get_local_ass_byId(local_id);
           switch (local_def->get_asstype()) {
@@ -3488,6 +3490,18 @@ namespace Ttcn {
             name_clash = true;
             break;
           }
+        }
+        if (runs_on_type != NULL && runs_on_type->get_CompBody()->has_local_ass_withId(local_id)) {
+          local_def->error("%s shadows a definition in runs-on component type `%s'",
+            local_def->get_description().c_str(), runs_on_type->get_typename().c_str());
+        }
+        if (mtc_type != NULL && mtc_type->get_CompBody()->has_local_ass_withId(local_id)) {
+          local_def->error("%s shadows a definition in mtc component type `%s'",
+            local_def->get_description().c_str(), mtc_type->get_typename().c_str());
+        }
+        if (system_type != NULL && system_type->get_CompBody()->has_local_ass_withId(local_id)) {
+          local_def->error("%s shadows a definition in system component type `%s'",
+            local_def->get_description().c_str(), system_type->get_typename().c_str());
         }
       }
     }
