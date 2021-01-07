@@ -4808,7 +4808,7 @@ error:
   {
     Error_Context cntxt(this, "In start test component statement");
     Type *comp_type = chk_comp_ref(comp_op.compref, false, false);
-    Common::Assignment *t_ass = comp_op.funcinstref->get_refd_assignment();
+    Common::Assignment *t_ass = comp_op.funcinstref->get_refd_assignment_last();
     if (!t_ass) return;
     // checking whether the referred definition is a function
     Common::Assignment::asstype_t asstype = t_ass->get_asstype();

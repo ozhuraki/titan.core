@@ -524,6 +524,17 @@ function f_param_test() { //^In function definition//
   f_parameters(x.m2(), x.m2(), x.m2()); //^In function instance// //^In actual parameter list of function// //^In parameter #2// //^In parameter #3// //Reference to a variable or value parameter was expected for an \`inout\' value parameter instead of function// //Reference to a variable or value parameter was expected for an \`out\' value parameter instead of function//
 }
 
+function f_class_param(in C39 x) runs on Comp { }
+
+function f_start_comp() { //^In function definition//
+  var Comp ct := Comp.create alive;
+  var C39 x := C39.create;
+  ct.start(x.f_def(1)); //^In start test component statement// //A method of a class cannot be started on a parallel test component//
+  ct.done;
+  ct.start(f_class_param(x)); //^In start test component statement// //Function `@oop_SE.f_class_param' cannot be started on a parallel test component because parameter `x' is of a class type//
+  ct.done;
+}
+
 
 control { //^In control part//
   var C11 x := C11.create; //^In variable definition// //A definition without `runs on' clause cannot create a value of class type `@oop_SE.C11', which runs on component type `@oop_SE.CT_RunsOn'// //Cannot create value of class type `@oop_SE.C11', which has an `mtc' clause, in the control part.// //Cannot create value of class type `@oop_SE.C11', which has a `system' clause, in the control part.//

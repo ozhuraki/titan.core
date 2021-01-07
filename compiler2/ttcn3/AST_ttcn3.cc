@@ -7011,7 +7011,7 @@ namespace Ttcn {
     }
 
     // decision of startability
-    is_startable = runs_on_ref != 0;
+    is_startable = runs_on_ref != 0 && !my_scope->is_class_scope();
     if (is_startable && !fp_list->get_startability()) is_startable = false;
     if (is_startable && return_type && return_type->is_component_internal())
           is_startable = false;
@@ -7040,6 +7040,10 @@ namespace Ttcn {
   bool Def_Function::chk_startable(Location* caller_location)
   {
     if (!checked) chk();
+    if (my_scope->is_class_scope()) {
+      caller_location->error("A method of a class cannot be started on a parallel test component");
+      return false;
+    }
     fp_list->chk_startability("Function", get_fullname().c_str(), caller_location);
     if (is_startable) return true;
     if (!runs_on_ref) error("Function `%s' cannot be started on a parallel "
@@ -10333,8 +10337,11 @@ namespace Ttcn {
       case Common::Assignment::A_PAR_TEMPL_INOUT:
       case Common::Assignment::A_PAR_VAL_OUT:
       case Common::Assignment::A_PAR_TEMPL_OUT:
-        if (is_startable && par->get_Type()->is_component_internal())
+        if (is_startable && 
+            (par->get_Type()->is_component_internal() ||
+            (par->get_Type()->get_type_refd_last()->get_typetype() == Common::Type::T_CLASS))) {
           is_startable = false;
+        }
         break;
       default:
         is_startable = false;
@@ -10382,6 +10389,12 @@ namespace Ttcn {
             "because of `%s'", p_what, p_name, par->get_description().c_str());
           par->get_Type()->chk_component_internal(type_chain, err_str);
           Free(err_str);
+        }
+        if (!is_startable &&
+            par->get_Type()->get_type_refd_last()->get_typetype() == Common::Type::T_CLASS) {
+          caller_location->error("%s `%s' cannot be started on a parallel test component "
+            "because parameter `%s' is of a class type",
+            p_what, p_name, par->get_id().get_dispname().c_str());
         }
         break;
       default:
