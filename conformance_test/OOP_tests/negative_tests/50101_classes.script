@@ -998,6 +998,7 @@ error: at or before token `template': syntax error, unexpected TemplateKeyword, 
  ** @purpose 5.1.1.0, Ensure that passing of object references to the create operation of a component type or a function started on another component is not allowed.
  ** @verdict pass reject
 *****************************************************************/
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=568744 - fixed
 module NegSem_50101_top_level_004 "TTCN-3:2018 Object-Oriented" {
     
     type component GeneralComp {
@@ -1032,16 +1033,16 @@ module NegSem_50101_top_level_004 "TTCN-3:2018 Object-Oriented" {
         setverdict(pass);
     }
 
-  /*  testcase TC_NegSem_50101_top_level_004_02() runs on GeneralComp {
+    testcase TC_NegSem_50101_top_level_004_02() runs on GeneralComp {
         var MyEmptyClass v_MyClass := MyEmptyClass.create();
         var MyNotEmptyComponent v_MyComponent := MyNotEmptyComponent.create alive;
         v_MyComponent.start(doSomething(v_MyClass)); //not allowed
         setverdict(pass);
     }
-*/
+
     control {
         execute(TC_NegSem_50101_top_level_004_01());
-     //   execute(TC_NegSem_50101_top_level_004_02());
+        execute(TC_NegSem_50101_top_level_004_02());
     }
 }
 <END_MODULE>

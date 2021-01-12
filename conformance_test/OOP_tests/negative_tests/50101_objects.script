@@ -75,6 +75,7 @@ This TD contains negative OOP test  modules from ETSI TTCN3 Conformance Test's 5
  ** @purpose 5.1.2.2, Ensure that Object References shall not be passed as actual parameter or part of an actual parameter.
  ** @verdict pass reject
 *****************************************************************/
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=568748 - fixed
 module NegSem_5010202_ObjectReferences_001 "TTCN-3:2018 Object-Oriented" {
     
     type component GeneralComp {
@@ -99,7 +100,7 @@ module NegSem_5010202_ObjectReferences_001 "TTCN-3:2018 Object-Oriented" {
     testcase TC_NegSem_5010202_ObjectReferences_001() runs on GeneralComp {
         var MyClass v_a := MyClass.create(7);
         var GeneralComp v_MyGeneralComp := GeneralComp.create;
-       v_MyGeneralComp.start(f_something(v_a)); //not allowed   // C++ error is thrown 
+       v_MyGeneralComp.start(f_something(v_a)); //not allowed 
         if (v_a.getX() == 7) { 
             setverdict(pass);
         } else {
