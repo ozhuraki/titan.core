@@ -114,7 +114,7 @@ module NegSem_5010202_ObjectReferences_001 "TTCN-3:2018 Object-Oriented" {
 <END_MODULE>
 
 <RESULT COUNT>
-error: TBD
+error: Function .* cannot be started on a parallel test component because parameter .* is of a class type
 <END_RESULT>
 
 <END_TC>
