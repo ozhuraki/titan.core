@@ -3634,6 +3634,9 @@ void Type::chk_refd()
   checked=true;
   ReferenceChain refch(this, "While checking referenced type");
   Type* t_last = get_type_refd_last(&refch);
+  if (ownertype == OT_TYPE_DEF && t_last->typetype == T_CLASS) {
+    error("Subtyping is not allowed for class type `%s'", t_last->get_typename().c_str());
+  }
   u.ref.component_internal = t_last->is_component_internal();
 }
 

@@ -536,6 +536,15 @@ function f_start_comp() { //^In function definition//
 }
 
 
+type C47 C47_alias; //^In type definition// //Subtyping is not allowed for class type//
+type C47_alias C47_alias_alias; //^In type definition// //Subtyping is not allowed for class type//
+
+function f_aliases() {
+  var C47_alias x1 := C47_alias.create(1);
+  var C47_alias_alias x2 := C47_alias_alias.create(2);
+}
+
+
 control { //^In control part//
   var C11 x := C11.create; //^In variable definition// //A definition without `runs on' clause cannot create a value of class type `@oop_SE.C11', which runs on component type `@oop_SE.CT_RunsOn'// //Cannot create value of class type `@oop_SE.C11', which has an `mtc' clause, in the control part.// //Cannot create value of class type `@oop_SE.C11', which has a `system' clause, in the control part.//
 }
