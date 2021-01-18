@@ -59,5 +59,21 @@
 	</xsd:sequence>
 </xsd:complexType>
 
+<!-- Bug 569238 - xsd2ttcn creates cyclical definitions -->
+<xsd:simpleType name="Head569238">
+  <xsd:restriction base="xsd:token">
+    <xsd:pattern value="[0-9]{6,15}"/>
+  </xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="Type569238">
+  <xsd:restriction base="this:Head569238"/>
+</xsd:simpleType>
+<xsd:complexType name="Complex569238">
+  <xsd:choice>
+<xsd:element name="head" type="this:Head569238"/>
+<xsd:element name="type" type="this:Type569238"/>
+  </xsd:choice>
+</xsd:complexType>
+
 
 </xsd:schema>

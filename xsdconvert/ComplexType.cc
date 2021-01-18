@@ -862,7 +862,10 @@ void ComplexType::nameConversion_names(const List<NamespaceType> &) {
     addVariant(V_onlyValue, var);
   }
   for (List<RootType*>::iterator dep = nameDepList.begin(); dep; dep = dep->Next) {
-    dep->Data->setTypeValueWoPrefix(res);
+    SimpleType* dep_simple = typeSubsGroup == this ? dynamic_cast<SimpleType*>(dep->Data) : NULL;
+    if (dep_simple == NULL || dep_simple->parent != NULL || dep_simple->hasVariant(Mstring("\"element\""))) {
+      dep->Data->setTypeValueWoPrefix(res);
+    }
   }
 }
 

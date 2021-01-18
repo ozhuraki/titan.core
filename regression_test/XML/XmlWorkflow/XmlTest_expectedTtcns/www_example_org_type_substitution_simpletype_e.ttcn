@@ -1,7 +1,7 @@
-/******************************************************************************
+/*******************************************************************************
 * Copyright (c) 2000-2021 Ericsson Telecom AB
 *
-* XSD to TTCN-3 Translator
+* XSD to TTCN-3 Translator         
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -11,15 +11,16 @@
 * Contributors:
 *   Balasko, Jeno
 *   Szabo, Bence Janos
+*   Botond, Baranyi
 *
-******************************************************************************/
+*******************************************************************************/
 //
 //  File:          www_example_org_type_substitution_simpletype.ttcn
 //  Description:
 //  References:
 //  Rev:
 //  Prodnr:
-//  Updated:       Wed Nov 18 11:56:35 2014
+//  Updated:       Mon Jan 18 18:05:14 2021
 //  Contact:       http://ttcn.ericsson.se
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -141,6 +142,28 @@ with {
 };
 
 
+/* Bug 569238 - xsd2ttcn creates cyclical definitions */
+
+
+type XSD.Token Head569238 (pattern "[0-9]#(6,15)");
+
+
+type Head569238 Type569238;
+
+
+type record Complex569238
+{
+	union {
+		Head569238_derivations head,
+		Type569238 type_
+	} choice
+}
+with {
+  variant (choice) "untagged";
+  variant (choice.type_) "name as 'type'";
+};
+
+
 type union String_derivations
 {
 	@default XSD.String string,
@@ -181,6 +204,18 @@ type union Base64Binary_derivations
 with {
   variant "useType";
   variant (crypBinary) "name as capitalized";
+};
+
+
+type union Head569238_derivations
+{
+	@default Head569238 head569238,
+	Type569238 type569238
+}
+with {
+  variant "useType";
+  variant (head569238) "name as capitalized";
+  variant (type569238) "name as capitalized";
 };
 
 
