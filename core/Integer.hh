@@ -153,10 +153,10 @@ public:
   void decode_text(Text_Buf& text_buf);
 
   void encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
-              TTCN_EncDec::coding_t p_coding, ...) const;
+              int p_coding, ...) const;
 
   void decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
-              TTCN_EncDec::coding_t p_coding, ...);
+              int p_coding, ...);
 
   ASN_BER_TLV_t* BER_encode_TLV(const TTCN_Typedescriptor_t& p_td,
                                 unsigned p_coding) const;

@@ -649,8 +649,8 @@ void EMBEDDED_PDV_identification::decode_text(Text_Buf& text_buf)
 }
 
 // No encode/decode for this implementation class
-//void EMBEDDED_PDV_identification::encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...) const
-//void EMBEDDED_PDV_identification::decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...)
+//void EMBEDDED_PDV_identification::encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, int p_coding, ...) const
+//void EMBEDDED_PDV_identification::decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, int p_coding, ...)
 
 ASN_BER_TLV_t *EMBEDDED_PDV_identification::BER_encode_TLV(const TTCN_Typedescriptor_t& p_td, unsigned p_coding) const
 {
@@ -1799,8 +1799,8 @@ void EMBEDDED_PDV_identification_syntaxes::decode_text(Text_Buf& text_buf)
 }
 
 // No encode/decode for this implementation class
-//void EMBEDDED_PDV_identification_syntaxes::encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...) const
-//void EMBEDDED_PDV_identification_syntaxes::decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...)
+//void EMBEDDED_PDV_identification_syntaxes::encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, int p_coding, ...) const
+//void EMBEDDED_PDV_identification_syntaxes::decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, int p_coding, ...)
 
 ASN_BER_TLV_t* EMBEDDED_PDV_identification_syntaxes::BER_encode_TLV(const TTCN_Typedescriptor_t& p_td, unsigned p_coding) const
 {
@@ -2552,8 +2552,8 @@ void EMBEDDED_PDV_identification_context__negotiation::decode_text(Text_Buf& tex
 }
 
 // No encode/decode for this implementation class
-//void EMBEDDED_PDV_identification_context__negotiation::encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...) const
-//void EMBEDDED_PDV_identification_context__negotiation::decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...)
+//void EMBEDDED_PDV_identification_context__negotiation::encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, int p_coding, ...) const
+//void EMBEDDED_PDV_identification_context__negotiation::decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, int p_coding, ...)
 
 
 ASN_BER_TLV_t* EMBEDDED_PDV_identification_context__negotiation::BER_encode_TLV(const TTCN_Typedescriptor_t& p_td, unsigned p_coding) const
@@ -3327,7 +3327,7 @@ void EMBEDDED_PDV::decode_text(Text_Buf& text_buf)
   field_data__value.decode_text(text_buf);
 }
 
-void EMBEDDED_PDV::encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...) const
+void EMBEDDED_PDV::encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, int p_coding, ...) const
 {
   va_list pvar;
   va_start(pvar, p_coding);
@@ -3372,10 +3372,10 @@ void EMBEDDED_PDV::encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
   va_end(pvar);
 }
 
-void EMBEDDED_PDV::decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...)
+void EMBEDDED_PDV::decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, int p_coding, ...)
 {
   va_list pvar;
-  va_start(pvar, (int)p_coding);
+  va_start(pvar, p_coding);
   switch(p_coding) {
   case TTCN_EncDec::CT_BER: {
     TTCN_EncDec_ErrorContext ec("While BER-decoding type '%s': ", p_td.name);

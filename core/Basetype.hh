@@ -260,7 +260,7 @@ public:
 
   */
   VIRTUAL_IF_RUNTIME_2 void encode(const TTCN_Typedescriptor_t& p_td,
-    TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...) const;
+    TTCN_Buffer& p_buf, int p_coding, ...) const;
 
   /** @brief Decode an instance of this object
 
@@ -272,7 +272,7 @@ public:
 
   */
   VIRTUAL_IF_RUNTIME_2 void decode(const TTCN_Typedescriptor_t& p_td,
-    TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...);
+    TTCN_Buffer& p_buf, int p_coding, ...);
 
 protected:
   /** Check type descriptor for BER encoding
@@ -812,8 +812,8 @@ public:
 
   virtual void BER_decode_opentypes(TTCN_Type_list& p_typelist, unsigned L_form);
 
-  virtual void encode(const TTCN_Typedescriptor_t&, TTCN_Buffer&, TTCN_EncDec::coding_t, ...) const;
-  virtual void decode(const TTCN_Typedescriptor_t&, TTCN_Buffer&, TTCN_EncDec::coding_t, ...);
+  virtual void encode(const TTCN_Typedescriptor_t&, TTCN_Buffer&, int, ...) const;
+  virtual void decode(const TTCN_Typedescriptor_t&, TTCN_Buffer&, int, ...);
 
   virtual ASN_BER_TLV_t* BER_encode_TLV(const TTCN_Typedescriptor_t& p_td, unsigned p_coding) const;
   virtual ASN_BER_TLV_t* BER_encode_TLV_negtest(const Erroneous_descriptor_t* p_err_descr, const TTCN_Typedescriptor_t& p_td, unsigned p_coding) const;
@@ -982,8 +982,8 @@ public:
   virtual void encode_text(Text_Buf& text_buf) const;
   virtual void decode_text(Text_Buf& text_buf);
 
-  virtual void encode(const TTCN_Typedescriptor_t&, TTCN_Buffer&, TTCN_EncDec::coding_t, ...) const;
-  virtual void decode(const TTCN_Typedescriptor_t&, TTCN_Buffer&, TTCN_EncDec::coding_t, ...);
+  virtual void encode(const TTCN_Typedescriptor_t&, TTCN_Buffer&, int, ...) const;
+  virtual void decode(const TTCN_Typedescriptor_t&, TTCN_Buffer&, int, ...);
 
   virtual ASN_BER_TLV_t* BER_encode_TLV(const TTCN_Typedescriptor_t& p_td, unsigned p_coding) const;
   virtual ASN_BER_TLV_t* BER_encode_TLV_negtest(const Erroneous_descriptor_t* p_err_descr,
@@ -1085,8 +1085,8 @@ public:
   virtual void encode_text(Text_Buf& text_buf) const;
   virtual void decode_text(Text_Buf& text_buf);
 
-  virtual void encode(const TTCN_Typedescriptor_t&, TTCN_Buffer&, TTCN_EncDec::coding_t, ...) const;
-  virtual void decode(const TTCN_Typedescriptor_t&, TTCN_Buffer&, TTCN_EncDec::coding_t, ...);
+  virtual void encode(const TTCN_Typedescriptor_t&, TTCN_Buffer&, int, ...) const;
+  virtual void decode(const TTCN_Typedescriptor_t&, TTCN_Buffer&, int, ...);
 
   virtual ASN_BER_TLV_t* BER_encode_TLV(const TTCN_Typedescriptor_t& p_td, unsigned p_coding) const;
   virtual boolean BER_decode_TLV(const TTCN_Typedescriptor_t& p_td, const ASN_BER_TLV_t& p_tlv, unsigned L_form);

@@ -204,7 +204,7 @@ Module_Param* BOOLEAN::get_param(Module_Param_Name& /* param_name */) const
 #endif
 
 void BOOLEAN::encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
-                     TTCN_EncDec::coding_t p_coding, ...) const
+                     int p_coding, ...) const
 {
   va_list pvar;
   va_start(pvar, p_coding);
@@ -264,10 +264,10 @@ void BOOLEAN::encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
 }
 
 void BOOLEAN::decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
-                     TTCN_EncDec::coding_t p_coding, ...)
+                     int p_coding, ...)
 {
   va_list pvar;
-  va_start(pvar, (int)p_coding);
+  va_start(pvar, p_coding);
   switch(p_coding) {
   case TTCN_EncDec::CT_BER: {
     TTCN_EncDec_ErrorContext ec("While BER-decoding type '%s': ", p_td.name);

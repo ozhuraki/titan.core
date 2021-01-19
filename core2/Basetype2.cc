@@ -1818,7 +1818,7 @@ void Record_Of_Type::OER_decode_opentypes(TTCN_Type_list& p_typelist, TTCN_Buffe
 }
 
 void Record_Of_Type::encode(const TTCN_Typedescriptor_t& p_td,
-  TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...) const
+  TTCN_Buffer& p_buf, int p_coding, ...) const
 {
   va_list pvar;
   va_start(pvar, p_coding);
@@ -1875,7 +1875,7 @@ void Record_Of_Type::encode(const TTCN_Typedescriptor_t& p_td,
 }
 
 void Record_Of_Type::decode(const TTCN_Typedescriptor_t& p_td,
-  TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...)
+  TTCN_Buffer& p_buf, int p_coding, ...)
 {
   va_list pvar;
   va_start(pvar, p_coding);
@@ -3014,7 +3014,7 @@ void Record_Type::set_value(const Base_Type* other_value)
 }
 
 void Record_Type::encode(const TTCN_Typedescriptor_t& p_td,
-  TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...) const
+  TTCN_Buffer& p_buf, int p_coding, ...) const
 {
   va_list pvar;
   va_start(pvar, p_coding);
@@ -3071,7 +3071,7 @@ void Record_Type::encode(const TTCN_Typedescriptor_t& p_td,
 }
 
 void Record_Type::decode(const TTCN_Typedescriptor_t& p_td,
-  TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...)
+  TTCN_Buffer& p_buf, int p_coding, ...)
 {
   va_list pvar;
   va_start(pvar, p_coding);
@@ -7276,7 +7276,7 @@ void Empty_Record_Type::set_value(const Base_Type* other_value)
 }
 
 void Empty_Record_Type::encode(const TTCN_Typedescriptor_t& p_td,
-  TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...) const
+  TTCN_Buffer& p_buf, int p_coding, ...) const
 {
   va_list pvar;
   va_start(pvar, p_coding);
@@ -7333,7 +7333,7 @@ void Empty_Record_Type::encode(const TTCN_Typedescriptor_t& p_td,
 }
 
 void Empty_Record_Type::decode(const TTCN_Typedescriptor_t& p_td,
-  TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...)
+  TTCN_Buffer& p_buf, int p_coding, ...)
 {
   va_list pvar;
   va_start(pvar, p_coding);

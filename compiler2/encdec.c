@@ -35,9 +35,9 @@ void def_encdec(const char *p_classname,
   def=mputstr
     (def,
      "void encode(const TTCN_Typedescriptor_t&, TTCN_Buffer&,"
-     " TTCN_EncDec::coding_t, ...) const;\n"
+     " int, ...) const;\n"
      "void decode(const TTCN_Typedescriptor_t&, TTCN_Buffer&,"
-     " TTCN_EncDec::coding_t, ...);\n");
+     " int, ...);\n");
   if(ber)
     def=mputstr(def,
      "ASN_BER_TLV_t* BER_encode_TLV(const TTCN_Typedescriptor_t& p_td,"
@@ -93,10 +93,10 @@ void def_encdec(const char *p_classname,
 
   src=mputprintf(src,
      "void %s::encode(const TTCN_Typedescriptor_t& p_td,"
-     " TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...) const\n"
+     " TTCN_Buffer& p_buf, int p_coding, ...) const\n"
      "{\n"
      "  va_list pvar;\n"
-     "  va_start(pvar, (int)p_coding);\n"
+     "  va_start(pvar, p_coding);\n"
      "  switch(p_coding) {\n"
      "  case TTCN_EncDec::CT_BER: {\n"
      "    TTCN_EncDec_ErrorContext ec(\"While BER-encoding type"
@@ -173,10 +173,10 @@ void def_encdec(const char *p_classname,
      "// written by %s in " __FILE__ " at %d\n"
 #endif
      "void %s::decode(const TTCN_Typedescriptor_t& p_td,"
-     " TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...)\n"
+     " TTCN_Buffer& p_buf, int p_coding, ...)\n"
      "{\n"
      "  va_list pvar;\n"
-     "  va_start(pvar, (int)p_coding);\n"
+     "  va_start(pvar, p_coding);\n"
      "  switch(p_coding) {\n"
      "  case TTCN_EncDec::CT_BER: {\n"
      "    TTCN_EncDec_ErrorContext ec(\"While BER-decoding type"

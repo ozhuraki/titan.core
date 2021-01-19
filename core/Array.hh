@@ -984,8 +984,8 @@ public:
   void encode_text(Text_Buf& text_buf) const;
   void decode_text(Text_Buf& text_buf);
 
-  void encode(const TTCN_Typedescriptor_t&, TTCN_Buffer&, TTCN_EncDec::coding_t, ...) const;
-  void decode(const TTCN_Typedescriptor_t&, TTCN_Buffer&, TTCN_EncDec::coding_t, ...);
+  void encode(const TTCN_Typedescriptor_t&, TTCN_Buffer&, int, ...) const;
+  void decode(const TTCN_Typedescriptor_t&, TTCN_Buffer&, int, ...);
   
   virtual const TTCN_Typedescriptor_t* get_elem_descr() const 
   { TTCN_error("Internal error: VALUE_ARRAY<>::get_elem_descr() called."); }
@@ -1314,7 +1314,7 @@ void VALUE_ARRAY<T_type,array_size,index_offset>::decode_text
 
 template <typename T_type, unsigned int array_size, int index_offset>
 void VALUE_ARRAY<T_type,array_size,index_offset>::encode(
-  const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...) const
+  const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, int p_coding, ...) const
 {
   va_list pvar;
   va_start(pvar, p_coding);
@@ -1335,7 +1335,7 @@ void VALUE_ARRAY<T_type,array_size,index_offset>::encode(
 
 template <typename T_type, unsigned int array_size, int index_offset>
 void VALUE_ARRAY<T_type,array_size,index_offset>::decode(
-  const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...)
+  const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, int p_coding, ...)
 {
   switch(p_coding) {
   case TTCN_EncDec::CT_JSON: {

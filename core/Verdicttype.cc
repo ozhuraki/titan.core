@@ -149,7 +149,7 @@ void VERDICTTYPE::decode_text(Text_Buf& text_buf)
 }
 
 void VERDICTTYPE::encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
-                     TTCN_EncDec::coding_t p_coding, ...) const
+                     int p_coding, ...) const
 {
   va_list pvar;
   va_start(pvar, p_coding);
@@ -205,10 +205,10 @@ void VERDICTTYPE::encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
 }
 
 void VERDICTTYPE::decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
-                     TTCN_EncDec::coding_t p_coding, ...)
+                     int p_coding, ...)
 {
   va_list pvar;
-  va_start(pvar, (int)p_coding);
+  va_start(pvar, p_coding);
   switch(p_coding) {
 #if 0
   case TTCN_EncDec::CT_RAW: {

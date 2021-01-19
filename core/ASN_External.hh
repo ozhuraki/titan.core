@@ -418,8 +418,8 @@ public:
   void set_param(Module_Param& param);
   void encode_text(Text_Buf& text_buf) const;
   void decode_text(Text_Buf& text_buf);
-  void encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...) const;
-  void decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, TTCN_EncDec::coding_t p_coding, ...);
+  void encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, int p_coding, ...) const;
+  void decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, int p_coding, ...);
   ASN_BER_TLV_t* BER_encode_TLV(const TTCN_Typedescriptor_t& p_td, unsigned p_coding) const;
   boolean BER_decode_TLV(const TTCN_Typedescriptor_t& p_td, const ASN_BER_TLV_t& p_tlv, unsigned L_form);
   int XER_encode(const XERdescriptor_t& p_td,

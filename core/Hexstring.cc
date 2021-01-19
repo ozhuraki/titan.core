@@ -664,7 +664,7 @@ Module_Param* HEXSTRING::get_param(Module_Param_Name& /* param_name */) const
 #endif
 
 void HEXSTRING::encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
-  TTCN_EncDec::coding_t p_coding, ...) const
+  int p_coding, ...) const
 {
   va_list pvar;
   va_start(pvar, p_coding);
@@ -701,10 +701,10 @@ void HEXSTRING::encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
 }
 
 void HEXSTRING::decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
-  TTCN_EncDec::coding_t p_coding, ...)
+  int p_coding, ...)
 {
   va_list pvar;
-  va_start(pvar, (int)p_coding);
+  va_start(pvar, p_coding);
   switch (p_coding) {
   case TTCN_EncDec::CT_RAW: {
     TTCN_EncDec_ErrorContext ec("While RAW-decoding type '%s': ", p_td.name);

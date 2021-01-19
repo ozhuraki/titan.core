@@ -92,10 +92,10 @@ public:
   void decode_text(Text_Buf& text_buf);
 
   void encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
-              TTCN_EncDec::coding_t p_coding, ...) const;
+              int p_coding, ...) const;
 
   void decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
-              TTCN_EncDec::coding_t p_coding, ...);
+              int p_coding, ...);
 
   int XER_encode(const XERdescriptor_t& p_td, TTCN_Buffer& p_buf,
     unsigned int flavor, unsigned int flavor2, int indent, embed_values_enc_struct_t*) const;

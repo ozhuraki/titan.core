@@ -135,10 +135,10 @@ public:
   void encode_text(Text_Buf& text_buf) const;
   void decode_text(Text_Buf& text_buf);
   void encode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
-              TTCN_EncDec::coding_t p_coding, ...) const;
+              int p_coding, ...) const;
 
   void decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf,
-              TTCN_EncDec::coding_t p_coding, ...);
+              int p_coding, ...);
   /** Encodes the value of the variable according to the
     * TTCN_Typedescriptor_t. It must be public because called by
     * another types during encoding. Returns the length of encoded data*/
