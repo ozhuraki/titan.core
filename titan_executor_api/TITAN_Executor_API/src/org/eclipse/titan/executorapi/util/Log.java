@@ -52,7 +52,7 @@ import java.util.Map;
  * </pre>
  */
 public class Log {
-	
+
 	/**
 	 * Severity of the log message, log level
 	 * @see "http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/Level.html"
@@ -60,40 +60,40 @@ public class Log {
 	private enum Severity {
 		/** The OFF has the highest possible rank and is intended to turn off logging. */
 		OFF,
-		
+
 		/** The FATAL level designates very severe error events that will presumably lead the application to abort. */
 		FATAL,
-		
+
 		/** The ERROR level designates error events that might still allow the application to continue running. */
 		ERROR,
-		
+
 		/** The WARN level designates potentially harmful situations. */
 		WARN,
-		
+
 		/** The INFO level designates informational messages that highlight the progress of the application at coarse-grained level. */
 		INFO,
-		
+
 		/** The DEBUG Level designates fine-grained informational events that are most useful to debug an application. */
 		DEBUG,
-		
+
 		/** The TRACE Level designates finer-grained informational events than the DEBUG */
 		TRACE,
-		
+
 		/** The ALL has the lowest possible rank and is intended to turn on all logging. */
 		ALL;
 	};
-	
+
 	/**
 	 * Global log level.
 	 * It effects all the projects that use Log.
 	 */
 	private static Severity sLogLevel = Severity.OFF;
-	
+
 	/**
 	 * Date format for function related logging functions: fi(), fo(), f()
 	 */
 	private static final SimpleDateFormat sFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-	
+
 	/**
 	 * Keeps track the call level for each thread.
 	 * Call level is a number, that is increased, when a function entry point is logged (fi() is called),
@@ -102,13 +102,13 @@ public class Log {
 	 * Negative call level is treated as 0.
 	 */
 	private static Map<Long, Integer> sCallLevels = new HashMap<Long, Integer>();
-	
+
 	/**
 	 * Logging states separately for each thread.
 	 * Logging can be switched off separately for each thread. true: on, false: off. Default value: true.
 	 */
 	private static Map<Long, Boolean> sLoggingStates = new HashMap<Long, Boolean>();
-	
+
 	/**
 	 * Function in.
 	 * Logs the entry and the given parameter(s) of the method in DEBUG level.
@@ -120,20 +120,20 @@ public class Log {
 		if ( !checkLogLevel( Severity.DEBUG ) || isThreadLoggingOff() ) {
 			return;
 		}
-		
+
 		StringBuilder sb = new StringBuilder();
 		logDateAndThreadId(sb);
 		sb.append(" -> ");
-		
+
 		final int callLevel = getCallLevel();
 		setCallLevel( callLevel + 1 );
 		for (int i = 0; i < callLevel; i++) {
-		   sb.append("  ");
+			sb.append("  ");
 		}
-		
+
 		// 0: getStackTrace(), 1: logMethodName(), 2: fi(), 3: this is the caller function we want to log
 		logMethodName( sb, 3 );
-		
+
 		// log parameters
 		sb.append("(");
 		if ( aParams.length > 0 ) {
@@ -147,10 +147,10 @@ public class Log {
 			sb.append(" ");
 		}
 		sb.append(")");
-		
+
 		printLog( sb );
 	}
-	
+
 	/**
 	 * Function out.
 	 * Logs the exit and the given return value of the method in DEBUG level.
@@ -162,20 +162,20 @@ public class Log {
 		if ( !checkLogLevel( Severity.DEBUG ) || isThreadLoggingOff() ) {
 			return;
 		}
-		
+
 		StringBuilder sb = new StringBuilder();
 		logDateAndThreadId(sb);
 		sb.append( " <- " );
-		
+
 		int callLevel = getCallLevel();
 		setCallLevel( --callLevel );
 		for (int i = 0; i < callLevel; i++) {
 			sb.append("  ");
 		}
-		
+
 		// 0: getStackTrace(), 1: logMethodName(), 2: fo (this private), 3: fo (one of the public ones), 4: this is caller the function we want to log
 		logMethodName( sb, 4 );
-		
+
 		// log return value (if any)
 		sb.append("()");
 		if ( aHasReturnValue ) {
@@ -184,7 +184,7 @@ public class Log {
 		}
 		printLog( sb );
 	}
-	
+
 	/**
 	 * Function out.
 	 * Logs the exit of the method (but not the return value) in DEBUG level.
@@ -193,7 +193,7 @@ public class Log {
 	public static void fo() {
 		fo( false, null );
 	}
-	
+
 	/**
 	 * Function out.
 	 * Logs the exit and the given return value of the method in DEBUG level.
@@ -203,7 +203,7 @@ public class Log {
 	public static void fo( final Object aReturnValue ) {
 		fo( true, aReturnValue );
 	}
-	
+
 	/**
 	 * function log (just a general log within the function)
 	 * @param aMsg log message
@@ -212,16 +212,16 @@ public class Log {
 		if ( !checkLogLevel( Severity.TRACE ) || isThreadLoggingOff() ) {
 			return;
 		}
-		
+
 		StringBuilder sb = new StringBuilder();
 		logDateAndThreadId(sb);
 		sb.append( "    " );
-		
+
 		final int callLevel = getCallLevel();
 		for (int i = 0; i < callLevel; i++) {
-		   sb.append("  ");
+			sb.append("  ");
 		}
-		
+
 		if ( aMsg != null && aMsg.contains( "\n" ) ) {
 			// in case of multiline message other lines are also indented with the same number of spaces
 			final int len = sb.length();
@@ -230,9 +230,9 @@ public class Log {
 			StringBuilder sbSpaces = new StringBuilder( len );
 			sbSpaces.append("\n");
 			for (int i = 0; i < len; i++) {
-				   sbSpaces.append(" ");
+				sbSpaces.append(" ");
 			}
-			
+
 			// replace \n -> sbSpaces in sbMsg
 			StringUtil.replaceString( sbMsg, "\n", sbSpaces.toString() );
 			sb.append( sbMsg );
@@ -240,7 +240,7 @@ public class Log {
 		else {
 			sb.append( aMsg );
 		}
-		
+
 		printLog( sb );
 	}
 
@@ -257,7 +257,7 @@ public class Log {
 		sb.append( " " + aMsg );
 		printLog( sb );
 	}
-	
+
 	/**
 	 * info unformatted (without datetime)
 	 * @param aMsg log message
@@ -269,7 +269,7 @@ public class Log {
 		StringBuilder sb = new StringBuilder( aMsg );
 		printLog( sb );
 	}
-	
+
 	/**
 	 * Switch on logging for the current thread
 	 */
@@ -285,7 +285,7 @@ public class Log {
 		final long threadId = Thread.currentThread().getId();
 		sLoggingStates.put(threadId, false);
 	}
-	
+
 	/**
 	 * Adds full datetime and thread id to the log string. 
 	 * @param aSb [in/out] the log string, where new strings are added
@@ -294,7 +294,7 @@ public class Log {
 		final long threadId = Thread.currentThread().getId();
 		aSb.append( sFormat.format( new Date() ) + " " + String.format( "%3d", threadId ) );
 	}
-	
+
 	/**
 	 * Checks if the global static log level reaches the minimum required log level,
 	 * @param aMinRequired minimum required log level
@@ -303,7 +303,7 @@ public class Log {
 	private static boolean checkLogLevel( final Severity aMinRequired ) {
 		return sLogLevel.ordinal() >= aMinRequired.ordinal();
 	}
-	
+
 	/**
 	 * Adds class and method name to the log string.
 	 * Short class name is used without full qualification.
@@ -318,21 +318,21 @@ public class Log {
 		final String methodName = ste.getMethodName();
 		aSb.append( shortClassName + "." + methodName );
 	}
-	
+
 	/**
 	 * @return true if logging for the current thread switched off.
 	 *              If there is no info for this thread, a new (<current thread>, true) item is added to the map 
 	 */
 	private static boolean isThreadLoggingOff() {
 		final long threadId = Thread.currentThread().getId();
-		
+
 		if(!sLoggingStates.containsKey(threadId)) {
 			sLoggingStates.put(threadId, true);
 		}
-		
+
 		return !sLoggingStates.get( threadId );
 	}
-	
+
 	/**
 	 * @return Call level for the current thread.
 	 *         If there is no info for this thread, a new (<current thread>, 0) item is added to the map 
@@ -345,7 +345,7 @@ public class Log {
 		final int callLevel = sCallLevels.get( threadId );
 		return callLevel;
 	}
-	
+
 	/**
 	 * Sets the call level of the current thread. 
 	 * If sCallLevels does NOT contain current thread as key, it creates it.
@@ -355,7 +355,7 @@ public class Log {
 		final long threadId = Thread.currentThread().getId();
 		sCallLevels.put( threadId, aNewValue );
 	}
-	
+
 	/**
 	 * prints the log string to the output
 	 * @param aLogString the log string, it can be multiline

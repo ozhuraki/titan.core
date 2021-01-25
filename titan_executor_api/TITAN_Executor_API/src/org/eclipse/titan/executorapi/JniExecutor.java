@@ -88,9 +88,9 @@ import org.eclipse.titan.executorapi.util.Log;
  * <img src="../../../../../doc/uml/TITAN_Executor_API_state_diagram_simple.png"/>
  */
 public class JniExecutor implements IJNICallback {
-	
+
 	// Exception texts
-	
+
 	/** Used by checkConnection() */
 	private static final String EXCEPTION_TEXT_WRONG_STATE_CONNECTED = "Executor is already initialized.";
 	/** Used by checkConnection() */
@@ -99,7 +99,7 @@ public class JniExecutor implements IJNICallback {
 	private static final String EXCEPTION_TEXT_WRONG_STATE_PART_1 = "Method cannot be called in this state. Current state: ";
 	/** Used by buildWrongStateMessage() */
 	private static final String EXCEPTION_TEXT_WRONG_STATE_PART_2 = ", expected state(s): ";
-	
+
 	/** Used by setConfigFileName() */
 	private static final String EXCEPTION_TEXT_ILLEGAL_ARG_CFG_FILENAME_NULL = "Configuration file name is null.";
 	/** Used by setConfigFileName() */
@@ -112,10 +112,10 @@ public class JniExecutor implements IJNICallback {
 	private static final String EXCEPTION_TEXT_ILLEGAL_ARG_TEST_CASE_NAME_NULL_OR_EMPTY = "Test case name is null or empty.";
 	/** Used by executeCfg() */
 	private static final String EXCEPTION_TEXT_ILLEGAL_ARG_TEST_CFG_INDEX_OUT_OF_BOUND = "Test index is out of bound.";
-	
+
 	/** Used by startSession() */
 	private static final String EXCEPTION_TEXT_START_SESSION = "Start session failed. Error code: ";
-	
+
 	// Error texts
 
 	/** Used by runCommand() */
@@ -127,14 +127,14 @@ public class JniExecutor implements IJNICallback {
 	/** Used by runCommand() */
 	private static final String ERROR_TEXT_RUN_COMMAND_INTERRUPTED = "The following command is interrupted: ";
 
-	
+
 	/**
 	 * Default config string for JNIMiddleWare.configure(). This is used, if {@link #setConfigFileName(String)} is not called.
 	 */
 	private static final String DEFAULT_CONFIG_STRING = "//This part was added by the TITAN Executor API.\n" +
-			                                            "[LOGGING]\n" +
-			                                            "LogFile := \"./../log//%e.%h-part%i-%r.%s\"\n";
-	
+			"[LOGGING]\n" +
+			"LogFile := \"./../log//%e.%h-part%i-%r.%s\"\n";
+
 	/**
 	 * Default TCP listen port. TCP listen port is needed as an input parameter to start a new session. 
 	 */
@@ -145,12 +145,12 @@ public class JniExecutor implements IJNICallback {
 	 * NULL is translated to 0.0.0.0 when it is sent to MainController
 	 */
 	private static final String DEFAULT_LOCAL_HOST_ADDRESS = "NULL";
-	
+
 	/**
 	 * JNI middleware instance. OWNED
 	 */
 	private final JNIMiddleWare mJniMw;
-	
+
 	/**
 	 * API observer for notifications and callbacks. NOT OWNED
 	 */
@@ -162,19 +162,19 @@ public class JniExecutor implements IJNICallback {
 	 * -1 means uninitialized/invalid value
 	 */
 	private int mMcPort = -1;
-	
+
 	/**
 	 * Local host address. It is needed as an input parameter to start a new HC.
 	 * Default value: NULL, which is translated to 0.0.0.0 when it is sent to MainController
 	 */
 	private String mMcHost = DEFAULT_LOCAL_HOST_ADDRESS;
-	
+
 	/**
 	 * List of host controllers, which are started and connected with MainController by {@link #startHostControllers()}. OWNED
 	 * @see #startHostControllers()
 	 */
 	private List<HostController> mHostControllers = null;
-	
+
 	/**
 	 * true, if {@link #setConfigFileName(String)} is called, so config file is pre-processed by MainController,
 	 *       and the result config data is stored in MC.
@@ -185,7 +185,7 @@ public class JniExecutor implements IJNICallback {
 	 *       in this class (private static final ... DEFAULT_*)
 	 */
 	private boolean mCfgFilePreprocessed = false;
-	
+
 	/**
 	 * true, if {@link #shutdownSession()} is called, false otherwise.
 	 * <p>
@@ -194,12 +194,12 @@ public class JniExecutor implements IJNICallback {
 	 * and we need to remember that during the whole process.
 	 */
 	private boolean mShutdownRequested = false;
-	
+
 	/**
 	 * Lock object for waitForCompletion()
 	 */
 	private final Object mLockCompletion = new Object();
-	
+
 	/**
 	 * Pattern for verdict, that comes as a notification after execution of a testcase.
 	 * If a test control is executed, this notification is sent multiple times after each testcase.
@@ -212,12 +212,12 @@ public class JniExecutor implements IJNICallback {
 	 */
 	private static final Pattern PATTERN_VERDICT =
 			Pattern.compile("Test case (.*) finished\\. Verdict: (none|pass|inconc|fail|error)");
-    
+
 	// Group indexes for this pattern
 	// It is stored here, because group indexes must be synchronized with the pattern.
 	private static final int PATTERN_VERDICT_GROUP_INDEX_TESTCASE = 1;
 	private static final int PATTERN_VERDICT_GROUP_INDEX_VERDICTTYPENAME = 2;
-	
+
 	/**
 	 * Pattern for dynamic testcase error, that comes as a notification after unsuccessful execution of a testcase.
 	 * If a test control is executed, this notification is sent multiple times after each testcase.
@@ -228,12 +228,12 @@ public class JniExecutor implements IJNICallback {
 	 */
 	private static final Pattern PATTERN_DYNAMIC_TESTCASE_ERROR =
 			Pattern.compile("Dynamic test case error: (.*)");
-    
+
 	// Group indexes for this pattern
 	// It is stored here, because group indexes must be synchronized with the pattern.
 	private static final int PATTERN_DYNAMIC_TESTCASE_ERROR_GROUP_INDEX_ERROR_TEXT = 1;
-	
-	
+
+
 	/**
 	 * Pattern for verdict statistics, that comes as a notification after executing all the testcases after exit MTC.
 	 * This notification is sent only once for a MTC session.
@@ -251,7 +251,7 @@ public class JniExecutor implements IJNICallback {
 					+ "(\\d+) inconc[^,]*, "
 					+ "(\\d+) fail[^,]*, "
 					+ "(\\d+) error.*");
-    
+
 	// Group indexes for this pattern
 	// It is stored here, because group indexes must be synchronized with the pattern.
 	private static final int PATTERN_VERDICT_STATS_GROUP_INDEX_NONE = 1;
@@ -259,7 +259,7 @@ public class JniExecutor implements IJNICallback {
 	private static final int PATTERN_VERDICT_STATS_GROUP_INDEX_INCONC = 3;
 	private static final int PATTERN_VERDICT_STATS_GROUP_INDEX_FAIL = 4;
 	private static final int PATTERN_VERDICT_STATS_GROUP_INDEX_ERROR = 5;
-	
+
 	/**
 	 * Pattern for error outside of test cases, that comes as a notification after executing all the testcases after exit MTC.
 	 * This notification is sent only once for a MTC session after PATTERN_VERDICT_STATS.
@@ -272,11 +272,11 @@ public class JniExecutor implements IJNICallback {
 	 */
 	private static final Pattern PATTERN_ERRORS_OUTSIDE_OF_TESTCASES =
 			Pattern.compile("Number of errors outside test cases: (\\d+)");
-	
+
 	// Group indexes for this pattern
 	// It is stored here, because group indexes must be synchronized with the pattern.
 	private static final int PATTERN_ERRORS_OUTSIDE_OF_TESTCASES_GROUP_INDEX_ERRORS = 1;
-	
+
 	/**
 	 * Pattern for overall verdict, that comes as a notification after executing all the testcases after exit MTC.
 	 * This notification is sent only once for a MTC session after PATTERN_VERDICT_STATS and PATTERN_ERRORS_OUTSIDE_OF_TESTCASES (optional).
@@ -287,19 +287,19 @@ public class JniExecutor implements IJNICallback {
 	 */
 	private static final Pattern PATTERN_OVERALL_VERDICT =
 			Pattern.compile("Test case (.*) finished\\. Verdict: (none|pass|inconc|fail|error)");
-    
+
 	// Group indexes for this pattern
 	// It is stored here, because group indexes must be synchronized with the pattern.
 	private static final int PATTERN_OVERALL_VERDICT_GROUP_INDEX_NUMBER_OF_TESTCASE = 1;
 	private static final int PATTERN_OVERALL_VERDICT_GROUP_INDEX_VERDICTTYPENAME = 2;
-	
+
 	/**
 	 * Private constructor, because it is a singleton.
 	 */
 	private JniExecutor() {
 		mJniMw = new JNIMiddleWare(this);
 	}
-	
+
 	/**
 	 * Lazy holder for the singleton (Bill Pugh solution)
 	 * Until we need an instance, the holder class will not be initialized until required and you can still use other static members of the singleton class.
@@ -309,7 +309,7 @@ public class JniExecutor implements IJNICallback {
 		/** Singleton instance */
 		private static final JniExecutor mInstance = new JniExecutor();
 	}
-	
+
 	/**
 	 * @return the singleton instance
 	 */
@@ -323,7 +323,7 @@ public class JniExecutor implements IJNICallback {
 		if ( mShutdownRequested ) {
 			continueShutdown( aState );
 		}
-		
+
 		observerStatusChanged( aState );
 		Log.fo();
 	}
@@ -345,7 +345,7 @@ public class JniExecutor implements IJNICallback {
 			} catch (Exception e) {
 				timestamp = new Timeval();
 			}
-			
+
 			final String source = n[2];
 			int severity;
 			try {
@@ -353,7 +353,7 @@ public class JniExecutor implements IJNICallback {
 			} catch (Exception e) {
 				severity = 0;
 			}
-			
+
 			final String message = n[4];
 			notifyCallback(timestamp, source, severity, message );
 		}
@@ -376,7 +376,7 @@ public class JniExecutor implements IJNICallback {
 	public final Object getLock() {
 		return mJniMw.getLock();
 	}
-	
+
 	/**
 	 * Gets connection state. SYNCHRONOUS
 	 * @return true, if connected (connection to MC is initialized (after init() is called) and not yet terminated (before asynchronous shutdownSession() is completed))
@@ -437,10 +437,10 @@ public class JniExecutor implements IJNICallback {
 			mHostControllers.add( aHc );
 		}
 	}
-	
+
 	/**
-         * @return added host controllers. It can be null
-         */
+	 * @return added host controllers. It can be null
+	 */
 	public List<HostController> getHostControllers() {
 		return mHostControllers;
 	}
@@ -481,7 +481,7 @@ public class JniExecutor implements IJNICallback {
 		}
 		Log.fo();
 	}
-	
+
 	/**
 	 * Sets the API observer for notifications and callbacks. SYNCHRONOUS
 	 * <p>
@@ -493,7 +493,7 @@ public class JniExecutor implements IJNICallback {
 		checkConnection(true);
 		mObserver = aObserver;
 	}
-	
+
 	/**
 	 * Starts MC session. SYNCHRONOUS
 	 * <p>
@@ -509,16 +509,16 @@ public class JniExecutor implements IJNICallback {
 		Log.fi();
 		synchronized (getLock()) {
 			checkState( McStateEnum.MC_INACTIVE );
-			
+
 			// DEFAULT_LOCAL_HOST_ADDRESS is used by default if config file is not provided ( setConfigFileName() is not called )
 			String localAddress = ( mCfgFilePreprocessed ? mJniMw.do_get_mc_host() : DEFAULT_LOCAL_HOST_ADDRESS );
-			
+
 			// TCP listening port
 			// DEFAULT_TCP_LISTEN_PORT is used by default if config file is not provided ( setConfigFileName() is not called )
 			int tcpport = ( mCfgFilePreprocessed ? mJniMw.do_get_port() : DEFAULT_TCP_LISTEN_PORT );
-			
+
 			mMcHost = localAddress;
-			
+
 			// 3rd parameter should be true on Linux, false on Windows
 			int port = mJniMw.do_start_session(localAddress, tcpport, !JNIMiddleWare.isWin() );
 			if (port <= 0) {
@@ -532,7 +532,7 @@ public class JniExecutor implements IJNICallback {
 		}
 		Log.fo();
 	}
-	
+
 	/**
 	 * Start the Host Controllers. ASYNCHRONOUS
 	 * <p>
@@ -558,7 +558,7 @@ public class JniExecutor implements IJNICallback {
 		}
 		Log.fo();
 	}
-	
+
 	/**
 	 * Starts the given Host Controller. ASYNCHRONOUS
 	 * <p>
@@ -575,12 +575,12 @@ public class JniExecutor implements IJNICallback {
 		 * So runCommand() function ends right after shutdown_session() is called.
 		 */
 		new Thread() {
-		    public void run() {
-		    	runCommand( command );
-		    }
+			public void run() {
+				runCommand( command );
+			}
 		}.start();
 	}
-	
+
 	/**
 	 * Runs a system command. SYNCHRONOUS
 	 * <p>
@@ -588,28 +588,28 @@ public class JniExecutor implements IJNICallback {
 	 * @param aCommand The system command. sh -c is added at the beginning of the command.
 	 */
 	private void runCommand( final String aCommand ) {
-	    Log.fi(aCommand);
+		Log.fi(aCommand);
 		Runtime run = Runtime.getRuntime();  
 		Process p = null;  
 		try {
 			String[] cmd = { "sh", "-c", aCommand };
-		    p = run.exec(cmd);
+			p = run.exec(cmd);
 
-		    p.getErrorStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            String s;
-            while ((s = br.readLine()) != null) {
-            	Log.f("line: " + s);
-                //send output to observer with notify()
-            	notifyCallback( new Timeval(), mMcHost, 0, s);
-            }
-            p.waitFor();
-            final int exitValue = p.exitValue();
-            Log.f("exit: " + exitValue);
-            if ( exitValue != 0 ) {
-    			errorCallback(0, ERROR_TEXT_RUN_COMMAND_EXIT_CODE_NOT_0_PART_1 + aCommand +
-    					         ERROR_TEXT_RUN_COMMAND_EXIT_CODE_NOT_0_PART_2 + exitValue);
-            }
+			p.getErrorStream();
+			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			String s;
+			while ((s = br.readLine()) != null) {
+				Log.f("line: " + s);
+				//send output to observer with notify()
+				notifyCallback( new Timeval(), mMcHost, 0, s);
+			}
+			p.waitFor();
+			final int exitValue = p.exitValue();
+			Log.f("exit: " + exitValue);
+			if ( exitValue != 0 ) {
+				errorCallback(0, ERROR_TEXT_RUN_COMMAND_EXIT_CODE_NOT_0_PART_1 + aCommand +
+						ERROR_TEXT_RUN_COMMAND_EXIT_CODE_NOT_0_PART_2 + exitValue);
+			}
 		}
 		catch (IOException e) {
 			Log.f(e.toString());
@@ -619,11 +619,11 @@ public class JniExecutor implements IJNICallback {
 			errorCallback(0, ERROR_TEXT_RUN_COMMAND_INTERRUPTED + aCommand);
 		}
 		finally {
-		    p.destroy();
+			p.destroy();
 		}
 		Log.fo();
 	}
-	
+
 	/**
 	 * Set parameters of the execution, which was pre-processed by setConfigFileName(). ASYNCHRONOUS
 	 * <p>
@@ -648,13 +648,13 @@ public class JniExecutor implements IJNICallback {
 	public void configure() throws JniExecutorWrongStateException {
 		synchronized (getLock()) {
 			checkState( McStateEnum.MC_HC_CONNECTED, McStateEnum.MC_LISTENING, McStateEnum.MC_LISTENING_CONFIGURED );
-			
+
 			// DEFAULT_CONFIG_STRING is used by default if config file is not provided ( setConfigFileName() is not called )
 			// otherwise empty string is sent to MC, which means MC will used its stored config data
 			mJniMw.do_configure( mCfgFilePreprocessed ? null : DEFAULT_CONFIG_STRING );
 		}
 	}
-	
+
 	/**
 	 * Creates Main Test Component (MTC), which is the last step before we can execute the tests. ASYNCHRONOUS
 	 * <p>
@@ -669,7 +669,7 @@ public class JniExecutor implements IJNICallback {
 			mJniMw.do_create_mtc(0);
 		}
 	}
-	
+
 	/**
 	 * Executes a test control by module name. ASYNCHRONOUS
 	 * <p>
@@ -713,7 +713,7 @@ public class JniExecutor implements IJNICallback {
 			mJniMw.do_execute_testcase( aModule, aTestcase );
 		}
 	}
-	
+
 	/**
 	 * Gets the length of the execute list. SYNCHRONOUS
 	 * <p>
@@ -733,7 +733,7 @@ public class JniExecutor implements IJNICallback {
 			return mJniMw.do_get_execute_cfg_len();
 		}
 	}
-	
+
 	/**
 	 * Executes the index-th element of the execute list. ASYNCHRONOUS
 	 * <p>
@@ -756,7 +756,7 @@ public class JniExecutor implements IJNICallback {
 			mJniMw.do_execute_cfg( aIndex );
 		}
 	}
-	
+
 	/**
 	 * Switches the "pause after testcase" flag on or off. By default it is off. SYNCHRONOUS
 	 * <p>
@@ -779,7 +779,7 @@ public class JniExecutor implements IJNICallback {
 			mJniMw.do_stop_after_testcase( aNewState );
 		}
 	}
-	
+
 	/**
 	 * Gets the "pause after testcase" flag. SYNCHRONOUS
 	 * <p>
@@ -794,7 +794,7 @@ public class JniExecutor implements IJNICallback {
 			return mJniMw.do_get_stop_after_testcase();
 		}
 	}
-	
+
 	/**
 	 * Continues execution if test control is paused, it executes the next testcase from the control. ASYNCHRONOUS
 	 * <p> 
@@ -808,7 +808,7 @@ public class JniExecutor implements IJNICallback {
 			mJniMw.do_continue_testcase();
 		}
 	}
-	
+
 	/**
 	 * Stops execution of a running or paused test. ASYNCHRONOUS
 	 * <p>
@@ -825,7 +825,7 @@ public class JniExecutor implements IJNICallback {
 			// otherwise do nothing, MC would do the same, but there is no point to call it in this state
 		}
 	}
-	
+
 	/**
 	 * Stops MTC. ASYNCHRONOUS
 	 * <p>
@@ -840,7 +840,7 @@ public class JniExecutor implements IJNICallback {
 			mJniMw.do_exit_mtc();
 		}
 	}
-	
+
 	/**
 	 * Shuts down MC session. ASYNCHRONOUS
 	 * <p>
@@ -928,7 +928,7 @@ public class JniExecutor implements IJNICallback {
 			return mJniMw.do_get_nof_hosts();
 		}
 	}
-	
+
 	/**
 	 * Gets host data. SYNCHRONOUS
 	 * <p>
@@ -955,7 +955,7 @@ public class JniExecutor implements IJNICallback {
 			return copy;
 		}
 	}
-	
+
 	/**
 	 * Gets component data. SYNCHRONOUS
 	 * <p>
@@ -982,7 +982,7 @@ public class JniExecutor implements IJNICallback {
 			return copy;
 		}
 	}
-	
+
 	/**
 	 * Gets MC state from MainController. SYNCHRONOUS
 	 * <p>
@@ -994,7 +994,7 @@ public class JniExecutor implements IJNICallback {
 			return mJniMw.do_get_state();
 		}
 	}
-	
+
 	/**
 	 * Checks if connected state.
 	 * We are connected between init() and shutdownSession().
@@ -1008,7 +1008,7 @@ public class JniExecutor implements IJNICallback {
 			throw new JniExecutorWrongStateException( connected ? EXCEPTION_TEXT_WRONG_STATE_CONNECTED : EXCEPTION_TEXT_WRONG_STATE_NOT_CONNECTED );
 		}
 	}
-	
+
 	/**
 	 * Checks if we are in any of the expected states
 	 * @param aExpectedStates array of the expected states 
@@ -1046,10 +1046,10 @@ public class JniExecutor implements IJNICallback {
 			}
 			sb.append( aExpectedStates[ i ] );
 		}
-		
+
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Error handling for incorrect state
 	 * @param aActualState the actual state
@@ -1096,7 +1096,7 @@ public class JniExecutor implements IJNICallback {
 		}
 		Log.fo();
 	}
-	
+
 	/**
 	 * Reset member variables to initial state
 	 */
@@ -1111,7 +1111,7 @@ public class JniExecutor implements IJNICallback {
 			mLockCompletion.notifyAll();
 		}
 	}
-    
+
 	/**
 	 * If notification from MC is special (it must be handled differently)
 	 * @param aMsg notification from MC, which is a possible special notification.
@@ -1120,13 +1120,13 @@ public class JniExecutor implements IJNICallback {
 	 */
 	private boolean processSpecialNotifications( final String aMsg ) {
 		return processVerdict(aMsg)
-			//|| processDynamicTestcaseError(aMsg)
-			|| processVerdictStats(aMsg)
-			//|| processErrorsOutsideOfTestcases(aMsg)
-			//|| processOverallVerdict(aMsg)
-			|| false;
+				//|| processDynamicTestcaseError(aMsg)
+				|| processVerdictStats(aMsg)
+				//|| processErrorsOutsideOfTestcases(aMsg)
+				//|| processOverallVerdict(aMsg)
+				|| false;
 	}
-	
+
 	/**
 	 * If notification from MC matches to the verdict pattern,
 	 * verdict notification is sent instead of general notification.
@@ -1207,7 +1207,7 @@ public class JniExecutor implements IJNICallback {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * If notification from MC matches to the PATTERN_ERRORS_OUTSIDE_OF_TESTCASES pattern,
 	 * special notification is sent instead of general notification.
@@ -1229,7 +1229,7 @@ public class JniExecutor implements IJNICallback {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * If notification from MC matches to the overall verdict pattern,
 	 * overall verdict notification is sent instead of general notification.
@@ -1253,7 +1253,7 @@ public class JniExecutor implements IJNICallback {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Converts verdict type name to verdict type
 	 * @param aVerdictTypeName verdict type name candidate
@@ -1282,12 +1282,12 @@ public class JniExecutor implements IJNICallback {
 		}
 		return verdictType;
 	}
-	
+
 	// observer callbacks. all the callbacks go through these methods to make sure, that
 	//  - observer is not called if it's null
 	//  - exception/error, which is thrown by the observer is ignored,
 	//    this class provides a service, it has no idea how to handle client's exception/error
-        
+
 	/**
 	 * Notification about status change. It also means, that the asynchronous request is finished successfully, if aNewState is the final state.
 	 * @param aNewState the new MC state
@@ -1313,7 +1313,7 @@ public class JniExecutor implements IJNICallback {
 	private void observerError( final int aSeverity, final String aMsg ) {
 		Log.fi(aSeverity, aMsg);
 		if ( mObserver != null ) {
-                	try {
+			try {
 				mObserver.error(aSeverity, aMsg);
 			} catch (Throwable e) {
 				Log.i(e.toString());
@@ -1333,7 +1333,7 @@ public class JniExecutor implements IJNICallback {
 	private void observerNotify(final Timeval aTime, final String aSource, final int aSeverity, final String aMsg) {
 		Log.fi(aTime, aSource, aSeverity, aMsg);
 		if ( mObserver != null ) {
-                	try {
+			try {
 				mObserver.notify(aTime, aSource, aSeverity, aMsg);
 			} catch (Throwable e) {
 				Log.i(e.toString());
@@ -1342,7 +1342,7 @@ public class JniExecutor implements IJNICallback {
 		}
 		Log.fo();
 	}
-        
+
 	/**
 	 * Verdict notification, that comes after execution of a testcase.
 	 * If a test control is executed, this notification is sent multiple times after each testcase.
@@ -1352,7 +1352,7 @@ public class JniExecutor implements IJNICallback {
 	private void observerVerdict( final String aTestcase, final VerdictTypeEnum aVerdictType ) {
 		Log.fi(aTestcase, aVerdictType);
 		if ( mObserver != null ) {
-                	try {
+			try {
 				mObserver.verdict(aTestcase, aVerdictType);
 			} catch (Throwable e) {
 				Log.i(e.toString());
@@ -1361,7 +1361,7 @@ public class JniExecutor implements IJNICallback {
 		}
 		Log.fo();
 	}
-        
+
 	/**
 	 * Verdict statistics notification, that comes after executing all the testcases after exit MTC.
 	 * This notification is sent only once for a MTC session.
@@ -1370,7 +1370,7 @@ public class JniExecutor implements IJNICallback {
 	private void observerVerdictStats( final Map<VerdictTypeEnum, Integer> aVerdictStats ) {
 		Log.fi(aVerdictStats);
 		if ( mObserver != null ) {
-                	try {
+			try {
 				mObserver.verdictStats(aVerdictStats);
 			} catch (Throwable e) {
 				Log.i(e.toString());

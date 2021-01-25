@@ -25,7 +25,7 @@ import org.eclipse.titan.executorapi.JniExecutor;
  * @see JniExecutor#init()
  */
 public class JniExecutorJniLoadException extends JniExecutorException {
-	
+
 	/**
 	 * Generated serial version ID
 	 * (to avoid warning)
@@ -35,7 +35,7 @@ public class JniExecutorJniLoadException extends JniExecutorException {
 	public JniExecutorJniLoadException( final String aMsg ) {
 		super( aMsg );
 	}
-	
+
 
 	public JniExecutorJniLoadException(String aMsg, final Throwable aCause) {
 		super( aMsg, aCause );

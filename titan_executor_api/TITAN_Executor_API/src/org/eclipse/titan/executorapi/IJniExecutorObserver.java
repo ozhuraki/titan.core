@@ -12,7 +12,6 @@
  ******************************************************************************/
 package org.eclipse.titan.executorapi;
 
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.titan.executor.jni.McStateEnum;
@@ -24,7 +23,7 @@ import org.eclipse.titan.executor.jni.VerdictTypeEnum;
  * @see JniExecutor
  */
 public interface IJniExecutorObserver {
-	
+
 	/**
 	 * Notification about status change. It also means, that the asynchronous request is finished successfully, if aNewState is the final state.
 	 * @param aNewState the new MC state
@@ -41,20 +40,20 @@ public interface IJniExecutorObserver {
 	/**
 	 * Notification callback, information comes from MC
 	 * @param aTime timestamp
-	 * @param aSource source, the machine identifier of MC 
+	 * @param aSource source, the machine identifier of MC
 	 * @param aSeverity message severity
 	 * @param aMsg message text
 	 */
 	void notify(final Timeval aTime, final String aSource, final int aSeverity, final String aMsg);
-        
+
 	/**
 	 * Verdict notification, that comes after execution of a testcase.
 	 * If a test control is executed, this notification is sent multiple times after each testcase.
 	 * @param aTestcase name of the testcase
 	 * @param aVerdictType verdict type
-	 */ 
+	 */
 	void verdict( final String aTestcase, final VerdictTypeEnum aVerdictType );
-        
+
 	/**
 	 * Verdict statistics notification, that comes after executing all the testcases after exit MTC.
 	 * This notification is sent only once for a MTC session.

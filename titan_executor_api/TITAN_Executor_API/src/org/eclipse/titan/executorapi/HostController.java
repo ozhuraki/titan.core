@@ -20,9 +20,9 @@ import org.eclipse.titan.executorapi.exception.JniExecutorIllegalArgumentExcepti
  * Contains the data describing a Host Controller.
  */
 public final class HostController {
-	
+
 	// Exception texts
-	
+
 	/** Used by the constructor */
 	private static final String EXCEPTION_TEXT_ILLEGAL_ARG_WORKINGDIR_NULL = "Working directory is null";
 	/** Used by the constructor */
@@ -31,17 +31,17 @@ public final class HostController {
 	private static final String EXCEPTION_TEXT_ILLEGAL_ARG_WORKINGDIR_NOT_EXIST = "Working directory does NOT exists";
 	/** Used by the constructor */
 	private static final String EXCEPTION_TEXT_ILLEGAL_ARG_EXECUTABLE_NOT_EXIST = "Executable does NOT exists";
-	
+
 	/**
 	 * The name of the host, it can be null, default: null (localhost)
 	 */
 	private String mHost = null;
-	
+
 	/**
 	 * The working directory to use when executing commands
 	 */
 	private String mWorkingDirectory;
-	
+
 	/**
 	 * The executable if the Host Controller.
 	 * This executable is started (with 2 parameters: MC host, MC port)
@@ -66,7 +66,7 @@ public final class HostController {
 		} else if ( aExecutable == null ) {
 			throw new JniExecutorIllegalArgumentException( EXCEPTION_TEXT_ILLEGAL_ARG_EXECUTABLE_NULL );
 		}
-		
+
 		if ( isLocalhost(aHost) ) {
 			// if working directory directory is local, it must exist
 			final File workingDir = new File(aWorkingdirectory);
@@ -81,12 +81,12 @@ public final class HostController {
 				throw new JniExecutorIllegalArgumentException( EXCEPTION_TEXT_ILLEGAL_ARG_EXECUTABLE_NOT_EXIST );
 			}
 		}
-		
+
 		this.mHost = aHost;
 		this.mWorkingDirectory = aWorkingdirectory;
 		this.mExecutable = aExecutable;
 	}
-	
+
 	public String getHost() {
 		return mHost;
 	}
@@ -115,10 +115,10 @@ public final class HostController {
 			commandSb.append( mHost );
 			commandSb.append( " " );
 		}
-		
+
 		// local host
 		// cd %Workingdirectory; %Executable %MCHost %MCPort
-		
+
 		commandSb.append( "cd " );
 		commandSb.append( mWorkingDirectory );
 		commandSb.append( "; ./" );
@@ -129,7 +129,7 @@ public final class HostController {
 		commandSb.append( aMcPort );
 		return commandSb.toString();
 	}
-	
+
 	/**
 	 * Checks if the host name is localhost
 	 * @param aHostName the host name, it can be IP address, it can be null
@@ -142,7 +142,7 @@ public final class HostController {
 				"localhost".equalsIgnoreCase( aHostName ) ||
 				"0.0.0.0".equalsIgnoreCase( aHostName ) ||
 				"NULL".equalsIgnoreCase( aHostName )
-			   );
+				);
 	}
 }
 

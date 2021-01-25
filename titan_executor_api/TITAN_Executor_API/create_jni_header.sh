@@ -12,7 +12,7 @@
 ###############################################################################
 
 # Creates C++ header from the Java code for Java to C++ JNI function calls.
-# This must run if any of the native Java methods change (in org.eclipse.titan.executor.jni.JNIMiddleWare).
+# This must be run if any of the native Java methods change (in org.eclipse.titan.executor.jni.JNIMiddleWare).
 # A C++ function header is generated for each native Java method.
 # Native Java method: declared with native keyword without implementation
 # This script generates these files into ../../JNI/ directory:

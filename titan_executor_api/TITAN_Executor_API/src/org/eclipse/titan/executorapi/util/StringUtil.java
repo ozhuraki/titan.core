@@ -27,7 +27,7 @@ import java.util.Map;
  *   replaceString(): indent(), Log.f()
  */
 public class StringUtil {
-	
+
 	/**
 	 * Replaces all the occurrences of a given string
 	 * @param aSb [in/out] the string to modify 
@@ -37,12 +37,12 @@ public class StringUtil {
 	public static void replaceString( final StringBuilder aSb, final String aFrom, final String aTo ) {
 		int index = aSb.indexOf( aFrom );
 		while (index != -1) {
-	        aSb.replace( index, index + aFrom.length(), aTo );
-	        index += aTo.length(); // Move to the end of the replacement
-	        index = aSb.indexOf( aFrom, index );
-	    }
+			aSb.replace( index, index + aFrom.length(), aTo );
+			index += aTo.length(); // Move to the end of the replacement
+			index = aSb.indexOf( aFrom, index );
+		}
 	}
-	
+
 	/**
 	 * Appends any Object to the given StringBuilder.
 	 * <p>
@@ -131,7 +131,7 @@ public class StringUtil {
 	public static void indent( final StringBuilder aSb, final String aIndentString ) {
 		replaceString( aSb, "\n", "\n" + aIndentString );
 	}
-	
+
 	/**
 	 * @param aPrimitiveArrayCandidate the object to check
 	 * @return true, if aPrimitiveArrayCandidate is a primitive array, like int[], boolean[], ...
@@ -139,10 +139,10 @@ public class StringUtil {
 	 */
 	private static boolean isPrimitiveArray( final Object aPrimitiveArrayCandidate ) {
 		return aPrimitiveArrayCandidate != null &&
-		       aPrimitiveArrayCandidate.getClass().isArray() &&
-		       aPrimitiveArrayCandidate.getClass().getComponentType().isPrimitive();
+				aPrimitiveArrayCandidate.getClass().isArray() &&
+				aPrimitiveArrayCandidate.getClass().getComponentType().isPrimitive();
 	}
-	
+
 	/**
 	 * Converts primitive array to Object array.
 	 * <p>
@@ -153,15 +153,15 @@ public class StringUtil {
 	 * @see #isPrimitiveArray(Object)
 	 */
 	private static Object[] toObjectArray( final Object aPrimitiveArray ) {
-	    if ( aPrimitiveArray instanceof Object[] ) {
-	       return ( Object[] )aPrimitiveArray;
-	    }
-	    int arrlength = Array.getLength( aPrimitiveArray );
-	    Object[] outputArray = new Object[ arrlength ];
-	    for(int i = 0; i < arrlength; ++i) {
-	       outputArray[i] = Array.get( aPrimitiveArray, i );
-	    }
-	    return outputArray;
+		if ( aPrimitiveArray instanceof Object[] ) {
+			return ( Object[] )aPrimitiveArray;
+		}
+		int arrlength = Array.getLength( aPrimitiveArray );
+		Object[] outputArray = new Object[ arrlength ];
+		for(int i = 0; i < arrlength; ++i) {
+			outputArray[i] = Array.get( aPrimitiveArray, i );
+		}
+		return outputArray;
 	}
 
 }
