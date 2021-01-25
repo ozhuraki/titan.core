@@ -60,53 +60,53 @@ import java.util.Map;
 
 public class DemoFrame extends JFrame {
 
-    /** Generated serial version ID to avoid warning */
+	/** Generated serial version ID to avoid warning */
 	private static final long serialVersionUID = -7360165029886576581L;
-	
-	private final JButton mButtonInit = new JButton("Init");
-    private final JButton mButtonAddHostController = new JButton("Add Host Controller");
-    private final JButton mButtonSetConfigFilename = new JButton("Set CFG file");
-    private final JButton mButtonStartSession = new JButton("Start session");
-    private final JButton mButtonStartHostControllers = new JButton("Start Host Controllers");
-    private final JButton mButtonConfigure = new JButton("Configure");
-    private final JButton mButtonCreateMTC = new JButton("Create MTC");
-    private final JButton mButtonExecuteControl = new JButton("Execute control");
-    private final JButton mButtonExecuteTestcase = new JButton("Execute testcase");
-    private final JButton mButtonExecuteCfg = new JButton("Execute CFG");
-    private final JButton mButtonExitMTC = new JButton("Exit MTC");
-    private final JButton mButtonShutdownSession = new JButton("Shutdown session");
-    private final JButton mButtonPause = new JButton("Pause");
-    private final JButton mButtonStopExecution = new JButton("Stop execution");
-    private final JButton mButtonContinueExecution = new JButton("Continue execution");
-    private final JButton mButtonBatch = new JButton("Batch execution");
-    
-    private final JLabel mLabelCfgFile = new JLabel("Configuration file:");
-    private final JLabel mLabelHost = new JLabel("Host:");
-    private final JLabel mLabelWorkingDir = new JLabel("Working directory:");
-    private final JLabel mLabelExecutable = new JLabel("Executable:");
-    private final JTextField mTextFieldCfgFile = new JTextField();
-    private final JTextField mTextFieldHost = new JTextField();
-    private final JTextField mTextFieldWorkingDir = new JTextField();
-    private final JTextField mTextFieldExecutable = new JTextField();
-    private final JButton mButtonCfgFile = new JButton("...");
-    private final JButton mButtonWorkingDir = new JButton("...");
-    private final JButton mButtonExecutable = new JButton("...");
 
-    private final JLabel mLabelHostControllers = new JLabel("Added Host Controllers:");
-    /** model for mTableHostControllers */
-    private final HostControllerTableModel mModel = new HostControllerTableModel(new String[] {"Host","Working directory","Executable"}, 0);
-    private final JTable mTableHostControllers = new JTable(mModel);
-    
-    /** style for mTextPaneTitanConsole */
-    private Style mStyle;
-    private final JTextPane mTextPaneTitanConsole = new JTextPane();
-    
-    private final JLabel mLabelState = new JLabel("MC state:");
-    private final JTextField mTextFieldState = new JTextField();
-    
+	private final JButton mButtonInit = new JButton("Init");
+	private final JButton mButtonAddHostController = new JButton("Add Host Controller");
+	private final JButton mButtonSetConfigFilename = new JButton("Set CFG file");
+	private final JButton mButtonStartSession = new JButton("Start session");
+	private final JButton mButtonStartHostControllers = new JButton("Start Host Controllers");
+	private final JButton mButtonConfigure = new JButton("Configure");
+	private final JButton mButtonCreateMTC = new JButton("Create MTC");
+	private final JButton mButtonExecuteControl = new JButton("Execute control");
+	private final JButton mButtonExecuteTestcase = new JButton("Execute testcase");
+	private final JButton mButtonExecuteCfg = new JButton("Execute CFG");
+	private final JButton mButtonExitMTC = new JButton("Exit MTC");
+	private final JButton mButtonShutdownSession = new JButton("Shutdown session");
+	private final JButton mButtonPause = new JButton("Pause");
+	private final JButton mButtonStopExecution = new JButton("Stop execution");
+	private final JButton mButtonContinueExecution = new JButton("Continue execution");
+	private final JButton mButtonBatch = new JButton("Batch execution");
+
+	private final JLabel mLabelCfgFile = new JLabel("Configuration file:");
+	private final JLabel mLabelHost = new JLabel("Host:");
+	private final JLabel mLabelWorkingDir = new JLabel("Working directory:");
+	private final JLabel mLabelExecutable = new JLabel("Executable:");
+	private final JTextField mTextFieldCfgFile = new JTextField();
+	private final JTextField mTextFieldHost = new JTextField();
+	private final JTextField mTextFieldWorkingDir = new JTextField();
+	private final JTextField mTextFieldExecutable = new JTextField();
+	private final JButton mButtonCfgFile = new JButton("...");
+	private final JButton mButtonWorkingDir = new JButton("...");
+	private final JButton mButtonExecutable = new JButton("...");
+
+	private final JLabel mLabelHostControllers = new JLabel("Added Host Controllers:");
+	/** model for mTableHostControllers */
+	private final HostControllerTableModel mModel = new HostControllerTableModel(new String[] {"Host","Working directory","Executable"}, 0);
+	private final JTable mTableHostControllers = new JTable(mModel);
+
+	/** style for mTextPaneTitanConsole */
+	private Style mStyle;
+	private final JTextPane mTextPaneTitanConsole = new JTextPane();
+
+	private final JLabel mLabelState = new JLabel("MC state:");
+	private final JTextField mTextFieldState = new JTextField();
+
 	/**
-         * Observer for step-by-step test execution.
-         */
+	 * Observer for step-by-step test execution.
+	 */
 	private class DemoObserver implements IJniExecutorObserver {
 
 		@Override
@@ -166,9 +166,9 @@ public class DemoFrame extends JFrame {
 			if ( error > 0 ) {
 				sb.append("Error: ").append(error).append("<br>");
 			}
-			
+
 			mVerdicts = null;
-			// Showing âJOptionPane.showMessageDialogâ without stopping flow of execution,
+			// Showing OptionPane.showMessageDialog without stopping flow of execution,
 			// this line would block the thread:
 			//JOptionPane.showMessageDialog(DemoFrame.this, sb.toString(), "Verdict statistics", JOptionPane.INFORMATION_MESSAGE);
 			EventQueue.invokeLater(new Runnable(){
@@ -184,20 +184,20 @@ public class DemoFrame extends JFrame {
 			});
 		}
 	}
-	
-        /**
-         * Observer for step-by-step test execution.
-         * <p>
-         * NOTE: This observer is not used for batch test execution.
-         * @see #batchExecution()
-         */
+
+	/**
+	 * Observer for step-by-step test execution.
+	 * <p>
+	 * NOTE: This observer is not used for batch test execution.
+	 * @see #batchExecution()
+	 */
 	private final DemoObserver mObserver = new DemoObserver();
-	
-        /**
-         * Table model for the added HCs to make it non-editable
-         */
+
+	/**
+	 * Table model for the added HCs to make it non-editable
+	 */
 	private class HostControllerTableModel extends DefaultTableModel {
-	    /** Generated serial version ID to avoid warning */
+		/** Generated serial version ID to avoid warning */
 		private static final long serialVersionUID = -2214569504530345210L;
 
 		public HostControllerTableModel(final String[] columnNames, final int i) {
@@ -205,49 +205,49 @@ public class DemoFrame extends JFrame {
 		}
 
 		@Override
-    	public boolean isCellEditable(int row, int column) {
-    		//all cells false
-    		return false;
-    	}
-    }
-	
-	public DemoFrame() {
-	    super( "TITAN Executor API Demo" );
-	    initUi();
-	    updateUi();
-	    
-	    setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-	    setSize( 1200, 750 );
-	    // place to the middle of the screen
-	    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-	    setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
+		public boolean isCellEditable(int row, int column) {
+			//all cells false
+			return false;
+		}
 	}
-	
-        /**
-         * Initialization of the UI elements:
-         * <ul>
-         *   <li> Setting non-editable elements
-         *   <li> Setting default texts where applicable
-         *   <li> Adding tooltips to UI elements
-         *   <li> Defining behavior of the buttons
-         *   <li> Building layout
-         * </ul>
-         */
+
+	public DemoFrame() {
+		super( "TITAN Executor API Demo" );
+		initUi();
+		updateUi();
+
+		setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+		setSize( 1200, 750 );
+		// place to the middle of the screen
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
+	}
+
+	/**
+	 * Initialization of the UI elements:
+	 * <ul>
+	 *   <li> Setting non-editable elements
+	 *   <li> Setting default texts where applicable
+	 *   <li> Adding tooltips to UI elements
+	 *   <li> Defining behavior of the buttons
+	 *   <li> Building layout
+	 * </ul>
+	 */
 	private void initUi() {
-	    // init ui elements
-	    mTextPaneTitanConsole.setEditable(false);
-	    mTextFieldState.setEditable(false);
-        mStyle = mTextPaneTitanConsole.addStyle("standard", null); // standard style
-	    
-	    //   default values
-	    mTextFieldCfgFile.setText( CommonData.getDefaultCfgFile() );
-	    mTextFieldHost.setText( CommonData.LOCALHOST );
-	    mTextFieldWorkingDir.setText( CommonData.getDefaultWorkingDir() );
-	    mTextFieldExecutable.setText( CommonData.EXECUTABLE );
-	    
-	    initTooltips();
-	    initButtonActions();
-	    initLayout();
+		// init ui elements
+		mTextPaneTitanConsole.setEditable(false);
+		mTextFieldState.setEditable(false);
+		mStyle = mTextPaneTitanConsole.addStyle("standard", null); // standard style
+
+		//   default values
+		mTextFieldCfgFile.setText( CommonData.getDefaultCfgFile() );
+		mTextFieldHost.setText( CommonData.LOCALHOST );
+		mTextFieldWorkingDir.setText( CommonData.getDefaultWorkingDir() );
+		mTextFieldExecutable.setText( CommonData.EXECUTABLE );
+
+		initTooltips();
+		initButtonActions();
+		initLayout();
 	}
 
 	/**
@@ -267,50 +267,50 @@ public class DemoFrame extends JFrame {
 		final String TOOLTIPTEXT_EXIT_MTC = "Exits from Main Test Component, use it after testcase execution.";
 		final String TOOLTIPTEXT_SHUTDOWN_SESSION = "Closes connection to MC.";
 		final String TOOLTIPTEXT_BATCHEXECUTION = "One step execution. It executes cfg file execute list using 1 HC defined by Host, Working directory, Executable.";
-		
+
 		final String TOOLTIPTEXT_CFG_FILE = "TTCN-3 configutation file (.cfg) with full path";
 		final String TOOLTIPTEXT_HOST = "Host Controller host name. It is localhost in the following cases: NULL, 0.0.0.0, empty string";
 		final String TOOLTIPTEXT_WORKINGDIR = "Host Controller working directory without the ending /";
 		final String TOOLTIPTEXT_EXECUTABLE = "Host Controller executable file name without path";
 		final String TOOLTIPTEXT_TITANCONSOLE = "TITAN Console";
-		
-	    mButtonInit.setToolTipText( TOOLTIPTEXT_INIT );
-	    mButtonAddHostController.setToolTipText( TOOLTIPTEXT_ADDHC );
-	    mButtonSetConfigFilename.setToolTipText( TOOLTIPTEXT_SET_CFG_FILE );
-	    mButtonStartSession.setToolTipText( TOOLTIPTEXT_START_SESSION );
-	    mButtonStartHostControllers.setToolTipText( TOOLTIPTEXT_START_HCS );
-	    mButtonConfigure.setToolTipText( TOOLTIPTEXT_CONFIGURE );
-	    mButtonCreateMTC.setToolTipText( TOOLTIPTEXT_CREATE_MTC );
-	    mButtonExecuteControl.setToolTipText( TOOLTIPTEXT_EXECUTE_CONTROL );
-	    mButtonExecuteTestcase.setToolTipText( TOOLTIPTEXT_EXECUTE_TESTCASE );
-	    mButtonExecuteCfg.setToolTipText( TOOLTIPTEXT_EXECUTE_CFG );
-	    mButtonExitMTC.setToolTipText( TOOLTIPTEXT_EXIT_MTC );
-	    mButtonShutdownSession.setToolTipText( TOOLTIPTEXT_SHUTDOWN_SESSION );
-	    mButtonBatch.setToolTipText( TOOLTIPTEXT_BATCHEXECUTION );
 
-	    mLabelCfgFile.setToolTipText( TOOLTIPTEXT_CFG_FILE );
-	    mLabelHost.setToolTipText( TOOLTIPTEXT_HOST );
-	    mLabelWorkingDir.setToolTipText( TOOLTIPTEXT_WORKINGDIR );
-	    mLabelExecutable.setToolTipText( TOOLTIPTEXT_EXECUTABLE );
-	    
-	    mTextFieldCfgFile.setToolTipText( TOOLTIPTEXT_CFG_FILE );
-	    mTextFieldHost.setToolTipText( TOOLTIPTEXT_HOST );
-	    mTextFieldWorkingDir.setToolTipText( TOOLTIPTEXT_WORKINGDIR );
-	    mTextFieldExecutable.setToolTipText( TOOLTIPTEXT_EXECUTABLE );
-	    
-	    mButtonCfgFile.setToolTipText( TOOLTIPTEXT_CFG_FILE );
-	    mButtonWorkingDir.setToolTipText( TOOLTIPTEXT_WORKINGDIR );
-	    mButtonExecutable.setToolTipText( TOOLTIPTEXT_EXECUTABLE );
-	    
-	    mTextPaneTitanConsole.setToolTipText( TOOLTIPTEXT_TITANCONSOLE );
+		mButtonInit.setToolTipText( TOOLTIPTEXT_INIT );
+		mButtonAddHostController.setToolTipText( TOOLTIPTEXT_ADDHC );
+		mButtonSetConfigFilename.setToolTipText( TOOLTIPTEXT_SET_CFG_FILE );
+		mButtonStartSession.setToolTipText( TOOLTIPTEXT_START_SESSION );
+		mButtonStartHostControllers.setToolTipText( TOOLTIPTEXT_START_HCS );
+		mButtonConfigure.setToolTipText( TOOLTIPTEXT_CONFIGURE );
+		mButtonCreateMTC.setToolTipText( TOOLTIPTEXT_CREATE_MTC );
+		mButtonExecuteControl.setToolTipText( TOOLTIPTEXT_EXECUTE_CONTROL );
+		mButtonExecuteTestcase.setToolTipText( TOOLTIPTEXT_EXECUTE_TESTCASE );
+		mButtonExecuteCfg.setToolTipText( TOOLTIPTEXT_EXECUTE_CFG );
+		mButtonExitMTC.setToolTipText( TOOLTIPTEXT_EXIT_MTC );
+		mButtonShutdownSession.setToolTipText( TOOLTIPTEXT_SHUTDOWN_SESSION );
+		mButtonBatch.setToolTipText( TOOLTIPTEXT_BATCHEXECUTION );
+
+		mLabelCfgFile.setToolTipText( TOOLTIPTEXT_CFG_FILE );
+		mLabelHost.setToolTipText( TOOLTIPTEXT_HOST );
+		mLabelWorkingDir.setToolTipText( TOOLTIPTEXT_WORKINGDIR );
+		mLabelExecutable.setToolTipText( TOOLTIPTEXT_EXECUTABLE );
+
+		mTextFieldCfgFile.setToolTipText( TOOLTIPTEXT_CFG_FILE );
+		mTextFieldHost.setToolTipText( TOOLTIPTEXT_HOST );
+		mTextFieldWorkingDir.setToolTipText( TOOLTIPTEXT_WORKINGDIR );
+		mTextFieldExecutable.setToolTipText( TOOLTIPTEXT_EXECUTABLE );
+
+		mButtonCfgFile.setToolTipText( TOOLTIPTEXT_CFG_FILE );
+		mButtonWorkingDir.setToolTipText( TOOLTIPTEXT_WORKINGDIR );
+		mButtonExecutable.setToolTipText( TOOLTIPTEXT_EXECUTABLE );
+
+		mTextPaneTitanConsole.setToolTipText( TOOLTIPTEXT_TITANCONSOLE );
 	}
 
 	/**
 	 * Sets button behaviors
 	 */
 	private void initButtonActions() {
-	    final JniExecutor je = JniExecutor.getInstance();
-	    mButtonInit.addActionListener(new ActionListener() {
+		final JniExecutor je = JniExecutor.getInstance();
+		mButtonInit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -322,7 +322,7 @@ public class DemoFrame extends JFrame {
 				}
 			}
 		});
-	    mButtonAddHostController.addActionListener(new ActionListener() {
+		mButtonAddHostController.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				final JniExecutor je = JniExecutor.getInstance();
@@ -335,7 +335,7 @@ public class DemoFrame extends JFrame {
 				}
 			}
 		});
-	    mButtonSetConfigFilename.addActionListener(new ActionListener() {
+		mButtonSetConfigFilename.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -346,7 +346,7 @@ public class DemoFrame extends JFrame {
 				}
 			}
 		});
-	    mButtonStartSession.addActionListener(new ActionListener() {
+		mButtonStartSession.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -357,7 +357,7 @@ public class DemoFrame extends JFrame {
 				}
 			}
 		});
-	    mButtonStartHostControllers.addActionListener(new ActionListener() {
+		mButtonStartHostControllers.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -367,7 +367,7 @@ public class DemoFrame extends JFrame {
 				}
 			}
 		});
-	    mButtonConfigure.addActionListener(new ActionListener() {
+		mButtonConfigure.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -377,7 +377,7 @@ public class DemoFrame extends JFrame {
 				}
 			}
 		});
-	    mButtonCreateMTC.addActionListener(new ActionListener() {
+		mButtonCreateMTC.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -387,25 +387,25 @@ public class DemoFrame extends JFrame {
 				}
 			}
 		});
-	    mButtonExecuteControl.addActionListener(new ActionListener() {
+		mButtonExecuteControl.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				new ExecuteControlDialog(DemoFrame.this).setVisible(true);
 			}
 		});
-	    mButtonExecuteTestcase.addActionListener(new ActionListener() {
+		mButtonExecuteTestcase.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				new ExecuteTestcaseDialog(DemoFrame.this).setVisible(true);
 			}
 		});
-	    mButtonExecuteCfg.addActionListener(new ActionListener() {
+		mButtonExecuteCfg.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				new ExecuteCfgDialog(DemoFrame.this).setVisible(true);
 			}
 		});
-	    mButtonExitMTC.addActionListener(new ActionListener() {
+		mButtonExitMTC.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -415,7 +415,7 @@ public class DemoFrame extends JFrame {
 				}
 			}
 		});
-	    mButtonShutdownSession.addActionListener(new ActionListener() {
+		mButtonShutdownSession.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				je.shutdownSession();
@@ -423,7 +423,7 @@ public class DemoFrame extends JFrame {
 				updateUi(); // it must be called after synchronous calls
 			}
 		});
-	    mButtonPause.addActionListener(new ActionListener() {
+		mButtonPause.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -435,7 +435,7 @@ public class DemoFrame extends JFrame {
 				}
 			}
 		});
-	    mButtonStopExecution.addActionListener(new ActionListener() {
+		mButtonStopExecution.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -445,7 +445,7 @@ public class DemoFrame extends JFrame {
 				}
 			}
 		});
-	    mButtonContinueExecution.addActionListener(new ActionListener() {
+		mButtonContinueExecution.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -455,14 +455,14 @@ public class DemoFrame extends JFrame {
 				}
 			}
 		});
-	    mButtonBatch.addActionListener(new ActionListener() {
+		mButtonBatch.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				batchExecution();
 			}
-	    });
-	    
-	    mButtonCfgFile.addActionListener(new ActionListener() {
+		});
+
+		mButtonCfgFile.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				final JFileChooser fc = new JFileChooser();
@@ -483,8 +483,8 @@ public class DemoFrame extends JFrame {
 					// no selection
 				}
 			}
-	    });
-	    mButtonWorkingDir.addActionListener(new ActionListener() {
+		});
+		mButtonWorkingDir.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				final JFileChooser fc = new JFileChooser();
@@ -499,8 +499,8 @@ public class DemoFrame extends JFrame {
 					// no selection
 				}
 			}
-	    });
-	    mButtonExecutable.addActionListener(new ActionListener() {
+		});
+		mButtonExecutable.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				final JFileChooser fc = new JFileChooser();
@@ -520,148 +520,148 @@ public class DemoFrame extends JFrame {
 					// no selection
 				}
 			}
-	    });
+		});
 	}
 
 	/**
 	 * Creates layout and adds UI elements to layout
 	 */
 	private void initLayout() {
-	    setLayout( new GridBagLayout() );
-	    GridBagConstraints c = new GridBagConstraints();
-	    c.fill = GridBagConstraints.BOTH;
-	    c.insets = new Insets(10, 10, 10, 10);
+		setLayout( new GridBagLayout() );
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.BOTH;
+		c.insets = new Insets(10, 10, 10, 10);
 
-	    c.gridx = 0;
-	    c.gridy = 0;
-	    add( mButtonInit, c );
-	    c.gridy++;
-	    add( mButtonAddHostController, c );
-	    c.gridy++;
-	    add( mButtonSetConfigFilename, c );
-	    c.gridy++;
-	    add( mButtonStartSession, c );
-	    c.gridy++;
-	    add( mButtonStartHostControllers, c );
-	    c.gridy++;
-	    add( mButtonConfigure, c );
-	    c.gridy++;
-	    add( mButtonCreateMTC, c );
-	    c.gridy++;
-	    add( mButtonExecuteControl, c );
-	    c.gridy++;
-	    add( mButtonExecuteTestcase, c );
-	    c.gridy++;
-	    add( mButtonExecuteCfg, c );
-	    c.gridy++;
-	    add( mButtonPause, c );
-	    c.gridy++;
-	    add( mButtonStopExecution, c );
-	    c.gridy++;
-	    add( mButtonContinueExecution, c );
-	    c.gridy++;
-	    add( mButtonExitMTC, c );
-	    c.gridy++;
-	    add( mButtonShutdownSession, c );
-	    c.gridy++;
-	    add( mButtonBatch, c );
-	    
-	    c.weightx = 0.0;
-	    c.weighty = 0.0;
-	    c.gridx = 1;
-	    c.gridy = 0;
-	    add( mLabelCfgFile, c );
-	    c.weightx = 1.0;
-	    c.weighty = 0.0;
-	    c.gridx = 2;
-	    add( mTextFieldCfgFile, c );
-	    c.weightx = 0.0;
-	    c.weighty = 0.0;
-	    c.gridx = 3;
-	    add( mButtonCfgFile, c );
-	    
-	    c.weightx = 0.0;
-	    c.weighty = 0.0;
-	    c.gridx = 1;
-	    c.gridy++;
-	    add( mLabelHost, c );
-	    c.weightx = 1.0;
-	    c.weighty = 0.0;
-	    c.gridx = 2;
-	    add( mTextFieldHost, c );
+		c.gridx = 0;
+		c.gridy = 0;
+		add( mButtonInit, c );
+		c.gridy++;
+		add( mButtonAddHostController, c );
+		c.gridy++;
+		add( mButtonSetConfigFilename, c );
+		c.gridy++;
+		add( mButtonStartSession, c );
+		c.gridy++;
+		add( mButtonStartHostControllers, c );
+		c.gridy++;
+		add( mButtonConfigure, c );
+		c.gridy++;
+		add( mButtonCreateMTC, c );
+		c.gridy++;
+		add( mButtonExecuteControl, c );
+		c.gridy++;
+		add( mButtonExecuteTestcase, c );
+		c.gridy++;
+		add( mButtonExecuteCfg, c );
+		c.gridy++;
+		add( mButtonPause, c );
+		c.gridy++;
+		add( mButtonStopExecution, c );
+		c.gridy++;
+		add( mButtonContinueExecution, c );
+		c.gridy++;
+		add( mButtonExitMTC, c );
+		c.gridy++;
+		add( mButtonShutdownSession, c );
+		c.gridy++;
+		add( mButtonBatch, c );
 
-	    c.weightx = 0.0;
-	    c.weighty = 0.0;
-	    c.gridx = 1;
-	    c.gridy++;
-	    add( mLabelWorkingDir, c );
-	    c.weightx = 1.0;
-	    c.weighty = 0.0;
-	    c.gridx = 2;
-	    add( mTextFieldWorkingDir, c );
-	    c.weightx = 0.0;
-	    c.weighty = 0.0;
-	    c.gridx = 3;
-	    add( mButtonWorkingDir, c );
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.gridx = 1;
+		c.gridy = 0;
+		add( mLabelCfgFile, c );
+		c.weightx = 1.0;
+		c.weighty = 0.0;
+		c.gridx = 2;
+		add( mTextFieldCfgFile, c );
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.gridx = 3;
+		add( mButtonCfgFile, c );
 
-	    c.weightx = 0.0;
-	    c.weighty = 0.0;
-	    c.gridx = 1;
-	    c.gridy++;
-	    add( mLabelExecutable, c );
-	    c.weightx = 1.0;
-	    c.weighty = 0.0;
-	    c.gridx = 2;
-	    add( mTextFieldExecutable, c );
-	    c.weightx = 0.0;
-	    c.weighty = 0.0;
-	    c.gridx = 3;
-	    add( mButtonExecutable, c );
-	    
-	    c.weightx = 0.0;
-	    c.weighty = 0.0;
-	    c.gridx = 1;
-	    c.gridy++;
-	    add( mLabelHostControllers, c );
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.gridx = 1;
+		c.gridy++;
+		add( mLabelHost, c );
+		c.weightx = 1.0;
+		c.weighty = 0.0;
+		c.gridx = 2;
+		add( mTextFieldHost, c );
 
-	    c.weightx = 0.0;
-	    c.weighty = 0.0;
-	    c.gridy++;
-	    c.gridwidth = 3;
-	    c.gridheight = 2;
-	    JScrollPane scrollHostControllers = new JScrollPane( mTableHostControllers );
-        scrollHostControllers.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        add( scrollHostControllers, c );
-	    c.gridwidth = 1;
-	    c.gridheight = 1;
-	    
-	    c.weightx = 1.0;
-	    c.weighty = 0.0;
-	    c.gridx = 1;
-	    c.gridy = 7;
-	    c.gridwidth = 3;
-	    c.gridheight = 8;
-	    JScrollPane scrollTitanConsole = new JScrollPane( mTextPaneTitanConsole );
-        scrollTitanConsole.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        add( scrollTitanConsole, c );
-	    c.gridwidth = 1;
-	    c.gridheight = 1;
-	    
-	    c.weightx = 0.0;
-	    c.weighty = 0.0;
-	    c.gridy += 8;
-	    add( mLabelState, c);
-	    
-	    c.weightx = 1.0;
-	    c.weighty = 0.0;
-	    c.gridx = 2;
-	    c.gridwidth = 2;
-	    add( mTextFieldState, c);
-	    c.gridwidth = 1;
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.gridx = 1;
+		c.gridy++;
+		add( mLabelWorkingDir, c );
+		c.weightx = 1.0;
+		c.weighty = 0.0;
+		c.gridx = 2;
+		add( mTextFieldWorkingDir, c );
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.gridx = 3;
+		add( mButtonWorkingDir, c );
+
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.gridx = 1;
+		c.gridy++;
+		add( mLabelExecutable, c );
+		c.weightx = 1.0;
+		c.weighty = 0.0;
+		c.gridx = 2;
+		add( mTextFieldExecutable, c );
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.gridx = 3;
+		add( mButtonExecutable, c );
+
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.gridx = 1;
+		c.gridy++;
+		add( mLabelHostControllers, c );
+
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.gridy++;
+		c.gridwidth = 3;
+		c.gridheight = 2;
+		JScrollPane scrollHostControllers = new JScrollPane( mTableHostControllers );
+		scrollHostControllers.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		add( scrollHostControllers, c );
+		c.gridwidth = 1;
+		c.gridheight = 1;
+
+		c.weightx = 1.0;
+		c.weighty = 0.0;
+		c.gridx = 1;
+		c.gridy = 7;
+		c.gridwidth = 3;
+		c.gridheight = 8;
+		JScrollPane scrollTitanConsole = new JScrollPane( mTextPaneTitanConsole );
+		scrollTitanConsole.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		add( scrollTitanConsole, c );
+		c.gridwidth = 1;
+		c.gridheight = 1;
+
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.gridy += 8;
+		add( mLabelState, c);
+
+		c.weightx = 1.0;
+		c.weighty = 0.0;
+		c.gridx = 2;
+		c.gridwidth = 2;
+		add( mTextFieldState, c);
+		c.gridwidth = 1;
 	}
 
 	/**
-         * Update UI elements:
+	 * Update UI elements:
 	 * <ul>
 	 *   <li> Sets enabled/disabled state for UI elements depending on the state
 	 *   <li> Refreshes state text
@@ -677,7 +677,7 @@ public class DemoFrame extends JFrame {
 			mTextFieldCfgFile.setEditable(true);
 			mButtonCfgFile.setEnabled(true);
 			mButtonBatch.setEnabled(true);
-			
+
 			// host controller related ui elements
 			// switched on because of batched execution
 			mTextFieldHost.setEditable(true);
@@ -694,7 +694,7 @@ public class DemoFrame extends JFrame {
 				mButtonStartSession.setEnabled(true);
 				mTextFieldCfgFile.setEditable(true);
 				mButtonCfgFile.setEnabled(true);
-				
+
 				// host controller related ui elements
 				// switched on because Add Host Controller button is switched on
 				mTextFieldHost.setEditable(true);
@@ -707,7 +707,7 @@ public class DemoFrame extends JFrame {
 				mButtonAddHostController.setEnabled(true);
 				mButtonStartHostControllers.setEnabled(true);
 				mButtonConfigure.setEnabled(true);
-				
+
 				// host controller related ui elements
 				// switched on because Add Host Controller button is switched on
 				mTextFieldHost.setEditable(true);
@@ -720,7 +720,7 @@ public class DemoFrame extends JFrame {
 				mButtonAddHostController.setEnabled(true);
 				mButtonStartHostControllers.setEnabled(true);
 				mButtonConfigure.setEnabled(true);
-				
+
 				// host controller related ui elements
 				// switched on because Add Host Controller button is switched on
 				mTextFieldHost.setEditable(true);
@@ -764,7 +764,7 @@ public class DemoFrame extends JFrame {
 			default:
 				break;
 			}
-			
+
 			mButtonPause.setEnabled(true);
 			try {
 				pausedButton(je.isPaused());
@@ -776,7 +776,7 @@ public class DemoFrame extends JFrame {
 		updateState();
 		updateTableHostControllers();
 	}
-	
+
 	/**
 	 * Refreshes state text
 	 */
@@ -790,10 +790,10 @@ public class DemoFrame extends JFrame {
 			mTextFieldState.setText( state.toString() );
 		}
 	}
-	
-        /**
-         * Set all buttons to disabled, except buttons which can be pressed in any state.
-         */
+
+	/**
+	 * Set all buttons to disabled, except buttons which can be pressed in any state.
+	 */
 	private void switchOffButtons() {
 		mButtonInit.setEnabled(false);
 		mButtonAddHostController.setEnabled(false);
@@ -811,10 +811,10 @@ public class DemoFrame extends JFrame {
 		mButtonStopExecution.setEnabled(false);
 		mButtonContinueExecution.setEnabled(false);
 		mButtonBatch.setEnabled(false);
-		
+
 		mTextFieldCfgFile.setEditable(false);
 		mButtonCfgFile.setEnabled(false);
-		
+
 		mTextFieldHost.setEditable(false);
 		mTextFieldWorkingDir.setEditable(false);
 		mTextFieldExecutable.setEditable(false);
@@ -822,19 +822,19 @@ public class DemoFrame extends JFrame {
 		mButtonExecutable.setEnabled(false);
 	}
 
-        /**
-         * Sets the text of pause button according to the paused state
-         * @param aOn true: on, false: off
-         */
+	/**
+	 * Sets the text of pause button according to the paused state
+	 * @param aOn true: on, false: off
+	 */
 	private void pausedButton(boolean aOn) {
 		mButtonPause.setText("Pause" + (aOn ? " (ON)" : " (OFF)"));
 	}
 
-        /**
-         * Update host controller table.
-         * This is called always on UI update,
-         * and changed when new HC is added or table is deleted after shutdown and before init.
-         */
+	/**
+	 * Update host controller table.
+	 * This is called always on UI update,
+	 * and changed when new HC is added or table is deleted after shutdown and before init.
+	 */
 	public void updateTableHostControllers() {
 		final JniExecutor je = JniExecutor.getInstance();
 		List<HostController> hcs = je.getHostControllers();
@@ -850,24 +850,24 @@ public class DemoFrame extends JFrame {
 			mModel.setRowCount(0);
 		}
 	}
-	
+
 	/**
-         * Observer used for batch execution
-         */
+	 * Observer used for batch execution
+	 */
 	private class DemoBatchObserver extends DemoObserver {
-            
+
 		/**
 		 * The length of the execute list of the cfg file,
 		 * or -1 if it's not known yet. It is read in MC_READY state
 		 */
 		private int mExecuteCfgLen = -1;
-		
+
 		/**
 		 * The index of the current item, which is currently executed
 		 * Used for CFG_FILE and TEST_CONTROL
 		 */
 		private int mExecuteIndex = -1;
-                
+
 		@Override
 		public void statusChanged(McStateEnum aNewState) {
 			final JniExecutor je = JniExecutor.getInstance();
@@ -908,20 +908,20 @@ public class DemoFrame extends JFrame {
 				updateUi();
 			}
 		}
-		
-                /**
-                 * @return true if execution of all items from the configuration file execution list is finished
-                 */
+
+		/**
+		 * @return true if execution of all items from the configuration file execution list is finished
+		 */
 		private boolean executionReady() {
 			return mExecuteCfgLen != -1 && mExecuteIndex + 1 >= mExecuteCfgLen;
 		}
 
-                /**
-                 * Executes next test from the configuration file execution list
-                 * @param aJe executor instance
-                 * @throws JniExecutorWrongStateException
-                 * @throws JniExecutorIllegalArgumentException
-                 */
+		/**
+		 * Executes next test from the configuration file execution list
+		 * @param aJe executor instance
+		 * @throws JniExecutorWrongStateException
+		 * @throws JniExecutorIllegalArgumentException
+		 */
 		private void executeNext(final JniExecutor aJe) throws JniExecutorWrongStateException, JniExecutorIllegalArgumentException {
 			if ( mExecuteCfgLen == -1 ) {
 				mExecuteCfgLen = aJe.getExecuteCfgLen();
@@ -929,11 +929,11 @@ public class DemoFrame extends JFrame {
 			aJe.executeCfg( ++mExecuteIndex );
 		}
 	}
-	
-        /**
-         * Execute the test of the CFG execution list in one step
-         * instead of calling the atomic MainController commands one-by-one.
-         */
+
+	/**
+	 * Execute the test of the CFG execution list in one step
+	 * instead of calling the atomic MainController commands one-by-one.
+	 */
 	private void batchExecution() {
 		switchOffButtons();
 		IJniExecutorObserver o = new DemoBatchObserver(); 
@@ -959,7 +959,7 @@ public class DemoFrame extends JFrame {
 	 * @param aColor font color
 	 */
 	private void printConsole( final String aMsg, final Color aColor ) {
-        StyleConstants.setForeground(mStyle, aColor);
+		StyleConstants.setForeground(mStyle, aColor);
 		StyledDocument doc = mTextPaneTitanConsole.getStyledDocument();
 		try {
 			doc.insertString( doc.getLength(), aMsg + "\n", mStyle );
@@ -968,7 +968,7 @@ public class DemoFrame extends JFrame {
 		// scroll to bottom when text is appended
 		mTextPaneTitanConsole.setCaretPosition(mTextPaneTitanConsole.getText().length() - 1);
 	}
-	
+
 	/**
 	 * Writes new info message to the console with black
 	 * @param aMsg the new message line
@@ -976,7 +976,7 @@ public class DemoFrame extends JFrame {
 	private void printConsole( final String aMsg ) {
 		printConsole(aMsg, Color.black);
 	}
-	
+
 	/**
 	 * Writes new error message to the console with red
 	 * @param aMsg the new message line
@@ -984,7 +984,7 @@ public class DemoFrame extends JFrame {
 	private void printConsoleError( final String aMsg ) {
 		printConsole(aMsg, Color.red);
 	}
-	
+
 	/**
 	 * Writes new exception message and stack trace to the console with red
 	 * @param aMsg the new message line
@@ -995,28 +995,28 @@ public class DemoFrame extends JFrame {
 		e.printStackTrace(pw);
 		printConsoleError(sw.toString());
 	}
-	
-        /**
-         * Verdict of the execution of 1 testcase
-         */
+
+	/**
+	 * Verdict of the execution of 1 testcase
+	 */
 	private class Verdict {
 		/** testcase name */
 		public String mTestcase;
 		/** verdict type (none/pass/inconc/fail/error) */
 		public VerdictTypeEnum mVerdictType;
 	}
-	
-        /** Verdict statistics */
+
+	/** Verdict statistics */
 	private List<Verdict> mVerdicts = null;
-	
-        /**
-         * Add a new verdict to the verdict statistics
-         * @param aTestcase testcase name
-         * @param aVerdictType verdict type name (none/pass/inconc/fail/error)
-         */
+
+	/**
+	 * Add a new verdict to the verdict statistics
+	 * @param aTestcase testcase name
+	 * @param aVerdictType verdict type name (none/pass/inconc/fail/error)
+	 */
 	private void addVerdict(final String aTestcase, final VerdictTypeEnum aVerdictType) {
 		if ( mVerdicts == null ) {
-			mVerdicts = new ArrayList<>();
+			mVerdicts = new ArrayList<Verdict>();
 		}
 		Verdict v = new Verdict();
 		v.mTestcase = aTestcase;

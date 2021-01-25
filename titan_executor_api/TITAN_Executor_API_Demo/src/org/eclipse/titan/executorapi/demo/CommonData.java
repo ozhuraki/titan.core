@@ -16,7 +16,7 @@ import java.io.File;
 
 public class CommonData {
 
-    // default values
+	// default values
 	private static final String WORKSPACE = "../../titan/Install/";
 	private static final String CFG_FILE = "demo/MyExample.cfg";
 	static final String LOCALHOST = "NULL";
@@ -28,17 +28,17 @@ public class CommonData {
 	private static String getDefaultWorkspaceDir() {
 		String ttcn3_dir = System.getenv().get("TTCN3_DIR");
 		String workspace = WORKSPACE;
-	    if (ttcn3_dir != null && ttcn3_dir.length() > 0) {
-	    	workspace = ttcn3_dir;
-	    }
-	    workspace += ( workspace.endsWith( File.separator ) ? "" : File.separator );
-    	return workspace;
+		if (ttcn3_dir != null && ttcn3_dir.length() > 0) {
+			workspace = ttcn3_dir;
+		}
+		workspace += ( workspace.endsWith( File.separator ) ? "" : File.separator );
+		return workspace;
 	}
-	
+
 	public static String getDefaultWorkingDir() {
 		return getDefaultWorkspaceDir() + WORKINGDIR;
 	}
-	
+
 	public static String getDefaultCfgFile() {
 		return getDefaultWorkspaceDir() + CFG_FILE;
 	}

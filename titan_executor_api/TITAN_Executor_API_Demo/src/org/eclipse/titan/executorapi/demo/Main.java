@@ -13,7 +13,7 @@
 package org.eclipse.titan.executorapi.demo;
 
 public class Main {
-	
+
 	public static void main(String[] args) {
 		new DemoFrame().setVisible( true );
 	}
