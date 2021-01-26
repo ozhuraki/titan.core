@@ -34,13 +34,13 @@ class NormalTestObserver extends TestObserverBase {
 	 * or -1 if it's not known yet. It is read in MC_READY state
 	 */
 	private int mExecuteCfgLen = -1;
-	
+
 	/**
 	 * The index of the current item, which is currently executed
 	 * Used for CFG_FILE and TEST_CONTROL
 	 */
 	private int mExecuteIndex = -1;
-	
+
 	protected NormalTestObserver(JniExecutor aJe, McRoute aRoute, ExecutionMethod aExecMethod) {
 		super(aJe, aRoute, aExecMethod);
 	}
@@ -77,7 +77,7 @@ class NormalTestObserver extends TestObserverBase {
 		}
 		Log.fo();
 	}
-	
+
 	private boolean executionReady() {
 		switch ( mExecMethod ) {
 		case TEST_CONTROL:
@@ -90,7 +90,7 @@ class NormalTestObserver extends TestObserverBase {
 			return true;
 		}
 	}
-	
+
 	private void executeNext() throws JniExecutorWrongStateException, JniExecutorIllegalArgumentException {
 		switch ( mExecMethod ) {
 		case TEST_CONTROL:

@@ -25,7 +25,7 @@ import org.junit.Test;
  * JniExecutorIllegalArgException is expected.
  */
 public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTest {
-	
+
 	private void testIllegalArgAddHostController( final JniExecutor je ) {
 		try {
 			je.addHostController( null );
@@ -36,7 +36,7 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 			fail();
 		}
 	}
-	
+
 	private void testIllegalArgSetConfigFileName( final JniExecutor je ) {
 		try {
 			je.setConfigFileName( null );
@@ -46,7 +46,7 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 		} catch (JniExecutorWrongStateException e) {
 			fail();
 		}
-		
+
 		try {
 			je.setConfigFileName( "" );
 			fail("JniExecutorIllegalArgumentException expected");
@@ -56,7 +56,7 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 			fail();
 		}
 	}
-	
+
 	private void testIllegalArgSetObserver( final JniExecutor je, final TestData td ) {
 		try {
 			je.setObserver(td.mObserver);
@@ -66,7 +66,7 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 			fail();
 		}
 	}
-	
+
 	private void testIllegalArgExecuteControl( final JniExecutor je ) {
 		try {
 			je.executeControl(null);
@@ -76,7 +76,7 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 		} catch (JniExecutorWrongStateException e) {
 			fail();
 		}
-		
+
 		try {
 			je.executeControl("");
 			fail("JniExecutorIllegalArgumentException expected");
@@ -86,7 +86,7 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 			fail();
 		}
 	}
-	
+
 	private void testIllegalArgExecuteTestcase( final JniExecutor je, final TestData td ) {
 		try {
 			je.executeTestcase( null, td.mTestcases.get(0));
@@ -121,7 +121,7 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 			fail();
 		}
 	}
-	
+
 	private void testIllegalArgExecuteCfg( final JniExecutor je ) {
 		try {
 			je.executeCfg( -1 );
@@ -131,7 +131,7 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 		} catch (JniExecutorWrongStateException e) {
 			fail();
 		}
-		
+
 		try {
 			final int executeCfgLen = je.getExecuteCfgLen();
 			je.executeCfg( executeCfgLen );
@@ -142,7 +142,7 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 			fail();
 		}
 	}
-	
+
 	/**
 	 * disconnected (before init())
 	 */
@@ -150,7 +150,7 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 	public void testExecutorIllegalArgDisconnected() {
 		//nothing to test in disconnected state
 	}
-	
+
 	/**
 	 * connected MC_INACTIVE state (after init())
 	 */
@@ -165,12 +165,12 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 		testIllegalArgAddHostController(je);
 		testIllegalArgSetConfigFileName(je);
 		testIllegalArgSetObserver(je, td);
-		
+
 		// --------------
 		je.shutdownSession();
 		je.waitForCompletion();
 	}
-	
+
 	/**
 	 * MC_LISTENING state (after startSession())
 	 */
@@ -178,9 +178,9 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 	public void testExecutorIllegalArgListening() {
 		final TestData td = createTestData1();
 		final JniExecutor je = JniExecutor.getInstance();
-		
+
 		gotoListening(je, td);
-		
+
 		// we are now in MC_LISTENING, test all the functions, which has argument
 		testIllegalArgAddHostController(je);
 		testIllegalArgSetObserver(je, td);
@@ -189,7 +189,7 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 		je.shutdownSession();
 		je.waitForCompletion();
 	}
-	
+
 	/**
 	 * MC_HC_CONNECTED after startHostControllers()
 	 */
@@ -197,9 +197,9 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 	public void testExecutorIllegalArgHcConnected() {
 		final TestData td = createTestData1();
 		final JniExecutor je = JniExecutor.getInstance();
-		
+
 		gotoHcConnected(je, td);
-		
+
 		// we are now in MC_HC_CONNECTED, test all the functions, which has argument
 		testIllegalArgSetObserver(je, td);
 
@@ -207,7 +207,7 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 		je.shutdownSession();
 		je.waitForCompletion();
 	}
-	
+
 	/**
 	 * MC_LISTENING_CONFIGURED state (after configure())
 	 */
@@ -217,7 +217,7 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 		final JniExecutor je = JniExecutor.getInstance();
 
 		gotoListeningConfigured(je, td);
-		
+
 		// we are now in MC_LISTENING_CONFIGURED, test all the functions, which has argument
 		testIllegalArgAddHostController(je);
 		testIllegalArgSetObserver(je, td);
@@ -226,7 +226,7 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 		je.shutdownSession();
 		je.waitForCompletion();
 	}
-	
+
 	/**
 	 * MC_ACTIVE after configure()
 	 */
@@ -236,7 +236,7 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 		final JniExecutor je = JniExecutor.getInstance();
 
 		gotoActive(je, td);
-		
+
 		// we are now in MC_ACTIVE, test all the functions, which has argument
 		testIllegalArgSetObserver(je, td);
 
@@ -244,7 +244,7 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 		je.shutdownSession();
 		je.waitForCompletion();
 	}
-	
+
 	/**
 	 * MC_READY after createMTC()
 	 */
@@ -252,15 +252,15 @@ public class JniExecutorAsyncErrorIllegalArgTest extends JniExecutorAsyncErrorTe
 	public void testExecutorIllegalArgReady() {
 		final TestData td = createTestData1();
 		final JniExecutor je = JniExecutor.getInstance();
-		
+
 		gotoReady(je, td);
-		
+
 		// we are now in MC_READY, test all the functions, which has argument
 		testIllegalArgSetObserver(je, td);
 		testIllegalArgExecuteControl(je);
 		testIllegalArgExecuteTestcase(je, td);
 		testIllegalArgExecuteCfg(je);
-		
+
 		// --------------
 		je.shutdownSession();
 		je.waitForCompletion();

@@ -28,13 +28,13 @@ import org.eclipse.titan.executorapi.util.Log;
  *  testcase by name 
  */
 class Test1Observer extends TestObserverBase {
-	
+
 	public Test1Observer( final JniExecutor aJe, final String aModule, final List<String> aTestcases ) {
 		super( aJe, McRoute.ROUTE_1, ExecutionMethod.TEST_CASE );
 		setModule(aModule);
 		setTestcases(aTestcases);
 	}
-	
+
 	@Override
 	public void statusChanged2( final McStateEnum aNewState ) throws JniExecutorException {
 		Log.fi(aNewState);

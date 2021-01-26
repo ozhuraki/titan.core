@@ -34,7 +34,7 @@ import org.eclipse.titan.executorapi.util.Log;
  * Base class of asynchronous JniExecutor error tests.
  */
 public abstract class JniExecutorAsyncErrorTest extends JniExecutorAsyncTest {
-	
+
 	/**
 	 * structure to hold all the needed data to run tests
 	 *
@@ -46,7 +46,7 @@ public abstract class JniExecutorAsyncErrorTest extends JniExecutorAsyncTest {
 		public List<String> mTestcases = null;
 		public IJniExecutorObserver mObserver = null;
 	}
-	
+
 	protected  TestData createTestData1() {
 		HostController hc1 = null;
 		try {
@@ -59,10 +59,10 @@ public abstract class JniExecutorAsyncErrorTest extends JniExecutorAsyncTest {
 		final List<String> testcases = new ArrayList<String>();
 		testcases.add(TestConstants.TESTCASE1);
 		testcases.add(TestConstants.TESTCASE2);
-		
+
 		final JniExecutor je = JniExecutor.getInstance();
 		IJniExecutorObserver o1 = new Test1Observer(je, module, testcases);
-		
+
 		TestData td = new TestData();
 		td.mHc = hc1;
 		td.mCfgFileName = cfgFileName;
@@ -71,9 +71,9 @@ public abstract class JniExecutorAsyncErrorTest extends JniExecutorAsyncTest {
 		td.mObserver = o1;
 		return td;
 	}
-	
+
 	// functions to get to different states
-	
+
 	protected void gotoInactive( final JniExecutor je, final TestData td ) {
 		Log.fi();
 		// get to connected MC_INACTIVE
@@ -85,24 +85,24 @@ public abstract class JniExecutorAsyncErrorTest extends JniExecutorAsyncTest {
 		}
 		Log.fo();
 	}
-	
+
 	protected void gotoListening( final JniExecutor je, final TestData td ) {
 		Log.fi();
 		// get to MC_LISTENING
 		gotoInactive(je, td);
-		
+
 		try {
 			TestUtil.assertState( McStateEnum.MC_INACTIVE );
-			
+
 			je.addHostController( td.mHc );
 			TestUtil.assertState( McStateEnum.MC_INACTIVE );
-			
+
 			je.setConfigFileName( td.mCfgFileName );
 			TestUtil.assertState( McStateEnum.MC_INACTIVE );
-			
+
 			je.setObserver(null);
 			TestUtil.assertState( McStateEnum.MC_INACTIVE );
-			
+
 			je.startSession();
 			TestUtil.assertState( McStateEnum.MC_LISTENING );
 		} catch (JniExecutorIllegalArgumentException | JniExecutorWrongStateException | JniExecutorStartSessionException e) {
@@ -110,12 +110,12 @@ public abstract class JniExecutorAsyncErrorTest extends JniExecutorAsyncTest {
 		}
 		Log.fo();
 	}
-	
+
 	protected void gotoListeningConfigured( final JniExecutor je, final TestData td ) {
 		Log.fi();
 		// get to MC_LISTENING_CONFIGURED
 		gotoListening(je, td);
-		
+
 		try {
 			TestUtil.assertState( McStateEnum.MC_LISTENING );
 			final Object lock = new Object();
@@ -130,21 +130,21 @@ public abstract class JniExecutorAsyncErrorTest extends JniExecutorAsyncTest {
 		}
 		Log.fo();
 	}
-	
+
 	protected void gotoListeningWithoutAddHostController( final JniExecutor je, final TestData td ) {
 		Log.fi();
 		// get to MC_LISTENING
 		gotoInactive(je, td);
-		
+
 		try {
 			TestUtil.assertState( McStateEnum.MC_INACTIVE );
-			
+
 			je.setConfigFileName( td.mCfgFileName );
 			TestUtil.assertState( McStateEnum.MC_INACTIVE );
-			
+
 			je.setObserver(null);
 			TestUtil.assertState( McStateEnum.MC_INACTIVE );
-			
+
 			je.startSession();
 			TestUtil.assertState( McStateEnum.MC_LISTENING );
 		} catch (JniExecutorIllegalArgumentException | JniExecutorWrongStateException | JniExecutorStartSessionException e) {
@@ -152,12 +152,12 @@ public abstract class JniExecutorAsyncErrorTest extends JniExecutorAsyncTest {
 		}
 		Log.fo();
 	}
-	
+
 	protected void gotoListeningConfiguredWithoutAddHostController( final JniExecutor je, final TestData td ) {
 		Log.fi();
 		// get to MC_LISTENING_CONFIGURED without addHostController()
 		gotoListeningWithoutAddHostController(je, td);
-		
+
 		try {
 			TestUtil.assertState( McStateEnum.MC_LISTENING );
 			final Object lock = new Object();
@@ -172,12 +172,12 @@ public abstract class JniExecutorAsyncErrorTest extends JniExecutorAsyncTest {
 		}
 		Log.fo();
 	}
-	
+
 	protected void gotoHcConnected( final JniExecutor je, final TestData td ) {
 		Log.fi();
 		// get to MC_HC_CONNECTED
 		gotoListening(je, td);
-		
+
 		try {
 			TestUtil.assertState( McStateEnum.MC_LISTENING );
 			final Object lock = new Object();
@@ -192,12 +192,12 @@ public abstract class JniExecutorAsyncErrorTest extends JniExecutorAsyncTest {
 		}
 		Log.fo();
 	}
-	
+
 	protected void gotoActive( final JniExecutor je, final TestData td ) {
 		Log.fi();
 		// get to MC_ACTIVE
 		gotoHcConnected(je, td);
-		
+
 		try {
 			TestUtil.assertState( McStateEnum.MC_HC_CONNECTED );
 			final Object lock = new Object();
@@ -212,12 +212,12 @@ public abstract class JniExecutorAsyncErrorTest extends JniExecutorAsyncTest {
 		}
 		Log.fo();
 	}
-	
+
 	protected void gotoReady( final JniExecutor je, final TestData td ) {
 		Log.fi();
 		// get to MC_READY
 		gotoActive(je, td);
-		
+
 		try {
 			TestUtil.assertState( McStateEnum.MC_ACTIVE );
 			final Object lock = new Object();
@@ -232,12 +232,12 @@ public abstract class JniExecutorAsyncErrorTest extends JniExecutorAsyncTest {
 		}
 		Log.fo();
 	}
-	
+
 	protected void gotoPaused( final JniExecutor je, final TestData td ) {
 		Log.fi();
 		// get to MC_PAUSED
 		gotoReady(je, td);
-		
+
 		try {
 			TestUtil.assertState( McStateEnum.MC_READY );
 			je.pauseExecution(true);
@@ -253,7 +253,7 @@ public abstract class JniExecutorAsyncErrorTest extends JniExecutorAsyncTest {
 		}
 		Log.fo();
 	}
-	
+
 	/**
 	 * First part of waiting until asynchronous function gets to the expected state.
 	 * <p>
@@ -287,7 +287,7 @@ public abstract class JniExecutorAsyncErrorTest extends JniExecutorAsyncTest {
 				}
 				Log.fo();
 			}
-			
+
 			@Override
 			public void error(int aSeverity, String aMsg) {
 				Log.fi(aSeverity, aMsg);
@@ -300,7 +300,7 @@ public abstract class JniExecutorAsyncErrorTest extends JniExecutorAsyncTest {
 			@Override
 			public void notify(Timeval aTime, String aSource, int aSeverity, String aMsg) {
 			}
-			
+
 			@Override
 			public void verdict(String aTestcase, VerdictTypeEnum aVerdictType) {
 			}
@@ -319,7 +319,7 @@ public abstract class JniExecutorAsyncErrorTest extends JniExecutorAsyncTest {
 		}
 		Log.fo();
 	}
-	
+
 	/**
 	 * Pair of {@link #waitBefore(Object, McStateEnum)}
 	 * @param aLock lock for synchronization

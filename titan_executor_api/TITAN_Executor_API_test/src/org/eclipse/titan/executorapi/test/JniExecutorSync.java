@@ -30,30 +30,30 @@ import org.eclipse.titan.executorapi.util.Log;
  * Wrapper class for synchronous usage of JniExecutor. SINGLETON
  */
 public final class JniExecutorSync implements IJniExecutorObserver {
-	
+
 	/** Default timeout of synchronous functions of the asynchronous requests in ms */
 	private static final int DEFAULT_TIMEOUT = 0;
-	
+
 	/**
 	 * lock for synchronous access of mRequestOngoing
 	 */
 	private final Object mLockObject = new Object();
-	
+
 	/**
 	 * Flag for signaling the asynchronous requests, used for the synchronous versions of the functions
 	 */
 	private volatile boolean mRequestOngoing = false;
-	
+
 	/**
 	 * true, if setObserver() was called
 	 */
 	private boolean mObserverSet = false;
-	
+
 	/**
 	 * Timeout of synchronous functions of the asynchronous requests in ms
 	 */
 	private long mTimeout = DEFAULT_TIMEOUT;
-	
+
 	/**
 	 * Private constructor, because it is a singleton.
 	 */
@@ -68,7 +68,7 @@ public final class JniExecutorSync implements IJniExecutorObserver {
 	private static class SingletonHolder {
 		private static final JniExecutorSync mInstance = new JniExecutorSync();
 	}
-	
+
 	/**
 	 * @return the singleton instance
 	 */
@@ -81,16 +81,16 @@ public final class JniExecutorSync implements IJniExecutorObserver {
 		Log.fi( aNewState );
 		// in case of final states
 		// synchronous function is signaled that function can be ended
-	    if ( !isIntermediateState( aNewState ) ) {
-	    	signalEndSync();
-	    }
+		if ( !isIntermediateState( aNewState ) ) {
+			signalEndSync();
+		}
 		Log.fo();
 	}
 
 	@Override
 	public void error( final int aSeverity, final String aMsg ) {
 		Log.fi( aSeverity, aMsg );
-    	signalEndSync();
+		signalEndSync();
 		Log.fo();
 	}
 
@@ -105,7 +105,7 @@ public final class JniExecutorSync implements IJniExecutorObserver {
 	@Override
 	public void verdictStats(Map<VerdictTypeEnum, Integer> aVerdictStats) {
 	}
-	
+
 	public void init() throws JniExecutorWrongStateException, JniExecutorJniLoadException {
 		JniExecutor.getInstance().init();
 		mRequestOngoing = false;
@@ -119,15 +119,15 @@ public final class JniExecutorSync implements IJniExecutorObserver {
 	public void setConfigFileName( final String aConfigFileName ) throws JniExecutorWrongStateException, JniExecutorIllegalArgumentException {
 		JniExecutor.getInstance().setConfigFileName( aConfigFileName );
 	}
-	
+
 	public void startSession() throws JniExecutorWrongStateException, JniExecutorStartSessionException {
 		JniExecutor.getInstance().startSession();
 	}
-	
+
 	public int getExecuteCfgLen() throws JniExecutorWrongStateException {
 		return JniExecutor.getInstance().getExecuteCfgLen();
 	}
-	
+
 	/**
 	 * Sets new timeout
 	 * @param aTimeout the new timeout value in ms,
@@ -136,7 +136,7 @@ public final class JniExecutorSync implements IJniExecutorObserver {
 	public void setTimeout( final long aTimeout ) {
 		mTimeout = aTimeout;
 	}
-	
+
 	/**
 	 * Sets observer if it's not set yet.
 	 * It must be called before the 1st asynchronous function call.
@@ -148,10 +148,10 @@ public final class JniExecutorSync implements IJniExecutorObserver {
 			mObserverSet = true;
 		}
 	}
-	
+
 	// ------------ SYNCHRONOUS VERSION OF ASYNCHRONOUS FUNCTIONS --------------------
-	
-	
+
+
 	public void startHostControllersSync() throws JniExecutorWrongStateException {
 		// observer is set before the 1st async request
 		setObserver();
@@ -159,7 +159,7 @@ public final class JniExecutorSync implements IJniExecutorObserver {
 		JniExecutor.getInstance().startHostControllers();
 		endSync();
 	}
-	
+
 	public void configureSync() throws JniExecutorWrongStateException {
 		// observer is set before the 1st async request
 		setObserver();
@@ -167,43 +167,43 @@ public final class JniExecutorSync implements IJniExecutorObserver {
 		JniExecutor.getInstance().configure();
 		endSync();
 	}
-	
+
 	public void createMTCSync() throws JniExecutorWrongStateException {
 		startSync();
 		JniExecutor.getInstance().createMTC();
 		endSync();
 	}
-	
+
 	public void executeControlSync( final String aModule ) throws JniExecutorWrongStateException, JniExecutorIllegalArgumentException {
 		startSync();
 		JniExecutor.getInstance().executeControl( aModule );
 		endSync();
 	}
-	
+
 	public void executeTestcaseSync( final String aModule, final String aTestcase ) throws JniExecutorWrongStateException, JniExecutorIllegalArgumentException {
 		startSync();
 		JniExecutor.getInstance().executeTestcase( aModule, aTestcase );
 		endSync();
 	}
-	
+
 	public void executeCfgSync( final int aIndex ) throws JniExecutorWrongStateException, JniExecutorIllegalArgumentException {
 		startSync();
 		JniExecutor.getInstance().executeCfg( aIndex );
 		endSync();
 	}
-	
+
 	public void continueExecutionSync() throws JniExecutorWrongStateException {
 		startSync();
 		JniExecutor.getInstance().continueExecution();
 		endSync();
 	}
-	
+
 	public void exitMTCSync() throws JniExecutorWrongStateException {
 		startSync();
 		JniExecutor.getInstance().exitMTC();
 		endSync();
 	}
-	
+
 	public void shutdownSessionSync() {
 		startSync();
 		JniExecutor.getInstance().shutdownSession();
@@ -223,7 +223,7 @@ public final class JniExecutorSync implements IJniExecutorObserver {
 		}
 		Log.fo();
 	}
-	
+
 	private void endSync() {
 		Log.fi();
 		synchronized (mLockObject) {
@@ -247,7 +247,7 @@ public final class JniExecutorSync implements IJniExecutorObserver {
 		}
 		Log.fo();
 	}
-	
+
 	private void signalEndSync() {
 		Log.fi();
 		synchronized (mLockObject) {

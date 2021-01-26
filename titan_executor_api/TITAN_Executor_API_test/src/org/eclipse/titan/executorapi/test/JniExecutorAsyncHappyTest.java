@@ -33,44 +33,44 @@ import org.junit.Test;
  */
 public class JniExecutorAsyncHappyTest extends JniExecutorAsyncTest {
 
-    /**
-     * Route alternative in the MC state flow,
-     * or in other words: the order of startHostControllers() and configure() operations
-     */
+	/**
+	 * Route alternative in the MC state flow,
+	 * or in other words: the order of startHostControllers() and configure() operations
+	 */
 	public enum McRoute {
-		
+
 		/**
 		 * MC_LISTENING -> startHostControllers() -> MC_HC_CONNECTED -> configure() -> (MC_CONFIGURING) -> MC_ACTIVE
 		 */
 		ROUTE_1,
-		
+
 		/**
 		 * MC_LISTENING -> configure() -> MC_LISTENING_CONFIGURED -> startHostControllers() -> (MC_CONFIGURING) -> MC_ACTIVE
 		 */
 		ROUTE_2
 	};
-	
+
 	/**
 	 * Determines how the tests are executed in when we get to MC_READY state
 	 */
 	public enum ExecutionMethod {
-		
+
 		/**
 		 * Test is executed by test control name
 		 */
 		TEST_CONTROL,
-		
+
 		/**
 		 * Test is executed by test case name, a module name and list of testcase name must be added
 		 */
 		TEST_CASE,
-		
+
 		/**
 		 * Execution list of the cfg file is used for test execution
 		 */
 		CFG_FILE
 	}
-	
+
 	/**
 	 * Runs test of 1 module. 
 	 * Sets up MC, executes tests, shuts down session. 
@@ -119,7 +119,7 @@ public class JniExecutorAsyncHappyTest extends JniExecutorAsyncTest {
 		assertTrue(!je.isConnected());
 		Log.fo();
 	}
-	
+
 	/**
 	 * Runs test of 1 module. (It has less parameters, calls the other testHappy)
 	 * Sets up MC, executes tests, shuts down session. 
@@ -137,36 +137,36 @@ public class JniExecutorAsyncHappyTest extends JniExecutorAsyncTest {
 		final List<String> testcases = new ArrayList<String>();
 		testcases.add(TestConstants.TESTCASE1);
 		testcases.add(TestConstants.TESTCASE2);
-		
+
 		testHappy( hc1, cfgFileName, module, testcases, aRoute, aExecMethod );
 		Log.fo();
 	}
-	
+
 	@Test
 	public void testExecutorAsyncHappyRoute1TestControl() throws JniExecutorException {
 		testHappy(McRoute.ROUTE_1, ExecutionMethod.TEST_CONTROL);
 	}
-	
+
 	@Test
 	public void testExecutorAsyncHappyRoute1TestCasel() throws JniExecutorException {
 		testHappy(McRoute.ROUTE_1, ExecutionMethod.TEST_CASE);
 	}
-	
+
 	@Test
 	public void testExecutorAsyncHappyRoute1CfgFilel() throws JniExecutorException {
 		testHappy(McRoute.ROUTE_1, ExecutionMethod.CFG_FILE);
 	}
-	
+
 	@Test
 	public void testExecutorAsyncHappyRoute2TestControl() throws JniExecutorException {
 		testHappy(McRoute.ROUTE_2, ExecutionMethod.TEST_CONTROL);
 	}
-	
+
 	@Test
 	public void testExecutorAsyncHappyRoute2TestCase() throws JniExecutorException {
 		testHappy(McRoute.ROUTE_2, ExecutionMethod.TEST_CASE);
 	}
-	
+
 	@Test
 	public void testExecutorAsyncHappyRoute2CfgFile() throws JniExecutorException {
 		testHappy(McRoute.ROUTE_2, ExecutionMethod.CFG_FILE);

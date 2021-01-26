@@ -33,26 +33,26 @@ import org.junit.Test;
  */
 public class JniExecutorSyncTest extends JniExecutorTest {
 
-    @BeforeClass
-    public static void oneTimeSetUp() {
-        // one-time initialization code
+	@BeforeClass
+	public static void oneTimeSetUp() {
+		// one-time initialization code
 		Log.fi();
 		// make sure, that session is shut down
 		final JniExecutor je = JniExecutor.getInstance();
 		je.shutdownSession();
 		je.waitForCompletion();
 		Log.fo();
-    }
- 
-    @AfterClass
-    public static void oneTimeTearDown() {
-        // one-time cleanup code
+	}
+
+	@AfterClass
+	public static void oneTimeTearDown() {
+		// one-time cleanup code
 		Log.fi();
 		Log.fo();
-    }
- 
-    @Before
-    public void setUp() {
+	}
+
+	@Before
+	public void setUp() {
 		Log.fi();
 		// check if session is not started
 		final JniExecutor je = JniExecutor.getInstance();
@@ -60,17 +60,17 @@ public class JniExecutorSyncTest extends JniExecutorTest {
 		final McStateEnum state = je.getState();
 		assertTrue( state == McStateEnum.MC_INACTIVE );
 		Log.fo();
-    }
- 
-    @After
-    public void tearDown() {
+	}
+
+	@After
+	public void tearDown() {
 		Log.fi();
 		// make sure, that session is shut down
 		final JniExecutor je = JniExecutor.getInstance();
 		je.shutdownSession();
 		je.waitForCompletion();
 		Log.fo();
-    }
+	}
 
 	/**
 	 * sync
@@ -88,7 +88,7 @@ public class JniExecutorSyncTest extends JniExecutorTest {
 		je.addHostController(hc1);
 		je.setConfigFileName(TestConstants.CFG_FILE);
 		TestUtil.assertState( McStateEnum.MC_INACTIVE );
-		
+
 		Log.i("startSession()");
 		je.startSession();
 		TestUtil.assertState( McStateEnum.MC_LISTENING );
@@ -96,15 +96,15 @@ public class JniExecutorSyncTest extends JniExecutorTest {
 		Log.i("startHostControllersSync()");
 		je.startHostControllersSync();
 		TestUtil.assertState( McStateEnum.MC_HC_CONNECTED );
-		
+
 		Log.i("configureSync()");
 		je.configureSync();
 		TestUtil.assertState( McStateEnum.MC_ACTIVE );
-		
+
 		Log.i("createMTCSync()");
 		je.createMTCSync();
 		TestUtil.assertState( McStateEnum.MC_READY );
-		
+
 		final String module = TestConstants.MODULE;
 		final List<String> testcases = new ArrayList<String>();
 		testcases.add(TestConstants.TESTCASE1);
@@ -118,12 +118,12 @@ public class JniExecutorSyncTest extends JniExecutorTest {
 		Log.i("exitMTCSync()");
 		je.exitMTCSync();
 		TestUtil.assertState( McStateEnum.MC_ACTIVE );
-		
+
 		Log.i("shutdownSessionSync()");
 		je.shutdownSessionSync();
 		Log.fo();
 	}
-	
+
 	/**
 	 * sync
 	 * route 2
@@ -140,7 +140,7 @@ public class JniExecutorSyncTest extends JniExecutorTest {
 		je.addHostController(hc1);
 		je.setConfigFileName(TestConstants.CFG_FILE);
 		TestUtil.assertState( McStateEnum.MC_INACTIVE );
-		
+
 		Log.i("startSession()");
 		je.startSession();
 		TestUtil.assertState( McStateEnum.MC_LISTENING );
@@ -148,15 +148,15 @@ public class JniExecutorSyncTest extends JniExecutorTest {
 		Log.iu("configureSync()");
 		je.configureSync();
 		TestUtil.assertState( McStateEnum.MC_LISTENING_CONFIGURED );
-		
+
 		Log.iu("startHostControllersSync()");
 		je.startHostControllersSync();
 		TestUtil.assertState( McStateEnum.MC_ACTIVE );
-		
+
 		Log.i("createMTCSync()");
 		je.createMTCSync();
 		TestUtil.assertState( McStateEnum.MC_READY );
-		
+
 		final String module = TestConstants.MODULE;
 		final List<String> testcases = new ArrayList<String>();
 		testcases.add(TestConstants.TESTCASE1);
@@ -170,12 +170,12 @@ public class JniExecutorSyncTest extends JniExecutorTest {
 		Log.i("exitMTCSync()");
 		je.exitMTCSync();
 		TestUtil.assertState( McStateEnum.MC_ACTIVE );
-		
+
 		Log.i("shutdownSessionSync()");
 		je.shutdownSessionSync();
 		Log.fo();
 	}
-	
+
 	/**
 	 * sync
 	 * route 1
@@ -192,7 +192,7 @@ public class JniExecutorSyncTest extends JniExecutorTest {
 		je.addHostController( hc1 );
 		je.setConfigFileName(TestConstants.CFG_FILE);
 		TestUtil.assertState( McStateEnum.MC_INACTIVE );
-		
+
 		Log.i("startSession()");
 		je.startSession();
 		TestUtil.assertState( McStateEnum.MC_LISTENING );
@@ -200,11 +200,11 @@ public class JniExecutorSyncTest extends JniExecutorTest {
 		Log.i("startHostControllersSync()");
 		je.startHostControllersSync();
 		TestUtil.assertState( McStateEnum.MC_HC_CONNECTED );
-		
+
 		Log.i("configureSync()");
 		je.configureSync();
 		TestUtil.assertState( McStateEnum.MC_ACTIVE );
-		
+
 		Log.i("createMTCSync()");
 		je.createMTCSync();
 		TestUtil.assertState( McStateEnum.MC_READY );
@@ -220,7 +220,7 @@ public class JniExecutorSyncTest extends JniExecutorTest {
 		Log.i("exitMTCSync()");
 		je.exitMTCSync();
 		TestUtil.assertState( McStateEnum.MC_ACTIVE );
-		
+
 		Log.i("shutdownSessionSync()");
 		je.shutdownSessionSync();
 		Log.fo();

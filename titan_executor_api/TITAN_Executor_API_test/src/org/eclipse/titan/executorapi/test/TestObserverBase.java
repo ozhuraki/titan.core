@@ -26,19 +26,19 @@ import org.eclipse.titan.executorapi.test.JniExecutorAsyncHappyTest.McRoute;
 import org.eclipse.titan.executorapi.util.Log;
 
 abstract class TestObserverBase implements IJniExecutorObserver {
-	
+
 	/** Executor instance, NOT OWNED */
 	protected final JniExecutor mJe;
-	
+
 	/** TTCN-3 module name of the test control or test case(s), it can be null (it means execution list from cfg file is used) */
 	protected String mModule = null;
-	
+
 	/** List of test cases, it can be null (it means test control is executed) */
 	protected List<String> mTestcases = null;
-	
+
 	protected final McRoute mRoute;
 	protected final ExecutionMethod mExecMethod;
-	
+
 	/**
 	 * Lock object for waiting completion. NOT OWNED
 	 */
@@ -51,29 +51,29 @@ abstract class TestObserverBase implements IJniExecutorObserver {
 	 *   false: FAIL
 	 */
 	private volatile boolean mVerdict = true;
-	
+
 	public void setLock( final Object aLockObject ) {
 		mLockCompletion = aLockObject;
 	}
-	
+
 	public boolean getVerdict() {
 		return mVerdict;
 	}
-	
+
 	public void setModule( final String aModule ) {
 		mModule = aModule;
 	}
-	
+
 	public void setTestcases( final List<String> aTestcases ) {
 		mTestcases = aTestcases;
 	}
-	
+
 	protected TestObserverBase( final JniExecutor aJe, final McRoute aRoute, final ExecutionMethod aExecMethod ) {
 		mJe = aJe;
 		mRoute = aRoute;
 		mExecMethod = aExecMethod;
 	}
-	
+
 	@Override
 	public void statusChanged(McStateEnum aNewState) {
 		Log.fi(aNewState);
@@ -91,7 +91,7 @@ abstract class TestObserverBase implements IJniExecutorObserver {
 		}
 		Log.fo();
 	}
-	
+
 	@Override
 	public void error(int aSeverity, String aMsg) {
 		Log.fi( aSeverity, aMsg );
@@ -104,7 +104,7 @@ abstract class TestObserverBase implements IJniExecutorObserver {
 		Log.fi( aTime, aSource, aSeverity, aMsg );
 		Log.fo();
 	}
-	
+
 	@Override
 	public void verdict(String aTestcase, VerdictTypeEnum aVerdictType) {
 		Log.fi( aTestcase, aVerdictType );
@@ -116,7 +116,7 @@ abstract class TestObserverBase implements IJniExecutorObserver {
 		Log.fi( aVerdictStats );
 		Log.fo();
 	}
-	
+
 	/**
 	 * Exception proof function instead of statusChanged(), exception is handled in statusChanged()
 	 * @param aNewState
@@ -124,7 +124,7 @@ abstract class TestObserverBase implements IJniExecutorObserver {
 	 * @see #statusChanged(McStateEnum)
 	 */
 	abstract protected void statusChanged2( final McStateEnum aNewState ) throws JniExecutorException;
-	
+
 	/**
 	 * releases the lock of the test client
 	 */
@@ -137,7 +137,7 @@ abstract class TestObserverBase implements IJniExecutorObserver {
 			}
 		}
 	}
-	
+
 	/**
 	 * Set verdict to FAIL on the observer, so to can be read by the test method
 	 */
@@ -145,7 +145,7 @@ abstract class TestObserverBase implements IJniExecutorObserver {
 		mVerdict = false;
 		releaseLock();
 	}
-	
+
 	/**
 	 * sets lock, waits until lock is released
 	 */

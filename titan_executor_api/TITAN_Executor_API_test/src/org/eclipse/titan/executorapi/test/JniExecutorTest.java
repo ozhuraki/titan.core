@@ -20,7 +20,7 @@ import org.junit.rules.Timeout;
  * @see org.eclipse.titan.executorapi.JniExecutor 
  */
 public abstract class JniExecutorTest {
-	
+
 	/** The time in milliseconds max per method tested */
 	@Rule
 	public Timeout globalTimeout = new Timeout(60000);

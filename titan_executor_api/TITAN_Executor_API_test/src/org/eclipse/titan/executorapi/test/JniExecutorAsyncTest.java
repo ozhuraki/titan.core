@@ -31,34 +31,34 @@ public abstract class JniExecutorAsyncTest extends JniExecutorTest {
 	 * Common one-time initialization code for asynchronous JniExecutor tests.
 	 * It runs only once for a test class.
 	 */
-    @BeforeClass
-    public static void oneTimeSetUp() {
-        // one-time initialization code
+	@BeforeClass
+	public static void oneTimeSetUp() {
+		// one-time initialization code
 		Log.fi();
 		// make sure, that session is shut down
 		final JniExecutor je = JniExecutor.getInstance();
 		je.shutdownSession();
 		je.waitForCompletion();
 		Log.fo();
-    }
- 
+	}
+
 	/**
 	 * Common one-time cleanup code for asynchronous JniExecutor tests.
 	 * It runs only once for a test class.
 	 */
-    @AfterClass
-    public static void oneTimeTearDown() {
-        // one-time cleanup code
+	@AfterClass
+	public static void oneTimeTearDown() {
+		// one-time cleanup code
 		Log.fi();
 		Log.fo();
-    }
- 
+	}
+
 	/**
 	 * Common initialization code for asynchronous JniExecutor tests.
 	 * It runs before each test method.
 	 */
-    @Before
-    public void setUp() {
+	@Before
+	public void setUp() {
 		Log.fi();
 		// check if session is not started
 		final JniExecutor je = JniExecutor.getInstance();
@@ -66,19 +66,19 @@ public abstract class JniExecutorAsyncTest extends JniExecutorTest {
 		final McStateEnum state = je.getState();
 		assertTrue( state == McStateEnum.MC_INACTIVE );
 		Log.fo();
-    }
- 
+	}
+
 	/**
 	 * Common cleanup code for asynchronous JniExecutor tests.
 	 * It runs before each test method.
 	 */
-    @After
-    public void tearDown() {
+	@After
+	public void tearDown() {
 		Log.fi();
 		// make sure, that session is shut down
 		final JniExecutor je = JniExecutor.getInstance();
 		je.shutdownSession();
 		je.waitForCompletion();
 		Log.fo();
-    }
+	}
 }

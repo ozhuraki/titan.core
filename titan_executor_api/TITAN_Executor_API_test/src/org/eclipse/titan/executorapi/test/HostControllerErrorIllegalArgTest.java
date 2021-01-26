@@ -24,10 +24,10 @@ import org.junit.Test;
  * JniExecutorIllegalArgException is expected.
  */
 public class HostControllerErrorIllegalArgTest {
-	
+
 	@Test
 	public void testHostControllerConstructor() {
-		
+
 		// working dir null
 		try {
 			new HostController(null, null, TestConstants.EXECUTABLE);
@@ -35,7 +35,7 @@ public class HostControllerErrorIllegalArgTest {
 		} catch (JniExecutorIllegalArgumentException e) {
 			//expected
 		}
-		
+
 		// executable null
 		try {
 			new HostController(null, TestConstants.WORKINGDIR, null);
@@ -43,7 +43,7 @@ public class HostControllerErrorIllegalArgTest {
 		} catch (JniExecutorIllegalArgumentException e) {
 			//expected
 		}
-		
+
 		// working dir does NOT exist
 		try {
 			new HostController(null, TestConstants.WORKINGDIR + TestConstants.NONEXISTENTFILENAMEEXT, TestConstants.EXECUTABLE);
@@ -51,7 +51,7 @@ public class HostControllerErrorIllegalArgTest {
 		} catch (JniExecutorIllegalArgumentException e) {
 			//expected
 		}
-		
+
 		// working dir exists, but not a directory
 		try {
 			new HostController(null, TestConstants.EXISTS_BUT_NOT_DIR_WORKINGDIR, TestConstants.EXECUTABLE);
@@ -59,7 +59,7 @@ public class HostControllerErrorIllegalArgTest {
 		} catch (JniExecutorIllegalArgumentException e) {
 			//expected
 		}
-		
+
 		// executable does NOT exist
 		try {
 			new HostController(null, TestConstants.WORKINGDIR, TestConstants.EXECUTABLE + TestConstants.NONEXISTENTFILENAMEEXT);
@@ -67,7 +67,7 @@ public class HostControllerErrorIllegalArgTest {
 		} catch (JniExecutorIllegalArgumentException e) {
 			//expected
 		}
-		
+
 		// executable exists, but not a file (it's a directory)
 		try {
 			new HostController(null, TestConstants.EXISTS_BUT_NOT_FILE_WORKINGDIR, TestConstants.EXISTS_BUT_NOT_FILE_EXECUTABLE);

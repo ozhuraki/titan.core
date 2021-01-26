@@ -31,18 +31,18 @@ import org.junit.Test;
  * If method is not callable in the given state, JniExecutorWrongStateException is expected.
  */
 public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTest {
-	
+
 	// Method testers. Each method is tested in 2 ways:
 	//  1. true: If it's callable in the given state, we expect NOT to throw JniExecutorWrongStateException and to get to the next state (if any).
 	//             in this case it is recommended to check the state before and after this function using assertState 
 	//  2. false: If it's NOT callable in the given state, we expect to throw JniExecutorWrongStateException
 	// final boolean aCallable determines the expected behaviour for each testWrongState...() method
-	
+
 	// there is no separate method tester for the following methods, as they are called many times in the other method testers in all of the states:
 	//   shutdownSession
 	//   getState
 	//   isConnected
-	
+
 	private void testWrongStateInit( final boolean aCallable, final JniExecutor je ) {
 		if ( aCallable ) {
 			try {
@@ -61,7 +61,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			}
 		}
 	}
-	
+
 	private void testWrongStateAddHostControllers( final boolean aCallable, final JniExecutor je, final TestData td ) {
 		if ( aCallable ) {
 			try {
@@ -80,7 +80,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			}
 		}
 	}
-	
+
 	private void testWrongStateSetConfigFileName( final boolean aCallable, final JniExecutor je, final TestData td ) {
 		if ( aCallable ) {
 			try {
@@ -99,7 +99,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			}
 		}
 	}
-	
+
 	private void testWrongStateSetObserver( final boolean aCallable, final JniExecutor je, final TestData td ) {
 		if ( aCallable ) {
 			try {
@@ -135,7 +135,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			}
 		}
 	}
-	
+
 	private void testWrongStateStartHostControllers( final boolean aCallable, final JniExecutor je ) {
 		if ( aCallable ) {
 			try {
@@ -152,7 +152,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			}
 		}
 	}
-	
+
 	private void testWrongStateConfigure( final boolean aCallable, final JniExecutor je ) {
 		if ( aCallable ) {
 			try {
@@ -186,7 +186,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			}
 		}
 	}
-	
+
 	private void testWrongStateExecuteControl( final boolean aCallable, final JniExecutor je, final TestData td ) {
 		if ( aCallable ) {
 			try {
@@ -205,7 +205,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			}
 		}
 	}
-	
+
 	private void testWrongStateExecuteTextcase( final boolean aCallable, final JniExecutor je, final TestData td ) {
 		if ( aCallable ) {
 			try {
@@ -241,7 +241,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			}
 		}
 	}
-	
+
 	private void testWrongStateExecuteCfg( final boolean aCallable, final JniExecutor je ) {
 		if ( aCallable ) {
 			try {
@@ -260,7 +260,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			}
 		}
 	}
-	
+
 	private void testWrongStatePauseExecutionAndIsPaused( final boolean aCallable, final JniExecutor je ) {
 		if ( aCallable ) {
 			try {
@@ -278,7 +278,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			} catch (JniExecutorWrongStateException e) {
 				//expected
 			}
-			
+
 			try {
 				je.isPaused();
 				fail("JniExecutorWrongStateException expected");
@@ -304,7 +304,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			}
 		}
 	}
-	
+
 	private void testWrongStateStopExecution( final boolean aCallable, final JniExecutor je ) {
 		if ( aCallable ) {
 			try {
@@ -321,7 +321,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			}
 		}
 	}
-	
+
 	private void testWrongStateExitMTC( final boolean aCallable, final JniExecutor je ) {
 		if ( aCallable ) {
 			try {
@@ -338,7 +338,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			}
 		}
 	}
-	
+
 	/**
 	 * Method tester for getNumberOfHosts(), getHostData() and getComponentData()
 	 * @param aCallable true, if getNumberOfHosts() and getHostData() are callable
@@ -384,14 +384,14 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			} catch ( JniExecutorWrongStateException e ) {
 				//expected
 			}
-			
+
 			try {
 				je.getHostData(0);
 				fail("JniExecutorWrongStateException expected");
 			} catch ( JniExecutorWrongStateException e ) {
 				//expected
 			}
-			
+
 			try {
 				je.getComponentData(0);
 				fail("JniExecutorWrongStateException expected");
@@ -400,7 +400,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			}
 		}
 	}
-	
+
 	/**
 	 * disconnected (before init())
 	 */
@@ -409,9 +409,9 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		Log.fi();
 		final TestData td = createTestData1();
 		final JniExecutor je = JniExecutor.getInstance();
-		
+
 		testWrongStateHostAndComponentData(false, false, je);
-		
+
 		testWrongStateAddHostControllers(false, je, td);
 		testWrongStateSetConfigFileName(false, je, td);
 		testWrongStateSetObserver(false, je, td);
@@ -427,27 +427,27 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		testWrongStateContinueExecution(false, je);
 		testWrongStateStopExecution(false, je);
 		testWrongStateExitMTC(false, je);
-		
+
 		assertTrue( !je.isConnected() );
 		assertTrue( je.getState() == McStateEnum.MC_INACTIVE );
-		
+
 		// it can be called in any state, it has no effect if we are in disconnected state
 		je.shutdownSession();
-		
+
 		assertTrue( !je.isConnected() );
 		assertTrue( je.getState() == McStateEnum.MC_INACTIVE );
-		
+
 		testWrongStateInit(true, je);
-				
+
 		TestUtil.assertState( McStateEnum.MC_INACTIVE );
-		
+
 		// in this case shutdownSession() is synchronous
 		je.shutdownSession();
 		assertTrue( !je.isConnected() );
 		assertTrue( je.getState() == McStateEnum.MC_INACTIVE );
 		Log.fo();
 	}
-	
+
 	/**
 	 * connected MC_INACTIVE state (after init())
 	 */
@@ -461,7 +461,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 
 		// we are now in connected MC_INACTIVE, test all the functions, first the ones, that throw exception
 		testWrongStateHostAndComponentData(false, false, je);
-		
+
 		testWrongStateInit(false, je);
 		testWrongStateStartHostControllers(false, je);
 		testWrongStateConfigure(false, je);
@@ -484,13 +484,13 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		TestUtil.assertState( McStateEnum.MC_INACTIVE );
 		testWrongStateStartSession(true, je);
 		TestUtil.assertState( McStateEnum.MC_LISTENING );
-		
+
 		// --------------
 		je.shutdownSession();
 		je.waitForCompletion();
 		Log.fo();
 	}
-	
+
 	/**
 	 * MC_LISTENING state (after startSession())
 	 */
@@ -499,13 +499,13 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		Log.fi();
 		final TestData td = createTestData1();
 		final JniExecutor je = JniExecutor.getInstance();
-		
+
 		gotoListening(je, td);
-		
+
 		// we are now in MC_LISTENING, test all the functions, first the ones, that throw exception
-		
+
 		testWrongStateHostAndComponentData(false, false, je);
-		
+
 		testWrongStateInit(false, je);
 		testWrongStateSetConfigFileName(false, je, td);
 		testWrongStateSetObserver(true, je, td);
@@ -519,7 +519,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		testWrongStateContinueExecution(false, je);
 		testWrongStateStopExecution(false, je);
 		testWrongStateExitMTC(false, je);
-		
+
 		TestUtil.assertState( McStateEnum.MC_LISTENING );
 		final Object lock = new Object();
 		synchronized (lock) {
@@ -534,7 +534,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		je.waitForCompletion();
 		Log.fo();
 	}
-	
+
 	/**
 	 * MC_HC_CONNECTED after startHostControllers()
 	 */
@@ -543,13 +543,13 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		Log.fi();
 		final TestData td = createTestData1();
 		final JniExecutor je = JniExecutor.getInstance();
-		
+
 		gotoHcConnected(je, td);
-		
+
 		// we are now in MC_HC_CONNECTED, test all the functions, first the ones, that throw exception
-		
+
 		testWrongStateHostAndComponentData(true, false, je);
-		
+
 		testWrongStateInit(false, je);
 		testWrongStateAddHostControllers(false, je, td);
 		testWrongStateSetConfigFileName(false, je, td);
@@ -565,7 +565,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		testWrongStateContinueExecution(false, je);
 		testWrongStateStopExecution(false, je);
 		testWrongStateExitMTC(false, je);
-		
+
 		TestUtil.assertState( McStateEnum.MC_HC_CONNECTED );
 		final Object lock = new Object();
 		synchronized (lock) {
@@ -574,13 +574,13 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			waitAfter(lock);
 		}
 		TestUtil.assertState( McStateEnum.MC_ACTIVE );
-		
+
 		// --------------
 		je.shutdownSession();
 		je.waitForCompletion();
 		Log.fo();
 	}
-	
+
 	/**
 	 * MC_LISTENING state (after startSession()), addHostController() is called
 	 */
@@ -589,22 +589,22 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		Log.fi();
 		final TestData td = createTestData1();
 		final JniExecutor je = JniExecutor.getInstance();
-		
+
 		// get to MC_LISTENING without calling addHostController()
 		gotoListeningWithoutAddHostController(je, td);
-		
+
 		testWrongStateHostAndComponentData(false, false, je);
-		
+
 		TestUtil.assertState( McStateEnum.MC_LISTENING );
 		testWrongStateAddHostControllers(true, je, td);
 		TestUtil.assertState( McStateEnum.MC_LISTENING );
-		
+
 		// --------------
 		je.shutdownSession();
 		je.waitForCompletion();
 		Log.fo();
 	}
-	
+
 	/**
 	 * MC_LISTENING_CONFIGURED state (after configure())
 	 */
@@ -615,11 +615,11 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		final JniExecutor je = JniExecutor.getInstance();
 
 		gotoListeningConfigured(je, td);
-		
+
 		// we are now in MC_LISTENING_CONFIGURED, test all the functions, first the ones, that throw exception
-		
+
 		testWrongStateHostAndComponentData(false, false, je);
-		
+
 		testWrongStateInit(false, je);
 		testWrongStateSetConfigFileName(false, je, td);
 		testWrongStateSetObserver(true, je, td);
@@ -633,7 +633,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		testWrongStateContinueExecution(false, je);
 		testWrongStateStopExecution(false, je);
 		testWrongStateExitMTC(false, je);
-		
+
 		TestUtil.assertState( McStateEnum.MC_LISTENING_CONFIGURED );
 		final Object lock = new Object();
 		synchronized (lock) {
@@ -648,7 +648,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		je.waitForCompletion();
 		Log.fo();
 	}
-	
+
 	/**
 	 * MC_LISTENING_CONFIGURED state (after configure()) to call addHostController()
 	 */
@@ -659,11 +659,11 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		final JniExecutor je = JniExecutor.getInstance();
 
 		gotoListeningConfiguredWithoutAddHostController(je, td);
-		
+
 		// we are now in MC_LISTENING_CONFIGURED, test all the functions, first the ones, that throw exception
-		
+
 		testWrongStateHostAndComponentData(false, false, je);
-		
+
 		testWrongStateInit(false, je);
 		testWrongStateAddHostControllers(true, je, td);
 		testWrongStateSetConfigFileName(false, je, td);
@@ -678,7 +678,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		testWrongStateContinueExecution(false, je);
 		testWrongStateStopExecution(false, je);
 		testWrongStateExitMTC(false, je);
-		
+
 		TestUtil.assertState( McStateEnum.MC_LISTENING_CONFIGURED );
 		final Object lock = new Object();
 		synchronized (lock) {
@@ -693,7 +693,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		je.waitForCompletion();
 		Log.fo();
 	}
-	
+
 	/**
 	 * MC_ACTIVE after configure()
 	 */
@@ -704,11 +704,11 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		final JniExecutor je = JniExecutor.getInstance();
 
 		gotoActive(je, td);
-		
+
 		// we are now in MC_ACTIVE, test all the functions, first the ones, that throw exception
-		
+
 		testWrongStateHostAndComponentData(true, false, je);
-		
+
 		testWrongStateInit(false, je);
 		testWrongStateAddHostControllers(false, je, td);
 		testWrongStateSetConfigFileName(false, je, td);
@@ -724,7 +724,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		testWrongStateContinueExecution(false, je);
 		testWrongStateStopExecution(false, je);
 		testWrongStateExitMTC(false, je);
-		
+
 		TestUtil.assertState( McStateEnum.MC_ACTIVE );
 		final Object lock = new Object();
 		synchronized (lock) {
@@ -733,13 +733,13 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			waitAfter(lock);
 		}
 		TestUtil.assertState( McStateEnum.MC_READY );
-		
+
 		// --------------
 		je.shutdownSession();
 		je.waitForCompletion();
 		Log.fo();
 	}
-	
+
 	/**
 	 * MC_READY after createMTC()
 	 */
@@ -748,11 +748,11 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		Log.fi();
 		final TestData td = createTestData1();
 		final JniExecutor je = JniExecutor.getInstance();
-		
+
 		gotoReady(je, td);
-		
+
 		// we are now in MC_READY, test all the functions, first the ones, that throw exception
-		
+
 		testWrongStateHostAndComponentData(true, true, je);
 
 		testWrongStateInit(false, je);
@@ -766,7 +766,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		testWrongStatePauseExecutionAndIsPaused(true, je);
 		testWrongStateContinueExecution(false, je);
 		testWrongStateStopExecution(true, je); // do nothing
-		
+
 		TestUtil.assertState( McStateEnum.MC_READY );
 		final Object lock1 = new Object();
 		synchronized (lock1) {
@@ -775,7 +775,7 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			waitAfter(lock1);
 		}
 		TestUtil.assertState( McStateEnum.MC_READY );
-		
+
 		final Object lock2 = new Object();
 		synchronized (lock2) {
 			waitBefore(lock2, McStateEnum.MC_READY );
@@ -783,10 +783,10 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			waitAfter(lock2);
 		}
 		TestUtil.assertState( McStateEnum.MC_READY );
-		
+
 		testWrongStateGetExecuteCfglen(true, je);
 		TestUtil.assertState( McStateEnum.MC_READY );
-		
+
 		final Object lock3 = new Object();
 		synchronized (lock3) {
 			waitBefore(lock3, McStateEnum.MC_READY );
@@ -794,15 +794,15 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			waitAfter(lock3);
 		}
 		TestUtil.assertState( McStateEnum.MC_READY );
-		
+
 		testWrongStateHostAndComponentData( true, true, je );
-		
+
 		// --------------
 		je.shutdownSession();
 		je.waitForCompletion();
 		Log.fo();
 	}
-	
+
 	/**
 	 * MC_READY after createMTC() to call exitMTC()
 	 */
@@ -811,9 +811,9 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		Log.fi();
 		final TestData td = createTestData1();
 		final JniExecutor je = JniExecutor.getInstance();
-		
+
 		gotoReady(je, td);
-		
+
 		TestUtil.assertState( McStateEnum.MC_READY );
 		final Object lock = new Object();
 		synchronized (lock) {
@@ -822,13 +822,13 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			waitAfter(lock);
 		}
 		TestUtil.assertState( McStateEnum.MC_ACTIVE );
-		
+
 		// --------------
 		je.shutdownSession();
 		je.waitForCompletion();
 		Log.fo();
 	}
-	
+
 	/**
 	 * MC_READY after createMTC() to call stopExecution()
 	 */
@@ -837,9 +837,9 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		Log.fi();
 		final TestData td = createTestData1();
 		final JniExecutor je = JniExecutor.getInstance();
-		
+
 		gotoReady(je, td);
-		
+
 		TestUtil.assertState( McStateEnum.MC_READY );
 		final Object lock = new Object();
 		synchronized (lock) {
@@ -854,16 +854,16 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 				// the testcase faster, than we get here or java side MC lock is blocked (JniExecutor.getState() is synchronized),
 				// we are already in MC_READY, so the testcase fails.
 				// It really happened sometimes during the automatic tests, so assert was removed.
-				
+
 				// If executeTestcase() is called and then stopExecution() is also called without any delay,
 				// the behaviour of MainController is unpredictable:
 				// Sometimes "Dynamic test case error" sent by MainController to the JniExecutor through the pipe.
 				try {
-				    Thread.sleep(100); // in milliseconds
+					Thread.sleep(100); // in milliseconds
 				} catch(InterruptedException ex) {
-				    Thread.currentThread().interrupt();
+					Thread.currentThread().interrupt();
 				}
-				
+
 				je.stopExecution();
 			} catch (JniExecutorWrongStateException | JniExecutorIllegalArgumentException e ) {
 				fail();
@@ -871,13 +871,13 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			waitAfter(lock);
 		}
 		TestUtil.assertState( McStateEnum.MC_READY );
-		
+
 		// --------------
 		je.shutdownSession();
 		je.waitForCompletion();
 		Log.fo();
 	}
-	
+
 	/**
 	 * MC_PAUSED, call continueExecution
 	 */
@@ -886,11 +886,11 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		Log.fi();
 		final TestData td = createTestData1();
 		final JniExecutor je = JniExecutor.getInstance();
-		
+
 		gotoPaused(je, td);
-		
+
 		// we are now in MC_PAUSED, test all the functions, first the ones, that throw exception
-		
+
 		testWrongStateHostAndComponentData(false, false, je);
 
 		testWrongStateInit(false, je);
@@ -905,9 +905,9 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		testWrongStateExecuteTextcase(false, je, td);
 		testWrongStateGetExecuteCfglen(false, je);
 		testWrongStateExecuteCfg(false, je);
-		
+
 		TestUtil.assertState( McStateEnum.MC_PAUSED );
-		
+
 		final Object lock = new Object();
 		synchronized (lock) {
 			waitBefore(lock, McStateEnum.MC_PAUSED );
@@ -915,13 +915,13 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			waitAfter(lock);
 		}
 		TestUtil.assertState( McStateEnum.MC_PAUSED );
-		
+
 		// --------------
 		je.shutdownSession();
 		je.waitForCompletion();
 		Log.fo();
 	}
-	
+
 	/**
 	 * MC_PAUSED, call stopExecution
 	 */
@@ -930,11 +930,11 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		Log.fi();
 		final TestData td = createTestData1();
 		final JniExecutor je = JniExecutor.getInstance();
-		
+
 		gotoPaused(je, td);
-		
+
 		TestUtil.assertState( McStateEnum.MC_PAUSED );
-		
+
 		final Object lock = new Object();
 		synchronized (lock) {
 			waitBefore(lock, McStateEnum.MC_READY );
@@ -942,13 +942,13 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			waitAfter(lock);
 		}
 		TestUtil.assertState( McStateEnum.MC_READY );
-		
+
 		// --------------
 		je.shutdownSession();
 		je.waitForCompletion();
 		Log.fo();
 	}
-	
+
 	/**
 	 * MC_PAUSED switch paused state to false -> test control continues
 	 */
@@ -957,9 +957,9 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 		Log.fi();
 		final TestData td = createTestData1();
 		final JniExecutor je = JniExecutor.getInstance();
-		
+
 		gotoPaused(je, td);
-		
+
 		TestUtil.assertState( McStateEnum.MC_PAUSED );
 		final Object lock = new Object();
 		synchronized (lock) {
@@ -974,11 +974,11 @@ public class JniExecutorAsyncErrorWrongStateTest extends JniExecutorAsyncErrorTe
 			waitAfter(lock);
 		}
 		TestUtil.assertState( McStateEnum.MC_READY );
-		
+
 		// --------------
 		je.shutdownSession();
 		je.waitForCompletion();
 		Log.fo();
 	}
-	
+
 }

@@ -20,41 +20,41 @@ public class TestConstants {
 	//public static final String WORKINGDIR = WORKSPACE + "hw/bin";
 	//public static final String EXECUTABLE = "hw";
 	//public static final String CFG_FILE = WORKSPACE + "hw/src/MyExample.cfg";
-	
+
 	private static final String WORKSPACE = "../../titan/Install/";
 	public static final String WORKINGDIR = getWorkspace() + "demo";
 	public static final String EXECUTABLE = "MyExample";
 	public static final String CFG_FILE = getWorkspace() + "demo/MyExample.cfg";
-	
+
 	public static final String MODULE = EXECUTABLE;
 	public static final String TESTCASE1 = "HelloW"; 
 	public static final String TESTCASE2 = "HelloW2"; 
-	
+
 	// constants for error situations
-	
+
 	//public static final String EXISTS_BUT_NOT_DIR_WORKINGDIR = WORKSPACE + "hw/bin/hw";
 	//public static final String EXISTS_BUT_NOT_FILE_WORKINGDIR = WORKSPACE + "hw";
 	//public static final String EXISTS_BUT_NOT_FILE_EXECUTABLE = "bin";
-	
+
 	/** extension for a filename to make sure, that it will invalid */
 	public static final String NONEXISTENTFILENAMEEXT = "72634753271645721854657214521";
-	
+
 	/** Working dir for this case: exists, but not a dir */
 	public static final String EXISTS_BUT_NOT_DIR_WORKINGDIR = WORKSPACE + "demo/MyExample";
-	
+
 	/** Working dir for this case: executable exists, but not a file (it's a directory) */
 	public static final String EXISTS_BUT_NOT_FILE_WORKINGDIR = WORKSPACE;
-	
+
 	/** Executable for this case: executable exists, but not a file (it's a directory) */
 	public static final String EXISTS_BUT_NOT_FILE_EXECUTABLE = "demo";
-	
+
 	private static final String getWorkspace() {
 		String ttcn3_dir = System.getenv().get("TTCN3_DIR");
 		String workspace = WORKSPACE;
-	    if (ttcn3_dir != null && ttcn3_dir.length() > 0) {
-	    	workspace = ttcn3_dir;
-	    }
-	    workspace += ( workspace.endsWith( File.separator ) ? "" : File.separator );
-    	return workspace;
+		if (ttcn3_dir != null && ttcn3_dir.length() > 0) {
+			workspace = ttcn3_dir;
+		}
+		workspace += ( workspace.endsWith( File.separator ) ? "" : File.separator );
+		return workspace;
 	}
 }
