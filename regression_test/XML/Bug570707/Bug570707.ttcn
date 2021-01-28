@@ -1,0 +1,54 @@
+/******************************************************************************
+ * Copyright (c) 2000-2021 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+module Bug570707 {
+
+type union Uni {
+  integer a,
+  Rec b
+}
+with {
+  variant "useType";
+}
+
+type record Rec {
+  universal charstring x,
+  universal charstring y
+}
+
+external function f_dec(in octetstring x) return Uni
+with { extension "prototype(convert) decode(XER:XER_EXTENDED)" }
+
+type component CT {}
+
+testcase tc_Bug570707() runs on CT {
+  var charstring data := "<Uni xmlns='http://www.somewhere.com/A' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:type='b'><x>a</x><y>b</y></Uni>";
+  var Uni res := f_dec(char2oct(data));
+  var Uni exp := { b := { x := "a", y := "b" } };
+  if (res == exp) {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, res);
+  }
+}
+
+control {
+  execute(tc_Bug570707());
+}
+
+}
+with {
+  encode "XML";
+  variant "namespace as 'http://www.somewhere.com/A'";
+  variant "controlNamespace 'http://www.w3.org/2001/XMLSchema-instance' prefix 'xsi'";
+  variant "elementFormQualified";
+}

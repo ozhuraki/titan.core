@@ -2765,8 +2765,9 @@ void gen_xer(const struct_def *sdef, char **pdef, char **psrc)
   } /* * * * * * * * * end if(attributes...) * * * * * * * * * * * * */
 
   src = mputprintf(src,
-    "  if ((!omit_tag || parent_tag) && !p_reader.IsEmptyElement()%s) "
+    "  if ((!omit_tag%s) && !p_reader.IsEmptyElement()%s) "
     "rd_ok = p_reader.Read();\n"
+    , num_attributes > 0 ? " || parent_tag" : ""
     , sdef->xerUseNilPossible ? " && !already_processed" : "");
 
   if (sdef->xerEmbedValuesPossible && num_attributes==0) {

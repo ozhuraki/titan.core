@@ -5606,7 +5606,7 @@ int Record_Type::XER_decode(const XERdescriptor_t& p_td, XmlReaderWrap& reader,
       i = first_nonattr; // finished with attributes
       // AdvanceAttribute did MoveToElement. Move into the content (if any),
       // except when the reader is already moved in(already_processed).
-      if (!reader.IsEmptyElement() && !already_processed) reader.Read();
+      if (!reader.IsEmptyElement() && !already_processed && (!parent_tag || num_attributes > 0)) reader.Read();
     } // end if (own_tag)
     
     /* * * * * * * * Non-attributes (elements) * * * * * * * * * * * */
