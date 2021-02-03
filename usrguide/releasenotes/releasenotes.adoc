@@ -1,13 +1,13 @@
 ---
-Author: Elemer Lelik
-Version: 7.2.0
-Date: 2020-11-27
+Author: Elemer Lelik, Lenard Nagy
+Version: 7.2.1
+Date: 2021-02-03
 
 ---
 = Release Notes for TITAN TTCN-3 Test Executor
-:author: Elemer Lelik
-:revnumber: 7.2.0
-:revdate: 2020-11-27
+:author: Elemer Lelik, Lenard Nagy
+:revnumber: 7.2.1
+:revdate: 2021-02-03
 :title-logo-image: images/titan_logo.png
 :sectnums:
 :doctype: book
@@ -69,6 +69,7 @@ Backward incompatible changes:
 
 * 'omit' matching mechanism shouldn't be allowed for union fields
 * Compilation issue in the Java code generator when used with very large modules
+* [UPDATE 3rd February, 2021] Escaping of TTCN-JSON strings now follows standard (escaping of "/" character changed!)
 
 
 [[version-6-6-crl-113-200-6-r6b]]
@@ -918,8 +919,8 @@ Incompatibilities:
 
 * warning changed to error when '*'is used for mandatory elements
 * infinity/NaN not allowed at timer start
-
-receive handling changed (receive(*) and receive(?) not allowed or restricted)
+* receive handling changed (receive(*) and receive(?) not allowed or restricted)
+* [UPDATE 3rd February, 2021] module parameter references (initializing module parameters with the values of other module parameters in the config file) only allowed in Runtime2 (see artf789088)
 
 [[version-crl-113-200-5-r5a]]
 == Version CRL 113 200/5 R5A
