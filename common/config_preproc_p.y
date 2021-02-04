@@ -59,10 +59,15 @@ static char* decode_secret_message(char* encoded);
     char* str_val;
     int last_literal;
   } macro_val; /* 0 or 1 */
+  struct {
+    char* str;
+    double num;
+  } multiplication;
 }
 
 %token <str_val> FillerStuff "whitespace, newline or comment"
 %token AssignmentChar ":= or ="
+%token MultiplyOp "*"
 %token LCurly "{"
 %token RCurly "}"
 %token <str_val> FString "sequence of characters"
@@ -78,6 +83,7 @@ static char* decode_secret_message(char* encoded);
 %type <str_val> StructuredValue
 %type <str_val> StructuredValueList
 %type <str_val> MacroRhs
+%type <multiplication> Multiplication
 
 %destructor { Free($$); }
 FillerStuff
@@ -96,6 +102,9 @@ MacroRhs
 %destructor { Free($$.str_val); }
 MacroAssignmentValueList
 MacroAssignmentValue
+
+%destructor { Free($$.str); }
+Multiplication
 
 %%
 
@@ -123,6 +132,10 @@ MacroRhs:
 |
   StructuredDefinition {
     $$ = $1;
+}
+|
+  Multiplication {
+    $$ = $1.str;
 }
 ;
 
@@ -247,6 +260,38 @@ FillerStuffConcat:
 | FillerStuffConcat FillerStuff {
     $$ = mputstr($1, $2);
     Free($2);
+  }
+;
+
+Multiplication:
+  MacroAssignmentValue MultiplyOp MacroAssignmentValue {
+    char* ptr = NULL;
+    double num1 = strtod($1.str_val, &ptr);
+    if (ptr == NULL || *ptr != '\0') {
+      preproc_error_flag = 1;
+      config_preproc_error("First operand of multiplication is not a number: %s", $1.str_val);
+    }
+    double num2 = strtod($3.str_val, &ptr);
+    if (ptr == NULL || *ptr != '\0') {
+      preproc_error_flag = 1;
+      config_preproc_error("Second operand of multiplication is not a number: %s", $3.str_val);
+    }
+    Free($1.str_val);
+    Free($3.str_val);
+    $$.num = num1 * num2;
+    $$.str = mprintf("%lf", $$.num);
+  }
+| Multiplication MultiplyOp MacroAssignmentValue {
+    char* ptr = NULL;
+    double num2 = strtod($3.str_val, &ptr);
+    if (ptr == NULL || *ptr != '\0') {
+      preproc_error_flag = 1;
+      config_preproc_error("Second operand of multiplication is not a number: %s", $3.str_val);
+    }
+    Free($1.str);
+    Free($3.str_val);
+    $$.num = $1.num * num2;
+    $$.str = mprintf("%lf", $$.num);
   }
 ;
 

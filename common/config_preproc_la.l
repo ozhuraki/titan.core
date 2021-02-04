@@ -288,6 +288,9 @@ MACRO_REFERENCE_INT \$"{"{WS}{TTCN3IDENTIFIER}{WS}(","{WS}integer{WS})?"}"
   BEGIN(SC_define_structured);
   return LCurly;
 }
+
+"*" { return MultiplyOp; }
+
 } /* SC_define */
 
 <SC_define_structured>
