@@ -15,7 +15,7 @@ include   $(TOPDIR)/Makefile.regression
 unexport ABS_SRC
 unexport SRCDIR
 
-DIRS := macro_reference structured
+DIRS := macro_reference structured expressions
 
 # List of fake targets:
 .PHONY: all dep clean run $(DIRS) $(addsuffix /, $(DIRS)) profile

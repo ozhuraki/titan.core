@@ -1,0 +1,42 @@
+/******************************************************************************
+ * Copyright (c) 2000-2021 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+module expressions {
+
+modulepar float mul1;
+modulepar float mul2;
+modulepar float mul3;
+modulepar float mul4;
+
+type component CT {}
+
+testcase tc_multiply() runs on CT {
+  if (mul1 != 20.0) {
+    setverdict(fail, "mul1: ", mul1);
+  }
+  if (mul2 != 30.0) {
+    setverdict(fail, "mul2: ", mul1);
+  }
+  if (mul3 != 90.0) {
+    setverdict(fail, "mul3: ", mul1);
+  }
+  if (mul4 != -3000.0) {
+    setverdict(fail, "mul4: ", mul1);
+  }
+  setverdict(pass);
+}
+
+
+control {
+  execute(tc_multiply());
+}
+
+}
