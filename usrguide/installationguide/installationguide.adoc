@@ -59,7 +59,7 @@ The following are required for proper operation of the TITAN:
 
 * Openssl-devel 0.9.8k or higher (on Ubuntu: libssl-dev)
 * Libxml2-devel 2.7.1 or higher
-* JDK 1.5.0_10 or later (only required if the JNI-based executor in the Executor plug-in is used. JNI cannot be used on Cygwin.)
+* JDK 1.5.0_10 or later (only required if the JNI-based executor in the Executor plug-in is used. JNI cannot be used on Cygwin.) - _obsolete, will be removed in later releases_
 
 NOTE: If the platform has other, but compatible, version of above tools, TITAN will be built with those.
 
@@ -378,8 +378,8 @@ Encoders     : RAW TEXT BER PER XER
 Applications : CODEGEN TPGEN SINGLE MCTR HC LOGFORMAT
 Max PTCs     : 10000
 ---------------------------------------------------------------
-The license key is valid.
-....
+The license key is valid. +
+...
 
 The last line of the printout indicates the success or the problems with the license key.
 
