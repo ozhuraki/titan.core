@@ -1178,12 +1178,14 @@ system.MySystemInterface2.RemoteIPAddress := "10.1.1.2"
 
 In this section you can create macro definitions that can be used in other configuration file sections except `[INCLUDE]`. This way if the same value must be given several times in the configuration file, you can make a definition for it and only refer to the definition later on. In case of a change, you wouldn’t need to change the values all over the configuration file, but only in the definition.
 
-This section may contain zero, one or more macro definitions (assignments). Each macro definition consists of a macro identifier, which shall be a TTCN-3 identifier, an assignment operator and the macro value. The macro value is either a simple or a structured value (see the BNF below).
+This section may contain zero, one or more macro definitions (assignments). Each macro definition consists of a macro identifier, which shall be a TTCN-3 identifier, an assignment operator and the macro value. The macro value is either a simple value, a structured value or the result of a multiplication (see the BNF below).
 
 The simple macro value is a sequence of one or more literal values and macro references. The elements of the sequence must not be separated by anything, whitespaces or comments are not allowed.
 
 The structured macro value can be used to define instances of complex TTCN-3 data structures. The defined values can be assigned to compound module parameters. There are two restrictions regarding the syntax of this value. The first and last character of the value are '{' and '}'. The value must be well-formed regarding the curly brackets. Every value which satisfies these two rules is accepted as a macro definition.
 NOTE: macro definitions do not have a type. The defined values are copied to the place of the macro references. The semantic correctness is determined by the context of the macro reference (see the examples section).
+
+Simple macro values containing numbers and references to macros can be multiplied arithmetically, by using asterisk (*) characters between the operands. Whitespaces or comments are not allowed between an operand and an asterisk character. The resulting macro will contain the result of the multiplication as a floating point number.
 
 Macro references can refer to previously defined macros. The reference can be provided in the following 3 formats which have the same meaning:
 
@@ -1248,10 +1250,11 @@ Transforms the value of the macro into a host name, DNS name or IPv4 or IPv6 add
 ----
 DefineSection ::= "[DEFINE]" {DefinitionAssignment}
 DefinitionAssignment ::= Identifier AssignmentChar DefinitionRValue
-DefinitionRValue ::= SimpleValue | StructuredValue
+DefinitionRValue ::= SimpleValue | StructuredValue | Multiplication
 SimpleValue ::= {Word | String | IPaddress | MacroReference}
 StructuredValue ::= "{" { {SimpleValue} | StructuredValue } "}"
 		| "{" "}"
+Multiplication ::= SimpleValue { "*" SimpleValue }
 ----
 `Word` may contain numbers, letters and other non-whitespace characters mixed in any way.
 
@@ -1307,6 +1310,13 @@ DEF_49 := { f2 := "${DEF_20}"} 	// => DEF_49 := { f2 := "${DEF_20}"}
 
 // complex data structures can also be referenced
 DEF_50 := { f1 := ${DEF_42}, f2 := "a"}
+
+
+// Multiplication example:
+TEN := 10
+TWO := 2.0
+
+RESULT := ${TEN}*${TWO}*1.5
 ----
 
 === *_Use example:_*
@@ -1320,6 +1330,7 @@ par4 := ${four, float} // 4.0
 par5 := ${four, binaryoctet} // ’342E30’O
 par6 := ${LongString, identifier} // ERROR: invalid substitution
 par7 := "$myVariable" // substitution is not done
+par8 := ${RESULT, float} // 30.0
 [MAIN_CONTROLLER]
 LocalAddress = ${Localhost, hostname} // 127.0.0.1
 ----
