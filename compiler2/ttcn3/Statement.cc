@@ -9072,7 +9072,7 @@ error:
       }
       // no break
     case Common::Assignment::A_VAR_TEMPLATE: {
-      Type::typetype_t tt = t_ass->get_Type()->get_typetype();
+      Type::typetype_t tt = t_ass->get_Type()->get_type_refd_last()->get_typetype();
       switch (tt) {
         case Type::T_BSTR:
         case Type::T_BSTR_A:
