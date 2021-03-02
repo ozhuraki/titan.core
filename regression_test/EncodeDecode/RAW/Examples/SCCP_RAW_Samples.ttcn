@@ -27,7 +27,7 @@ const octetstring SCCPstr01 := '090003070B044301B0FE044340D8FE06000430040107'O;
 template PDU_SCCP SCCP01 := {unitdata := {
     messageType := udt,
     protClass := {
-        class := '0000'B,
+        class_ := '0000'B,
         messageHandling := '0000'B
     },
     pointer1 := 3,
@@ -85,7 +85,7 @@ template PDU_SCCP SCCP02 :=  {connrequest := {
     messageType := cr,
     sourceLocRef := 'FF002B'O,
     protClass := {
-        class := '0010'B,
+        class_ := '0010'B,
         messageHandling := '0000'B
     },
     pointer1 := 2,
@@ -150,7 +150,7 @@ template PDU_SCCP SCCP03 :=  {connconfirm := {
     destLocRef  := 'FF002B'O,
     sourceLocRef:= '000001'O,
     protClass := {
-        class := '0010'B,
+        class_ := '0010'B,
         messageHandling := '0000'B
     },
     pointer1 := 1,

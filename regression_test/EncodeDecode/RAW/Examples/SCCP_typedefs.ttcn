@@ -365,7 +365,7 @@ type record SCCP_param_CPartyAddress_opt
 //--------------------------------------------------------------------------------
 type record SCCP_param_ProtocolClass
   {
-   BIT4                             class,
+   BIT4                             class_,
    BIT4                             messageHandling
   }
    with { variant "" }
@@ -531,7 +531,7 @@ type record SCCP_param_Segmentation_opt
    LIN1                             paramLength,       //always 4!
    BIT4                             remainingSegment,
    BIT2                             reserved,
-   BIT1                             class,
+   BIT1                             class_,
    BIT1                             firstSegm,
    OCT3                             segmLocalRef
   }
