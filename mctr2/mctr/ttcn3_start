@@ -35,6 +35,7 @@ exec expect "$0" "$@"
 ##  ETH/XZD Jeno Balasko        2010.10.14   v1.5  ##
 ##  ETH/XZD Jeno Balasko        2011.11.23   v1.6  ##
 ##  ETH/XZR Adam Delic          2012.02.22   v1.7  ##
+##  ETH     Adam Knapp          2021.03.03   v1.8  ##
 #####################################################
 
 puts "ttcn3_start: Starting the test suite"
@@ -92,6 +93,22 @@ proc getopt {_argv name {_var ""} {default ""}} {
     }
 }
 
+# Procedure for checking Java availability (Java version is not yet considered)
+
+proc check_java {} {
+    puts "Checking Java..."
+	spawn java -version
+    expect {
+        -re ".*Runtime Environment.*" {
+            puts "Java was found in the PATH"
+            return
+        }
+    }
+	puts "Java is not in the PATH or not installed"
+	exit 12
+}
+
+
 set ip ""
 getopt argv -ip ip
 
@@ -111,21 +128,29 @@ if {[file exists $first_arg]} {
     set ETS $first_arg
 } elseif {[file exists $first_arg.exe]} {
     set ETS $first_arg.exe
+} elseif {[file exists $first_arg.jar]} {
+    set ETS $first_arg.jar
 } else {
     puts "ttcn3_start: cannot find executable $first_arg"
     exit 3
 }
 
+# Variable to store whether the HC is an executable Java archive
+set isJAR 0
 
 # Setting ETS_basename: executable name without extension
 
 if {[string tolower [string range $ETS [expr [string length $ETS] - 4] end]] == ".exe"} {
     set ETS_basename [string range $ETS 0 [expr [string length $ETS] - 5]]
+} elseif {[string tolower [string range $ETS [expr [string length $ETS] - 4] end]] == ".jar"} {
+    set ETS_basename [string range $ETS 0 [expr [string length $ETS] - 5]]
+    set isJAR 1
+	check_java
 } else {
     set ETS_basename $ETS
 }
 
-if {[string index $ETS 0] != "/"} {
+if {[string index $ETS 0] != "/" && $isJAR == 0} {
     # Add a ./ prefix if ETS is a relative pathname
     set ETS ./$ETS
 }
@@ -229,7 +254,11 @@ expect {
 
 # Start Host controller
 
-spawn $ETS $hostname $port
+if {$isJAR == 0} {
+    spawn $ETS $hostname $port
+} else {
+    spawn java -jar $ETS $hostname $port
+}
 set hc_id $spawn_id
 expect {
     -i $hc_id -exact "TTCN-3 Host Controller" {
