@@ -264,7 +264,7 @@ int Tcov2Lcov::generate()
 
 static void print_version()
 {
-  std::cerr << "Product number: " << PRODUCT_NUMBER << std::endl
+  std::cerr << "Version: " << VERSION_STRING << std::endl
             << "Build date: " << __DATE__ << " " << __TIME__ << std::endl
             << "Compiled with: " << C_COMPILER_VERSION << std::endl << std::endl
             << COPYRIGHT_STRING << std::endl << std::endl;

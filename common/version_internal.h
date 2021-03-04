@@ -34,15 +34,16 @@
 # define VERSION_STRING GEN_VER(TTCN3_MAJOR, TTCN3_MINOR, TTCN3_PATCHLEVEL, \
     TTCN3_BUILDNUMBER)
 #else
-/* stable release, e.g. "1.4.pl3" */
+/* stable release, e.g. "7.2.1" or "1.4.pl3" */
+# define GEN_VER3(major, minor, patchlevel) #major "." #minor "." #patchlevel
 # define GEN_VER2(major, minor, patchlevel) #major "." #minor ".pl" #patchlevel
-# define GEN_VER(major, minor, patchlevel) GEN_VER2(major, minor, patchlevel)
+# define GEN_VER(major, minor, patchlevel) GEN_VER3(major, minor, patchlevel)
 # define VERSION_STRING GEN_VER(TTCN3_MAJOR, TTCN3_MINOR, TTCN3_PATCHLEVEL)
 #endif
 
 /* Product number */
-#define PRODNR_EXECUTOR  "CAX 105 7730"
-#define LEGACY_PRODNR_EXECUTOR "CRL 113 200"
+#define LEGACY_CAX_PRODNR_EXECUTOR  "CAX 105 7730"
+#define LEGACY_CRL_PRODNR_EXECUTOR "CRL 113 200"
 
 /* Ericsson (legacy) revision: /m Rnx
  * m = TTCN3_MAJOR
@@ -120,10 +121,12 @@
 #define LEGACY_VERSION "/" MAJOR_SUFFIX " R" MINOR_NUMBER PATCH_LETTER \
   DOUBLEDIGIT_BUILDNUMBER
 
-#define LEGACY_PRODUCT_NUMBER  LEGACY_PRODNR_EXECUTOR LEGACY_VERSION
+#define LEGACY_CRL_PRODUCT_NUMBER  LEGACY_CRL_PRODNR_EXECUTOR LEGACY_VERSION
 
-#define PRODUCT_NUMBER MAJOR_SUFFIX "/" PRODNR_EXECUTOR " R" MINOR_NUMBER PATCH_LETTER \
+#define LEGACY_CAX_PRODUCT_NUMBER MAJOR_SUFFIX "/" LEGACY_CAX_PRODNR_EXECUTOR " R" MINOR_NUMBER PATCH_LETTER \
   DOUBLEDIGIT_BUILDNUMBER
+
+#define PRODUCT_NUMBER VERSION_STRING
 
 /* Version of the C/C++ compiler */
 

@@ -173,7 +173,6 @@ static boolean process_options(int argc, char *argv[], int& ret_val,
   } else if (vflag) {
     // version printout
     fputs("TTCN-3 Host Controller (parallel mode)\n"
-      "Product number: " PRODUCT_NUMBER "\n"
       "Version: " VERSION_STRING "\n"
       "Build date (Base Library): " __DATE__ " " __TIME__ "\n"
       "Base Library was compiled with: " C_COMPILER_VERSION "\n\n"

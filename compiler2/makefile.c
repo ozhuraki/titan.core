@@ -5317,7 +5317,6 @@ int main(int argc, char *argv[])
 
   if (vflag) {
     fputs("Makefile Generator for the TTCN-3 Test Executor\n"
-	  "Product number: " PRODUCT_NUMBER "\n"
 	  "Version: " VERSION_STRING "\n"
 	  "Build date: " __DATE__ " " __TIME__ "\n"
 	  "Compiled with: " C_COMPILER_VERSION "\n\n"

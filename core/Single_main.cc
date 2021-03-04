@@ -183,7 +183,6 @@ int main(int argc, char *argv[])
     return ret_val;
   } else if (vflag) {
     fputs("TTCN-3 Test Executor (single mode)\n"
-      "Product number: " PRODUCT_NUMBER "\n"
       "Version: " VERSION_STRING "\n"
       "Build date (Base Library): " __DATE__ " " __TIME__ "\n"
       "Base Library was compiled with: " C_COMPILER_VERSION "\n\n"

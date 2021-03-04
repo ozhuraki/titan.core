@@ -3027,12 +3027,12 @@ namespace Ttcn {
                   prod_match = (0 == strcmp(m->product_number, exp_product_number));
                 }
                 else if (legacy == TTRUE && m->legacy_version == TFALSE) {
-                  prod_match = (0 == strcmp(exp_product_number, LEGACY_PRODNR_EXECUTOR) &&
-                      0 == strcmp(m->product_number, PRODNR_EXECUTOR));
+                  prod_match = (0 == strcmp(exp_product_number, LEGACY_CRL_PRODNR_EXECUTOR) &&
+                      0 == strcmp(m->product_number, LEGACY_CAX_PRODNR_EXECUTOR));
                 }
                 else if (legacy == TFALSE && m->legacy_version == TTRUE) {
-                  prod_match = (0 == strcmp(exp_product_number, PRODNR_EXECUTOR) &&
-                      0 == strcmp(m->product_number, LEGACY_PRODNR_EXECUTOR));
+                  prod_match = (0 == strcmp(exp_product_number, LEGACY_CAX_PRODNR_EXECUTOR) &&
+                      0 == strcmp(m->product_number, LEGACY_CRL_PRODNR_EXECUTOR));
                 }
                 if (!prod_match) {
                   char *req_product_identifier =
@@ -3102,8 +3102,8 @@ namespace Ttcn {
             char* exp_extra;
             tribool legacy;
             (void)ex.get_id(exp_product_number, exp_suffix, exp_minor, exp_patch, exp_build, exp_extra, legacy);
-            if (exp_product_number != NULL && ((legacy != TTRUE && strcmp(exp_product_number, PRODNR_EXECUTOR) != 0) ||
-                (legacy == TTRUE && strcmp(exp_product_number, LEGACY_PRODNR_EXECUTOR) != 0))) {
+            if (exp_product_number != NULL && ((legacy != TTRUE && strcmp(exp_product_number, LEGACY_CAX_PRODNR_EXECUTOR) != 0) ||
+                (legacy == TTRUE && strcmp(exp_product_number, LEGACY_CRL_PRODNR_EXECUTOR) != 0))) {
               ex.error("This module needs to be compiled with TITAN, but "
                 " product number %s is not TITAN"
                 , exp_product_number);
@@ -3119,7 +3119,7 @@ namespace Ttcn {
                     get_product_identifier(exp_product_number, exp_suffix, exp_minor, exp_patch, exp_build, NULL, legacy);
               ex.error("This module needs to be compiled with TITAN version"
                 " %s or higher; version %s detected"
-                , exp_product_identifier, legacy == TTRUE ? LEGACY_PRODUCT_NUMBER : PRODUCT_NUMBER);
+                , exp_product_identifier, legacy == TTRUE ? LEGACY_CRL_PRODUCT_NUMBER : LEGACY_CAX_PRODUCT_NUMBER);
               Free(exp_product_identifier);
             }
             multi->delete_element(i--);
