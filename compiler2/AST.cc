@@ -1828,6 +1828,8 @@ namespace Common {
       return "template";
     case A_VAR:
       return "variable";
+    case A_EXCEPTION:
+      return "exception";
     case A_VAR_TEMPLATE:
       return "template variable";
     case A_TIMER:
@@ -1884,6 +1886,7 @@ namespace Common {
     case A_PAR_TEMPL_INOUT:
     case A_PAR_TIMER:
     case A_PAR_PORT:
+    case A_EXCEPTION:
       // parameter is identified using its id
       ret_val += id->get_dispname();
       break;

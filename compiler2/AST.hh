@@ -515,6 +515,7 @@ namespace Common {
       A_MODULEPAR_TEMP, /**< template module parameter */
       A_TEMPLATE,       /**< template (TTCN-3) */
       A_VAR,            /**< variable (TTCN-3) */
+      A_EXCEPTION,      /**< exception (at the beginning of a catch block) (TTCN-3) */
       A_VAR_TEMPLATE,   /**< template variable, dynamic template (TTCN-3) */
       A_TIMER,          /**< timer (TTCN-3) */
       A_PORT,           /**< port (TTCN-3) */

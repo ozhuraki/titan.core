@@ -43,7 +43,8 @@ namespace Ttcn {
   // =================================
 
   StatementBlock::StatementBlock()
-    : Scope(), checked(false), labels_checked(false), my_sb(0), my_def(0), exception_handling(EH_NONE)
+    : Scope(), checked(false), labels_checked(false), my_sb(0), my_def(0), exception_handling(EH_NONE),
+    finally_block(NULL)
   {
   }
 
@@ -54,6 +55,11 @@ namespace Ttcn {
     stmts.clear();
     defs.clear();
     labels.clear();
+    for (size_t i = 0; i < catch_blocks.size(); ++i) {
+      delete catch_blocks[i];
+    }
+    catch_blocks.clear();
+    delete finally_block;
   }
 
   StatementBlock *StatementBlock::clone() const
@@ -89,6 +95,12 @@ namespace Ttcn {
     set_parent_scope(p_scope);
     for(size_t i=0; i<stmts.size(); i++)
       stmts[i]->set_my_scope(this);
+    for (size_t i = 0; i < catch_blocks.size(); ++i) {
+      catch_blocks[i]->set_parent_scope(p_scope);
+    }
+    if (finally_block != NULL) {
+      finally_block->set_parent_scope(p_scope);
+    }
   }
 
   void StatementBlock::set_fullname(const string& p_fullname)
@@ -96,6 +108,12 @@ namespace Ttcn {
     Node::set_fullname(p_fullname);
     for(size_t i=0; i<stmts.size(); i++)
       stmts[i]->set_fullname(p_fullname+".stmt_"+Int2string(i+1));
+    for (size_t i = 0; i < catch_blocks.size(); ++i) {
+      catch_blocks[i]->set_fullname(p_fullname + ".catch_block_" + Int2string(i + 1));
+    }
+    if (finally_block != NULL) {
+      finally_block->set_fullname(p_fullname + ".finally_block");
+    }
   }
 
   /** \todo handle loops and conditional statements */
@@ -227,6 +245,12 @@ namespace Ttcn {
     my_def=p_def;
     for(size_t i=0; i<stmts.size(); i++)
       stmts[i]->set_my_def(p_def);
+    for (size_t i = 0; i < catch_blocks.size(); ++i) {
+      catch_blocks[i]->set_my_def(p_def);
+    }
+    if (finally_block != NULL) {
+      finally_block->set_my_def(p_def);
+    }
   }
 
   void StatementBlock::set_my_ags(AltGuards *p_ags)
@@ -240,6 +264,24 @@ namespace Ttcn {
   {
     for(size_t i=0; i<stmts.size(); i++)
       stmts[i]->set_my_laic_stmt(p_ags, p_loop_stmt);
+  }
+  
+  void StatementBlock::add_catch_block(StatementBlock* p_catch)
+  {
+    if (p_catch == NULL) {
+      FATAL_ERROR("StatementBlock::add_catch_block");
+    }
+    p_catch->exception_handling = EH_OOP_CATCH;
+    catch_blocks.add(p_catch);
+  }
+  
+  void StatementBlock::set_finally_block(StatementBlock* p_finally)
+  {
+    if (finally_block != NULL || p_finally == NULL) {
+      FATAL_ERROR("StatementBlock::set_finally_block");
+    }
+    p_finally->exception_handling = EH_OOP_FINALLY;
+    finally_block = p_finally;
   }
 
   StatementBlock::returnstatus_t StatementBlock::has_return() const
@@ -376,6 +418,12 @@ namespace Ttcn {
     }
     chk_trycatch_blocks(prev_stmt, 0);
     chk_unused_labels();
+    for (size_t i = 0; i < catch_blocks.size(); ++i) {
+      catch_blocks[i]->chk();
+    }
+    if (finally_block != NULL) {
+      finally_block->chk();
+    }
     checked = true;
   }
 
@@ -384,6 +432,12 @@ namespace Ttcn {
     size_t nof_stmts = stmts.size();
     for (size_t i = 0; i < nof_stmts; i++)
       stmts[i]->chk_allowed_interleave();
+    for (size_t i = 0; i < catch_blocks.size(); ++i) {
+      catch_blocks[i]->chk_allowed_interleave();
+    }
+    if (finally_block != NULL) {
+      finally_block->chk_allowed_interleave();
+    }
   }
 
   void StatementBlock::chk_labels()
@@ -401,6 +455,12 @@ namespace Ttcn {
       }
       else labels.add(labelid, st);
     }
+    for (size_t i = 0; i < catch_blocks.size(); ++i) {
+      catch_blocks[i]->chk_labels();
+    }
+    if (finally_block != NULL) {
+      finally_block->chk_labels();
+    }
     labels_checked=true;
   }
 
@@ -413,6 +473,12 @@ namespace Ttcn {
 	  !stmt->label_is_used())
 	stmt->warning("Label `%s' is defined, but not used",
 	  stmt->get_labelid().get_dispname().c_str());
+    }
+    for (size_t i = 0; i < catch_blocks.size(); ++i) {
+      catch_blocks[i]->chk_unused_labels();
+    }
+    if (finally_block != NULL) {
+      finally_block->chk_unused_labels();
     }
   }
 
@@ -436,12 +502,51 @@ namespace Ttcn {
   {
     for(size_t i = 0; i < stmts.size(); i++)
       stmts[i]->set_code_section(p_code_section);
+    for (size_t i = 0; i < catch_blocks.size(); ++i) {
+      catch_blocks[i]->set_code_section(p_code_section);
+    }
+    if (finally_block != NULL) {
+      finally_block->set_code_section(p_code_section);
+    }
   }
 
-  char* StatementBlock::generate_code(char *str, char*& def_glob_vars, char*& src_glob_vars)
+  char* StatementBlock::generate_code(char *str, char*& def_glob_vars, char*& src_glob_vars,
+                                      AltGuards* alt_guards /* = NULL */)
   {
     if (exception_handling==EH_TRY) {
       str = mputstr(str, "TTCN_TryBlock try_block;\n");
+    }
+    if (finally_block != NULL) {
+      string tmp_id = get_scope_mod_gen()->get_temporary_id();
+      /*str = mputprintf(str,
+        "class %s_finally {\n"
+        "public:\n", tmp_id.c_str());
+      // TODO: all local declarations (or those referenced in the 'finally' block) need to
+      // be added as members of this class, so the destructor can reach them
+      // or the C++11 code could be used...
+      if (include_location_info) {
+        str = mputprintf(str,
+          "TTCN_Location& current_location;\n"
+          "%s_finally(TTCN_Location& p_loc):current_location(p_loc) { }\n",
+          tmp_id.c_str());
+      }
+      str = mputprintf(str,
+        "~%s_finally() {\n", tmp_id.c_str());
+      str = finally_block->generate_code(str, def_glob_vars, src_glob_vars);
+      str = mputprintf(str,
+        "}\n"
+        "};\n"
+        "%s_finally %s%s;\n",
+        tmp_id.c_str(), tmp_id.c_str(),
+        include_location_info ? "(current_location)" : "");*/
+      // C++11 version:
+      str = mputprintf(str,
+        "FINALLY %s([&] {\n", tmp_id.c_str());
+      str = finally_block->generate_code(str, def_glob_vars, src_glob_vars);
+      str = mputstr(str, "});\n");
+    }
+    if (catch_blocks.size() > 0) {
+      str = mputstr(str, "try {\n");
     }
     if (stmts.size()>0) {
       Statement* first_stmt = stmts[0];
@@ -455,6 +560,32 @@ namespace Ttcn {
     }
     for(size_t i=1; i<stmts.size(); i++) {
       str = stmts[i]->generate_code(str, def_glob_vars, src_glob_vars);
+    }
+    if (alt_guards != NULL && exception_handling == EH_NONE) {
+      str = alt_guards->generate_code_altstep(str, def_glob_vars, src_glob_vars);
+    }
+    if (exception_handling == EH_OOP_CATCH && alt_guards != NULL) {
+      // we are in an altstep's statement block
+      // indicate that an alt branch has been chosen (since exceptions can only be raised from
+      // the statement blocks of the alt branches)
+      str = mputstr(str, "return ALT_YES;\n");
+    }
+    if (catch_blocks.size() > 0) {
+      str = mputstr(str,
+        "}\n" // end of the 'try' block
+        "catch (EXCEPTION_BASE& exc_base) {\n");
+      for (size_t i = 0; i < catch_blocks.size(); ++i) {
+        Type* exc_type = catch_blocks[i]->get_stmt_byIndex(0)->get_def()->get_Type();
+        str = mputprintf(str,
+          "%sif (exc_base.has_type(\"%s\")) {\n",
+          i > 0 ? "else " : "", exc_type->get_exception_name().c_str());
+        str = catch_blocks[i]->generate_code(str, def_glob_vars, src_glob_vars, alt_guards);
+        str = mputstr(str, "}\n");
+      }
+      // if none of the exception types matched, then just re-throw the exception as if nothing happened
+      str = mputstr(str, 
+        "else { throw exc_base; }\n"
+        "}\n"); // end of the catch block
     }
     return str;
   }
@@ -491,6 +622,12 @@ namespace Ttcn {
   {
     for (size_t i = 0; i < stmts.size(); i++)
       stmts[i]->set_parent_path(p_path);
+    for (size_t i = 0; i < catch_blocks.size(); ++i) {
+      catch_blocks[i]->set_parent_path(p_path);
+    }
+    if (finally_block != NULL) {
+      finally_block->set_parent_path(p_path);
+    }
   }
 
   // =================================
@@ -757,6 +894,14 @@ namespace Ttcn {
     case S_SETENCODE:
       delete setencode_op.type;
       delete setencode_op.encoding;
+      break;
+    case S_RAISE_OOP:
+      if (raise_op.checked) {
+        delete raise_op.v;
+      }
+      else {
+        delete raise_op.ti;
+      }
       break;
     default:
       FATAL_ERROR("Statement::clean_up()");
@@ -1550,6 +1695,22 @@ namespace Ttcn {
       FATAL_ERROR("Statement::Statement()");
     }
   }
+  
+  Statement::Statement(statementtype_t p_st, TemplateInstance* p_ti)
+  : statementtype(p_st), my_sb(0)
+  {
+    switch (statementtype) {
+    case S_RAISE_OOP:
+      if (p_ti == NULL) {
+        FATAL_ERROR("Statement::Statement()");
+      }
+      raise_op.checked = false;
+      raise_op.ti = p_ti;
+      break;
+    default:
+      FATAL_ERROR("Statement::Statement()");
+    }
+  }
 
   Statement::~Statement()
   {
@@ -2056,6 +2217,12 @@ namespace Ttcn {
       setencode_op.type->set_my_scope(p_scope);
       setencode_op.encoding->set_my_scope(p_scope);
       break;
+    case S_RAISE_OOP:
+      if (raise_op.checked) {
+        FATAL_ERROR("Statement::set_my_scope()");
+      }
+      raise_op.ti->set_my_scope(p_scope);
+      break;
     default:
       FATAL_ERROR("Statement::set_my_scope()");
     } // switch statementtype
@@ -2384,6 +2551,12 @@ namespace Ttcn {
       setencode_op.type->set_fullname(p_fullname + ".type");
       setencode_op.encoding->set_fullname(p_fullname + ".encoding");
       break;
+    case S_RAISE_OOP:
+      if (raise_op.checked) {
+        FATAL_ERROR("Statement::set_fullname()");
+      }
+      raise_op.ti->set_fullname(p_fullname + ".exception");
+      break;
     default:
       FATAL_ERROR("Statement::set_fullname()");
     } // switch statementtype
@@ -2553,6 +2726,7 @@ namespace Ttcn {
     case S_STOP_TESTCASE:
     case S_REPEAT:
     case S_RETURN:
+    case S_RAISE_OOP:
       return true;
     case S_STOP_COMP:
     case S_KILL:
@@ -2690,6 +2864,7 @@ namespace Ttcn {
     case S_UPDATE:
     case S_SETSTATE:
     case S_SETENCODE:
+    case S_RAISE_OOP:
       return false;
     case S_ALT:
     case S_INTERLEAVE:
@@ -2958,6 +3133,9 @@ namespace Ttcn {
     case S_SETENCODE:
       chk_setencode();
       break;
+    case S_RAISE_OOP:
+      chk_raise_oop();
+      break;
     default:
       FATAL_ERROR("Statement::chk()");
     } // switch statementtype
@@ -2978,6 +3156,7 @@ namespace Ttcn {
     case Definition::A_PAR_TEMPL_IN:
       refd_ass->use_as_lvalue(*convert_op.ref);
     case Definition::A_VAR:
+    case Definition::A_EXCEPTION:
     case Definition::A_VAR_TEMPLATE:
     case Definition::A_PAR_VAL_OUT:
     case Definition::A_PAR_VAL_INOUT:
@@ -3081,6 +3260,10 @@ namespace Ttcn {
       break;
     case S_CALL:
       if (port_op.s.call.body) port_op.s.call.body->chk_allowed_interleave();
+      break;
+    case S_RAISE_OOP:
+      // TODO: is this allowed in an interleave? (if 'return' isn't allowed, then this probably shouldn't be either)
+      error("Raise statement is not allowed within an interleave statement");
       break;
     default:
       // the other statements are allowed
@@ -3223,6 +3406,7 @@ namespace Ttcn {
     if (!t_ass) goto error;
     switch (t_ass->get_asstype()) {
     case Common::Assignment::A_VAR:
+    case Common::Assignment::A_EXCEPTION:
     case Common::Assignment::A_PAR_VAL:
     case Common::Assignment::A_PAR_VAL_IN:
     case Common::Assignment::A_PAR_VAL_INOUT:
@@ -3318,6 +3502,7 @@ error:
     Common::Assignment *t_ass = ref_pard->get_refd_assignment();
     switch (t_ass->get_asstype()) {
     case Common::Assignment::A_VAR:
+    case Common::Assignment::A_EXCEPTION:
     case Common::Assignment::A_PAR_VAL:
     case Common::Assignment::A_PAR_VAL_IN:
     case Common::Assignment::A_PAR_VAL_INOUT:
@@ -6162,6 +6347,45 @@ error:
         add_default_coding_var(type);
     }
   }
+  
+  void Statement::chk_raise_oop()
+  {
+    Error_Context cntxt(this, "In raise statement");
+    Common::Type* exc_type = raise_op.ti->get_expr_governor(Common::Type::EXPECTED_DYNAMIC_VALUE);
+    if (exc_type == NULL) {
+      raise_op.ti->get_Template()->set_lowerid_to_ref();
+      exc_type = raise_op.ti->get_expr_governor(Common::Type::EXPECTED_DYNAMIC_VALUE);
+    }
+    if (exc_type == NULL) {
+      // TODO
+    }
+    else {
+      if (raise_op.ti->get_Type() == exc_type) {
+        // don't use the type indicator of the TemplateInstance
+        // (i.e. the 'type:' part of the in-line template)
+        // as the exception's governor, because it will be deleted
+        if (exc_type->is_ref()) {
+          exc_type = exc_type->get_type_refd();
+        }
+        else {
+          exc_type = Type::get_pooltype(exc_type->get_typetype());
+        }
+      }
+      raise_op.ti->chk(exc_type);
+      if (!raise_op.ti->get_Template()->is_Value()) {
+        // TODO: error
+        delete raise_op.ti;
+        raise_op.v = new Common::Value(Common::Value::V_ERROR);
+      }
+      else {
+        Common::Value* val = raise_op.ti->get_Template()->get_Value();
+        delete raise_op.ti;
+        raise_op.v = val;
+      }
+      // TODO
+    }
+    raise_op.checked = true;
+  }
 
   void Statement::set_code_section(
     GovernedSimple::code_section_t p_code_section)
@@ -6460,6 +6684,12 @@ error:
     case S_SETENCODE:
       setencode_op.encoding->set_code_section(p_code_section);
       break;
+    case S_RAISE_OOP:
+      if (!raise_op.checked) {
+        FATAL_ERROR("Statement::set_code_section()");
+      }
+      raise_op.v->set_code_section(p_code_section);
+      break;
     default:
       FATAL_ERROR("Statement::set_code_section()");
     } // switch statementtype
@@ -6479,6 +6709,11 @@ error:
       // conditional and loop statements do not need single location setting
       // the embedded expressions, statements have their own locations
       break;
+    case S_DEF:
+      if (def->get_asstype() == Common::Assignment::A_EXCEPTION) {
+        break;
+      }
+      // else fall through
     default:
       str = update_location_object(str);
     }
@@ -6665,6 +6900,9 @@ error:
       break;
     case S_SETENCODE:
       str = generate_code_setencode(str);
+      break;
+    case S_RAISE_OOP:
+      str = generate_code_raise_oop(str);
       break;
     default:
       FATAL_ERROR("Statement::generate_code()");
@@ -8295,6 +8533,48 @@ error:
     Code::free_expr(&expr);
     return str;
   }
+  
+  char* Statement::generate_code_raise_oop(char* str)
+  {
+    expression_struct_t expr;
+    Code::init_expr(&expr);
+    raise_op.v->generate_code_expr(&expr);
+    if (expr.preamble != NULL) {
+      str = mputstr(str, expr.preamble);
+    }
+    Common::Type* exc_type = raise_op.v->get_expr_governor(Common::Type::EXPECTED_DYNAMIC_VALUE);
+    string exc_type_str = exc_type->get_genname_value(my_sb);
+    string id_str = my_sb->get_scope_mod_gen()->get_temporary_id();
+    bool is_class = exc_type->get_type_refd_last()->get_typetype() == Common::Type::T_CLASS;
+    // the EXCEPTION class stores all the superclasses of the class type, too, since those
+    // can also catch this type of exception
+    int nof_exc_types = 1;
+    Type* t;
+    if (is_class) {
+      t = exc_type;
+      while (t != NULL) {
+        ++nof_exc_types;
+        t = t->get_type_refd_last()->get_class_type_body()->get_base_type();
+      }
+    }
+    str = mputprintf(str, "const char** %s = new const char*[%i];\n",
+      id_str.c_str(), nof_exc_types);
+    t = exc_type;
+    for (int i = 0; i < nof_exc_types; ++i) {
+      if (i > 0) {
+        t = t->get_type_refd_last()->get_class_type_body()->get_base_type();
+      }
+      str = mputprintf(str,  "%s[%i] = \"%s\";\n",
+        id_str.c_str(), i, t != NULL ? t->get_exception_name().c_str() : "object");
+    }
+    str = mputprintf(str, "throw EXCEPTION<%s>(new %s(%s), %s, %i);\n",
+      exc_type_str.c_str(), exc_type_str.c_str(), expr.expr, id_str.c_str(), nof_exc_types);
+    if (expr.postamble != NULL) {
+      str = mputstr(str, expr.postamble);
+    }
+    Code::free_expr(&expr);
+    return str;
+  }
 
   void Statement::generate_code_expr_receive(expression_struct *expr,
     const char *opname)
@@ -8914,6 +9194,7 @@ error:
         case S_UPDATE:
         case S_SETSTATE:
         case S_SETENCODE:
+        case S_RAISE_OOP:
           break;
         default:
           FATAL_ERROR("Statement::set_parent_path()");
@@ -9046,6 +9327,7 @@ error:
       }
       // no break
     case Common::Assignment::A_VAR:
+    case Common::Assignment::A_EXCEPTION:
     case Common::Assignment::A_PAR_VAL_OUT:
     case Common::Assignment::A_PAR_VAL_INOUT:
       if (templ->is_Value()) {
@@ -11698,6 +11980,7 @@ error:
     case Common::Assignment::A_MODULEPAR_TEMP:
     case Common::Assignment::A_TEMPLATE:
     case Common::Assignment::A_VAR:
+    case Common::Assignment::A_EXCEPTION:
     case Common::Assignment::A_VAR_TEMPLATE:
     case Common::Assignment::A_PAR_VAL_IN:
     case Common::Assignment::A_PAR_VAL_OUT:

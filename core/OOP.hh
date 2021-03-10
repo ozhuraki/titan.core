@@ -15,6 +15,7 @@
 
 #include "Universal_charstring.hh"
 #include "Logger.hh"
+#include <functional>
 
 // OBJECT
 // ------
@@ -222,32 +223,76 @@ boolean operator!=(null_type, const OBJECT_REF<T>& right_val) { // inequality op
 // EXCEPTION
 // ---------
 
-template<typename T, int type_id>
-class EXCEPTION {
+class EXCEPTION_BASE {
+private:
+  const char** exc_types;
+  size_t nof_types;
+protected:
+  CHARSTRING exception_log; // this is set by the EXCEPTION class
+public:
+  EXCEPTION_BASE(const char** p_exc_types, size_t p_nof_types)
+  : exc_types(p_exc_types), nof_types(p_nof_types) { }
+  EXCEPTION_BASE(const EXCEPTION_BASE& p)
+  : exc_types(new const char*[p.nof_types]), nof_types(p.nof_types), exception_log(p.exception_log) {
+    for (size_t i = 0; i < nof_types; ++i) {
+      exc_types[i] = p.exc_types[i];
+    }
+  }
+  ~EXCEPTION_BASE() {
+    delete exc_types;
+  }
+  CHARSTRING get_log() const { return exception_log; }
+  boolean has_type(const char* type_name) const {
+    for (size_t i = 0; i < nof_types; ++i) {
+      if (strcmp(exc_types[i], type_name) == 0) {
+        return TRUE;
+      }
+    }
+    return FALSE;
+  }
+};
+
+template<typename T>
+class EXCEPTION : public EXCEPTION_BASE {
 public:
   struct exception_struct {
     T* val_ptr;
     size_t ref_count;
   };
 private:
-  exception_struct* ex_ptr;
+  exception_struct* exc_ptr;
   EXCEPTION operator=(const EXCEPTION&); // assignment disabled
 public:
-  EXCEPTION(T* p_value): ex_ptr(new exception_struct) {
-    ex_ptr->val_ptr = p_value;
-    ex_ptr->ref_count = 1;
+  EXCEPTION(T* p_value, const char** p_exc_types, size_t p_nof_types)
+    : EXCEPTION_BASE(p_exc_types, p_nof_types), exc_ptr(new exception_struct) {
+    exc_ptr->val_ptr = p_value;
+    exc_ptr->ref_count = 1;
+    exception_log = (TTCN_Logger::begin_event_log2str(),
+      p_value->log(), TTCN_Logger::end_event_log2str());
   }
-  EXCEPTION(const EXCEPTION& p): ex_ptr(p.ex_ptr) {
-    ++ex_ptr->ref_count;
+  EXCEPTION(const EXCEPTION& p)
+    : EXCEPTION_BASE(p), exc_ptr(p.exc_ptr) {
+    ++exc_ptr->ref_count;
   }
   ~EXCEPTION() {
-    --ex_ptr->ref_count;
-    if (ex_ptr->ref_count == 0) {
-      delete ex_ptr->val_ptr;
-      delete ex_ptr;
+    --exc_ptr->ref_count;
+    if (exc_ptr->ref_count == 0) {
+      delete exc_ptr->val_ptr;
+      delete exc_ptr;
     }
   }
-  T& operator()() { return *ex_ptr->val_ptr; }
+  T& operator()() { return *exc_ptr->val_ptr; }
+};
+
+class FINALLY
+{
+  std::function<void(void)> functor;
+public:
+  FINALLY(const std::function<void(void)> &p_functor) : functor(p_functor) {}
+  ~FINALLY()
+  {
+    functor();
+  }
 };
 
 #endif /* OOP_HH */

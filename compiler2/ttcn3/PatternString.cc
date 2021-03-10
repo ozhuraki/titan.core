@@ -675,6 +675,7 @@ namespace Ttcn {
             }
           } else if ((assign->get_asstype() == Common::Assignment::A_MODULEPAR
             || assign->get_asstype() == Common::Assignment::A_VAR
+            || assign->get_asstype() == Common::Assignment::A_EXCEPTION
             || assign->get_asstype() == Common::Assignment::A_PAR_VAL
             || assign->get_asstype() == Common::Assignment::A_PAR_VAL_IN
             || assign->get_asstype() == Common::Assignment::A_PAR_VAL_OUT

@@ -398,6 +398,7 @@ namespace Ttcn {
     case Common::Assignment::A_EXT_CONST:         // a Def_ExtConst
     case Common::Assignment::A_MODULEPAR:         // a Def_Modulepar
     case Common::Assignment::A_VAR:               // a Def_Var
+    case Common::Assignment::A_EXCEPTION:         // a Def_Exception
     case Common::Assignment::A_FUNCTION_RVAL:     // a Def_Function
     case Common::Assignment::A_EXT_FUNCTION_RVAL: // a Def_ExtFunction
     case Common::Assignment::A_PAR_VAL_IN:        // a FormalPar
@@ -673,6 +674,7 @@ namespace Ttcn {
     case Common::Assignment::A_MODULEPAR:      /**< module parameter (TTCN-3) */
     case Common::Assignment::A_MODULEPAR_TEMP: /**< template module parameter */
     case Common::Assignment::A_VAR:            /**< variable (TTCN-3) */
+    case Common::Assignment::A_EXCEPTION:      /**< exception (TTCN-3) */
     case Common::Assignment::A_VAR_TEMPLATE:   /**< template variable: dynamic template (TTCN-3) */
     case Common::Assignment::A_TIMER:          /**< timer (TTCN-3) */
     case Common::Assignment::A_PORT:           /**< port (TTCN-3) */
@@ -914,6 +916,7 @@ namespace Ttcn {
     if (ass != NULL && subrefs.get_nof_refs() != 0) {
       switch (ass->get_asstype()) {
       case Common::Assignment::A_VAR:
+      case Common::Assignment::A_EXCEPTION:
       case Common::Assignment::A_PAR_VAL:
       case Common::Assignment::A_PAR_VAL_IN:
       case Common::Assignment::A_PAR_VAL_INOUT:
@@ -981,6 +984,7 @@ namespace Ttcn {
       t_ass->use_as_lvalue(*this);
       // no break
     case Common::Assignment::A_VAR:
+    case Common::Assignment::A_EXCEPTION:
     case Common::Assignment::A_PAR_VAL_OUT:
     case Common::Assignment::A_PAR_VAL_INOUT:
       if (has_parameters()) {
@@ -1186,6 +1190,7 @@ namespace Ttcn {
         base_type->get_genname_own(my_scope).c_str());
     }
     string const_prefix; // empty by default
+    string exception_postfix; // also empty by default
     if (gen_const_prefix) {
       if (ass->get_asstype() == Common::Assignment::A_CONST) {
         const_prefix = "const_";
@@ -1193,6 +1198,9 @@ namespace Ttcn {
       else if (ass->get_asstype() == Common::Assignment::A_TEMPLATE) {
         const_prefix = "template_";
       }
+    }
+    if (ass->get_asstype() == Common::Assignment::A_EXCEPTION) {
+      exception_postfix = "()";
     }
     if (parlist != NULL) {
       expr->expr = mputprintf(expr->expr, "%s(",
@@ -1204,7 +1212,7 @@ namespace Ttcn {
       expr->expr = mputstr(expr->expr,
         LazyFuzzyParamData::in_lazy_or_fuzzy() ?
         LazyFuzzyParamData::add_ref_genname(ass, my_scope).c_str() :
-        (const_prefix + ass->get_genname_from_scope(my_scope)).c_str());
+        (const_prefix + ass->get_genname_from_scope(my_scope) + exception_postfix).c_str());
     }
     if (subrefs.get_nof_refs() > 0) subrefs.generate_code(expr, ass, my_scope);
   }
@@ -1225,6 +1233,7 @@ namespace Ttcn {
     switch (ass->get_asstype()) {
     case Common::Assignment::A_MODULEPAR:
     case Common::Assignment::A_VAR:
+    case Common::Assignment::A_EXCEPTION:
     case Common::Assignment::A_PAR_VAL:
     case Common::Assignment::A_PAR_VAL_IN:
     case Common::Assignment::A_PAR_VAL_OUT:
@@ -1270,6 +1279,10 @@ namespace Ttcn {
           refd_gov->get_genname_value(get_my_scope()).c_str());
       }
     }
+    string exception_postfix;
+    if (ass->get_asstype() == Common::Assignment::A_EXCEPTION) {
+      exception_postfix = "()";
+    }
     if (parlist != NULL) {
       // reference without parameters to a template that has only default formal parameters.
       // if @lazy: nothing to do, it's a C++ function call just like in case of Ref_pard::generate_code()
@@ -1282,7 +1295,7 @@ namespace Ttcn {
       this_expr.expr = mputstr(this_expr.expr,
         LazyFuzzyParamData::in_lazy_or_fuzzy() ?
         LazyFuzzyParamData::add_ref_genname(ass, my_scope).c_str() :
-        ass->get_genname_from_scope(my_scope).c_str());
+        (ass->get_genname_from_scope(my_scope) + exception_postfix).c_str());
     }
     if (refd_gov->get_type_refd_last()->get_typetype() != Common::Type::T_CLASS) {
       this_expr.expr = mputstr(this_expr.expr, ")");
@@ -5491,6 +5504,21 @@ namespace Ttcn {
   }
 
   // =================================
+  // ===== Def_Exception
+  // =================================
+  
+  Def_Exception::Def_Exception(Identifier* p_id, Type* p_type): Def_Var(p_id, p_type, NULL) 
+  {
+    asstype = Common::Assignment::A_EXCEPTION;
+  }
+  
+  char* Def_Exception::generate_code_str(char *str)
+  {
+    return mputprintf(str, "EXCEPTION<%s>& %s = static_cast<EXCEPTION<%s>&>(exc_base);\n",
+      type->get_genname_value(my_scope).c_str(), id->get_name().c_str(), type->get_genname_value(my_scope).c_str());
+  }
+
+  // =================================
   // ===== Def_Var_Template
   // =================================
 
@@ -8425,9 +8453,7 @@ namespace Ttcn {
       body = generate_code_debugger_function_init(body, this);
     }
     body = sb->generate_code(body, target->header.global_vars,
-      target->source.global_vars);
-    body = ags->generate_code_altstep(body, target->header.global_vars,
-      target->source.global_vars);
+      target->source.global_vars, ags);
     // generate a smart formal parameter list (omits unused parameter names)
     char *formal_par_list = fp_list->generate_code(memptystr());
     fp_list->generate_code_defval(target);
@@ -8708,7 +8734,9 @@ namespace Ttcn {
       body = generate_code_debugger_function_init(body, this);
     }
     body = mputprintf(body, "try {\n"
+      "%s"
       "TTCN_Runtime::begin_testcase(\"%s\", \"%s\", ",
+      oop_features ? "try {\n" : "",
       my_scope->get_scope_mod()->get_modid().get_dispname().c_str(),
       dispname_str);
     ComponentTypeBody *runs_on_body = runs_on_type->get_CompBody();
@@ -8721,10 +8749,14 @@ namespace Ttcn {
     body = block->generate_code(body, target->header.global_vars,
       target->source.global_vars);
     body = mputprintf(body,
+      "%s"
       "} catch (const TC_Error& tc_error) {\n"
       "} catch (const TC_End& tc_end) {\n"
       "TTCN_Logger::log_str(TTCN_FUNCTION, \"Test case %s was stopped.\");\n"
-      "}\n", dispname_str);
+      "}\n",
+      oop_features ? "} catch (const EXCEPTION_BASE& exc) {\n"
+      "TTCN_error(\"Unhandled exception: %s\", (const char*) exc.get_log());\n"
+      "}\n" : "", dispname_str);
     body = mputstr(body, "return TTCN_Runtime::end_testcase();\n");
     
     // smart formal parameter list (names of unused parameters are omitted)
@@ -9595,6 +9627,7 @@ namespace Ttcn {
         }
         // no break
       case A_VAR:
+      case A_EXCEPTION:
       case A_PAR_VAL_OUT:
       case A_PAR_VAL_INOUT:
         if (!is_template) asstype_correct = true;
@@ -10709,6 +10742,7 @@ namespace Ttcn {
       if(!t_par_ass) FATAL_ERROR("FormalParList::chk_activate_argument()");
       switch (t_par_ass->get_asstype()) {
       case Common::Assignment::A_VAR:
+      case Common::Assignment::A_EXCEPTION: // TODO: can exceptions be of 'default' type?
       case Common::Assignment::A_VAR_TEMPLATE:
       case Common::Assignment::A_TIMER:
         // it is not allowed to pass references of local variables or timers
@@ -11562,6 +11596,7 @@ namespace Ttcn {
         Common::Assignment *ass = par->get_Ref()->get_refd_assignment();
         switch (ass->get_asstype()) {
         case Common::Assignment::A_VAR:
+        case Common::Assignment::A_EXCEPTION:
         case Common::Assignment::A_PAR_VAL_IN:
         case Common::Assignment::A_PAR_VAL_OUT:
         case Common::Assignment::A_PAR_VAL_INOUT:

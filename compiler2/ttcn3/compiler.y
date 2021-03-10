@@ -605,6 +605,11 @@ static const string anyname("anytype");
     size_t nElements;
     Ttcn::Reference** elements;
   } reference_list;
+  
+  struct {
+    size_t nElements;
+    StatementBlock** elements;
+  } catch_block_list;
 }
 
 /* Tokens of TTCN-3 */
@@ -1049,9 +1054,10 @@ static const string anyname("anytype");
   UnmapStatement VerdictStatements WhileStatement SelectCaseConstruct
   SelectUnionConstruct SelectClassConstruct UpdateStatement SetstateStatement
   SetencodeStatement StopTestcaseStatement String2TtcnStatement ProfilerStatement
-  int2enumStatement
+  int2enumStatement RaiseStatementOOP
 %type <statementblock> StatementBlock optElseClause FunctionStatementOrDefList
-  ControlStatementOrDefList ModuleControlBody optFinallyDef
+  ControlStatementOrDefList ModuleControlBody optFinallyDef BasicStatementBlock
+  CatchBlock
 %type <subtypeparse> ValueOrRange
 %type <templ> MatchingSymbol SingleValueOrAttrib SimpleSpec TemplateBody
   ArrayElementSpec ArrayValueOrAttrib FieldSpecList ArraySpecList
@@ -1170,6 +1176,7 @@ AllOrTypeListWithTo TypeListWithFrom TypeListWithTo
 %type <typemappingtargets> WithList
 %type <reference_list> PortTypeList
 %type <string_vector> AttribSpecEncodings
+%type <catch_block_list> optCatchBlockList
 
 /*********************************************************************
  * Destructors
@@ -1230,6 +1237,7 @@ ArrayValueOrAttrib
 Assignment
 AssignmentList
 AttribSpec
+BasicStatementBlock
 BasicStatements
 BehaviourStatements
 BitStringMatch
@@ -1242,6 +1250,7 @@ CallBodyOps
 CallBodyStatement
 CallBodyStatementList
 CallStatement
+CatchBlock
 CatchStatement
 CharStringMatch
 CharStringValue
@@ -1576,6 +1585,7 @@ USI
 UIDlike
 PortTypeList
 PortElementVarDef
+optCatchBlockList
 
 
 %destructor {
@@ -1942,6 +1952,7 @@ DecodedContentMatch
   }
 }
 optDecodedModifier
+
 
 /*********************************************************************
  * Operator precedences (lowest first)
@@ -3611,8 +3622,8 @@ optExtendsClassDef:
 ;
 
 optFinallyDef:
-  /* empty */                   { $$ = NULL; }
-| FinallyKeyword StatementBlock { $$ = $2; }
+  /* empty */                        { $$ = NULL; }
+| FinallyKeyword BasicStatementBlock { $$ = $2; }
 ;
 
 optClassMemberList:
@@ -4667,6 +4678,47 @@ optPortSpec:
   /* StatementBlock changed in 4.1.2 to explicitly prevent statements
    * followed by definitions. TITAN still allows them to be mixed. */
 StatementBlock: /* StatementBlock *statementblock */ // 175
+  BasicStatementBlock optCatchBlockList optFinallyDef 
+  {
+    $$ = $1;
+    for (size_t i = 0; i < $2.nElements; ++i) {
+      $$->add_catch_block($2.elements[i]);
+    }
+    Free($2.elements);
+    if ($3 != NULL) {
+      $$->set_finally_block($3);
+    }
+  }
+;
+
+optCatchBlockList:
+  /* empty */
+  {
+    $$.nElements = 0;
+    $$.elements = NULL;
+  }
+| optCatchBlockList CatchBlock
+  {
+    $$.nElements = $1.nElements + 1;
+    $$.elements = static_cast<StatementBlock**>(
+      Realloc($1.elements, $$.nElements * sizeof(*$$.elements)));
+    $$.elements[$1.nElements] = $2;
+  }
+;
+
+CatchBlock:
+  CatchOpKeyword '(' Type IDentifier ')' BasicStatementBlock
+  {
+    Def_Exception* def_exc = new Def_Exception($4, $3);
+    def_exc->set_location(infile, @3, @4);
+    Statement* def_stmt = new Statement(Statement::S_DEF, def_exc);
+    def_stmt->set_location(infile, @3, @4);
+    $$ = $6;
+    $$->add_stmt(def_stmt, true);
+  }
+;
+
+BasicStatementBlock:
   '{' optError '}'
   {
     $$ = new StatementBlock;
@@ -5181,6 +5233,7 @@ TestcaseActualPar:
 AltstepDef: // 211
   AltstepKeyword IDentifier '(' optAltstepFormalParList ')' optRunsOnSpec
   AltOrTcConfigSpec optError '{' AltstepLocalDefList AltGuardList optError '}'
+  optCatchBlockList optFinallyDef
   {
     StatementBlock *sb = new StatementBlock;
     for (size_t i = 0; i < $10.nElements; i++) {
@@ -5189,6 +5242,13 @@ AltstepDef: // 211
       sb->add_stmt(stmt);
     }
     Free($10.elements);
+    for (size_t i = 0; i < $14.nElements; ++i) {
+      sb->add_catch_block($14.elements[i]);
+    }
+    Free($14.elements);
+    if ($15 != NULL) {
+      sb->set_finally_block($15);
+    }
     $4->set_location(infile, @4);
     $$ = new Def_Altstep($2, $4, $6, $7.mtcref, $7.systemref, sb, $11);
     $$->set_location(infile, @$);
@@ -9181,6 +9241,7 @@ BehaviourStatements: // 543
     else $$ = new Statement(Statement::S_ERROR);
     $$->set_location(infile, @$);
   }
+| RaiseStatementOOP { $$ = $1; }
 ;
 
 VerdictStatements: // 544
@@ -9365,6 +9426,14 @@ ReturnStatement: // 552
 | ReturnKeyword TemplateBody
   {
     $$=new Statement(Statement::S_RETURN, $2);
+    $$->set_location(infile, @$);
+  }
+;
+
+RaiseStatementOOP:
+  RaiseKeyword TemplateInstance
+  {
+    $$ = new Statement(Statement::S_RAISE_OOP, $2);
     $$->set_location(infile, @$);
   }
 ;

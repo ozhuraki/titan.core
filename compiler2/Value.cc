@@ -4168,6 +4168,7 @@ namespace Common {
       case Assignment::A_MODULEPAR_TEMP:
       case Assignment::A_TEMPLATE:
       case Assignment::A_VAR:
+      case Assignment::A_EXCEPTION:
       case Assignment::A_VAR_TEMPLATE:
       case Assignment::A_FUNCTION_RVAL:
       case Assignment::A_FUNCTION_RTEMP:
@@ -4570,6 +4571,7 @@ namespace Common {
     case Assignment::A_EXT_CONST:
     case Assignment::A_MODULEPAR:
     case Assignment::A_VAR:
+    case Assignment::A_EXCEPTION:
     case Assignment::A_PAR_VAL_IN:
     case Assignment::A_PAR_VAL_OUT:
     case Assignment::A_PAR_VAL_INOUT:
@@ -5069,6 +5071,7 @@ namespace Common {
     case Assignment::A_EXT_CONST:
     case Assignment::A_MODULEPAR:
     case Assignment::A_VAR:
+    case Assignment::A_EXCEPTION:
     case Assignment::A_FUNCTION_RVAL:
     case Assignment::A_EXT_FUNCTION_RVAL:
     case Assignment::A_PAR_VAL_IN:
@@ -5276,6 +5279,7 @@ namespace Common {
       case Assignment::A_EXT_CONST:
       case Assignment::A_MODULEPAR:
       case Assignment::A_VAR:
+      case Assignment::A_EXCEPTION:
       case Assignment::A_FUNCTION_RVAL:
       case Assignment::A_EXT_FUNCTION_RVAL:
       case Assignment::A_PAR_VAL_IN:
@@ -6683,6 +6687,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         goto error;
         break;
       case Assignment::A_VAR:
+      case Assignment::A_EXCEPTION:
       case Assignment::A_PAR_VAL_OUT:
       case Assignment::A_PAR_VAL_INOUT:
         break;
@@ -6752,6 +6757,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       // Extra check for HM59355.
       switch (t_ass->get_asstype()) {
       case Assignment::A_VAR:
+      case Assignment::A_EXCEPTION:
       case Assignment::A_PAR_VAL_IN:
       case Assignment::A_PAR_VAL_OUT:
       case Assignment::A_PAR_VAL_INOUT:
@@ -7043,6 +7049,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       }
       break;
     case Assignment::A_VAR:
+    case Assignment::A_EXCEPTION:
     case Assignment::A_PAR_VAL_IN:
     case Assignment::A_PAR_VAL_OUT:
     case Assignment::A_PAR_VAL_INOUT:
@@ -10322,6 +10329,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
           case Assignment::A_EXT_CONST:
           case Assignment::A_MODULEPAR:
           case Assignment::A_VAR:
+          case Assignment::A_EXCEPTION:
           case Assignment::A_FUNCTION_RVAL:
           case Assignment::A_EXT_FUNCTION_RVAL:
           case Assignment::A_PAR_VAL_IN:
@@ -12007,6 +12015,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case Assignment::A_EXT_CONST:
     case Assignment::A_MODULEPAR:
     case Assignment::A_VAR:
+    case Assignment::A_EXCEPTION:
     case Assignment::A_PAR_VAL_IN:
     case Assignment::A_PAR_VAL_OUT:
     case Assignment::A_PAR_VAL_INOUT: {
@@ -15177,6 +15186,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case Assignment::A_EXT_CONST:
     case Assignment::A_MODULEPAR:
     case Assignment::A_VAR:
+    case Assignment::A_EXCEPTION:
     case Assignment::A_FUNCTION_RVAL:
     case Assignment::A_EXT_FUNCTION_RVAL:
     case Assignment::A_PAR_VAL_IN:
@@ -16778,6 +16788,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case Assignment::A_EXT_CONST:
     case Assignment::A_MODULEPAR:
     case Assignment::A_VAR:
+    case Assignment::A_EXCEPTION:
     case Assignment::A_PAR_VAL_IN:
     case Assignment::A_PAR_VAL_OUT:
     case Assignment::A_PAR_VAL_INOUT:

@@ -1368,6 +1368,7 @@ namespace Common {
     string get_genname_typedescriptor(Scope *p_scope);
     string get_genname_coder(Scope* p_scope);
     string get_genname_default_coding(Scope* p_scope);
+    string get_exception_name();
   private:
     /** Returns the name prefix of type descriptors, etc. that belong to the
      * equivalent C++ class referenced from the module of scope \a p_scope.

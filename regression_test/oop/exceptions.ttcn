@@ -1,0 +1,233 @@
+/******************************************************************************
+ * Copyright (c) 2000-2021 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+module exceptions {
+
+type record Rec {
+  integer num,
+  charstring str
+}
+
+type record of integer RoI;
+
+type class BaseClass {
+  public function toString() return universal charstring {
+    return "BaseClass";
+  }
+}
+
+type class Class extends BaseClass {
+  public function toString() return universal charstring {
+    return "Class";
+  }
+}
+
+type class Class2 {
+  public function toString() return universal charstring {
+    return "Class2";
+  }
+}
+
+type component CT {
+  var integer cvar := 4;
+  timer tmr;
+}
+
+type integer SmallNumber (-100..100);
+
+
+function test_block(in integer p_exception_type, inout integer p_finally_counter) runs on CT {
+  var integer v_finally_increment := 1;
+  {
+    select (p_exception_type) {
+      case (1) {
+        raise 3; // integer
+      }
+      case (2) {
+        var integer x := 6;
+        raise x;
+      }
+      case (3) {
+        raise Rec: { 2, "xy" };
+      }
+      case (4) {
+        raise Class.create();
+      }
+      case (5) {
+        raise SmallNumber:11;
+      }
+      case (6) {
+        var Rec x := { 9, "" };
+        raise x.num;
+      }
+      case (7) {
+        raise RoI[-]: 23;
+      }
+      case (8) {
+        raise Class2.create;
+      }
+    }
+    // otherwise don't raise anything
+  }
+  catch (SmallNumber a) {
+    if (a != 11) {
+      setverdict(fail, "Unexpected SmallNumber exception: ", a);
+    }
+  }
+  catch (Rec.num a) {
+    if (a != 9) {
+      setverdict(fail, "Unexpected Rec.num exception: ", a);
+    }
+  }
+  catch (RoI[-] a) {
+    if (a != 23) {
+      setverdict(fail, "Unexpected RoI[-] exception: ", a);
+    }
+  }
+  catch (integer a) {
+    var integer a2 := a;
+    if (a2 != 3 and a2 != 6) {
+      setverdict(fail, "Unexpected integer exception: ", a2);
+    }
+  }
+  catch (Rec b) {
+    if (b != { 2, "xy" }) {
+      setverdict(fail, "Unexpected Rec exception: ", b);
+    }
+  }
+  catch (BaseClass c) {
+    if (c.toString() != "Class") {
+      setverdict(fail, "Unexpected BaseClass exception: ", c);
+    }
+  }
+  catch (Class c) {
+    setverdict(fail, "Unexpected Class exception: ", c);
+  }
+  catch (object c) {
+    if (c.toString() != "Class2") {
+      setverdict(fail, "Unexpected BaseClass exception: ", c);
+    }
+  }
+  finally {
+    p_finally_counter := p_finally_counter + v_finally_increment;
+    setverdict(pass);
+  }
+}
+
+testcase tc_exceptions_block() runs on CT {
+  var integer finally_counter := 0;
+  for (var integer i := 1; i <= 8; i := i + 1) {
+    test_block(i, finally_counter);
+  }
+  test_block(200, finally_counter);
+  
+  if (finally_counter != 9) {
+    setverdict(fail, "Invalid 'finally' execution count: ", finally_counter);
+  }
+}
+
+
+function test_function(boolean p_raise, inout integer p_finally_counter) runs on CT {
+  if (p_raise) {
+    raise "abc";
+  }
+}
+catch (charstring x) {
+  if (x != "abc") {
+    setverdict(fail, "Unexpected exception: ", x);
+  }
+}
+finally {
+  p_finally_counter := p_finally_counter + 1;
+  setverdict(pass);
+}
+
+testcase tc_exceptions_function() runs on CT {
+  var integer finally_counter := 0;
+  test_function(true, finally_counter);
+  test_function(false, finally_counter);
+  if (finally_counter != 2) {
+    setverdict(fail, "Invalid 'finally' execution count: ", finally_counter);
+  }
+}
+
+
+altstep test_altstep(boolean p_raise, inout integer p_finally_counter) runs on CT {
+  [] tmr.timeout {
+    if (p_raise) {
+      raise 6;
+    }
+  }
+}
+catch (integer x) {
+  if (x != 6) {
+    setverdict(fail, "Unexpected exception: ", x);
+  }
+}
+finally {
+  p_finally_counter := p_finally_counter + 1;
+  setverdict(pass);
+}
+
+testcase tc_exceptions_altstep() runs on CT {
+  var integer finally_counter := 0;
+  tmr.start(0.1);
+  test_altstep(true, finally_counter);
+  tmr.start(0.1);
+  alt {
+    [] test_altstep(false, finally_counter);
+  }
+  cvar := finally_counter;
+  var default def := activate(test_altstep(true, cvar));
+  timer tmr2;
+  tmr2.start(10.0);
+  tmr.start(0.1);
+  alt {
+    [] tmr2.timeout { setverdict(fail, "Default altstep not called."); }
+  }
+  finally_counter := cvar;
+  if (finally_counter != 6) {
+    setverdict(fail, "Invalid 'finally' execution count: ", finally_counter);
+  }
+}
+
+
+testcase tc_exceptions_testcase() runs on CT {
+  raise 100;
+  cvar := -1;
+}
+catch (integer x) {
+  cvar := x;
+}
+finally {
+  if (cvar == 100) {
+    setverdict(pass);
+  }
+  else if (cvar == 4) {
+    setverdict(fail, "Exception not caught.");
+  }
+  else if (cvar == -1) {
+    setverdict(fail, "Not exception raised.");
+  }
+  else {
+    setverdict(fail, "Unknown error...");
+  }
+}
+  
+
+control {
+  execute(tc_exceptions_block());
+  execute(tc_exceptions_function());
+  execute(tc_exceptions_altstep());
+  execute(tc_exceptions_testcase());
+}
+
+}

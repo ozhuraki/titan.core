@@ -1166,11 +1166,13 @@ namespace Ttcn {
    * Def_Var class represents a variable definition.
    */
   class Def_Var : public Definition {
-  private:
+  protected:
     Type *type;
+  
+  private:
     /** the initial value: optional and maybe incomplete */
     Value *initial_value;
-
+    
     /// Copy constructor disabled
     Def_Var(const Def_Var& p);
     /// %Assignment disabled
@@ -1190,6 +1192,18 @@ namespace Ttcn {
     virtual void ilt_generate_code(ILT *ilt);
     virtual char *generate_code_init_comp(char *str, Definition *base_defn);
     virtual void dump_internal(unsigned level) const;
+  };
+  
+  class Def_Exception : public Def_Var {
+  private:
+    /// Copy constructor disabled
+    Def_Exception(const Def_Exception& p);
+    /// %Assignment disabled
+    Def_Exception& operator=(const Def_Exception& p);
+    
+  public:
+    Def_Exception(Identifier* p_id, Type* p_type);
+    virtual char* generate_code_str(char *str);
   };
 
   /**

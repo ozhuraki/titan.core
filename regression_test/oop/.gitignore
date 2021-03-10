@@ -2,4 +2,6 @@ oop
 oop.exe
 oop*.cc
 oop*.hh
+exceptions*.cc
+exceptions*.hh
 oop*.log

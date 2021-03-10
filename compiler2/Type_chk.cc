@@ -4233,6 +4233,7 @@ bool Type::chk_this_refd_value(Value *value, Common::Assignment *lhs, expected_v
     }
     // else fall through
   case Assignment::A_VAR:
+  case Assignment::A_EXCEPTION:
   case Assignment::A_PAR_VAL:
   case Assignment::A_PAR_VAL_IN:
   case Assignment::A_PAR_VAL_OUT:
@@ -6515,6 +6516,7 @@ bool Type::chk_this_template_generic(Template *t, namedbool incomplete_allowed,
 
       switch (ass->get_asstype()) {
       case Assignment::A_VAR:
+      case Assignment::A_EXCEPTION:
       case Assignment::A_PAR_VAL_IN:
       case Assignment::A_PAR_VAL_INOUT:
       case Assignment::A_MODULEPAR:

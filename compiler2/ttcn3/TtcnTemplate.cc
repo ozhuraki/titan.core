@@ -2194,6 +2194,7 @@ namespace Ttcn {
       case Common::Assignment::A_PAR_VAL_OUT:
       case Common::Assignment::A_PAR_VAL_INOUT:
       case Common::Assignment::A_VAR:
+      case Common::Assignment::A_EXCEPTION:
         return true;
       default:
         return false;
@@ -2960,6 +2961,7 @@ end:
 //TODO: flatten if the actual par is const template
       case Common::Assignment::A_MODULEPAR: // all from a module parameter
       case Common::Assignment::A_VAR: // all from a variable
+      case Common::Assignment::A_EXCEPTION: // all from a variable (exception)
       case Common::Assignment::A_PAR_VAL_IN:
       case Common::Assignment::A_PAR_VAL_INOUT:
       case Common::Assignment::A_PAR_VAL_OUT:
@@ -3031,6 +3033,7 @@ end:
             case Common::Assignment::A_VAR_TEMPLATE:
             case Common::Assignment::A_MODULEPAR:
             case Common::Assignment::A_VAR:
+            case Common::Assignment::A_EXCEPTION:
             case Common::Assignment::A_PAR_TEMPL_IN:
             case Common::Assignment::A_PAR_VAL_IN:
               descr = "A ";
@@ -4143,6 +4146,7 @@ end:
               case Common::Assignment::A_EXT_CONST:
               case Common::Assignment::A_MODULEPAR:
               case Common::Assignment::A_VAR:
+              case Common::Assignment::A_EXCEPTION:
               case Common::Assignment::A_PAR_VAL_IN:
               case Common::Assignment::A_PAR_VAL_OUT:
               case Common::Assignment::A_PAR_VAL_INOUT:
@@ -4179,6 +4183,7 @@ end:
                     case Common::Assignment::A_EXT_CONST:
                     case Common::Assignment::A_MODULEPAR:
                     case Common::Assignment::A_VAR:
+                    case Common::Assignment::A_EXCEPTION:
                     case Common::Assignment::A_PAR_VAL_IN:
                     case Common::Assignment::A_PAR_VAL_OUT:
                     case Common::Assignment::A_PAR_VAL_INOUT:
@@ -4257,6 +4262,7 @@ end:
                   case Common::Assignment::A_EXT_CONST:
                   case Common::Assignment::A_MODULEPAR:
                   case Common::Assignment::A_VAR:
+                  case Common::Assignment::A_EXCEPTION:
                   case Common::Assignment::A_PAR_VAL_IN:
                   case Common::Assignment::A_PAR_VAL_OUT:
                   case Common::Assignment::A_PAR_VAL_INOUT:
@@ -4300,6 +4306,7 @@ end:
                       case Common::Assignment::A_EXT_CONST:
                       case Common::Assignment::A_MODULEPAR:
                       case Common::Assignment::A_VAR:
+                      case Common::Assignment::A_EXCEPTION:
                       case Common::Assignment::A_PAR_VAL_IN:
                       case Common::Assignment::A_PAR_VAL_OUT:
                       case Common::Assignment::A_PAR_VAL_INOUT:
@@ -4483,6 +4490,7 @@ compile_time:
         case Common::Assignment::A_EXT_CONST:
         case Common::Assignment::A_MODULEPAR:
         case Common::Assignment::A_VAR:
+        case Common::Assignment::A_EXCEPTION:
         case Common::Assignment::A_PAR_VAL_IN:
         case Common::Assignment::A_PAR_VAL_OUT:
         case Common::Assignment::A_PAR_VAL_INOUT:
@@ -4617,6 +4625,7 @@ compile_time:
         case Common::Assignment::A_EXT_CONST:
         case Common::Assignment::A_MODULEPAR:
         case Common::Assignment::A_VAR:
+        case Common::Assignment::A_EXCEPTION:
         case Common::Assignment::A_PAR_VAL_IN:
         case Common::Assignment::A_PAR_VAL_OUT:
         case Common::Assignment::A_PAR_VAL_INOUT:
@@ -4674,6 +4683,7 @@ compile_time:
               case Common::Assignment::A_EXT_CONST:
               case Common::Assignment::A_MODULEPAR:
               case Common::Assignment::A_VAR:
+              case Common::Assignment::A_EXCEPTION:
               case Common::Assignment::A_PAR_VAL_IN:
               case Common::Assignment::A_PAR_VAL_OUT:
               case Common::Assignment::A_PAR_VAL_INOUT:
@@ -4836,6 +4846,7 @@ compile_time:
         case Common::Assignment::A_EXT_CONST:
         case Common::Assignment::A_MODULEPAR:
         case Common::Assignment::A_VAR:
+        case Common::Assignment::A_EXCEPTION:
         case Common::Assignment::A_PAR_VAL_IN:
         case Common::Assignment::A_PAR_VAL_OUT:
         case Common::Assignment::A_PAR_VAL_INOUT:
@@ -4888,6 +4899,7 @@ compile_time:
               case Common::Assignment::A_EXT_CONST:
               case Common::Assignment::A_MODULEPAR:
               case Common::Assignment::A_VAR:
+              case Common::Assignment::A_EXCEPTION:
               case Common::Assignment::A_PAR_VAL_IN:
               case Common::Assignment::A_PAR_VAL_OUT:
               case Common::Assignment::A_PAR_VAL_INOUT:
@@ -5833,6 +5845,7 @@ compile_time:
           case Common::Assignment::A_MODULEPAR:      /**< module parameter (TTCN-3) */
           case Common::Assignment::A_MODULEPAR_TEMP: /**< template module parameter */
           case Common::Assignment::A_VAR:            /**< variable (TTCN-3) */
+          case Common::Assignment::A_EXCEPTION:      /**< exception (TTCN-3) */
           case Common::Assignment::A_VAR_TEMPLATE:   /**< template variable: dynamic template (TTCN-3) */
           case Common::Assignment::A_TIMER:          /**< timer (TTCN-3) */
           case Common::Assignment::A_PORT:           /**< port (TTCN-3) */

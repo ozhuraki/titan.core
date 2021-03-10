@@ -17,7 +17,7 @@ include $(TOPDIR)/Makefile.regression
 
 TTCN3_LIB = ttcn3$(RT2_SUFFIX)$(DYNAMIC_SUFFIX)
 
-TTCN3_MODULES = oop.ttcn
+TTCN3_MODULES = oop.ttcn exceptions.ttcn
 
 USER_SOURCES = ext.cc
 

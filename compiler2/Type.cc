@@ -7965,6 +7965,25 @@ namespace Common {
       }
     }
   }
+  
+  string Type::get_exception_name()
+  {
+    switch (ownertype) {
+    case OT_TYPE_ASS:
+    case OT_TYPE_DEF:
+    case OT_ARRAY:
+    case OT_COMP_FIELD:
+    case OT_RECORD_OF:
+      return get_genname_own();
+    default:
+      if (is_ref()) {
+        return get_type_refd()->get_exception_name();
+      }
+      else {
+        return get_typename();
+      }
+    }
+  }
 
   string Type::get_genname_typename(Scope *p_scope)
   {
