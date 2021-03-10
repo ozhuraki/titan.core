@@ -13,6 +13,7 @@
  *   Cserveni, Akos
  *   Czerman, Oliver
  *   Delic, Adam
+ *   Knapp, Adam
  *   Forstner, Matyas
  *   Gecse, Roland
  *   Kovacs, Ferenc
@@ -34,6 +35,7 @@
 #include <set>
 #include <string>
 #include "../common/dbgnew.hh"
+#include "../common/version.h"
 
 #include "../common/ModuleVersion.hh"
 #include "CompilerError.hh"
@@ -253,7 +255,7 @@ namespace Common {
     unsigned int patch;
     unsigned int build;
     char* extra;
-    tribool legacy_version;
+    enum version_t version_type;
     /** @} */
 
     friend class Ttcn::Module;
@@ -369,7 +371,7 @@ namespace Common {
     void write_checksum();
     static char* get_product_identifier(const char* product_number,
         const unsigned int suffix, unsigned int release, unsigned int patch,
-        unsigned int build, const char* extra=NULL, tribool legacy = TUNKNOWN);
+        unsigned int build, const char* extra=NULL, enum version_t version_type = UNKNOWN);
     ModuleVersion getVersion() const;
   protected: // *::Module need access
     /** Collects the set of visible modules into \a visible_mods. */

@@ -7,7 +7,9 @@
  *
  * Contributors:
  *   Balasko, Jeno
+ *   Baranyi, Botond
  *   Godar, Marton
+ *   Knapp, Adam
  *   Kovacs, Ferenc
  *   Lovassy, Arpad
  *   Raduly, Csaba

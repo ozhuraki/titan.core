@@ -9,6 +9,7 @@
  *   Balasko, Jeno
  *   Baranyi, Botond
  *   Delic, Adam
+ *   Knapp, Adam
  *   Raduly, Csaba
  *   Szabados, Kristof
  *   Szabo, Bence Janos
@@ -18,6 +19,7 @@
 #ifndef TTCNSTUFF_H_
 #define TTCNSTUFF_H_
 
+#include "../../common/version.h"
 #include "../Setting.hh"
 #include "../Type.hh" // for Common::Common::Type::MessageEncodingType_t
 #include "AST_ttcn3.hh" // For Def_Function_Base::prototype_t
@@ -595,7 +597,7 @@ public:
    * becomes responsible for \p ver, otherwise the caller has to free it.
    */
   ExtensionAttribute(const char* ABCClass, int type_number, int sequence,
-    int suffix, Identifier *ver, tribool legacy);
+    int suffix, Identifier *ver, enum version_t version_type);
 
   /** Constructor for the REQUIRES type
    *
@@ -608,7 +610,7 @@ public:
    * If unsuccessful, freeing the identifiers remains the caller's duty.
    */
   ExtensionAttribute(Identifier *mod, const char* ABCClass, int type_number,
-    int sequence, int suffix, Identifier *ver, tribool legacy);
+    int sequence, int suffix, Identifier *ver, enum version_t version_type);
 
   /** Constructor for the REQ_TITAN type or the VERSION_TEMPLATE type
    *
@@ -621,7 +623,7 @@ public:
    * becomes responsible for \p ver, otherwise the caller has to free it.
    */
   ExtensionAttribute(const char* ABCClass, int type_number, int sequence,
-    int suffix, Identifier* ver, extension_t et, tribool legacy);
+    int suffix, Identifier* ver, extension_t et, enum version_t version_type);
 
   ~ExtensionAttribute();
 
@@ -687,7 +689,7 @@ public:
    * @return pointer to the identifier of the module; the caller must not free
    */
   Common::Identifier *get_id(char*& product_number, unsigned int& suffix,
-      unsigned int& rel, unsigned int& patch, unsigned int& bld, char*& extra, tribool& legacy);
+      unsigned int& rel, unsigned int& patch, unsigned int& bld, char*& extra, enum version_t& version_type);
   /// @}
 private:
   /// Attribute type.
@@ -715,13 +717,13 @@ private:
     Types *anytypes_;
     struct {
       Common::Identifier *module_;
-      char* productNumber_; ///< "CRL 113 200" for legacy versions, "CAX 105 7730" for current versions
+      char* productNumber_; ///< "CRL 113 200" for CRL versions, "CAX 105 7730" for CAX versions, "" for current version
       unsigned int suffix_; ///< The "/3"
       unsigned int release_;///< release
       unsigned int patch_;  ///< patch
       unsigned int build_;  ///< build number
       char* extra_; ///< extra junk at the end, for titansim
-      tribool legacy_; ///< 'true' for legacy versions, 'false' for current versions, or 'unknown'
+      enum version_t version_type_; ///< possible values: UNKNOWN, LEGACY_CRL, LEGACY_CAX and DOT_SEPARATED for the current version
     } version_;
     PrintingType *pt_;
   } value_;

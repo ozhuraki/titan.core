@@ -10,6 +10,7 @@
  *   Baranyi, Botond
  *   Beres, Szabolcs
  *   Delic, Adam
+ *   Knapp, Adam
  *   Kovacs, Ferenc
  *   Pandi, Krisztian
  *   Raduly, Csaba
@@ -162,5 +163,8 @@ public:
 
 #undef FIELD_NAME
 #undef FN
+
+/* Enum to identify version types */
+enum version_t { UNKNOWN, LEGACY_CRL, LEGACY_CAX, DOT_SEPARATED /*current*/ };
 
 #endif

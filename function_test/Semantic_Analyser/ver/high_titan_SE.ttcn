@@ -7,6 +7,7 @@
  *
  * Contributors:
  *   Balasko, Jeno
+ *   Knapp, Adam
  *   Kovacs, Ferenc
  *   Pandi, Krisztian
  *   Raduly, Csaba
@@ -88,4 +89,20 @@ with {
   extension "requiresTITAN R2R"; //^error: Incorrect version data//
   extension "requiresTITAN R2W"; //^error: Incorrect version data//
 
+  /* test major.minor.patch version format */
+  extension "requiresTITAN 7.2.1"; /* This one must just pass */
+  extension "requiresTITAN 7.1"; //^error: syntax error, unexpected $end, expecting '.'//
+  extension "requiresTITAN 1.0.1"; /* This one must just pass */
+  extension "requiresTITAN 0.2.1"; /* This one must just pass, the next one must just fail */
+  extension "requiresTITAN 77.2.1"; //^error: This module needs to be compiled with TITAN version 77.2.1 or higher; version 7.2.1 detected//
+  extension "requiresTITAN 99999999999.2.1"; //^error: This module needs to be compiled with TITAN version 1410065407.2.1 or higher; version 7.2.1 detected//
+  extension "requiresTITAN 77.22.1"; //^error: This module needs to be compiled with TITAN version 77.22.1 or higher; version 7.2.1 detected//
+  extension "requiresTITAN 6.22.1"; /* This one must just pass */
+  extension "requiresTITAN 77.99999999999.1"; //^error: This module needs to be compiled with TITAN version 77.1410065407.1 or higher; version 7.2.1 detected//
+  extension "requiresTITAN 7.2.11"; //^error: This module needs to be compiled with TITAN version 7.2.11 or higher; version 7.2.1 detected//
+  extension "requiresTITAN 4.2.11"; /* This one must just pass */
+  extension "requiresTITAN 77.2.99999999999"; //^error: This module needs to be compiled with TITAN version 77.2.1215752191 or higher; version 7.2.1 detected//
+  extension "requiresTITAN .2.1"; //^error: at or before token `.': syntax error, unexpected '.', expecting Identifier or Number//
+  extension "requiresTITAN 77..1"; //^error: at or before token `.': syntax error, unexpected '.', expecting Number//
+  
 }

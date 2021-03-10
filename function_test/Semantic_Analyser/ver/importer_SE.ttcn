@@ -7,6 +7,7 @@
  *
  * Contributors:
  *   Balasko, Jeno
+ *   Knapp, Adam
  *   Raduly, Csaba
  *   Szabados, Kristof
  *
@@ -20,6 +21,7 @@ import from CRL_111_222_3_R2D_SE all;
 import from unreleased_SE all;
 import from noversion_SE all;
 import from titan_OK all;
+import from dot_separated_OK all;
 
 }
 with {
@@ -59,5 +61,11 @@ with {
   
   extension "requires titan_OK 7/CAX 105 7730 R2A";
   extension "requires titan_OK CRL 113 200/7 R2A";
+
+  extension "requires titan_OK 7.1.0";
+  extension "requires titan_OK 11.6.1"; //^error: Module 'importer' requires version 11.6.1 of module 'titan_OK', but only 7/CAX 105 7730 R2A is available//
+
+  extension "requires dot_separated_OK 7.2.1"
+  extension "requires dot_separated_OK 33.4.5" //^error: Module 'importer' requires version 33.4.5 of module 'dot_separated_OK', but only 7.2.1 is available//
   
 }

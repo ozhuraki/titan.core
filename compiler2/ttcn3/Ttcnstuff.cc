@@ -9,6 +9,7 @@
  *   Balasko, Jeno
  *   Baranyi, Botond
  *   Delic, Adam
+ *   Knapp, Adam
  *   Kovacs, Ferenc
  *   Raduly, Csaba
  *   Szabados, Kristof
@@ -2725,64 +2726,139 @@ namespace Ttcn {
   }
 
   ExtensionAttribute::ExtensionAttribute(const char* ABCClass, int type_number,
-    int sequence, int suffix, Identifier *ver, tribool legacy)
+    int sequence, int suffix, Identifier *ver, enum version_t version_type)
   : Location(), type_(VERSION), value_()
   {
-    if (ver == NULL) FATAL_ERROR("ExtensionAttribute::ExtensionAttribute()");
+	if (version_type != DOT_SEPARATED && ver == NULL) FATAL_ERROR("ExtensionAttribute::ExtensionAttribute()");
     value_.version_.module_ = NULL;
-    value_.version_.legacy_ = legacy;
+    value_.version_.version_type_ = version_type;
 
-    check_product_number(ABCClass, type_number, sequence);
-    parse_version(ver);
-    if (type_ != NONE) {
-      value_.version_.productNumber_ =
-        NULL == ABCClass ? NULL : mprintf("%s %d %d", ABCClass, type_number, sequence);
-      value_.version_.suffix_ = suffix;
-      delete ver; // "took care of it"
-    }
+    switch (version_type) {
+	case DOT_SEPARATED:
+	  // In this case, 'type_number' and 'sequence' are used to pass the minor and patch part of the version
+	  //  major         minor/release      patch
+	  if (suffix < 0 || type_number < 0 || sequence < 0) {
+		type_ = NONE;
+		return;
+	  }
+	  value_.version_.productNumber_ = mputc(value_.version_.productNumber_, '\0');
+	  value_.version_.suffix_ = suffix;
+	  value_.version_.release_ = type_number;
+	  value_.version_.patch_ = sequence;
+	  value_.version_.build_ = 99;
+	  value_.version_.extra_ = NULL;
+	  break;
+
+	case UNKNOWN:
+	case LEGACY_CRL:
+	case LEGACY_CAX:
+	  check_product_number(ABCClass, type_number, sequence);
+	  parse_version(ver);
+	  if (type_ != NONE) {
+		value_.version_.productNumber_ =
+		  NULL == ABCClass ? NULL : mprintf("%s %d %d", ABCClass, type_number, sequence);
+		value_.version_.suffix_ = suffix;
+		delete ver; // "took care of it"
+	  }
+	  break;
+
+	default:
+	  FATAL_ERROR("ExtensionAttribute::ExtensionAttribute()");
+	  break;
+	}
   }
 
   ExtensionAttribute::ExtensionAttribute(Identifier *mod, const char* ABCClass,
-    int type_number, int sequence, int suffix, Identifier *ver, tribool legacy)
+    int type_number, int sequence, int suffix, Identifier *ver, enum version_t version_type)
   : Location(), type_(REQUIRES), value_()
   {
-    if (mod == NULL || ver == NULL)
+    if (version_type != DOT_SEPARATED && (mod == NULL || ver == NULL))
       FATAL_ERROR("ExtensionAttribute::ExtensionAttribute()");
     // store the module identifier
     value_.version_.module_ = mod;
-    value_.version_.legacy_ = legacy;
+    value_.version_.version_type_ = version_type;
 
-    check_product_number(ABCClass, type_number, sequence);
-    parse_version(ver);
-    if (type_ == NONE) { // parse_version reported an error
-      value_.version_.module_ = NULL; // disown it; caller will free
-      value_.version_.suffix_ = suffix;
-    } else {
-      value_.version_.productNumber_ =
-        NULL == ABCClass ? NULL : mprintf("%s %d %d", ABCClass, type_number, sequence);
-      value_.version_.suffix_ = suffix;
-      delete ver;
-    }
+    switch (version_type) {
+	case DOT_SEPARATED:
+	  // In this case, 'type_number' and 'sequence' are used to pass the minor and patch part of the version
+	  //  major         minor/release      patch
+	  if (suffix < 0 || type_number < 0 || sequence < 0) {
+		type_ = NONE;
+		return;
+	  }
+	  value_.version_.productNumber_ = mputc(value_.version_.productNumber_, '\0');
+	  value_.version_.suffix_ = suffix;
+	  value_.version_.release_ = type_number;
+	  value_.version_.patch_ = sequence;
+	  value_.version_.build_ = 99;
+	  value_.version_.extra_ = NULL;
+	  break;
+
+	case UNKNOWN:
+	case LEGACY_CRL:
+	case LEGACY_CAX:
+	  check_product_number(ABCClass, type_number, sequence);
+	  parse_version(ver);
+	  if (type_ == NONE) { // parse_version reported an error
+		value_.version_.module_ = NULL; // disown it; caller will free
+		value_.version_.suffix_ = suffix;
+	  } else {
+		value_.version_.productNumber_ =
+		  NULL == ABCClass ? NULL : mprintf("%s %d %d", ABCClass, type_number, sequence);
+		value_.version_.suffix_ = suffix;
+		delete ver;
+	  }
+	  break;
+
+	default:
+	  FATAL_ERROR("ExtensionAttribute::ExtensionAttribute()");
+	  break;
+	}
   }
 
   ExtensionAttribute::ExtensionAttribute(const char* ABCClass, int type_number,
-    int sequence, int suffix, Identifier* ver, extension_t et, tribool legacy)
+    int sequence, int suffix, Identifier* ver, extension_t et, enum version_t version_type)
   : Location(), type_(et), value_()
   {
-    if (ver == NULL) FATAL_ERROR("ExtensionAttribute::ExtensionAttribute()");
-    value_.version_.legacy_ = legacy;
+    if (version_type != DOT_SEPARATED && ver == NULL) FATAL_ERROR("ExtensionAttribute::ExtensionAttribute()");
+    value_.version_.version_type_ = version_type;
 
     switch (et) {
     case REQ_TITAN:
-      check_product_number(ABCClass, type_number, sequence);
-      parse_version(ver);
-      if (type_ != NONE) {
-        value_.version_.productNumber_ =
-          NULL == ABCClass ? NULL : mprintf("%s %d %d", ABCClass, type_number, sequence);
-        value_.version_.suffix_ = suffix;
-        delete ver; // "took care of it"
-      } else {
-        value_.version_.suffix_ = suffix;
+      switch (version_type) {
+      case DOT_SEPARATED:
+        // In this case, 'type_number' and 'sequence' are used to pass the minor and patch part of the version
+        //  major         minor/release      patch
+        if (suffix < 0 || type_number < 0 || sequence < 0) {
+    	  type_ = NONE;
+    	  return;
+    	}
+    	value_.version_.productNumber_ = mputc(value_.version_.productNumber_, '\0');
+    	value_.version_.suffix_ = suffix;
+    	value_.version_.release_ = type_number;
+    	value_.version_.patch_ = sequence;
+    	value_.version_.build_ = 99;
+    	value_.version_.extra_ = NULL;
+    	break;
+
+      case UNKNOWN:
+      case LEGACY_CRL:
+      case LEGACY_CAX:
+    	check_product_number(ABCClass, type_number, sequence);
+    	parse_version(ver);
+    	if (type_ != NONE) {
+    	  value_.version_.productNumber_ =
+    		NULL == ABCClass ? NULL : mprintf("%s %d %d", ABCClass, type_number, sequence);
+    	  value_.version_.suffix_ = suffix;
+    	  delete ver; // "took care of it"
+    	} else {
+    	  value_.version_.suffix_ = suffix;
+    	}
+    	break;
+
+      default:
+    	FATAL_ERROR("ExtensionAttribute::ExtensionAttribute()");
+    	break;
       }
       break;
 
@@ -2944,7 +3020,7 @@ namespace Ttcn {
   //FIXME ot is update -elni kell.
   Common::Identifier *ExtensionAttribute::get_id(
       char*& product_number, unsigned int& suffix,
-    unsigned int& rel, unsigned int& patch, unsigned int& bld, char*& extra, tribool& legacy)
+    unsigned int& rel, unsigned int& patch, unsigned int& bld, char*& extra, enum version_t& version_type)
   {
     if ( type_ != REQUIRES && type_ != REQ_TITAN
       && type_ != VERSION  && type_ != VERSION_TEMPLATE) {
@@ -2956,7 +3032,7 @@ namespace Ttcn {
     patch = value_.version_.patch_;
     bld   = value_.version_.build_;
     extra = value_.version_.extra_;
-    legacy = value_.version_.legacy_;
+    version_type = value_.version_.version_type_;
     return  value_.version_.module_;
   }
 
