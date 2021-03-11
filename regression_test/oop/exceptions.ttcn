@@ -38,14 +38,15 @@ type class Class2 {
 
 type component CT {
   var integer cvar := 4;
+  var integer cv_finally_counter := 0;
   timer tmr;
 }
 
 type integer SmallNumber (-100..100);
 
 
-function test_block(in integer p_exception_type, inout integer p_finally_counter) runs on CT {
-  var integer v_finally_increment := 1;
+function test_block(in integer p_exception_type) runs on CT {
+  //var integer v_finally_increment := 1;
   {
     select (p_exception_type) {
       case (1) {
@@ -117,25 +118,24 @@ function test_block(in integer p_exception_type, inout integer p_finally_counter
     }
   }
   finally {
-    p_finally_counter := p_finally_counter + v_finally_increment;
+    cv_finally_counter := cv_finally_counter + 1;
     setverdict(pass);
   }
 }
 
 testcase tc_exceptions_block() runs on CT {
-  var integer finally_counter := 0;
   for (var integer i := 1; i <= 8; i := i + 1) {
-    test_block(i, finally_counter);
+    test_block(i);
   }
-  test_block(200, finally_counter);
+  test_block(200);
   
-  if (finally_counter != 9) {
-    setverdict(fail, "Invalid 'finally' execution count: ", finally_counter);
+  if (cv_finally_counter != 9) {
+    setverdict(fail, "Invalid 'finally' execution count: ", cv_finally_counter);
   }
 }
 
 
-function test_function(boolean p_raise, inout integer p_finally_counter) runs on CT {
+function test_function(boolean p_raise) runs on CT {
   if (p_raise) {
     raise "abc";
   }
@@ -146,21 +146,20 @@ catch (charstring x) {
   }
 }
 finally {
-  p_finally_counter := p_finally_counter + 1;
+  cv_finally_counter := cv_finally_counter + 1;
   setverdict(pass);
 }
 
 testcase tc_exceptions_function() runs on CT {
-  var integer finally_counter := 0;
-  test_function(true, finally_counter);
-  test_function(false, finally_counter);
-  if (finally_counter != 2) {
-    setverdict(fail, "Invalid 'finally' execution count: ", finally_counter);
+  test_function(true);
+  test_function(false);
+  if (cv_finally_counter != 2) {
+    setverdict(fail, "Invalid 'finally' execution count: ", cv_finally_counter);
   }
 }
 
 
-altstep test_altstep(boolean p_raise, inout integer p_finally_counter) runs on CT {
+altstep test_altstep(boolean p_raise) runs on CT {
   [] tmr.timeout {
     if (p_raise) {
       raise 6;
@@ -173,29 +172,26 @@ catch (integer x) {
   }
 }
 finally {
-  p_finally_counter := p_finally_counter + 1;
+  cv_finally_counter := cv_finally_counter + 1;
   setverdict(pass);
 }
 
 testcase tc_exceptions_altstep() runs on CT {
-  var integer finally_counter := 0;
   tmr.start(0.1);
-  test_altstep(true, finally_counter);
+  test_altstep(true);
   tmr.start(0.1);
   alt {
-    [] test_altstep(false, finally_counter);
+    [] test_altstep(false);
   }
-  cvar := finally_counter;
-  var default def := activate(test_altstep(true, cvar));
+  var default def := activate(test_altstep(true));
   timer tmr2;
   tmr2.start(10.0);
   tmr.start(0.1);
   alt {
     [] tmr2.timeout { setverdict(fail, "Default altstep not called."); }
   }
-  finally_counter := cvar;
-  if (finally_counter != 6) {
-    setverdict(fail, "Invalid 'finally' execution count: ", finally_counter);
+  if (cv_finally_counter != 6) {
+    setverdict(fail, "Invalid 'finally' execution count: ", cv_finally_counter);
   }
 }
 
