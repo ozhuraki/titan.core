@@ -5548,7 +5548,7 @@ namespace Ttcn {
   
   char* Def_Exception::generate_code_str(char *str)
   {
-    return mputprintf(str, "EXCEPTION<%s>& %s = static_cast<EXCEPTION<%s>&>(exc_base);\n",
+    return mputprintf(str, "EXCEPTION< %s >& %s = static_cast<EXCEPTION< %s >&>(exc_base);\n",
       type->get_genname_value(my_scope).c_str(), id->get_name().c_str(), type->get_genname_value(my_scope).c_str());
   }
 

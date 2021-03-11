@@ -8569,7 +8569,7 @@ error:
       str = mputprintf(str,  "%s[%i] = \"%s\";\n",
         id_str.c_str(), i, t != NULL ? t->get_exception_name().c_str() : "object");
     }
-    str = mputprintf(str, "throw EXCEPTION<%s>(new %s(%s), %s, %i);\n",
+    str = mputprintf(str, "throw EXCEPTION< %s >(new %s(%s), %s, %i);\n",
       exc_type_str.c_str(), exc_type_str.c_str(), expr.expr, id_str.c_str(), nof_exc_types);
     if (expr.postamble != NULL) {
       str = mputstr(str, expr.postamble);
