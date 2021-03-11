@@ -6809,11 +6809,19 @@ namespace Ttcn {
   
   bool Def_Function_Base::is_identical(Def_Function_Base* p_other)
   {
-    if (asstype != p_other->get_asstype()) {
-      return false;
+    Common::Assignment::asstype_t asstype2 = p_other->get_asstype();
+    if (asstype != asstype2) {
+      if ((asstype == Common::Assignment::A_FUNCTION && asstype2 != Common::Assignment::A_EXT_FUNCTION) ||
+          (asstype == Common::Assignment::A_EXT_FUNCTION && asstype2 != Common::Assignment::A_FUNCTION) ||
+          (asstype == Common::Assignment::A_FUNCTION_RVAL && asstype2 != Common::Assignment::A_EXT_FUNCTION_RVAL) ||
+          (asstype == Common::Assignment::A_EXT_FUNCTION_RVAL && asstype2 != Common::Assignment::A_FUNCTION_RVAL) ||
+          (asstype == Common::Assignment::A_FUNCTION_RTEMP && asstype2 != Common::Assignment::A_EXT_FUNCTION_RTEMP) ||
+          (asstype == Common::Assignment::A_EXT_FUNCTION_RTEMP && asstype2 != Common::Assignment::A_FUNCTION_RTEMP)) {
+        return false;
+      }
     }
-    else if (return_type != NULL &&
-             !p_other->return_type->is_identical(return_type)) {
+    if (return_type != NULL &&
+        !p_other->return_type->is_identical(return_type)) {
       return false;
     }
     FormalParList* other_fp_list = p_other->get_FormalParList();

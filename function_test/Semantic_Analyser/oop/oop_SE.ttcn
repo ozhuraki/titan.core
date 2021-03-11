@@ -482,6 +482,11 @@ type class C48 extends C47 { //^In type definition//
   function m4() { } //Cannot override final method `@oop_SE.C47.m4'//
 }
 
+type class C49 extends C40 {
+  function f1(in integer p) return octetstring { return int2oct(p, 2); }
+  function f2() { }
+}
+
 
 function f_of_operator() { //^In function definition//
   var C0 x := C0.create;
