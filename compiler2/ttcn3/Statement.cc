@@ -518,12 +518,12 @@ namespace Ttcn {
     }
     if (finally_block != NULL) {
       string tmp_id = get_scope_mod_gen()->get_temporary_id();
-      /*str = mputprintf(str,
+#if __cplusplus < 201103L
+      str = mputprintf(str,
         "class %s_finally {\n"
         "public:\n", tmp_id.c_str());
       // TODO: all local declarations (or those referenced in the 'finally' block) need to
       // be added as members of this class, so the destructor can reach them
-      // or the C++11 code could be used...
       if (include_location_info) {
         str = mputprintf(str,
           "TTCN_Location& current_location;\n"
@@ -538,12 +538,14 @@ namespace Ttcn {
         "};\n"
         "%s_finally %s%s;\n",
         tmp_id.c_str(), tmp_id.c_str(),
-        include_location_info ? "(current_location)" : "");*/
+        include_location_info ? "(current_location)" : "");
+#else
       // C++11 version:
       str = mputprintf(str,
         "FINALLY %s([&] {\n", tmp_id.c_str());
       str = finally_block->generate_code(str, def_glob_vars, src_glob_vars);
       str = mputstr(str, "});\n");
+#endif
     }
     if (catch_blocks.size() > 0) {
       str = mputstr(str, "try {\n");

@@ -284,6 +284,7 @@ public:
   T& operator()() { return *exc_ptr->val_ptr; }
 };
 
+#if __cplusplus >= 201103L
 class FINALLY
 {
   std::function<void(void)> functor;
@@ -294,6 +295,7 @@ public:
     functor();
   }
 };
+#endif // C++11
 
 #endif /* OOP_HH */
 
