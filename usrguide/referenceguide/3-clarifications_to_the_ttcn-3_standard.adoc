@@ -208,3 +208,37 @@ replace(vl_myList, 1, 2, vl_emptyList); // returns { 1 }
 replace("abcdef", 2, 1, ""); // returns "abdef"
 replace('12FFF'H, 3, 2, ''H); // returns '12F'H
 ----
+
+== The execution of an `altstep`
+
+Whenever an `altstep` is called, either from an `alt` statement or through an activated `default`, both the local definitions and the `alt`-branches in the `altstep` body are executed.
+The local definitions are allocated and initialized every time the `altstep` begins execution, and they are destroyed every time execution of the `altstep` ends, regardless of whether any of the `alt`-branches was chosen.
+
+Example:
+
+[source]
+----
+type component CT {
+  var integer counter := 0;
+  timer tmr;
+}
+
+function f() runs on CT return integer {
+  counter := counter + 1;
+  return counter;
+}
+
+altstep as() runs on CT {
+  var integer local := f();
+  [] tmr.timeout { log(counter); }
+}
+
+testcase tc() runs on CT {
+  tmr.start(2.0);
+  alt {
+    [] as();
+  }
+}
+----
+
+In the above example `altstep` `as` is executed twice. Once, after the first snapshot is taken in the `alt` statement in `testcase` `tc` (when the timer has not timed out yet), and once, when the second snapshot is taken (when the timer has timed out). In both cases the local definition in the `altstep` is initialized, calling `function` `f`. The value of component variable `counter` at the time it is logged is 2.
