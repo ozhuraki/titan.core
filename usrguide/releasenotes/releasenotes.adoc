@@ -27,8 +27,23 @@ The document is organized as follows: <<what-s-new-in-this-version,What's new in
 [[what-s-new-in-this-version]]
 = What’s new in this version?
 
+[[version-7-2-1]]
+== Version 7.2.1
+
+This release contains some new features and bugfixes:
+
+* General
+  ** Titan version numbering changed to X.Y.Z format
+* C++ compiler
+  ** Object Oriented features bugfixes (568694, 568714, 568716, 568742, 568743, 568745)
+  ** Config file parsing enhancement (570921)
+  ** XML decoding bugfixes (570707, 569238)
+* Eclipse Plug-ins
+  ** Support for Eclipse IDE Dark theme in TTCN-3 editor code colorization
+  ** Java code generation and execution simplified
+
 [[version-7-2-7-cax-105-7730-r2a]]
-== Version 7.2 (7/CAX 105 7730 R2A)
+== Version 7.2.0 (7/CAX 105 7730 R2A)
 
 This release contains some new features and bugfixes.
 
@@ -50,7 +65,7 @@ New Features:
 
 
 [[version-7-1-crl-113-200-7-r1a]]
-== Version 7.1 (CRL 113 200/7 R1A)
+== Version 7.1.0 (CRL 113 200/7 R1A)
 
 This release contains major new features, backward incompatible changes and some bugfixes.
 
