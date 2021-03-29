@@ -27,12 +27,12 @@ with {
   extension "transparent";
 }
 
-template charstring super := pattern "*fragil*";
+template charstring super_ := pattern "*fragil*";
 
 testcase comp() runs on Glass
 {
   var charstring inx := "Supercalifragilistic";
-  compare(inx, super);      
+  compare(inx, super_);      
 }
 
 control
