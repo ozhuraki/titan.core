@@ -1,13 +1,13 @@
 ---
 Author: Jenő Balaskó
-Version: 7.2.1
-Date: 2021-03-25
+Version: 7.2.2
+Date: 2021-03-29
 
 ---
 = User Guide for TITAN TTCN-3 Test Executor
 :author: Jenő Balaskó
-:revnumber: 7.2.1
-:revdate: 2021-03-25
+:revnumber: 7.2.2
+:revdate: 2021-03-29
 :title-logo-image: images/titan_logo.png
 :sectnums:
 :doctype: book
