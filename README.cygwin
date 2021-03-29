@@ -74,7 +74,7 @@ Cygwin setup
     Libs: libncurses-devel
     Libs: libreadline-devel
     Libs: libedit-devel
-    Doc or Text: asciidoc
+    Doc or Text: asciidoc 
     
   If, after selecting the required packages and clicking on the 
   "Next" button, a "Resolving Dependcies" window lists further 
@@ -132,7 +132,8 @@ Cygwin setup
         export LD_LIBRARY_PATH=${TTCN3_DIR}/lib:${LD_LIBRARY_PATH}
 
   or(K) Using TITAN from source code
-    Get the latest source code from GitHub:
+    
+	(K1)Get the latest source code from GitHub:
       - First time:
         cd ~/git
         git clone https://github.com/eclipse/titan.core.git
@@ -140,9 +141,15 @@ Cygwin setup
       - Updating the already existing local repository:
         cd ~/git/titan.core
         git pull https://github.com/eclipse/titan.core.git
-    Download and install JDK from Oracle's download site:
+    
+	(K2) Download and install JDK from Oracle's download site:
      http://www.oracle.com/technetwork/java/javase/downloads/index.html
-    Compile Titan with Cygwin:
+	
+	(K3) If you want generate pdf documents from your .adoc files (asciidoc files), execute this command:
+		  gem install asciidoctor-pdf
+    
+	(K4) Compile Titan with Cygwin:
+
     Edit the <your home directory>/.bashrc, as above in (J), add these lines to it: 
       export TTCN3_DIR=${HOME}/git/titan.core/Install
       export PATH=.:${TTCN3_DIR}/bin:${PATH}
@@ -166,7 +173,7 @@ Cygwin setup
   (L) If you want to use graphical tools (like nedit for example), then you need to install the Cygwin/X
       component too. The install procedure can be found at the homepage:
       http://x.cygwin.com/docs/ug/cygwin-x-ug.html
-      
+	  
   (M) Continue from here with the Titan installation guide and the Eclipse plug-ins installation guide.
   Recommendation is that you install Eclipse under Windows (not within the Cygwin environment).
   
