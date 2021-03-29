@@ -379,7 +379,7 @@ Applications : CODEGEN TPGEN SINGLE MCTR HC LOGFORMAT
 Max PTCs     : 10000
 ---------------------------------------------------------------
 The license key is valid. +
-...
+....
 
 The last line of the printout indicates the success or the problems with the license key.
 
