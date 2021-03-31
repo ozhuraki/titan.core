@@ -14,6 +14,7 @@
 
 #include "Type.hh"
 #include "CompilerError.hh"
+#include "AST.hh"
 
 namespace Common {
 
@@ -243,6 +244,47 @@ void SignatureExceptions::chk(Type *p_signature)
     if (type->get_typetype() == Type::T_ERROR) continue;
     type->chk_embedded(false, "on the exception list of a signature");
     const string& type_name = type->get_typename();
+    if (exc_m.has_key(type_name)) {
+      type->error("Duplicate type in exception list");
+      exc_m[type_name]->note("Type `%s' is already given here",
+        type_name.c_str());
+    } else exc_m.add(type_name, type);
+  }
+}
+
+void SignatureExceptions::chk(Assignment* p_def)
+{
+  Error_Context cntxt(this, "In exception list");
+  for (size_t i = 0; i < exc_v.size(); i++) {
+    Type* type = exc_v[i];
+    type->set_genname(p_def->get_id().get_name(), string("_exception_") + Int2string(i + 1));
+    type->chk();
+    if (type->get_typetype() == Type::T_ERROR) continue;
+    Type* type_last = type->get_type_refd_last();
+    bool type_error = false;
+    char* error_msg_start = NULL;
+    switch (type_last->get_typetype()) {
+    case Type::T_PORT:
+      type_error = true;
+      error_msg_start = mprintf("Port type `%s'", type_last->get_typename().c_str());
+      break;
+    case Type::T_SIGNATURE:
+      type_error = true;
+      error_msg_start = mprintf("Signature `%s'", type_last->get_typename().c_str());
+      break;
+    case Type::T_DEFAULT:
+      type_error = true;
+      error_msg_start = mcopystr("Default type");
+      break;
+    default:
+      break;
+    }
+    if (type_error) {
+      type->error("%s cannot be on the exception list of a%s %s",
+        error_msg_start, p_def->get_asstype() == Assignment::A_FUNCTION ? "" : "n", p_def->get_assname());
+    }
+    Free(error_msg_start);
+    const string& type_name = type->get_exception_name();
     if (exc_m.has_key(type_name)) {
       type->error("Duplicate type in exception list");
       exc_m[type_name]->note("Type `%s' is already given here",

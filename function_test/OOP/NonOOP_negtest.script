@@ -1,0 +1,112 @@
+.******************************************************************************
+.* Copyright (c) 2000-2021 Ericsson Telecom AB
+.* All rights reserved. This program and the accompanying materials
+.* are made available under the terms of the Eclipse Public License v2.0
+.* which accompanies this distribution, and is available at
+.* https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+.*
+.* Contributors:
+.*   Baranyi, Botond
+.*
+.******************************************************************************/
+:text.
+:lang eng.
+.*---------------------------------------------------------------------*
+:h1.Test cases
+.*---------------------------------------------------------------------*
+.*---------------------------------------------------------------------*
+:h3.Raise and catch without '-k' flag
+.*---------------------------------------------------------------------*
+:xmp tab=0.
+
+<TC - Raise and catch without '-k' flag>
+
+<COMPILE>
+<MODULE TTCN Temp Temp.ttcn>
+module Temp {
+
+type component CT {
+  var integer counter := 0;
+  timer tmr;
+}
+
+function f() runs on CT return integer {
+  counter := counter + 1;
+  return counter;
+}
+
+altstep as() runs on CT {
+  var integer local := f();
+  [] tmr.timeout { log(counter); raise 3; }
+}
+
+testcase tc() runs on CT {
+  tmr.start(2.0);
+  alt {
+    [] as();
+  }
+}
+catch (integer x) {
+  log(x);
+}
+
+control {
+  execute(tc());
+}
+
+}
+<END_MODULE>
+<RESULT>
+The compiler option `-k' must be activated to use object-oriented features such as raise statements.
+<END_RESULT>
+<RESULT>
+The compiler option `-k' must be activated to use object-oriented features such as catch clauses.
+<END_RESULT>
+<END_TC>
+
+:exmp.
+
+.*---------------------------------------------------------------------*
+:h3.Class and finally without '-k' flag
+.*---------------------------------------------------------------------*
+.Note: 'class' and 'finally' are treated as keywords by the parser and a warning
+.is issued for both. The actual parsing error is caused by the parser interpreting
+.a class definition as a type alias definition for a type called 'class'.
+:xmp tab=0.
+
+<TC - Class and finally without '-k' flag>
+
+<COMPILE>
+<MODULE TTCN Temp Temp.ttcn>
+module Temp {
+
+type class MyClass {
+  var integer m_int;
+  public function get_int() return integer { return m_int; }
+  public function set_int(integer p_int) { m_int := p_int; }
+}
+
+type component CT { }
+
+function f() { }
+finally {
+  log("finally");
+}
+
+}
+<END_MODULE>
+<RESULT>
+Keyword 'class' is treated as an identifier. Activate compiler option '-k' to use object-oriented features.
+<END_RESULT>
+<RESULT>
+at or before token `var': syntax error, unexpected VarKeyword, expecting '\{'
+<END_RESULT>
+<RESULT>
+Keyword 'finally' is treated as an identifier. Activate compiler option '-k' to use object-oriented features.
+<END_RESULT>
+<END_TC>
+
+:exmp.
+
+:etext.
+

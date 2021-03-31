@@ -3081,6 +3081,9 @@ namespace Ttcn {
     if (members == NULL) {
       FATAL_ERROR("ClassTypeBody::ClassTypeBody");
     }
+    if (finally_block != NULL) {
+      finally_block->set_exception_handling(StatementBlock::EH_OOP_FINALLY);
+    }
   }
   
   ClassTypeBody::ClassTypeBody()
@@ -3663,6 +3666,7 @@ namespace Ttcn {
     }
 
     if (finally_block != NULL) {
+      Error_Context cntxt(finally_block, "In class destructor");
       finally_block->chk();
     }
     
@@ -3886,7 +3890,7 @@ namespace Ttcn {
         local_struct->source.methods = mputprintf(local_struct->source.methods,
           "} catch (...) {\n"
           "fprintf(stderr, \"Unhandled exception or dynamic test case error in "
-          "destructor of class `%s'\");\n"
+          "the destructor of class `%s'. Terminating application.\\n\");\n"
           "exit(EXIT_FAILURE);\n"
           "}\n"
           "}\n\n", class_id->get_name().c_str());

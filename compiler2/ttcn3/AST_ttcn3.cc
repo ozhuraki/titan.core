@@ -47,6 +47,7 @@
 #include "../CodeGenHelper.hh"
 #include "../../common/JSON_Tokenizer.hh"
 #include "../DebuggerStuff.hh"
+#include "../SigParam.hh"
 #include <limits.h>
 
 // implemented in coding_attrib_p.y
@@ -5367,21 +5368,27 @@ namespace Ttcn {
   void Def_Var::chk()
   {
     if(checked) return;
-    Error_Context cntxt(this, "In variable definition `%s'",
-      id->get_dispname().c_str());
+    Error_Context cntxt(this, "In %s definition `%s'",
+      asstype == A_EXCEPTION ? "exception" : "variable", id->get_dispname().c_str());
     type->set_genname(_T_, get_genname());
     type->chk();
     checked = true;
     Type *t = type->get_type_refd_last();
     switch (t->get_typetype()) {
     case Type::T_PORT:
-      error("Variable cannot be defined for port type `%s'",
-        t->get_fullname().c_str());
+      error("%s cannot be defined for port type `%s'",
+        asstype == A_EXCEPTION ? "Exception" : "Variable", t->get_fullname().c_str());
       break;
     case Type::T_SIGNATURE:
-      error("Variable cannot be defined for signature `%s'",
-        t->get_fullname().c_str());
+      error("%s cannot be defined for signature `%s'",
+        asstype == A_EXCEPTION ? "Exception" : "Variable", t->get_fullname().c_str());
       break;
+    case Type::T_DEFAULT:
+      if (asstype == A_EXCEPTION) {
+        error("Exception cannot be defined for the default type");
+        break;
+      }
+      // else fall through
     default:
     if (initial_value) {
       initial_value->set_my_governor(type);
@@ -6609,7 +6616,7 @@ namespace Ttcn {
 
   Def_Function_Base::Def_Function_Base(const Def_Function_Base& p)
     : Definition(p), prototype(PROTOTYPE_NONE), input_type(0), output_type(0),
-    final(p.final)
+    final(p.final), exceptions(p.exceptions)
   {
     fp_list = p.fp_list->clone();
     fp_list->set_my_def(this);
@@ -6619,11 +6626,13 @@ namespace Ttcn {
 
   Def_Function_Base::Def_Function_Base(bool is_external, Identifier *p_id,
     FormalParList *p_fpl, Type *p_return_type, bool returns_template,
-    template_restriction_t p_template_restriction, bool p_final)
+    template_restriction_t p_template_restriction, bool p_final,
+    Common::SignatureExceptions* p_exceptions)
     : Definition(determine_asstype(is_external, p_return_type != 0,
         returns_template), p_id), fp_list(p_fpl), return_type(p_return_type),
         prototype(PROTOTYPE_NONE), input_type(0), output_type(0),
-        template_restriction(p_template_restriction), final(p_final)
+        template_restriction(p_template_restriction), final(p_final),
+        exceptions(p_exceptions)
   {
     if (!p_fpl) FATAL_ERROR("Def_Function_Base::Def_Function_Base()");
     fp_list->set_my_def(this);
@@ -6634,6 +6643,7 @@ namespace Ttcn {
   {
     delete fp_list;
     delete return_type;
+    delete exceptions;
   }
 
   void Def_Function_Base::set_fullname(const string& p_fullname)
@@ -6641,6 +6651,9 @@ namespace Ttcn {
     Definition::set_fullname(p_fullname);
     fp_list->set_fullname(p_fullname + ".<formal_par_list>");
     if (return_type) return_type->set_fullname(p_fullname + ".<return_type>");
+    if (exceptions != NULL) {
+      exceptions->set_fullname(p_fullname + ".<exceptions>");
+    }
   }
 
   void Def_Function_Base::set_my_scope(Scope *p_scope)
@@ -6648,6 +6661,9 @@ namespace Ttcn {
     Definition::set_my_scope(p_scope);
     fp_list->set_my_scope(p_scope);
     if (return_type) return_type->set_my_scope(p_scope);
+    if (exceptions != NULL) {
+      exceptions->set_my_scope(p_scope);
+    }
   }
 
   Type *Def_Function_Base::get_Type()
@@ -6837,6 +6853,20 @@ namespace Ttcn {
         return false;
       }
     }
+    if (exceptions != NULL || p_other->exceptions != NULL) {
+      if (exceptions == NULL || p_other->exceptions == NULL) {
+        // one of them has exceptions, the other doesn't
+        return false;
+      }
+      if (exceptions->get_nof_types() != p_other->exceptions->get_nof_types()) {
+        return false;
+      }
+      for (size_t i = 0; i < exceptions->get_nof_types(); ++i) {
+        if (!p_other->exceptions->has_type(exceptions->get_type_byIndex(i))) {
+          return false;
+        }
+      }
+    }
     return true;
   }
 
@@ -6851,9 +6881,9 @@ namespace Ttcn {
                              Type *p_return_type,
                              bool returns_template,
                              template_restriction_t p_template_restriction,
-                             bool p_final, StatementBlock *p_block)
+                             bool p_final, Common::SignatureExceptions* p_exceptions, StatementBlock *p_block)
     : Def_Function_Base(false, p_id, p_fpl, p_return_type, returns_template,
-        p_template_restriction, p_final),
+        p_template_restriction, p_final, p_exceptions),
         runs_on_ref(p_runs_on_ref), runs_on_type(0),
         mtc_ref(p_mtc_ref), mtc_type(0),
         system_ref(p_system_ref), system_type(0),
@@ -7101,6 +7131,9 @@ namespace Ttcn {
         break;
       }
     }
+    if (exceptions != NULL) {
+      exceptions->chk(this);
+    }
     if (!semantic_check_only) {
       fp_list->set_genname(get_genname());
       block->set_code_section(GovernedSimple::CS_INLINE);
@@ -7345,6 +7378,10 @@ namespace Ttcn {
     DEBUG(level + 1, "Deterministic: %s", deterministic ? "true" : "false");
     if (prototype != PROTOTYPE_NONE)
       DEBUG(level + 1, "Prototype: %s", get_prototype_name());
+    if (exceptions != NULL) {
+      DEBUG(level + 1, "Exceptions:");
+      exceptions->dump(level + 2);
+    }
     //DEBUG(level + 1, "Statement block:");
     block->dump(level + 1);
   }
@@ -7797,6 +7834,13 @@ namespace Ttcn {
         (Type::CT_JSON != encoding_type && Type::CT_XER != encoding_type))) {
       error("Attribute 'printing' is only allowed for JSON and XER encoding functions.");
     }
+    
+    if (exceptions != NULL) {
+      exceptions->chk(this);
+      if (function_type != EXTFUNC_MANUAL) {
+        error("Exception list is only allowed for manually written external functions");
+      }
+    }
   }
 
   char *Def_ExtFunction::generate_code_encode(char *str)
@@ -8157,6 +8201,10 @@ namespace Ttcn {
         DEBUG(level + 2, "Encoding options: %s", encoding_options->c_str());
     }
     if (eb_list) eb_list->dump(level + 1);
+    if (exceptions != NULL) {
+      DEBUG(level + 1, "Exceptions:");
+      exceptions->dump(level + 2);
+    }
   }
   
   void Def_ExtFunction::generate_json_schema_ref(map<Type*, JSON_Tokenizer>& json_refs)
@@ -8312,6 +8360,9 @@ namespace Ttcn {
       return_type->chk_as_return_type(asstype == A_FUNCTION_RVAL,
         "n abstract function");
     }
+    if (exceptions != NULL) {
+      exceptions->chk(this);
+    }
     if (!semantic_check_only) {
       fp_list->set_genname(get_genname());
     }
@@ -8355,10 +8406,10 @@ namespace Ttcn {
   Def_Altstep::Def_Altstep(Identifier *p_id, FormalParList *p_fpl,
                            Reference *p_runs_on_ref, Reference *p_mtc_ref,
                            Reference *p_system_ref, StatementBlock *p_sb,
-                           AltGuards *p_ags)
+                           AltGuards *p_ags, Common::SignatureExceptions* p_exceptions)
     : Definition(A_ALTSTEP, p_id), fp_list(p_fpl), runs_on_ref(p_runs_on_ref),
       runs_on_type(0), mtc_ref(p_mtc_ref), mtc_type(0),
-      system_ref(p_system_ref), system_type(0), sb(p_sb), ags(p_ags)
+      system_ref(p_system_ref), system_type(0), sb(p_sb), ags(p_ags), exceptions(p_exceptions)
   {
     if (!p_fpl || !p_sb || !p_ags)
       FATAL_ERROR("Def_Altstep::Def_Altstep()");
@@ -8376,6 +8427,7 @@ namespace Ttcn {
     delete system_ref;
     delete sb;
     delete ags;
+    delete exceptions;
   }
 
   Def_Altstep *Def_Altstep::clone() const
@@ -8392,6 +8444,9 @@ namespace Ttcn {
     if (system_ref) system_ref->set_fullname(p_fullname + ".<system_type>");
     sb->set_fullname(p_fullname+".<block>");
     ags->set_fullname(p_fullname + ".<guards>");
+    if (exceptions != NULL) {
+      exceptions->set_fullname(p_fullname + ".<exceptions>");
+    }
   }
 
   void Def_Altstep::set_my_scope(Scope *p_scope)
@@ -8406,6 +8461,9 @@ namespace Ttcn {
     if (system_ref) system_ref->set_my_scope(&bridgeScope);
     sb->set_my_scope(fp_list);
     ags->set_my_scope(sb);
+    if (exceptions != NULL) {
+      exceptions->set_my_scope(&bridgeScope);
+    }
   }
 
   Type *Def_Altstep::get_RunsOnType()
@@ -8478,6 +8536,9 @@ namespace Ttcn {
     if (w_attrib_path) {
       w_attrib_path->chk_global_attrib();
       w_attrib_path->chk_no_qualif();
+    }
+    if (exceptions != NULL) {
+      exceptions->chk(this);
     }
   }
 
@@ -8634,6 +8695,10 @@ namespace Ttcn {
     if (system_ref) {
       DEBUG(level + 1, "System clause:");
       system_ref->dump(level + 2);
+    }
+    if (exceptions != NULL) {
+      DEBUG(level + 1, "Exceptions:");
+      exceptions->dump(level + 2);
     }
     /*
     DEBUG(level + 1, "Local definitions:");

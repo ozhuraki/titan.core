@@ -17,7 +17,7 @@
 #
 ##############################################################################
 # Makefile to run the non-interactive tests
-DIRS := Semantic_Analyser Semantic_Analyser_Csaba Config_Parser
+DIRS := Semantic_Analyser Semantic_Analyser_Csaba Config_Parser OOP
 
 SCRIPTFLAGS :=
 
@@ -92,6 +92,9 @@ Semantic_Analyser_Csaba:
 	make run -f Makefile.semantic -C Semantic_Analyser
 
 Config_Parser:
+	cd $@; if [ ! -f perl ] ; then ln -s `which perl` perl; fi; ./run_test $(SCRIPTFLAGS)
+	
+OOP:
 	cd $@; if [ ! -f perl ] ; then ln -s `which perl` perl; fi; ./run_test $(SCRIPTFLAGS)
 
 profile: $(DIRS)

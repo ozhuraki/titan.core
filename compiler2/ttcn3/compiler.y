@@ -3681,34 +3681,34 @@ ClassMember:
 ClassFunctionDef:
   FunctionKeyword optFinalModifier
   optDeterministicModifier IDentifier '(' optFunctionFormalParList ')'
-  optReturnType optError StatementBlock
+  optReturnType optExceptionSpec optError StatementBlock
   {
     $$ = new Def_Function($3, $4, $6, NULL, NULL, NULL, NULL, $8.type,
-      $8.returns_template, $8.template_restriction, $2, $10);
+      $8.returns_template, $8.template_restriction, $2, $9, $11);
     $$->set_location(infile, @$);
   }
 | FunctionKeyword optFinalModifier AbstractKeyword
   optDeterministicModifier IDentifier '(' optFunctionFormalParList ')'
-  optReturnType optError
+  optReturnType optExceptionSpec optError
   {
     $$ = new Def_AbsFunction($4, $5, $7, $9.type, $9.returns_template,
-      $9.template_restriction);
+      $9.template_restriction, $10);
     $$->set_location(infile, @$);
   }
 | ExtKeyword FunctionKeyword optFinalModifier
   optDeterministicModifier IDentifier '(' optFunctionFormalParList ')'
-  optReturnType
+  optReturnType optExceptionSpec
   {
     $$ = new Def_ExtFunction($4, $5, $7, $9.type, $9.returns_template,
-      $9.template_restriction, $3, true);
+      $9.template_restriction, $3, $10, true);
     $$->set_location(infile, @$);
   }
 | FunctionKeyword optFinalModifier
   optDeterministicModifier IDentifier '(' optFunctionFormalParList ')'
-  optReturnType
+  optReturnType optExceptionSpec
   {
     $$ = new Def_ExtFunction($3, $4, $6, $8.type, $8.returns_template,
-      $8.template_restriction, $2, false);
+      $8.template_restriction, $2, $9, false);
     $$->set_location(infile, @$);
   }
 ;
@@ -4578,11 +4578,11 @@ ValueofOp: // 162
 
 FunctionDef: // 164
   FunctionKeyword optDeterministicModifier IDentifier '(' optFunctionFormalParList ')'
-  optRunsOnSpec AltOrTcConfigSpec optPortSpec optReturnType optError StatementBlock
+  optRunsOnSpec AltOrTcConfigSpec optPortSpec optReturnType optExceptionSpec optError StatementBlock
   {
     $5->set_location(infile, @4, @6);
     $$ = new Def_Function($2, $3, $5, $7, $8.mtcref, $8.systemref, $9, $10.type, $10.returns_template,
-                          $10.template_restriction, false, $12);
+                          $10.template_restriction, false, $11, $13);
     $$->set_location(infile, @$);
   }
 ;
@@ -5232,25 +5232,25 @@ TestcaseActualPar:
 
 AltstepDef: // 211
   AltstepKeyword IDentifier '(' optAltstepFormalParList ')' optRunsOnSpec
-  AltOrTcConfigSpec optError '{' AltstepLocalDefList AltGuardList optError '}'
+  AltOrTcConfigSpec optExceptionSpec optError '{' AltstepLocalDefList AltGuardList optError '}'
   optCatchBlockList optFinallyDef
   {
     StatementBlock *sb = new StatementBlock;
-    for (size_t i = 0; i < $10.nElements; i++) {
-      Statement *stmt = new Statement(Statement::S_DEF, $10.elements[i]);
-      stmt->set_location(*$10.elements[i]);
+    for (size_t i = 0; i < $11.nElements; i++) {
+      Statement *stmt = new Statement(Statement::S_DEF, $11.elements[i]);
+      stmt->set_location(*$11.elements[i]);
       sb->add_stmt(stmt);
     }
-    Free($10.elements);
-    for (size_t i = 0; i < $14.nElements; ++i) {
-      sb->add_catch_block($14.elements[i]);
+    Free($11.elements);
+    for (size_t i = 0; i < $15.nElements; ++i) {
+      sb->add_catch_block($15.elements[i]);
     }
-    Free($14.elements);
-    if ($15 != NULL) {
-      sb->set_finally_block($15);
+    Free($15.elements);
+    if ($16 != NULL) {
+      sb->set_finally_block($16);
     }
     $4->set_location(infile, @4);
-    $$ = new Def_Altstep($2, $4, $6, $7.mtcref, $7.systemref, sb, $11);
+    $$ = new Def_Altstep($2, $4, $6, $7.mtcref, $7.systemref, sb, $12, $8);
     $$->set_location(infile, @$);
   }
 ;
@@ -5733,11 +5733,11 @@ GroupIdentifier: // 274 (followed by) 275.
 
 ExtFunctionDef: // 276
   ExtKeyword FunctionKeyword optDeterministicModifier IDentifier
-  '(' optFunctionFormalParList ')' optReturnType
+  '(' optFunctionFormalParList ')' optReturnType optExceptionSpec
   {
     $6->set_location(infile, @5, @7);
     $$ = new Def_ExtFunction($3, $4, $6, $8.type, $8.returns_template,
-                             $8.template_restriction, false, true);
+                             $8.template_restriction, false, $9, true);
     $$->set_location(infile, @$);
   }
 ;

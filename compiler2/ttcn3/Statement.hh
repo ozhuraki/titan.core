@@ -132,6 +132,8 @@ namespace Ttcn {
     void set_my_laic_stmt(AltGuards *p_ags, Statement *p_loop_stmt);
     void add_catch_block(StatementBlock* p_catch);
     void set_finally_block(StatementBlock* p_finally);
+    boolean is_in_finally_block() const;
+    boolean is_empty() const;
     returnstatus_t has_return() const;
     /** Used when generating code for interleaved statement. If has
      *  not recv stmt, then the general code generation can be used

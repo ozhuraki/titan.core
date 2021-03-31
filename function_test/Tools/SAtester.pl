@@ -56,6 +56,10 @@ my $sa_printHelp_doc = 0;
 my $sa_titanRuntime2 = 0;
 # Enable coverage or not
 my $sa_coverageEnabled = 0;
+# Enable object-oriented features
+my $sa_titanOOP = 0;
+# Ignore memory leaks
+my $sa_ignoreMemLeaks = 0;
 # Files existed before a test case execution
 my %sa_existedFiles;
 # Store input TD files from which TCs are collected
@@ -389,6 +393,8 @@ sub sa_processCommandLine() {
                           'help'      => \$sa_printHelp_cmd,
                           'doc'       => \$sa_printHelp_doc,
                           'rt2'       => \$sa_titanRuntime2,
+                          'oop'       => \$sa_titanOOP,
+                          'imemleaks' => \$sa_ignoreMemLeaks,
                           'coverage'  => \$sa_coverageEnabled,
                           'log=s'     => \$sa_logFile,
                           'timeout=s' => \$sa_timeout,
@@ -683,10 +689,12 @@ sub sa_compileTC(\@) {
    sa_log( "Compiling sources...\n");
    my $runtimeOption = '';
    if ($sa_titanRuntime2) { $runtimeOption = '-R'; }
+   my $oopOption = '';
+   if ($sa_titanOOP) { $oopOption = '-k'; }
    do {
       if ($cycles) { sleep(60 * 10); }
       $cycles++;
-      ($res, $subRes) = sa_executeCommand("$sa_compilerCmd $runtimeOption $modules2compile");
+      ($res, $subRes) = sa_executeCommand("$sa_compilerCmd $runtimeOption $oopOption $modules2compile");
       # Purify message, when no floating license available. Sleep for a while
       # and retry.
       # -continue-without-license=yes
@@ -696,12 +704,12 @@ sub sa_compileTC(\@) {
    if ($root->[1] eq "COMPILE") { return (0, $resultBuffer); }
 
    sa_log( "Generating test port skeletons...\n");
-   ($res, $subRes) = sa_executeCommand("$sa_compilerCmd $runtimeOption -t -f $modules2compile");
+   ($res, $subRes) = sa_executeCommand("$sa_compilerCmd $runtimeOption $oopOption -t -f $modules2compile");
    if ($res) { return (1, $subRes); }
    $resultBuffer .= $subRes;
 
    sa_log( "Generating Makefile...\n");
-   ($res, $subRes) = sa_executeCommand("$sa_mfgenCmd $runtimeOption -s -f $modules2compile *.cc*");
+   ($res, $subRes) = sa_executeCommand("$sa_mfgenCmd $runtimeOption $oopOption -s -f $modules2compile *.cc*");
    if ($res) { return (1, $subRes); }
    $resultBuffer .= $subRes;
    if (not (-e 'Makefile')) {
@@ -803,7 +811,7 @@ sub sa_checkTCResult(\@$) {
       }
    }
    # Check if there is any memory leak in compiler
-   if ($resultBuffer =~ /${sa_re_MemoryLeak}/mi) {
+   if (not $sa_ignoreMemLeaks and $resultBuffer =~ /${sa_re_MemoryLeak}/mi) {
       sa_log( "WARNING: Memory leak detected in compiler, setting verdict to 'FAIL'\n");
       $root->[7] = 'memory leak detected';
       $result = 'FAIL';

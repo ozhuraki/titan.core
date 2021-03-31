@@ -292,7 +292,13 @@ public:
   FINALLY(const std::function<void(void)> &p_functor) : functor(p_functor) {}
   ~FINALLY()
   {
-    functor();
+    try {
+      functor();
+    }
+    catch (...) {
+      fprintf(stderr, "Unhandled exception or dynamic test case error in a finally block. Terminating application.\n");
+      exit(EXIT_FAILURE);
+    }
   }
 };
 #endif // C++11

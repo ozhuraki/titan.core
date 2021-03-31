@@ -1,0 +1,9 @@
+*.report
+compile
+core
+Temp*
+*.gcda
+*.gcno
+Makefile
+perl
+perl.lnk

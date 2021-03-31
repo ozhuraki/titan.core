@@ -283,12 +283,29 @@ namespace Ttcn {
     p_finally->exception_handling = EH_OOP_FINALLY;
     finally_block = p_finally;
   }
+  
+  boolean StatementBlock::is_in_finally_block() const
+  {
+    if (exception_handling == EH_OOP_FINALLY) {
+      return TRUE;
+    }
+    if (my_sb != NULL) {
+      return my_sb->is_in_finally_block();
+    }
+    return FALSE;
+  }
+  
+  boolean StatementBlock::is_empty() const
+  {
+    return stmts.size() == 0 && exception_handling == StatementBlock::EH_NONE &&
+      catch_blocks.size() == 0 && finally_block == NULL;
+  }
 
   StatementBlock::returnstatus_t StatementBlock::has_return() const
   {
     returnstatus_t ret_val = RS_NO;
     size_t nof_stmts = stmts.size();
-    for (size_t i = 0; i < nof_stmts; i++) {
+    for (size_t i = 0; i < nof_stmts && ret_val != RS_YES; i++) {
       Statement *stmt = stmts[i];
       if (stmt->get_statementtype() == Statement::S_GOTO) {
 	if (stmt->goto_jumps_forward()) {
@@ -300,7 +317,7 @@ namespace Ttcn {
 	    if (stmt->get_statementtype() == Statement::S_LABEL &&
 		stmt->label_is_used()) break;
 	  }
-	} else return RS_YES;
+	} else ret_val = RS_YES;
       } else if (stmt->get_statementtype()==Statement::S_BLOCK && stmt->get_block()->exception_handling!=EH_NONE) {
         switch (stmt->get_block()->exception_handling) {
         case EH_TRY: // the i-th statement is a try{} statement block, the (i+1)-th must be a catch{} block
@@ -311,9 +328,11 @@ namespace Ttcn {
             if (try_block_rs==catch_block_rs) {
               switch (try_block_rs) {
               case RS_YES:
-                return RS_YES;
+                ret_val = RS_YES;
+                break;
               case RS_MAYBE:
                 ret_val = RS_MAYBE;
+                break;
               default:
                 break;
               }
@@ -333,12 +352,26 @@ namespace Ttcn {
       } else {
 	switch (stmt->has_return()) {
 	case RS_YES:
-	  return RS_YES;
+	  ret_val = RS_YES;
+	  break;
 	case RS_MAYBE:
 	  ret_val = RS_MAYBE;
+	  break;
 	default:
 	  break;
 	}
+      }
+    }
+    for (size_t i = 0; i < catch_blocks.size(); ++i) {
+      // all 'catch' blocks must also have return for the statement block to have return
+      switch(catch_blocks[i]->has_return()) {
+      case RS_YES:
+        break; // OK, keep checking
+      case RS_MAYBE:
+        return RS_MAYBE;
+      case RS_NO:
+        ret_val = (ret_val == RS_NO) ? RS_NO : RS_MAYBE;
+        break;
       }
     }
     return ret_val;
@@ -418,9 +451,25 @@ namespace Ttcn {
     }
     chk_trycatch_blocks(prev_stmt, 0);
     chk_unused_labels();
+    map<string, Definition> catch_types;
     for (size_t i = 0; i < catch_blocks.size(); ++i) {
-      catch_blocks[i]->chk();
+      if (oop_features) {
+        catch_blocks[i]->chk();
+        Definition* def_exc = catch_blocks[i]->get_stmt_byIndex(0)->get_def();
+        string catch_type_str = def_exc->get_Type()->get_exception_name();
+        if (catch_types.has_key(catch_type_str)) {
+          def_exc->error("Duplicate catch block definition for exception type `%s'", catch_type_str.c_str());
+          catch_types[catch_type_str]->note("Catch block for the same exception type already defined here");
+        }
+        else {
+          catch_types.add(catch_type_str, def_exc);
+        }
+      }
+      else {
+        catch_blocks[i]->error("The compiler option `-k' must be activated to use object-oriented features such as catch clauses.");
+      }
     }
+    catch_types.clear();
     if (finally_block != NULL) {
       finally_block->chk();
     }
@@ -531,9 +580,14 @@ namespace Ttcn {
           tmp_id.c_str());
       }
       str = mputprintf(str,
-        "~%s_finally() {\n", tmp_id.c_str());
+        "~%s_finally() {\n"
+        "try {\n", tmp_id.c_str());
       str = finally_block->generate_code(str, def_glob_vars, src_glob_vars);
       str = mputprintf(str,
+        "} catch (...) {\n"
+        "fprintf(stderr, \"Unhandled exception or dynamic test case error in a finally block. Terminating application.\\n\");\n"
+        "exit(EXIT_FAILURE);\n"
+        "}\n"
         "}\n"
         "};\n"
         "%s_finally %s%s;\n",
@@ -3819,6 +3873,10 @@ error:
             "It is allowed only in functions and altsteps");
       goto error;
     }
+    if (my_sb->is_in_finally_block()) {
+      error("Return statement cannot be used inside a finally block or the destructor of a class.");
+      goto error;
+    }
     switch (my_def->get_asstype()) {
     case Definition::A_FUNCTION:
       if (returnexpr.t) {
@@ -6353,38 +6411,60 @@ error:
   void Statement::chk_raise_oop()
   {
     Error_Context cntxt(this, "In raise statement");
+    if (!oop_features) {
+      error("The compiler option `-k' must be activated to use object-oriented features such as raise statements.");
+    }
+    Definition *my_def = my_sb->get_my_def();
+    if (!my_def) {
+      error("Raise statement cannot be used in the control part. "
+            "It is allowed only in functions, altsteps and testcases.");
+    }
+    if (my_sb->is_in_finally_block()) {
+      error("Raise statement cannot be used inside a finally block or the destructor of a class.");
+    }
     Common::Type* exc_type = raise_op.ti->get_expr_governor(Common::Type::EXPECTED_DYNAMIC_VALUE);
     if (exc_type == NULL) {
       raise_op.ti->get_Template()->set_lowerid_to_ref();
       exc_type = raise_op.ti->get_expr_governor(Common::Type::EXPECTED_DYNAMIC_VALUE);
     }
     if (exc_type == NULL) {
-      // TODO
-    }
-    else {
-      if (raise_op.ti->get_Type() == exc_type) {
-        // don't use the type indicator of the TemplateInstance
-        // (i.e. the 'type:' part of the in-line template)
-        // as the exception's governor, because it will be deleted
-        if (exc_type->is_ref()) {
-          exc_type = exc_type->get_type_refd();
-        }
-        else {
-          exc_type = Type::get_pooltype(exc_type->get_typetype());
-        }
+      if (raise_op.ti->get_Template()->get_templatetype() != Template::TEMPLATE_ERROR &&
+          (raise_op.ti->get_Template()->get_templatetype() != Template::SPECIFIC_VALUE ||
+           raise_op.ti->get_Template()->get_specific_value()->get_valuetype() != Common::Value::V_ERROR)) {
+        error("Cannot determine the type of the raised exception.");
       }
-      raise_op.ti->chk(exc_type);
-      if (!raise_op.ti->get_Template()->is_Value()) {
-        // TODO: error
-        delete raise_op.ti;
-        raise_op.v = new Common::Value(Common::Value::V_ERROR);
+      exc_type = Type::get_pooltype(Type::T_ERROR);
+    }
+    switch (exc_type->get_type_refd_last()->get_typetype()) {
+    case Common::Type::T_DEFAULT:
+    case Common::Type::T_SIGNATURE:
+    //case Common::Type::T_PORT: // this case is handled by Template::get_expr_governor
+      error("Cannot raise an exception of type %s", exc_type->get_typename().c_str());
+      break;
+    default:
+      break;
+    }
+    if (raise_op.ti->get_Type() == exc_type) {
+      // don't use the type indicator of the TemplateInstance
+      // (i.e. the 'type:' part of the in-line template)
+      // as the exception's governor, because it will be deleted
+      if (exc_type->is_ref()) {
+        exc_type = exc_type->get_type_refd();
       }
       else {
-        Common::Value* val = raise_op.ti->get_Template()->get_Value();
-        delete raise_op.ti;
-        raise_op.v = val;
+        exc_type = Type::get_pooltype(exc_type->get_typetype());
       }
-      // TODO
+    }
+    raise_op.ti->chk(exc_type);
+    if (!raise_op.ti->get_Template()->is_Value()) {
+      error("A specific value without matching symbols or a reference to a value was expected for a raised exception.");
+      delete raise_op.ti;
+      raise_op.v = new Common::Value(Common::Value::V_ERROR);
+    }
+    else {
+      Common::Value* val = raise_op.ti->get_Template()->get_Value();
+      delete raise_op.ti;
+      raise_op.v = val;
     }
     raise_op.checked = true;
   }
@@ -7179,7 +7259,7 @@ error:
     default:
       FATAL_ERROR("Statement::generate_code_block()");
     }
-    if (block->get_nof_stmts() > 0 || block->get_exception_handling()!=StatementBlock::EH_NONE) {
+    if (!block->is_empty()) {
       str = mputstr(str, "{\n");
       if (debugger_active) {
         str = mputstr(str, "TTCN3_Debug_Scope debug_scope;\n");

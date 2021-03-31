@@ -15,6 +15,7 @@ module oop_SE { //^In TTCN-3 module//
 type component Comp {
   var integer cv_comp;
   const integer cc_comp := -1;
+  timer c_timer;
 }
 
 type port Port message {
@@ -29,7 +30,22 @@ type record Rec {
   charstring str
 }
 
+type record of integer RoI;
+
+type union Uni {
+  integer i,
+  float f
+}
+
+signature Sig(inout integer p);
+
+type integer SmallNumber (-100..100);
+
+type enumerated Enum { E1, E2, E3 };
+
 const integer c := 3;
+
+template integer t := 4;
 
 type class C0 { }
 
@@ -550,8 +566,99 @@ function f_aliases() {
 }
 
 
+function f_exception1(in integer p) return integer exception(integer, charstring, Rec, C0) { return p; }
+function f_exception2() exception(boolean, verdicttype, integer, SmallNumber, RoI, Uni, anytype, Comp, RoI[-], Rec.num, Uni.i, Enum) { }
+external function ef_exception1(in integer p) return integer exception(integer, charstring, Rec, C0);
+altstep a_exception1(in integer p) runs on Comp exception(integer, charstring, Rec, C0) {
+  [] c_timer.timeout { }
+}
+
+function f_exception3() //^In function definition//
+  exception (float, //^In exception list//
+  default, //Default type cannot be on the exception list of a function//
+  bitstring,
+  Port, //Port type `@oop_SE.Port' cannot be on the exception list of a function//
+  hexstring,
+  Sig, //Signature `@oop_SE.Sig' cannot be on the exception list of a function//
+  octetstring) { }
+external function ef_exception2() //^In external function definition// 
+  exception (universal charstring, //^In exception list// //Type `universal charstring' is already given here//
+  integer,
+  universal charstring); //Duplicate type in exception list//
+
+
+function f_raise(in integer p, inout template integer p2) runs on CT_Mtc { //^In function definition// //Previous definition with identifier `p' in higher scope unit is here//
+  if (p == 0) { raise 3; }
+  if (p == 1) { raise Enum: E2; }
+  if (p == 2) { raise int2char(p + 1); }
+  if (p == 3) { raise omit; } //^In if statement// //^In raise statement// //Cannot determine the type of the raised exception.//
+  if (p == 4) { raise null; } //^In if statement// //^In raise statement// //Cannot determine the type of the raised exception.//
+  if (p == 5) { raise pattern "ab?c"; } //^In if statement// //^In raise statement// //A specific value without matching symbols or a reference to a value was expected for a raised exception.//
+  var default def := null;
+  if (p == 6) { raise def; } //^In if statement// //^In raise statement// //Cannot raise an exception of type default//
+  if (p == 7) { raise Sig: { p }; } //^In if statement// //^In raise statement// //Cannot raise an exception of type @oop_SE.Sig//
+  if (p == 8) { raise pt; } //^In if statement// //^In raise statement// //Reference to a value was expected instead of port `@oop_SE.CT_Mtc.pt'//
+  var template charstring vt := ? length (3);
+  if (p == 9) { raise vt; } //^In if statement// //^In raise statement// //A specific value without matching symbols or a reference to a value was expected for a raised exception.//
+  if (p == 10) { raise c; }
+  if (p == 11) { raise t; } //^In if statement// //^In raise statement// //A specific value without matching symbols or a reference to a value was expected for a raised exception.//
+  if (p == 12) { raise p2; } //^In if statement// //^In raise statement// //A specific value without matching symbols or a reference to a value was expected for a raised exception.//
+}
+catch (integer x) { } //Catch block for the same exception type already defined here//
+catch (integer y) { } //Duplicate catch block definition for exception type `integer'//
+catch (SmallNumber x) { }
+catch (RoI[-] x) { }
+catch (Rec.num x) { }
+catch (charstring p) { } //Definition with identifier `p' is not unique in the scope hierarchy//
+catch (default x) { } //^In exception definition// //Exception cannot be defined for the default type//
+catch (Sig x) { } //^In exception definition// //Exception cannot be defined for signature `@oop_SE.Sig'//
+catch (Port x) { } //^In exception definition// //Exception cannot be defined for port type `@oop_SE.Port'//
+catch (octetstring x) { return; }
+finally {
+  raise 3; //^In raise statement// //Raise statement cannot be used inside a finally block or the destructor of a class.//
+}
+
+function f_return1(in integer p) return integer { //^In function definition//
+  if (p > 0) {
+    return 0;
+  }
+  else {
+    raise 0;
+  }
+}
+catch (integer x) {
+  return x;
+}
+finally {
+  return -1; //^In return statement// //Return statement cannot be used inside a finally block or the destructor of a class.//
+}
+
+function f_return2(in integer p) return integer { //^In function definition// //The function has return type, but control might leave it without reaching a return statement//
+  if (p > 0) {
+    return f_return1(p);
+  }
+  catch (integer x) {
+    log(x);
+  }
+  else {
+    raise 0;
+  }
+}
+
+type class C50 { } //^In type definition//
+finally { //^In class destructor//
+  return; //^In return statement// //Return statement cannot be used inside a finally block or the destructor of a class.//
+}
+
+type class C51 { } //^In type definition//
+finally { //^In class destructor//
+  raise 1.0; //^In raise statement// //Raise statement cannot be used inside a finally block or the destructor of a class.//
+}
+
+
 control { //^In control part//
   var C11 x := C11.create; //^In variable definition// //A definition without `runs on' clause cannot create a value of class type `@oop_SE.C11', which runs on component type `@oop_SE.CT_RunsOn'// //Cannot create value of class type `@oop_SE.C11', which has an `mtc' clause, in the control part.// //Cannot create value of class type `@oop_SE.C11', which has a `system' clause, in the control part.//
+  raise "abc"; //^In raise statement// //Raise statement cannot be used in the control part. It is allowed only in functions, altsteps and testcases.//
 }
 
 }
