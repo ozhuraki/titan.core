@@ -1,0 +1,97 @@
+/******************************************************************************
+ * Copyright (c) 2000-2021 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond – initial implementation
+ *
+ ******************************************************************************/
+
+module Bug572603 {
+
+type record UnknownIE {
+  integer   ie_code,
+  integer   ie_length,
+  octetstring ie_data
+} with {
+  variant (ie_length) "LENGTHTO(ie_data)"
+}
+
+type record of UnknownIE UnknownIE_list
+
+type record IE1 {
+  integer   ie_code,
+  integer   ie_length,
+  octetstring ie_data
+} with {
+  variant "PRESENCE(ie_code = 1)"
+  variant (ie_length) "LENGTHTO(ie_data)"
+}
+
+type record of IE1 IE1_list
+
+type record IE2 {
+  integer   ie_code,
+  integer   ie_length,
+  octetstring ie_data
+} with {
+  variant "PRESENCE(ie_code = 2)"
+  variant (ie_length) "LENGTHTO(ie_data)"
+}
+
+type record of IE2 IE2_list
+
+type record IE3 {
+  integer   ie_code,
+  integer   ie_length,
+  octetstring ie_data
+} with {
+  variant "PRESENCE(ie_code = 3)"
+  variant (ie_length) "LENGTHTO(ie_data)"
+}
+
+type record of IE3 IE3_list
+
+
+type set PDU{
+  IE1 f_ie1,
+  IE2_list f_ie2_list optional,
+  IE3 f_ie3,
+  UnknownIE_list f_other optional
+} with {
+  variant (f_ie2_list) "REPEATABLE(yes)"
+  variant (f_other) "REPEATABLE(yes)"
+}
+
+external function enc_PDU(in PDU pdu) return octetstring
+with { extension "prototype(convert)" extension "encode(RAW)" }
+
+external function dec_PDU(in octetstring stream) return PDU
+with { extension "prototype(convert)" extension "decode(RAW)" }
+
+type component CT {}
+
+testcase tc_bug572603() runs on CT {
+  var PDU v_pdu1 := { f_ie1 := { 1, 1, 'AA'O }, f_ie2_list := { { 2, 1, 'BB'O }, { 2, 1, 'BB'O } }, f_ie3 := { 3, 1, 'CC'O }, f_other := { { 4, 1, 'DD'O } } }   
+  var PDU v_pdu2
+  var octetstring v_oct := '0101AA0201BB0401DD0201BB0301CC'O;
+  v_pdu2 := dec_PDU(v_oct);
+  log(v_pdu1);
+  log(v_pdu2);
+  if (v_pdu1 == v_pdu2) {
+    setverdict(pass);
+  } else {
+    setverdict(fail, v_pdu2);
+  }
+}
+
+control {
+  execute(tc_bug572603());
+}
+
+} with {
+  encode "RAW"
+}

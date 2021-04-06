@@ -1,0 +1,8 @@
+Bug572603
+Bug572603.exe
+Bug572603*.cc
+Bug572603*.hh
+*.d
+compile
+Bug572603*.log
+result.txt
