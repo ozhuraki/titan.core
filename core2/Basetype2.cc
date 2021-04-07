@@ -1279,11 +1279,20 @@ int Record_Of_Type::RAW_decode(const TTCN_Typedescriptor_t& p_td,
   TTCN_Typedescriptor_t const& elem_descr = *p_td.oftype_descr;
   if (p_td.raw->fieldlength || sel_field != -1) {
     if (sel_field == -1) sel_field = p_td.raw->fieldlength;
+    int start_of_field = buff.get_pos_bit();
     for (int a = 0; a < sel_field; a++) {
       Base_Type* field_bt = get_at(a + start_field);
       decoded_field_length = field_bt->RAW_decode(elem_descr, buff, limit,
         top_bit_ord, TRUE);
-      if (decoded_field_length < 0) return decoded_field_length;
+      if (decoded_field_length < 0) {
+        while (a >= 0) { 
+        delete get_at(a + start_field);
+          a--;
+          val_ptr->n_elements--;
+        }
+        buff.set_pos_bit(start_of_field);
+        return decoded_field_length;
+      }
       decoded_length += decoded_field_length;
       limit -= decoded_field_length;
     }
