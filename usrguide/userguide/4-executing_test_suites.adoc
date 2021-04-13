@@ -279,7 +279,12 @@ The script works the following way: first it launches the MC. If the environment
 
 The messages coming from the standard output or standard error of MC, HC and the test components are continuously displayed in the output of `ttcn3_start`.
 
-Note that this script does not support distributed test execution when more than one HC has to be started.
+[NOTE]
+====
+This script does not support distributed test execution when more than one HC has to be started.
+
+From TITAN version 7.2.1, `ttcn3_start` script also accepts executable JAR file type as the first input parameter. The JAR file shall contain a TITAN Java project, more specifically TTCN-3 codes are compiled by the TITAN Java compiler and packed into an executable JAR that starts in parallel mode. For more information please refer to https://github.com/eclipse/titan.EclipsePlug-ins/tree/master/org.eclipse.titan.executor/docs/Eclipse_Executor_userguide[User Guide of the TITAN Executor for the Eclipse IDE plug-in].
+====
 
 Examples for the invocation of `ttcn3_start`:
 [source]
@@ -305,6 +310,8 @@ The script returns different exit codes which can be used by user written softwa
 |8 |The MTC cannot be created.
 |9 |The MTC cannot be created on an unknown host.
 |10 |The MTC terminated unexpectedly.
+|11 |The second parameter is neither a configuration file nor an existing test case.
+|12 |Java is not in the PATH or not installed. (When Titan Java project is executed via runnable JAR file.)
 |====================================================================
 
 == Strange Behavior of the Executable
