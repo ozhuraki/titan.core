@@ -416,8 +416,8 @@ namespace Ttcn {
       * On further runs the cached expression is returned.*/
     virtual void generate_code_cached (expression_struct_t *expr);
     /** Lets the referenced assignment object know, that the reference is used
-      * at least once (only relevant for formal parameters and external constants). */
-    void ref_usage_found();
+      * at least once (only relevant for formal parameters, external constants and exceptions). */
+    static void ref_usage_found(Common::Assignment *ass);
     /** Appends a new field subref for the union type's @default alternative at the end of the reference.
       * Used when the reference points to a union value or template in a context where a union is not allowed.
       * This attempts to use the union's default alternative instead. */
@@ -1196,6 +1196,9 @@ namespace Ttcn {
   
   class Def_Exception : public Def_Var {
   private:
+    /** Indicates whether the exception is used in the catch block. */
+    bool usage_found;
+        
     /// Copy constructor disabled
     Def_Exception(const Def_Exception& p);
     /// %Assignment disabled
@@ -1203,6 +1206,7 @@ namespace Ttcn {
     
   public:
     Def_Exception(Identifier* p_id, Type* p_type);
+    void set_usage_found() { usage_found = true; }
     virtual char* generate_code_str(char *str);
   };
 

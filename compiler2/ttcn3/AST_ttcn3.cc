@@ -910,6 +910,27 @@ namespace Ttcn {
         }
       }
     }
+    if (ass != NULL) {
+      ref_usage_found(ass);
+      StatementBlock* sb = my_scope->get_statementblock_scope();
+      if (sb != NULL && sb->is_in_finally_block()) {
+        switch (ass->get_asstype()) {
+        default:
+          if (!ass->is_local()) {
+            break;
+          }
+          // else fall through
+        case Common::Assignment::A_PAR_VAL:
+        case Common::Assignment::A_PAR_VAL_IN:
+        case Common::Assignment::A_PAR_VAL_OUT:
+        case Common::Assignment::A_PAR_VAL_INOUT:
+        case Common::Assignment::A_PAR_TEMPL_IN:
+        case Common::Assignment::A_PAR_TEMPL_OUT:
+        case Common::Assignment::A_PAR_TEMPL_INOUT:
+          sb->get_finally_block()->add_refd_local_def(ass);
+        }
+      }
+    }
     return ass;
   }
   
@@ -1115,9 +1136,8 @@ namespace Ttcn {
     return true;
   }
   
-  void Reference::ref_usage_found()
+  void Reference::ref_usage_found(Common::Assignment *ass)
   {
-    Common::Assignment *ass = get_refd_assignment();
     if (!ass) FATAL_ERROR("Reference::ref_usage_found()");
     switch (ass->get_asstype()) {
     case Common::Assignment::A_PAR_VAL_OUT:
@@ -1137,6 +1157,13 @@ namespace Ttcn {
       break; }
     case Common::Assignment::A_EXT_CONST: {
       Def_ExtConst* def = dynamic_cast<Def_ExtConst*>(ass);
+      if (def == NULL) {
+        FATAL_ERROR("Reference::ref_usage_found()");
+      }
+      def->set_usage_found();
+      break; }
+    case Common::Assignment::A_EXCEPTION: {
+      Def_Exception* def = dynamic_cast<Def_Exception*>(ass);
       if (def == NULL) {
         FATAL_ERROR("Reference::ref_usage_found()");
       }
@@ -1170,7 +1197,6 @@ namespace Ttcn {
 
   void Reference::generate_code(expression_struct_t *expr)
   {
-    ref_usage_found();
     Common::Assignment *ass = get_refd_assignment();
     if (!ass) FATAL_ERROR("Reference::generate_code()");
     if (reftype == REF_THIS) {
@@ -1228,7 +1254,6 @@ namespace Ttcn {
       return;
     }
     
-    ref_usage_found();
     Common::Assignment *ass = get_refd_assignment();
     if (!ass) FATAL_ERROR("Reference::generate_code_const_ref()");
 
@@ -1341,7 +1366,6 @@ namespace Ttcn {
   void Reference::generate_code_portref(expression_struct_t *expr,
     Scope *p_scope)
   {
-    ref_usage_found();
     Common::Assignment *ass = get_refd_assignment();
     if (!ass) FATAL_ERROR("Reference::generate_code_portref()");
     expr->expr = mputstr(expr->expr,
@@ -1353,7 +1377,6 @@ namespace Ttcn {
   void Reference::generate_code_ispresentboundchosen(expression_struct_t *expr,
     bool is_template, const Value::operationtype_t optype, const char* field)
   {
-    ref_usage_found();
     Common::Assignment *ass = get_refd_assignment();
     const string& ass_id = ass->get_genname_from_scope(my_scope);
     const char *ass_id_str = ass_id.c_str();
@@ -5548,15 +5571,16 @@ namespace Ttcn {
   // ===== Def_Exception
   // =================================
   
-  Def_Exception::Def_Exception(Identifier* p_id, Type* p_type): Def_Var(p_id, p_type, NULL) 
+  Def_Exception::Def_Exception(Identifier* p_id, Type* p_type): Def_Var(p_id, p_type, NULL), usage_found(false)
   {
     asstype = Common::Assignment::A_EXCEPTION;
   }
   
   char* Def_Exception::generate_code_str(char *str)
   {
-    return mputprintf(str, "EXCEPTION< %s >& %s = static_cast<EXCEPTION< %s >&>(exc_base);\n",
-      type->get_genname_value(my_scope).c_str(), id->get_name().c_str(), type->get_genname_value(my_scope).c_str());
+    return usage_found ? mputprintf(str, "EXCEPTION< %s >& %s = static_cast<EXCEPTION< %s >&>(exc_base);\n",
+      type->get_genname_value(my_scope).c_str(), id->get_name().c_str(), type->get_genname_value(my_scope).c_str()) :
+      str;
   }
 
   // =================================
@@ -11235,13 +11259,6 @@ namespace Ttcn {
         LazyFuzzyParamData::init(used_as_lvalue);
         LazyFuzzyParamData::generate_code(expr, val, my_scope, param_eval == LAZY_EVAL);
         LazyFuzzyParamData::clean();
-        if (val->get_valuetype() == Value::V_REFD) {
-          // check if the reference is a parameter, mark it as used if it is
-          Reference* r = dynamic_cast<Reference*>(val->get_reference());
-          if (r != NULL) {
-            r->ref_usage_found();
-          }
-        }
       } else {
         char* expr_expr = NULL;
         if (use_runtime_2 && TypeConv::needs_conv_refd(val)) {
@@ -11292,15 +11309,6 @@ namespace Ttcn {
         LazyFuzzyParamData::generate_code(expr, temp, gen_restriction_check, my_scope,
            param_eval == LAZY_EVAL);
         LazyFuzzyParamData::clean();
-        if (temp->get_DerivedRef() != NULL ||
-            temp->get_Template()->get_templatetype() == Template::TEMPLATE_REFD) {
-          // check if the reference is a parameter, mark it as used if it is
-          Reference* r = dynamic_cast<Reference*>(temp->get_DerivedRef() != NULL ?
-            temp->get_DerivedRef() : temp->get_Template()->get_reference());
-          if (r != NULL) {
-            r->ref_usage_found();
-          }
-        }
       } else {
         char* expr_expr = NULL;
         if (use_runtime_2 && TypeConv::needs_conv_refd(temp->get_Template())) {

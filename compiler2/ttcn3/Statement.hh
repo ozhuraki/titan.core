@@ -100,8 +100,13 @@ namespace Ttcn {
     Definition *my_def;
     /** */
     exception_handling_t exception_handling;
+    /** List of catch blocks at the end of this statement block (OOP feature) */
     vector<StatementBlock> catch_blocks;
+    /** Optional finally block at the end of this statement block (OOP feature) */
     StatementBlock* finally_block;
+    /** List of local definitions referenced inside this block
+      * (only for the finally block of a normal statement block) */
+    map<Common::Assignment*, void> refd_local_defs; // elements not owned
 
     StatementBlock(const StatementBlock& p);
     StatementBlock& operator=(const StatementBlock& p);
@@ -132,7 +137,9 @@ namespace Ttcn {
     void set_my_laic_stmt(AltGuards *p_ags, Statement *p_loop_stmt);
     void add_catch_block(StatementBlock* p_catch);
     void set_finally_block(StatementBlock* p_finally);
+    void add_refd_local_def(Common::Assignment* p_def);
     boolean is_in_finally_block() const;
+    StatementBlock* get_finally_block();
     boolean is_empty() const;
     returnstatus_t has_return() const;
     /** Used when generating code for interleaved statement. If has

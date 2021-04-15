@@ -46,7 +46,7 @@ type integer SmallNumber (-100..100);
 
 
 function test_block(in integer p_exception_type) runs on CT {
-  //var integer v_finally_increment := 1;
+  var integer v_finally_increment := 1;
   {
     select (p_exception_type) {
       case (1) {
@@ -118,7 +118,10 @@ function test_block(in integer p_exception_type) runs on CT {
     }
   }
   finally {
-    cv_finally_counter := cv_finally_counter + 1;
+    cv_finally_counter := cv_finally_counter + v_finally_increment; // test referencing a local variable (in the main block)
+    if (cv_finally_counter > 0) {
+      log(p_exception_type); // test referencing a function parameter (in a sub-block)
+    }
     setverdict(pass);
   }
 }

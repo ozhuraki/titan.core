@@ -60,6 +60,7 @@ namespace Ttcn {
     }
     catch_blocks.clear();
     delete finally_block;
+    refd_local_defs.clear();
   }
 
   StatementBlock *StatementBlock::clone() const
@@ -284,6 +285,16 @@ namespace Ttcn {
     finally_block = p_finally;
   }
   
+  void StatementBlock::add_refd_local_def(Common::Assignment* p_def)
+  {
+    if (exception_handling != EH_OOP_FINALLY || p_def == NULL) {
+      FATAL_ERROR("StatementBlock::add_refd_local_defs");
+    }
+    if (!refd_local_defs.has_key(p_def)) {
+      refd_local_defs.add(p_def, NULL);
+    }
+  }
+  
   boolean StatementBlock::is_in_finally_block() const
   {
     if (exception_handling == EH_OOP_FINALLY) {
@@ -293,6 +304,17 @@ namespace Ttcn {
       return my_sb->is_in_finally_block();
     }
     return FALSE;
+  }
+  
+  StatementBlock* StatementBlock::get_finally_block()
+  {
+    if (exception_handling == EH_OOP_FINALLY) {
+      return this;
+    }
+    if (my_sb != NULL) {
+      return my_sb->get_finally_block();
+    }
+    FATAL_ERROR("StatementBlock::get_finally_block()");
   }
   
   boolean StatementBlock::is_empty() const
@@ -568,16 +590,85 @@ namespace Ttcn {
     if (finally_block != NULL) {
       string tmp_id = get_scope_mod_gen()->get_temporary_id();
 #if __cplusplus < 201103L
+      // the finally block's code is generated into the destructor of a newly created class;
+      // all local definitions, parameters and the TTCN_Location object are added to the class as members,
+      // so the destructor can reach them
       str = mputprintf(str,
         "class %s_finally {\n"
         "public:\n", tmp_id.c_str());
-      // TODO: all local declarations (or those referenced in the 'finally' block) need to
-      // be added as members of this class, so the destructor can reach them
+      
       if (include_location_info) {
-        str = mputprintf(str,
-          "TTCN_Location& current_location;\n"
-          "%s_finally(TTCN_Location& p_loc):current_location(p_loc) { }\n",
-          tmp_id.c_str());
+        str = mputstr(str, "TTCN_Location& current_location;\n");
+      }
+      for (size_t i = 0; i < finally_block->refd_local_defs.size(); ++i) {
+        bool is_const = false;
+        bool is_template = false;
+        Common::Assignment* def = finally_block->refd_local_defs.get_nth_key(i);
+        switch (def->get_asstype()) {
+        case Common::Assignment::A_PAR_TEMPL_IN:
+        case Common::Assignment::A_TEMPLATE:
+          is_template = true;
+          // fall through
+        case Common::Assignment::A_PAR_VAL:
+        case Common::Assignment::A_PAR_VAL_IN:
+        case Common::Assignment::A_CONST:
+          is_const = true;
+          break;
+        case Common::Assignment::A_VAR_TEMPLATE:
+        case Common::Assignment::A_PAR_TEMPL_INOUT:
+        case Common::Assignment::A_PAR_TEMPL_OUT:
+          is_template = true;
+          break;
+        default:
+          break;
+        }
+        str = mputprintf(str, "%s%s& %s;\n",
+          is_const ? "const " : "",
+          is_template ? def->get_Type()->get_genname_template(my_sb).c_str() : def->get_Type()->get_genname_value(my_sb).c_str(),
+          def->get_id().get_name().c_str());
+      }
+      if (include_location_info || finally_block->refd_local_defs.size() > 0) {
+        str = mputprintf(str, "%s_finally(", tmp_id.c_str());
+        if (include_location_info) {
+          str = mputstr(str, "TTCN_Location& p_loc");
+        }
+        for (size_t i = 0; i < finally_block->refd_local_defs.size(); ++i) {
+          bool is_const = false;
+          bool is_template = false;
+          Common::Assignment* def = finally_block->refd_local_defs.get_nth_key(i);
+          switch (def->get_asstype()) {
+          case Common::Assignment::A_PAR_TEMPL_IN:
+          case Common::Assignment::A_TEMPLATE:
+            is_template = true;
+            // fall through
+          case Common::Assignment::A_PAR_VAL:
+          case Common::Assignment::A_PAR_VAL_IN:
+          case Common::Assignment::A_CONST:
+            is_const = true;
+            break;
+          case Common::Assignment::A_VAR_TEMPLATE:
+          case Common::Assignment::A_PAR_TEMPL_INOUT:
+          case Common::Assignment::A_PAR_TEMPL_OUT:
+            is_template = true;
+            break;
+          default:
+            break;
+          }
+          str = mputprintf(str, "%s%s%s& p_%s",
+            include_location_info || i > 0 ? ", " : "", is_const ? "const " : "",
+            is_template ? def->get_Type()->get_genname_template(my_sb).c_str() : def->get_Type()->get_genname_value(my_sb).c_str(),
+            def->get_id().get_name().c_str());
+        }
+        str = mputstr(str, "): ");
+        if (include_location_info) {
+          str = mputstr(str, "current_location(p_loc)");
+        }
+        for (size_t i = 0; i < finally_block->refd_local_defs.size(); ++i) {
+          Common::Assignment* def = finally_block->refd_local_defs.get_nth_key(i);
+          str = mputprintf(str, "%s%s(p_%s)", include_location_info || i > 0 ? ", " : "",
+            def->get_id().get_name().c_str(), def->get_id().get_name().c_str());
+        }
+        str = mputstr(str, " { }\n");
       }
       str = mputprintf(str,
         "~%s_finally() {\n"
@@ -590,9 +681,20 @@ namespace Ttcn {
         "}\n"
         "}\n"
         "};\n"
-        "%s_finally %s%s;\n",
-        tmp_id.c_str(), tmp_id.c_str(),
-        include_location_info ? "(current_location)" : "");
+        "%s_finally %s",
+        tmp_id.c_str(), tmp_id.c_str());
+      if (include_location_info || finally_block->refd_local_defs.size() > 0) {
+        str = mputc(str, '(');
+        if (include_location_info) {
+          str = mputstr(str, "current_location");
+        }
+        for (size_t i = 0; i < finally_block->refd_local_defs.size(); ++i) {
+          str = mputprintf(str, "%s%s", include_location_info || i > 0 ? ", " : "",
+            finally_block->refd_local_defs.get_nth_key(i)->get_id().get_name().c_str());
+        }
+        str = mputc(str, ')');
+      }
+      str = mputstr(str, ";\n");
 #else
       // C++11 version:
       str = mputprintf(str,
@@ -9701,8 +9803,6 @@ error:
 
   char *Assignment::generate_code(char *str)
   {
-    // check if the LHS reference is a parameter, mark it as used if it is
-    ref->ref_usage_found();
     FieldOrArrayRefs *t_subrefs = ref->get_subrefs();
     const bool rhs_copied = self_ref;
     switch (asstype) {
