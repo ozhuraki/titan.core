@@ -28,14 +28,15 @@ exec expect "$0" "$@"
 ##                                                 ##
 ##  EXPECT script to automate TTCN-3 testing       ##
 ##                                                 ##
-##  ETH/RUS Tibor Csöndes       2003.05.22.  v1.1  ##
+##  ETH/RUS Tibor CsÃ¶ndes       2003.05.22.  v1.1  ##
 ##  ETH/RZX Janos Zoltan Szabo  2005.01.01.  v1.2  ##
-##  ETH/RZX Tibor Csöndes       2005.03.23.  v1.3  ##
-##  ETH/RZR Csaba Ráduly        2010.04.06.  v1.4  ##
+##  ETH/RZX Tibor CsÃ¶ndes       2005.03.23.  v1.3  ##
+##  ETH/RZR Csaba RÃ¡duly        2010.04.06.  v1.4  ##
 ##  ETH/XZD Jeno Balasko        2010.10.14   v1.5  ##
 ##  ETH/XZD Jeno Balasko        2011.11.23   v1.6  ##
 ##  ETH/XZR Adam Delic          2012.02.22   v1.7  ##
 ##  ETH     Adam Knapp          2021.03.03   v1.8  ##
+##  ETH     Adam Knapp          2021.04.15   v1.9  ##
 #####################################################
 
 puts "ttcn3_start: Starting the test suite"
@@ -143,6 +144,10 @@ set isJAR 0
 if {[string tolower [string range $ETS [expr [string length $ETS] - 4] end]] == ".exe"} {
     set ETS_basename [string range $ETS 0 [expr [string length $ETS] - 5]]
 } elseif {[string tolower [string range $ETS [expr [string length $ETS] - 4] end]] == ".jar"} {
+    set ETS_basename [string range $ETS 0 [expr [string length $ETS] - 5]]
+    set isJAR 1
+	check_java
+} elseif {[string tolower [string range $ETS [expr [string length $ETS] - 4] end]] == ".zip"} {
     set ETS_basename [string range $ETS 0 [expr [string length $ETS] - 5]]
     set isJAR 1
 	check_java
