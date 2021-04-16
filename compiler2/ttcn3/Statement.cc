@@ -588,115 +588,11 @@ namespace Ttcn {
       str = mputstr(str, "TTCN_TryBlock try_block;\n");
     }
     if (finally_block != NULL) {
-      string tmp_id = get_scope_mod_gen()->get_temporary_id();
 #if __cplusplus < 201103L
-      // the finally block's code is generated into the destructor of a newly created class;
-      // all local definitions, parameters and the TTCN_Location object are added to the class as members,
-      // so the destructor can reach them
-      str = mputprintf(str,
-        "class %s_finally {\n"
-        "public:\n", tmp_id.c_str());
-      
-      if (include_location_info) {
-        str = mputstr(str, "TTCN_Location& current_location;\n");
-      }
-      for (size_t i = 0; i < finally_block->refd_local_defs.size(); ++i) {
-        bool is_const = false;
-        bool is_template = false;
-        Common::Assignment* def = finally_block->refd_local_defs.get_nth_key(i);
-        switch (def->get_asstype()) {
-        case Common::Assignment::A_PAR_TEMPL_IN:
-        case Common::Assignment::A_TEMPLATE:
-          is_template = true;
-          // fall through
-        case Common::Assignment::A_PAR_VAL:
-        case Common::Assignment::A_PAR_VAL_IN:
-        case Common::Assignment::A_CONST:
-          is_const = true;
-          break;
-        case Common::Assignment::A_VAR_TEMPLATE:
-        case Common::Assignment::A_PAR_TEMPL_INOUT:
-        case Common::Assignment::A_PAR_TEMPL_OUT:
-          is_template = true;
-          break;
-        default:
-          break;
-        }
-        str = mputprintf(str, "%s%s& %s;\n",
-          is_const ? "const " : "",
-          is_template ? def->get_Type()->get_genname_template(my_sb).c_str() : def->get_Type()->get_genname_value(my_sb).c_str(),
-          def->get_id().get_name().c_str());
-      }
-      if (include_location_info || finally_block->refd_local_defs.size() > 0) {
-        str = mputprintf(str, "%s_finally(", tmp_id.c_str());
-        if (include_location_info) {
-          str = mputstr(str, "TTCN_Location& p_loc");
-        }
-        for (size_t i = 0; i < finally_block->refd_local_defs.size(); ++i) {
-          bool is_const = false;
-          bool is_template = false;
-          Common::Assignment* def = finally_block->refd_local_defs.get_nth_key(i);
-          switch (def->get_asstype()) {
-          case Common::Assignment::A_PAR_TEMPL_IN:
-          case Common::Assignment::A_TEMPLATE:
-            is_template = true;
-            // fall through
-          case Common::Assignment::A_PAR_VAL:
-          case Common::Assignment::A_PAR_VAL_IN:
-          case Common::Assignment::A_CONST:
-            is_const = true;
-            break;
-          case Common::Assignment::A_VAR_TEMPLATE:
-          case Common::Assignment::A_PAR_TEMPL_INOUT:
-          case Common::Assignment::A_PAR_TEMPL_OUT:
-            is_template = true;
-            break;
-          default:
-            break;
-          }
-          str = mputprintf(str, "%s%s%s& p_%s",
-            include_location_info || i > 0 ? ", " : "", is_const ? "const " : "",
-            is_template ? def->get_Type()->get_genname_template(my_sb).c_str() : def->get_Type()->get_genname_value(my_sb).c_str(),
-            def->get_id().get_name().c_str());
-        }
-        str = mputstr(str, "): ");
-        if (include_location_info) {
-          str = mputstr(str, "current_location(p_loc)");
-        }
-        for (size_t i = 0; i < finally_block->refd_local_defs.size(); ++i) {
-          Common::Assignment* def = finally_block->refd_local_defs.get_nth_key(i);
-          str = mputprintf(str, "%s%s(p_%s)", include_location_info || i > 0 ? ", " : "",
-            def->get_id().get_name().c_str(), def->get_id().get_name().c_str());
-        }
-        str = mputstr(str, " { }\n");
-      }
-      str = mputprintf(str,
-        "~%s_finally() {\n"
-        "try {\n", tmp_id.c_str());
-      str = finally_block->generate_code(str, def_glob_vars, src_glob_vars);
-      str = mputprintf(str,
-        "} catch (...) {\n"
-        "fprintf(stderr, \"Unhandled exception or dynamic test case error in a finally block. Terminating application.\\n\");\n"
-        "exit(EXIT_FAILURE);\n"
-        "}\n"
-        "}\n"
-        "};\n"
-        "%s_finally %s",
-        tmp_id.c_str(), tmp_id.c_str());
-      if (include_location_info || finally_block->refd_local_defs.size() > 0) {
-        str = mputc(str, '(');
-        if (include_location_info) {
-          str = mputstr(str, "current_location");
-        }
-        for (size_t i = 0; i < finally_block->refd_local_defs.size(); ++i) {
-          str = mputprintf(str, "%s%s", include_location_info || i > 0 ? ", " : "",
-            finally_block->refd_local_defs.get_nth_key(i)->get_id().get_name().c_str());
-        }
-        str = mputc(str, ')');
-      }
-      str = mputstr(str, ";\n");
+      str = finally_block->generate_code_finally(str, def_glob_vars, src_glob_vars);
 #else
       // C++11 version:
+      string tmp_id = get_scope_mod_gen()->get_temporary_id();
       str = mputprintf(str,
         "FINALLY %s([&] {\n", tmp_id.c_str());
       str = finally_block->generate_code(str, def_glob_vars, src_glob_vars);
@@ -746,6 +642,125 @@ namespace Ttcn {
         "}\n"); // end of the catch block
     }
     return str;
+  }
+  
+  char* StatementBlock::generate_code_finally(char* str, char*& def_glob_vars, char*& src_glob_vars)
+  {
+    // the finally block's code is generated into the destructor of a newly created class;
+    // all local definitions, parameters and the TTCN_Location object are added to the class as members,
+    // so the destructor can reach them
+    if (exception_handling != EH_OOP_FINALLY) {
+      FATAL_ERROR("StatementBlock::generate_code_finally");
+    }
+    string tmp_id = get_scope_mod_gen()->get_temporary_id();
+    str = mputprintf(str,
+      "class %s_finally {\n"
+      "public:\n", tmp_id.c_str());
+    
+    if (include_location_info) {
+      str = mputstr(str, "TTCN_Location& current_location;\n");
+    }
+    bool* is_const = NULL;
+    bool* is_template = NULL;
+    bool* is_shadowed = NULL;
+    if (refd_local_defs.size() > 0) {
+      is_const = new bool[refd_local_defs.size()];
+      is_template = new bool[refd_local_defs.size()];
+      is_shadowed = new bool[refd_local_defs.size()];
+    }
+    for (size_t i = 0; i < refd_local_defs.size(); ++i) {
+      is_const[i] = false;
+      is_template[i] = false;
+      is_shadowed[i] = false;
+      Common::Assignment* def = refd_local_defs.get_nth_key(i);
+      switch (def->get_asstype()) {
+      case Common::Assignment::A_PAR_TEMPL_IN:
+        is_template[i] = true;
+        // fall through
+      case Common::Assignment::A_PAR_VAL:
+      case Common::Assignment::A_PAR_VAL_IN: {
+        FormalPar* fpar = dynamic_cast<FormalPar*>(def);
+        if (fpar == NULL) {
+          FATAL_ERROR("StatementBlock::generate_code");
+        }
+        if (fpar->get_used_as_lvalue()) {
+          is_shadowed[i] = true;
+        }
+        else {
+          is_const[i] = true;
+        }
+        break; }
+      case Common::Assignment::A_CONST:
+        is_const[i] = true;
+        break;
+      case Common::Assignment::A_TEMPLATE:
+        is_const[i] = true;
+        // fall through
+      case Common::Assignment::A_VAR_TEMPLATE:
+      case Common::Assignment::A_PAR_TEMPL_INOUT:
+      case Common::Assignment::A_PAR_TEMPL_OUT:
+        is_template[i] = true;
+        break;
+      default:
+        break;
+      }
+      str = mputprintf(str, "%s%s& %s%s;\n",
+        is_const[i] ? "const " : "",
+        is_template[i] ? def->get_Type()->get_genname_template(my_sb).c_str() : def->get_Type()->get_genname_value(my_sb).c_str(),
+        def->get_id().get_name().c_str(), is_shadowed[i] ? "_shadow" : "");
+    }
+    if (include_location_info || refd_local_defs.size() > 0) {
+      str = mputprintf(str, "%s_finally(", tmp_id.c_str());
+      if (include_location_info) {
+        str = mputstr(str, "TTCN_Location& p_loc");
+      }
+      for (size_t i = 0; i < refd_local_defs.size(); ++i) {
+        Common::Assignment* def = refd_local_defs.get_nth_key(i);
+        str = mputprintf(str, "%s%s%s& p_%s",
+          include_location_info || i > 0 ? ", " : "", is_const[i] ? "const " : "",
+          is_template[i] ? def->get_Type()->get_genname_template(my_sb).c_str() : def->get_Type()->get_genname_value(my_sb).c_str(),
+          def->get_id().get_name().c_str());
+      }
+      str = mputstr(str, "): ");
+      if (include_location_info) {
+        str = mputstr(str, "current_location(p_loc)");
+      }
+      for (size_t i = 0; i < refd_local_defs.size(); ++i) {
+        Common::Assignment* def = refd_local_defs.get_nth_key(i);
+        str = mputprintf(str, "%s%s%s(p_%s)", include_location_info || i > 0 ? ", " : "",
+          def->get_id().get_name().c_str(), is_shadowed[i] ? "_shadow" : "", def->get_id().get_name().c_str());
+      }
+      str = mputstr(str, " { }\n");
+    }
+    str = mputprintf(str,
+      "~%s_finally() {\n"
+      "try {\n", tmp_id.c_str());
+    str = generate_code(str, def_glob_vars, src_glob_vars);
+    str = mputprintf(str,
+      "} catch (...) {\n"
+      "fprintf(stderr, \"Unhandled exception or dynamic test case error in a finally block. Terminating application.\\n\");\n"
+      "exit(EXIT_FAILURE);\n"
+      "}\n"
+      "}\n"
+      "};\n"
+      "%s_finally %s",
+      tmp_id.c_str(), tmp_id.c_str());
+    if (include_location_info || refd_local_defs.size() > 0) {
+      str = mputc(str, '(');
+      if (include_location_info) {
+        str = mputstr(str, "current_location");
+      }
+      for (size_t i = 0; i < refd_local_defs.size(); ++i) {
+        Common::Assignment* def = refd_local_defs.get_nth_key(i);
+        str = mputprintf(str, "%s%s%s", include_location_info || i > 0 ? ", " : "",
+          def->get_id().get_name().c_str(), is_shadowed[i] ? "_shadow" : "");
+      }
+      str = mputc(str, ')');
+    }
+    delete[] is_const;
+    delete[] is_template;
+    delete[] is_shadowed;
+    return mputstr(str, ";\n");
   }
 
   void StatementBlock::ilt_generate_code(ILT *ilt)

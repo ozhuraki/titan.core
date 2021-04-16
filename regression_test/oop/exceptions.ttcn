@@ -45,8 +45,9 @@ type component CT {
 type integer SmallNumber (-100..100);
 
 
-function test_block(in integer p_exception_type) runs on CT {
+function test_block(in integer p_exception_type, in charstring p_dummy := "a") runs on CT {
   var integer v_finally_increment := 1;
+  p_dummy := "abc";
   {
     select (p_exception_type) {
       case (1) {
@@ -119,6 +120,7 @@ function test_block(in integer p_exception_type) runs on CT {
   }
   finally {
     cv_finally_counter := cv_finally_counter + v_finally_increment; // test referencing a local variable (in the main block)
+    log(p_dummy); // test referencing a shadowed function parameter (in the main block)
     if (cv_finally_counter > 0) {
       log(p_exception_type); // test referencing a function parameter (in a sub-block)
     }
