@@ -182,6 +182,7 @@ namespace Ttcn {
       * '@update' statement. 
       * Also generates code for the alt-guards if this is the statement block of an altstep. */
     char* generate_code(char *str, char*& def_glob_vars, char*& src_glob_vars, AltGuards* alt_guards = NULL);
+    char* generate_code_finally(char* str, char*& def_glob_vars, char*& src_glob_vars);
     void ilt_generate_code(ILT *ilt);
 
     virtual void set_parent_path(WithAttribPath* p_path);
