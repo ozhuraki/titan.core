@@ -338,6 +338,13 @@ type class C20 extends C15 { //^In type definition//
   create() : f_embedded_types() { } //^In constructor definition// //^In super-constructor call// //Reference to constructor was expected instead of function//
 }
 
+function f_create() { //^In function definition//
+  var C0 x1 := C0.create alive; //^In variable definition// //Keyword `alive' cannot be used when creating an object of class type//
+  var Comp c1 := Comp.create("a", "b", "c"); //^In variable definition// //Operation `create' for a component type cannot have more than 2 parameters//
+  var Comp c2 := Comp.create(? length (3)); //^In variable definition// //A specific value without matching symbols was expected for the first parameter of operation `create'//
+  var Comp c3 := Comp.create("a", *); //^In variable definition// //A specific value without matching symbols was expected for the second parameter of operation `create'//
+}
+
 
 type class @final @abstract C21 { } //^In type definition// //Final classes cannot be abstract//
 

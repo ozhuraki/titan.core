@@ -5144,7 +5144,8 @@ namespace Common {
             // convert the parameter list to component 'create' parameters
             size_t nof_pars = u.expr.t_list2->get_nof_tis();
             if (nof_pars > 2) {
-              // error
+              u.expr.t_list2->error("Operation `create' for a component type cannot have more than 2 parameters");
+              goto error;
             }
             else {
               Value* name_val = NULL;
@@ -5157,7 +5158,9 @@ namespace Common {
                     name_val = name_par->get_Template()->get_Value();
                   }
                   else {
-                    // error
+                    name_par->error("A specific value without matching symbols was expected for the "
+                      "first parameter of operation `create'");
+                    goto error;
                   }
                 }
                 if (nof_pars == 2) {
@@ -5168,7 +5171,12 @@ namespace Common {
                       loc_val = loc_par->get_Template()->get_Value();
                     }
                     else {
-                      // error
+                      loc_par->error("A specific value without matching symbols was expected for the "
+                        "second parameter of operation `create'");
+                      if (name_val != NULL) {
+                        delete name_val;
+                      }
+                      goto error;
                     }
                   }
                 }
@@ -5181,7 +5189,8 @@ namespace Common {
           }
           else { // T_CLASS
             if (u.expr.b4) { // 'alive' keyword is set
-              // error
+              error("Keyword `alive' cannot be used when creating an object of class type");
+              goto error;
             }
             u.expr.v_optype = OPTYPE_CLASS_CREATE;
           }
