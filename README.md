@@ -83,11 +83,11 @@ Compressed update site and SHA512 checksum:
 
 * https://github.com/eclipse/titan.TestPorts.Common_Components.Abstract_Socket
 * https://github.com/eclipse/titan.TestPorts.Common_Components.Socket-API
-* https://github.com/eclipse/titan.TestPorts.HTTPmsg
-* https://github.com/eclipse/titan.TestPorts.IPL4asp
-* https://github.com/eclipse/titan.TestPorts.LANL2asp
-* https://github.com/eclipse/titan.TestPorts.LDAPasp_RFC4511
-* https://github.com/eclipse/titan.TestPorts.LDAPmsg
+* https://gitlab.eclipse.org/eclipse/titan/titan.TestPorts.HTTPmsg
+* https://gitlab.eclipse.org/eclipse/titan/titan.TestPorts.IPL4asp
+* https://gitlab.eclipse.org/eclipse/titan/titan.TestPorts.LANL2asp
+* https://gitlab.eclipse.org/eclipse/titan/titan.TestPorts.LDAPasp_RFC4511
+* https://gitlab.eclipse.org/eclipse/titan/titan.TestPorts.LDAPmsg
 * https://github.com/eclipse/titan.TestPorts.PCAPasp
 * https://github.com/eclipse/titan.TestPorts.PIPEasp
 * https://github.com/eclipse/titan.TestPorts.SCTPasp
