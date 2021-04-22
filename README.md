@@ -94,7 +94,7 @@ Compressed update site and SHA512 checksum:
 * https://gitlab.eclipse.org/eclipse/titan/titan.TestPorts.SIPmsg
 * https://gitlab.eclipse.org/eclipse/titan/titan.TestPorts.SQLasp
 * https://gitlab.eclipse.org/eclipse/titan/titan.TestPorts.SSHCLIENTasp
-* https://github.com/eclipse/titan.TestPorts.STDINOUTmsg
+* https://gitlab.eclipse.org/eclipse/titan/titan.TestPorts.STDINOUTmsg
 * https://github.com/eclipse/titan.TestPorts.SUNRPCasp
 * https://github.com/eclipse/titan.TestPorts.TCPasp
 * https://github.com/eclipse/titan.TestPorts.TELNETasp
