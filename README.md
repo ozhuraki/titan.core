@@ -6,7 +6,7 @@ ASN.1 (Abstract Syntax Notation One).
 
 # Standards page (also including downloadable code):
 
-* https://www.ttcn-3.org/
+* http://www.ttcn-3.org/
 
 # Main project page:
 
