@@ -594,7 +594,7 @@ namespace Ttcn {
       // C++11 version:
       string tmp_id = get_scope_mod_gen()->get_temporary_id();
       str = mputprintf(str,
-        "FINALLY %s([&] {\n", tmp_id.c_str());
+        "FINALLY_CPP11 %s([&] {\n", tmp_id.c_str());
       str = finally_block->generate_code(str, def_glob_vars, src_glob_vars);
       str = mputstr(str, "});\n");
 #endif
@@ -630,9 +630,18 @@ namespace Ttcn {
         "catch (EXCEPTION_BASE& exc_base) {\n");
       for (size_t i = 0; i < catch_blocks.size(); ++i) {
         Type* exc_type = catch_blocks[i]->get_stmt_byIndex(0)->get_def()->get_Type();
-        str = mputprintf(str,
-          "%sif (exc_base.has_type(\"%s\")) {\n",
-          i > 0 ? "else " : "", exc_type->get_exception_name().c_str());
+        Type* exc_type_last = exc_type->get_type_refd_last();
+        if (exc_type_last->get_typetype() == Common::Type::T_CLASS) {
+          ClassTypeBody* class_ = exc_type_last->get_class_type_body();
+          str = mputprintf(str,
+            "%sif (exc_base.is_class() && dynamic_cast<%s*>(exc_base.get_object()) != NULL) {\n",
+            i > 0 ? "else " : "", class_->is_built_in() ? "OBJECT" : exc_type_last->get_genname_own(this).c_str());
+        }
+        else {
+          str = mputprintf(str,
+            "%sif (exc_base.is_type(\"%s\")) {\n",
+            i > 0 ? "else " : "", exc_type->get_exception_name().c_str());
+        }
         str = catch_blocks[i]->generate_code(str, def_glob_vars, src_glob_vars, alt_guards);
         str = mputstr(str, "}\n");
       }
@@ -8742,32 +8751,18 @@ error:
       str = mputstr(str, expr.preamble);
     }
     Common::Type* exc_type = raise_op.v->get_expr_governor(Common::Type::EXPECTED_DYNAMIC_VALUE);
+    Common::Type* exc_type_last = exc_type->get_type_refd_last();
     string exc_type_str = exc_type->get_genname_value(my_sb);
-    string id_str = my_sb->get_scope_mod_gen()->get_temporary_id();
-    bool is_class = exc_type->get_type_refd_last()->get_typetype() == Common::Type::T_CLASS;
-    // the EXCEPTION class stores all the superclasses of the class type, too, since those
-    // can also catch this type of exception
-    int nof_exc_types = 1;
-    Type* t;
-    if (is_class) {
-      t = exc_type;
-      while (t != NULL) {
-        ++nof_exc_types;
-        t = t->get_type_refd_last()->get_class_type_body()->get_base_type();
-      }
+    if (exc_type_last->get_typetype() == Common::Type::T_CLASS) {
+      ClassTypeBody* class_ = exc_type_last->get_class_type_body();
+      str = mputprintf(str, "throw CLASS_EXCEPTION<%s>(new %s(%s));\n",
+        class_->is_built_in() ? "OBJECT" : exc_type_last->get_genname_own(my_sb).c_str(),
+        exc_type_str.c_str(), expr.expr);
     }
-    str = mputprintf(str, "const char** %s = new const char*[%i];\n",
-      id_str.c_str(), nof_exc_types);
-    t = exc_type;
-    for (int i = 0; i < nof_exc_types; ++i) {
-      if (i > 0) {
-        t = t->get_type_refd_last()->get_class_type_body()->get_base_type();
-      }
-      str = mputprintf(str,  "%s[%i] = \"%s\";\n",
-        id_str.c_str(), i, t != NULL ? t->get_exception_name().c_str() : "object");
+    else {
+      str = mputprintf(str, "throw NON_CLASS_EXCEPTION< %s >(new %s(%s), \"%s\");\n",
+        exc_type_str.c_str(), exc_type_str.c_str(), expr.expr, exc_type->get_exception_name().c_str());
     }
-    str = mputprintf(str, "throw EXCEPTION< %s >(new %s(%s), %s, %i);\n",
-      exc_type_str.c_str(), exc_type_str.c_str(), expr.expr, id_str.c_str(), nof_exc_types);
     if (expr.postamble != NULL) {
       str = mputstr(str, expr.postamble);
     }

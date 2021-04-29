@@ -5578,9 +5578,18 @@ namespace Ttcn {
   
   char* Def_Exception::generate_code_str(char *str)
   {
-    return usage_found ? mputprintf(str, "EXCEPTION< %s >& %s = static_cast<EXCEPTION< %s >&>(exc_base);\n",
-      type->get_genname_value(my_scope).c_str(), id->get_name().c_str(), type->get_genname_value(my_scope).c_str()) :
-      str;
+    if (!usage_found) {
+      return str;
+    }
+    Common::Type* type_last = type->get_type_refd_last();
+    if (type_last->get_typetype() == Common::Type::T_CLASS) {
+      ClassTypeBody* class_ = type_last->get_class_type_body();
+      string class_name = class_->is_built_in() ? string("OBJECT") : type_last->get_genname_own(my_scope);
+      return mputprintf(str, "CLASS_EXCEPTION<%s> %s(exc_base.get_object_ref().cast_to_dyn<%s>());\n",
+        class_name.c_str(), id->get_name().c_str(), class_name.c_str());
+    }
+    return mputprintf(str, "NON_CLASS_EXCEPTION<%s>& %s = static_cast<NON_CLASS_EXCEPTION<%s>&>(exc_base);\n",
+      type->get_genname_value(my_scope).c_str(), id->get_name().c_str(), type->get_genname_value(my_scope).c_str());
   }
 
   // =================================

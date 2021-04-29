@@ -208,6 +208,18 @@ public:
     }
     return OBJECT_REF<T2>(new_ptr);
   }
+  
+  template<typename T2>
+  OBJECT_REF<T2>* cast_to_dyn() const {
+    if (ptr == NULL) {
+      TTCN_error("Internal error: Casting a null reference");
+    }
+    T2* new_ptr = dynamic_cast<T2*>(ptr);
+    if (new_ptr == NULL) {
+      TTCN_error("Internal error: Invalid casting to class type `%s'", T2::class_name());
+    }
+    return new OBJECT_REF<T2>(new_ptr);
+  }
 };
 
 template<typename T>
@@ -224,36 +236,21 @@ boolean operator!=(null_type, const OBJECT_REF<T>& right_val) { // inequality op
 // ---------
 
 class EXCEPTION_BASE {
-private:
-  const char** exc_types;
-  size_t nof_types;
 protected:
   CHARSTRING exception_log; // this is set by the EXCEPTION class
 public:
-  EXCEPTION_BASE(const char** p_exc_types, size_t p_nof_types)
-  : exc_types(p_exc_types), nof_types(p_nof_types) { }
-  EXCEPTION_BASE(const EXCEPTION_BASE& p)
-  : exc_types(new const char*[p.nof_types]), nof_types(p.nof_types), exception_log(p.exception_log) {
-    for (size_t i = 0; i < nof_types; ++i) {
-      exc_types[i] = p.exc_types[i];
-    }
-  }
-  ~EXCEPTION_BASE() {
-    delete exc_types;
-  }
+  EXCEPTION_BASE() { }
+  EXCEPTION_BASE(const EXCEPTION_BASE& p): exception_log(p.exception_log) { }
+  virtual ~EXCEPTION_BASE() { }
   CHARSTRING get_log() const { return exception_log; }
-  boolean has_type(const char* type_name) const {
-    for (size_t i = 0; i < nof_types; ++i) {
-      if (strcmp(exc_types[i], type_name) == 0) {
-        return TRUE;
-      }
-    }
-    return FALSE;
-  }
+  virtual boolean is_class() const { return FALSE; }
+  virtual boolean is_type(const char* p_type_name) const { return FALSE; }
+  virtual OBJECT* get_object() const { return NULL; }
+  virtual OBJECT_REF<OBJECT> get_object_ref() { return OBJECT_REF<OBJECT>(); }
 };
 
 template<typename T>
-class EXCEPTION : public EXCEPTION_BASE {
+class NON_CLASS_EXCEPTION : public EXCEPTION_BASE {
 public:
   struct exception_struct {
     T* val_ptr;
@@ -261,20 +258,21 @@ public:
   };
 private:
   exception_struct* exc_ptr;
-  EXCEPTION operator=(const EXCEPTION&); // assignment disabled
+  const char* type_name;
+  NON_CLASS_EXCEPTION operator=(const NON_CLASS_EXCEPTION&); // assignment disabled
 public:
-  EXCEPTION(T* p_value, const char** p_exc_types, size_t p_nof_types)
-    : EXCEPTION_BASE(p_exc_types, p_nof_types), exc_ptr(new exception_struct) {
+  NON_CLASS_EXCEPTION(T* p_value, const char* p_type_name)
+  : EXCEPTION_BASE(), exc_ptr(new exception_struct), type_name(p_type_name) {
     exc_ptr->val_ptr = p_value;
     exc_ptr->ref_count = 1;
     exception_log = (TTCN_Logger::begin_event_log2str(),
       p_value->log(), TTCN_Logger::end_event_log2str());
   }
-  EXCEPTION(const EXCEPTION& p)
-    : EXCEPTION_BASE(p), exc_ptr(p.exc_ptr) {
+  NON_CLASS_EXCEPTION(const NON_CLASS_EXCEPTION& p)
+    : EXCEPTION_BASE(p), exc_ptr(p.exc_ptr), type_name(p.type_name) {
     ++exc_ptr->ref_count;
   }
-  ~EXCEPTION() {
+  virtual ~NON_CLASS_EXCEPTION() {
     --exc_ptr->ref_count;
     if (exc_ptr->ref_count == 0) {
       delete exc_ptr->val_ptr;
@@ -282,15 +280,58 @@ public:
     }
   }
   T& operator()() { return *exc_ptr->val_ptr; }
+  virtual boolean is_type(const char* p_type_name) const {
+    return strcmp(p_type_name, type_name) == 0;
+  }
 };
 
+template<typename T>
+class CLASS_EXCEPTION : public EXCEPTION_BASE {
+public:
+  struct exception_struct {
+    OBJECT_REF<T>* val_ptr;
+    size_t ref_count;
+  };
+private:
+  exception_struct* exc_ptr;
+  CLASS_EXCEPTION operator=(const CLASS_EXCEPTION&); // assignment disabled
+public:
+  CLASS_EXCEPTION(OBJECT_REF<T>* p_value)
+  : EXCEPTION_BASE(), exc_ptr(new exception_struct) {
+    exc_ptr->val_ptr = p_value;
+    exc_ptr->ref_count = 1;
+    exception_log = (TTCN_Logger::begin_event_log2str(),
+      p_value->log(), TTCN_Logger::end_event_log2str());
+  }
+  CLASS_EXCEPTION(const CLASS_EXCEPTION& p)
+    : EXCEPTION_BASE(p), exc_ptr(p.exc_ptr) {
+    ++exc_ptr->ref_count;
+  }
+  virtual ~CLASS_EXCEPTION() {
+    --exc_ptr->ref_count;
+    if (exc_ptr->ref_count == 0) {
+      delete exc_ptr->val_ptr;
+      delete exc_ptr;
+    }
+  }
+  OBJECT_REF<T>& operator()() { return *exc_ptr->val_ptr; }
+  virtual boolean is_class() const { return TRUE; }
+  virtual OBJECT* get_object() const {
+    return **exc_ptr->val_ptr;
+  }
+  virtual OBJECT_REF<OBJECT> get_object_ref() {
+    return exc_ptr->val_ptr->template cast_to<OBJECT>();
+  }
+};
+
+
 #if __cplusplus >= 201103L
-class FINALLY
+class FINALLY_CPP11
 {
   std::function<void(void)> functor;
 public:
-  FINALLY(const std::function<void(void)> &p_functor) : functor(p_functor) {}
-  ~FINALLY()
+  FINALLY_CPP11(const std::function<void(void)> &p_functor) : functor(p_functor) {}
+  ~FINALLY_CPP11()
   {
     try {
       functor();

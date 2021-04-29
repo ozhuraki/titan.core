@@ -76,6 +76,10 @@ function test_block(in integer p_exception_type, in charstring p_dummy := "a") r
       case (8) {
         raise Class2.create;
       }
+      case (9) {
+        var object x := Class.create();
+        raise x;
+      }
     }
     // otherwise don't raise anything
   }
@@ -129,12 +133,12 @@ function test_block(in integer p_exception_type, in charstring p_dummy := "a") r
 }
 
 testcase tc_exceptions_block() runs on CT {
-  for (var integer i := 1; i <= 8; i := i + 1) {
+  for (var integer i := 1; i <= 9; i := i + 1) {
     test_block(i);
   }
   test_block(200);
   
-  if (cv_finally_counter != 9) {
+  if (cv_finally_counter != 10) {
     setverdict(fail, "Invalid 'finally' execution count: ", cv_finally_counter);
   }
 }
