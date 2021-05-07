@@ -38,7 +38,7 @@ const universal charstring bstr_NewC1 :=
 "</NewC1>\n\n";
 
 const universal charstring estr_NewC1 :=
-"<NA:newC1 xmlns:NA='nsA' A1='1' A2='2'>-1000</NA:newC1>\n\n";
+"<A:newC1 xmlns:A='urn:nsA' A1='1' A2='2'>-1000</A:newC1>\n\n";
 
 DECLARE_XER_ENCODERS(NewC1, newc1);
 DECLARE_EXER_ENCODERS(NewC1, newc1);

@@ -1075,6 +1075,7 @@ void Type::chk_this_variant(const Ttcn::SingleWithAttrib* swa, bool global)
           jsonattrib = new JsonAST(t_refd->jsonattrib);
           new_json = true;
         }
+        bool xer_namespace_before = xerattrib->namespace_.uri != 0;
         int ret = parse_rawAST(rawattrib, textattrib, xerattrib, berattrib, jsonattrib,
           swa->get_attribSpec(), get_length_multiplier(), my_scope->get_scope_mod(), 
           raw_found, text_found, xer_found, ber_found, json_found, coding);
@@ -1092,6 +1093,9 @@ void Type::chk_this_variant(const Ttcn::SingleWithAttrib* swa, bool global)
             break;
           case CT_XER:
             mismatch = !xer_found;
+            if (!xer_namespace_before && xerattrib->namespace_.uri != 0 && global) {
+              xerattrib->namespace_.global_variant = true;
+            }
             break;
           case CT_JSON:
             mismatch = !json_found;
