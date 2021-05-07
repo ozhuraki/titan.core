@@ -11,11 +11,8 @@
  ******************************************************************************/
 module Issue545b {
 
-<<<<<<< HEAD
 // global namespace variants should no longer overwrite inherited namespace variants (issue #545)
 
-=======
->>>>>>> 97652b443bcdc798cfe153813828986f87dc8f2d
 import from Issue545a all;
 
 type record T2 {
