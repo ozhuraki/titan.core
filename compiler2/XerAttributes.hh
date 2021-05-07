@@ -83,6 +83,9 @@ struct NamespaceSpecification
   char * prefix; // for NAMESPACE
   char * target; // for TEXT
   };
+  /** Indicates whether the namespace was set by a global variant attribute 
+    * (i.e. group or module level attribute) */
+  bool global_variant;
 };
 
 inline void free_name_or_kw(char *s)

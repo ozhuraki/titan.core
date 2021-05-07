@@ -1,0 +1,58 @@
+/******************************************************************************
+ * Copyright (c) 2000-2021 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+module Issue545b {
+
+// global namespace variants should no longer overwrite inherited namespace variants (issue #545)
+
+import from Issue545a all;
+
+type record T2 {
+  T1 t1
+}
+
+external function f_enc(in T2 x) return octetstring
+with { extension "prototype(convert) encode(XER:XER_EXTENDED)" }
+
+external function f_dec(in octetstring x) return T2
+with { extension "prototype(convert) decode(XER:XER_EXTENDED)" }
+
+type component CT {}
+
+testcase tc_Issue545() runs on CT {
+  var T2 val := { t1 := { s := "abc" } };
+  var octetstring enc := f_enc(val);
+  var octetstring enc_exp := char2oct("<nsB:T2 xmlns:nsB='http://www.somewhere.com/B' xmlns:nsA='http://www.somewhere.com/A'>\n\t<nsA:t1>\n\t\t<nsA:s>abc</nsA:s>\n\t</nsA:t1>\n</nsB:T2>\n\n");
+  if (enc != enc_exp) {
+    setverdict(fail, "Encoding failed. Expected: ", enc_exp, ", got: ", enc);
+  }
+  else {
+    var T2 dec := f_dec(enc_exp);
+    if (dec != val) {
+      setverdict(fail, "Decoding failed. Expected: ", val, ", got: ", dec);
+    }
+    else {
+      setverdict(pass);
+    }
+  }
+}
+
+control {
+  execute(tc_Issue545());
+}
+
+}
+with {
+  encode "XML";
+  variant "namespace as 'http://www.somewhere.com/B' prefix 'nsB'";
+  variant "controlNamespace 'http://www.w3.org/2001/XMLSchema-instance' prefix 'xsi'";
+  variant "elementFormQualified";
+}

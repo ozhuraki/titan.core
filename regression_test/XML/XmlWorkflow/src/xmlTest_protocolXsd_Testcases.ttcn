@@ -152,8 +152,8 @@ const IntegratedSite c_mgw_integratedsite_pdu := {
 };
 
 
-const charstring c_mgw_integratedsite_encodedPdu:=
-"<IntegratedSite:IntegratedSite xmlns:IntegratedSite='http://www.ericsson.com/is/isco/IntegratedSite/R4L06/R4AB_1.02'>\n" &
+template charstring t_mgw_integratedsite_encodedPdu:= pattern
+"<IntegratedSite:IntegratedSite xmlns:IntegratedSite='http://www.ericsson.com/is/isco/IntegratedSite/R4L06/R4AB_1.02' xmlns:tq????='http://tail-f.com/ns/confd/1.0'>\n" &
 "\t<IntegratedSite:AdministrativeData>\n" &
 "\t\t<IntegratedSite:SystemRestart/>\n" &
 "\t</IntegratedSite:AdministrativeData>\n" &
@@ -161,7 +161,7 @@ const charstring c_mgw_integratedsite_encodedPdu:=
 "\t\t<IntegratedSite:BladeSystem>\n" &
 "\t\t\t<IntegratedSite:name>blade-1</IntegratedSite:name>\n" &
 "\t\t\t<IntegratedSite:alias>Blade of the immortal</IntegratedSite:alias>\n" &
-"\t\t\t<IntegratedSite:swgRef>swg17</IntegratedSite:swgRef>\n" &
+"\t\t\t<tq????:swgRef>swg17</tq????:swgRef>\n" &
 "\t\t\t<IntegratedSite:BsNetworkConfiguration/>\n" &
 "\t\t</IntegratedSite:BladeSystem>\n\t</IntegratedSite:BladeSystems>\n" &
 "\t<IntegratedSite:Hardware/>\n" &
@@ -338,15 +338,15 @@ with { extension "prototype(backtrack) decode(XER:XER_EXTENDED) errorbehavior(AL
 //=========================================================================
 //  f_encDecTest_MGW_IntegratedSite
 //=========================================================================
-function f_encDecTest_MGW_IntegratedSite(in IntegratedSite pl_pdu, in charstring pl_expectedEncodedPdu, in IntegratedSite pl_expectedDecodedPdu  ) {
+function f_encDecTest_MGW_IntegratedSite(in IntegratedSite pl_pdu, in template charstring pl_expectedEncodedPdu, in IntegratedSite pl_expectedDecodedPdu  ) {
   var octetstring vl_encodedPdu:=''O;
   f_enc_MGW_IntegratedSite(pl_pdu,vl_encodedPdu);
 
-  if(match(vl_encodedPdu,char2oct(pl_expectedEncodedPdu))) {
+  if(match(oct2char(vl_encodedPdu),pl_expectedEncodedPdu)) {
     setverdict(pass)
   } else {
     log("The encoded message: ",vl_encodedPdu);
-    setverdict(fail, match(vl_encodedPdu,char2oct(pl_expectedEncodedPdu)));
+    setverdict(fail, match(oct2char(vl_encodedPdu),pl_expectedEncodedPdu));
   }
   //log("===Checking value decoded from the encoded value vs expected value===");
   var IntegratedSite vl_decodedPdu;
@@ -476,7 +476,7 @@ testcase tc_XmlTest_MGW_HK84933_converter() runs on xmlTest_CT
 
 testcase tc_XmlTest_MGW_encDec() runs on xmlTest_CT
 {
-  f_encDecTest_MGW_IntegratedSite(c_mgw_integratedsite_pdu,c_mgw_integratedsite_encodedPdu,c_mgw_integratedsite_pdu);
+  f_encDecTest_MGW_IntegratedSite(c_mgw_integratedsite_pdu,t_mgw_integratedsite_encodedPdu,c_mgw_integratedsite_pdu);
 }
 
 testcase tc_XmlTest_PAP_converter() runs on xmlTest_CT
