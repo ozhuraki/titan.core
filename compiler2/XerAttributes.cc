@@ -68,6 +68,7 @@ XerAttributes::XerAttributes()
 {
   //__asm("int3");
   //fprintf(stderr, "XER attributes(%p) new\n", (void*)this);
+  namespace_.global_variant = false;
 }
 
 void FreeNamespaceRestriction(NamespaceRestriction& nsr)
@@ -121,6 +122,7 @@ void XerAttributes::FreeNamespace(NamespaceSpecification &ns) {
   ns.uri = 0;
   Free(ns.prefix);
   ns.prefix = 0;
+  ns.global_variant = false;
 }
 
 void XerAttributes::FreeNameChange(XerAttributes::NameChange& n) {
@@ -324,7 +326,9 @@ other.print("other");
     }
   }
 
-  if (other.namespace_.uri != 0) {
+  if (other.namespace_.uri != 0 &&
+      // global namespace variants should no longer overwrite inherited namespace variants (issue #545)
+      (namespace_.uri == 0 || !other.namespace_.global_variant)) {
     switch (namespace_.keyword) {
     case NamespaceSpecification::NO_MANGLING:
     case NamespaceSpecification::CAPITALIZED:

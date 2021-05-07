@@ -83,6 +83,7 @@ struct NamespaceSpecification
   char * prefix; // for NAMESPACE
   char * target; // for TEXT
   };
+  bool global_variant;
 };
 
 inline void free_name_or_kw(char *s)
