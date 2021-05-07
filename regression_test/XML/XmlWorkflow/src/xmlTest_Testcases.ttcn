@@ -1775,7 +1775,7 @@ group ComplexType {
         }
       }
     }
-    var charstring pl_expectedEncodedPdu:="<imp:purchaseReportImport xmlns:imp='www.XmlTest.org/complex_import' xmlns:r='www.XmlTest.org/complex_include' period='P3M' periodEnding='1999-12-31'>\n\t<imp:regions>\n\t\t<r:zip code='95819'>\n\t\t\t<r:part number='872-AA' quantity='1'/>\n\t\t\t<r:part number='926-AA' quantity='2'/>\n\t\t</r:zip>\n\t</imp:regions>\n\t<imp:parts>\n\t\t<r:part number='872-AA'>Lawnmower</r:part>\n\t\t<r:part number='926-AA'>Baby Monitor</r:part>\n\t</imp:parts>\n</imp:purchaseReportImport>\n\n";
+    var charstring pl_expectedEncodedPdu:="<imp:purchaseReportImport xmlns:imp='www.XmlTest.org/complex_import' xmlns:r='www.XmlTest.org/complex_include' period='P3M' periodEnding='1999-12-31'>\n\t<r:regions>\n\t\t<r:zip code='95819'>\n\t\t\t<r:part number='872-AA' quantity='1'/>\n\t\t\t<r:part number='926-AA' quantity='2'/>\n\t\t</r:zip>\n\t</r:regions>\n\t<r:parts>\n\t\t<r:part number='872-AA'>Lawnmower</r:part>\n\t\t<r:part number='926-AA'>Baby Monitor</r:part>\n\t</r:parts>\n</imp:purchaseReportImport>\n\n";
     //see http://www.w3.org/TR/xmlschema-0/#quartelyReport !
     f_encDecTest_PurchaseReportImport(pl_pdu,pl_expectedEncodedPdu,pl_pdu);
   }//tc_
