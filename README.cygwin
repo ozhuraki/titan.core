@@ -136,11 +136,11 @@ Cygwin setup
 	(K1)Get the latest source code from GitLab:
       - First time:
         cd ~/git
-		git clone https://git@gitlab.eclipse.org:eclipse/titan/titan.core.git
+        git clone https://gitlab.eclipse.org/eclipse/titan/titan.core.git
         //Folder titan.core will be created
       - Updating the already existing local repository:
         cd ~/git/titan.core
-        git pull https://git@gitlab.eclipse.org:eclipse/titan/titan.core.git
+        git pull https://gitlab.eclipse.org/eclipse/titan/titan.core.git
     
 	(K2) Download and install JDK from Oracle's download site:
      http://www.oracle.com/technetwork/java/javase/downloads/index.html

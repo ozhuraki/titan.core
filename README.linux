@@ -55,13 +55,13 @@ suse: sudo zypper install libpcap-devel libpcap1
 2.Clone or update the titan directory from git into /home/<user_id>/titan.core
 
 cd /home/<user_id>/
-git clone https://git@gitlab.eclipse.org:eclipse/titan/titan.core.git titan.core
+git clone https://gitlab.eclipse.org/eclipse/titan/titan.core.git titan.core
 
 or
 
 Update the already existing local repository:
 cd /home/<user_id>/titan.core
-git pull https://git@gitlab.eclipse.org:eclipse/titan/titan.core.git
+git pull https://gitlab.eclipse.org/eclipse/titan/titan.core.git
 
 3. Configure the build 
 
