@@ -67,7 +67,7 @@ The `Makefile` for a project can be generated using the Makefile generator tool 
 [source,subs="+quotes"]
 ** $TTCN3_DIR/bin/ttcn3_makefilegen [options] <Main module> {Module}* {Test_Port}* {Other_File}* **
 
-* `[options]` can be one or more of the options that are listed in the TITAN Programmer's Technical Reference for link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor].
+* `[options]` can be one or more of the options that are listed in the TITAN Programmer's Technical Reference for link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor].
 
 * `<Main module>` is the main TTCN–3 Core Language module. The argument can be either a file name (with or without path) or a module name. The name of the desired executable will be derived from the name of this module unless the `-e` option is used.
 
@@ -385,7 +385,7 @@ Creates or updates the object files created from the {cpp} source files. This co
 Creates Test Port skeleton header and source files for all port types in the input TTCN-3 modules. Existing Test Port files will not be overwritten.
 
 * `*make shared_objects*`
-Creates the shared object files from object files, compiled with `-fPIC`. This target is present only when dynamic linking is enabled. For detailed information, refer to the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer’s Reference].
+Creates the shared object files from object files, compiled with `-fPIC`. This target is present only when dynamic linking is enabled. For detailed information, refer to the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer’s Reference].
 
 * `*make run*`
 +
@@ -521,4 +521,4 @@ if applicable) should be added to `LD_LIBRARY_PATH` in addition to `$TTCN3_DIR/l
 Otherwise, the resulting executable may not run.
 If moving the executable from one machine to another,
 all the generated shared object (.so) files should be copied as well.
-For more information about the `-l` command line switch, please consult the  link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor].
+For more information about the `-l` command line switch, please consult the  link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor].

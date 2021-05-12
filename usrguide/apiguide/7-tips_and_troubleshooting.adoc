@@ -98,7 +98,7 @@ In unbuffered mode the message will be put into log immediately as a separate li
 [source, subs="+quotes"]
 static void TTCN_Logger::log(int severity, const char *fmt, …);
 
-The parameter severity is used for filtering the log messages. The allowed values of the parameter are listed in table "First level (coarse) log filtering" in the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[Programmer's Technical Reference]. We recommend using in Test Ports only `TTCN_WARNING`, `TTCN_ERROR` and `TTCN_DEBUG`. The parameter `fmt` is a pointer to a format string, which is interpreted as in `printf(3)`. The dots represent the optional additional parameters that are referred in format string. There is no need to put a newline character at the end of format string; otherwise the log file will contain an empty line after your entry.
+The parameter severity is used for filtering the log messages. The allowed values of the parameter are listed in table "First level (coarse) log filtering" in the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[Programmer's Technical Reference]. We recommend using in Test Ports only `TTCN_WARNING`, `TTCN_ERROR` and `TTCN_DEBUG`. The parameter `fmt` is a pointer to a format string, which is interpreted as in `printf(3)`. The dots represent the optional additional parameters that are referred in format string. There is no need to put a newline character at the end of format string; otherwise the log file will contain an empty line after your entry.
 
 Here is an example, which logs an integer value:
 [source]
@@ -132,7 +132,7 @@ In buffered mode, the following member functions are available.
 [[begin-event]]
 ==== begin_event
 
-`begin_event` creates a new empty event buffer within the logger. You have to pass the severity value, which will be valid for all fragments (the list of possible values can be found in the table "First level (coarse) log filtering" in the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[ Technical Reference]. If the logger already has an unfinished event when begin event is called the pending event will be pushed onto an internal stack of the logger. That event can be continued and completed after finishing the newly created event.
+`begin_event` creates a new empty event buffer within the logger. You have to pass the severity value, which will be valid for all fragments (the list of possible values can be found in the table "First level (coarse) log filtering" in the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[ Technical Reference]. If the logger already has an unfinished event when begin event is called the pending event will be pushed onto an internal stack of the logger. That event can be continued and completed after finishing the newly created event.
 [source, subs="+quotes"]
 static void TTCN_Logger::begin_event(int severity);
 

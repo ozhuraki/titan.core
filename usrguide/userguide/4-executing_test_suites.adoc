@@ -9,7 +9,7 @@ The behavior of the executable test program is described in the run-time configu
 
 Each section of the configuration file begins with a section name within square brackets. Different sections use different syntax, thus the section name determines the possible syntax of the members.
 
-Refer to the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor] for details of the runtime configuration file including descriptions of each of its sections and examples.
+Refer to the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor] for details of the runtime configuration file including descriptions of each of its sections and examples.
 [[Running-Non-parallel-Test-Suites]]
 == Running Non-parallel Test Suites
 
@@ -28,7 +28,7 @@ The ETS also accepts the command line options `-l` and `-v` with the following s
 
 * `*-l*`
 +
-Lists the names of all control parts and individually executable test cases of the ETS to standard output. The list is suitable as the `[EXECUTE]` section of a configuration file. Refer to link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor] for more details.
+Lists the names of all control parts and individually executable test cases of the ETS to standard output. The list is suitable as the `[EXECUTE]` section of a configuration file. Refer to link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor] for more details.
 
 * `*-p*`
 +
@@ -93,7 +93,7 @@ This section controls the behavior of the main controller when executing a test 
 
 TITAN processes the configuration file sequentially. If a section occurs several times in the configuration file, all sections will be processed without an error message.
 
-Refer to the corresponding chapter of the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor] for details of the runtime configuration file including descriptions of each of its sections and examples.
+Refer to the corresponding chapter of the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor] for details of the runtime configuration file including descriptions of each of its sections and examples.
 
 == Running Parallel Test Suites
 
@@ -149,7 +149,7 @@ Parallel Test Components are also instances of the same executable test program.
 [[the-ttcn-3-main-controller]]
 === The TTCN–3 Main Controller
 
-The binary executable of Main Controller is `$TTCN3_DIR/bin/mctr_cli`. It takes the optional configuration file (<<The-Run-time-Configuration-File, The Run-time Configuration File>>) as its single argument. The variables in the section `[MAIN CONTROLLER]` of the configuration file determine important MC properties, for detailed information refer to the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor].
+The binary executable of Main Controller is `$TTCN3_DIR/bin/mctr_cli`. It takes the optional configuration file (<<The-Run-time-Configuration-File, The Run-time Configuration File>>) as its single argument. The variables in the section `[MAIN CONTROLLER]` of the configuration file determine important MC properties, for detailed information refer to the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor].
 
 The Main Controller has two operation modes: interactive and batch mode. In interactive mode the user can control and monitor the test execution from a CLI. Batch mode is useful for automated and unattended execution of parallel and distributed tests. The actual operation mode depends on the configuration file and is determined at program startup. If the option `NumHCs` is set in the `[MAIN CONTROLLER]` section, the MC starts in batch mode, otherwise interactive mode is selected.
 
@@ -261,7 +261,7 @@ From version 1.3.pl0 the MC checks the version of each connected HC automaticall
 
 During test execution all test components create separate log files. Each log file has the same format as presented in non-parallel mode. Logging into the same, NFS shared directory makes the log analysis easier.
 
-The name of log files can be explicitly set in the configuration file using a metacharacter substitution mechanism. If the file names are not set, the backward compatible default naming convention is used. It is important to ensure that every component has its own unique log file name. Refer to the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor] for more details.
+The name of log files can be explicitly set in the configuration file using a metacharacter substitution mechanism. If the file names are not set, the backward compatible default naming convention is used. It is important to ensure that every component has its own unique log file name. Refer to the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor] for more details.
 
 In parallel mode the log messages sent to the console are transmitted through the network and printed on the user interface of MC in normal cases. Thus it is an unwise thing to log all messages to the console without filtering when the test suite is used for load generation. If the control connection from a TC or HC to MC is broken due to any error, the console log messages are written to the standard error of the ETS locally.
 
@@ -283,7 +283,7 @@ The messages coming from the standard output or standard error of MC, HC and the
 ====
 This script does not support distributed test execution when more than one HC has to be started.
 
-From TITAN version 7.2.1, `ttcn3_start` script also accepts executable JAR file type as the first input parameter. The JAR file shall contain a TITAN Java project, more specifically TTCN-3 codes are compiled by the TITAN Java compiler and packed into an executable JAR that starts in parallel mode. For more information please refer to https://github.com/eclipse/titan.EclipsePlug-ins/tree/master/org.eclipse.titan.executor/docs/Eclipse_Executor_userguide[User Guide of the TITAN Executor for the Eclipse IDE plug-in].
+From TITAN version 7.2.1, `ttcn3_start` script also accepts executable JAR file type as the first input parameter. The JAR file shall contain a TITAN Java project, more specifically TTCN-3 codes are compiled by the TITAN Java compiler and packed into an executable JAR that starts in parallel mode. For more information please refer to https://gitlab.eclipse.org/eclipse/titan/titan.EclipsePlug-ins/tree/master/org.eclipse.titan.executor/docs/Eclipse_Executor_userguide[User Guide of the TITAN Executor for the Eclipse IDE plug-in].
 ====
 
 Examples for the invocation of `ttcn3_start`:

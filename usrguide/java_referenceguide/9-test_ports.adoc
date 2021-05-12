@@ -185,7 +185,7 @@ Test Port parameters shall contain information which is independent from the TTC
 
 For instance, using Test Port parameters can be used to convey configuration data (that is, some options or extra information that is necessary for correct operation) or lower protocol layer addresses (for example, IP addresses).
 
-Test Port parameters shall be specified by the user of executable tests in the `[TESTPORT_PARAMETERS]` section of the run-time configuration file (see section `[TESTPORT_PARAMETERS]` in link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[Programmer's Technical Reference]). The parameters are maintained for each test port instance separately; wildcards can be used as well. In the latter case the parameter is passed to all Test Port matching the wildcard.
+Test Port parameters shall be specified by the user of executable tests in the `[TESTPORT_PARAMETERS]` section of the run-time configuration file (see section `[TESTPORT_PARAMETERS]` in link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[Programmer's Technical Reference]). The parameters are maintained for each test port instance separately; wildcards can be used as well. In the latter case the parameter is passed to all Test Port matching the wildcard.
 
 Each Test Port parameter must have a name, which must be unique within the Test Port only. The name must be a valid identifier, that is, it must begin with a letter and must contain alphanumerical characters only.
 
@@ -468,7 +468,7 @@ The address value stored in the port queue is used in `receive`, `trigger`, `get
 
 == Provider Port Types
 
-Test Ports that belong to port types marked with `extension` attribute `"provider"` have a slightly different API. Such port types are used to realize dual-faced ports, the details of which can be found in section "Dual-faced ports" in the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[Programmer's Technical Reference].
+Test Ports that belong to port types marked with `extension` attribute `"provider"` have a slightly different API. Such port types are used to realize dual-faced ports, the details of which can be found in section "Dual-faced ports" in the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[Programmer's Technical Reference].
 
 The purpose of this API is to allow the re-use of the Test Port class with other port types marked with attribute `user` or with ports with translation capability (link:https://www.etsi.org/deliver/etsi_es/202700_202799/202781/01.04.01_60/es_202781v010401p.pdf[Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: Configuration and Deployment Support]). The user port types may have different lists of incoming and outgoing message types. The transformations between incoming and outgoing messages, which are specified entirely by the attribute of the user port type, are done independently of the Test Port. The Test Port needs to support the sending and reception of message types that are listed in the provider port type.
 

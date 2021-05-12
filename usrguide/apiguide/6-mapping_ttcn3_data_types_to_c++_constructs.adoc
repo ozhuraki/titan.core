@@ -1853,7 +1853,7 @@ extern CHARSTRING encode_base64(const OCTETSTRING& msg);
 extern OCTETSTRING decode_base64(const CHARSTRING& b64);
 ----
 
-See the section "Additional predefined functions" in the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[ Programmer"s Technical Reference] for more details.
+See the section "Additional predefined functions" in the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[ Programmer"s Technical Reference] for more details.
 
 [[using-the-signature-classes]]
 == Using the Signature Classes

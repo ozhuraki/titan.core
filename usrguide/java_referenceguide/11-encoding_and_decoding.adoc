@@ -186,7 +186,7 @@ BER encoding and decoding is not yet supported on the Java side.
 
 == RAW
 
-You can use the encoding rules defined in the section "RAW encoder and decoder" in the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[Programmer's Technical Reference] to encode and decode the following TTCN–3 types:
+You can use the encoding rules defined in the section "RAW encoder and decoder" in the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[Programmer's Technical Reference] to encode and decode the following TTCN–3 types:
 
 * boolean
 
@@ -309,7 +309,7 @@ XML encoding and decoding is not yet supported on the Java side.
 
 == JSON
 
-The encoding rules defined in the section "JSON Encoder and Decoder" of the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[Programmer's Technical Reference] can be used to encode and decode the following TTCN–3 types:
+The encoding rules defined in the section "JSON Encoder and Decoder" of the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[Programmer's Technical Reference] can be used to encode and decode the following TTCN–3 types:
 
 * anytype
 

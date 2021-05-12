@@ -6,7 +6,7 @@ The purpose of this document is to provide detailed information on using the TIT
 
 == Target Groups
 
-This document is intended for users of the TITAN TTCN–3 Test Toolset. In addition to this document, readers requiring additional information on creating and building test suites or writing test ports are referred to the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor].
+This document is intended for users of the TITAN TTCN–3 Test Toolset. In addition to this document, readers requiring additional information on creating and building test suites or writing test ports are referred to the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor].
 
 NOTE: Test port writing requires a sound knowledge of {cpp} programming.
 

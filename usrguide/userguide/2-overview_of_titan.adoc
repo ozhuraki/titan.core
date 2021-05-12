@@ -1,7 +1,7 @@
 = Overview of TITAN
 
 This Test Executor is an implementation of the TTCN–3 Core Language standard with support of ASN.1. There are limitations to supported TTCN–3 language constructs in the Test Executor. In addition, there are some non-standard extensions to the TTCN–3 language implemented by TITAN. Information on these limitations and extensions and also some clarifications of how the standard has been implemented in TITAN, refer to the
-link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor].
+link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[TITAN Programmer's Technical Reference for TITAN TTCN-3 Test Executor].
 
 == Components
 

@@ -1905,7 +1905,7 @@ TitanCharString encode_base64(final TitanOctetString msg);
 TitanOctetString decode_base64(final TitanCharString b64);
 ----
 
-See the section "Additional predefined functions" in the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[ Programmer"s Technical Reference] for more details.
+See the section "Additional predefined functions" in the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[ Programmer"s Technical Reference] for more details.
 
 [[using-the-signature-classes]]
 == Using the Signature Classes
