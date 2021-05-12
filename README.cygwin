@@ -14,7 +14,7 @@ Please be aware that due to the incompatibility of EPL and GPL licenses, one may
 and distribute the result. ( see https://mmilinkov.wordpress.com/2010/04/06/epl-gpl-commentary/). However 
 from pure technical standpoint Titan can be compiled on GPL-licensed Cygwin as detailed below.
 
-Last tested cygwin version: 3.1.7
+Last tested cygwin version: 3.2.0
 
 Cygwin setup
     - If Cygwin is installed already, refresh your Cygwin installation
@@ -26,7 +26,7 @@ Cygwin setup
    (A) Download and execute the latest cygwin installer utility, 
        please use the 64-bit version installer:
        https://cygwin.com/setup-x86_64.exe
-       Latest setup version 2.904 (64 bit)
+       Latest setup version 2.908 (64 bit)
   
    (B) Select Install from Internet (recommended to save local disk space)
    
@@ -105,9 +105,9 @@ Cygwin setup
 
        Starting with Cygwin 1.7.34 or later, set "db_home" in file "/etc/nsswitch.conf".
        Fore example set:
-       "db_home:  /cygdrive/c/Users/<yourUserId>/My_Home".
+       "db_home:  /cygdrive/c/Users/<yourUserId>/Documents/My_Home".
 
-       After changing the your home directory,
+       After changing your home directory,
        copy the .bashrc and the .profile file from the old home directory to the new home directory
        (from <your cygwin installation directory>/home/<yourUserId> to "/cygdrive/c/Users/<yourUserId>/Documents/My_Home")
        
@@ -126,7 +126,7 @@ Cygwin setup
       Note: It is not a requirement, but is a kind of best practice to 
             place Titan into a subfolder within your "unix" home directory.
       Edit the <your cygwin installation directory>/home/<yourUserId>/.bashrc
-      file. Add these lines to it:
+      file ( or "/cygdrive/c/Users/<yourUserId>/Documents/My_Home/.bashrc"). Add these lines to it:
         export TTCN3_DIR=${HOME}/titan.core
         export PATH=${TTCN3_DIR}/bin:${PATH}
         export LD_LIBRARY_PATH=${TTCN3_DIR}/lib:${LD_LIBRARY_PATH}
