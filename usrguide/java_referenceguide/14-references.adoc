@@ -37,19 +37,19 @@
 * [12] link:https://tools.ietf.org/html/rfc3629[RFC3629: UTF-8, a transformation format of ISO 10646]
 
 [[_13]]
-* [13] link:https://github.com/eclipse/titan.core/blob/master/usrguide/userguide/[User Guide for TITAN TTCN-3 Test Executor]
+* [13] link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/userguide/[User Guide for TITAN TTCN-3 Test Executor]
 
 [[_14]]
-* [14] link:https://github.com/eclipse/titan.core/blob/master/usrguide/installationguide/[Installation guide for TITAN TTCN-3 Test Executor]
+* [14] link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/installationguide/[Installation guide for TITAN TTCN-3 Test Executor]
 
 [[_15]]
-* [15] link:https://github.com/eclipse/titan.core/blob/master/usrguide/releasenotes/[Release Notes for TITAN TTCN-3 Test Executor]
+* [15] link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/releasenotes/[Release Notes for TITAN TTCN-3 Test Executor]
 
 [[_16]]
-* [16] link:https://github.com/eclipse/titan.core/blob/master/usrguide/apiguide/[API Technical Reference for TITAN TTCN-3 Test Executor]
+* [16] link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/apiguide/[API Technical Reference for TITAN TTCN-3 Test Executor]
 
 [[_17]]
-* [17] link:https://github.com/eclipse/titan.EclipsePlug-ins/tree/master/org.eclipse.titan.designer/docs/Eclipse_Designer_userguide/[User Guide for the TITAN Designer for the Eclipse]
+* [17] link:https://gitlab.eclipse.org/eclipse/titan/titan.EclipsePlug-ins/tree/master/org.eclipse.titan.designer/docs/Eclipse_Designer_userguide/[User Guide for the TITAN Designer for the Eclipse]
 
 [[_18]]
 * [18] link:https://www.etsi.org/deliver/etsi_es/201800_201899/20187301/04.03.01_60/es_20187301v040301p.pdf[ETSI ES 201 373-1 V4.3.1 (2011-06)]
@@ -79,4 +79,4 @@
 * [26] link:https://www.etsi.org/deliver/etsi_es/202700_202799/202782/01.03.01_60/es_202782v010301p.pdf[ETSI ES 202 782 V1.3.1. (2015-06 Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: TTCN-3 Performance and Real Time Testing)]
 
 [[_27]]
-* [27] link:https://github.com/eclipse/titan.core/blob/master/usrguide/referenceguide/[Programmers' Technical Reference Guide for the TITAN TTCN-3 Toolset]
+* [27] link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/referenceguide/[Programmers' Technical Reference Guide for the TITAN TTCN-3 Toolset]

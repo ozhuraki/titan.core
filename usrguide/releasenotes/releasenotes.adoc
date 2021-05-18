@@ -112,13 +112,13 @@ This a bugfix release, with the following new features:
 
 This release introduces two major new features in the form of two new experimental Eclipse plug-ins:
 
-* a Java codegeneration plug-in, see: https://github.com/eclipse/titan.core/blob/master/usrguide/java_referenceguide/JavaReferenceGuide.adoc
+* a Java codegeneration plug-in, see: https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/java_referenceguide/JavaReferenceGuide.adoc
 
 and also:
-https://github.com/eclipse/titan.core/blob/master/usrguide/JavaCodegenExecTutorial.pdf
+https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/JavaCodegenExecTutorial.pdf
 
 * a Refactoring plug-in, see:
-https://github.com/eclipse/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium.refactoring/docs/Titanium_Refactoring_Description/Titanium_Refactoring_Description.adoc
+https://gitlab.eclipse.org/eclipse/titan/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium.refactoring/docs/Titanium_Refactoring_Description/Titanium_Refactoring_Description.adoc
 
 Apart from the above,  this version has the following new features of the Titan compiler and excutor:
 
@@ -1402,7 +1402,7 @@ Released on Jun 12, 2009
 
 * Support for XML encoding and decoding is introduced, together with a new command line tool that converts XSD files into TTCN-3 modules.
 
-* The TTCN-3 type Anytype is now supported with some restrictions (see section 4.2 of the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[Programmer Reference Guide]).
+* The TTCN-3 type Anytype is now supported with some restrictions (see section 4.2 of the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[Programmer Reference Guide]).
 
 * A new runtime was introduced, that requires much less code to be generated and compiled at the cost of minor decrease in runtime performance. The original runtime is advised to be used in load test scenarios (for this it is called load test runtime), while the new runtime is advised to be used in function test scenarios (for this it is called function test runtime).
 
@@ -2418,7 +2418,7 @@ Released on November 5, 2004.
 
 * Log Browser saves the configured view (columns shown) in the resource file.
 
-* The Configuration Editor of the GUI has been rewritten. Now it also handles the comments in the configuration file. The comments should be above the assignments. See Part II of the link:https://github.com/eclipse/titan.core/tree/master/usrguide/userguide[TITAN TTCN–3 User Guide] for further details.
+* The Configuration Editor of the GUI has been rewritten. Now it also handles the comments in the configuration file. The comments should be above the assignments. See Part II of the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/userguide[TITAN TTCN–3 User Guide] for further details.
 
 * The GUI does not open Process output tabs for the external text editor, Log browser and the font / look and feel configuration programs.
 
@@ -2911,7 +2911,7 @@ Released on September 19, 2003.
 
 * It is now possible to give a `match` operation as an argument to the TTCN–3 log statements. This logs the matching process field-by-field (like in case of failed receive statements) instead of the boolean result.
 
-* The following new Main Controller commands were introduced: `info`, `stop`, `pause`, `continue`, `log`. See Section 12.3.1 of the link:https://github.com/eclipse/titan.core/tree/master/usrguide/userguide[TITAN TTCN–3 User Guide] for details.
+* The following new Main Controller commands were introduced: `info`, `stop`, `pause`, `continue`, `log`. See Section 12.3.1 of the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/userguide[TITAN TTCN–3 User Guide] for details.
 
 *Fixed bugs*
 
@@ -3063,7 +3063,7 @@ Released on June 4, 2003.
 
 * When execution was started in parallel mode and the MC detected a version or module checksum mismatch for one of the HCs, the error message appeared only in the log file of the corresponding HC. Now the error message given by the MC (indicating the reason of the failure) is printed to the standard error of the HC as well.
 
-* The expect script called `*ttcn3 start*` (see Section 12.3.4 of the link:https://github.com/eclipse/titan.core/tree/master/usrguide/userguide[TITAN TTCN–3 User Guide] for details) was missing from the binary packages and the scripts delivered with versions 1.2.plx are not compatible with the command line interface of the new MC. A new version of the script was added to the packages. This seems to be more robust when handling console messages coming from the HC or TCs because the former one could cause deadlocks if the messages arrived too frequently.
+* The expect script called `*ttcn3 start*` (see Section 12.3.4 of the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/userguide[TITAN TTCN–3 User Guide] for details) was missing from the binary packages and the scripts delivered with versions 1.2.plx are not compatible with the command line interface of the new MC. A new version of the script was added to the packages. This seems to be more robust when handling console messages coming from the HC or TCs because the former one could cause deadlocks if the messages arrived too frequently.
 
 * When the `-l` command line switch was used with the ETS (in order to obtain the list of test cases and control parts) and the initialization of constants has failed the program exited with abort signal abnormally in both single and parallel modes. The exception caused by this fatal error is now caught and the program terminates with non-zero exit status after printing the error message.
 
@@ -3245,7 +3245,7 @@ Released on October 11, 2002.
 
 * The missing documentation of RAW and BER PDU encoders/decoders was added.
 
-* Two new log processing tools: `logmerge` and `logfilter`. See sections 13.1 and 13.2 of the link:https://github.com/eclipse/titan.core/tree/master/usrguide/userguide[TITAN TTCN–3 User Guide].
+* Two new log processing tools: `logmerge` and `logfilter`. See sections 13.1 and 13.2 of the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/userguide[TITAN TTCN–3 User Guide].
 
 * The ETSes can print the list of the test cases and modules.
 
@@ -3323,7 +3323,7 @@ Released on July 29, 2002.
 
 * The extra matching attributes (i.e.`ifpresent` or `length` matches) can be used for compound templates as well. Because of a mistake, the TTCN–3 BNF allows them only with single values.
 
-* New command line options of the compiler: `-n`, `-o`, `-p`, `-u` and `-w`. See the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN TTCN–3 Programmer´s Technical Reference] for details.
+* New command line options of the compiler: `-n`, `-o`, `-p`, `-u` and `-w`. See the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[TITAN TTCN–3 Programmer´s Technical Reference] for details.
 
 * The format of timestamps in log file can be configured. The event type names can also be logged for each event. These options are useful for log post-processing.
 
@@ -3380,7 +3380,7 @@ Released on February 11 2002.
 
 * The template attribute `ifpresent` is supported for optional record/set fields.
 
-* An HTML report generator was added to the official package. See Section 13.4 of the link:https://github.com/eclipse/titan.core/tree/master/usrguide/userguide[TITAN TTCN–3 User Guide] for details.
+* An HTML report generator was added to the official package. See Section 13.4 of the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/userguide[TITAN TTCN–3 User Guide] for details.
 
 *Fixed bugs*
 
@@ -3735,7 +3735,7 @@ Although there were no direct changes done to the testport API, the version hand
 
 * The version of gcc using the GCC_VERSION macro
 
-For more information please consult section 4.23.2 of the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN programmers reference guide].
+For more information please consult section 4.23.2 of the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[TITAN programmers reference guide].
 
 [[test-port-version-1-8-pl1]]
 == Version 1.8.pl1
@@ -3861,7 +3861,7 @@ No changes.
 [[test-port-version-1-5-pl0]]
 == Version 1.5.pl0
 
-* The {cpp} API for invoking the RAW and BER encoding/decoding functions has significantly changed. The purpose of changes was to provide a common, unified and more flexible interface for both encoding methods. See the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN TTCN–3 Programmer´s Technical Reference] for more details. (INCOMPATIBLE)
+* The {cpp} API for invoking the RAW and BER encoding/decoding functions has significantly changed. The purpose of changes was to provide a common, unified and more flexible interface for both encoding methods. See the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[TITAN TTCN–3 Programmer´s Technical Reference] for more details. (INCOMPATIBLE)
 
 [[test-port-version-1-4-pl5]]
 == Version 1.4.pl5
@@ -3904,7 +3904,7 @@ No changes.
 
 * The symbolic constants NULL ADDRESS, MTC ADDRESS and SYSTEM ADDRESS were renamed to NULL COMPREF, MTC COMPREF and SYSTEM COMPREF, respectively. (INCOMPATIBLE)
 
-* Usage of TTCN–3 `address` type is now supported. See the link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[TITAN TTCN–3 Programmer´s Technical Reference]. (ADDITION)
+* Usage of TTCN–3 `address` type is now supported. See the link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[TITAN TTCN–3 Programmer´s Technical Reference]. (ADDITION)
 
 [[test-port-version-1-2-pl4]]
 == Version 1.2.pl4
@@ -4019,9 +4019,9 @@ No changes.
 
 5. link:https://www.itu.int/rec/T-REC-X.682-200207-S[ITU-T, X.682, Information Technology Abstract Syntax Notation One (ASN.1): Constraint specification International Telecommunication Union, July 2002]
 
-6. link:https://github.com/eclipse/titan.core/blob/master/usrguide/installationguide/[Installation guide for TITAN TTCN-3 Test Executor]
+6. link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/installationguide/[Installation guide for TITAN TTCN-3 Test Executor]
 
-7. link:https://github.com/eclipse/titan.core/tree/master/usrguide/referenceguide[Programmer’s Technical Reference for TITAN TTCN-3 Executor]
+7. link:https://gitlab.eclipse.org/eclipse/titan/titan.core/tree/master/usrguide/referenceguide[Programmer’s Technical Reference for TITAN TTCN-3 Executor]
 
 
-8. link:https://github.com/eclipse/titan.core/blob/master/usrguide/userguide/[User Guide for TITAN TTCN-3 Test Executor]
+8. link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/userguide/[User Guide for TITAN TTCN-3 Test Executor]

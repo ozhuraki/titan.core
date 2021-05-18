@@ -1,4 +1,4 @@
-cd******************************************************************************
+******************************************************************************
 * Copyright (c) 2000-2021 Ericsson Telecom AB
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v2.0
@@ -55,13 +55,13 @@ suse: sudo zypper install libpcap-devel libpcap1
 2.Clone or update the titan directory from git into /home/<user_id>/titan.core
 
 cd /home/<user_id>/
-git clone https://github.com/eclipse/titan.core.git  titan.core
+git clone https://gitlab.eclipse.org/eclipse/titan/titan.core.git titan.core
 
 or
 
 Update the already existing local repository:
 cd /home/<user_id>/titan.core
-git pull https://github.com/eclipse/titan.core.git
+git pull https://gitlab.eclipse.org/eclipse/titan/titan.core.git
 
 3. Configure the build 
 

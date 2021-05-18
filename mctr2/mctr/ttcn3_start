@@ -37,6 +37,7 @@ exec expect "$0" "$@"
 ##  ETH/XZR Adam Delic          2012.02.22   v1.7  ##
 ##  ETH     Adam Knapp          2021.03.03   v1.8  ##
 ##  ETH     Adam Knapp          2021.04.15   v1.9  ##
+##  ETH     Adam Knapp          2021.05.12   v1.10 ##
 #####################################################
 
 puts "ttcn3_start: Starting the test suite"
@@ -262,7 +263,7 @@ expect {
 if {$isJAR == 0} {
     spawn $ETS $hostname $port
 } else {
-    spawn java -jar $ETS $hostname $port
+    spawn java -Dfile.encoding=UTF-8 -jar $ETS $hostname $port
 }
 set hc_id $spawn_id
 expect {
