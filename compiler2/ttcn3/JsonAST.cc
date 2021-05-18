@@ -62,6 +62,7 @@ JsonAST::JsonAST(const JsonAST *other_val)
     default_value.type = other_val->default_value.type;
     default_value.str = (NULL != other_val->default_value.str) ? mcopystr(other_val->default_value.str) : NULL;
     default_value.val = (NULL != other_val->default_value.val) ? other_val->default_value.val->clone() : NULL;
+    default_value.loc = (NULL != other_val->default_value.loc) ? new Common::Location(*other_val->default_value.loc) : NULL;
     as_number = other_val->as_number;
     for (size_t i = 0; i < other_val->schema_extensions.size(); ++i) {
       schema_extensions.add(new JsonSchemaExtension(*other_val->schema_extensions[i]));

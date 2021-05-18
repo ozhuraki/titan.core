@@ -86,7 +86,7 @@ typedef struct {
   boolean jsonOmitAsNull;
   boolean jsonMetainfoUnbound;
   const char* jsonAlias;
-  const char* jsonDefaultValue;
+  const char* jsonDefaultValue; // legacy default value
   rawAST_coding_taglist_list* jsonChosen;
   /** true if the field is a record-of or set-of with optimized memory allocation */
   boolean optimizedMemAlloc;

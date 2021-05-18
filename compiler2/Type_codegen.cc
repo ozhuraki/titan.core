@@ -3833,6 +3833,8 @@ void Type::generate_json_schema(JSON_Tokenizer& json, bool embedded, bool as_val
   }
   
   // insert default value (if any)
+  // todo: this prints a TTCN-3 value's string representation in case it's a standard-compliant
+  // default attribute, and not a legacy one...
   if (jsonattrib != NULL && jsonattrib->default_value.str != NULL) {
     json.put_next_token(JSON_TOKEN_NAME, "default");
     switch (last->typetype) {
