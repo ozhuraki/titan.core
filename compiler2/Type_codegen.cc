@@ -1113,23 +1113,21 @@ void Type::generate_code_jsondescriptor(output_struct *target)
   
   if (NULL == jsonattrib) {
     target->source.global_vars = mputprintf(target->source.global_vars,
-      "const TTCN_JSONdescriptor_t %s_json_ = { FALSE, NULL, FALSE, { JD_UNSET, NULL }, "
+      "const TTCN_JSONdescriptor_t %s_json_ = { FALSE, NULL, FALSE, { JD_UNSET, NULL, NULL }, "
       "FALSE, FALSE, %s, 0, NULL, FALSE, ESCAPE_AS_SHORT };\n"
       , get_genname_own().c_str(), as_map ? "TRUE" : "FALSE");
   } else {
     char* alias = jsonattrib->alias ? mputprintf(NULL, "\"%s\"", jsonattrib->alias) : NULL;
-    const char* def_type;
-    char* def_val = NULL;
+    
+    char* def_val;
     switch (jsonattrib->default_value.type) {
     case JsonAST::JD_UNSET:
-      def_type = "JD_UNSET";
+      def_val = mcopystr("{ JD_UNSET, NULL, NULL }");
       break;
     case JsonAST::JD_LEGACY:
-      def_type = "JD_LEGACY";
-      def_val = mprintf(".str = \"%s\"", jsonattrib->default_value.str);
+      def_val = mprintf("{ JD_LEGACY, \"%s\", NULL }", jsonattrib->default_value.str);
       break;
-    case JsonAST::JD_STANDARD:
-      def_type = "JD_STANDARD";
+    case JsonAST::JD_STANDARD: {
       Value* v = jsonattrib->default_value.val;
       const_def cdef;
       Code::init_cdef(&cdef);
@@ -1139,8 +1137,8 @@ void Type::generate_code_jsondescriptor(output_struct *target)
       target->functions.post_init = v->generate_code_init(target->functions.post_init, v->get_lhs_name().c_str());
       Code::merge_cdef(target, &cdef);
       Code::free_cdef(&cdef);
-      def_val = mprintf(".val = &%s", v->get_lhs_name().c_str());
-      break;
+      def_val = mprintf("{ JD_STANDARD, NULL, &%s }", v->get_lhs_name().c_str());
+      break; }
     }
     
     char* enum_texts_name;
@@ -1161,13 +1159,13 @@ void Type::generate_code_jsondescriptor(output_struct *target)
     }
     
     target->source.global_vars = mputprintf(target->source.global_vars,
-      "const TTCN_JSONdescriptor_t %s_json_ = { %s, %s, %s, { %s, %s }, %s, %s, %s, "
+      "const TTCN_JSONdescriptor_t %s_json_ = { %s, %s, %s, %s, %s, %s, %s, "
       "%d, %s, %s, %s };\n"
       , get_genname_own().c_str() 
       , jsonattrib->omit_as_null ? "TRUE" : "FALSE"
       , alias ? alias : "NULL"
       , (jsonattrib->as_value || jsonattrib->tag_list != NULL) ? "TRUE" : "FALSE"
-      , def_type, def_val ? def_val : "NULL"
+      , def_val
       , jsonattrib->metainfo_unbound ? "TRUE" : "FALSE"
       , jsonattrib->as_number ? "TRUE" : "FALSE"
       , as_map ? "TRUE" : "FALSE"

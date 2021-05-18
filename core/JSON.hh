@@ -68,10 +68,8 @@ struct TTCN_JSONdescriptor_t
     * Fields may have a default value set in case they don't appear in the JSON code. */
   struct {
     json_default_type type; /// indicates whether this field has a default value, and which type
-    union {
-      const char* str; /// legacy default value - contains a JSON value, it is decoded and assigned to this field
-      const Base_Type* val; /// standard-compliant default value - it is assigned to the field, no decoding needed
-    };
+    const char* str; /// legacy default value - contains a JSON value, it is decoded and assigned to this field
+    const Base_Type* val; /// standard-compliant default value - it is assigned to the field, no decoding needed
   } default_value;
   
   /** If set, encodes unbound fields of records and sets as null and inserts a
