@@ -57,7 +57,7 @@ with {
 type record Rec5 { //^In type definition// //Invalid attribute, 'as value' is only allowed for unions, the anytype, or records or sets with one mandatory field//
   integer f1, //Invalid attribute, 'omit as null' requires optional field of a record or set.//
   Rec4 f2, //USE-UNION can only be applied to a CHOICE/union type//
-  record of Rec3 f3 //Invalid attribute, 'name as ...' requires field of a record, set or union.// //Invalid JSON default value for type `@encode_SE.Rec5.f3'. Only the empty array is allowed.//
+  record of Rec3 f3 //Invalid attribute, 'name as ...' requires field of a record, set or union.// //^In JSON default value \(legacy\)// //Invalid JSON default value for type `@encode_SE.Rec5.f3'. Only the empty array is allowed.//
 }
 with {
   encode "RAW";
