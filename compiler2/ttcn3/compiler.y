@@ -76,11 +76,14 @@ const char *infile = NULL;
 
 static Ttcn::Module *act_ttcn3_module = NULL;
 static Ttcn::ErroneousAttributeSpec *act_ttcn3_erroneous_attr_spec = NULL;
+static Common::Value* act_json_default = NULL;
 bool is_erroneous_parsed = false;
+bool is_json_default_parsed = false;
 static void ttcn3_error(const char *str);
 static Group* act_group = NULL;
 extern string anytype_field(const string& type_name);
 static bool anytype_access = false;
+static bool parsing_error = false;
 
 #ifndef NDEBUG
 
@@ -649,6 +652,7 @@ static const string anyname("anytype");
  * This magic requires the presence of the unused keywords.
  * (It can return an ApplyKeyword if not preceded by a dot) */
 %token TitanErroneousHackKeyword
+%token TitanJsonDefaultHackKeyword
 %token ActionKeyword
 %token ActivateKeyword
 %token AddressKeyword
@@ -2082,11 +2086,12 @@ reduce in case of conflicts.
 GrammarRoot:
   TTCN3Module
   {
-    if (is_erroneous_parsed) {
+    if (is_erroneous_parsed || is_json_default_parsed) {
       delete act_ttcn3_module;
       act_ttcn3_module = NULL;
       Location loc(infile, @1);
-      loc.error("The erroneous attribute cannot be a TTCN-3 module.");
+      loc.error("The %s cannot be a TTCN-3 module.",
+        is_json_default_parsed ? "JSON default value" : "erroneous attribute");
     }
   }
 | TitanErroneousHackKeyword ErroneousAttributeSpec
@@ -2095,7 +2100,29 @@ GrammarRoot:
       delete act_ttcn3_erroneous_attr_spec;
       act_ttcn3_erroneous_attr_spec = NULL;
       Location loc(infile, @$);
-      loc.error("File `%s' does not contain a TTCN-3 module.", infile);
+      if (is_json_default_parsed) {
+        loc.error("JSON default value expected instead of erroneous attribute.");
+      }
+      else {
+        loc.error("File `%s' does not contain a TTCN-3 module.", infile);
+      }
+    }
+  }
+| TitanJsonDefaultHackKeyword Expression
+  {
+    act_json_default = $2;
+    if (!is_json_default_parsed || parsing_error) {
+      delete act_json_default;
+      act_json_default = NULL;
+      if (!is_json_default_parsed) {
+        Location loc(infile, @2);
+        if (is_erroneous_parsed) {
+          loc.error("Erroneous attribute expected instead of JSON default value.");
+        }
+        else {
+          loc.error("File `%s' does not contain a TTCN-3 module.", infile);
+        }
+      }
     }
   }
 | error
@@ -11431,6 +11458,7 @@ static void ttcn3_error(const char *str)
     // the most recently parsed token is unknown
     loc.error("%s", str);
   }
+  parsing_error = true;
 }
 
 int ttcn3_parse_file(const char* filename, boolean generate_code)
@@ -11448,6 +11476,7 @@ int ttcn3_parse_file(const char* filename, boolean generate_code)
   init_ttcn3_lex();
 
   is_erroneous_parsed = false;
+  is_json_default_parsed = false;
   NOTIFY("Parsing TTCN-3 module `%s'...", filename);
 
   int retval = ttcn3_parse();
@@ -11471,6 +11500,7 @@ Ttcn::ErroneousAttributeSpec* ttcn3_parse_erroneous_attr_spec_string(
   const char* p_str, const Common::Location& str_loc)
 {
   is_erroneous_parsed = true;
+  is_json_default_parsed = false;
   act_ttcn3_erroneous_attr_spec = NULL;
   string titan_err_str("$#&&&(#TITANERRONEOUS$#&&^#% ");
   size_t hack_str_len = titan_err_str.size();
@@ -11488,6 +11518,30 @@ Ttcn::ErroneousAttributeSpec* ttcn3_parse_erroneous_attr_spec_string(
   free_dot_flag_stuff();
 
   return act_ttcn3_erroneous_attr_spec;
+}
+
+Common::Value* ttcn3_parse_json_default(
+  const char* p_str, const Common::Location& str_loc)
+{
+  is_erroneous_parsed = false;
+  is_json_default_parsed = true;
+  act_json_default = NULL;
+  string titan_err_str("$#&&&(#TITANJSONDEFAULT$#&&^#% ");
+  size_t hack_str_len = titan_err_str.size();
+  string *parsed_string = parse_charstring_value(p_str, str_loc);
+  titan_err_str += *parsed_string;
+  delete parsed_string;
+  init_erroneous_lex(str_loc.get_filename(), str_loc.get_first_line(), str_loc.get_first_column()-hack_str_len+1);
+  yy_buffer_state *flex_buffer = ttcn3__scan_string(titan_err_str.c_str());
+  if (flex_buffer == NULL) {
+    ERROR("Flex buffer creation failed.");
+    return NULL;
+  }
+  yyparse();
+  ttcn3_lex_destroy();
+  free_dot_flag_stuff();
+
+  return act_json_default;
 }
 
 #ifndef NDEBUG

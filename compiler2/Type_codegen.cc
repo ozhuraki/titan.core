@@ -1113,13 +1113,35 @@ void Type::generate_code_jsondescriptor(output_struct *target)
   
   if (NULL == jsonattrib) {
     target->source.global_vars = mputprintf(target->source.global_vars,
-      "const TTCN_JSONdescriptor_t %s_json_ = { FALSE, NULL, FALSE, NULL, "
+      "const TTCN_JSONdescriptor_t %s_json_ = { FALSE, NULL, FALSE, { JD_UNSET, NULL }, "
       "FALSE, FALSE, %s, 0, NULL, FALSE, ESCAPE_AS_SHORT };\n"
       , get_genname_own().c_str(), as_map ? "TRUE" : "FALSE");
   } else {
     char* alias = jsonattrib->alias ? mputprintf(NULL, "\"%s\"", jsonattrib->alias) : NULL;
-    char* def_val = jsonattrib->default_value ?
-      mputprintf(NULL, "\"%s\"", jsonattrib->default_value) : NULL;
+    const char* def_type;
+    char* def_val = NULL;
+    switch (jsonattrib->default_value.type) {
+    case JsonAST::JD_UNSET:
+      def_type = "JD_UNSET";
+      break;
+    case JsonAST::JD_LEGACY:
+      def_type = "JD_LEGACY";
+      def_val = mprintf(".str = \"%s\"", jsonattrib->default_value.str);
+      break;
+    case JsonAST::JD_STANDARD:
+      def_type = "JD_STANDARD";
+      Value* v = jsonattrib->default_value.val;
+      const_def cdef;
+      Code::init_cdef(&cdef);
+      generate_code_object(&cdef, v, false);
+      // Generate the initialization of the default values in the post init function
+      // because the module parameters are not initialized in the pre init function
+      target->functions.post_init = v->generate_code_init(target->functions.post_init, v->get_lhs_name().c_str());
+      Code::merge_cdef(target, &cdef);
+      Code::free_cdef(&cdef);
+      def_val = mprintf(".val = &%s", v->get_lhs_name().c_str());
+      break;
+    }
     
     char* enum_texts_name;
     if (0 != jsonattrib->enum_texts.size()) {
@@ -1139,13 +1161,13 @@ void Type::generate_code_jsondescriptor(output_struct *target)
     }
     
     target->source.global_vars = mputprintf(target->source.global_vars,
-      "const TTCN_JSONdescriptor_t %s_json_ = { %s, %s, %s, %s, %s, %s, %s, "
+      "const TTCN_JSONdescriptor_t %s_json_ = { %s, %s, %s, { %s, %s }, %s, %s, %s, "
       "%d, %s, %s, %s };\n"
       , get_genname_own().c_str() 
       , jsonattrib->omit_as_null ? "TRUE" : "FALSE"
       , alias ? alias : "NULL"
       , (jsonattrib->as_value || jsonattrib->tag_list != NULL) ? "TRUE" : "FALSE"
-      , def_val ? def_val : "NULL"
+      , def_type, def_val ? def_val : "NULL"
       , jsonattrib->metainfo_unbound ? "TRUE" : "FALSE"
       , jsonattrib->as_number ? "TRUE" : "FALSE"
       , as_map ? "TRUE" : "FALSE"
@@ -1895,7 +1917,7 @@ void Type::generate_code_Se(output_struct *target)
     if (type->jsonattrib) {
       cur.jsonOmitAsNull = type->jsonattrib->omit_as_null;
       cur.jsonAlias = type->jsonattrib->alias;
-      cur.jsonDefaultValue = type->jsonattrib->default_value;
+      cur.jsonDefaultValue = type->jsonattrib->default_value.str;
       cur.jsonMetainfoUnbound = type->jsonattrib->metainfo_unbound;
       if (type->jsonattrib->tag_list != NULL) {
         rawAST_tag_list* tag_list = type->jsonattrib->tag_list;
@@ -3811,18 +3833,18 @@ void Type::generate_json_schema(JSON_Tokenizer& json, bool embedded, bool as_val
   }
   
   // insert default value (if any)
-  if (jsonattrib != NULL && jsonattrib->default_value != NULL) {
+  if (jsonattrib != NULL && jsonattrib->default_value.str != NULL) {
     json.put_next_token(JSON_TOKEN_NAME, "default");
     switch (last->typetype) {
     case T_BOOL:
-      json.put_next_token((jsonattrib->default_value[0] == 't') ?
+      json.put_next_token((jsonattrib->default_value.str[0] == 't') ?
         JSON_TOKEN_LITERAL_TRUE : JSON_TOKEN_LITERAL_FALSE);
       break;
     case T_INT:
     case T_REAL:
-      if (jsonattrib->default_value[0] != 'n' && jsonattrib->default_value[0] != 'i'
-          && jsonattrib->default_value[1] != 'i') {
-        json.put_next_token(JSON_TOKEN_NUMBER, jsonattrib->default_value);
+      if (jsonattrib->default_value.str[0] != 'n' && jsonattrib->default_value.str[0] != 'i'
+          && jsonattrib->default_value.str[1] != 'i') {
+        json.put_next_token(JSON_TOKEN_NUMBER, jsonattrib->default_value.str);
         break;
       }
       // no break, insert the special float values as strings
@@ -3833,7 +3855,7 @@ void Type::generate_json_schema(JSON_Tokenizer& json, bool embedded, bool as_val
     case T_USTR:
     case T_VERDICT:
     case T_ENUM_T: {
-      char* default_str = mprintf("\"%s\"", jsonattrib->default_value);
+      char* default_str = mprintf("\"%s\"", jsonattrib->default_value.str);
       json.put_next_token(JSON_TOKEN_STRING, default_str);
       Free(default_str);
       break; }

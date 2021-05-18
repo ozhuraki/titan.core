@@ -1860,7 +1860,8 @@ XAsValue:
 ;
 
 XDefault:
-  XKWdefault XOptSpaces XJsonValue { jsonstruct->default_value = $3; }
+  XKWdefault XOptSpaces XJsonValue
+  { jsonstruct->default_value.str = $3; jsonstruct->default_value.type = JsonAST::JD_LEGACY; }
 ;
 
 XExtend:
@@ -1938,7 +1939,12 @@ JAsValue:
 ;
 
 JDefault:
-  XKWdefault XOptSpaces XJsonValue XOptSpaces { jsonstruct->default_value = $3; } 
+  XKWdefault XOptSpaces XJsonValue XOptSpaces
+  {
+    jsonstruct->default_value.str = $3;
+    jsonstruct->default_value.type = JsonAST::JD_STANDARD;
+    jsonstruct->default_value.loc = new Common::Location(infile, @3);
+  }
 ;
 
 JExtend:

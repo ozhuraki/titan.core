@@ -2195,10 +2195,10 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
     
     // JSON decode
     src = mputprintf(src,
-      "int %s::JSON_decode(const TTCN_Typedescriptor_t&%s, JSON_Tokenizer& p_tok, "
+      "int %s::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, "
       "boolean p_silent, boolean, int p_chosen_field)\n"
       "{\n"
-      , name, sdef->nElements > 0 && !sdef->jsonAsValue ? " p_td" : "");
+      , name);
     if (sdef->nElements > 0) {
       src = mputprintf(src,
         "  if (0 <= p_chosen_field && %d > p_chosen_field) {\n"
@@ -2211,10 +2211,14 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
           , (int)i, at_field, sdef->elements[i].name
           , sdef->elements[i].typedescrname);
       }
-      src = mputstr(src, 
+      src = mputprintf(src, 
         "    }\n"
         "  }\n"
-        "  json_token_t j_token = JSON_TOKEN_NONE;\n");
+        "  if (p_td.json->default_value.type == JD_STANDARD && 0 == p_tok.get_buffer_length()) {\n"
+        "    *this = *static_cast<const %s*>(p_td.json->default_value.val);\n"
+        "    return 0;\n"
+        "  }\n"
+        "  json_token_t j_token = JSON_TOKEN_NONE;\n", name);
       if (!sdef->jsonAsValue) {
         src = mputstr(src,
           " if (p_td.json->as_value) {\n");

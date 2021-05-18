@@ -770,9 +770,13 @@ int BOOLEAN::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_to
 {
   json_token_t token = JSON_TOKEN_NONE;
   size_t dec_len = 0;
-  if (p_td.json->default_value && 0 == p_tok.get_buffer_length()) {
+  if (p_td.json->default_value.type == JD_STANDARD && 0 == p_tok.get_buffer_length()) {
+    *this = *static_cast<const BOOLEAN*>(p_td.json->default_value.val);
+    return dec_len;
+  }
+  if (p_td.json->default_value.type == JD_LEGACY && 0 == p_tok.get_buffer_length()) {
     // No JSON data in the buffer -> use default value
-    if (strcmp(p_td.json->default_value, "true") == 0) {
+    if (strcmp(p_td.json->default_value.str, "true") == 0) {
       token = JSON_TOKEN_LITERAL_TRUE;
     } 
     else {

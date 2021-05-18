@@ -20,6 +20,7 @@ class TTCN_Buffer;
 class JSON_Tokenizer;
 class CHARSTRING;
 class INTEGER;
+class Base_Type;
 
 /** Enumerated text change structure */
 struct JsonEnumText {
@@ -32,6 +33,12 @@ enum json_string_escaping {
   ESCAPE_AS_SHORT, /* use short escapes wherever possible (e.g. '\n', '\\', etc.)*/
   ESCAPE_AS_USI, /* use USI escapes in all cases (i.e. '\u' followed by 4 hex nibbles) */
   ESCAPE_AS_TRANSPARENT /* do not escape anything, except control characters */
+};
+
+enum json_default_type {
+  JD_UNSET, // no default value set
+  JD_LEGACY, // legacy default value set through the 'JSON: default' variant attribute
+  JD_STANDARD // standard-compliant default value set through the 'default' variant attribute
 };
 
 /** Descriptor for JSON encoding/decoding during runtime */
@@ -58,8 +65,14 @@ struct TTCN_JSONdescriptor_t
   boolean as_value;
   
   /** Decoding only.
-    * Fields that don't appear in the JSON code will decode this value instead. */
-  const char* default_value;
+    * Fields may have a default value set in case they don't appear in the JSON code. */
+  struct {
+    json_default_type type; /// indicates whether this field has a default value, and which type
+    union {
+      const char* str; /// legacy default value - contains a JSON value, it is decoded and assigned to this field
+      const Base_Type* val; /// standard-compliant default value - it is assigned to the field, no decoding needed
+    };
+  } default_value;
   
   /** If set, encodes unbound fields of records and sets as null and inserts a
     * meta info field into the JSON object specifying that the field is unbound.

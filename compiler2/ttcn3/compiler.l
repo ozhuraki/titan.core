@@ -197,6 +197,7 @@ LINEMARKER {NUMBER}{WHITESPACE}+\"([^\\\"\r\n]|\\[^\r\n])*\"
 UID [uU][+]?[0-9A-Fa-f]{1,8}
 
 TITAN "$#&&&(#TITANERRONEOUS$#&&^#% "
+TITAN2 "$#&&&(#TITANJSONDEFAULT$#&&^#% "
 
 %x SC_blockcomment SC_cstring
 %x SC_binstring SC_binstring_bad
@@ -244,6 +245,10 @@ TITAN "$#&&&(#TITANERRONEOUS$#&&^#% "
                  current_column + yyleng);
     loc.error("Unexpected `%s'.", yytext);
   }
+}
+
+{TITAN2} {
+  RETURN(TitanJsonDefaultHackKeyword);
 }
 
 	/* Eat up comments and whitespaces */

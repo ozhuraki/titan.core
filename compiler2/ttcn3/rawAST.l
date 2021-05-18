@@ -491,7 +491,7 @@ literal       RETURN(XKWliteral);
   else yylval.str = mcopystr(yytext);
   RETURN(XJsonValueSegment);
 }
-[)]           { BEGIN(jsoncodec); RETURN(XJsonValueEnd); }
+[)]           { BEGIN(INITIAL); RETURN(XJsonValueEnd); }
 [\"][\"]      { yylval.str = mcopystr("\\\""); RETURN(XJsonValueSegment); }
 [^\"\\)]+     { yylval.str = mcopystr(yytext); RETURN(XJsonValueSegment); }
 }

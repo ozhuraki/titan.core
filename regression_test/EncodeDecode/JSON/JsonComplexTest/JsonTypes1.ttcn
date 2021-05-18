@@ -188,6 +188,81 @@ type record RecDef {
   variant(b) "JSON:default(false)";
 }
 
+type record RecDef2 {
+  integer i,
+  float f,
+  boolean b optional,
+  bitstring bs,
+  hexstring hs,
+  octetstring os,
+  charstring cs,
+  universal charstring ucs,
+  enumerated { Tiny, Small, Medium, Large, Huge } size,
+  verdicttype vt
+} with {
+  variant(cs) "default(\"empty\")";
+  variant(i) "default(-19)";
+  variant(f) "default(1.0e6)";
+  variant(size) "default(Tiny)";
+  variant(os) "default('1DE7'O)";
+  variant(ucs) "default(""üres"")";
+  variant(bs) "default ('101'B)";
+  variant(hs) "default('DEAD'H)";
+  variant(vt) "default(fail)";
+  variant(b) "default(false)";
+}
+
+type record Product2 {
+	charstring name,
+	float price,
+	octetstring id optional,
+	charstring origin,
+	universal charstring text
+}
+with {
+	variant(id) "default ('FFFF'O)"
+	variant(origin) "default(""Hungary"")"
+	variant(text) "default (char(1,2,3,4\) & char(5,6,7,8\) & ""?"")"
+}
+
+type record Shopping_cart {
+	charstring name,
+	Product2 product
+} with {
+	variant(product) "default ({""Shirt"", 12.99, omit, ""Hungary"", ""available"" })"
+}
+
+const Product2 c_defaultProduct := {	
+	name := "Size ""M"" Shirt",
+	price := 12.99,
+	id := omit,
+	origin := "Hungary",
+	text := "available"
+}
+
+type record Shopping_cart_2 {
+	charstring name,
+	Product2 product
+} with {
+	variant(product) "default (c_defaultProduct)"
+}
+
+type union Uni {
+  integer i,
+  charstring cs
+}
+
+type record RecDef3 {
+  EmptyRec er,
+  Uni u,
+  RoI roi
+}
+with {
+  variant (er) "default ( { } )";
+  variant (u) "default ({ i := -6 })";
+  variant (roi) "default ({1,2,3})";
+}
+
 type record HasPardType {
   ProtocolElem_Field1 pard,
   boolean buul,

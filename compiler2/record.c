@@ -3266,10 +3266,13 @@ void gen_xer(const struct_def *sdef, char **pdef, char **psrc)
 char* generate_json_decoder(char* src, const struct_def* sdef)
 {
   src = mputprintf(src,
-    "int %s::JSON_decode(const TTCN_Typedescriptor_t&%s, JSON_Tokenizer& p_tok, "
+    "int %s::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, "
     "boolean p_silent, boolean p_parent_is_map, int)\n"
-    "{\n", sdef->name,
-    ((sdef->nElements == 1 && !sdef->jsonAsValue) || sdef->jsonAsMapPossible) ? " p_td" : "");
+    "{\n"
+    "  if (p_td.json->default_value.type == JD_STANDARD && 0 == p_tok.get_buffer_length()) {\n"
+    "    *this = *static_cast<const %s*>(p_td.json->default_value.val);\n"
+    "    return 0;\n"
+    "  }\n", sdef->name, sdef->name);
 
   if (sdef->nElements == 1) {
     if (!sdef->jsonAsValue) {
@@ -6897,10 +6900,14 @@ static void defEmptyRecordClass(const struct_def *sdef,
     src = mputprintf(src,
       "int %s::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, boolean, int)\n"
       "{\n"
-      "  if (NULL != p_td.json->default_value && 0 == p_tok.get_buffer_length()) {\n"
+      "  if (p_td.json->default_value.type == JD_STANDARD && 0 == p_tok.get_buffer_length()) {\n"
+      "    *this = *static_cast<const %s*>(p_td.json->default_value.val);\n"
+      "    return 0;\n"
+      "  }\n"
+      "  if (p_td.json->default_value.type != JD_UNSET && 0 == p_tok.get_buffer_length()) {\n"
       // use the default value
       "    bound_flag = TRUE;\n"
-      "    return strlen(p_td.json->default_value);\n"
+      "    return strlen(p_td.json->default_value.str);\n"
       "  }\n"
       "  json_token_t token = JSON_TOKEN_NONE;\n"
       "  size_t dec_len = p_tok.get_next_token(&token, NULL, NULL);\n"
@@ -6919,7 +6926,7 @@ static void defEmptyRecordClass(const struct_def *sdef,
       "  bound_flag = TRUE;\n\n"
       "  return (int)dec_len;\n"
       "}\n\n"
-      , name);
+      , name, name);
   }
     
   if (oer_needed) {

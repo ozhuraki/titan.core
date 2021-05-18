@@ -1579,11 +1579,15 @@ void defRecordOfClass1(const struct_of_def *sdef, output_struct *output)
     src = mputprintf(src,
       "int %s::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, boolean, int)\n"
       "{\n"
-      "  if (NULL != p_td.json->default_value && 0 == p_tok.get_buffer_length()) {\n"
+      "  if (p_td.json->default_value.type == JD_STANDARD && 0 == p_tok.get_buffer_length()) {\n"
+      "    *this = *static_cast<const %s*>(p_td.json->default_value.val);\n"
+      "    return 0;\n"
+      "  }\n"
+      "  if (p_td.json->default_value.type == JD_LEGACY && 0 == p_tok.get_buffer_length()) {\n"
       // use the default value (currently only the empty array can be set as
       // default value for this type)
       "    set_size(0);\n"
-      "    return strlen(p_td.json->default_value);\n"
+      "    return strlen(p_td.json->default_value.str);\n"
       "  }\n"
       "  json_token_t token = JSON_TOKEN_NONE;\n"
       "  size_t dec_len = p_tok.get_next_token(&token, NULL, NULL);\n"
@@ -1653,7 +1657,7 @@ void defRecordOfClass1(const struct_of_def *sdef, output_struct *output)
       "  }\n\n"
       "  return (int)dec_len;\n"
       "}\n\n"
-      , name, type, type, type);
+      , name, name, type, type, type);
   }
   if (oer_needed) {
     // OER encode, RT1
@@ -3105,6 +3109,16 @@ void defRecordOfClassMemAllocOptimized(const struct_of_def *sdef, output_struct 
     src = mputprintf(src,
       "int %s::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, boolean, int)\n"
       "{\n"
+      "  if (p_td.json->default_value.type == JD_STANDARD && 0 == p_tok.get_buffer_length()) {\n"
+      "    *this = *static_cast<const %s*>(p_td.json->default_value.val);\n"
+      "    return 0;\n"
+      "  }\n"
+      "  if (p_td.json->default_value.type == JD_LEGACY && 0 == p_tok.get_buffer_length()) {\n"
+      // use the default value (currently only the empty array can be set as
+      // default value for this type)
+      "    set_size(0);\n"
+      "    return strlen(p_td.json->default_value.str);\n"
+      "  }\n"
       "  json_token_t token = JSON_TOKEN_NONE;\n"
       "  size_t dec_len = p_tok.get_next_token(&token, NULL, NULL);\n"
       "  if (JSON_TOKEN_ERROR == token) {\n"
@@ -3167,7 +3181,7 @@ void defRecordOfClassMemAllocOptimized(const struct_of_def *sdef, output_struct 
       "  }\n\n"
       "  return (int)dec_len;\n"
       "}\n\n"
-      , name, type);
+      , name, name, type);
   }
   if (oer_needed) {
     // OER encode, RT1, mem. alloc. optimised

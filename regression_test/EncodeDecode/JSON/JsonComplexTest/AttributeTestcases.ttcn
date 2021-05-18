@@ -185,8 +185,8 @@ testcase tc_attribute_as_value() runs on CT {
   setverdict(pass);
 }
 
-// Testing default values for record fields (decoding only)
-testcase tc_attribute_default() runs on CT {
+// Testing legacy default values for record fields (decoding only)
+testcase tc_attribute_default_legacy() runs on CT {
   var octetstring os := char2oct("{}");
   var RecDef d := { i := -19, f := 1000000.000000, b := false, bs := '101'B, hs := 'DEAD'H, os := '1DE7'O, cs := "empty", ucs := "üres", size := Tiny, vt := fail };
   f_bool2verdict( match(f_dec_def(os), d) );
@@ -194,6 +194,43 @@ testcase tc_attribute_default() runs on CT {
   os := char2oct("{ \"b\" : null }");
   d.b := omit;
   f_bool2verdict( match(f_dec_def(os), d) );
+}
+
+// Testing standard-compliant default values for record fields of basic types (decoding only)
+testcase tc_attribute_default_basic() runs on CT {
+  var octetstring os := char2oct("{}");
+  var RecDef2 d := { i := -19, f := 1000000.000000, b := false, bs := '101'B, hs := 'DEAD'H, os := '1DE7'O, cs := "empty", ucs := "üres", size := Tiny, vt := fail };
+  f_bool2verdict( match(f_dec_def2(os), d) );
+
+  os := char2oct("{ \"b\" : null }");
+  d.b := omit;
+  f_bool2verdict( match(f_dec_def2(os), d) );
+}
+
+// Tests for standard-compliant default values taken from the TTCN-3 standard change request CR 7968 v5 (decoding only)
+testcase tc_attribute_default_standard() runs on CT {
+  var octetstring os := char2oct("{ \"name\" : \"Shoe\", \"price\" : 29.50, \"text\" : \"available\" }");
+  var Product2 p := { name := "Shoe", price := 29.500000, id := 'FFFF'O, origin := "Hungary", text := "available" };
+  f_bool2verdict( match(f_dec_prod2(os), p) );
+  
+  os := char2oct("{ \"name\" : \"Shirt\", \"price\" : 12.99, \"id\" : null }");
+  p := { name := "Shirt", price := 12.990000, id := omit, origin := "Hungary", text := char(1, 2, 3, 4) & char(5, 6, 7, 8) & "?" };
+  f_bool2verdict( match(f_dec_prod2(os), p) );
+  
+  os := char2oct("{ \"name\" : \"test shopper\" }");
+  var Shopping_cart sc := { name := "test shopper", product := { name := "Shirt", price := 12.990000, id := omit, origin := "Hungary", text := "available" } };
+  f_bool2verdict( match(f_dec_cart(os), sc) );
+  
+  os := char2oct("{ \"name\" : \"test shopper\" }");
+  var Shopping_cart_2 sc2 := { name := "test shopper", product := { name := "Size \"M\" Shirt", price := 12.990000, id := omit, origin := "Hungary", text := "available" } };
+  f_bool2verdict( match(f_dec_cart2(os), sc2) );
+}
+
+// Testing standard-compliant default values for record fields of structured types (decoding only)
+testcase tc_attribute_default_structured() runs on CT {
+  var octetstring os := char2oct("{ }");
+  var RecDef3 d := { er := { }, u := { i := -6 }, roi := { 1, 2, 3 } };
+  f_bool2verdict( match(f_dec_def3(os), d) );
 }
 
 // Encoding a few values of ASN.1 types with the coding instruction "as value"
@@ -746,7 +783,10 @@ control {
   execute(tc_attribute_prettyprint2());
   execute(tc_attribute_union());
   execute(tc_attribute_as_value());
-  execute(tc_attribute_default());
+  execute(tc_attribute_default_legacy());
+  execute(tc_attribute_default_basic());
+  execute(tc_attribute_default_standard());
+  execute(tc_attribute_default_structured());
   execute(tc_attribute_as_value_asn());
   execute(tc_attribute_optional_as_value());
   execute(tc_attribute_metainfo_for_unbound());

@@ -62,6 +62,10 @@
 extern Ttcn::ExtensionAttributes * parse_extattributes(
   Ttcn::WithAttribPath *w_attrib_path);
 
+// implemented in compiler.y
+extern Common::Value* ttcn3_parse_json_default(
+  const char* p_str, const Common::Location& str_loc);
+
 namespace Common {
   
   map<Type*, void> Type::RecursionTracker::types;
@@ -3168,8 +3172,11 @@ namespace Common {
         }
       }
 
-      if (NULL != jsonattrib->default_value) {
+      if (jsonattrib->default_value.type == JsonAST::JD_STANDARD) {
         chk_json_default();
+      }
+      else if (jsonattrib->default_value.type == JsonAST::JD_LEGACY) {
+        chk_json_default_legacy();
       }
       
       const size_t nof_extensions = jsonattrib->schema_extensions.size();
@@ -3389,9 +3396,33 @@ namespace Common {
     }
   }
   
-  void Type::chk_json_default() 
+  void Type::chk_json_default()
   {
-    const char* dval = jsonattrib->default_value;
+    if (jsonattrib->default_value.type != JsonAST::JD_STANDARD || jsonattrib->default_value.str == NULL ||
+        jsonattrib->default_value.loc == NULL) {
+      FATAL_ERROR("Type::chk_json_default");
+    }
+    Error_Context cntxt(this, "In JSON default value");
+    Value* val = ttcn3_parse_json_default(jsonattrib->default_value.str, *jsonattrib->default_value.loc);
+    if (val != NULL) {
+      val->set_my_governor(this);
+      val->set_my_scope(my_scope);
+      val->set_fullname(get_fullname() + ".<JSON_default_value>");
+      val->set_genname(get_genname_own() + "_json_defval");
+      chk_this_value_ref(val);
+      chk_this_value(val, NULL, EXPECTED_CONSTANT, INCOMPLETE_NOT_ALLOWED,
+        OMIT_NOT_ALLOWED, SUB_CHK, NOT_IMPLICIT_OMIT);
+      jsonattrib->default_value.val = val;
+    }
+  }
+  
+  void Type::chk_json_default_legacy() 
+  {
+    if (jsonattrib->default_value.type != JsonAST::JD_LEGACY || jsonattrib->default_value.str == NULL) {
+      FATAL_ERROR("Type::chk_json_default");
+    }
+    Error_Context cntxt(this, "In JSON default value (legacy)");
+    const char* dval = jsonattrib->default_value.str;
     const size_t dval_len = strlen(dval);
     Type *last = get_type_refd_last();
     bool err = false;

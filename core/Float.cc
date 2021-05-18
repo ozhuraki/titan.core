@@ -1135,11 +1135,16 @@ int FLOAT::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok,
   char* value = 0;
   size_t value_len = 0;
   size_t dec_len = 0;
-  boolean use_default = p_td.json->default_value && 0 == p_tok.get_buffer_length();
-  if (use_default) {
+  boolean use_default = FALSE;
+  if (p_td.json->default_value.type == JD_STANDARD && 0 == p_tok.get_buffer_length()) {
+    *this = *static_cast<const FLOAT*>(p_td.json->default_value.val);
+    return dec_len;
+  }
+  if (p_td.json->default_value.type == JD_LEGACY && 0 == p_tok.get_buffer_length()) {
     // No JSON data in the buffer -> use default value
-    value = const_cast<char*>(p_td.json->default_value);
+    value = const_cast<char*>(p_td.json->default_value.str);
     value_len = strlen(value);
+    use_default = TRUE;
   } else {
     dec_len = p_tok.get_next_token(&token, &value, &value_len);
   }

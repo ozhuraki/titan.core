@@ -55,6 +55,11 @@ public:
     ESCAPE_AS_USI,
     ESCAPE_AS_TRANSPARENT
   };
+  enum json_default_type {
+    JD_UNSET, // no default value set
+    JD_LEGACY, // legacy default value set through the 'JSON: default' variant attribute
+    JD_STANDARD // standard-compliant default value set through the 'default' variant attribute
+  };
 private:
   void init_JsonAST();
   JsonAST(const JsonAST&);
@@ -63,7 +68,12 @@ public:
   boolean omit_as_null;
   char* alias;
   boolean as_value;
-  char* default_value;
+  struct {
+    json_default_type type;
+    char* str;
+    Common::Value* val;
+    Common::Location* loc;
+  } default_value;
   vector<JsonSchemaExtension> schema_extensions;
   boolean metainfo_unbound;
   boolean as_number;

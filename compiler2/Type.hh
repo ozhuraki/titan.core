@@ -913,6 +913,7 @@ namespace Common {
     
     void chk_json();
     void chk_json_default();
+    void chk_json_default_legacy();
     void chk_json_tag_list();
     /** If the type does not have a jsonattrib, create one. */
     void force_json();

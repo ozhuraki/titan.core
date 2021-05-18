@@ -14,6 +14,7 @@
 #include "../../common/memory.h"
 #include <cstddef>
 #include <cstdio>
+#include "../Value.hh"
 
 void JsonSchemaExtension::init(char* p_key, char* p_value)
 {
@@ -38,7 +39,10 @@ void JsonAST::init_JsonAST()
   omit_as_null = false;
   alias = NULL;
   as_value = false;
-  default_value = NULL;
+  default_value.type = JD_UNSET;
+  default_value.str = NULL;
+  default_value.val = NULL;
+  default_value.loc = NULL;
   metainfo_unbound = false;
   as_number = false;
   tag_list = NULL;
@@ -55,7 +59,9 @@ JsonAST::JsonAST(const JsonAST *other_val)
     omit_as_null = other_val->omit_as_null;
     alias = (NULL != other_val->alias) ? mcopystr(other_val->alias) : NULL;
     as_value = other_val->as_value;
-    default_value = (NULL != other_val->default_value) ? mcopystr(other_val->default_value) : NULL;
+    default_value.type = other_val->default_value.type;
+    default_value.str = (NULL != other_val->default_value.str) ? mcopystr(other_val->default_value.str) : NULL;
+    default_value.val = (NULL != other_val->default_value.val) ? other_val->default_value.val->clone() : NULL;
     as_number = other_val->as_number;
     for (size_t i = 0; i < other_val->schema_extensions.size(); ++i) {
       schema_extensions.add(new JsonSchemaExtension(*other_val->schema_extensions[i]));
@@ -75,7 +81,9 @@ JsonAST::JsonAST(const JsonAST *other_val)
 JsonAST::~JsonAST()
 {
   Free(alias);
-  Free(default_value);
+  Free(default_value.str);
+  delete default_value.val;
+  delete default_value.loc;
   for (size_t i = 0; i < schema_extensions.size(); ++i) {
     delete schema_extensions[i];
   }
@@ -93,7 +101,7 @@ JsonAST::~JsonAST()
 boolean JsonAST::empty() const
 {
   return omit_as_null == false && alias == NULL && as_value == false &&
-    default_value == NULL && metainfo_unbound == false && as_number == false &&
+    default_value.type == JD_UNSET && metainfo_unbound == false && as_number == false &&
     tag_list == NULL && as_map == false && enum_texts.size() == 0 &&
     use_null == false && type_indicator != JSON_OBJECT &&
     type_indicator != JSON_LITERAL &&
@@ -167,8 +175,9 @@ void JsonAST::print_JsonAST() const
   if (as_value) {
     printf("Encoding unions as JSON value\n\r");
   }
-  if (default_value) {
-    printf("Default value: %s\n\r", default_value);
+  if (default_value.type != JD_UNSET) {
+    printf("Default value%s: %s\n\r", default_value.type == JD_LEGACY ? " (legacy)" : "",
+      default_value.type == JD_LEGACY ? default_value.str : default_value.val->create_stringRepr().c_str());
   }
   if (as_number) {
     printf("Encoding enumerated values as numbers\n\r");

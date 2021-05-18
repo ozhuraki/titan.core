@@ -1603,11 +1603,15 @@ int Record_Of_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_desc
 int Record_Of_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok,
                                 boolean p_silent, boolean, int)
 {
-  if (NULL != p_td.json->default_value && 0 == p_tok.get_buffer_length()) {
+  if (p_td.json->default_value.type == JD_STANDARD && 0 == p_tok.get_buffer_length()) {
+    set_value(p_td.json->default_value.val);
+    return 0;
+  }
+  if (p_td.json->default_value.type == JD_LEGACY && 0 == p_tok.get_buffer_length()) {
     // use the default value (currently only the empty array can be set as
     // default value for this type)
     set_size(0);
-    return strlen(p_td.json->default_value);
+    return strlen(p_td.json->default_value.str);
   }
   json_token_t token = JSON_TOKEN_NONE;
   size_t dec_len = p_tok.get_next_token(&token, NULL, NULL);
@@ -6191,6 +6195,10 @@ int Record_Type::JSON_encode_negtest(const Erroneous_descriptor_t* p_err_descr,
 int Record_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok,
                              boolean p_silent, boolean p_parent_is_map, int)
 {
+  if (p_td.json->default_value.type == JD_STANDARD && 0 == p_tok.get_buffer_length()) {
+    set_value(p_td.json->default_value.val);
+    return 0;
+  }
   if (p_td.json->as_value) {
     if (get_at(0)->is_optional()) {
       // can only happen if the record has the 'JSON:object' attribute;
@@ -6391,7 +6399,7 @@ int Record_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& 
         (int)strlen(fld_name(field_idx)), fld_name(field_idx));
     }
     else if (!field_found[field_idx]) {
-      if (NULL != fld_descr(field_idx)->json && NULL != fld_descr(field_idx)->json->default_value) {
+      if (NULL != fld_descr(field_idx)->json && fld_descr(field_idx)->json->default_value.type != JD_UNSET) {
         get_at(field_idx)->JSON_decode(*fld_descr(field_idx), DUMMY_BUFFER, p_silent, FALSE);
       }
       else if (field->is_optional()) {
@@ -7580,10 +7588,14 @@ int Empty_Record_Type::JSON_encode(const TTCN_Typedescriptor_t&, JSON_Tokenizer&
 
 int Empty_Record_Type::JSON_decode(const TTCN_Typedescriptor_t& p_td, JSON_Tokenizer& p_tok, boolean p_silent, boolean, int)
 {
-  if (NULL != p_td.json->default_value && 0 == p_tok.get_buffer_length()) {
+  if (p_td.json->default_value.type == JD_STANDARD && 0 == p_tok.get_buffer_length()) {
+    set_value(p_td.json->default_value.val);
+    return 0;
+  }
+  if (p_td.json->default_value.type == JD_LEGACY && 0 == p_tok.get_buffer_length()) {
     // use the default value
     bound_flag = TRUE;
-    return strlen(p_td.json->default_value);
+    return strlen(p_td.json->default_value.str);
   }
   json_token_t token = JSON_TOKEN_NONE;
   size_t dec_len = p_tok.get_next_token(&token, NULL, NULL);

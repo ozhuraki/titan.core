@@ -322,6 +322,21 @@ external function f_dec_stuff(in octetstring x) return Stuff
 external function f_dec_def(in octetstring x) return RecDef
   with { extension "prototype(convert) decode(JSON)" }
 
+external function f_dec_def2(in octetstring x) return RecDef2
+  with { extension "prototype(convert) decode(JSON)" }
+
+external function f_dec_prod2(in octetstring x) return Product2
+  with { extension "prototype(convert) decode(JSON)" }
+
+external function f_dec_cart(in octetstring x) return Shopping_cart
+  with { extension "prototype(convert) decode(JSON)" }
+
+external function f_dec_cart2(in octetstring x) return Shopping_cart_2
+  with { extension "prototype(convert) decode(JSON)" }
+
+external function f_dec_def3(in octetstring x) return RecDef3
+  with { extension "prototype(convert) decode(JSON)" }
+
 external function f_dec_hpt(in octetstring x) return HasPardType
   with { extension "prototype(convert) decode(JSON)" }
 

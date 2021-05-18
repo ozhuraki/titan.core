@@ -838,11 +838,16 @@ void defEnumClass(const enum_def *edef, output_struct *output)
       "  size_t value_len = 0;\n"
       "  boolean error = FALSE;\n"
       "  size_t dec_len = 0;\n"
-      "  boolean use_default = p_td.json->default_value && 0 == p_tok.get_buffer_length();\n"
-      "  if (use_default) {\n"
+      "  boolean use_default = FALSE;\n"
+      "  if (p_td.json->default_value.type == JD_STANDARD && 0 == p_tok.get_buffer_length()) {\n"
+      "    *this = *static_cast<const %s*>(p_td.json->default_value.val);\n"
+      "    return dec_len;\n"
+      "  }\n"
+      "  if (p_td.json->default_value.type == JD_LEGACY && 0 == p_tok.get_buffer_length()) {\n"
       // No JSON data in the buffer -> use default value
-      "    value = const_cast<char*>(p_td.json->default_value);\n"
+      "    value = const_cast<char*>(p_td.json->default_value.str);\n"
       "    value_len = strlen(value);\n"
+      "    use_default = TRUE;\n"
       "  } else {\n"
       "    dec_len = p_tok.get_next_token(&token, &value, &value_len);\n"
       "  }\n"
@@ -902,7 +907,7 @@ void defEnumClass(const enum_def *edef, output_struct *output)
       "  }\n"
       "  return (int)dec_len;\n"
       "}\n\n"
-      , name, edef->elements[0].name, enum_type, unknown_value, enum_type
+      , name, name, edef->elements[0].name, enum_type, unknown_value, enum_type
       , unbound_value, unbound_value);
   }
   
