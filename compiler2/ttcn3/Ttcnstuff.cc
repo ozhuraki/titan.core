@@ -3898,46 +3898,24 @@ namespace Ttcn {
       
       // logging function (similar to logging a record value, but with the 
       // class name and the base class' log at the beginning)
+      // members are no longer logged, as this could cause infinite loops
       local_struct->header.class_defs = mputstr(local_struct->header.class_defs,
         "public:\n"
         "virtual void log() const;\n");
       local_struct->source.methods = mputprintf(local_struct->source.methods,
         "void %s::log() const\n"
         "{\n"
-        "TTCN_Logger::log_event_str(\"%s: { \");\n",
-        class_id->get_name().c_str(), class_id->get_dispname().c_str());
-      bool first_logged = false;
+        "TTCN_Logger::log_event_str(\"%s%s\");\n",
+        class_id->get_name().c_str(), class_id->get_dispname().c_str(), base_type != NULL ? " ( " : "");
       if (base_type != NULL) {
         local_struct->source.methods = mputprintf(local_struct->source.methods,
-          "%s::log();\n",
+          "%s::log();\n"
+          "TTCN_Logger::log_event_str(\" )\");\n",
           base_type_name.c_str());
-        first_logged = true;
-      }
-      for (size_t i = 0; i < members->get_nof_asss(); ++i) {
-        Common::Assignment* member = members->get_ass_byIndex(i, false);
-        switch (member->get_asstype()) {
-        case Common::Assignment::A_CONST:
-        case Common::Assignment::A_VAR:
-        case Common::Assignment::A_TEMPLATE:
-        case Common::Assignment::A_VAR_TEMPLATE:
-        case Common::Assignment::A_TIMER: // ?
-          if (first_logged) {
-            local_struct->source.methods = mputstr(local_struct->source.methods,
-              "TTCN_Logger::log_event_str(\", \");\n");
-          }
-          local_struct->source.methods = mputprintf(local_struct->source.methods,
-            "TTCN_Logger::log_event_str(\"%s := \");\n"
-            "%s.log();\n",
-            member->get_id().get_dispname().c_str(), member->get_id().get_name().c_str());
-          first_logged = true;
-          break;
-        default:
-          break; // don't log anything for methods
-        }
       }
       local_struct->source.methods = mputstr(local_struct->source.methods,
-        "TTCN_Logger::log_event_str(\" }\");\n"
         "}\n\n");
+      
       
       local_struct->header.class_defs = mputstr(local_struct->header.class_defs, "};\n\n");
 

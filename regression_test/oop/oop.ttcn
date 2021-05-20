@@ -242,9 +242,9 @@ testcase tc_logging() runs on CT {
   log(v_sub);
   log(v_final);
   
-  var charstring v_base_str := "BaseClass: { m_const := 2, m_const2 := { 1, 2, 1 }, m_var := \"a\", m_temp := *, m_var_temp := (0.000000 .. 10.000000), m_timer := timer: { name: m_timer, default duration: none, state: inactive }, m_timer_array := { timer: { name: m_timer_array[0], default duration: none, state: inactive }, timer: { name: m_timer_array[1], default duration: none, state: inactive }, timer: { name: m_timer_array[2], default duration: none, state: inactive } } }";
-  var charstring v_sub_str := "SubClass: { BaseClass: { m_const := 2, m_const2 := { 1, 2, 1 }, m_var := \"ax\", m_temp := *, m_var_temp := (0.000000 .. 10.000000), m_timer := timer: { name: m_timer, default duration: none, state: inactive }, m_timer_array := { timer: { name: m_timer_array[0], default duration: none, state: inactive }, timer: { name: m_timer_array[1], default duration: none, state: inactive }, timer: { name: m_timer_array[2], default duration: none, state: inactive } } }, m_const3 := 'FFFF'O }";
-  var charstring v_final_str := "FinalClass: { SubClass: { BaseClass: { m_const := 2, m_const2 := { 1, 2, 1 }, m_var := \"ax\", m_temp := *, m_var_temp := (0.000000 .. 10.000000), m_timer := timer: { name: m_timer, default duration: none, state: inactive }, m_timer_array := { timer: { name: m_timer_array[0], default duration: none, state: inactive }, timer: { name: m_timer_array[1], default duration: none, state: inactive }, timer: { name: m_timer_array[2], default duration: none, state: inactive } } }, m_const3 := 'FFFF'O }, m_final_const := 8, m_final_temp := \"x\", m_final_var := -1.500000, m_final_var_temp := * }";
+  var charstring v_base_str := "BaseClass";
+  var charstring v_sub_str := "SubClass ( BaseClass )";
+  var charstring v_final_str := "FinalClass ( SubClass ( BaseClass ) )";
   
   if (log2str(v_base) != v_base_str) {
     setverdict(fail, "v_base: ", v_base);
@@ -463,6 +463,7 @@ type class Node2 {
   var object data;
   var Node2 next;
   public function get_data() return object { return data; }
+  public function get_next() return Node2 { return next; }
   public function f(in object p) { data := p; }
 }
 
@@ -520,27 +521,10 @@ testcase tc_object() runs on CT {
     setverdict(fail, "v_obj2.toString()[3]: ", v_obj2.toString()[3]);
   }
   var Node2 v_node2 := Node2.create(Something.create, Node2.create(Node.create(1, null), null));
-  if (log2str(v_node2) != "Node2: { data := Something: {  }, next := Node2: { data := Node: { data := 1, next := null }, next := null } }") {
+  if (log2str(v_node2.get_data()) != "Something" or log2str(v_node2.get_next().get_data()) != "Node") {
     setverdict(fail, "v_node2: ", v_node2);
   }
   setverdict(pass);
-}
-
-type class Order {
-  var integer b;
-  var integer d;
-  var integer c;
-  var integer a;
-}
-
-testcase tc_order() runs on CT {
-  var Order x := Order.create(1, 2, 3, 4);
-  if (log2str(x) == "Order: { b := 1, d := 2, c := 3, a := 4 }") {
-    setverdict(pass);
-  }
-  else {
-    setverdict(fail, x);
-  }
 }
 
 testcase tc_abstract() runs on CT {
@@ -737,7 +721,6 @@ control {
   execute(tc_function_pars_and_retval());
   execute(tc_function_pars_in());
   execute(tc_object());
-  execute(tc_order());
   execute(tc_abstract());
   execute(tc_destructor());
   execute(tc_of_operator());
