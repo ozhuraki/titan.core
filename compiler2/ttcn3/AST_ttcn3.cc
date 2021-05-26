@@ -854,6 +854,10 @@ namespace Ttcn {
   {
     Common::Assignment *ass = Ref_base::get_refd_assignment(check_parlist);
     // In fact calls        Ref_simple::get_refd_assignment
+    
+    // access member my_scope before calling ass->get_FormalParList()
+    StatementBlock* sb = ass != NULL ? my_scope->get_statementblock_scope() : NULL;
+    
     if (ass && check_parlist && !params_checked) {
       params_checked = true;
       if (params == NULL) {
@@ -912,7 +916,6 @@ namespace Ttcn {
     }
     if (ass != NULL) {
       ref_usage_found(ass);
-      StatementBlock* sb = my_scope->get_statementblock_scope();
       if (sb != NULL && sb->is_in_finally_block()) {
         switch (ass->get_asstype()) {
         default:
