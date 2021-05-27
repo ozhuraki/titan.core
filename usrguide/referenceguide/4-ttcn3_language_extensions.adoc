@@ -9052,10 +9052,9 @@ void PT::outgoing_send(const INTEGER& send_par, FLOAT* timestamp_redirect)
 TITAN supports the object-oriented programming features described in chapter 5 of the TTCN-3 standard extension `Object-Oriented Features` (ETSI ES 203 790 V1.1.1, <<13-references.adoc#_27, [27]>>) with the clarifications and limitations described in this section.
 
 * The object-oriented features are disabled by default. They can be activated with the compiler command line option `-k`. When object-oriented features are disabled, the names `class`, `finally`, `this`, `super` and `object` can be used as identifiers (for backward compatibility).
-* Class types cannot be embedded into other structured types (i.e. as `records`, `sets`, `record ofs`, `set ofs`, `arrays`, `unions` and the `anytype`), only into other class types.
+* Class types cannot be embedded into other structured types (i.e. `records`, `sets`, `record ofs`, `set ofs`, `arrays`, `unions` and the `anytype`), only into other class types.
 * Class members of `port` and `port array` types are not allowed.
 * Class member `templates` cannot have parameters.
-* Exceptions are not currently supported.
 * The members and methods of the resulting object from a casting operation (i.e. `=>` operation) cannot be accessed directly, the casting result needs to be saved into a variable first.
 
 Example:
@@ -9078,7 +9077,7 @@ var Node v_node := v_obj => Node;
 var integer v_int2 := v_node.get_data(); // OK
 ----
 
-* Unhandled dynamic test case errors inside the destructor of a class cause the program to terminate (due to C++ limitations).
+* Unhandled exceptions and unhandled dynamic test case errors inside the destructor of a class or inside a `finally` block cause the program to terminate (due to C++ limitations).
 * The `with` attributes of class members and methods are currently ignored.
 * Members of `timer` and `timer array` types cannot be initialized in the constructor, and the default constructor doesn't add a formal parameter for the initialization of these members.
 * Class member `constants` and `templates` must have initial values in their declaration, just like global `constants` and `templates`. These can be overwritten in the constructor. The default constructor always adds a formal parameter for these members and overwrites their initial values from their declarations with the parameter values.
@@ -9104,7 +9103,7 @@ type class MyClass {
 ----
 
 * The constructor of a subclass must call the superclass' constructor, if the super-constructor has at least one formal parameter without a default value. (This is in accordance with V1.2.1 of the standard extension, not V1.1.1.)
-* The result of logging an instance of a class is similar to that of a `record` value, except it is preceded by the class name (before the braces), and by the log of the superclass, if there is one (after the left brace, before the logs of members).
+* The result of logging an instance of a class contains the class name and the logging result of the superclass in round brackets, if there is a superclass.
 
 Logging example:
 [source]
@@ -9121,7 +9120,7 @@ type class MyClass3 extends MyClass2 {
 ...
 
 var MyClass3 my_object := MyClass3.create(3, "abc", ?);
-log(my_object); // result: MyClass3: { MyClass2: { num := 3, str := "abc" }, temp := ? }
+log(my_object); // result: MyClass3 ( MyClass2 )
 ----
 
 NOTE: Even though every class automatically extends the built-in class `object`, if it has no superclass specified, this class does not appear in the log.
@@ -9154,7 +9153,44 @@ only variables and function parameters are valid `out` actual parameters.
 * Internal classes can define external methods, even if they are not derived from an external class.
 * Class members cannot be public, as per the standard. However there are no restrictions to the visibility of methods (i.e. overriding methods can have any visibility, regardless of the overriden method's visibility).
 * Constructors of external classes must not have a statement block or a super-constructor call.
+* The `finally` clause of an altstep's statement block is executed every time the `altstep` is executed, even if none of the altstep's alt-branches are chosen.
+* Exceptions of class types can be caught by `catch` clauses of the same class type or any of its superclasses, including `object`.
 
+Example:
+[source]
+----
+type class A {}
+type class B extends A {}
+type class C extends B {}
+...
+catch(C x) {} // catches any C exceptions
+catch(B x) {} // catches any B or C exceptions
+catch(A x) {} // catches any A, B or C exceptions
+catch(object x) {} // catches any exceptions of class type
+----
+
+* Exceptions of non-class types are only caught if the `catch` block contains the exact same type. Type aliases, subtypes, `record`/`set`/`union`/`anytype` fields and `record of`/`set of`/array element types count as different types than their base types.
+
+Example:
+[source]
+----
+type integer IntAlias;
+type integer SmallNumber (-100..100);
+type record Rec {
+  integer num
+}
+type record of integer RoI;
+...
+catch(integer x) {} // catches only integers, not IntAlias, SmallNumber, Rec.num or RoI[-]
+catch(RoI[-] x) {} // catches only the element type of RoI and no other types
+----
+
+* Exception lists can be added to `function`, `external function` and `altstep` declarations, but these are mostly ignored by the compiler (e.g. raised exceptions are not checked against the containing function/altstep's exception list). The exception lists are still checked for correctness (i.e. no duplicate types or invalid types).
+* The following module declaration format is accepted by the compiler:
+[source]
+----
+module <name> "TTCN-3:2018 Object-Oriented" { ... }
+----
 
 == Default alternatives of union types
 

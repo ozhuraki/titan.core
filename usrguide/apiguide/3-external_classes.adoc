@@ -12,7 +12,7 @@ Clarifications about the skeletons and implementation tips:
 * One header (`.hh`) and one source file (`.cc`) is generated for each external class. The base names of these files (i.e. their names before the extensions) are equal to the names of their external class in TTCN-3. Please note that the name mapping rules described in <<6-mapping_ttcn3_data_types_to_c++_constructs.adoc#mapping-of-names-and-identifiers, Mapping of Names and Identifiers>> also apply to the file names.
 * Both the generated header and source file can be extended with additional members and methods, however these new members and methods will not be visible in TTCN-3.
 * The compiler will not regenerate the external class skeletons, if they already exist. Not even if the external class declaration in TTCN-3 changes. The compiler option `-f` (in addition to `-t`) can be used to force the regeneration of external class skeletons, however this will also overwrite any user code added to the previous skeletons.
-* The generated source file contains empty function definitions for methods declared in TTCN-3 (plus an empty default constructor, if no constructor was declared). It also contains a minimal implementation of the `log` function, which can be extended to display more information about the object while logging. The header file also contains a static inline function called `class_name`, which is used in error messages.
+* The generated source file contains empty function definitions for methods declared in TTCN-3 (the code to reset `out` parameters is still generated), plus an empty default constructor, if no constructor was declared. It also contains a minimal implementation of the `log` function, which can be extended to display more information about the object while logging. The header file also contains a static inline function called `class_name`, which is used in error messages.
 * The generated destructor automatically contains a try-catch block, to ensure that no exceptions are thrown from the destructor. All user code must be written inside the try-catch block.
 * For more information about how to handle references of class types see <<6-mapping_ttcn3_data_types_to_c++_constructs.adoc#object-references, Object References>>.
 
@@ -86,6 +86,7 @@ namespace oop {
 
 void ExternalClass::f__ext1(const INTEGER& x, OCTETSTRING& y)
 {
+y.clean_up();
 
 }
 
