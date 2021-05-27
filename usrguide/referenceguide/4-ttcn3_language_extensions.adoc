@@ -4920,6 +4920,56 @@ const S jrh := { "John", "Doe", "M" }
 */
 ----
 
+NOTE: Global XML namespace identification attributes are ignored for type references (i.e. subtypes, type aliases, `record`/`set`/`union` fields and `record of`/`set of` element types) if the referenced type also has an XML namespace identification attribute.
+
+Example:
+[source]
+----
+module A {
+
+type record T1 {
+  universal charstring s
+}
+
+}
+with {
+  encode "XML";
+  variant "namespace as 'http://www.somewhere.com/A' prefix 'nsA'";
+  variant "controlNamespace 'http://www.w3.org/2001/XMLSchema-instance' prefix 'xsi'";
+  variant "elementFormQualified";
+}
+----
+[source]
+----
+module B {
+
+import from A all;
+
+type record T2 {
+  T1 t1 // uses the namespace attribute of type A.T1, not the global namespace attribute of this module
+}
+
+const T2 val := { t1 := { s := "abc" } };
+
+/* XML encoding
+
+<nsB:T2 xmlns:nsB='http://www.somewhere.com/B' xmlns:nsA='http://www.somewhere.com/A'>
+  <nsA:t1>
+    <nsA:s>abc</nsA:s>
+  </nsA:t1>
+</nsB:T2>
+
+*/
+
+}
+with {
+  encode "XML";
+  variant "namespace as 'http://www.somewhere.com/B' prefix 'nsB'";
+  variant "controlNamespace 'http://www.w3.org/2001/XMLSchema-instance' prefix 'xsi'";
+  variant "elementFormQualified";
+}
+----
+
 *Nillable elements*
 
 Attribute syntax: useNil
