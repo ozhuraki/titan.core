@@ -24,9 +24,9 @@
 #define VERSION_H
 
 /* Version numbers */
-#define TTCN3_MAJOR 7
-#define TTCN3_MINOR 2
-#define TTCN3_PATCHLEVEL 2 //0-> x=A, 1-> x=B, ...
+#define TTCN3_MAJOR 8
+#define TTCN3_MINOR 0
+#define TTCN3_PATCHLEVEL 0 //0-> x=A, 1-> x=B, ...
 //#define TTCN3_BUILDNUMBER 0  //0=R5x, 1=R5x01, 2=R5x02, ...
 
 /* The aggregated version number must be set manually since some stupid

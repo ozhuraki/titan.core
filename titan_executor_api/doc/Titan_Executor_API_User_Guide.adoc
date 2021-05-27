@@ -1,13 +1,13 @@
 ---
 Author: Arpad Lovassy
-Version: 7.2.1
-Date: 2021-03-25
+Version: 8.0.0
+Date: 2021-05-27
 
 ---
 = Titan Executor API User Guide
 :author: Arpad Lovassy
-:revnumber: 7.2.1
-:revdate: 2021-03-25
+:revnumber: 8.0.0
+:revdate: 2021-05-27
 :title-logo-image: images/titan_logo.png
 :sectnums:
 :doctype: book

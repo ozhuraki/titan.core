@@ -1,13 +1,13 @@
 ---
 Author: Kristóf Szabados
-Version: 7.2.2
-Date: 2021-03-29
+Version: 8.0.0
+Date: 2021-05-27
 
 ---
 = Programmers' Technical Reference Guide for the Java side of the TITAN TTCN-3 Toolset
 :author: Kristóf Szabados
-:revnumber: 7.2.2
-:revdate: 2021-03-29
+:revnumber: 8.0.0
+:revdate: 2021-05-27
 :title-logo-image: images/titan_logo.png
 :sectnums:
 :doctype: book

@@ -18,7 +18,7 @@ RUN echo 'sh' >> /home/titan/.bashrc
 WORKDIR /home/titan
 RUN git clone https://gitlab.eclipse.org/eclipse/titan/titan.core.git
 WORKDIR /home/titan/titan.core/
-RUN git checkout tags/7.2.2
+RUN git checkout tags/8.0.0
 
 ## SET UP ENV VARIABLES
 ENV TTCN3_DIR=/home/titan/titan.core/Install
