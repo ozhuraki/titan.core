@@ -5691,16 +5691,20 @@ Attribute syntax: default(<value>)
 
 Applicable to (TTCN-3): Fields of records and sets
 
-Description: The decoder will set the given value to the field if it does not appear in the JSON document. The <value> can contain the JSON encoding of a value of the field's type (only basic types are allowed). String types don't need the starting and ending quotes. All JSON escaped characters can be used, plus the escape sequence ")" will add a ")" (right round bracket) character.
+Description: The decoder will set the given value to the field if the field does not appear in the JSON document.
 
-The only allowed structured value is the empty structure value `{}`, which can be set for `record of` and `set of` types, as well as empty `record` and `set` types.
+Legacy version: If the attribute has the `JSON: default(<value>)` format, the <value> contains the JSON encoding of a value of the field's type (only basic types are allowed). String types don't need the starting and ending quotes. The only allowed structured value is the empty structure value `{}`, which can be set for `record of` and `set of` types, as well as empty `record` and `set` types.
+
+New (standard-compliant) version: If the attribute has the `default(<value>)` format (i.e. no `JSON:` prefix), the <value> contains a TTCN-3 value of the field's type (all JSON-encodable types are allowed, and the value can also contain references to global values).
+
+In both cases all JSON escaped characters can be used in <value>, plus the escape sequence `\)` will add a `)` (right round bracket) character. An un-escaped `)` character in the <value> is interpreted as the end of the attribute. 
 
 Optional fields with a default value will be set to `omit` if the field is set to `null` in JSON code, and will use the default value if the field does not appear in the JSON document.
 
-Example:
+Example (legacy version):
 [source]
 ----
-type record Product {
+type record Product_legacy {
   charstring name,
   float price,
   octetstring id optional,
@@ -5715,6 +5719,57 @@ type record Product {
 
 // { "name" : "Shirt", "price" : 12.99, "id" : null } will be decoded into:
 // { name := "Shirt", price := 12.99, id := omit, from := "Hungary" }
+----
+
+Example (new version):
+[source]
+----
+type record Product {
+  charstring name,
+  float price,
+  octetstring id optional,
+  charstring origin,
+  universal charstring text
+}
+with {
+  variant(id) "default ('FFFF'O)"
+  variant(origin) "default(""Hungary"")"
+  variant(text) "default (char(1,2,3,4\) & char(5,6,7,8\) & ""?"")"
+}
+
+// { "name" : "Shirt", "price" : 12.99, "id" : null } will be decoded into:
+// { name := "Shirt", price := 12.990000, id := omit, origin := "Hungary",
+//   text := char(1, 2, 3, 4) & char(5, 6, 7, 8) & "?" }
+
+type record Shopping_cart {
+  charstring name,
+  Product product
+} with {
+  variant(product) "default ({""Shirt"", 12.99, omit, ""Hungary"", ""available"" })"
+}
+
+// { "name" : "test shopper" } will be decoded into:
+// { name := "test shopper", product := { name := "Shirt", price := 12.990000,
+//   id := omit, origin := "Hungary", text := "available" } }
+
+const Product c_defaultProduct := { 
+  name := "Size ""M"" Shirt",
+  price := 12.99,
+  id := omit,
+  origin := "Hungary",
+  text := "available"
+}
+
+type record Shopping_cart_2 {
+  charstring name,
+  Product product
+} with {
+  variant(product) "default (c_defaultProduct)"
+}
+
+// { "name" : "test shopper" } will be decoded into:
+// { name := "test shopper", product := { name := "Size \"M\" Shirt", price := 12.990000,
+//   id := omit, origin := "Hungary", text := "available" } }
 ----
 
 *Extend*
