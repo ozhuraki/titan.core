@@ -1,13 +1,13 @@
 ---
 Author: Elemer Lelik, Lenard Nagy
 Version: 8.0.0
-Date: 2021-05-27
+Date: 2021-06-01
 
 ---
 = Release Notes for TITAN TTCN-3 Test Executor
 :author: Elemer Lelik, Lenard Nagy
 :revnumber: 8.0.0
-:revdate: 2021-05-27
+:revdate: 2021-06-01
 :title-logo-image: images/titan_logo.png
 :sectnums:
 :doctype: book
@@ -30,7 +30,19 @@ The document is organized as follows: <<what-s-new-in-this-version,What's new in
 [[version-8-0-0]]
 == Version 8.0.0
 
+This release contains some new features and bugfixes:
 
+* General
+  ** Titan source repositories moved to GitLab
+* C++ compiler
+  ** Bugfixes (273, 402, 408, 486, 546)
+  ** Exception handling implemented in Object Oriented features; the OOP implementation now complies to v1.1.1 of the related standard​
+  ** OOP Standard Collections published
+  ** JSON default handling optimization (546)​
+  ** XML handling bugfix (545, Backward-incompatible change!)​
+* Eclipse Plug-ins
+  ** Bugfixes (390, 399, 408, 411)​
+  ** Java compiler can produce CI-integrable output (EXPERIMENTAL)
 
 [[version-7-2-2]]
 == Version 7.2.2
