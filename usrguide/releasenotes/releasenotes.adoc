@@ -35,10 +35,10 @@ This release contains some new features and bugfixes:
 * General
   ** Titan source repositories moved to GitLab
 * C++ compiler
-  ** Bugfixes (273, 402, 408, 486, 546)
+  ** Bugfixes (402, 408, 486, 546)
   ** Exception handling implemented in Object Oriented features; the OOP implementation now complies to v1.1.1 of the related standard​
   ** OOP Standard Collections published
-  ** JSON default handling optimization (546)​
+  ** JSON default handling optimization (547)​
   ** XML handling bugfix (545, Backward-incompatible change!)​
 * Eclipse Plug-ins
   ** Bugfixes (390, 399, 408, 411)​
