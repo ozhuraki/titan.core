@@ -3370,7 +3370,7 @@ InnerRec field1 optional
 }
 
 with{
-variant (field1) "TAG(field1, tag = 1)"
+variant "TAG(field1, tag = 1)"
 }
 
 //field1 is present when in field1 tag equals 1.
