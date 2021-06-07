@@ -41,9 +41,7 @@ template<typename T>
 class OPTIONAL;
 
 class INTEGER : public Base_Type {
-  // Private constructor for internal initialization.  It's not part of the
-  // public API.
-  explicit INTEGER(BIGNUM *other_value);
+  
   int from_string(const char *);
   
   int get_nof_digits();
@@ -82,6 +80,7 @@ public:
   INTEGER(const INTEGER& other_value);
   INTEGER(int other_value);
   explicit INTEGER(const char *other_value);
+  explicit INTEGER(BIGNUM *other_value);
   ~INTEGER();
   void clean_up();
 

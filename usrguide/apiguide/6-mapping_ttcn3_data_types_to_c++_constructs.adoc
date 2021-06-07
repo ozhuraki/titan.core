@@ -60,6 +60,7 @@ The class `INTEGER` has the following public member functions:
 |`INTEGER(int)` |Initializes to a given value.
 |`INTEGER(const INTEGER&`) |Copy constructor.
 |`explicit INTEGER(const char *)` |Initializes with the (NUL terminated) string representation of an integer.
+|`explicit INTEGER(BIGNUM *other_value)` |Initializes with a BIGNUM object.
 ^.^|_Destructor_
 |`˜INTEGER()` |
 .2+^.^|_Assignment operators_
