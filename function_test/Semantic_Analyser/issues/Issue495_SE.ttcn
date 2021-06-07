@@ -1,0 +1,37 @@
+/******************************************************************************
+ * Copyright (c) 2000-2021 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+
+module Issue495 //^In TTCN-3 module//
+{
+
+modulepar
+{ 
+  integer     tsp_cl_num := 10;  
+}
+
+
+type component MTC_CT       {}; 
+
+
+ testcase tc_Fatal_Error() runs on MTC_CT //^In testcase definition//
+  {
+    const integer     cl_num0 := 10;
+    var   integer     Int0[cl_num0];
+    
+    const integer   cl_num := tsp_cl_num;
+    var integer     Int[cl_num]; //^In variable definition// //^In array size// //Referenced constant value cannot be evaluated at compile-time//
+    
+    var integer     Int2[tsp_cl_num]; //^In variable definition// //^In array size// //Reference to an \(evaluable\) constant value was expected instead of module parameter//
+    
+  }  
+
+}
