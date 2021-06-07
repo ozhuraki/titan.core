@@ -4196,7 +4196,14 @@ bool Type::chk_this_refd_value(Value *value, Common::Assignment *lhs, expected_v
     value->set_valuetype(Value::V_ERROR);
     return self_ref;
   case Assignment::A_CONST:
-    is_const = true;
+    if (expected_value == EXPECTED_CONSTANT &&
+        ass->get_Value()->is_unfoldable(NULL, expected_value)) {
+      value->error("Referenced constant value cannot be evaluated at compile-time");
+      error_flag = true;
+    }
+    else {
+      is_const = true;
+    }
     break;
   case Assignment::A_OBJECT:
   case Assignment::A_OS: {
