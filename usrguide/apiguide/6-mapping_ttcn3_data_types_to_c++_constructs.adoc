@@ -55,7 +55,7 @@ The class `INTEGER` has the following public member functions:
 [cols=",,",]
 |==================================================
 2+^.^|*Member functions* |*Notes*
-.4+^.^|_Constructors_
+.5+^.^|_Constructors_
 |`INTEGER()` |Initializes to unbound value.
 |`INTEGER(int)` |Initializes to a given value.
 |`INTEGER(const INTEGER&`) |Copy constructor.
