@@ -1,0 +1,60 @@
+/******************************************************************************
+ * Copyright (c) 2000-2021 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Gabor, Szalai – initial implementation
+ *
+ ******************************************************************************/
+
+module Issue555 {
+
+
+type record MyRec{
+  MCC       mcc,
+  bitstring bs length(4)
+} with {
+  variant "FIELDORDER(msb)"
+}
+
+type hexstring MCC
+with {
+  variant "FIELDLENGTH (3)";
+  variant "FIELDORDER(msb)"
+  variant "HEXORDER (high)";
+}
+
+type component CT {}
+
+template MyRec t_hex:={
+  mcc:='042'H,
+  bs:='0000'B
+}
+
+testcase tc_issue555() runs on CT {
+  var bitstring bdata:='0000010000100000'B
+  var MyRec res
+  var integer i:=decvalue(bdata,res)
+  log(i)
+  if(i!=0){
+    setverdict(fail, "decvalue failed")
+  } else {
+    log(res)
+    if(match(res,t_hex)){
+      setverdict(pass)
+    } else {
+      setverdict(fail, "unmatched value")
+    }
+  }
+}
+
+control {
+  execute(tc_issue555());
+}
+
+} with {
+  encode "RAW"
+}

@@ -809,7 +809,7 @@ local_fieldorder==ORDER_MSB?"M":"L"
     }
     else{
       for(size_t a=0;a<(len+7)/8;a++) st2[a]=(s[a]<<4)|(s[a]>>4);
-      if(len%8) st2[(len+7)/8]>>=4;
+      if(len%8) st2[((len+7)/8)-1]>>=4;
     }
     s=st2;
   }
@@ -1218,7 +1218,7 @@ void TTCN_Buffer::get_b(size_t len, unsigned char *s,
     }
     else{
       for(size_t a=0;a<(len+7)/8;a++) s[a]=(s[a]<<4)|(s[a]>>4);
-      if(len%8) s[(len+7)/8]>>=4;
+      if(len%8) s[((len+7)/8)-1]>>=4;
     }
   }
 
