@@ -264,6 +264,11 @@ private:
         } val;
       } min_value, max_value;
     } value_range;
+    struct {
+      INTEGER_template* precondition;
+      INTEGER_template* implied_template;
+    } implication_;
+    dynmatch_struct<INTEGER>* dyn_match;
   };
 
   void copy_template(const INTEGER_template& other_value);
@@ -275,6 +280,8 @@ public:
   INTEGER_template(int other_value);
   INTEGER_template(const INTEGER& other_value);
   INTEGER_template(const OPTIONAL<INTEGER>& other_value);
+  INTEGER_template(INTEGER_template* p_precondition, INTEGER_template* p_implied_template);
+  INTEGER_template(Dynamic_Match_Interface<INTEGER>* p_dyn_match);
   ~INTEGER_template();
   void clean_up();
 

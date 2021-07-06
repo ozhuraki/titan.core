@@ -69,7 +69,10 @@ namespace Ttcn {
       CSTR_PATTERN, /**< character string pattern */
       USTR_PATTERN, /**< universal charstring pattern */
       DECODE_MATCH, /**< decoded content match */
-      TEMPLATE_CONCAT /**< concatenation of two templates (runtime2 only) */
+      TEMPLATE_CONCAT, /**< concatenation of two templates (runtime2 only) */
+      CONJUNCTION_MATCH, /**< conjunction list match */
+      IMPLICATION_MATCH, /**< implication match */
+      DYNAMIC_MATCH /**< dynamic match */
     };
 
     /** Status codes for the verification of template body completeness. */
@@ -186,11 +189,11 @@ namespace Ttcn {
       * TEMPLATE_CONCAT (in which case it's recursive). */
     Template(Value *v);
 
-    /** Constructor for TEMPLATE_REFD */
-    Template(Reference *p_ref);
+    /** Constructor for TEMPLATE_REFD and DYNAMIC_MATCH */
+    Template(templatetype_t tt, Reference *p_ref);
 
     /** Constructor for TEMPLATE_LIST, VALUE_LIST, COMPLEMENTED_LIST,
-     * SUPERSET_MATCH, SUBSET_MATCH and PERMUTATION_MATCH */
+     * SUPERSET_MATCH, SUBSET_MATCH, PERMUTATION_MATCH and CONJUNCTION_MATCH  */
     Template(templatetype_t tt, Templates *ts);
 
     /** Constructor for ALL_FROM */
@@ -213,6 +216,13 @@ namespace Ttcn {
     
     /** Constructor for DECODE_MATCH */
     Template(Value* v, TemplateInstance* ti);
+    
+    /** Constructor for IMPLICATION_MATCH */
+    Template(Template* prec, TemplateInstance* imp_t);
+    
+    /** Constructor for DYNAMIC_MATCH */
+    Template(StatementBlock* block);
+    
     
     virtual ~Template();
 

@@ -396,16 +396,26 @@ namespace Ttcn {
     }
   }
 
-  Template::Template(Reference *p_ref)
+  Template::Template(templatetype_t tt, Reference *p_ref)
     : GovernedSimple(S_TEMPLATE),
-      templatetype(TEMPLATE_REFD), my_governor(0), length_restriction(0),
+      templatetype(tt), my_governor(0), length_restriction(0),
       is_ifpresent(false), specific_value_checked(false),
       has_permutation(false), base_template(0)
   {
     if(!p_ref) FATAL_ERROR("Template::Template()");
-    u.ref.ref=p_ref;
-    u.ref.refd=0;
-    u.ref.refd_last=0;
+    switch (tt) {
+    case TEMPLATE_REFD:
+      u.ref.ref=p_ref;
+      u.ref.refd=0;
+      u.ref.refd_last=0;
+      break;
+    case DYNAMIC_MATCH:
+      delete p_ref;
+      // todo
+      break;
+    default:
+      FATAL_ERROR("Template::Template()");
+    }
   }
 
   Template::Template(templatetype_t tt, Templates *ts)
@@ -421,6 +431,7 @@ namespace Ttcn {
     case SUPERSET_MATCH:
     case SUBSET_MATCH:
     case PERMUTATION_MATCH:
+    case CONJUNCTION_MATCH:
       break;
     default:
       FATAL_ERROR("Template::Template()");
@@ -528,6 +539,33 @@ namespace Ttcn {
     }
     u.dec_match.str_enc = v;
     u.dec_match.target = ti;
+  }
+  
+  Template::Template(Template* prec, TemplateInstance* imp_t)
+    : GovernedSimple(S_TEMPLATE),
+      templatetype(IMPLICATION_MATCH), my_governor(0), length_restriction(0),
+      is_ifpresent(false), specific_value_checked(false),
+      has_permutation(false), flattened(true), base_template(0)
+  {
+    if (prec == NULL || imp_t == NULL) {
+      FATAL_ERROR("Template::Template()");
+    }
+    delete prec;
+    delete imp_t;
+    // todo
+  }
+  
+  Template::Template(StatementBlock* block)
+    : GovernedSimple(S_TEMPLATE),
+      templatetype(DYNAMIC_MATCH), my_governor(0), length_restriction(0),
+      is_ifpresent(false), specific_value_checked(false),
+      has_permutation(false), flattened(true), base_template(0)
+  {
+    if (block == NULL) {
+      FATAL_ERROR("Template::Template()");
+    }
+    delete block;
+    // todo
   }
 
   Template::~Template()
@@ -5813,7 +5851,7 @@ compile_time:
         // check, remove and delete after checked
         if (template_body->get_base_template())
           FATAL_ERROR("TemplateInstance::chk_restriction()");
-        template_body->set_base_template(new Template(derived_reference));
+        template_body->set_base_template(new Template(Template::TEMPLATE_REFD, derived_reference));
         needs_runtime_check = template_body->chk_restriction(
           definition_name, template_restriction, usage_loc);
         delete template_body->get_base_template();

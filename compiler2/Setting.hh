@@ -745,9 +745,10 @@ public:
   class Ref_simple : public Reference {
   public:
     enum reftype_t {
-      REF_BASIC, // basic reference (not class related to any class scope)
+      REF_BASIC, // basic reference (not related to a class scope or a dynamic template)
       REF_SUPER, // reference to the superclass
-      REF_THIS   // reference to the current class object
+      REF_THIS,  // reference to the current class object
+      REF_VALUE  // reference to the value being matched in a dynamic template
     };
   protected: // Derived classes need access
     /** Points to the referred assignment. Used for caching. */

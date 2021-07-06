@@ -746,7 +746,7 @@ namespace Ttcn {
   : Ref_base(), reftype(p_reftype), parlist(NULL), params(NULL),
     gen_const_prefix(false), expr_cache(NULL)
   {
-    if (reftype != REF_THIS) {
+    if (reftype != REF_THIS && reftype != REF_VALUE) {
       FATAL_ERROR("Ttcn::Reference(): basic or 'super' reference with no ID");
     }
   }

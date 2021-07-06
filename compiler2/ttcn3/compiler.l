@@ -392,6 +392,7 @@ check		RETURN_DOT(CheckOpKeyword);
 clear		RETURN_DOT(ClearOpKeyword);
 complement	RETURN(ComplementKeyword);
 component	RETURN(ComponentKeyword);
+conjunct   RETURN(ConjunctKeyword);
 connect		RETURN(ConnectKeyword);
 const		RETURN(ConstKeyword);
 continue	RETURN(ContinueKeyword);
@@ -431,6 +432,7 @@ halt		RETURN_DOT(HaltKeyword);
 hexstring	RETURN(HexStringKeyword);
 if		RETURN(IfKeyword);
 ifpresent	RETURN(IfPresentKeyword);
+implies   RETURN(ImpliesKeyword);
 import		RETURN(ImportKeyword);
 in		RETURN(InParKeyword);
 inconc		RETURN(InconcKeyword);
@@ -637,6 +639,7 @@ object {
 "@final"         RETURN(FinalKeyword);
 "@abstract"      RETURN(AbstractKeyword);
 "@default"       RETURN(DefaultModifier);
+"@dynamic"       RETURN(DynamicModifier);
 
   /* special TITAN specific keywords */
 

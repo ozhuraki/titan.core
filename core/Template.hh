@@ -54,7 +54,10 @@ enum template_sel {
   STRING_PATTERN = 7,
   SUPERSET_MATCH = 8,
   SUBSET_MATCH = 9,
-  DECODE_MATCH = 10
+  DECODE_MATCH = 10,
+  CONJUNCTION_MATCH = 11,
+  IMPLICATION_MATCH = 12,
+  DYNAMIC_MATCH = 13
 };
 
 enum template_res {

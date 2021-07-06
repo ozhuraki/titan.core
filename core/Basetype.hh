@@ -1237,6 +1237,20 @@ public:
   virtual ~Dec_Match_Interface() {}
 };
 
+template <typename T>
+class Dynamic_Match_Interface {
+public:
+  virtual boolean match(const T&) = 0;
+  virtual ~Dynamic_Match_Interface() {}
+};
+
+template <typename T>
+struct dynmatch_struct {
+  unsigned int ref_count;
+  Dynamic_Match_Interface<T>* ptr;
+};
+    
+
 /** Interface/base class for value redirects in RT2
   *
   * For every value redirect the compiler generates a new class that inherits

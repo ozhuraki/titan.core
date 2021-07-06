@@ -2077,6 +2077,7 @@ void INTEGER_template::clean_up()
       break;
     case VALUE_LIST:
     case COMPLEMENTED_LIST:
+    case CONJUNCTION_MATCH:
       delete [] value_list.list_value;
       break;
     case VALUE_RANGE:
@@ -2084,6 +2085,17 @@ void INTEGER_template::clean_up()
         BN_free(value_range.min_value.val.openssl);
       if (value_range.max_is_present && unlikely(!value_range.max_value.native_flag))
         BN_free(value_range.max_value.val.openssl);
+      break;
+    case IMPLICATION_MATCH:
+      delete implication_.precondition;
+      delete implication_.implied_template;
+      break;
+    case DYNAMIC_MATCH:
+      dyn_match->ref_count--;
+      if (dyn_match->ref_count == 0) {
+        delete dyn_match->ptr;
+        delete dyn_match;
+      }
       break;
     default:
       break;
@@ -2106,6 +2118,7 @@ void INTEGER_template::copy_template(const INTEGER_template& other_value)
     break;
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     value_list.n_values = other_value.value_list.n_values;
     value_list.list_value = new INTEGER_template[value_list.n_values];
     for (unsigned int i = 0; i < value_list.n_values; i++)
@@ -2135,6 +2148,14 @@ void INTEGER_template::copy_template(const INTEGER_template& other_value)
         value_range.max_value.val.openssl =
           BN_dup(other_value.value_range.max_value.val.openssl);
     }
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition = new INTEGER_template(*other_value.implication_.precondition);
+    implication_.implied_template = new INTEGER_template(*other_value.implication_.implied_template);
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match = other_value.dyn_match;
+    dyn_match->ref_count++;
     break;
   default:
     TTCN_error("Copying an uninitialized/unsupported integer template.");
@@ -2194,6 +2215,21 @@ INTEGER_template::INTEGER_template(const INTEGER_template& other_value)
 : Base_Template()
 {
   copy_template(other_value);
+}
+
+INTEGER_template::INTEGER_template(INTEGER_template* p_precondition, INTEGER_template* p_implied_template)
+: Base_Template(IMPLICATION_MATCH)
+{
+  implication_.precondition = p_precondition;
+  implication_.implied_template = p_implied_template;
+}
+
+INTEGER_template::INTEGER_template(Dynamic_Match_Interface<INTEGER>* p_dyn_match)
+: Base_Template(DYNAMIC_MATCH)
+{
+  dyn_match = new dynmatch_struct<INTEGER>;
+  dyn_match->ptr = p_dyn_match;
+  dyn_match->ref_count = 1;
 }
 
 INTEGER_template::~INTEGER_template()
@@ -2310,6 +2346,17 @@ boolean INTEGER_template::match(int other_value, boolean /* legacy */) const
       }
     }
     return lower_boundary && upper_boundary; }
+  case CONJUNCTION_MATCH:
+    for (unsigned int i = 0; i < value_list.n_values; i++) {
+      if (!value_list.list_value[i].match(other_value)) {
+        return FALSE;
+      }
+    }
+    return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->match(other_value) || implication_.implied_template->match(other_value);
+  case DYNAMIC_MATCH:
+    return dyn_match->ptr->match(other_value);
   default:
     TTCN_error("Matching with an uninitialized/unsupported integer "
       "template.");
@@ -2365,6 +2412,17 @@ boolean INTEGER_template::match(const INTEGER& other_value,
       }
       }
       return lower_boundary && upper_boundary; }
+    case CONJUNCTION_MATCH:
+      for (unsigned int i = 0; i < value_list.n_values; i++) {
+        if (!value_list.list_value[i].match(other_value)) {
+          return FALSE;
+        }
+      }
+      return TRUE;
+    case IMPLICATION_MATCH:
+      return !implication_.precondition->match(other_value) || implication_.implied_template->match(other_value);
+    case DYNAMIC_MATCH:
+      return dyn_match->ptr->match(other_value);
     default:
       TTCN_error("Matching with an uninitialized/unsupported integer "
         "template.");
@@ -2388,6 +2446,7 @@ void INTEGER_template::set_type(template_sel template_type,
   switch (template_type) {
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     set_selection(template_type);
     value_list.n_values = list_length;
     value_list.list_value = new INTEGER_template[list_length];
@@ -2407,7 +2466,8 @@ void INTEGER_template::set_type(template_sel template_type,
 INTEGER_template& INTEGER_template::list_item(unsigned int list_index)
 {
   if (template_selection != VALUE_LIST &&
-      template_selection != COMPLEMENTED_LIST)
+      template_selection != COMPLEMENTED_LIST &&
+      template_selection != CONJUNCTION_MATCH)
     TTCN_error("Accessing a list element of a non-list integer template.");
   if (list_index >= value_list.n_values)
     TTCN_error("Index overflow in an integer value list template.");
@@ -2524,6 +2584,11 @@ void INTEGER_template::log() const
   case COMPLEMENTED_LIST:
     TTCN_Logger::log_event_str("complement");
     // no break
+  case CONJUNCTION_MATCH:
+    if (template_selection == CONJUNCTION_MATCH) {
+      TTCN_Logger::log_event_str("conjunct");
+    }
+    // no break
   case VALUE_LIST:
     TTCN_Logger::log_char('(');
     for (unsigned int i = 0; i < value_list.n_values; i++) {
@@ -2558,6 +2623,14 @@ void INTEGER_template::log() const
       TTCN_Logger::log_event_str("infinity");
     }
     TTCN_Logger::log_char(')');
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition->log();
+    TTCN_Logger::log_event_str(" implies ");
+    implication_.implied_template->log();
+    break;
+  case DYNAMIC_MATCH:
+    TTCN_Logger::log_event_str("@dynamic template");
     break;
   default:
     log_generic();
@@ -2840,6 +2913,8 @@ boolean INTEGER_template::match_omit(boolean legacy /* = FALSE */) const
   case OMIT_VALUE:
   case ANY_OR_OMIT:
     return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->match_omit() || implication_.implied_template->match_omit();
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
     if (legacy) {

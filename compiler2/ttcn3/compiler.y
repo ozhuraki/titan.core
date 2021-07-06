@@ -613,6 +613,19 @@ static const string anyname("anytype");
     size_t nElements;
     StatementBlock** elements;
   } catch_block_list;
+  
+  struct {
+    Template* precondition;
+    TemplateInstance* implied_template;
+  } implication_match;
+  
+  struct {
+    bool is_ref;
+    union {
+      Ttcn::Reference* ref;
+      StatementBlock* sb;
+    };
+  } dynamic_match;
 }
 
 /* Tokens of TTCN-3 */
@@ -679,6 +692,7 @@ static const string anyname("anytype");
 %token ClearOpKeyword
 %token ComplementKeyword
 %token ComponentKeyword
+%token ConjunctKeyword
 %token ConnectKeyword
 %token ConstKeyword
 %token ContinueKeyword
@@ -720,6 +734,7 @@ static const string anyname("anytype");
 %token HexStringKeyword
 %token IfKeyword
 %token IfPresentKeyword
+%token ImpliesKeyword
 %token ImportKeyword
 %token InconcKeyword
 %token InfinityKeyword
@@ -831,6 +846,7 @@ static const string anyname("anytype");
 %token FinalKeyword
 %token AbstractKeyword
 %token DefaultModifier
+%token DynamicModifier
 
 /* TITAN specific keywords */
 %token TitanSpecificTryKeyword
@@ -1076,7 +1092,7 @@ static const string anyname("anytype");
 %type <templinsts>  optTemplateActualParList
   seqTemplateActualPar seqTemplateInstance
 %type <templs> ValueOrAttribList seqValueOrAttrib ValueList Complement
-  ArrayElementSpecList SubsetMatch SupersetMatch PermutationMatch
+  ArrayElementSpecList SubsetMatch SupersetMatch PermutationMatch ConjunctionMatch
 %type <ass> Assignment Step
 %type <reference> DerivedRefWithParList TemplateRefWithParList DecValueArg
   FunctionInstance AltstepInstance optBaseConstructorCall
@@ -1181,6 +1197,8 @@ AllOrTypeListWithTo TypeListWithFrom TypeListWithTo
 %type <reference_list> PortTypeList
 %type <string_vector> AttribSpecEncodings
 %type <catch_block_list> optCatchBlockList
+%type <implication_match> ImplicationMatch
+%type <dynamic_match> DynamicMatch
 
 /*********************************************************************
  * Destructors
@@ -1276,6 +1294,7 @@ CompoundExpression
 ConditionalConstruct
 ConfigurationOps
 ConfigurationStatements
+ConjunctionMatch
 ConnectStatement
 ContinueStatement
 ControlStatement
@@ -1957,6 +1976,22 @@ DecodedContentMatch
 }
 optDecodedModifier
 
+%destructor {
+  delete $$.precondition;
+  delete $$.implied_template;
+}
+ImplicationMatch
+
+%destructor {
+  if ($$.is_ref) {
+    delete $$.ref;
+  }
+  else {
+    delete $$.sb;
+  }
+}
+DynamicMatch
+
 
 /*********************************************************************
  * Operator precedences (lowest first)
@@ -1977,20 +2012,20 @@ optDecodedModifier
 %left '*' '/' ModKeyword RemKeyword
 %left UnarySign
 
-%expect 76
+%expect 92
 
 %start GrammarRoot
 
 /*
-XXX Source of conflicts (75 S/R):
+XXX Source of conflicts (92 S/R):
 
-1.) 12 conflicts in one state
+1.) 13 conflicts in one state
 The Expression after 'return' keyword is optional in ReturnStatement.
-For 12 tokens the parser cannot decide whether the token is a part of
+For 13 tokens the parser cannot decide whether the token is a part of
 the return expression (shift) or it is the beginning of the next statement
 (reduce).
 
-2.) 13 distinct states, each with one conflict caused by token '['
+2.) 14 distinct states, each with one conflict caused by token '['
 The local definitions in altsteps can be followed immediately by the guard
 expression. When the parser sees the '[' token it cannot decide whether it
 belongs to the local definition as array dimension or array subreference
@@ -2009,6 +2044,7 @@ The situations are the following:
 - var t v := this.field <here> [
 - var t v := this.function(...) <here> [
 - var t v := super.function(...) <here> [
+- var t v := value<subrefs> <here> [
 
 3.) 1 conflict
 The sequence identifier.objid can be either the beginning of a module name
@@ -2025,9 +2061,9 @@ non-standard language extension.
 
 6.) 1 Conflict due to pattern concatenation
 
-7.) 30 conflicts in one state
+7.) 31 conflicts in one state
 In the DecodedContentMatch rule a SingleExpression encased in round brackets is
-followed by an in-line template. For 30 tokens (after the ')' ) the parser cannot
+followed by an in-line template. For 31 tokens (after the ')' ) the parser cannot
 decide whether the token is the beginning of the in-line template (shift) or
 the brackets are only part of the SingleExpression itself and the conflicting
 token is the next segment in the expression (reduce).
@@ -2069,6 +2105,38 @@ so this conflict didn't change anything in the compiler's behavior.
 ex.: 'a(1)' is treated as the objid component with name 'a' and number '1' (shift),
 instead of the component with the number returned by function 'a' with '1' as
 its parameter (reduce).
+
+14.) 13 conflicts in 9 states
+These are caused by the implication matching template rule (i.e. ImplicationMatch),
+specifically because the rule ends in a TemplateInstance, and the rule itself can be
+embedded inside another TemplateInstance.
+ - The 'length' and 'ifpresent' keywords after an implication match template can
+be interpreted as attributes of the implied template (i.e. the 2nd operand)
+in the implication match template (shift), or as attributes of the entire implication
+match template (reduce). This causes 2 conflicts (one for each keyword) in 4 states
+(the first 4 options of the TemplateBody rule).
+ - Similarly, if there is an 'ifpresent' after a length restriction at the end of an
+implication match template, then it can be considered as an attribute of the implied
+template (shift), or as an attribute of the entire implication match template (reduce). 
+ - Implication matching templates can be chained (e.g. 't1 implies t2 implies t3').
+The first 'implies' keyword in this case can be considered as part of the precondition
+of the resulting template (whose precondition is 't1 implies t2' and whose implied
+template is 't3'). This is the shift case.
+It can also be considered as the resulting template's 'implies' keyword (in which case
+the precondition would be 't1' and the implied tempalte would be 't2 implies t3').
+This is the reduce case.
+Semantically both cases mean the same thing.
+ - Similarly, if a template instance in the middle of an implication match chain has a
+type indicator, a derived reference, or both a type indicator and a derived reference,
+then the following 'implies' keyword can be considered as part of the result template's
+precondition (shift). In this case the type and/or derived reference only affect the
+template operand before the mentioned 'implies' keyword.
+Or it can be the 'implies' keyword of the resulting template (reduce), in which case
+the type and/or derived reference would affect the entire implication match template that
+starts before the mentioned 'implies' keyword and ends after the final 'implies' keyword.
+(For example in 't1 implies MyType: t2 implies t3'
+'MyType:' could indicate the type of 't2' (shift) or the type of 't2 implies t3' (reduce).
+
 
 Note that the parser implemented by bison always chooses to shift instead of
 reduce in case of conflicts.
@@ -4206,13 +4274,33 @@ MatchingSymbol: // 116 is a Template*
     $$ = new Template(Template::SUPERSET_MATCH, $1);
     $$->set_location(infile, @$);
   }
+| ConjunctionMatch
+  {
+    $$ = new Template(Template::CONJUNCTION_MATCH, $1);
+    $$->set_location(infile, @$);
+  }
+| ImplicationMatch
+  {
+    $$ = new Template($1.precondition, $1.implied_template);
+    $$->set_location(infile, @$);
+  }
+| DynamicMatch
+  {
+    if ($1.is_ref) {
+      $$ = new Template(Template::DYNAMIC_MATCH, $1.ref);
+    }
+    else {
+      $$ = new Template($1.sb);
+    }
+    $$->set_location(infile, @$);
+  }
 ;
 
 optExtraMatchingAttributes: // [117]
   /* empty */
   {
-    $$.is_ifpresent = false;
     $$.len_restr = NULL;
+    $$.is_ifpresent = false;
   }
 | LengthMatch
   {
@@ -4337,6 +4425,33 @@ DecodedContentMatch:
   {
     $$.string_encoding = NULL;
     $$.target_template = $2;
+  }
+;
+
+ConjunctionMatch:
+  ConjunctKeyword ValueList { $$ = $2; }
+;
+
+ImplicationMatch:
+  TemplateBody ImpliesKeyword TemplateInstance
+  {
+    $$.precondition = $1;
+    $$.implied_template = $3;
+  }
+/*| TemplateBody ImpliesKeyword '(' TemplateInstance ')' --- handled by TemplateListElem */
+;
+
+DynamicMatch:
+  DynamicModifier StatementBlock
+  {
+    $$.is_ref = false;
+    $$.sb = $2;
+  }
+| DynamicModifier FunctionRef
+  {
+    $$.is_ref = true;
+    $$.ref = new Ttcn::Reference($2.modid, $2.id);
+    $$.ref->set_location(infile, @2);
   }
 ;
 
@@ -8886,6 +9001,14 @@ Reference: // 490 ValueReference
       $$.ref->add($7.elements[i]);
     }
     Free($7.elements);
+    $$.ref->set_location(infile, @$);
+  }
+| ValueKeyword optExtendedFieldReference
+  {
+    $$.is_ref = true;
+    $$.ref = new Ttcn::Reference(Ref_simple::REF_VALUE);
+    for (size_t i = 0; i < $2.nElements; i++) $$.ref->add($2.elements[i]);
+    Free($2.elements);
     $$.ref->set_location(infile, @$);
   }
 ;

@@ -4587,7 +4587,7 @@ namespace Common {
     case Assignment::A_PAR_TEMPL_IN:
     case Assignment::A_PAR_TEMPL_OUT:
     case Assignment::A_PAR_TEMPL_INOUT:
-      u.expr.t1=new Template(tmpref); // TEMPLATE_REFD constructor
+      u.expr.t1=new Template(Template::TEMPLATE_REFD, tmpref); // TEMPLATE_REFD constructor
       u.expr.t1->set_location(*tmpref);
       u.expr.t1->set_my_scope(get_my_scope());
       u.expr.t1->set_fullname(get_fullname()+".<operand>");
@@ -6704,7 +6704,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       case Assignment::A_PAR_TEMPL_IN:
       case Assignment::A_PAR_TEMPL_OUT:
       case Assignment::A_PAR_TEMPL_INOUT: {
-        Template* t = new Template(ref->clone());
+        Template* t = new Template(Template::TEMPLATE_REFD, ref->clone());
         t->set_location(*ref);
         t->set_my_scope(get_my_scope());
         t->set_fullname(get_fullname()+".<operand>");
@@ -12043,7 +12043,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case Assignment::A_PAR_TEMPL_IN:
     case Assignment::A_PAR_TEMPL_OUT:
     case Assignment::A_PAR_TEMPL_INOUT: {
-      Template* t = new Template(ref->clone());
+      Template* t = new Template(Template::TEMPLATE_REFD, ref->clone());
       t->set_location(*ref);
       t->set_my_scope(get_my_scope());
       t->set_fullname(get_fullname()+".<operand>");
