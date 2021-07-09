@@ -4415,43 +4415,44 @@ static void print_makefile(struct makefile_struct *makefile)
         fprintf(fp,"\tfind . -type l -name \"*.so\" -exec  unlink {} \\;\n");
       }
       fprintf(fp, "\t%s $(EXECUTABLE) $(DYNAMIC_LIBRARY) $(STATIC_LIBRARY) "
-        "$(OBJECTS) $(GENERATED_HEADERS) \\\n"
-        "\t$(GENERATED_SOURCES) ", rm_command);
-      if (makefile->dynamic) fputs("$(SHARED_OBJECTS) ", fp);
-      if (makefile->preprocess) fputs("$(PREPROCESSED_TTCN3_MODULES) ", fp);
-      fputs("compile", fp);
+        "$(OBJECTS)\n", rm_command);
+      fprintf(fp, "\t%s $(GENERATED_HEADERS)\n", rm_command);
+      fprintf(fp, "\t%s $(GENERATED_SOURCES)\n", rm_command);
+      if (makefile->dynamic) fprintf(fp, "\t%s $(SHARED_OBJECTS)\n", rm_command);
+      if (makefile->preprocess) fprintf(fp, "\t%s $(PREPROCESSED_TTCN3_MODULES)\n", rm_command);
+      fprintf(fp, "\t%s compile", rm_command);
       if (makefile->central_storage) fputs(" compile-all", fp);
       if (makefile->gcc_dep) fputs(" $(DEPFILES)", fp);
       if (merge_profiled_file_lists) {
-        fputs(" $(PROFILED_FILE_LIST)", fp);
+      	fprintf(fp, "\t%s $(PROFILED_FILE_LIST)\n", rm_command);
       }
-      if (makefile->nXSDModules) fputs(" $(XSD2TTCN_GENERATED_MODULES)", fp);
-      fprintf(fp, " \\\n"
-        "\ttags *.log%s%s\n\n",
-        add_refd_prjs?" referenced*":"",
-        makefile->hierarchical ? " update":"");
+      if (makefile->nXSDModules) fprintf(fp, "\t%s $(XSD2TTCN_GENERATED_MODULES)\n", rm_command);
+      fprintf(fp, "\n\t%s tags *.log%s%s\n\n", rm_command,
+        add_refd_prjs ? " referenced*" : "",
+        makefile->hierarchical ? " update" : "");
     }
     else {
       fprintf(fp, "clean:%s\n"
-        "\t-%s $(EXECUTABLE) $(LIBRARY) $(OBJECTS) $(GENERATED_HEADERS) \\\n"
-        "\t$(GENERATED_SOURCES) ", add_refd_prjs?" referenced-clean":"", rm_command);
-      if (makefile->dynamic) fputs("$(SHARED_OBJECTS) ", fp);
-      if (makefile->preprocess) fputs("$(PREPROCESSED_TTCN3_MODULES) ", fp);
-      fputs("compile", fp);
+        "\t-%s $(EXECUTABLE) $(LIBRARY) $(OBJECTS)\n",
+        add_refd_prjs?" referenced-clean":"", rm_command);
+      fprintf(fp, "\t-%s $(GENERATED_HEADERS)\n", rm_command);
+      fprintf(fp, "\t-%s $(GENERATED_SOURCES)\n", rm_command);
+      if (makefile->dynamic) fprintf(fp, "\t-%s $(SHARED_OBJECTS)\n", rm_command);
+      if (makefile->preprocess) fprintf(fp, "\t-%s $(PREPROCESSED_TTCN3_MODULES)\n", rm_command);
+      fprintf(fp, "\t-%s compile", rm_command);
       if (makefile->central_storage) fputs(" compile-all", fp);
       if (makefile->gcc_dep) fputs(" $(DEPFILES)", fp);
       if (merge_profiled_file_lists) {
-        fputs(" $(PROFILED_FILE_LIST)", fp);
+        fprintf(fp, "\t-%s $(PROFILED_FILE_LIST)\n", rm_command);
       }
-      if (makefile->nXSDModules) fputs(" $(XSD2TTCN_GENERATED_MODULES)", fp);
-      fprintf(fp, " \\\n"
-        "\ttags *.log%s",
-        add_refd_prjs?" referenced*":"");
+      if (makefile->nXSDModules) fprintf(fp, "\t-%s $(XSD2TTCN_GENERATED_MODULES)\n", rm_command);
+      fprintf(fp, "\n\t-%s tags *.log%s", rm_command,
+        add_refd_prjs ? " referenced*" : "");
     }
 
 // clean-all:
     if (makefile->linkingStrategy && makefile->hierarchical)
-      fprintf(fp, "clean-all: %s clean\n", add_refd_prjs ? "referenced-clean-all":"");
+      fprintf(fp, "clean-all: %s clean\n", add_refd_prjs ? "referenced-clean-all" : "");
 
 // dep:
     fputs("\n\ndep: $(GENERATED_SOURCES) $(USER_SOURCES)",fp);
