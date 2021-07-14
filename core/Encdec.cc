@@ -743,9 +743,10 @@ void TTCN_Buffer::put_b(size_t len, const unsigned char *s,
   }
 /*printf("len:%d\r\n",len);
 printf("align:%d\r\n",align);
-printf("coding bito:%s,byte:%s,field:%s\r\n",coding_par.bitorder==ORDER_MSB?"M":"L",
+printf("coding bito:%s,byte:%s,field:%s, hex: %s\r\n",coding_par.bitorder==ORDER_MSB?"M":"L",
 coding_par.byteorder==ORDER_MSB?"M":"L",
-coding_par.fieldorder==ORDER_MSB?"M":"L"
+coding_par.fieldorder==ORDER_MSB?"M":"L",
+coding_par.hexorder==ORDER_MSB?"M":"L"
 );
 printf("local bito:%s,field:%s\r\n",local_bitorder==ORDER_MSB?"M":"L",
 local_fieldorder==ORDER_MSB?"M":"L"
@@ -798,7 +799,7 @@ local_fieldorder==ORDER_MSB?"M":"L"
 //printf("new_size:%d new_bit_pos:%d\r\n",new_size,new_bit_pos);
   if(coding_par.hexorder==ORDER_MSB){
     st2=(unsigned char*)Malloc((len+7)/8*sizeof(unsigned char));
-    if(bit_pos==4){
+    if(bit_pos==4 && local_fieldorder==ORDER_LSB){
       st2[0]=s[0];
       for(size_t a=1;a<(len+7)/8;a++){
         unsigned char ch='\0';
@@ -1208,7 +1209,7 @@ void TTCN_Buffer::get_b(size_t len, unsigned char *s,
     }
   }
   if(coding_par.hexorder==ORDER_MSB){
-    if(bit_pos==4){
+    if(bit_pos==4 && local_fieldorder==ORDER_LSB){
       for(size_t a=1;a<(len+7)/8;a++){
         unsigned char ch='\0';
         ch|=s[a-1]>>4;

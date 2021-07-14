@@ -1,0 +1,67 @@
+/******************************************************************************
+ * Copyright (c) 2000-2021 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Gabor, Szalai – initial implementation
+ *
+ ******************************************************************************/
+
+module Issue557 {
+
+
+type record R4{
+  bitstring f1 length(4),
+  hexstring f2
+} with {
+  variant (f2) "HEXORDER(high)"
+  variant  "FIELDORDER(msb)"
+}
+
+type component CT{}
+
+template bitstring t_expected_encoded:=oct2bit('F123456789'O)
+template R4 t_expected_decoded:={'1111'B, '123456789'H }
+
+testcase tc_issue557() runs on CT {
+  var R4 vl_pdu4:={'1111'B, '123456789'H }
+  var bitstring vl_encoded:=encvalue(vl_pdu4)
+  
+  log(vl_pdu4, " encoded as ",bit2oct(vl_encoded), " expected as ", bit2oct(valueof(t_expected_encoded)))
+  if(match(vl_encoded,t_expected_encoded)){
+    setverdict(pass)
+  } else {
+    setverdict(fail, "wrong encoded value")
+  }
+  
+  vl_encoded:=valueof(t_expected_encoded)
+  var integer vl_res:=decvalue(vl_encoded,vl_pdu4)
+  
+  log("decode result: ", vl_res)
+  
+  if(vl_res == 0) {
+    setverdict(pass)
+    log(bit2oct(valueof(t_expected_encoded)), " decoded as ",vl_pdu4, " expected as ", t_expected_decoded)
+    if(match(vl_pdu4,t_expected_decoded)){
+      setverdict(pass)
+    } else {
+      setverdict(fail, "wrong decoded value")
+    }
+  } else {
+    setverdict(fail, "Decoding failed")
+  }
+  
+  
+  
+}
+
+control {
+  execute(tc_issue557());
+}
+
+} with {
+  encode "RAW"
+}
