@@ -1411,6 +1411,7 @@ unsigned char TTCN_Buffer::get_byte_align(size_t len,
                                           size_t idx)
 {
   if(idx>(bit_pos+len)/8) return '\0';
+  if((buf_pos+idx) >= buf_len) return '\0';
   const unsigned char *data_ptr = buf_ptr != NULL ? buf_ptr->data_ptr : NULL;
   if(idx==0){ // first byte
     if(fieldorder==req_align){
