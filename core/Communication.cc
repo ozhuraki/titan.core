@@ -810,6 +810,11 @@ void TTCN_Communication::send_version()
   text_buf.push_int(TRANSPORT_INET_STREAM);
   if (unix_stream_supported)
     text_buf.push_int(TRANSPORT_UNIX_STREAM);
+  if (local_addr_set) {
+    text_buf.push_string(hcnh.get_local_addr_str());
+  } else {
+    text_buf.push_string("");
+  }
   send_message(text_buf);
 }
 

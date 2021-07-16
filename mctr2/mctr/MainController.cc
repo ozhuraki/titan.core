@@ -602,6 +602,12 @@ host_struct *MainController::add_new_host(unknown_connection *conn)
       "Transport type %s must be supported anyway.",
       get_transport_name(TRANSPORT_INET_STREAM));
   }
+  char *hc_addr = text_buf->pull_string();
+  if (strlen(hc_addr)) {
+    new_host->ip_addr = IPAddress::create_addr(hc_addr);
+    Free(new_host->hostname);
+    new_host->hostname = mcopystr(new_host->ip_addr->get_host_str());
+  }
   new_host->log_source = mprintf("HC@%s", new_host->hostname_local);
   new_host->hc_state = HC_IDLE;
   new_host->hc_fd = fd;
