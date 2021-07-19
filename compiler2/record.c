@@ -5455,11 +5455,13 @@ static char *genRawDecodeRecordField(char *src, const struct_def *sdef,
     /* field index of the otherwise rule */
     int other = -1;
     boolean first_value = TRUE;
+    boolean if_added = FALSE;
     int j;
     for (j = 0; j < sdef->elements[i].raw.crosstaglist.nElements; j++) {
       rawAST_coding_taglist* cur_choice =
 	sdef->elements[i].raw.crosstaglist.list + j;
       if (cur_choice->nElements > 0) {
+        if_added = TRUE;
         /* this is a normal rule */
 	if (first_value) {
 	  src = mputstr(src, "  if (");
@@ -5475,7 +5477,7 @@ static char *genRawDecodeRecordField(char *src, const struct_def *sdef,
       }
     }
     /* set selected_field to the field index of the otherwise rule or -1 */
-    src = mputprintf(src, "  else selected_field = %d;\n", other);
+    src = mputprintf(src, "  %s selected_field = %d;\n", if_added?"else":"", other);
   }
   /* check the presence of optional field*/
   if(sdef->elements[i].isOptional){
