@@ -286,7 +286,7 @@
 /* For prefixing the above messages. Default value: empty string. */
 #define COMMENT_PREFIX
 
-/ * For include git commit id in version printouts */
+/* For include git commit id in version printouts */
 extern char const *const GIT_COMMIT_ID;
 
 #endif
