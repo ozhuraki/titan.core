@@ -121,7 +121,7 @@ ifdef REGEX_DIR
 endif
 
 COMPILER_COMMON_OBJECTS := $(COMMON_OBJECTS) \
-$(addprefix ../common/, new.o pattern_la.o pattern_p.o pattern_uni.o Quadruple.o \
+$(addprefix ../common/, git_version.o new.o pattern_la.o pattern_p.o pattern_uni.o Quadruple.o \
 ModuleVersion.o JSON_Tokenizer.o UnicharPattern.o openssl_version.o)
 
 ifeq ($(USAGE_STATS), yes)

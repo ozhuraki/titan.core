@@ -160,7 +160,7 @@ PROFMERGE_OBJECTS := ProfMerge_main.o ProfilerTools.profmerge.o \
 COMMON_OBJECTS := $(addprefix ../common/, memory.o pattern_la.o pattern_p.o \
 	            config_preproc.o config_preproc_la.o config_preproc_p.tab.o \
 	            path.o pattern_uni.o Quadruple.o NetworkHandler.o Path2.o \
-	            ModuleVersion.o JSON_Tokenizer.o UnicharPattern.o)
+	            ModuleVersion.o JSON_Tokenizer.o UnicharPattern.o git_version.o)
 
 ifeq ($(DEBUG), yes)
   COMMON_OBJECTS += ../common/new.o

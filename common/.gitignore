@@ -14,3 +14,4 @@ pattern_uni.output
 config_preproc_p.output
 config_preproc_p.tab.cc
 config_preproc_p.tab.hh
+git_version.c

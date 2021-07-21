@@ -185,8 +185,12 @@ int main(int argc, char *argv[])
     fputs("TTCN-3 Test Executor (single mode)\n"
       "Version: " VERSION_STRING "\n"
       "Build date (Base Library): " __DATE__ " " __TIME__ "\n"
-      "Base Library was compiled with: " C_COMPILER_VERSION "\n\n"
-      COPYRIGHT_STRING "\n\n", stderr);
+      "Base Library was compiled with: " C_COMPILER_VERSION, stderr);
+    if (strlen(GIT_COMMIT_ID)) {
+	  fputs("\nCommit id: ", stderr);
+	  fputs(GIT_COMMIT_ID, stderr);
+	}
+    fputs("\n\n" COPYRIGHT_STRING "\n\n", stderr);
 #ifdef LICENSE
     print_license_info();
     putc('\n', stderr);

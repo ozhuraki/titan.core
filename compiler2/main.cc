@@ -977,6 +977,10 @@ int main(int argc, char *argv[])
 	  "Compiled with: " C_COMPILER_VERSION "\n", stderr);
 	  fputs("Using ", stderr);
 	  fputs(openssl_version_str(), stderr);
+	if (strlen(GIT_COMMIT_ID)) {
+	  fputs("\nCommit id: ", stderr);
+	  fputs(GIT_COMMIT_ID, stderr);
+	}
 	  fputs("\n\n" COPYRIGHT_STRING "\n\n", stderr);
 #ifdef LICENSE
     print_license_info();
