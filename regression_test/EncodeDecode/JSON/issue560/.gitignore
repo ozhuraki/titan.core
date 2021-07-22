@@ -1,0 +1,8 @@
+Issue560withJSON
+Issue560withJSON.exe
+Issue560withJSON*.cc
+Issue560withJSON*.hh
+*.d
+compile
+Issue560withJSON*.log
+result.txt
