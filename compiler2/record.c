@@ -3466,12 +3466,16 @@ char* generate_json_decoder(char* src, const struct_def* sdef)
               mprintf("%d", cur_choice->fieldnum) : mcopystr("CHOSEN_FIELD_OMITTED");
           }
         }
-        if (otherwise_str != NULL) {
+        if (otherwise_str != NULL && !first_value) {
           /* set chosen_field to the field index of the otherwise rule or -1 */
           src = mputprintf(src,
             "         else {\n"
             "           chosen_field = %s;\n"
             "         }\n", otherwise_str);
+          Free(otherwise_str);
+        } else if (otherwise_str != NULL && first_value) {
+          src = mputprintf(src,
+            "         chosen_field = %s;\n", otherwise_str);
           Free(otherwise_str);
         }
       }
