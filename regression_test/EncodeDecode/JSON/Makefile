@@ -18,7 +18,7 @@
 TOPDIR := ../../
 include $(TOPDIR)/Makefile.regression
 
-RDIRS = JsonBasicTest  JsonComplexTest JsonModuleTest
+RDIRS = JsonBasicTest  JsonComplexTest JsonModuleTest issue560
 
 all dep clean run distclean:
 	for dir in $(RDIRS); do (cd $$dir && $(MAKE) $@) || exit; done

@@ -20,7 +20,7 @@ include $(TOPDIR)/Makefile.regression
 
 RDIRS = Examples HN25015 HQ26535 HQ49956 HS16977 ustr Annex_E_variants Bug521125 \
         Lengthto_Offset Bug522656  RAW_bitstring RAW_EncDec RAW_integer RAW_repeat  ForceOmit Bug546231 \
-        Bug547385 IntX CSN1_LH Bug572603 Issue555 issue557
+        Bug547385 IntX CSN1_LH Bug572603 Issue555 issue557 issue560
 
 all dep clean run distclean:
 	for dir in $(RDIRS); do (cd $$dir && $(MAKE) $@) || exit; done
