@@ -72,6 +72,7 @@ LINECOMMENT "//"[^\r\n]*
 WHITESPACE [ \t\v\f]
 NEWLINE \r|\n|\r\n
 IDENTIFIER [A-Za-z][A-Za-z0-9_]*
+IDENTIFIER2 [A-Za-z][A-Za-z0-9_ ]*
 NUMBER 0|[1-9][0-9]*
 
 %s SC_start
@@ -231,7 +232,7 @@ verdicttype RETURN(VerdictTypeKeyword);
     yylval.encoding_type = Type::CT_OER;
     RETURN(EncodingType);
   }
-  {IDENTIFIER} {
+  {IDENTIFIER2} {
     yylval.str = new string(yyleng, yytext);
     RETURN(CustomEncoding);
   }
