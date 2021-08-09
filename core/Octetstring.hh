@@ -280,6 +280,11 @@ private:
     } value_list;
     octetstring_pattern_struct *pattern_value;
     decmatch_struct* dec_match;
+    struct {
+      OCTETSTRING_template* precondition;
+      OCTETSTRING_template* implied_template;
+    } implication_;
+    dynmatch_struct<OCTETSTRING>* dyn_match;
   };
 
   void copy_template(const OCTETSTRING_template& other_value);
@@ -301,6 +306,8 @@ public:
   OCTETSTRING_template(unsigned int n_elements,
     const unsigned short *pattern_elements);
   OCTETSTRING_template(const OCTETSTRING_template& other_value);
+  OCTETSTRING_template(OCTETSTRING_template* p_precondition, OCTETSTRING_template* p_implied_template);
+  OCTETSTRING_template(Dynamic_Match_Interface<OCTETSTRING>* p_dyn_match);
   ~OCTETSTRING_template();
   void clean_up();
 

@@ -153,9 +153,74 @@ testcase templateHexstrDecmatchSelfRef() runs on templateHexstr_mycomp {
   else { setverdict(fail, 5); }
 }
 
+function f_is_negative(hexstring p_par) return boolean {
+  // assume the first bit of the first byte is the sign bit
+  if (lengthof(p_par) mod 2 != 0) {
+    // the sign bit is in the zero nibble before the start of the hexstring
+    return false;
+  }
+  var bitstring v_first_nibble := hex2bit(p_par[0]);
+  return v_first_nibble[0] == '1'B;
+}
+
+template hexstring t_conjunction := conjunct(? length(1..2), @dynamic f_is_negative);
+
+template hexstring t_implication := '*A'H implies @dynamic f_is_negative;
+
+// matches if the number of letters ('A' to 'F') in the hexstring matches the template parameter
+template hexstring t_dynamic(template integer pt_letters) := @dynamic {
+  var integer v_num_letters := 0;
+  for (var integer i := 0; i < lengthof(value); i := i + 1) {
+    if (match(value[i], ('A'H, 'B'H, 'C'H, 'D'H, 'E'H, 'F'H))) {
+      v_num_letters := v_num_letters + 1;
+    }
+  }
+  return match(v_num_letters, pt_letters);
+}
+
+testcase templateHexstrConjunction() runs on templateHexstr_mycomp {
+  var hexstring v1 := '80'H, v2 := 'E'H;
+  if (not match(v1, t_conjunction)) {
+    setverdict(fail, match(v1, t_conjunction));
+  }
+  if (match(v2, t_conjunction)) {
+    setverdict(fail, match(v2, t_conjunction));
+  }
+  setverdict(pass);
+}
+
+testcase templateHexstrImplication() runs on templateHexstr_mycomp {
+  var hexstring v1 := 'D0'H, v2 := '4A'H, v3 := 'EA'H;
+  if (not match(v1, t_implication)) {
+    setverdict(fail, match(v1, t_implication));
+  }
+  if (match(v2, t_implication)) {
+    setverdict(fail, match(v2, t_implication));
+  }
+  if (not match(v3, t_implication)) {
+    setverdict(fail, match(v3, t_implication));
+  }
+  setverdict(pass);
+}
+
+testcase templateHexstrDynamic() runs on templateHexstr_mycomp {
+  var hexstring v1 := 'D65A1F'H, v2 := '27A009'H;
+  var template integer vt1 := 3, vt2 := (3..4);
+  if (not match(v1, t_dynamic(vt1))) {
+    setverdict(fail, match(v1, t_dynamic(vt1)));
+  }
+  if (match(v2, t_dynamic(vt2))) {
+    setverdict(fail, match(v2, t_dynamic(vt2)));
+  }
+  setverdict(pass);
+}
+
 control {
   execute(templateHexstrDecmatch());
   execute(templateHexstrDecmatchSelfRef());
+  execute(templateHexstrConjunction());
+  execute(templateHexstrImplication());
+  execute(templateHexstrDynamic());
 }
 
 }

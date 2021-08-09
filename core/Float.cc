@@ -1458,9 +1458,26 @@ boolean operator>(double double_value, const FLOAT& other_value)
 
 void FLOAT_template::clean_up()
 {
-  if (template_selection == VALUE_LIST ||
-      template_selection == COMPLEMENTED_LIST)
+  switch (template_selection) {
+  case VALUE_LIST:
+  case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     delete [] value_list.list_value;
+    break;
+  case IMPLICATION_MATCH:
+    delete implication_.precondition;
+    delete implication_.implied_template;
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match->ref_count--;
+    if (dyn_match->ref_count == 0) {
+      delete dyn_match->ptr;
+      delete dyn_match;
+    }
+    break;
+  default:
+    break;
+  }
   template_selection = UNINITIALIZED_TEMPLATE;
 }
 
@@ -1476,6 +1493,7 @@ void FLOAT_template::copy_template(const FLOAT_template& other_value)
     break;
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     value_list.n_values = other_value.value_list.n_values;
     value_list.list_value = new FLOAT_template[value_list.n_values];
     for (unsigned int i = 0; i < value_list.n_values; i++)
@@ -1484,6 +1502,14 @@ void FLOAT_template::copy_template(const FLOAT_template& other_value)
     break;
   case VALUE_RANGE:
     value_range = other_value.value_range;
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition = new FLOAT_template(*other_value.implication_.precondition);
+    implication_.implied_template = new FLOAT_template(*other_value.implication_.implied_template);
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match = other_value.dyn_match;
+    dyn_match->ref_count++;
     break;
   default:
     TTCN_error("Copying an uninitialized/unsupported float template.");
@@ -1534,6 +1560,21 @@ FLOAT_template::FLOAT_template(const FLOAT_template& other_value)
 : Base_Template()
 {
   copy_template(other_value);
+}
+
+FLOAT_template::FLOAT_template(FLOAT_template* p_precondition, FLOAT_template* p_implied_template)
+: Base_Template(IMPLICATION_MATCH)
+{
+  implication_.precondition = p_precondition;
+  implication_.implied_template = p_implied_template;
+}
+
+FLOAT_template::FLOAT_template(Dynamic_Match_Interface<FLOAT>* p_dyn_match)
+: Base_Template(DYNAMIC_MATCH)
+{
+  dyn_match = new dynmatch_struct<FLOAT>;
+  dyn_match->ptr = p_dyn_match;
+  dyn_match->ref_count = 1;
 }
 
 FLOAT_template::~FLOAT_template()
@@ -1626,6 +1667,17 @@ boolean FLOAT_template::match(double other_value, boolean /* legacy */) const
        (value_range.max_is_present && !value_range.max_is_exclusive && value_range.max_value >= other_value) ||
       // Max boundary is a number and max exclusive               and it is more than the value
        (value_range.max_is_present && value_range.max_is_exclusive && value_range.max_value > other_value));
+  case CONJUNCTION_MATCH:
+    for (unsigned int i = 0; i < value_list.n_values; i++) {
+      if (!value_list.list_value[i].match(other_value)) {
+        return FALSE;
+      }
+    }
+    return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->match(other_value) || implication_.implied_template->match(other_value);
+  case DYNAMIC_MATCH:
+    return dyn_match->ptr->match(other_value);
   default:
     TTCN_error("Matching with an uninitialized/unsupported float template.");
   }
@@ -1646,6 +1698,7 @@ void FLOAT_template::set_type(template_sel template_type,
   switch (template_type) {
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     set_selection(template_type);
     value_list.n_values = list_length;
     value_list.list_value = new FLOAT_template[list_length];
@@ -1665,7 +1718,8 @@ void FLOAT_template::set_type(template_sel template_type,
 FLOAT_template& FLOAT_template::list_item(unsigned int list_index)
 {
   if (template_selection != VALUE_LIST &&
-      template_selection != COMPLEMENTED_LIST)
+      template_selection != COMPLEMENTED_LIST &&
+      template_selection != CONJUNCTION_MATCH)
     TTCN_error("Accessing a list element of a non-list float template.");
   if (list_index >= value_list.n_values)
     TTCN_error("Index overflow in a float value list template.");
@@ -1741,6 +1795,11 @@ void FLOAT_template::log() const
   case COMPLEMENTED_LIST:
     TTCN_Logger::log_event_str("complement");
     // no break
+  case CONJUNCTION_MATCH:
+    if (template_selection == CONJUNCTION_MATCH) {
+      TTCN_Logger::log_event_str("conjunct");
+    }
+    // no break
   case VALUE_LIST:
     TTCN_Logger::log_char('(');
     for (unsigned int i = 0; i < value_list.n_values; i++) {
@@ -1759,6 +1818,14 @@ void FLOAT_template::log() const
     if (value_range.max_is_present) log_float(value_range.max_value);
     else TTCN_Logger::log_event_str("infinity");
     TTCN_Logger::log_char(')');
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition->log();
+    TTCN_Logger::log_event_str(" implies ");
+    implication_.implied_template->log();
+    break;
+  case DYNAMIC_MATCH:
+    TTCN_Logger::log_event_str("@dynamic template");
     break;
   default:
     log_generic();
@@ -1992,6 +2059,8 @@ boolean FLOAT_template::match_omit(boolean legacy /* = FALSE */) const
   case OMIT_VALUE:
   case ANY_OR_OMIT:
     return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->match_omit() || implication_.implied_template->match_omit();
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
     if (legacy) {

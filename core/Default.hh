@@ -121,6 +121,11 @@ class DEFAULT_template : public Base_Template {
       unsigned int n_values;
       DEFAULT_template *list_value;
     } value_list;
+    struct {
+      DEFAULT_template* precondition;
+      DEFAULT_template* implied_template;
+    } implication_;
+    dynmatch_struct<DEFAULT>* dyn_match;
   };
 
   void copy_template(const DEFAULT_template& other_value);
@@ -133,6 +138,8 @@ public:
   DEFAULT_template(const DEFAULT& other_value);
   DEFAULT_template(const OPTIONAL<DEFAULT>& other_value);
   DEFAULT_template(const DEFAULT_template& other_value);
+  DEFAULT_template(DEFAULT_template* p_precondition, DEFAULT_template* p_implied_template);
+  DEFAULT_template(Dynamic_Match_Interface<DEFAULT>* p_dyn_match);
 
   ~DEFAULT_template();
   void clean_up();

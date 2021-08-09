@@ -611,9 +611,21 @@ void Record_Of_Template::clean_up()
     break;
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     for (int list_count = 0; list_count < value_list.n_values; list_count++)
       delete value_list.list_value[list_count];
     free_pointers((void**)value_list.list_value);
+    break;
+  case IMPLICATION_MATCH:
+    delete implication_.precondition;
+    delete implication_.implied_template;
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match->ref_count--;
+    if (dyn_match->ref_count == 0) {
+      delete dyn_match->ptr;
+      delete dyn_match;
+    }
     break;
   default:
     break;
@@ -658,6 +670,7 @@ void Record_Of_Template::copy_template(const Record_Of_Template& other_value)
     break;
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     value_list.n_values = other_value.value_list.n_values;
     value_list.list_value = (Record_Of_Template**)allocate_pointers(value_list.n_values);
     for (int list_count = 0; list_count < value_list.n_values; list_count++) {
@@ -667,6 +680,14 @@ void Record_Of_Template::copy_template(const Record_Of_Template& other_value)
         value_list.list_value[list_count] = static_cast<Record_Of_Template*>(create_elem());
       }
     }
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition = static_cast<Record_Of_Template*>(other_value.implication_.precondition->clone());
+    implication_.implied_template = static_cast<Record_Of_Template*>(other_value.implication_.implied_template->clone());
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match = other_value.dyn_match;
+    dyn_match->ref_count++;
     break;
   default:
     TTCN_error("Copying an uninitialized/unsupported record of template.");
@@ -1116,6 +1137,15 @@ int Record_Of_Template::size_of(boolean is_size) const
   case COMPLEMENTED_LIST:
     TTCN_error("Performing %sof() operation on a template of type %s "
                "containing complemented list.", op_name, get_descriptor()->name);
+  case CONJUNCTION_MATCH:
+    TTCN_error("Performing %sof() operation on a template of type %s "
+               "containing a conjunction list match.", op_name, get_descriptor()->name);
+  case IMPLICATION_MATCH:
+    TTCN_error("Performing %sof() operation on a template of type %s "
+               "containing an implication match.", op_name, get_descriptor()->name);
+  case DYNAMIC_MATCH:
+    TTCN_error("Performing %sof() operation on a template of type %s "
+               "containing a dynamic match.", op_name, get_descriptor()->name);
   default:
     TTCN_error("Performing %sof() operation on an uninitialized/unsupported "
                "template of type %s.", op_name, get_descriptor()->name);
@@ -1144,6 +1174,9 @@ int Record_Of_Template::n_elem() const
   case SUPERSET_MATCH:
   case SUBSET_MATCH:
   case DECODE_MATCH:
+  case CONJUNCTION_MATCH:
+  case IMPLICATION_MATCH:
+  case DYNAMIC_MATCH:
     break;
   }
   TTCN_error("Performing n_elem() operation on an uninitialized/unsupported "
@@ -1172,6 +1205,17 @@ boolean Record_Of_Template::matchv(const Base_Type* other_value,
       if (value_list.list_value[list_count]->matchv(other_value, legacy))
         return template_selection == VALUE_LIST;
     return template_selection == COMPLEMENTED_LIST;
+  case CONJUNCTION_MATCH:
+    for (int i = 0; i < value_list.n_values; i++) {
+      if (!value_list.list_value[i]->matchv(other_value, legacy)) {
+        return FALSE;
+      }
+    }
+    return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->matchv(other_value, legacy) || implication_.implied_template->matchv(other_value, legacy);
+  case DYNAMIC_MATCH:
+    return match_dynamic(other_value);
   default:
     TTCN_error("Matching with an uninitialized/unsupported template of type %s.",
                get_descriptor()->name);
@@ -1193,6 +1237,7 @@ void Record_Of_Template::set_type(template_sel template_type, int list_length)
   switch (template_type) {
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     value_list.n_values = list_length;
     value_list.list_value = (Record_Of_Template**)allocate_pointers(value_list.n_values);
     for (int list_count = 0; list_count < value_list.n_values; list_count++)
@@ -1207,7 +1252,8 @@ void Record_Of_Template::set_type(template_sel template_type, int list_length)
 
 Record_Of_Template* Record_Of_Template::get_list_item(int list_index)
 {
-  if (template_selection != VALUE_LIST && template_selection != COMPLEMENTED_LIST)
+  if (template_selection != VALUE_LIST && template_selection != COMPLEMENTED_LIST &&
+      template_selection != CONJUNCTION_MATCH)
     TTCN_error("Internal error: Accessing a list element of a non-list "
                "template of type %s.", get_descriptor()->name);
   if (list_index < 0)
@@ -1238,6 +1284,11 @@ void Record_Of_Template::log() const
   case COMPLEMENTED_LIST:
     TTCN_Logger::log_event_str("complement");
     // no break
+  case CONJUNCTION_MATCH:
+    if (template_selection == CONJUNCTION_MATCH) {
+      TTCN_Logger::log_event_str("conjunct");
+    }
+    // no break
   case VALUE_LIST:
     TTCN_Logger::log_char('(');
     for (int list_count = 0; list_count < value_list.n_values; list_count++) {
@@ -1245,6 +1296,14 @@ void Record_Of_Template::log() const
       value_list.list_value[list_count]->log();
     }
     TTCN_Logger::log_char(')');
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition->log();
+    TTCN_Logger::log_event_str(" implies ");
+    implication_.implied_template->log();
+    break;
+  case DYNAMIC_MATCH:
+    TTCN_Logger::log_event_str("@dynamic template");
     break;
   default:
     log_generic();
@@ -1378,6 +1437,8 @@ boolean Record_Of_Template::match_omit(boolean legacy /* = FALSE */) const
   case OMIT_VALUE:
   case ANY_OR_OMIT:
     return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->match_omit() || implication_.implied_template->match_omit();
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
     if (legacy) {
@@ -1668,9 +1729,21 @@ void Set_Of_Template::clean_up()
     break;
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     for (int elem_count = 0; elem_count < value_list.n_values; elem_count++)
       delete value_list.list_value[elem_count];
     free_pointers((void**)value_list.list_value);
+    break;
+  case IMPLICATION_MATCH:
+    delete implication_.precondition;
+    delete implication_.implied_template;
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match->ref_count--;
+    if (dyn_match->ref_count == 0) {
+      delete dyn_match->ptr;
+      delete dyn_match;
+    }
     break;
   default:
     break;
@@ -1723,10 +1796,19 @@ void Set_Of_Template::copy_template(const Set_Of_Template& other_value)
     break;
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     value_list.n_values = other_value.value_list.n_values;
     value_list.list_value = (Set_Of_Template**)allocate_pointers(value_list.n_values);
     for (int list_count = 0; list_count < value_list.n_values; list_count++)
       value_list.list_value[list_count] = static_cast<Set_Of_Template*>(other_value.value_list.list_value[list_count]->clone());
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition = static_cast<Set_Of_Template*>(other_value.implication_.precondition->clone());
+    implication_.implied_template = static_cast<Set_Of_Template*>(other_value.implication_.implied_template->clone());
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match = other_value.dyn_match;
+    dyn_match->ref_count++;
     break;
   default:
     TTCN_error("Copying an uninitialized/unsupported set of template");
@@ -2050,6 +2132,9 @@ int Set_Of_Template::size_of(boolean is_size) const
   case VALUE_RANGE:
   case STRING_PATTERN:
   case DECODE_MATCH:
+  case CONJUNCTION_MATCH:
+  case IMPLICATION_MATCH:
+  case DYNAMIC_MATCH:
     TTCN_error("Performing %sof() operation on an uninitialized/unsupported "
                "template of type %s.", op_name, get_descriptor()->name);
   }
@@ -2153,6 +2238,17 @@ boolean Set_Of_Template::matchv(const Base_Type* other_value,
   case SUBSET_MATCH:
     return match_set_of(other_recof, value_length, this,
                         single_value.n_elements, match_function_set, legacy);
+  case CONJUNCTION_MATCH:
+    for (int i = 0; i < value_list.n_values; i++) {
+      if (!value_list.list_value[i]->matchv(other_value, legacy)) {
+        return FALSE;
+      }
+    }
+    return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->matchv(other_value, legacy) || implication_.implied_template->matchv(other_value, legacy);
+  case DYNAMIC_MATCH:
+    return match_dynamic(other_value);
   default:
     TTCN_error("Matching with an uninitialized/unsupported template of type %s.",
                get_descriptor()->name);
@@ -2193,6 +2289,7 @@ void Set_Of_Template::set_type(template_sel template_type, int list_length)
   switch (template_type) {
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     value_list.n_values = list_length;
     value_list.list_value = (Set_Of_Template**)allocate_pointers(value_list.n_values);
     for (int list_count = 0; list_count < value_list.n_values; list_count++)
@@ -2214,7 +2311,8 @@ void Set_Of_Template::set_type(template_sel template_type, int list_length)
 
 Set_Of_Template* Set_Of_Template::get_list_item(int list_index)
 {
-  if (template_selection != VALUE_LIST && template_selection != COMPLEMENTED_LIST)
+  if (template_selection != VALUE_LIST && template_selection != COMPLEMENTED_LIST &&
+      template_selection != CONJUNCTION_MATCH)
     TTCN_error("Internal error: Accessing a list element of a non-list "
                "template of type %s.", get_descriptor()->name);
   if (list_index < 0)
@@ -2254,6 +2352,11 @@ void Set_Of_Template::log() const
   case COMPLEMENTED_LIST:
     TTCN_Logger::log_event_str("complement");
     // no break
+  case CONJUNCTION_MATCH:
+    if (template_selection == CONJUNCTION_MATCH) {
+      TTCN_Logger::log_event_str("conjunct");
+    }
+    // no break
   case VALUE_LIST:
     TTCN_Logger::log_char('(');
     for (int list_count = 0; list_count < value_list.n_values; list_count++) {
@@ -2271,6 +2374,14 @@ void Set_Of_Template::log() const
       single_value.value_elements[set_count]->log();
     }
     TTCN_Logger::log_char(')');
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition->log();
+    TTCN_Logger::log_event_str(" implies ");
+    implication_.implied_template->log();
+    break;
+  case DYNAMIC_MATCH:
+    TTCN_Logger::log_event_str("@dynamic template");
     break;
   default:
     log_generic();
@@ -2398,6 +2509,8 @@ boolean Set_Of_Template::match_omit(boolean legacy /* = FALSE */) const
   case OMIT_VALUE:
   case ANY_OR_OMIT:
     return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->match_omit() || implication_.implied_template->match_omit();
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
     if (legacy) {
@@ -2638,9 +2751,21 @@ void Record_Template::clean_up()
     break;
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     for (int elem_count = 0; elem_count < value_list.n_values; elem_count++)
       delete value_list.list_value[elem_count];
     free_pointers((void**)value_list.list_value);
+    break;
+  case IMPLICATION_MATCH:
+    delete implication_.precondition;
+    delete implication_.implied_template;
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match->ref_count--;
+    if (dyn_match->ref_count == 0) {
+      delete dyn_match->ptr;
+      delete dyn_match;
+    }
     break;
   default:
     break;
@@ -2694,6 +2819,7 @@ void Record_Template::copy_template(const Record_Template& other_value)
     break;
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     value_list.n_values = other_value.value_list.n_values;
     value_list.list_value = (Record_Template**)allocate_pointers(value_list.n_values);
     for (int list_count = 0; list_count < value_list.n_values; list_count++) {
@@ -2703,6 +2829,14 @@ void Record_Template::copy_template(const Record_Template& other_value)
         value_list.list_value[list_count] = create();
       }
     }
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition = static_cast<Record_Template*>(other_value.implication_.precondition->clone());
+    implication_.implied_template = static_cast<Record_Template*>(other_value.implication_.implied_template->clone());
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match = other_value.dyn_match;
+    dyn_match->ref_count++;
     break;
   default:
     TTCN_error("Copying an uninitialized/unsupported record/set template.");
@@ -2727,7 +2861,8 @@ void Record_Template::copy_optional(const Base_Type* other_value)
 
 void Record_Template::set_type(template_sel template_type, int list_length)
 {
-  if (template_type != VALUE_LIST && template_type != COMPLEMENTED_LIST)
+  if (template_type != VALUE_LIST && template_type != COMPLEMENTED_LIST &&
+      template_type != CONJUNCTION_MATCH)
     TTCN_error("Setting an invalid list for a template of type %s.", get_descriptor()->name);
   clean_up();
   set_selection(template_type);
@@ -2739,7 +2874,8 @@ void Record_Template::set_type(template_sel template_type, int list_length)
 
 Record_Template* Record_Template::get_list_item(int list_index) const
 {
-  if (template_selection != VALUE_LIST && template_selection != COMPLEMENTED_LIST)
+  if (template_selection != VALUE_LIST && template_selection != COMPLEMENTED_LIST &&
+      template_selection != CONJUNCTION_MATCH)
     TTCN_error("Accessing a list element of a non-list template of type %s.", get_descriptor()->name);
   if (list_index < 0)
     TTCN_error("Internal error: Accessing a value list template "
@@ -2779,6 +2915,12 @@ int Record_Template::size_of() const
     TTCN_error("Performing sizeof() operation on a template of type %s containing */? value.", get_descriptor()->name);
   case COMPLEMENTED_LIST:
     TTCN_error("Performing sizeof() operation on a template of type %s containing complemented list.", get_descriptor()->name);
+  case CONJUNCTION_MATCH:
+    TTCN_error("Performing sizeof() operation on a template of type %s containing a conjunction list match.", get_descriptor()->name);
+  case IMPLICATION_MATCH:
+    TTCN_error("Performing sizeof() operation on a template of type %s containing an implication match.", get_descriptor()->name);
+  case DYNAMIC_MATCH:
+    TTCN_error("Performing sizeof() operation on a template of type %s containing a dynamic match.", get_descriptor()->name);
   default:
     TTCN_error("Performing sizeof() operation on an uninitialized/unsupported template of type %s.", get_descriptor()->name);
   }
@@ -2872,6 +3014,11 @@ void Record_Template::log() const
   case COMPLEMENTED_LIST:
     TTCN_Logger::log_event_str("complement");
     // no break
+  case CONJUNCTION_MATCH:
+    if (template_selection == CONJUNCTION_MATCH) {
+      TTCN_Logger::log_event_str("conjunct");
+    }
+    // no break
   case VALUE_LIST:
     TTCN_Logger::log_char('(');
     for (int list_count = 0; list_count < value_list.n_values; list_count++) {
@@ -2879,6 +3026,14 @@ void Record_Template::log() const
       value_list.list_value[list_count]->log();
     }
     TTCN_Logger::log_char(')');
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition->log();
+    TTCN_Logger::log_event_str(" implies ");
+    implication_.implied_template->log();
+    break;
+  case DYNAMIC_MATCH:
+    TTCN_Logger::log_event_str("@dynamic template");
     break;
   default:
     log_generic();
@@ -2918,6 +3073,17 @@ boolean Record_Template::matchv(const Base_Type* other_value,
     for (int list_count = 0; list_count < value_list.n_values; list_count++)
       if (value_list.list_value[list_count]->matchv(other_value, legacy)) return template_selection == VALUE_LIST;
     return template_selection == COMPLEMENTED_LIST;
+  case CONJUNCTION_MATCH:
+    for (int i = 0; i < value_list.n_values; i++) {
+      if (!value_list.list_value[i]->matchv(other_value, legacy)) {
+        return FALSE;
+      }
+    }
+    return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->matchv(other_value, legacy) || implication_.implied_template->matchv(other_value, legacy);
+  case DYNAMIC_MATCH:
+    return match_dynamic(other_value);
   default:
     TTCN_error("Matching an uninitialized/unsupported template of type %s.", get_descriptor()->name);
   }
@@ -3076,6 +3242,8 @@ boolean Record_Template::match_omit(boolean legacy /*= FALSE*/) const
   case OMIT_VALUE:
   case ANY_OR_OMIT:
     return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->match_omit() || implication_.implied_template->match_omit();
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
     if (legacy) {
@@ -3289,9 +3457,21 @@ void Empty_Record_Template::clean_up()
   switch (template_selection) {
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     for (int elem_count = 0; elem_count < value_list.n_values; elem_count++)
       delete value_list.list_value[elem_count];
     free_pointers((void**)value_list.list_value);
+    break;
+  case IMPLICATION_MATCH:
+    delete implication_.precondition;
+    delete implication_.implied_template;
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match->ref_count--;
+    if (dyn_match->ref_count == 0) {
+      delete dyn_match->ptr;
+      delete dyn_match;
+    }
     break;
   default:
     break;
@@ -3316,10 +3496,19 @@ void Empty_Record_Template::copy_template(const Empty_Record_Template& other_val
     break;
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     value_list.n_values = other_value.value_list.n_values;
     value_list.list_value = (Empty_Record_Template**)allocate_pointers(value_list.n_values);
     for (int list_count = 0; list_count < value_list.n_values; list_count++)
       value_list.list_value[list_count] = static_cast<Empty_Record_Template*>(other_value.value_list.list_value[list_count]->clone());
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition = static_cast<Empty_Record_Template*>(other_value.implication_.precondition->clone());
+    implication_.implied_template = static_cast<Empty_Record_Template*>(other_value.implication_.implied_template->clone());
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match = other_value.dyn_match;
+    dyn_match->ref_count++;
     break;
   default:
     TTCN_error("Copying an uninitialized/unsupported record/set template.");
@@ -3342,7 +3531,8 @@ void Empty_Record_Template::copy_optional(const Base_Type* other_value)
 
 void Empty_Record_Template::set_type(template_sel template_type, int list_length)
 {
-  if (template_type != VALUE_LIST && template_type != COMPLEMENTED_LIST)
+  if (template_type != VALUE_LIST && template_type != COMPLEMENTED_LIST &&
+      template_type != CONJUNCTION_MATCH)
     TTCN_error("Setting an invalid list for a template of type %s.", get_descriptor()->name);
   clean_up();
   set_selection(template_type);
@@ -3354,7 +3544,8 @@ void Empty_Record_Template::set_type(template_sel template_type, int list_length
 
 Empty_Record_Template* Empty_Record_Template::get_list_item(int list_index) const
 {
-  if (template_selection != VALUE_LIST && template_selection != COMPLEMENTED_LIST)
+  if (template_selection != VALUE_LIST && template_selection != COMPLEMENTED_LIST &&
+      template_selection != CONJUNCTION_MATCH)
     TTCN_error("Accessing a list element of a non-list template of type %s.", get_descriptor()->name);
   if (list_index < 0)
     TTCN_error("Internal error: Accessing a value list template "
@@ -3390,6 +3581,12 @@ int Empty_Record_Template::size_of() const
     TTCN_error("Performing sizeof() operation on a template of type %s containing */? value.", get_descriptor()->name);
   case COMPLEMENTED_LIST:
     TTCN_error("Performing sizeof() operation on a template of type %s containing complemented list.", get_descriptor()->name);
+  case CONJUNCTION_MATCH:
+    TTCN_error("Performing sizeof() operation on a template of type %s containing a conjunction list match.", get_descriptor()->name);
+  case IMPLICATION_MATCH:
+    TTCN_error("Performing sizeof() operation on a template of type %s containing an implication match.", get_descriptor()->name);
+  case DYNAMIC_MATCH:
+    TTCN_error("Performing sizeof() operation on a template of type %s containing a dynamic match.", get_descriptor()->name);
   default:
     TTCN_error("Performing sizeof() operation on an uninitialized/unsupported template of type %s.", get_descriptor()->name);
   }
@@ -3432,6 +3629,11 @@ void Empty_Record_Template::log() const
   case COMPLEMENTED_LIST:
     TTCN_Logger::log_event_str("complement");
     // no break
+  case CONJUNCTION_MATCH:
+    if (template_selection == CONJUNCTION_MATCH) {
+      TTCN_Logger::log_event_str("conjunct");
+    }
+    // no break
   case VALUE_LIST:
     TTCN_Logger::log_char('(');
     for (int list_count = 0; list_count < value_list.n_values; list_count++) {
@@ -3439,6 +3641,14 @@ void Empty_Record_Template::log() const
       value_list.list_value[list_count]->log();
     }
     TTCN_Logger::log_char(')');
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition->log();
+    TTCN_Logger::log_event_str(" implies ");
+    implication_.implied_template->log();
+    break;
+  case DYNAMIC_MATCH:
+    TTCN_Logger::log_event_str("@dynamic template");
     break;
   default:
     log_generic();
@@ -3463,6 +3673,17 @@ boolean Empty_Record_Template::matchv(const Base_Type* other_value,
     for (int list_count = 0; list_count < value_list.n_values; list_count++)
       if (value_list.list_value[list_count]->matchv(other_value, legacy)) return template_selection == VALUE_LIST;
     return template_selection == COMPLEMENTED_LIST;
+  case CONJUNCTION_MATCH:
+    for (unsigned int i = 0; i < value_list.n_values; i++) {
+      if (!value_list.list_value[i]->matchv(other_value, legacy)) {
+        return FALSE;
+      }
+    }
+    return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->matchv(other_value, legacy) || implication_.implied_template->matchv(other_value, legacy);
+  case DYNAMIC_MATCH:
+    return match_dynamic(other_value);
   default:
     TTCN_error("Matching an uninitialized/unsupported template of type %s.", get_descriptor()->name);
   }
@@ -3535,6 +3756,8 @@ boolean Empty_Record_Template::match_omit(boolean legacy /* = FALSE */) const
   case OMIT_VALUE:
   case ANY_OR_OMIT:
     return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->match_omit() || implication_.implied_template->match_omit();
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
     if (legacy) {

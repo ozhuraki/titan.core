@@ -4449,8 +4449,13 @@ DynamicMatch:
   }
 | DynamicModifier FunctionRef
   {
+    // '@dynamic F' is equivalent to '@dynamic { return F(value); }'
+    // the parameter 'value' is already added to the function call reference here
     $$.is_ref = true;
-    $$.ref = new Ttcn::Reference($2.modid, $2.id);
+    TemplateInstances* tis = new TemplateInstances;
+    tis->add_ti(new TemplateInstance(NULL, NULL, new Template(
+      new Value(Value::V_REFD, new Ttcn::Reference(Ref_simple::REF_VALUE)))));
+    $$.ref = new Ttcn::Reference($2.modid, $2.id, new ParsedActualParameters(tis));
     $$.ref->set_location(infile, @2);
   }
 ;
@@ -10998,6 +11003,14 @@ IschosenArg: /* see also Reference... */
     Free($6.elements);
     $$.ref->set_location(infile, @1, @6);
     $$.id = $8;
+  }
+| ValueKeyword optExtendedFieldReference '.' PredefOrIdentifier
+  {
+    $$.ref = new Ttcn::Reference(Ref_simple::REF_VALUE);
+    for (size_t i = 0; i < $2.nElements; i++) $$.ref->add($2.elements[i]);
+    Free($2.elements);
+    $$.ref->set_location(infile, @$);
+    $$.id = $4;
   }
 ;
 

@@ -1510,6 +1510,7 @@ void BITSTRING_template::clean_up()
   switch (template_selection) {
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     delete [] value_list.list_value;
     break;
   case STRING_PATTERN:
@@ -1531,6 +1532,17 @@ void BITSTRING_template::clean_up()
         "decoded content match.");
     }
     break;
+  case IMPLICATION_MATCH:
+    delete implication_.precondition;
+    delete implication_.implied_template;
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match->ref_count--;
+    if (dyn_match->ref_count == 0) {
+      delete dyn_match->ptr;
+      delete dyn_match;
+    }
+    break;
   default:
     break;
   }
@@ -1549,6 +1561,7 @@ void BITSTRING_template::copy_template(const BITSTRING_template& other_value)
     break;
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     value_list.n_values = other_value.value_list.n_values;
     value_list.list_value = new BITSTRING_template[value_list.n_values];
     for (unsigned int i = 0; i < value_list.n_values; i++)
@@ -1562,6 +1575,14 @@ void BITSTRING_template::copy_template(const BITSTRING_template& other_value)
   case DECODE_MATCH:
     dec_match = other_value.dec_match;
     dec_match->ref_count++;
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition = new BITSTRING_template(*other_value.implication_.precondition);
+    implication_.implied_template = new BITSTRING_template(*other_value.implication_.implied_template);
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match = other_value.dyn_match;
+    dyn_match->ref_count++;
     break;
   default:
     TTCN_error("Copying an uninitialized/unsupported bitstring template.");
@@ -1707,6 +1728,21 @@ BITSTRING_template::BITSTRING_template(const BITSTRING_template& other_value)
 : Restricted_Length_Template()
 {
   copy_template(other_value);
+}
+
+BITSTRING_template::BITSTRING_template(BITSTRING_template* p_precondition, BITSTRING_template* p_implied_template)
+: Restricted_Length_Template(IMPLICATION_MATCH)
+{
+  implication_.precondition = p_precondition;
+  implication_.implied_template = p_implied_template;
+}
+
+BITSTRING_template::BITSTRING_template(Dynamic_Match_Interface<BITSTRING>* p_dyn_match)
+: Restricted_Length_Template(DYNAMIC_MATCH)
+{
+  dyn_match = new dynmatch_struct<BITSTRING>;
+  dyn_match->ptr = p_dyn_match;
+  dyn_match->ref_count = 1;
 }
 
 BITSTRING_template& BITSTRING_template::operator=(template_sel other_value)
@@ -2034,6 +2070,17 @@ boolean BITSTRING_template::match(const BITSTRING& other_value,
     TTCN_EncDec::set_error_behavior(TTCN_EncDec::ET_ALL,TTCN_EncDec::EB_DEFAULT);
     TTCN_EncDec::clear_error();
     return ret_val; }
+  case CONJUNCTION_MATCH:
+    for (unsigned int i = 0; i < value_list.n_values; i++) {
+      if (!value_list.list_value[i].match(other_value)) {
+        return FALSE;
+      }
+    }
+    return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->match(other_value) || implication_.implied_template->match(other_value);
+  case DYNAMIC_MATCH:
+    return dyn_match->ptr->match(other_value);
   default:
     TTCN_error("Matching an uninitialized/unsupported bitstring template.");
   }
@@ -2089,6 +2136,15 @@ int BITSTRING_template::lengthof() const
   case COMPLEMENTED_LIST:
     TTCN_error("Performing lengthof() operation on a bitstring template "
                "containing complemented list.");
+  case CONJUNCTION_MATCH:
+    TTCN_error("Performing lengthof() operation on a bitstring template "
+               "containing a conjunction list match.");
+  case IMPLICATION_MATCH:
+    TTCN_error("Performing lengthof() operation on a bitstring template "
+               "containing an implication match.");
+  case DYNAMIC_MATCH:
+    TTCN_error("Performing lengthof() operation on a bitstring template "
+               "containing a dynamic match.");
   case STRING_PATTERN:
     min_length = 0;
     has_any_or_none = FALSE; // TRUE if * chars in the pattern
@@ -2110,7 +2166,7 @@ void BITSTRING_template::set_type(template_sel template_type,
   unsigned int list_length /* = 0 */)
 {
   if (template_type != VALUE_LIST && template_type != COMPLEMENTED_LIST &&
-      template_type != DECODE_MATCH)
+      template_type != DECODE_MATCH && template_type != CONJUNCTION_MATCH)
     TTCN_error("Setting an invalid list type for a bitstring template.");
   clean_up();
   set_selection(template_type);
@@ -2123,7 +2179,8 @@ void BITSTRING_template::set_type(template_sel template_type,
 BITSTRING_template& BITSTRING_template::list_item(unsigned int list_index)
 {
   if (template_selection != VALUE_LIST &&
-      template_selection != COMPLEMENTED_LIST)
+      template_selection != COMPLEMENTED_LIST &&
+      template_selection != CONJUNCTION_MATCH)
     TTCN_error("Accessing a list element of a non-list bitstring template.");
   if (list_index >= value_list.n_values)
     TTCN_error("Index overflow in a bitstring value list template.");
@@ -2170,6 +2227,11 @@ void BITSTRING_template::log() const
   case COMPLEMENTED_LIST:
     TTCN_Logger::log_event_str("complement");
     // no break
+  case CONJUNCTION_MATCH:
+    if (template_selection == CONJUNCTION_MATCH) {
+      TTCN_Logger::log_event_str("conjunct");
+    }
+    // no break
   case VALUE_LIST:
     TTCN_Logger::log_char('(');
     for (unsigned int i = 0; i < value_list.n_values; i++) {
@@ -2190,6 +2252,14 @@ void BITSTRING_template::log() const
   case DECODE_MATCH:
     TTCN_Logger::log_event_str("decmatch ");
     dec_match->instance->log();
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition->log();
+    TTCN_Logger::log_event_str(" implies ");
+    implication_.implied_template->log();
+    break;
+  case DYNAMIC_MATCH:
+    TTCN_Logger::log_event_str("@dynamic template");
     break;
   default:
     log_generic();
@@ -2396,6 +2466,8 @@ boolean BITSTRING_template::match_omit(boolean legacy /* = FALSE */) const
   case OMIT_VALUE:
   case ANY_OR_OMIT:
     return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->match_omit() || implication_.implied_template->match_omit();
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
     if (legacy) {

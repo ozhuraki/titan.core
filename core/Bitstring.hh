@@ -292,6 +292,11 @@ private:
     } value_list;
     bitstring_pattern_struct *pattern_value;
     decmatch_struct* dec_match;
+    struct {
+      BITSTRING_template* precondition;
+      BITSTRING_template* implied_template;
+    } implication_;
+    dynmatch_struct<BITSTRING>* dyn_match;
   };
 
   void copy_template(const BITSTRING_template& other_value);
@@ -313,6 +318,8 @@ public:
   BITSTRING_template(unsigned int n_elements,
     const unsigned char *pattern_elements);
   BITSTRING_template(const BITSTRING_template& other_value);
+  BITSTRING_template(BITSTRING_template* p_precondition, BITSTRING_template* p_implied_template);
+  BITSTRING_template(Dynamic_Match_Interface<BITSTRING>* p_dyn_match);
   ~BITSTRING_template();
   void clean_up();
 

@@ -107,6 +107,9 @@ namespace Ttcn {
     /** List of local definitions referenced inside this block
       * (only for the finally block of a normal statement block) */
     map<Common::Assignment*, void> refd_local_defs; // elements not owned
+    
+    /** Pointer to the dynamic template, if this is the statement block of a dynamic template */
+    Template* dynamic_template;
 
     StatementBlock(const StatementBlock& p);
     StatementBlock& operator=(const StatementBlock& p);
@@ -138,8 +141,11 @@ namespace Ttcn {
     void add_catch_block(StatementBlock* p_catch);
     void set_finally_block(StatementBlock* p_finally);
     void add_refd_local_def(Common::Assignment* p_def);
+    void set_dynamic_template(Template* p_temp) { dynamic_template = p_temp; }
     boolean is_in_finally_block() const;
     StatementBlock* get_finally_block();
+    boolean is_in_dynamic_template() const;
+    Template* get_dynamic_template();
     boolean is_empty() const;
     returnstatus_t has_return() const;
     /** Used when generating code for interleaved statement. If has

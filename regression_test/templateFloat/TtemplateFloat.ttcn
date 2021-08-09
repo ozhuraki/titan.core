@@ -258,6 +258,57 @@ testcase templateFloatSpecialValues() runs on templateFloat_mycomp {
   else { setverdict(fail, "-infinity should match itself"); }
 }
 
+function f_close_to_zero(float p_par, float p_epsylon := 0.001) return boolean {
+  if (p_par < 0.0) { p_par := -p_par; }
+  return p_par < p_epsylon;
+}
+
+template float t_conjunction := conjunct((-infinity..0.0), @dynamic f_close_to_zero);
+
+template float t_implication := (0.0..infinity) implies @dynamic f_close_to_zero;
+
+// matches if the integral part of the number matches the template parameter
+template float t_dynamic(template integer pt_int) := @dynamic {
+  return match(float2int(value), pt_int);
+}
+
+testcase templateFloatConjunction() runs on templateFloat_mycomp {
+  var float v1 := -0.00091, v2 := -0.0016;
+  if (not match(v1, t_conjunction)) {
+    setverdict(fail, match(v1, t_conjunction));
+  }
+  if (match(v2, t_conjunction)) {
+    setverdict(fail, match(v2, t_conjunction));
+  }
+  setverdict(pass);
+}
+
+testcase templateFloatImplication() runs on templateFloat_mycomp {
+  var float v1 := -2.1, v2 := 0.19, v3 := 7.4e-5;
+  if (not match(v1, t_implication)) {
+    setverdict(fail, match(v1, t_implication));
+  }
+  if (match(v2, t_implication)) {
+    setverdict(fail, match(v2, t_implication));
+  }
+  if (not match(v3, t_implication)) {
+    setverdict(fail, match(v3, t_implication));
+  }
+  setverdict(pass);
+}
+
+testcase templateFloatDynamic() runs on templateFloat_mycomp {
+  var float v1 := 6.1741, v2 := -67.011;
+  var template integer vt1 := (1..10), vt2 := (0..infinity);
+  if (not match(v1, t_dynamic(vt1))) {
+    setverdict(fail, match(v1, t_dynamic(vt1)));
+  }
+  if (match(v2, t_dynamic(vt2))) {
+    setverdict(fail, match(v2, t_dynamic(vt2)));
+  }
+  setverdict(pass);
+}
+
 control {
  execute(templateFloatSpec());
  execute(templateFloatList());
@@ -271,5 +322,8 @@ control {
  execute(templateFloatRange4());
  execute(templateFloatIfpresent());
  execute(templateFloatSpecialValues());
+ execute(templateFloatConjunction());
+ execute(templateFloatImplication());
+ execute(templateFloatDynamic());
 }
 }

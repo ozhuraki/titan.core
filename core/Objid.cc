@@ -761,8 +761,26 @@ int OBJID::OER_decode(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& p_buf, OER
 
 void OBJID_template::clean_up()
 {
-  if (template_selection == VALUE_LIST ||
-    template_selection == COMPLEMENTED_LIST) delete [] value_list.list_value;
+  switch (template_selection) {
+  case VALUE_LIST:
+  case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
+    delete [] value_list.list_value;
+    break;
+  case IMPLICATION_MATCH:
+    delete implication_.precondition;
+    delete implication_.implied_template;
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match->ref_count--;
+    if (dyn_match->ref_count == 0) {
+      delete dyn_match->ptr;
+      delete dyn_match;
+    }
+    break;
+  default:
+    break;
+  }
   template_selection = UNINITIALIZED_TEMPLATE;
 }
 
@@ -778,11 +796,20 @@ void OBJID_template::copy_template(const OBJID_template& other_value)
     break;
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     value_list.n_values = other_value.value_list.n_values;
     value_list.list_value = new OBJID_template[value_list.n_values];
     for (unsigned int i = 0; i < value_list.n_values; i++)
       value_list.list_value[i].copy_template(
 	other_value.value_list.list_value[i]);
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition = new OBJID_template(*other_value.implication_.precondition);
+    implication_.implied_template = new OBJID_template(*other_value.implication_.implied_template);
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match = other_value.dyn_match;
+    dyn_match->ref_count++;
     break;
   default:
     TTCN_error("Copying an uninitialized/unsupported objid template.");
@@ -826,6 +853,21 @@ OBJID_template::OBJID_template(const OBJID_template& other_value)
 : Base_Template()
 {
   copy_template(other_value);
+}
+
+OBJID_template::OBJID_template(OBJID_template* p_precondition, OBJID_template* p_implied_template)
+: Base_Template(IMPLICATION_MATCH)
+{
+  implication_.precondition = p_precondition;
+  implication_.implied_template = p_implied_template;
+}
+
+OBJID_template::OBJID_template(Dynamic_Match_Interface<OBJID>* p_dyn_match)
+: Base_Template(DYNAMIC_MATCH)
+{
+  dyn_match = new dynmatch_struct<OBJID>;
+  dyn_match->ptr = p_dyn_match;
+  dyn_match->ref_count = 1;
 }
 
 OBJID_template::~OBJID_template()
@@ -894,6 +936,17 @@ boolean OBJID_template::match(const OBJID& other_value, boolean /* legacy */) co
       if (value_list.list_value[i].match(other_value))
         return template_selection == VALUE_LIST;
     return template_selection == COMPLEMENTED_LIST;
+  case CONJUNCTION_MATCH:
+    for (unsigned int i = 0; i < value_list.n_values; i++) {
+      if (!value_list.list_value[i].match(other_value)) {
+        return FALSE;
+      }
+    }
+    return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->match(other_value) || implication_.implied_template->match(other_value);
+  case DYNAMIC_MATCH:
+    return dyn_match->ptr->match(other_value);
   default:
     TTCN_error("Matching with an uninitialized/unsupported objid template.");
   }
@@ -937,6 +990,15 @@ int OBJID_template::size_of() const
   case COMPLEMENTED_LIST:
     TTCN_error("Performing sizeof() operation on an objid template "
                "containing complemented list.");
+  case CONJUNCTION_MATCH:
+    TTCN_error("Performing sizeof() operation on a objid template "
+               "containing a conjunction list match.");
+  case IMPLICATION_MATCH:
+    TTCN_error("Performing sizeof() operation on a objid template "
+               "containing an implication match.");
+  case DYNAMIC_MATCH:
+    TTCN_error("Performing sizeof() operation on a objid template "
+               "containing a dynamic match.");
   default:
     TTCN_error("Performing sizeof() operation on an "
                "uninitialized/unsupported objid template.");
@@ -947,7 +1009,8 @@ int OBJID_template::size_of() const
 void OBJID_template::set_type(template_sel template_type,
   unsigned int list_length)
 {
-  if (template_type != VALUE_LIST && template_type != COMPLEMENTED_LIST)
+  if (template_type != VALUE_LIST && template_type != COMPLEMENTED_LIST &&
+      template_type != CONJUNCTION_MATCH)
       TTCN_error("Setting an invalid list type for an objid template.");
   clean_up();
   set_selection(template_type);
@@ -958,7 +1021,8 @@ void OBJID_template::set_type(template_sel template_type,
 OBJID_template& OBJID_template::list_item(unsigned int list_index)
 {
   if (template_selection != VALUE_LIST &&
-    template_selection != COMPLEMENTED_LIST)
+      template_selection != COMPLEMENTED_LIST &&
+      template_selection != CONJUNCTION_MATCH)
     TTCN_error("Accessing a list element of a non-list objid template.");
   if (list_index >= value_list.n_values)
     TTCN_error("Index overflow in an objid value list template.");
@@ -974,6 +1038,11 @@ void OBJID_template::log() const
   case COMPLEMENTED_LIST:
     TTCN_Logger::log_event_str("complement");
     // no break
+  case CONJUNCTION_MATCH:
+    if (template_selection == CONJUNCTION_MATCH) {
+      TTCN_Logger::log_event_str("conjunct");
+    }
+    // no break
   case VALUE_LIST:
     TTCN_Logger::log_char('(');
     for(unsigned int i = 0; i < value_list.n_values; i++) {
@@ -981,6 +1050,14 @@ void OBJID_template::log() const
       value_list.list_value[i].log();
     }
     TTCN_Logger::log_char(')');
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition->log();
+    TTCN_Logger::log_event_str(" implies ");
+    implication_.implied_template->log();
+    break;
+  case DYNAMIC_MATCH:
+    TTCN_Logger::log_event_str("@dynamic template");
     break;
   default:
     log_generic();
@@ -1149,6 +1226,8 @@ boolean OBJID_template::match_omit(boolean legacy /* = FALSE */) const
   case OMIT_VALUE:
   case ANY_OR_OMIT:
     return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->match_omit() || implication_.implied_template->match_omit();
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
     if (legacy) {

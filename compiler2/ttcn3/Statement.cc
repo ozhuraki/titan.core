@@ -44,7 +44,7 @@ namespace Ttcn {
 
   StatementBlock::StatementBlock()
     : Scope(), checked(false), labels_checked(false), my_sb(0), my_def(0), exception_handling(EH_NONE),
-    finally_block(NULL)
+    finally_block(NULL), dynamic_template(NULL)
   {
   }
 
@@ -315,6 +315,28 @@ namespace Ttcn {
       return my_sb->get_finally_block();
     }
     FATAL_ERROR("StatementBlock::get_finally_block()");
+  }
+  
+  boolean StatementBlock::is_in_dynamic_template() const
+  {
+    if (dynamic_template != NULL) {
+      return TRUE;
+    }
+    if (my_sb != NULL) {
+      return my_sb->is_in_dynamic_template();
+    }
+    return FALSE;
+  }
+  
+  Template* StatementBlock::get_dynamic_template()
+  {
+    if (dynamic_template != NULL) {
+      return dynamic_template;
+    }
+    if (my_sb != NULL) {
+      return my_sb->get_dynamic_template();
+    }
+    FATAL_ERROR("StatementBlock::get_dynamic_template()");
   }
   
   boolean StatementBlock::is_empty() const
@@ -3995,9 +4017,34 @@ error:
     Error_Context cntxt(this, "In return statement");
     Definition *my_def = my_sb->get_my_def();
     if (!my_def) {
-      error("Return statement cannot be used in the control part. "
-            "It is allowed only in functions and altsteps");
-      goto error;
+      if (my_sb->is_in_dynamic_template()) {
+        if (returnexpr.t == NULL) {
+          error("Missing return value. The dynamic template's statement block "
+            "should return a boolean value");
+          goto error;
+        }
+        else if (!returnexpr.t->is_Value()) {
+          returnexpr.t->error("A specific value without matching symbols was "
+            "expected as return value");
+          goto error;
+        }
+        else {
+          returnexpr.v = returnexpr.t->get_Value();
+          delete returnexpr.t;
+          returnexpr.t = 0;
+          Type* return_type = Type::get_pooltype(Type::T_BOOL);
+          returnexpr.v->set_my_governor(return_type);
+          return_type->chk_this_value_ref(returnexpr.v);
+          return_type->chk_this_value(returnexpr.v, 0, Type::EXPECTED_DYNAMIC_VALUE,
+            INCOMPLETE_NOT_ALLOWED, OMIT_NOT_ALLOWED, SUB_CHK);
+          return;
+        }
+      }
+      else { // control part
+        error("Return statement cannot be used in the control part. "
+              "It is allowed only in functions and altsteps");
+        goto error;
+      }
     }
     if (my_sb->is_in_finally_block()) {
       error("Return statement cannot be used inside a finally block or the destructor of a class.");
@@ -10752,6 +10799,7 @@ error:
             case Template::USTR_PATTERN:
             case Template::COMPLEMENTED_LIST:
             case Template::VALUE_LIST:
+            case Template::CONJUNCTION_MATCH:
             case Template::VALUE_RANGE:
             case Template::OMIT_VALUE:
               // it's known at compile-time, and not a decmatch template

@@ -160,6 +160,58 @@ if (not(match(x4,templateEnum_tIfpresent))) {setverdict(pass);}
  else {setverdict(fail);}
 }
 
+type enumerated Day { Monday(1), Tuesday(2), Wednesday(3), Thursday(4), Friday(5), Saturday(6), Sunday(7) }
+
+function f_is_weekday(Day p_par) return boolean {
+  return p_par != Saturday and p_par != Sunday;
+}
+
+template Day t_conjunction := conjunct((Monday, Wednesday, Thursday, Saturday), @dynamic f_is_weekday);
+
+template Day t_implication := (Monday, Wednesday, Thursday, Saturday) implies @dynamic f_is_weekday;
+
+// matches if the numeric value of the enumerated item matches the template parameter
+template Day t_dynamic(template integer pt_int) := @dynamic {
+  return match(enum2int(value), pt_int);
+}
+
+testcase templateEnumConjunction() runs on templateEnum_mycomp {
+  var Day v1 := Wednesday, v2 := Saturday;
+  if (not match(v1, t_conjunction)) {
+    setverdict(fail, match(v1, t_conjunction));
+  }
+  if (match(v2, t_conjunction)) {
+    setverdict(fail, match(v2, t_conjunction));
+  }
+  setverdict(pass);
+}
+
+testcase templateEnumImplication() runs on templateEnum_mycomp {
+  var Day v1 := Sunday, v2 := Saturday, v3 := Thursday;
+  if (not match(v1, t_implication)) {
+    setverdict(fail, match(v1, t_implication));
+  }
+  if (match(v2, t_implication)) {
+    setverdict(fail, match(v2, t_implication));
+  }
+  if (not match(v3, t_implication)) {
+    setverdict(fail, match(v3, t_implication));
+  }
+  setverdict(pass);
+}
+
+testcase templateEnumDynamic() runs on templateEnum_mycomp {
+  var Day v1 := Saturday, v2 := Thursday;
+  var template integer vt1 := (6, 7), vt2 := @dynamic { return value mod 2 == 1; };
+  if (not match(v1, t_dynamic(vt1))) {
+    setverdict(fail, match(v1, t_dynamic(vt1)));
+  }
+  if (match(v2, t_dynamic(vt2))) {
+    setverdict(fail, match(v2, t_dynamic(vt2)));
+  }
+  setverdict(pass);
+}
+
 control {
  execute(templateEnumSpec());
  execute(templateEnumList());
@@ -168,5 +220,8 @@ control {
  execute(templateEnumAny());
  execute(templateEnumAnyorNone());
  execute(templateEnumIfpresent());
+ execute(templateEnumConjunction());
+ execute(templateEnumImplication());
+ execute(templateEnumDynamic());
 }
 }

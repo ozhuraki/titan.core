@@ -212,6 +212,11 @@ private:
       boolean min_is_present, max_is_present;
       boolean min_is_exclusive, max_is_exclusive;
     } value_range;
+    struct {
+      FLOAT_template* precondition;
+      FLOAT_template* implied_template;
+    } implication_;
+    dynmatch_struct<FLOAT>* dyn_match;
   };
 
   void copy_template(const FLOAT_template& other_value);
@@ -223,6 +228,8 @@ public:
   FLOAT_template(const FLOAT& other_value);
   FLOAT_template(const OPTIONAL<FLOAT>& other_value);
   FLOAT_template(const FLOAT_template& other_value);
+  FLOAT_template(FLOAT_template* p_precondition, FLOAT_template* p_implied_template);
+  FLOAT_template(Dynamic_Match_Interface<FLOAT>* p_dyn_match);
 
   ~FLOAT_template();
   void clean_up();

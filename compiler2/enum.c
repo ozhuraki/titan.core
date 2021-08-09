@@ -1004,7 +1004,12 @@ void defEnumTemplate(const enum_def *edef, output_struct *output)
     "unsigned int n_values;\n"
     "%s_template *list_value;\n"
     "} value_list;\n"
-    "};\n\n", name, enum_type, name);
+    "struct {\n"
+    "%s_template* precondition;\n"
+    "%s_template* implied_template;\n"
+    "} implication_;\n"
+    "dynmatch_struct<%s>* dyn_match;\n"
+    "};\n\n", name, enum_type, name, name, name, name);
 
   /* private members */
   def = mputprintf(def, "void copy_template(const %s_template& "
@@ -1024,6 +1029,7 @@ void defEnumTemplate(const enum_def *edef, output_struct *output)
     "break;\n"
     "case VALUE_LIST:\n"
     "case COMPLEMENTED_LIST:\n"
+    "case CONJUNCTION_MATCH:\n"
     "value_list.n_values = other_value.value_list.n_values;\n"
     "value_list.list_value = new %s_template[value_list.n_values];\n"
     "for (unsigned int list_count = 0; list_count < value_list.n_values; "
@@ -1031,11 +1037,19 @@ void defEnumTemplate(const enum_def *edef, output_struct *output)
     "value_list.list_value[list_count].copy_template("
     "other_value.value_list.list_value[list_count]);\n"
     "break;\n"
+    "case IMPLICATION_MATCH:\n"
+    "implication_.precondition = new %s_template(*other_value.implication_.precondition);\n"
+    "implication_.implied_template = new %s_template(*other_value.implication_.implied_template);\n"
+    "break;\n"
+    "case DYNAMIC_MATCH:\n"
+    "dyn_match = other_value.dyn_match;\n"
+    "dyn_match->ref_count++;\n"
+    "break;\n"
     "default:\n"
     "TTCN_error(\"Copying an uninitialized/unsupported template of "
     "enumerated type %s.\");\n"
     "}\n"
-    "}\n\n", name, name, name, dispname);
+    "}\n\n", name, name, name, name, name, dispname);
 
   def = mputstr(def, "\npublic:\n");
 
@@ -1103,6 +1117,25 @@ void defEnumTemplate(const enum_def *edef, output_struct *output)
     "}\n"
     "}\n\n", name, name, name, enum_type, name, dispname);
 
+  def = mputprintf(def, "%s_template(%s_template* p_precondition, "
+    "%s_template* p_implied_template);\n", name, name, name);
+  src = mputprintf(src, "%s_template::%s_template(%s_template* p_precondition, "
+    "%s_template* p_implied_template)\n"
+    " : Base_Template(IMPLICATION_MATCH)\n"
+    "{\n"
+    "implication_.precondition = p_precondition;\n"
+    "implication_.implied_template = p_implied_template;\n"
+    "}\n\n", name, name, name, name);
+
+  def = mputprintf(def, "%s_template(Dynamic_Match_Interface<%s>* p_dyn_match);\n", name, name);
+  src = mputprintf(src, "%s_template::%s_template(Dynamic_Match_Interface<%s>* p_dyn_match)\n"
+    " : Base_Template(DYNAMIC_MATCH)\n"
+    "{\n"
+    "dyn_match = new dynmatch_struct<%s>;\n"
+    "dyn_match->ptr = p_dyn_match;\n"
+    "dyn_match->ref_count = 1;\n"
+    "}\n\n", name, name, name, name);
+
   def = mputprintf(def, "%s_template(const %s_template& other_value);\n",
                    name, name);
   src = mputprintf(src,
@@ -1143,9 +1176,26 @@ void defEnumTemplate(const enum_def *edef, output_struct *output)
   src = mputprintf(src,
     "void %s_template::clean_up()\n"
     "{\n"
-    "if (template_selection == VALUE_LIST || "
-    "template_selection == COMPLEMENTED_LIST) "
+    "switch (template_selection) {\n"
+    "case VALUE_LIST:\n"
+    "case COMPLEMENTED_LIST:\n"
+    "case CONJUNCTION_MATCH:\n"
     "delete [] value_list.list_value;\n"
+    "break;\n"
+    "case IMPLICATION_MATCH:\n"
+    "delete implication_.precondition;\n"
+    "delete implication_.implied_template;\n"
+    "break;\n"
+    "case DYNAMIC_MATCH:\n"
+    "dyn_match->ref_count--;\n"
+    "if (dyn_match->ref_count == 0) {\n"
+    "delete dyn_match->ptr;\n"
+    "delete dyn_match;\n"
+    "}\n"
+    "break;\n"
+    "default:\n"
+    "break;\n"
+    "}\n"
     "template_selection = UNINITIALIZED_TEMPLATE;\n"
     "}\n\n", name);
 
@@ -1254,6 +1304,17 @@ void defEnumTemplate(const enum_def *edef, output_struct *output)
     "if (value_list.list_value[list_count].match(other_value)) "
     "return template_selection == VALUE_LIST;\n"
     "return template_selection == COMPLEMENTED_LIST;\n"
+    "case CONJUNCTION_MATCH:\n"
+    "for (unsigned int i = 0; i < value_list.n_values; i++) {\n"
+    "if (!value_list.list_value[i].match(other_value)) {\n"
+    "return FALSE;\n"
+    "}\n"
+    "}\n"
+    "return TRUE;\n"
+    "case IMPLICATION_MATCH:\n"
+    "return !implication_.precondition->match(other_value) || implication_.implied_template->match(other_value);\n"
+    "case DYNAMIC_MATCH:\n"
+    "return dyn_match->ptr->match(other_value);\n"
     "default:\n"
     "TTCN_error(\"Matching an uninitialized/unsupported template of "
     "enumerated type %s.\");\n"
@@ -1291,7 +1352,8 @@ void defEnumTemplate(const enum_def *edef, output_struct *output)
     "void %s_template::set_type(template_sel template_type, "
     "unsigned int list_length)\n"
     "{\n"
-    "if (template_type != VALUE_LIST && template_type != COMPLEMENTED_LIST) "
+    "if (template_type != VALUE_LIST && template_type != COMPLEMENTED_LIST && "
+    "template_type != CONJUNCTION_MATCH) "
     "TTCN_error(\"Setting an invalid list type for a template of enumerated "
     "type %s.\");\n"
     "clean_up();\n"
@@ -1306,7 +1368,8 @@ void defEnumTemplate(const enum_def *edef, output_struct *output)
     "%s_template& %s_template::list_item(unsigned int list_index)\n"
     "{\n"
     "if (template_selection != VALUE_LIST && "
-    "template_selection != COMPLEMENTED_LIST) "
+    "template_selection != COMPLEMENTED_LIST && "
+    "template_selection != CONJUNCTION_MATCH) "
     "TTCN_error(\"Accessing a list element in a non-list template of "
     "enumerated type %s.\");\n"
     "if (list_index >= value_list.n_values) "
@@ -1363,6 +1426,10 @@ void defEnumTemplate(const enum_def *edef, output_struct *output)
      "break;\n"
      "case COMPLEMENTED_LIST:\n"
      "TTCN_Logger::log_event_str(\"complement\");\n"
+     "case CONJUNCTION_MATCH:\n"
+     "if (template_selection == CONJUNCTION_MATCH) {\n"
+     "TTCN_Logger::log_event_str(\"conjunct\");\n"
+     "}\n"
      "case VALUE_LIST:\n"
      "TTCN_Logger::log_char('(');\n"
      "for (unsigned int elem_count = 0; elem_count < value_list.n_values; "
@@ -1371,6 +1438,14 @@ void defEnumTemplate(const enum_def *edef, output_struct *output)
      "value_list.list_value[elem_count].log();\n"
      "}\n"
      "TTCN_Logger::log_char(')');\n"
+     "break;\n"
+     "case IMPLICATION_MATCH:\n"
+     "implication_.precondition->log();\n"
+     "TTCN_Logger::log_event_str(\" implies \");\n"
+     "implication_.implied_template->log();\n"
+     "break;\n"
+     "case DYNAMIC_MATCH:\n"
+     "TTCN_Logger::log_event_str(\"@dynamic template\");\n"
      "break;\n"
      "default:\n"
      "log_generic();\n"
@@ -1466,6 +1541,8 @@ void defEnumTemplate(const enum_def *edef, output_struct *output)
     "case OMIT_VALUE:\n"
     "case ANY_OR_OMIT:\n"
     "return TRUE;\n"
+    "case IMPLICATION_MATCH:\n"
+    "return !implication_.precondition->match_omit() || implication_.implied_template->match_omit();\n"
     "case VALUE_LIST:\n"
     "case COMPLEMENTED_LIST:\n"
     "if (legacy) {\n"

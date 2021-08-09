@@ -137,6 +137,11 @@ class VERDICTTYPE_template: public Base_Template {
       unsigned int n_values;
       VERDICTTYPE_template *list_value;
     } value_list;
+    struct {
+      VERDICTTYPE_template* precondition;
+      VERDICTTYPE_template* implied_template;
+    } implication_;
+    dynmatch_struct<VERDICTTYPE>* dyn_match;
   };
 
   void copy_value(const VERDICTTYPE& other_value);
@@ -149,6 +154,8 @@ public:
   VERDICTTYPE_template(const VERDICTTYPE& other_value);
   VERDICTTYPE_template(const OPTIONAL<VERDICTTYPE>& other_value);
   VERDICTTYPE_template(const VERDICTTYPE_template& other_value);
+  VERDICTTYPE_template(VERDICTTYPE_template* p_precondition, VERDICTTYPE_template* p_implied_template);
+  VERDICTTYPE_template(Dynamic_Match_Interface<VERDICTTYPE>* p_dyn_match);
 
   ~VERDICTTYPE_template();
   void clean_up();

@@ -170,6 +170,63 @@ if (not(match(x3,templateSet_tAnyorNone))) {setverdict(pass);}
 // else {setverdict(fail);}
 //}
 
+type record Set {
+  integer num,
+  charstring str optional
+} 
+ 
+function f_identical_fields(Set p_par) return boolean {
+  return ispresent(p_par.str) and p_par.str == int2str(p_par.num);
+}
+
+template Set t_str_is_present := { num := ?, str := ? };
+
+template Set t_conjunction := conjunct(t_str_is_present, @dynamic f_identical_fields);
+
+template Set t_implication := t_str_is_present implies @dynamic f_identical_fields;
+
+template Set t_dynamic(template integer pt_num, template charstring pt_str) := @dynamic {
+  return match(value.num, pt_num) and match(value.str, pt_str);
+}
+
+testcase templateSetConjunction() runs on templateSet_mycomp {
+  var Set v1 := { 16, "16" }, v2 := { 6, "a" };
+  if (not match(v1, t_conjunction)) {
+    setverdict(fail, match(v1, t_conjunction));
+  }
+  if (match(v2, t_conjunction)) {
+    setverdict(fail, match(v2, t_conjunction));
+  }
+  setverdict(pass);
+}
+
+testcase templateSetImplication() runs on templateSet_mycomp {
+  var Set v1 := { -2, omit }, v2 := { 71, "x" }, v3 := { -12, "-12" };
+  if (not match(v1, t_implication)) {
+    setverdict(fail, match(v1, t_implication));
+  }
+  if (match(v2, t_implication)) {
+    setverdict(fail, match(v2, t_implication));
+  }
+  if (not match(v3, t_implication)) {
+    setverdict(fail, match(v3, t_implication));
+  }
+  setverdict(pass);
+}
+
+testcase templateSetDynamic() runs on templateSet_mycomp {
+  var Set v1 := { 37, "abxc" }, v2 := { 16, "def" };
+  var template integer vt_num := (0..100);
+  var template charstring vt_str := pattern "*x*";
+  if (not match(v1, t_dynamic(vt_num, vt_str))) {
+    setverdict(fail, match(v1, t_dynamic(vt_num, vt_str)));
+  }
+  if (match(v2, t_dynamic(vt_num, vt_str))) {
+    setverdict(fail, match(v2, t_dynamic(vt_num, vt_str)));
+  }
+  setverdict(pass);
+}
+
 control {
  execute(templateSetSpec());
  execute(templateSetList());
@@ -178,6 +235,8 @@ control {
  execute(templateSetAny());
  execute(templateSetAnyorNone());
 // execute(templateSetIfpresent());
-
+ execute(templateSetConjunction());
+ execute(templateSetImplication());
+ execute(templateSetDynamic());
 }
 }

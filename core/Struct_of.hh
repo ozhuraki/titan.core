@@ -28,6 +28,7 @@ class Set_Of_Template;
 #endif
 class Restricted_Length_Template;
 class Record_Of_Template;
+class dynmatch_dummy_struct;
 
 enum answer { FAILURE, SUCCESS, NO_CHANCE };
 enum type_of_matching { SUBSET, EXACT, SUPERSET };

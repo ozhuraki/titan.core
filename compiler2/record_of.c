@@ -3538,7 +3538,13 @@ void defRecordOfTemplate1(const struct_of_def *sdef, output_struct *output)
     "struct {\n"
     "unsigned int n_values;\n"
     "%s_template *list_value;\n"
-    "} value_list;\n", name, base_class, type, name);
+    "} value_list;\n"
+    "struct {\n"
+    "%s_template* precondition;\n"
+    "%s_template* implied_template;\n"
+    "} implication_;\n"
+    "dynmatch_struct<%s>* dyn_match;\n",
+    name, base_class, type, name, name, name, name);
   if (sdef->kind == SET_OF) {
     def = mputprintf(def,
       "struct {\n"
@@ -3600,6 +3606,7 @@ void defRecordOfTemplate1(const struct_of_def *sdef, output_struct *output)
     "break;\n"
     "case VALUE_LIST:\n"
     "case COMPLEMENTED_LIST:\n"
+    "case CONJUNCTION_MATCH:\n"
     "value_list.n_values = other_value.value_list.n_values;\n"
     "value_list.list_value = new %s_template[value_list.n_values];\n"
     "for (unsigned int list_count = 0; list_count < value_list.n_values; "
@@ -3620,13 +3627,21 @@ void defRecordOfTemplate1(const struct_of_def *sdef, output_struct *output)
       "break;\n", type);
   }
   src = mputprintf(src,
+    "case IMPLICATION_MATCH:\n"
+    "implication_.precondition = new %s_template(*other_value.implication_.precondition);\n"
+    "implication_.implied_template = new %s_template(*other_value.implication_.implied_template);\n"
+    "break;\n"
+    "case DYNAMIC_MATCH:\n"
+    "dyn_match = other_value.dyn_match;\n"
+    "dyn_match->ref_count++;\n"
+    "break;\n"
     "default:\n"
     "TTCN_error(\"Copying an uninitialized/unsupported template of type "
       "%s.\");\n"
     "break;\n"
     "}\n"
     "set_selection(other_value);\n"
-    "}\n\n", dispname);
+    "}\n\n", name, name, dispname);
 
   /* callback function for matching specific values */
   def = mputstr(def,
@@ -3736,6 +3751,25 @@ void defRecordOfTemplate1(const struct_of_def *sdef, output_struct *output)
     "}\n"
     "}\n\n", name, name, name, name, dispname);
 
+  def = mputprintf(def, "%s_template(%s_template* p_precondition, "
+    "%s_template* p_implied_template);\n", name, name, name);
+  src = mputprintf(src, "%s_template::%s_template(%s_template* p_precondition, "
+    "%s_template* p_implied_template)\n"
+    " : %s(IMPLICATION_MATCH)\n"
+    "{\n"
+    "implication_.precondition = p_precondition;\n"
+    "implication_.implied_template = p_implied_template;\n"
+    "}\n\n", name, name, name, name, base_class);
+
+  def = mputprintf(def, "%s_template(Dynamic_Match_Interface<%s>* p_dyn_match);\n", name, name);
+  src = mputprintf(src, "%s_template::%s_template(Dynamic_Match_Interface<%s>* p_dyn_match)\n"
+    " : %s(DYNAMIC_MATCH)\n"
+    "{\n"
+    "dyn_match = new dynmatch_struct<%s>;\n"
+    "dyn_match->ptr = p_dyn_match;\n"
+    "dyn_match->ref_count = 1;\n"
+    "}\n\n", name, name, name, base_class, name);
+
   /* copy constructor */
   def = mputprintf(def, "%s_template(const %s_template& other_value);\n",
                    name, name);
@@ -3768,15 +3802,29 @@ void defRecordOfTemplate1(const struct_of_def *sdef, output_struct *output)
     "break;\n"
     "case VALUE_LIST:\n"
     "case COMPLEMENTED_LIST:\n"
-    "delete [] value_list.list_value;\n", name);
+    "case CONJUNCTION_MATCH:\n"
+    "delete [] value_list.list_value;\n"
+    "break;\n", name);
   if (sdef->kind == SET_OF) {
     src = mputstr(src,
       "break;\n"
       "case SUPERSET_MATCH:\n"
       "case SUBSET_MATCH:\n"
-      "delete [] value_set.set_items;\n");
+      "delete [] value_set.set_items;\n"
+      "break;\n");
   }
   src = mputstr(src,
+    "case IMPLICATION_MATCH:\n"
+    "delete implication_.precondition;\n"
+    "delete implication_.implied_template;\n"
+    "break;\n"
+    "case DYNAMIC_MATCH:\n"
+    "dyn_match->ref_count--;\n"
+    "if (dyn_match->ref_count == 0) {\n"
+    "delete dyn_match->ptr;\n"
+    "delete dyn_match;\n"
+    "}\n"
+    "break;\n"
     "default:\n"
     "break;\n"
     "}\n"
@@ -4142,6 +4190,17 @@ void defRecordOfTemplate1(const struct_of_def *sdef, output_struct *output)
 	"value_set.n_items, match_function_set, legacy);\n");
   }
   src = mputprintf(src,
+    "case CONJUNCTION_MATCH:\n"
+    "for (unsigned int i = 0; i < value_list.n_values; i++) {\n"
+    "if (!value_list.list_value[i].match(other_value)) {\n"
+    "return FALSE;\n"
+    "}\n"
+    "}\n"
+    "return TRUE;\n"
+    "case IMPLICATION_MATCH:\n"
+    "return !implication_.precondition->match(other_value) || implication_.implied_template->match(other_value);\n"
+    "case DYNAMIC_MATCH:\n"
+    "return dyn_match->ptr->match(other_value);\n"
     "default:\n"
     "TTCN_error(\"Matching with an uninitialized/unsupported template "
       "of type %s.\");\n"
@@ -4228,6 +4287,7 @@ void defRecordOfTemplate1(const struct_of_def *sdef, output_struct *output)
     "switch (template_type) {\n"
     "case VALUE_LIST:\n"
     "case COMPLEMENTED_LIST:\n"
+    "case CONJUNCTION_MATCH:\n"
     "value_list.n_values = list_length;\n"
     "value_list.list_value = new %s_template[list_length];\n"
     "break;\n", name, name);
@@ -4253,7 +4313,8 @@ void defRecordOfTemplate1(const struct_of_def *sdef, output_struct *output)
     "%s_template& %s_template::list_item(unsigned int list_index)\n"
     "{\n"
     "if (template_selection != VALUE_LIST && "
-      "template_selection != COMPLEMENTED_LIST) "
+      "template_selection != COMPLEMENTED_LIST && "
+      "template_selection != CONJUNCTION_MATCH) "
       "TTCN_error(\"Internal error: Accessing a list element of a non-list "
       "template of type %s.\");\n"
     "if (list_index >= value_list.n_values) "
@@ -4309,6 +4370,10 @@ void defRecordOfTemplate1(const struct_of_def *sdef, output_struct *output)
     "break;\n"
     "case COMPLEMENTED_LIST:\n"
     "TTCN_Logger::log_event_str(\"complement\");\n"
+    "case CONJUNCTION_MATCH:\n"
+    "if (template_selection == CONJUNCTION_MATCH) {\n"
+    "TTCN_Logger::log_event_str(\"conjunct\");\n"
+    "}\n"
     "case VALUE_LIST:\n"
     "TTCN_Logger::log_char('(');\n"
     "for (unsigned int list_count = 0; list_count < value_list.n_values; "
@@ -4333,6 +4398,14 @@ void defRecordOfTemplate1(const struct_of_def *sdef, output_struct *output)
       "break;\n");
   }
   src = mputstr(src,
+     "case IMPLICATION_MATCH:\n"
+     "implication_.precondition->log();\n"
+     "TTCN_Logger::log_event_str(\" implies \");\n"
+     "implication_.implied_template->log();\n"
+     "break;\n"
+     "case DYNAMIC_MATCH:\n"
+     "TTCN_Logger::log_event_str(\"@dynamic template\");\n"
+     "break;\n"
      "default:\n"
      "log_generic();\n"
      "}\n"
@@ -4540,6 +4613,8 @@ void defRecordOfTemplate1(const struct_of_def *sdef, output_struct *output)
     "case OMIT_VALUE:\n"
     "case ANY_OR_OMIT:\n"
     "return TRUE;\n"
+    "case IMPLICATION_MATCH:\n"
+    "return !implication_.precondition->match_omit() || implication_.implied_template->match_omit();\n"
     "case VALUE_LIST:\n"
     "case COMPLEMENTED_LIST:\n"
     "if (legacy) {\n"
@@ -4755,9 +4830,38 @@ void defRecordOfTemplate2(const struct_of_def *sdef, output_struct *output)
   def = mputprintf(def, "%s_template(const OPTIONAL<%s>& other_value) "
     "{ copy_optional(&other_value); }\n", name, name);
 
+  def = mputprintf(def, "%s_template(%s_template* p_precondition, %s_template* p_implied_template);\n",
+    name, name, name);
+  src = mputprintf(src,
+    "%s_template::%s_template(%s_template* p_precondition, %s_template* p_implied_template)\n"
+    ": %s(IMPLICATION_MATCH)\n"
+    "{\n"
+    "implication_.precondition = p_precondition;\n"
+    "implication_.implied_template = p_implied_template;\n"
+    "}\n", name, name, name, name, base_class);
+
+  def = mputprintf(def, "%s_template(Dynamic_Match_Interface<%s>* p_dyn_match);\n", name, name);
+  src = mputprintf(src,
+    "%s_template::%s_template(Dynamic_Match_Interface<%s>* p_dyn_match)\n"
+    ": %s(DYNAMIC_MATCH)\n"
+    "{\n"
+    "dyn_match = new dynmatch_dummy_struct;\n"
+    "dyn_match->ptr = p_dyn_match;\n"
+    "dyn_match->ref_count = 1;\n"
+    "}\n", name, name, name, base_class);
+
   /* copy constructor */
   def = mputprintf(def, "%s_template(const %s_template& other_value): %s() { copy_template(other_value); }\n",
                    name, name, base_class);
+
+  /* matching function for dynamic templates */
+  def = mputstr(def, "boolean match_dynamic(const Base_Type* match_value) const;\n");
+  src = mputprintf(src,
+    "boolean %s_template::match_dynamic(const Base_Type* match_value) const\n"
+    "{\n"
+    "const %s* actual_value = dynamic_cast<const %s*>(match_value);\n"
+    "return (static_cast<Dynamic_Match_Interface<%s>*>(dyn_match->ptr))->match(*actual_value);\n"
+    "}\n", name, name, name, name);
 
   /* assignment operators */
   def = mputprintf(def, "%s_template& operator=(template_sel other_value);\n",

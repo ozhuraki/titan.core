@@ -3845,13 +3845,17 @@ UNIVERSAL_CHARSTRING operator+(const char *string_value,
 
 void UNIVERSAL_CHARSTRING_template::clean_up()
 {
-  if (template_selection == VALUE_LIST ||
-    template_selection == COMPLEMENTED_LIST) delete [] value_list.list_value;
-  else if (template_selection == STRING_PATTERN) {
+  switch (template_selection) {
+  case VALUE_LIST:
+  case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
+    delete [] value_list.list_value;
+    break;
+  case STRING_PATTERN:
     if (pattern_value.regexp_init) regfree(&pattern_value.posix_regexp);
     delete pattern_string;
-  }
-  else if (template_selection == DECODE_MATCH) {
+    break;
+  case DECODE_MATCH:
     if (dec_match->ref_count > 1) {
       dec_match->ref_count--;
     }
@@ -3863,6 +3867,29 @@ void UNIVERSAL_CHARSTRING_template::clean_up()
       TTCN_error("Internal error: Invalid reference counter in a "
         "decoded content match.");
     }
+    break;
+  case IMPLICATION_MATCH:
+    delete implication_.precondition;
+    delete implication_.implied_template;
+    break;
+  case DYNAMIC_MATCH:
+    if (dyn_match.is_universal) {
+      dyn_match.ucs->ref_count--;
+      if (dyn_match.ucs->ref_count == 0) {
+        delete dyn_match.ucs->ptr;
+        delete dyn_match.ucs;
+      }
+    }
+    else {
+      dyn_match.cs->ref_count--;
+      if (dyn_match.cs->ref_count == 0) {
+        delete dyn_match.cs->ptr;
+        delete dyn_match.cs;
+      }
+    }
+    break;
+  default:
+    break;
   }
   template_selection = UNINITIALIZED_TEMPLATE;
 }
@@ -3880,6 +3907,7 @@ void UNIVERSAL_CHARSTRING_template::copy_template
     break;
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     value_list.n_values = other_value.value_list.n_values;
     value_list.list_value =
       new UNIVERSAL_CHARSTRING_template[value_list.n_values];
@@ -3916,6 +3944,15 @@ void UNIVERSAL_CHARSTRING_template::copy_template
     dec_match = other_value.dec_match;
     dec_match->ref_count++;
     break;
+  case IMPLICATION_MATCH:
+    implication_.precondition = new UNIVERSAL_CHARSTRING_template(*other_value.implication_.precondition);
+    implication_.implied_template = new UNIVERSAL_CHARSTRING_template(*other_value.implication_.implied_template);
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match.is_universal = false;
+    dyn_match.cs = other_value.dyn_match;
+    dyn_match.cs->ref_count++;
+    break;
   default:
     TTCN_error("Copying an uninitialized/unsupported charstring template to a "
       "universal charstring template.");
@@ -3936,6 +3973,7 @@ void UNIVERSAL_CHARSTRING_template::copy_template
     break;
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     value_list.n_values = other_value.value_list.n_values;
     value_list.list_value =
       new UNIVERSAL_CHARSTRING_template[value_list.n_values];
@@ -3958,6 +3996,21 @@ void UNIVERSAL_CHARSTRING_template::copy_template
   case DECODE_MATCH:
     dec_match = other_value.dec_match;
     dec_match->ref_count++;
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition = new UNIVERSAL_CHARSTRING_template(*other_value.implication_.precondition);
+    implication_.implied_template = new UNIVERSAL_CHARSTRING_template(*other_value.implication_.implied_template);
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match.is_universal = other_value.dyn_match.is_universal;
+    if (dyn_match.is_universal) {
+      dyn_match.ucs = other_value.dyn_match.ucs;
+      dyn_match.ucs->ref_count++;
+    }
+    else {
+      dyn_match.cs = other_value.dyn_match.cs;
+      dyn_match.cs->ref_count++;
+    }
     break;
   default:
     TTCN_error("Copying an uninitialized/unsupported universal charstring "
@@ -4059,6 +4112,31 @@ UNIVERSAL_CHARSTRING_template::UNIVERSAL_CHARSTRING_template
   pattern_string = new CHARSTRING(p_str);
   pattern_value.regexp_init=FALSE;
   pattern_value.nocase = p_nocase;
+}
+
+UNIVERSAL_CHARSTRING_template::UNIVERSAL_CHARSTRING_template(UNIVERSAL_CHARSTRING_template* p_precondition, UNIVERSAL_CHARSTRING_template* p_implied_template)
+: Restricted_Length_Template(IMPLICATION_MATCH), pattern_string(NULL)
+{
+  implication_.precondition = p_precondition;
+  implication_.implied_template = p_implied_template;
+}
+
+UNIVERSAL_CHARSTRING_template::UNIVERSAL_CHARSTRING_template(Dynamic_Match_Interface<CHARSTRING>* p_dyn_match)
+: Restricted_Length_Template(DYNAMIC_MATCH), pattern_string(NULL)
+{
+  dyn_match.is_universal = false;
+  dyn_match.cs = new dynmatch_struct<CHARSTRING>;
+  dyn_match.cs->ptr = p_dyn_match;
+  dyn_match.cs->ref_count = 1;
+}
+
+UNIVERSAL_CHARSTRING_template::UNIVERSAL_CHARSTRING_template(Dynamic_Match_Interface<UNIVERSAL_CHARSTRING>* p_dyn_match)
+: Restricted_Length_Template(DYNAMIC_MATCH), pattern_string(NULL)
+{
+  dyn_match.is_universal = true;
+  dyn_match.ucs = new dynmatch_struct<UNIVERSAL_CHARSTRING>;
+  dyn_match.ucs->ptr = p_dyn_match;
+  dyn_match.ucs->ref_count = 1;
 }
 
 UNIVERSAL_CHARSTRING_template::~UNIVERSAL_CHARSTRING_template()
@@ -4432,6 +4510,27 @@ boolean UNIVERSAL_CHARSTRING_template::match
     TTCN_EncDec::set_error_behavior(TTCN_EncDec::ET_ALL,TTCN_EncDec::EB_DEFAULT);
     TTCN_EncDec::clear_error();
     return ret_val; }
+  case CONJUNCTION_MATCH:
+    for (unsigned int i = 0; i < value_list.n_values; i++) {
+      if (!value_list.list_value[i].match(other_value)) {
+        return FALSE;
+      }
+    }
+    return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->match(other_value) || implication_.implied_template->match(other_value);
+  case DYNAMIC_MATCH:
+    if (dyn_match.is_universal) {
+      return dyn_match.ucs->ptr->match(other_value);
+    }
+    else {
+      if (other_value.charstring) {
+        return dyn_match.cs->ptr->match(other_value.cstr);
+      }
+      else {
+        return FALSE;
+      }
+    }
   default:
     TTCN_error("Matching with an uninitialized/unsupported universal "
       "charstring template.");
@@ -4492,6 +4591,15 @@ int UNIVERSAL_CHARSTRING_template::lengthof() const
   case STRING_PATTERN:
     TTCN_error("Performing lengthof() operation on a universal charstring "
                "template containing a pattern is not allowed.");
+  case CONJUNCTION_MATCH:
+    TTCN_error("Performing lengthof() operation on a universal charstring "
+               "template containing a conjunction list match.");
+  case IMPLICATION_MATCH:
+    TTCN_error("Performing lengthof() operation on a universal charstring "
+               "template containing an implication match.");
+  case DYNAMIC_MATCH:
+    TTCN_error("Performing lengthof() operation on a universal charstring "
+               "template containing a dynamic match.");
   default:
     TTCN_error("Performing lengthof() operation on an "
                "uninitialized/unsupported universal charstring template.");
@@ -4507,6 +4615,7 @@ void UNIVERSAL_CHARSTRING_template::set_type(template_sel template_type,
   switch (template_type) {
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     set_selection(template_type);
     value_list.n_values = list_length;
     value_list.list_value = new UNIVERSAL_CHARSTRING_template[list_length];
@@ -4530,7 +4639,8 @@ UNIVERSAL_CHARSTRING_template& UNIVERSAL_CHARSTRING_template::list_item
   (unsigned int list_index)
 {
   if (template_selection != VALUE_LIST &&
-      template_selection != COMPLEMENTED_LIST)
+      template_selection != COMPLEMENTED_LIST &&
+      template_selection != CONJUNCTION_MATCH)
     TTCN_error("Accessing a list element of a non-list universal charstring "
       "template.");
   if (list_index >= value_list.n_values)
@@ -4643,6 +4753,11 @@ void UNIVERSAL_CHARSTRING_template::log() const
   case COMPLEMENTED_LIST:
     TTCN_Logger::log_event_str("complement");
     // no break
+  case CONJUNCTION_MATCH:
+    if (template_selection == CONJUNCTION_MATCH) {
+      TTCN_Logger::log_event_str("conjunct");
+    }
+    // no break
   case VALUE_LIST:
     TTCN_Logger::log_char('(');
     for(unsigned int i = 0; i < value_list.n_values; i++) {
@@ -4710,6 +4825,14 @@ void UNIVERSAL_CHARSTRING_template::log() const
     }
     TTCN_Logger::log_event_str(") ");
     dec_match->instance->log();
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition->log();
+    TTCN_Logger::log_event_str(" implies ");
+    implication_.implied_template->log();
+    break;
+  case DYNAMIC_MATCH:
+    TTCN_Logger::log_event_str("@dynamic template");
     break;
   default:
     log_generic();
@@ -4989,6 +5112,8 @@ boolean UNIVERSAL_CHARSTRING_template::match_omit(boolean legacy /* = FALSE */) 
   case OMIT_VALUE:
   case ANY_OR_OMIT:
     return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->match_omit() || implication_.implied_template->match_omit();
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
     if (legacy) {

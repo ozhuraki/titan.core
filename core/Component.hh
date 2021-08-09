@@ -134,6 +134,11 @@ private:
       unsigned int n_values;
       COMPONENT_template *list_value;
     } value_list;
+    struct {
+      COMPONENT_template* precondition;
+      COMPONENT_template* implied_template;
+    } implication_;
+    dynmatch_struct<COMPONENT>* dyn_match;
   };
 
   void copy_template(const COMPONENT_template& other_value);
@@ -145,6 +150,8 @@ public:
   COMPONENT_template(const COMPONENT& other_value);
   COMPONENT_template(const OPTIONAL<COMPONENT>& other_value);
   COMPONENT_template(const COMPONENT_template& other_value);
+  COMPONENT_template(COMPONENT_template* p_precondition, COMPONENT_template* p_implied_template);
+  COMPONENT_template(Dynamic_Match_Interface<COMPONENT>* p_dyn_match);
 
   ~COMPONENT_template();
   void clean_up();

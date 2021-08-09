@@ -240,6 +240,11 @@ private:
     } value_list;
     hexstring_pattern_struct *pattern_value;
     decmatch_struct* dec_match;
+    struct {
+      HEXSTRING_template* precondition;
+      HEXSTRING_template* implied_template;
+    } implication_;
+    dynmatch_struct<HEXSTRING>* dyn_match;
   };
 
   void copy_template(const HEXSTRING_template& other_value);
@@ -261,6 +266,8 @@ public:
   HEXSTRING_template(unsigned int n_elements,
     const unsigned char *pattern_elements);
   HEXSTRING_template(const HEXSTRING_template& other_value);
+  HEXSTRING_template(HEXSTRING_template* p_precondition, HEXSTRING_template* p_implied_template);
+  HEXSTRING_template(Dynamic_Match_Interface<HEXSTRING>* p_dyn_match);
   ~HEXSTRING_template();
   void clean_up();
 

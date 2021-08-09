@@ -661,6 +661,64 @@ group g_TR_HO72812 {
     if(ispresent(vtl_rec2.r.x)) {setverdict(fail)}else {setverdict(pass)};
     if(ispresent(vtl_rec2.r.c)) {setverdict(fail)}else {setverdict(pass)};
   }
+
+
+type record Rec {
+  integer num,
+  charstring str optional
+} 
+ 
+function f_identical_fields(Rec p_par) return boolean {
+  return ispresent(p_par.str) and p_par.str == int2str(p_par.num);
+}
+
+template Rec t_str_is_present := { num := ?, str := ? };
+
+template Rec t_conjunction := conjunct(t_str_is_present, @dynamic f_identical_fields);
+
+template Rec t_implication := t_str_is_present implies @dynamic f_identical_fields;
+
+template Rec t_dynamic(template integer pt_num, template charstring pt_str) := @dynamic {
+  return match(value.num, pt_num) and match(value.str, pt_str);
+}
+
+testcase tc_record_conjunction() runs on templateRec_mycomp {
+  var Rec v1 := { 16, "16" }, v2 := { 6, "a" };
+  if (not match(v1, t_conjunction)) {
+    setverdict(fail, match(v1, t_conjunction));
+  }
+  if (match(v2, t_conjunction)) {
+    setverdict(fail, match(v2, t_conjunction));
+  }
+  setverdict(pass);
+}
+
+testcase tc_record_implication() runs on templateRec_mycomp {
+  var Rec v1 := { -2, omit }, v2 := { 71, "x" }, v3 := { -12, "-12" };
+  if (not match(v1, t_implication)) {
+    setverdict(fail, match(v1, t_implication));
+  }
+  if (match(v2, t_implication)) {
+    setverdict(fail, match(v2, t_implication));
+  }
+  if (not match(v3, t_implication)) {
+    setverdict(fail, match(v3, t_implication));
+  }
+  setverdict(pass);
+}
+
+testcase tc_record_dynamic() runs on templateRec_mycomp {
+  var Rec v1 := { 37, "abxc" }, v2 := { 16, "def" };
+  var template integer vt_num := (0..100);
+  var template charstring vt_str := pattern "*x*";
+  if (not match(v1, t_dynamic(vt_num, vt_str))) {
+    setverdict(fail, match(v1, t_dynamic(vt_num, vt_str)));
+  }
+  if (match(v2, t_dynamic(vt_num, vt_str))) {
+    setverdict(fail, match(v2, t_dynamic(vt_num, vt_str)));
+  }
+  setverdict(pass);
+}
   
 control {
  execute(pasu());
@@ -712,5 +770,8 @@ control {
  execute(tc_record_TR_HO72813_innerFields());
  execute(tc_record_TR_HO72813_partlyInitialized());
  execute(tc_record_TR_HO72813_omit());
+ execute(tc_record_conjunction());
+ execute(tc_record_implication());
+ execute(tc_record_dynamic());
 }
 }

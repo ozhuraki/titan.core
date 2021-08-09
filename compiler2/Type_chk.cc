@@ -46,6 +46,7 @@
 #include "ttcn3/Attributes.hh"
 #include "ttcn3/ArrayDimensions.hh"
 #include "ttcn3/PatternString.hh"
+#include "ttcn3/Statement.hh"
 
 #include "asn1/Tag.hh"
 #include "XerAttributes.hh"
@@ -6568,7 +6569,8 @@ bool Type::chk_this_template_generic(Template *t, namedbool incomplete_allowed,
 
     break; }
   case Ttcn::Template::VALUE_LIST:
-  case Ttcn::Template::COMPLEMENTED_LIST: {
+  case Ttcn::Template::COMPLEMENTED_LIST:
+  case Ttcn::Template::CONJUNCTION_MATCH: {
     size_t nof_comps = t->get_nof_comps();
     for (size_t i = 0; i < nof_comps; i++) {
       Template* t_comp = t->get_temp_byIndex(i);
@@ -6576,8 +6578,8 @@ bool Type::chk_this_template_generic(Template *t, namedbool incomplete_allowed,
       t_comp->set_my_governor(this);
       chk_this_template_ref(t_comp);
       self_ref |= chk_this_template_generic(t_comp, INCOMPLETE_NOT_ALLOWED,
-        omit_in_value_list ? allow_omit : OMIT_NOT_ALLOWED,
-        ANY_OR_OMIT_ALLOWED, sub_chk, implicit_omit, lhs);
+        (omit_in_value_list && temptype != Ttcn::Template::CONJUNCTION_MATCH) ?
+        allow_omit : OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED, sub_chk, implicit_omit, lhs);
       if(temptype==Ttcn::Template::COMPLEMENTED_LIST &&
          t_comp->get_template_refd_last()->get_templatetype() ==
          Ttcn::Template::ANY_OR_OMIT)
@@ -6628,6 +6630,21 @@ bool Type::chk_this_template_generic(Template *t, namedbool incomplete_allowed,
       }
     }
     break;
+  case Ttcn::Template::IMPLICATION_MATCH:
+    t->get_precondition()->chk(this);
+    t->get_implied_template()->chk(this);
+    break;
+  case Ttcn::Template::DYNAMIC_MATCH: {
+    Ttcn::FormalPar* matching_fp = new Ttcn::FormalPar(Assignment::A_PAR_VAL_IN, clone(),
+      new Identifier(Identifier::ID_TTCN, string("value")), NULL);
+    Ttcn::FormalParList* matching_fp_list = new Ttcn::FormalParList;
+    matching_fp_list->add_fp(matching_fp);
+    matching_fp_list->set_fullname(t->get_fullname() + ".<@dynamic_formalpar>");
+    matching_fp_list->set_my_scope(t->get_my_scope());
+    t->set_dynamic_fplist(matching_fp_list);
+    t->get_dynamic_sb()->chk();
+    // todo
+    break; }
   default:
     self_ref = chk_this_template(t, incomplete_allowed, allow_omit, allow_any_or_omit,
       sub_chk, implicit_omit, lhs);

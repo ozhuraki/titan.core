@@ -866,6 +866,65 @@ testcase templateCharstrPatternNocase() runs on templateCharstr_mycomp {
   setverdict(pass);
 }
 
+function f_only_has_letters(charstring p_par, boolean p_allow_spaces := false) return boolean {
+  var template charstring vt;
+  if (p_allow_spaces) {
+    vt := pattern "[a-zA-Z ]#(0,)";
+  }
+  else {
+    vt := pattern "[a-zA-Z]#(0,)";
+  }
+  return match(p_par, vt);
+}
+
+template charstring t_conjunction := conjunct(? length (1..6), @dynamic f_only_has_letters);
+
+// matches strings with 5 or more characters ending with "abc" and all shorter 
+// strings (i.e. strings with length 0..4) 
+template charstring t_implication := ? length (5..infinity) implies pattern "*abc";
+
+// matches strings that don't match the template parameter
+template charstring t_dynamic(template charstring pt_complement) := @dynamic {
+  return not match(value, pt_complement);
+}
+
+testcase templateCharConjunction() runs on templateCharstr_mycomp {
+  var charstring v1 := "abc", v2 := "de1f";
+  if (not match(v1, t_conjunction)) {
+    setverdict(fail, match(v1, t_conjunction));
+  }
+  if (match(v2, t_conjunction)) {
+    setverdict(fail, match(v2, t_conjunction));
+  }
+  setverdict(pass);
+}
+
+testcase templateCharImplication() runs on templateCharstr_mycomp {
+  var charstring v1 := "def", v2 := "abcdef", v3 := "defabc";
+  if (not match(v1, t_implication)) {
+    setverdict(fail, match(v1, t_implication));
+  }
+  if (match(v2, t_implication)) {
+    setverdict(fail, match(v2, t_implication));
+  }
+  if (not match(v3, t_implication)) {
+    setverdict(fail, match(v3, t_implication));
+  }
+  setverdict(pass);
+}
+
+testcase templateCharDynamic() runs on templateCharstr_mycomp {
+  var charstring v1 := "abc", v2 := "def";
+  var template charstring vt1 := pattern "*x*", vt2 := ? length (1..4);
+  if (not match(v1, t_dynamic(vt1))) {
+    setverdict(fail, match(v1, t_dynamic(vt1)));
+  }
+  if (match(v2, t_dynamic(vt2))) {
+    setverdict(fail, match(v2, t_dynamic(vt2)));
+  }
+  setverdict(pass);
+}
+
 control {
  execute(templateCharstrSpec());
  execute(templateCharstrList());
@@ -900,5 +959,8 @@ control {
  execute(templateCharstrDecmatch());
  execute(templateCharstrDecmatchSelfRef());
  execute(templateCharstrPatternNocase());
+ execute(templateCharConjunction());
+ execute(templateCharImplication());
+ execute(templateCharDynamic());
 }
 }

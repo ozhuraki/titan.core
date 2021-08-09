@@ -243,12 +243,103 @@ testcase templateUnicharstrDecmatchCopyCharstr() runs on templateUnicharstr_myco
   else { setverdict(fail, 2); }
 }
 
+function f_is_ASCII(universal charstring p_par) return boolean {
+  for (var integer i := 0; i < lengthof(p_par); i := i + 1) {
+    if (unichar2int(p_par[i]) > 127) {
+      return false;
+    }
+  }
+  return true;
+}
+
+template universal charstring t_conjunction := conjunct(? length (1..6), @dynamic f_is_ASCII);
+
+// matches strings with 5 or more characters ending with "abc" and all shorter 
+// strings (i.e. strings with length 0..4) 
+template universal charstring t_implication := ? length (5..infinity) implies pattern "*abc";
+
+// matches strings that don't match the template parameter
+template universal charstring t_dynamic(template universal charstring pt_complement) := @dynamic {
+  return not match(value, pt_complement);
+}
+
+testcase templateUnicharConjunction() runs on templateUnicharstr_mycomp {
+  var universal charstring v1 := "abc", v2 := "a1" & char(0, 0, 1, 125) & "f";
+  if (not match(v1, t_conjunction)) {
+    setverdict(fail, match(v1, t_conjunction));
+  }
+  if (match(v2, t_conjunction)) {
+    setverdict(fail, match(v2, t_conjunction));
+  }
+  setverdict(pass);
+}
+
+testcase templateUnicharImplication() runs on templateUnicharstr_mycomp {
+  var universal charstring v1 := "def", v2 := "abcdef", v3 := "defabc";
+  if (not match(v1, t_implication)) {
+    setverdict(fail, match(v1, t_implication));
+  }
+  if (match(v2, t_implication)) {
+    setverdict(fail, match(v2, t_implication));
+  }
+  if (not match(v3, t_implication)) {
+    setverdict(fail, match(v3, t_implication));
+  }
+  setverdict(pass);
+}
+
+testcase templateUnicharDynamic() runs on templateUnicharstr_mycomp {
+  var universal charstring v1 := "abc", v2 := "def";
+  var template universal charstring vt1 := pattern "*x*", vt2 := ? length (1..4);
+  if (not match(v1, t_dynamic(vt1))) {
+    setverdict(fail, match(v1, t_dynamic(vt1)));
+  }
+  if (match(v2, t_dynamic(vt2))) {
+    setverdict(fail, match(v2, t_dynamic(vt2)));
+  }
+  setverdict(pass);
+}
+
+function f_only_has_letters(charstring p_par, boolean p_allow_spaces := false) return boolean {
+  var template charstring vt;
+  if (p_allow_spaces) {
+    vt := pattern "[a-zA-Z ]#(0,)";
+  }
+  else {
+    vt := pattern "[a-zA-Z]#(0,)";
+  }
+  return match(p_par, vt);
+}
+
+template charstring t_dynamic_cstr := @dynamic f_only_has_letters;
+
+testcase templateUnicharFromCharstrDynamic() runs on templateUnicharstr_mycomp {
+  var template universal charstring vt_test := t_dynamic_cstr;
+  var universal charstring v1 := "abc", v2 := "de1f", v3 := "ab" & char(0, 0, 1, 117);
+  if (not match(v1, vt_test)) {
+    setverdict(fail, match(v1, vt_test));
+  }
+  if (match(v2, vt_test)) {
+    setverdict(fail, match(v2, vt_test));
+  }
+  // v3 is not a valid charstring
+  // the result in this case is 'not matching', without calling function 'f_only_has_letters'
+  if (match(v3, vt_test)) {
+    setverdict(fail, match(v3, vt_test));
+  }
+  setverdict(pass);
+}
+
 control {
   execute(templateUnicharstrDecmatch());
   execute(templateUnicharstrDecmatchSelfRef());
   execute(templateUnicharstrDecmatch16());
   execute(templateUnicharstrDecmatch32());
   execute(templateUnicharstrDecmatchCopyCharstr());
+  execute(templateUnicharConjunction());
+  execute(templateUnicharImplication());
+  execute(templateUnicharDynamic());
+  execute(templateUnicharFromCharstrDynamic());
 }
 
 }

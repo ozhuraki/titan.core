@@ -1466,6 +1466,11 @@ private:
       unsigned int n_values;
       TEMPLATE_ARRAY *list_value;
     } value_list;
+    struct {
+      TEMPLATE_ARRAY* precondition;
+      TEMPLATE_ARRAY* implied_template;
+    } implication_;
+    dynmatch_struct<T_value_type>* dyn_match;
   };
 
   struct Pair_of_elements;
@@ -1504,6 +1509,23 @@ public:
     }
   TEMPLATE_ARRAY(const
     OPTIONAL< VALUE_ARRAY<T_value_type,array_size,index_offset> >& other_value);
+  TEMPLATE_ARRAY(TEMPLATE_ARRAY* p_precondition, TEMPLATE_ARRAY* p_implied_template)
+  : Restricted_Length_Template(IMPLICATION_MATCH)
+  {
+    implication_.precondition = p_precondition;
+    implication_.implied_template = p_implied_template;number_of_permutations = 0;
+    permutation_intervals = NULL;
+  }
+
+  TEMPLATE_ARRAY(Dynamic_Match_Interface<T_value_type>* p_dyn_match)
+  : Restricted_Length_Template(DYNAMIC_MATCH)
+  {
+    dyn_match = new dynmatch_struct<T_value_type>;
+    dyn_match->ptr = p_dyn_match;
+    dyn_match->ref_count = 1;number_of_permutations = 0;
+    permutation_intervals = NULL;
+  }
+
   TEMPLATE_ARRAY(const TEMPLATE_ARRAY& other_value)
     : Restricted_Length_Template()
     {
@@ -1614,7 +1636,19 @@ clean_up()
     break;
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     delete [] value_list.list_value;
+    break;
+  case IMPLICATION_MATCH:
+    delete implication_.precondition;
+    delete implication_.implied_template;
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match->ref_count--;
+    if (dyn_match->ref_count == 0) {
+      delete dyn_match->ptr;
+      delete dyn_match;
+    }
     break;
   default:
     break;
@@ -1815,12 +1849,21 @@ copy_template(const TEMPLATE_ARRAY& other_value)
     break;
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     value_list.n_values = other_value.value_list.n_values;
     value_list.list_value = new TEMPLATE_ARRAY[value_list.n_values];
     for (unsigned int list_count = 0; list_count < value_list.n_values;
          list_count++)
       value_list.list_value[list_count].copy_template(
         other_value.value_list.list_value[list_count]);
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition = new TEMPLATE_ARRAY(*other_value.implication_.precondition);
+    implication_.implied_template = new TEMPLATE_ARRAY(*other_value.implication_.implied_template);
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match = other_value.dyn_match;
+    dyn_match->ref_count++;
     break;
   default:
     TTCN_error("Copying an uninitialized/unsupported array template.");
@@ -2184,6 +2227,17 @@ match(const VALUE_ARRAY<T_value_type, array_size, index_offset>&
       if (value_list.list_value[list_count].match(other_value, legacy))
         return template_selection == VALUE_LIST;
     return template_selection == COMPLEMENTED_LIST;
+  case CONJUNCTION_MATCH:
+    for (unsigned int i = 0; i < value_list.n_values; i++) {
+      if (!value_list.list_value[i].match(other_value)) {
+        return FALSE;
+      }
+    }
+    return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->match(other_value) || implication_.implied_template->match(other_value);
+  case DYNAMIC_MATCH:
+    return dyn_match->ptr->match(other_value);
   default:
     TTCN_error("Matching with an uninitialized/unsupported array template.");
   }
@@ -2230,6 +2284,7 @@ set_type(template_sel template_type, unsigned int list_length)
   switch (template_type) {
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     value_list.n_values = list_length;
     value_list.list_value = new TEMPLATE_ARRAY[list_length];
     break;
@@ -2247,7 +2302,8 @@ TEMPLATE_ARRAY<T_value_type,T_template_type,array_size,index_offset>::
 list_item(unsigned int list_index)
 {
   if (template_selection != VALUE_LIST &&
-      template_selection != COMPLEMENTED_LIST)
+      template_selection != COMPLEMENTED_LIST &&
+      template_selection != CONJUNCTION_MATCH)
     TTCN_error("Internal error: Accessing a list element of a non-list "
                "array template.");
   if (list_index >= value_list.n_values)
@@ -2281,6 +2337,12 @@ log() const
     break;
   case COMPLEMENTED_LIST:
     TTCN_Logger::log_event_str("complement");
+    // no break
+  case CONJUNCTION_MATCH:
+    if (template_selection == CONJUNCTION_MATCH) {
+      TTCN_Logger::log_event_str("conjunct");
+    }
+    // no break
   case VALUE_LIST:
     TTCN_Logger::log_char('(');
     for (unsigned int list_count = 0; list_count < value_list.n_values;
@@ -2290,6 +2352,14 @@ log() const
       value_list.list_value[list_count].log();
     }
     TTCN_Logger::log_char(')');
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition->log();
+    TTCN_Logger::log_event_str(" implies ");
+    implication_.implied_template->log();
+    break;
+  case DYNAMIC_MATCH:
+    TTCN_Logger::log_event_str("@dynamic template");
     break;
   default:
     log_generic();
@@ -2579,6 +2649,8 @@ match_omit(boolean legacy /* = FALSE */) const
   case OMIT_VALUE:
   case ANY_OR_OMIT:
     return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->match_omit() || implication_.implied_template->match_omit();
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
     if (legacy) {

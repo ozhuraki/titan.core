@@ -32,6 +32,7 @@
 #include "../../common/dbgnew.hh"
 #include "Attributes.hh"
 #include "Ttcnstuff.hh"
+#include "Statement.hh"
 
 namespace Ttcn {
 
@@ -74,6 +75,7 @@ namespace Ttcn {
     case SUPERSET_MATCH:
     case SUBSET_MATCH:
     case PERMUTATION_MATCH:
+    case CONJUNCTION_MATCH:
       u.templates = p.u.templates->clone(); // FATAL_ERROR
       break;
     case NAMED_TEMPLATE_LIST:
@@ -106,6 +108,15 @@ namespace Ttcn {
       u.concat.op1 = p.u.concat.op1->clone();
       u.concat.op2 = p.u.concat.op2->clone();
       u.concat.in_brackets = p.u.concat.in_brackets;
+      break;
+    case IMPLICATION_MATCH:
+      u.implication.precondition = p.u.implication.precondition->clone();
+      u.implication.implied_template = p.u.implication.implied_template->clone();
+      break;
+    case DYNAMIC_MATCH:
+      u.dynamic.ref = p.u.dynamic.ref != NULL ? p.u.dynamic.ref->clone() : NULL;
+      u.dynamic.sb = p.u.dynamic.sb->clone();
+      u.dynamic.fp_list = p.u.dynamic.fp_list != NULL ? p.u.dynamic.fp_list->clone() : NULL;
       break;
 //    default:
 //      FATAL_ERROR("Template::Template()");
@@ -140,6 +151,7 @@ namespace Ttcn {
     case SUPERSET_MATCH:
     case SUBSET_MATCH:
     case PERMUTATION_MATCH:
+    case CONJUNCTION_MATCH:
       delete u.templates;
       break;
     case ALL_FROM:
@@ -175,6 +187,14 @@ namespace Ttcn {
       }
       delete u.concat.op1;
       delete u.concat.op2;
+      break;
+    case IMPLICATION_MATCH:
+      delete u.implication.precondition;
+      delete u.implication.implied_template;
+      break;
+    case DYNAMIC_MATCH:
+      delete u.dynamic.sb;
+      delete u.dynamic.fp_list;
       break;
 //    default:
 //      FATAL_ERROR("Template::clean_up()");
@@ -278,6 +298,11 @@ namespace Ttcn {
       u.templates->append_stringRepr(ret_val);
       ret_val += ")";
       break;
+    case CONJUNCTION_MATCH:
+      ret_val += "conjunct(";
+      u.templates->append_stringRepr(ret_val);
+      ret_val += ")";
+      break;
     case BSTR_PATTERN:
       ret_val += "'";
       ret_val += *u.pattern;
@@ -329,6 +354,20 @@ namespace Ttcn {
         ret_val += " ) ";
       }
       break;
+    case IMPLICATION_MATCH:
+      u.implication.precondition->append_stringRepr(ret_val);
+      ret_val += " implies ";
+      u.implication.implied_template->append_stringRepr(ret_val);
+      break;
+    case DYNAMIC_MATCH:
+      ret_val += "@dynamic ";
+      if (u.dynamic.ref != NULL) {
+        ret_val += u.dynamic.ref->get_dispname();
+      }
+      else {
+        ret_val += "template through statement block";
+      }
+      break;
     default:
       ret_val += "<unknown template>";
       break;
@@ -342,7 +381,7 @@ namespace Ttcn {
     : GovernedSimple(S_TEMPLATE),
       templatetype(tt), my_governor(0), length_restriction(0),
       is_ifpresent(false), specific_value_checked(false),
-      has_permutation(false), flattened(true), base_template(0)
+      has_permutation(false), flattened(true), base_template(0), fp_list(0)
   {
     switch (tt) {
     case TEMPLATE_ERROR:
@@ -360,7 +399,7 @@ namespace Ttcn {
     : GovernedSimple(S_TEMPLATE),
       templatetype(TEMPLATE_ERROR), my_governor(0), length_restriction(0),
       is_ifpresent(false), specific_value_checked(false),
-      has_permutation(false), flattened(true), base_template(0)
+      has_permutation(false), flattened(true), base_template(0), fp_list(0)
   {
     if (!v) FATAL_ERROR("Template::Template()");
     switch (v->get_valuetype()) {
@@ -400,7 +439,7 @@ namespace Ttcn {
     : GovernedSimple(S_TEMPLATE),
       templatetype(tt), my_governor(0), length_restriction(0),
       is_ifpresent(false), specific_value_checked(false),
-      has_permutation(false), base_template(0)
+      has_permutation(false), flattened(true), base_template(0), fp_list(0)
   {
     if(!p_ref) FATAL_ERROR("Template::Template()");
     switch (tt) {
@@ -410,8 +449,15 @@ namespace Ttcn {
       u.ref.refd_last=0;
       break;
     case DYNAMIC_MATCH:
-      delete p_ref;
-      // todo
+      // '@dynamic F' is equivalent to '@dynamic { return F(value); }'
+      // the parser has already added the function parameter 'value',
+      // the rest of the statement block is constructed here
+      u.dynamic.ref = p_ref;
+      u.dynamic.sb = new StatementBlock;
+      u.dynamic.sb->set_dynamic_template(this);
+      u.dynamic.sb->add_stmt(new Statement(Statement::S_RETURN, new Template(
+        new Common::Value(Common::Value::V_REFD, p_ref))));
+      u.dynamic.fp_list = NULL;
       break;
     default:
       FATAL_ERROR("Template::Template()");
@@ -422,7 +468,7 @@ namespace Ttcn {
     : GovernedSimple(S_TEMPLATE),
       templatetype(tt), my_governor(0), length_restriction(0),
       is_ifpresent(false), specific_value_checked(false),
-      has_permutation(false), flattened(true), base_template(0)
+      has_permutation(false), flattened(true), base_template(0), fp_list(0)
   {
     switch (tt) {
     case TEMPLATE_LIST:
@@ -453,7 +499,7 @@ namespace Ttcn {
   : GovernedSimple(S_TEMPLATE)
   , templatetype(ALL_FROM), my_governor(0), length_restriction(0)
   , is_ifpresent(false), specific_value_checked(false)
-  , has_permutation(false), flattened(true), base_template(0)
+  , has_permutation(false), flattened(true), base_template(0), fp_list(0)
   {
     u.all_from = t;
     // t is usually a SPECIFIC_VALUE
@@ -465,7 +511,7 @@ namespace Ttcn {
     : GovernedSimple(S_TEMPLATE),
       templatetype(NAMED_TEMPLATE_LIST), my_governor(0), length_restriction(0),
       is_ifpresent(false), specific_value_checked(false),
-      has_permutation(false), flattened(true), base_template(0)
+      has_permutation(false), flattened(true), base_template(0), fp_list(0)
   {
     if (!nts) FATAL_ERROR("Template::Template()");
     u.named_templates = nts;
@@ -476,7 +522,7 @@ namespace Ttcn {
       templatetype(INDEXED_TEMPLATE_LIST), my_governor(0),
       length_restriction(0), is_ifpresent(false),
       specific_value_checked(false), has_permutation(false), flattened(true),
-      base_template(0)
+      base_template(0), fp_list(0)
   {
     if (!its) FATAL_ERROR("Template::Template()");
     u.indexed_templates = its;
@@ -494,7 +540,7 @@ namespace Ttcn {
     : GovernedSimple(S_TEMPLATE),
       templatetype(VALUE_RANGE), my_governor(0), length_restriction(0),
       is_ifpresent(false), specific_value_checked(false),
-      has_permutation(false), flattened(true), base_template(0)
+      has_permutation(false), flattened(true), base_template(0), fp_list(0)
   {
     if (!vr) FATAL_ERROR("Template::Template()");
     u.value_range = vr;
@@ -504,7 +550,7 @@ namespace Ttcn {
     : GovernedSimple(S_TEMPLATE),
       templatetype(tt), my_governor(0), length_restriction(0),
       is_ifpresent(false), specific_value_checked(false),
-      has_permutation(false), flattened(true), base_template(0)
+      has_permutation(false), flattened(true), base_template(0), fp_list(0)
   {
     switch (tt) {
     case BSTR_PATTERN:
@@ -522,7 +568,7 @@ namespace Ttcn {
     : GovernedSimple(S_TEMPLATE),
       templatetype(CSTR_PATTERN), my_governor(0), length_restriction(0),
       is_ifpresent(false), specific_value_checked(false),
-      has_permutation(false), flattened(true), base_template(0)
+      has_permutation(false), flattened(true), base_template(0), fp_list(0)
   {
     if (!p_ps) FATAL_ERROR("Template::Template()");
     u.pstring = p_ps;
@@ -532,7 +578,7 @@ namespace Ttcn {
     : GovernedSimple(S_TEMPLATE),
       templatetype(DECODE_MATCH), my_governor(0), length_restriction(0),
       is_ifpresent(false), specific_value_checked(false),
-      has_permutation(false), flattened(true), base_template(0)
+      has_permutation(false), flattened(true), base_template(0), fp_list(0)
   {
     if (ti == NULL) {
       FATAL_ERROR("Template::Template()");
@@ -545,27 +591,32 @@ namespace Ttcn {
     : GovernedSimple(S_TEMPLATE),
       templatetype(IMPLICATION_MATCH), my_governor(0), length_restriction(0),
       is_ifpresent(false), specific_value_checked(false),
-      has_permutation(false), flattened(true), base_template(0)
+      has_permutation(false), flattened(true), base_template(0), fp_list(0)
   {
     if (prec == NULL || imp_t == NULL) {
       FATAL_ERROR("Template::Template()");
     }
-    delete prec;
-    delete imp_t;
-    // todo
+    // Creating a TemplateInstance with just a template body for now.
+    // The parser adds the precondition's type indicator and derived reference (if it has either)
+    // to the TemplateInstance containing this template. They will be moved during semantic analysis.
+    u.implication.precondition = new TemplateInstance(NULL, NULL, prec);
+    u.implication.precondition->set_location(*prec);
+    u.implication.implied_template = imp_t;
   }
   
   Template::Template(StatementBlock* block)
     : GovernedSimple(S_TEMPLATE),
       templatetype(DYNAMIC_MATCH), my_governor(0), length_restriction(0),
       is_ifpresent(false), specific_value_checked(false),
-      has_permutation(false), flattened(true), base_template(0)
+      has_permutation(false), flattened(true), base_template(0), fp_list(0)
   {
     if (block == NULL) {
       FATAL_ERROR("Template::Template()");
     }
-    delete block;
-    // todo
+    u.dynamic.ref = NULL;
+    u.dynamic.sb = block;
+    u.dynamic.sb->set_dynamic_template(this);
+    u.dynamic.fp_list = NULL;
   }
 
   Template::~Template()
@@ -626,6 +677,7 @@ namespace Ttcn {
     case SUPERSET_MATCH:
     case SUBSET_MATCH:
     case PERMUTATION_MATCH:
+    case CONJUNCTION_MATCH:
       u.templates->set_fullname(p_fullname);
       for (size_t i = 0; i < u.templates->get_nof_ts(); i++)
         u.templates->get_t_byIndex(i)->set_fullname(
@@ -650,6 +702,16 @@ namespace Ttcn {
       }
       u.concat.op1->set_fullname(p_fullname + ".operand1");
       u.concat.op2->set_fullname(p_fullname + ".operand2");
+      break;
+    case IMPLICATION_MATCH:
+      u.implication.precondition->set_fullname(p_fullname + ".<precondition>");
+      u.implication.implied_template->set_fullname(p_fullname + ".<implied_template>");
+      break;
+    case DYNAMIC_MATCH:
+      u.dynamic.sb->set_fullname(p_fullname + ".<@dynamic_block>");
+      if (u.dynamic.ref != NULL) {
+        u.dynamic.ref->set_fullname(p_fullname + ".<@dynamic_reference>");
+      }
       break;
 //    default:
 //      FATAL_ERROR("Template::set_fullname()");
@@ -691,6 +753,7 @@ namespace Ttcn {
     case SUPERSET_MATCH:
     case SUBSET_MATCH:
     case PERMUTATION_MATCH:
+    case CONJUNCTION_MATCH:
       u.templates->set_my_scope(p_scope);
       break;
     case NAMED_TEMPLATE_LIST:
@@ -718,6 +781,13 @@ namespace Ttcn {
       }
       u.concat.op1->set_my_scope(p_scope);
       u.concat.op2->set_my_scope(p_scope);
+      break;
+    case IMPLICATION_MATCH:
+      u.implication.precondition->set_my_scope(p_scope);
+      u.implication.implied_template->set_my_scope(p_scope);
+      break;
+    case DYNAMIC_MATCH:
+      u.dynamic.sb->set_my_scope(p_scope);
       break;
 //    default:
 //      FATAL_ERROR("Template::set_my_scope()");
@@ -811,6 +881,7 @@ namespace Ttcn {
     case SUPERSET_MATCH:
     case SUBSET_MATCH:
     case PERMUTATION_MATCH:
+    case CONJUNCTION_MATCH:
       for (size_t i = 0; i < u.templates->get_nof_ts(); i++)
         u.templates->get_t_byIndex(i)->set_code_section(p_code_section);
       break;
@@ -843,6 +914,13 @@ namespace Ttcn {
       }
       u.concat.op1->set_code_section(p_code_section);
       u.concat.op2->set_code_section(p_code_section);
+      break;
+    case IMPLICATION_MATCH:
+      u.implication.precondition->set_code_section(p_code_section);
+      u.implication.implied_template->set_code_section(p_code_section);
+      break;
+    case DYNAMIC_MATCH:
+      u.dynamic.sb->set_code_section(p_code_section);
       break;
     default:
       break;
@@ -1030,6 +1108,12 @@ namespace Ttcn {
       return "decoded content match";
     case TEMPLATE_CONCAT:
       return "template concatenation";
+    case CONJUNCTION_MATCH:
+      return "conjunction list match";
+    case IMPLICATION_MATCH:
+      return "implication match";
+    case DYNAMIC_MATCH:
+      return "dynamic match";
     default:
       return "unknown template";
     }
@@ -1068,6 +1152,7 @@ namespace Ttcn {
       break;
     case VALUE_LIST:
     case COMPLEMENTED_LIST:
+    case CONJUNCTION_MATCH:
       for (size_t i = 0; i < u.templates->get_nof_ts(); i++)
         u.templates->get_t_byIndex(i)->set_lowerid_to_ref();
       break;
@@ -1080,6 +1165,10 @@ namespace Ttcn {
       }
       u.concat.op1->set_lowerid_to_ref();
       u.concat.op2->set_lowerid_to_ref();
+      break;
+    case IMPLICATION_MATCH:
+      u.implication.precondition->get_Template()->set_lowerid_to_ref();
+      u.implication.implied_template->get_Template()->set_lowerid_to_ref();
       break;
     default:
       break;
@@ -1103,6 +1192,7 @@ namespace Ttcn {
       else return Type::T_ERROR; }
     case VALUE_LIST:
     case COMPLEMENTED_LIST:
+    case CONJUNCTION_MATCH:
       for (size_t i = 0; i < u.templates->get_nof_ts(); i++) {
         Type::typetype_t tt = u.templates->get_t_byIndex(i)
           ->get_expr_returntype(exp_val);
@@ -1150,6 +1240,13 @@ namespace Ttcn {
         return tt1;
       }
     }
+    case IMPLICATION_MATCH: {
+      Type::typetype_t tt = u.implication.precondition->get_expr_returntype(exp_val);
+      if (tt != Type::T_UNDEF) {
+        return tt;
+      }
+      return u.implication.implied_template->get_expr_returntype(exp_val);
+    }
     default:
       return Type::T_UNDEF;
     }
@@ -1163,6 +1260,7 @@ namespace Ttcn {
       return u.specific_value->get_expr_governor(exp_val);
     case VALUE_LIST:
     case COMPLEMENTED_LIST:
+    case CONJUNCTION_MATCH:
       for (size_t i = 0; i < u.templates->get_nof_ts(); i++) {
         Type *t = u.templates->get_t_byIndex(i)->get_expr_governor(exp_val);
         if (t) return t;
@@ -1228,6 +1326,13 @@ namespace Ttcn {
           }
         }
       }
+    case IMPLICATION_MATCH: {
+      Type* prec_gov = u.implication.precondition->get_expr_governor(exp_val);
+      if (prec_gov != NULL) {
+        return prec_gov;
+      }
+      return u.implication.implied_template->get_expr_governor(exp_val);
+    }
     default:
       return Type::get_pooltype(get_expr_returntype(exp_val));
     }
@@ -1373,6 +1478,7 @@ namespace Ttcn {
     case SUPERSET_MATCH:
     case SUBSET_MATCH:
     case PERMUTATION_MATCH:
+    case CONJUNCTION_MATCH:
       return u.templates->get_nof_ts();
     case NAMED_TEMPLATE_LIST:
       return u.named_templates->get_nof_nts();
@@ -1393,6 +1499,7 @@ namespace Ttcn {
     case SUPERSET_MATCH:
     case SUBSET_MATCH:
     case PERMUTATION_MATCH:
+    case CONJUNCTION_MATCH:
       return u.templates->get_t_byIndex(n);
     default:
       FATAL_ERROR("Template::get_temp_byIndex()");
@@ -1805,6 +1912,46 @@ namespace Ttcn {
       ref->get_subrefs());
   }
   
+  TemplateInstance* Template::get_precondition() const
+  {
+    if (templatetype != IMPLICATION_MATCH) {
+      FATAL_ERROR("Template::get_precondition");
+    }
+    return u.implication.precondition;
+  }
+  
+  TemplateInstance* Template::get_implied_template() const
+  {
+    if (templatetype != IMPLICATION_MATCH) {
+      FATAL_ERROR("Template::get_implied_template");
+    }
+    return u.implication.implied_template;
+  }
+  
+  StatementBlock* Template::get_dynamic_sb() const
+  {
+    if (templatetype != DYNAMIC_MATCH) {
+      FATAL_ERROR("Template::get_dynamic_sb");
+    }
+    return u.dynamic.sb;
+  }
+  
+  void Template::set_dynamic_fplist(FormalParList* dyn_fp_list)
+  {
+    if (templatetype != DYNAMIC_MATCH || dyn_fp_list == NULL) {
+      FATAL_ERROR("Template::get_dynamic_sb");
+    }
+    u.dynamic.fp_list = dyn_fp_list;
+  }
+  
+  FormalPar* Template::get_dynamic_formalpar() const
+  {
+    if (templatetype != DYNAMIC_MATCH || u.dynamic.fp_list == NULL) {
+      FATAL_ERROR("Template::get_dynamic_formalpar");
+    }
+    return u.dynamic.fp_list->get_fp_byIndex(0);
+  }
+  
   Template* Template::get_template_refd(ReferenceChain *refch)
   {
     unsigned int const prev_err_count = get_error_count();
@@ -1860,6 +2007,7 @@ namespace Ttcn {
     case ANY_OR_OMIT:
     case VALUE_LIST:
     case COMPLEMENTED_LIST:
+    case CONJUNCTION_MATCH:
       // the above template types are valid matching mechanisms,
       // but they cannot be sub-referenced
       if (!silent) {
@@ -1969,6 +2117,7 @@ namespace Ttcn {
     case COMPLEMENTED_LIST:
     case SUPERSET_MATCH:
     case SUBSET_MATCH:
+    case CONJUNCTION_MATCH:
       // the above template types are valid matching mechanisms,
       // but they cannot be sub-referenced
       if (!silent) {
@@ -2378,6 +2527,7 @@ namespace Ttcn {
     case SUPERSET_MATCH:
     case SUBSET_MATCH:
     case PERMUTATION_MATCH:
+    case CONJUNCTION_MATCH:
       for (size_t i = 0; i < t->u.templates->get_nof_ts(); i++) {
         refch.mark_state();
         t->u.templates->get_t_byIndex(i)->chk_recursions(refch);
@@ -2416,6 +2566,14 @@ namespace Ttcn {
       refch.prev_state();
       refch.mark_state();
       t->u.concat.op2->chk_recursions(refch);
+      refch.prev_state();
+      break;
+    case IMPLICATION_MATCH:
+      refch.mark_state();
+      t->u.implication.precondition->chk_recursions(refch);
+      refch.prev_state();
+      refch.mark_state();
+      t->u.implication.implied_template->chk_recursions(refch);
       refch.prev_state();
       break;
     default:
@@ -2510,9 +2668,9 @@ end:
       return;
     }
     my_scope->chk_runs_on_clause(t, *this, "call");
-    Ttcn::FormalParList *fp_list = t->get_fat_parameters();
+    Ttcn::FormalParList *fat_fp_list = t->get_fat_parameters();
     Ttcn::ActualParList *parlist = new Ttcn::ActualParList;
-    bool is_erroneous = fp_list->fold_named_and_chk(u.invoke.t_list,parlist);
+    bool is_erroneous = fat_fp_list->fold_named_and_chk(u.invoke.t_list,parlist);
     delete u.invoke.t_list;
     u.invoke.t_list = 0;
     if(is_erroneous) {
@@ -2601,6 +2759,7 @@ end:
       case SUBSET_MATCH:          /**< subset match */
       case PERMUTATION_MATCH:     /**< permutation match */
       case COMPLEMENTED_LIST:     /**< complemented list match */
+      case CONJUNCTION_MATCH:     /**< conjunction list match */
       case VALUE_LIST: {
         size_t num = get_nof_comps();
         for (size_t i = 0; i < num; ++i) {
@@ -2619,6 +2778,11 @@ end:
         u.concat.op1->chk_immutability();
         u.concat.op2->chk_immutability();
         break;
+      case IMPLICATION_MATCH:
+        u.implication.precondition->chk_immutability();
+        u.implication.implied_template->chk_immutability();
+        break;
+        // todo: dynamic matching?
       default:
         FATAL_ERROR("Template::chk_immutability()");
     }
@@ -3132,7 +3296,8 @@ end:
     case COMPLEMENTED_LIST:
     case SUPERSET_MATCH:
     case SUBSET_MATCH:
-    case PERMUTATION_MATCH: {
+    case PERMUTATION_MATCH:
+    case CONJUNCTION_MATCH: {
       size_t num_t = u.templates->get_nof_ts(); // one of these is the "all from"
       Templates *new_templates = new Templates;
       for (size_t i = 0; i < num_t; ++i) {
@@ -3501,6 +3666,7 @@ end:
         erroneous = true;
         break;
       }
+      // todo: conjunction? implication? dynamic?
       break;
     case TR_PRESENT:
       if (is_ifpresent) {
@@ -3587,6 +3753,7 @@ end:
     case SUPERSET_MATCH:
     case SUBSET_MATCH:
     case PERMUTATION_MATCH:
+    case CONJUNCTION_MATCH:
       for (size_t i = 0; i < u.templates->get_nof_ts(); ++i) {
         u.templates->get_t_byIndex(i)->reset_code_generated();
       }
@@ -3612,6 +3779,10 @@ end:
     case TEMPLATE_CONCAT:
       u.concat.op1->reset_code_generated();
       u.concat.op2->reset_code_generated();
+      break;
+    case IMPLICATION_MATCH:
+      u.implication.precondition->get_Template()->reset_code_generated();
+      u.implication.implied_template->get_Template()->reset_code_generated();
       break;
     default: // todo: value range? template refd?
       break;
@@ -3740,10 +3911,9 @@ end:
       str = generate_code_init_all_from(str, name);
       break;
     case VALUE_LIST:
-      str = generate_code_init_list(str, name, false);
-      break;
     case COMPLEMENTED_LIST:
-      str = generate_code_init_list(str, name, true);
+    case CONJUNCTION_MATCH:
+      str = generate_code_init_list(str, name);
       break;
     case VALUE_RANGE:
       if (get_code_section() == CS_POST_INIT)
@@ -3768,6 +3938,12 @@ end:
         FATAL_ERROR("Template::generate_code_init()");
       }
       str = generate_code_init_concat(str, name);
+      break;
+    case IMPLICATION_MATCH:
+      str = generate_code_init_implication(str, name);
+      break;
+    case DYNAMIC_MATCH:
+      str = generate_code_init_dynamic(str, name);
       break;
     case TEMPLATE_NOTUSED:
       break;
@@ -4596,12 +4772,26 @@ compile_time:
     return str;
   }
 
-  char *Template::generate_code_init_list(char *str, const char *name,
-     bool is_complemented) // VALUE_LIST or COMPLEMENTED_LIST
+  // VALUE_LIST, COMPLEMENTED_LIST or CONJUNCTION_MATCH
+  char *Template::generate_code_init_list(char *str, const char *name) 
   {
     size_t nof_ts = u.templates->get_nof_ts();
     const string& type_name = my_governor->get_genname_template(my_scope);
     const char *type_name_str = type_name.c_str();
+    const char* list_type_str = NULL;
+    switch (templatetype) {
+    case VALUE_LIST:
+      list_type_str = "VALUE_LIST";
+      break;
+    case COMPLEMENTED_LIST:
+      list_type_str = "COMPLEMENTED_LIST";
+      break;
+    case CONJUNCTION_MATCH:
+      list_type_str = "CONJUNCTION_MATCH";
+      break;
+    default:
+      FATAL_ERROR("Template::generate_code_init_list");
+    }
 
     dynamic_array<size_t> variables;
     size_t fixed_part = 0;
@@ -4615,8 +4805,7 @@ compile_time:
 
     if (variables.size() > 0) {
       char* str_preamble = 0;
-      char* str_set_type = mprintf("%s.set_type(%s, %lu", name,
-        (is_complemented ? "COMPLEMENTED_LIST" : "VALUE_LIST"),
+      char* str_set_type = mprintf("%s.set_type(%s, %lu", name, list_type_str,
         (unsigned long)fixed_part);
       // The code to compute the number of elements at run time (the variable part).
       // This is the sum of sizes of "all from"s.
@@ -4791,8 +4980,7 @@ compile_time:
     }
     else {
       str = mputprintf(str, "%s.set_type(%s, %lu);\n", name,
-        is_complemented ? "COMPLEMENTED_LIST" : "VALUE_LIST",
-          (unsigned long) nof_ts);
+        list_type_str, (unsigned long) nof_ts);
       for (size_t i = 0; i < nof_ts; i++) {
         Template *t = u.templates->get_t_byIndex(i);
         if (t->needs_temp_ref()) {
@@ -5221,6 +5409,102 @@ compile_time:
       right_expr.c_str());
     return str;
   }
+  
+  char* Template::generate_code_init_implication(char* str, const char* name)
+  {
+    string prec_id = my_scope->get_scope_mod_gen()->get_temporary_id();
+    string impl_id = my_scope->get_scope_mod_gen()->get_temporary_id();
+    string type_str = my_governor->get_genname_template(my_scope);
+    
+    expression_struct prec_expr;
+    Code::init_expr(&prec_expr);
+    u.implication.precondition->generate_code(&prec_expr);
+    if (prec_expr.preamble != NULL) {
+      str = mputstr(str, prec_expr.preamble);
+    }
+    str = mputprintf(str, "%s* %s = new %s(%s);\n",
+      type_str.c_str(), prec_id.c_str(), type_str.c_str(), prec_expr.expr);
+    if (prec_expr.postamble != NULL) {
+      str = mputstr(str, prec_expr.postamble);
+    }
+    Code::free_expr(&prec_expr);
+    
+    expression_struct impl_expr;
+    Code::init_expr(&impl_expr);
+    u.implication.implied_template->generate_code(&impl_expr);
+    if (impl_expr.preamble != NULL) {
+      str = mputstr(str, impl_expr.preamble);
+    }
+    str = mputprintf(str, "%s* %s = new %s(%s);\n",
+      type_str.c_str(), impl_id.c_str(), type_str.c_str(), impl_expr.expr);
+    if (impl_expr.postamble != NULL) {
+      str = mputstr(str, impl_expr.postamble);
+    }
+    Code::free_expr(&impl_expr);
+    
+    return mputprintf(str, "%s = %s(%s, %s);\n",
+      name, type_str.c_str(), prec_id.c_str(), impl_id.c_str());
+  }
+  
+  char* Template::generate_code_init_dynamic(char* str, const char* name)
+  {
+    string class_id = my_scope->get_scope_mod_gen()->get_temporary_id();
+    string type_value_str = my_governor->get_genname_value(my_scope);
+
+    // assemble member and constructor declarations if needed
+    char* members_str = memptystr();
+    char* ctor_sig_str = memptystr();
+    char* ctor_init_list = memptystr();
+    char* ctor_call_str = memptystr();
+    if (fp_list != NULL) {
+      ctor_sig_str = mputprintf(ctor_sig_str, "Dyn_Match_%s(", class_id.c_str());
+      ctor_init_list = mputstr(ctor_init_list, ": ");
+      for (size_t i = 0; i < fp_list->get_nof_fps(); ++i) {
+        FormalPar* fp = fp_list->get_fp_byIndex(i);
+        if (i > 0) {
+          ctor_sig_str = mputstr(ctor_sig_str, ", ");
+          ctor_init_list = mputstr(ctor_init_list, ", ");
+          ctor_call_str = mputstr(ctor_call_str, ", ");
+        }
+        members_str = fp->generate_code_fpar(members_str);
+        members_str = mputstr(members_str, ";\n");
+        ctor_sig_str = fp->generate_code_fpar(ctor_sig_str);
+        ctor_init_list = mputprintf(ctor_init_list, "%s(%s)",
+          fp->get_genname().c_str(),fp->get_genname().c_str());
+        ctor_call_str = mputstr(ctor_call_str, fp->get_genname().c_str());
+      }
+      ctor_sig_str = mputstr(ctor_sig_str, ")\n");
+      ctor_init_list = mputstr(ctor_init_list, " { }\n");
+    }
+
+    str = mputprintf(str,
+      "class Dyn_Match_%s : public Dynamic_Match_Interface<%s> {\n"
+      "%s"
+      "public:\n"
+      "%s%s"
+      "boolean match(const %s& value) {\n",
+      class_id.c_str(), type_value_str.c_str(),
+      members_str, ctor_sig_str, ctor_init_list, type_value_str.c_str());
+    Free(members_str);
+    Free(ctor_sig_str);
+    Free(ctor_init_list);
+
+    if (include_location_info && u.dynamic.ref == NULL) {
+      str = create_location_object(str, "TEMPLATE", "@dynamic template");
+    }
+
+    // todo: what do we do with @update statements in the dynamic template's block?
+    char* dummy_def_glob_vars = NULL;
+    char* dummy_src_glob_vars = NULL;
+    str = u.dynamic.sb->generate_code(str, dummy_def_glob_vars, dummy_src_glob_vars);
+    str = mputprintf(str,
+      "}\n"
+      "};\n"
+      "%s = %s(new Dyn_Match_%s(%s));\n",
+      name, my_governor->get_genname_template(my_scope).c_str(), class_id.c_str(), ctor_call_str);
+    Free(ctor_call_str);
+    return str;
+  }
 
   void Template::generate_code_expr_invoke(expression_struct *expr)
   {
@@ -5360,6 +5644,9 @@ compile_time:
     case SUPERSET_MATCH:
     case SUBSET_MATCH:
     case DECODE_MATCH:
+    case CONJUNCTION_MATCH:
+    case IMPLICATION_MATCH:
+    case DYNAMIC_MATCH:
       return true;
     case TEMPLATE_ERROR:
       FATAL_ERROR("Template::needs_temp_ref()");
@@ -5429,6 +5716,9 @@ compile_time:
     case SUBSET_MATCH:
     case PERMUTATION_MATCH:
     case DECODE_MATCH:
+    case CONJUNCTION_MATCH:
+    case IMPLICATION_MATCH:
+    case DYNAMIC_MATCH:
       return false;
     case ALL_FROM:
       return false;
@@ -5565,6 +5855,7 @@ compile_time:
     case SUPERSET_MATCH:
     case SUBSET_MATCH:
     case PERMUTATION_MATCH:
+    case CONJUNCTION_MATCH:
       for (size_t i = 0; i < u.templates->get_nof_ts(); i++)
         u.templates->get_t_byIndex(i)->dump(level+1);
       break;
@@ -5604,6 +5895,22 @@ compile_time:
       u.concat.op1->dump(level + 1);
       DEBUG(level, "operand #2:");
       u.concat.op2->dump(level + 1);
+      break;
+    case IMPLICATION_MATCH:
+      DEBUG(level, "precondition:");
+      u.implication.precondition->dump(level + 1);
+      DEBUG(level, "implied template:");
+      u.implication.implied_template->dump(level + 1);
+      break;
+    case DYNAMIC_MATCH:
+      if (u.dynamic.ref != NULL) {
+        DEBUG(level, "@dynamic function reference:");
+        u.dynamic.ref->dump(level + 1);
+      }
+      else {
+        DEBUG(level, "@dynamic statement block:");
+        u.dynamic.sb->dump(level + 1);
+      }
       break;
     default:
       break;
@@ -5701,6 +6008,22 @@ compile_time:
   void TemplateInstance::chk(Type *governor)
   {
     if (!governor) FATAL_ERROR("TemplateInstance::chk()");
+    if (template_body->get_templatetype() == Template::IMPLICATION_MATCH) {
+      // HACK: in case of an implication match template the type indicator and
+      // derived reference are meant for the precondition (i.e. first argument) of
+      // the implication match, and not for the resulting template
+      // (due to parser limitations)
+      if (derived_reference != NULL) {
+        template_body->get_precondition()->derived_reference = derived_reference;
+        template_body->get_precondition()->join_location(*derived_reference);
+        derived_reference = NULL;
+      }
+      if (type != NULL) {
+        template_body->get_precondition()->type = type;
+        template_body->get_precondition()->join_location(*type);
+        type = NULL;
+      }
+    }
     governor = chk_Type(governor);
     governor = chk_DerivedRef(governor);
     template_body->set_my_governor(governor);

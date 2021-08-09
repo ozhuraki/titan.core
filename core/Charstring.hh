@@ -407,6 +407,11 @@ private:
       boolean nocase;
     } pattern_value;
     unichar_decmatch_struct* dec_match;
+    struct {
+      CHARSTRING_template* precondition;
+      CHARSTRING_template* implied_template;
+    } implication_;
+    dynmatch_struct<CHARSTRING>* dyn_match;
   };
 
   void copy_template(const CHARSTRING_template& other_value);
@@ -442,6 +447,8 @@ public:
     boolean p_nocase = FALSE);
   /// Copy constructor
   CHARSTRING_template(const CHARSTRING_template& other_value);
+  CHARSTRING_template(CHARSTRING_template* p_precondition, CHARSTRING_template* p_implied_template);
+  CHARSTRING_template(Dynamic_Match_Interface<CHARSTRING>* p_dyn_match);
 
   ~CHARSTRING_template();
   void clean_up();

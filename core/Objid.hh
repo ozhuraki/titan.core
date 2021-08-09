@@ -128,11 +128,18 @@ public:
 // objid template class
 
 class OBJID_template : public Base_Template {
-  OBJID single_value;
-  struct {
-    unsigned int n_values;
-    OBJID_template *list_value;
-  } value_list;
+  union {
+    OBJID single_value;
+    struct {
+      unsigned int n_values;
+      OBJID_template *list_value;
+    } value_list;
+    struct {
+      OBJID_template* precondition;
+      OBJID_template* implied_template;
+    } implication_;
+    dynmatch_struct<OBJID>* dyn_match;
+  };
 
   void copy_template(const OBJID_template& other_value);
 
@@ -142,6 +149,8 @@ public:
   OBJID_template(const OBJID& other_value);
   OBJID_template(const OPTIONAL<OBJID>& other_value);
   OBJID_template(const OBJID_template& other_value);
+  OBJID_template(OBJID_template* p_precondition, OBJID_template* p_implied_template);
+  OBJID_template(Dynamic_Match_Interface<OBJID>* p_dyn_match);
 
   ~OBJID_template();
   void clean_up();

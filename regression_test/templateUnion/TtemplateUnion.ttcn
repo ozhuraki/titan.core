@@ -221,6 +221,73 @@ testcase tc_logmatch_cleanup() runs on templateUnion_mycomp {
   setverdict(pass);
 }
 
+type union Uni {
+  integer num,
+  charstring str
+} 
+ 
+function f_is_prime(Uni p_par) return boolean {
+  if (not ischosen(p_par.num)) {
+    return false;
+  }
+  var integer max := p_par.num / 2;
+  for (var integer i := 2; i <= max; i := i + 1) {
+    if (p_par.num mod i == 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
+template Uni t_conjunction := conjunct({ num := ? }, @dynamic f_is_prime);
+
+template Uni t_implication := { num := ? } implies @dynamic f_is_prime;
+
+template Uni t_dynamic(template integer pt_num, template charstring pt_str) := @dynamic {
+  if (ischosen(value.num)) {
+    return match(value.num, pt_num);
+  }
+  return match(value.str, pt_str);
+}
+
+testcase templateUnionConjunction() runs on templateUnion_mycomp {
+  var Uni v1 := { num := 17 }, v2 := { num := 24 };
+  if (not match(v1, t_conjunction)) {
+    setverdict(fail, match(v1, t_conjunction));
+  }
+  if (match(v2, t_conjunction)) {
+    setverdict(fail, match(v2, t_conjunction));
+  }
+  setverdict(pass);
+}
+
+testcase templateUnionImplication() runs on templateUnion_mycomp {
+  var Uni v1 := { str := "ax" }, v2 := { num := 6 }, v3 := { num := 11 };
+  if (not match(v1, t_implication)) {
+    setverdict(fail, match(v1, t_implication));
+  }
+  if (match(v2, t_implication)) {
+    setverdict(fail, match(v2, t_implication));
+  }
+  if (not match(v3, t_implication)) {
+    setverdict(fail, match(v3, t_implication));
+  }
+  setverdict(pass);
+}
+
+testcase templateUnionDynamic() runs on templateUnion_mycomp {
+  var Uni v1 := { num := 26 }, v2 := { str := "abc" };
+  var template integer vt_num := (0..100);
+  var template charstring vt_str := pattern "*x*";
+  if (not match(v1, t_dynamic(vt_num, vt_str))) {
+    setverdict(fail, match(v1, t_dynamic(vt_num, vt_str)));
+  }
+  if (match(v2, t_dynamic(vt_num, vt_str))) {
+    setverdict(fail, match(v2, t_dynamic(vt_num, vt_str)));
+  }
+  setverdict(pass);
+}
+
 control {
  execute(templateUnionSpec());
  execute(templateUnionList());
@@ -231,5 +298,8 @@ control {
 // execute(templateUnionIfpresent());
  execute(tc_record_withWildCard3E());
  execute(tc_logmatch_cleanup());
+ execute(templateUnionConjunction());
+ execute(templateUnionImplication());
+ execute(templateUnionDynamic());
 }
 }

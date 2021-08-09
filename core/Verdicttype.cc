@@ -455,9 +455,26 @@ boolean operator==(verdicttype par_value, const VERDICTTYPE& other_value)
 
 void VERDICTTYPE_template::clean_up()
 {
-  if (template_selection == VALUE_LIST ||
-      template_selection == COMPLEMENTED_LIST)
+  switch (template_selection) {
+  case VALUE_LIST:
+  case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     delete [] value_list.list_value;
+    break;
+  case IMPLICATION_MATCH:
+    delete implication_.precondition;
+    delete implication_.implied_template;
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match->ref_count--;
+    if (dyn_match->ref_count == 0) {
+      delete dyn_match->ptr;
+      delete dyn_match;
+    }
+    break;
+  default:
+    break;
+  }
   template_selection = UNINITIALIZED_TEMPLATE;
 }
 
@@ -482,11 +499,20 @@ void VERDICTTYPE_template::copy_template
     break;
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH:
     value_list.n_values = other_value.value_list.n_values;
     value_list.list_value = new VERDICTTYPE_template[value_list.n_values];
     for (unsigned int i = 0; i < value_list.n_values; i++)
       value_list.list_value[i].copy_template(
 	other_value.value_list.list_value[i]);
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition = new VERDICTTYPE_template(*other_value.implication_.precondition);
+    implication_.implied_template = new VERDICTTYPE_template(*other_value.implication_.implied_template);
+    break;
+  case DYNAMIC_MATCH:
+    dyn_match = other_value.dyn_match;
+    dyn_match->ref_count++;
     break;
   default:
     TTCN_error("Copying an uninitialized/unsupported verdict template.");
@@ -537,6 +563,21 @@ VERDICTTYPE_template::VERDICTTYPE_template
 : Base_Template()
 {
   copy_template(other_value);
+}
+
+VERDICTTYPE_template::VERDICTTYPE_template(VERDICTTYPE_template* p_precondition, VERDICTTYPE_template* p_implied_template)
+: Base_Template(IMPLICATION_MATCH)
+{
+  implication_.precondition = p_precondition;
+  implication_.implied_template = p_implied_template;
+}
+
+VERDICTTYPE_template::VERDICTTYPE_template(Dynamic_Match_Interface<VERDICTTYPE>* p_dyn_match)
+: Base_Template(DYNAMIC_MATCH)
+{
+  dyn_match = new dynmatch_struct<VERDICTTYPE>;
+  dyn_match->ptr = p_dyn_match;
+  dyn_match->ref_count = 1;
 }
 
 VERDICTTYPE_template::~VERDICTTYPE_template()
@@ -617,6 +658,17 @@ boolean VERDICTTYPE_template::match(verdicttype other_value,
       if (value_list.list_value[i].match(other_value))
 	return template_selection == VALUE_LIST;
     return template_selection == COMPLEMENTED_LIST;
+  case CONJUNCTION_MATCH:
+    for (unsigned int i = 0; i < value_list.n_values; i++) {
+      if (!value_list.list_value[i].match(other_value)) {
+        return FALSE;
+      }
+    }
+    return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->match(other_value) || implication_.implied_template->match(other_value);
+  case DYNAMIC_MATCH:
+    return dyn_match->ptr->match(other_value);
   default:
     TTCN_error("Matching with an uninitialized/unsupported verdict template.");
   }
@@ -641,7 +693,8 @@ verdicttype VERDICTTYPE_template::valueof() const
 void VERDICTTYPE_template::set_type(template_sel template_type,
     unsigned int list_length)
 {
-  if (template_type != VALUE_LIST && template_type != COMPLEMENTED_LIST)
+  if (template_type != VALUE_LIST && template_type != COMPLEMENTED_LIST &&
+      template_type != CONJUNCTION_MATCH)
     TTCN_error("Internal error: Setting an invalid list type for a verdict "
       "template.");
   clean_up();
@@ -653,7 +706,8 @@ void VERDICTTYPE_template::set_type(template_sel template_type,
 VERDICTTYPE_template& VERDICTTYPE_template::list_item(unsigned int list_index)
 {
   if (template_selection != VALUE_LIST &&
-      template_selection != COMPLEMENTED_LIST)
+      template_selection != COMPLEMENTED_LIST &&
+      template_selection != CONJUNCTION_MATCH)
     TTCN_error("Internal error: Accessing a list element of a non-list "
       "verdict template.");
   if (list_index >= value_list.n_values)
@@ -673,6 +727,11 @@ void VERDICTTYPE_template::log() const
   case COMPLEMENTED_LIST:
     TTCN_Logger::log_event_str("complement");
     // no break
+  case CONJUNCTION_MATCH:
+    if (template_selection == CONJUNCTION_MATCH) {
+      TTCN_Logger::log_event_str("conjunct");
+    }
+    // no break
   case VALUE_LIST:
     TTCN_Logger::log_char('(');
     for (unsigned int i = 0; i < value_list.n_values; i++) {
@@ -680,6 +739,14 @@ void VERDICTTYPE_template::log() const
 	value_list.list_value[i].log();
     }
     TTCN_Logger::log_char(')');
+    break;
+  case IMPLICATION_MATCH:
+    implication_.precondition->log();
+    TTCN_Logger::log_event_str(" implies ");
+    implication_.implied_template->log();
+    break;
+  case DYNAMIC_MATCH:
+    TTCN_Logger::log_event_str("@dynamic template");
     break;
   default:
     log_generic();
@@ -847,6 +914,8 @@ boolean VERDICTTYPE_template::match_omit(boolean legacy /* = FALSE */) const
   case OMIT_VALUE:
   case ANY_OR_OMIT:
     return TRUE;
+  case IMPLICATION_MATCH:
+    return !implication_.precondition->match_omit() || implication_.implied_template->match_omit();
   case VALUE_LIST:
   case COMPLEMENTED_LIST:
     if (legacy) {

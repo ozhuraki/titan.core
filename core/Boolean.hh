@@ -161,6 +161,11 @@ class BOOLEAN_template : public Base_Template {
       unsigned int n_values;
       BOOLEAN_template *list_value;
     } value_list;
+    struct {
+      BOOLEAN_template* precondition;
+      BOOLEAN_template* implied_template;
+    } implication_;
+    dynmatch_struct<BOOLEAN>* dyn_match;
   };
 
   void copy_template(const BOOLEAN_template& other_value);
@@ -173,6 +178,8 @@ public:
   BOOLEAN_template(const BOOLEAN& other_value);
   BOOLEAN_template(const OPTIONAL<BOOLEAN>& other_value);
   BOOLEAN_template(const BOOLEAN_template& other_value);
+  BOOLEAN_template(BOOLEAN_template* p_precondition, BOOLEAN_template* p_implied_template);
+  BOOLEAN_template(Dynamic_Match_Interface<BOOLEAN>* p_dyn_match);
 
   ~BOOLEAN_template();
   void clean_up();

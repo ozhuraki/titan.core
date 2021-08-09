@@ -101,7 +101,8 @@ namespace Ttcn {
         Template *refd_last; /**< cache */
       } ref;
       /** Used for TEMPLATE_LIST, VALUE_LIST, COMPLEMENTED_LIST,
-       * SUPERSET_MATCH, SUBSET_MATCH and PERMUTATION_MATCH constructs. */
+       * SUPERSET_MATCH, SUBSET_MATCH, PERMUTATION_MATCH and
+       * CONJUNCTION_MATCH constructs. */
       Templates *templates;
       /** Used by NAMED_TEMPLATE_LIST */
       NamedTemplates *named_templates;
@@ -137,6 +138,24 @@ namespace Ttcn {
         Template* op2;
         bool in_brackets;
       } concat;
+      /** Used by IMPLICATION_MATCH */
+      struct {
+        TemplateInstance* precondition;
+        TemplateInstance* implied_template;
+      } implication;
+      /** Used by DYNAMIC_MATCH */
+      struct {
+	/** function reference used in defining the dynamic template, not owned */
+        Reference* ref;
+        /** statement block of the dynamic template
+         * (if the template is defined using a function reference instead of a statement block,
+         * then a new statement block is generated with a return statement containing the function reference) */
+        StatementBlock* sb;
+        /** automatically generated formal parameter list with one 'in' value parameter,
+         * which represents the value being matched;
+         * the reference 'value' inside the template's statement block refers to this parameter */
+        FormalParList* fp_list;
+      } dynamic;
     } u;
 
     /** This points to the type of the template */
@@ -167,6 +186,10 @@ namespace Ttcn {
      *  compiler is able to determine the base template. It is NULL
      *  otherwise. */
     Template *base_template;
+
+    /** Pointer to the formal parameter list if this template is part of
+     * a parameterized template. It is NULL otherwise. */
+    FormalParList* fp_list;
 
     /** Copy constructor. For Template::clone() only.
      *  This is a hit-and-miss affair. Some template types can be cloned;
@@ -329,6 +352,13 @@ namespace Ttcn {
     TemplateInstance* get_decode_target() const;
     Template* get_concat_operand(bool first) const;
     bool is_optional_value_ref() const;
+    TemplateInstance* get_precondition() const;
+    TemplateInstance* get_implied_template() const;
+    StatementBlock* get_dynamic_sb() const;
+    void set_dynamic_fplist(FormalParList* dyn_fp_list);
+    FormalPar* get_dynamic_formalpar() const;
+    void set_formalparlist(FormalParList* par_fp_list) { fp_list = par_fp_list; }
+    
   private:
     Template* get_template_refd(ReferenceChain *refch);
     Template* get_refd_field_template(const Identifier& field_id,
@@ -498,11 +528,8 @@ namespace Ttcn {
      *  assignment notation for record/set/union types. */
     char *generate_code_init_se(char *str, const char *name);
     /** Helper function for \a generate_code_init(). It handles the
-     *  value list and complemented list matching constructs. Flag \a
-     *  is_complemented is set to true for complemented lists and
-     *  false for value lists. */
-    char *generate_code_init_list(char *str, const char *name,
-      bool is_complemented);
+     *  value list, complemented list and conjunction list matching constructs. */
+    char *generate_code_init_list(char *str, const char *name);
     /** Helper function for \a generate_code_init(). It handles the superset
      *  and subset constructs. Flag \a is_superset is set to true for superset
      *  and false for subset. Note that both constructs have similar data
@@ -515,6 +542,9 @@ namespace Ttcn {
 
     char *generate_code_init_all_from(char *str, const char *name);
     char *generate_code_init_all_from_list(char *str, const char *name);
+    
+    char* generate_code_init_implication(char* str, const char* name);
+    char* generate_code_init_dynamic(char* str, const char* name);
     
     string generate_code_str_pattern(bool cast_needed, string& preamble);
 

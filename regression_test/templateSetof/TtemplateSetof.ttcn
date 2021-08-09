@@ -418,6 +418,82 @@ testcase HO91743() runs on templateSetof_mycomp {
   if (sizeof  (vt_ReqS.blocks) == 4) { setverdict(pass); } else { setverdict(fail); }
 }
 
+type set of integer IntSet;
+
+type record of boolean BoolList;
+ 
+function f_pairs(IntSet p_par) return boolean {
+  var BoolList v_pair_found;
+  for (var integer i := 0; i < sizeof(p_par); i := i + 1) {
+    v_pair_found[i] := false;
+  }
+  for (var integer i := 0; i < sizeof(p_par); i := i + 1) {
+    if (not v_pair_found[i]) {
+      for (var integer j := i + 1; j < sizeof(p_par); j := j + 1) {
+        if (not v_pair_found[j] and p_par[i] == p_par[j]) {
+          v_pair_found[i] := true;
+          v_pair_found[j] := true;
+          break;
+        }
+      }
+      if (not v_pair_found[i]) {
+        // this element has no pair
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+template IntSet t_conjunction := conjunct({ 1, * }, @dynamic f_pairs);
+
+template IntSet t_implication := { 0, *, 0 } implies @dynamic f_pairs;
+
+template IntSet t_dynamic(template integer pt_sum) := @dynamic {
+  var integer v_sum := 0;
+  for (var integer i := 0; i < sizeof(value); i := i + 1) {
+    v_sum := v_sum + value[i];
+  }
+  return match(v_sum, pt_sum);
+}
+
+testcase templateSetofConjunction() runs on templateSetof_mycomp {
+  var IntSet v1 := { 1, 2, 2, 1 }, v2 := { 1, 2, 1, 2, 2 };
+  if (not match(v1, t_conjunction)) {
+    setverdict(fail, match(v1, t_conjunction));
+  }
+  if (match(v2, t_conjunction)) {
+    setverdict(fail, match(v2, t_conjunction));
+  }
+  setverdict(pass);
+}
+
+testcase templateSetofImplication() runs on templateSetof_mycomp {
+  var IntSet v1 := { -1, -2 }, v2 := { 0, 2, 0, 1 }, v3 := { 1, 0, 2, 2, 1, 0 };
+  if (not match(v1, t_implication)) {
+    setverdict(fail, match(v1, t_implication));
+  }
+  if (match(v2, t_implication)) {
+    setverdict(fail, match(v2, t_implication));
+  }
+  if (not match(v3, t_implication)) {
+    setverdict(fail, match(v3, t_implication));
+  }
+  setverdict(pass);
+}
+
+testcase templateSetofDynamic() runs on templateSetof_mycomp {
+  var IntSet v1 := { 2, 4, 9 }, v2 := { 1, 6, -8 };
+  var template integer vt := (10..20);
+  if (not match(v1, t_dynamic(vt))) {
+    setverdict(fail, match(v1, t_dynamic(vt)));
+  }
+  if (match(v2, t_dynamic(vt))) {
+    setverdict(fail, match(v2, t_dynamic(vt)));
+  }
+  setverdict(pass);
+}
+
 control {
  execute(templateSetofSpec());
  execute(templateSetofList());
@@ -435,5 +511,8 @@ control {
  execute(templateSetofAnyEl());
  execute(templateSetofAnyorNoneEl());
  execute(HO91743());
+ execute(templateSetofConjunction());
+ execute(templateSetofImplication());
+ execute(templateSetofDynamic());
 }
 }

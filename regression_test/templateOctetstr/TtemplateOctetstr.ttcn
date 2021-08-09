@@ -483,6 +483,65 @@ testcase templateOctetstrDecmatchExtra() runs on templateOctetstr_mycomp {
   else { setverdict(fail, templateOctetstr_tDecmatch); }      
 }
 
+function f_is_negative(octetstring p_par) return boolean {
+  // assume the first bit of the first byte is the sign bit
+  var bitstring v_first_octet := oct2bit(p_par[0]);
+  return v_first_octet[0] == '1'B;
+}
+
+template octetstring t_conjunction := conjunct(? length(1), @dynamic f_is_negative);
+
+template octetstring t_implication := '*AB'O implies @dynamic f_is_negative;
+
+// matches if the number of letters ('A' to 'F') in the octetstring matches the template parameter
+template octetstring t_dynamic(template integer pt_letters) := @dynamic {
+  var integer v_num_letters := 0;
+  var hexstring v_hex := oct2hex(value);
+  for (var integer i := 0; i < lengthof(v_hex); i := i + 1) {
+    if (match(v_hex[i], ('A'H, 'B'H, 'C'H, 'D'H, 'E'H, 'F'H))) {
+      v_num_letters := v_num_letters + 1;
+    }
+  }
+  return match(v_num_letters, pt_letters);
+}
+
+testcase templateOctetstrConjunction() runs on templateOctetstr_mycomp {
+  var octetstring v1 := '80'O, v2 := '0E'O;
+  if (not match(v1, t_conjunction)) {
+    setverdict(fail, match(v1, t_conjunction));
+  }
+  if (match(v2, t_conjunction)) {
+    setverdict(fail, match(v2, t_conjunction));
+  }
+  setverdict(pass);
+}
+
+testcase templateOctetstrImplication() runs on templateOctetstr_mycomp {
+  var octetstring v1 := 'D017'O, v2 := '41AB'O, v3 := 'E8AB'O;
+  if (not match(v1, t_implication)) {
+    setverdict(fail, match(v1, t_implication));
+  }
+  if (match(v2, t_implication)) {
+    setverdict(fail, match(v2, t_implication));
+  }
+  if (not match(v3, t_implication)) {
+    setverdict(fail, match(v3, t_implication));
+  }
+  setverdict(pass);
+}
+
+testcase templateOctetstrDynamic() runs on templateOctetstr_mycomp {
+  var octetstring v1 := 'D65A1F'O, v2 := '27A009'O;
+  var template integer vt1 := 3, vt2 := (3..4);
+  if (not match(v1, t_dynamic(vt1))) {
+    setverdict(fail, match(v1, t_dynamic(vt1)));
+  }
+  if (match(v2, t_dynamic(vt2))) {
+    setverdict(fail, match(v2, t_dynamic(vt2)));
+  }
+  setverdict(pass);
+}
+
 control {
  execute(templateOctetstrSpec());
  execute(templateOctetstrList());
@@ -501,5 +560,8 @@ control {
  execute(templateOctetstrDecmatch());
  execute(templateOctetstrDecmatchSelfRef());
  execute(templateOctetstrDecmatchExtra());
+ execute(templateOctetstrConjunction());
+ execute(templateOctetstrImplication());
+ execute(templateOctetstrDynamic());
 }
 }

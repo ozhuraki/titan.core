@@ -646,6 +646,69 @@ testcase tc_HU56425() runs on mycomp {
   else { setverdict(fail); }
 }
 
+type record of integer IntList;
+ 
+function f_palindrome(IntList p_par) return boolean {
+  var integer v_start := 0, v_end := sizeof(p_par) - 1;
+  while (v_start < v_end) {
+    if (p_par[v_start] != p_par[v_end]) {
+      return false;
+    }
+    v_start := v_start + 1;
+    v_end := v_end - 1;
+  }
+  return true; // always return true if the size of the array is 0 or 1
+}
+
+template IntList t_conjunction := conjunct({ 1, * }, @dynamic f_palindrome);
+
+template IntList t_implication := { *, 0, * } implies @dynamic f_palindrome;
+
+template IntList t_dynamic(template integer pt_sum) := @dynamic {
+  var integer v_sum := 0;
+  for (var integer i := 0; i < sizeof(value); i := i + 1) {
+    v_sum := v_sum + value[i];
+  }
+  return match(v_sum, pt_sum);
+}
+
+testcase templateRecofConjunction() runs on mycomp {
+  var IntList v1 := { 1, 2, 2, 1 }, v2 := { 1, 2, 3 };
+  if (not match(v1, t_conjunction)) {
+    setverdict(fail, match(v1, t_conjunction));
+  }
+  if (match(v2, t_conjunction)) {
+    setverdict(fail, match(v2, t_conjunction));
+  }
+  setverdict(pass);
+}
+
+testcase templateRecofImplication() runs on mycomp {
+  var IntList v1 := { -1, -2 }, v2 := { 0, 2, 0, 1 }, v3 := { 2, 1, 0, 1, 2 };
+  if (not match(v1, t_implication)) {
+    setverdict(fail, match(v1, t_implication));
+  }
+  if (match(v2, t_implication)) {
+    setverdict(fail, match(v2, t_implication));
+  }
+  if (not match(v3, t_implication)) {
+    setverdict(fail, match(v3, t_implication));
+  }
+  setverdict(pass);
+}
+
+testcase templateRecofDynamic() runs on mycomp {
+  var IntList v1 := { 2, 4, 9 }, v2 := { 1, 6, -8 };
+  var template integer vt := (10..20);
+  if (not match(v1, t_dynamic(vt))) {
+    setverdict(fail, match(v1, t_dynamic(vt)));
+  }
+  if (match(v2, t_dynamic(vt))) {
+    setverdict(fail, match(v2, t_dynamic(vt)));
+  }
+  setverdict(pass);
+}
+
 
 control {
  execute(templateRecofSpec());
@@ -677,6 +740,8 @@ control {
  execute(tc_isbound4ROI2());
  execute(tc_isbound4ROI3());
  execute(tc_isbound4ROI4());
-
+ execute(templateRecofConjunction());
+ execute(templateRecofImplication());
+ execute(templateRecofDynamic());
 }
 }

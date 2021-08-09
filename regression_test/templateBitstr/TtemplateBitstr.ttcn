@@ -455,6 +455,67 @@ testcase templateBitstrDecmatchSelfRef() runs on templateBitstr_mycomp {
   else { setverdict(fail, 5); }
 }
 
+function f_is_negative(bitstring p_par) return boolean {
+  // assume the first bit of the first byte is the sign bit
+  if (lengthof(p_par) mod 8 != 0) {
+    // the sign bit is one of the zero before the start of the bitstring
+    return false;
+  }
+  return p_par[0] == '1'B;
+}
+
+template bitstring t_conjunction := conjunct(? length(1..8), @dynamic f_is_negative);
+
+template bitstring t_implication := '*1010'B implies @dynamic f_is_negative;
+
+// matches if the number of ones in the bitstring matches the template parameter
+template bitstring t_dynamic(template integer pt_ones) := @dynamic {
+  var integer v_num_ones := 0;
+  for (var integer i := 0; i < lengthof(value); i := i + 1) {
+    if (value[i] == '1'B) {
+      v_num_ones := v_num_ones + 1;
+    }
+  }
+  return match(v_num_ones, pt_ones);
+}
+
+testcase templateBitstrConjunction() runs on templateBitstr_mycomp {
+  var bitstring v1 := '10000000'B, v2 := '11111'B;
+  if (not match(v1, t_conjunction)) {
+    setverdict(fail, match(v1, t_conjunction));
+  }
+  if (match(v2, t_conjunction)) {
+    setverdict(fail, match(v2, t_conjunction));
+  }
+  setverdict(pass);
+}
+
+testcase templateBitstrImplication() runs on templateBitstr_mycomp {
+  var bitstring v1 := '110011'B, v2 := '01101010'B, v3 := '11111010'B;
+  if (not match(v1, t_implication)) {
+    setverdict(fail, match(v1, t_implication));
+  }
+  if (match(v2, t_implication)) {
+    setverdict(fail, match(v2, t_implication));
+  }
+  if (not match(v3, t_implication)) {
+    setverdict(fail, match(v3, t_implication));
+  }
+  setverdict(pass);
+}
+
+testcase templateBitstrDynamic() runs on templateBitstr_mycomp {
+  var bitstring v1 := '100101'B, v2 := '10010'B;
+  var template integer vt1 := 3, vt2 := (3..4);
+  if (not match(v1, t_dynamic(vt1))) {
+    setverdict(fail, match(v1, t_dynamic(vt1)));
+  }
+  if (match(v2, t_dynamic(vt2))) {
+    setverdict(fail, match(v2, t_dynamic(vt2)));
+  }
+  setverdict(pass);
+}
+
 control {
  execute(templateBitstrSpec());
  execute(templateBitstrList());
@@ -472,5 +533,8 @@ control {
  execute(CR_TR00018474());
  execute(templateBitstrDecmatch());
  execute(templateBitstrDecmatchSelfRef());
+ execute(templateBitstrConjunction());
+ execute(templateBitstrImplication());
+ execute(templateBitstrDynamic());
 }
 }

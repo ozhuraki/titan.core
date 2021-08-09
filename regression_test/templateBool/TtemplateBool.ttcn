@@ -159,6 +159,51 @@ if (not(match(x4,templateBool_tIfpresent))) {setverdict(pass);}
  else {setverdict(fail);}
 }
 
+function f_opposite(boolean p_par) return boolean {
+  return not p_par;
+}
+
+template boolean t_conjunction := conjunct(false, @dynamic f_opposite);
+
+template boolean t_implication := true implies @dynamic f_opposite;
+
+template boolean t_dynamic(boolean p_par) := @dynamic {
+  return value and p_par;
+}
+
+testcase templateBoolConjunction() runs on templateBool_mycomp {
+  var boolean v1 := true, v2 := false;
+  if (match(v1, t_conjunction)) {
+    setverdict(fail, match(v1, t_conjunction));
+  }
+  if (not match(v2, t_conjunction)) {
+    setverdict(fail, match(v2, t_conjunction));
+  }
+  setverdict(pass);
+}
+
+testcase templateBoolImplication() runs on templateBool_mycomp {
+  var boolean v1 := true, v2 := false;
+  if (match(v1, t_implication)) {
+    setverdict(fail, match(v1, t_implication));
+  }
+  if (not match(v2, t_implication)) {
+    setverdict(fail, match(v2, t_implication));
+  }
+  setverdict(pass);
+}
+
+testcase templateBoolDynamic() runs on templateBool_mycomp {
+  var boolean v1 := true, v2 := false;
+  if (not match(v1, t_dynamic(true))) {
+    setverdict(fail, match(v1, t_dynamic(true)));
+  }
+  if (match(v2, t_dynamic(true))) {
+    setverdict(fail, match(v2, t_dynamic(true)));
+  }
+  setverdict(pass);
+}
+
 control {
  execute(templateBoolSpec());
  execute(templateBoolList());
@@ -167,6 +212,8 @@ control {
  execute(templateBoolAny());
  execute(templateBoolAnyorNone());
  execute(templateBoolIfpresent());
-
+ execute(templateBoolConjunction());
+ execute(templateBoolImplication());
+ execute(templateBoolDynamic());
 }
 }

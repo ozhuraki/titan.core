@@ -284,6 +284,11 @@ protected:
       int n_values;
       Set_Of_Template** list_value; // instances of a class derived from Set_Of_Template
     } value_list;
+    struct {
+      Set_Of_Template* precondition;
+      Set_Of_Template* implied_template;
+    } implication_;
+    dynmatch_dummy_struct* dyn_match;
   };
   Erroneous_descriptor_t* err_descr;
 
@@ -297,6 +302,8 @@ protected:
 
   void copy_template(const Set_Of_Template& other_value);
   void copy_optional(const Base_Type* other_value);
+
+  virtual boolean match_dynamic(const Base_Type* match_value) const = 0;
 
 public:
   Base_Template* clone() const;
@@ -382,6 +389,11 @@ protected:
       int n_values;
       Record_Of_Template** list_value; // instances of a class derived from Record_Of_Template
     } value_list;
+    struct {
+      Record_Of_Template* precondition;
+      Record_Of_Template* implied_template;
+    } implication_;
+    dynmatch_dummy_struct* dyn_match;
   };
   Erroneous_descriptor_t* err_descr;
 
@@ -396,6 +408,8 @@ protected:
   /** Assignment disabled */
   Record_Of_Template& operator=(const Record_Of_Template& other_value);
   ~Record_Of_Template();
+
+  virtual boolean match_dynamic(const Base_Type* match_value) const = 0;
   
   void clean_up_intervals();
 
@@ -496,6 +510,11 @@ protected:
       int n_values;
       Record_Template** list_value;
     } value_list;
+    struct {
+      Record_Template* precondition;
+      Record_Template* implied_template;
+    } implication_;
+    dynmatch_dummy_struct* dyn_match;
   };
   Erroneous_descriptor_t* err_descr;
 
@@ -512,6 +531,8 @@ protected:
   /** Assignment disabled */
   Record_Template& operator=(const Record_Template& other_value);
   ~Record_Template();
+
+  virtual boolean match_dynamic(const Base_Type* match_value) const = 0;
 
 public:
   void copy_value(const Base_Type* other_value);
@@ -558,10 +579,17 @@ public:
 class Empty_Record_Template : public Base_Template
 {
 protected:
-  struct {
-    int n_values;
-    Empty_Record_Template** list_value;
-  } value_list;
+  union {
+    struct {
+      int n_values;
+      Empty_Record_Template** list_value;
+    } value_list;
+    struct {
+      Empty_Record_Template* precondition;
+      Empty_Record_Template* implied_template;
+    } implication_;
+    dynmatch_dummy_struct* dyn_match;
+  };
 
   void copy_optional(const Base_Type* other_value);
   void copy_template(const Empty_Record_Template& other_value);
@@ -573,6 +601,8 @@ protected:
   /** Assignment disabled */
   Empty_Record_Template& operator=(const Empty_Record_Template& other_value);
   ~Empty_Record_Template();
+
+  virtual boolean match_dynamic(const Base_Type* match_value) const = 0;
 
 public:
   void copy_value(const Base_Type* other_value);

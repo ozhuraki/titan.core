@@ -169,6 +169,69 @@ if (not(match(x4,templateAnytype_tIfpresent))) {setverdict(pass);}
  else {setverdict(fail);}
 }
 
+ 
+function f_is_prime(anytype p_par) return boolean {
+  if (not ischosen(p_par.integer)) {
+    return false;
+  }
+  var integer max := p_par.integer / 2;
+  for (var integer i := 2; i <= max; i := i + 1) {
+    if (p_par.integer mod i == 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
+template anytype t_conjunction := conjunct({ integer := ? }, @dynamic f_is_prime);
+
+template anytype t_implication := { integer := ? } implies @dynamic f_is_prime;
+
+template anytype t_dynamic(template integer pt_int, template float pt_float) := @dynamic {
+  if (ischosen(value.integer)) {
+    return match(value.integer, pt_int);
+  }
+  return match(value.float, pt_float);
+}
+
+testcase templateAnytypeConjunction() runs on templateAnytype_mycomp {
+  var anytype v1 := { integer := 17 }, v2 := { integer := 24 };
+  if (not match(v1, t_conjunction)) {
+    setverdict(fail, match(v1, t_conjunction));
+  }
+  if (match(v2, t_conjunction)) {
+    setverdict(fail, match(v2, t_conjunction));
+  }
+  setverdict(pass);
+}
+
+testcase templateAnytypeImplication() runs on templateAnytype_mycomp {
+  var anytype v1 := { float := 1.0 }, v2 := { integer := 6 }, v3 := { integer := 11 };
+  if (not match(v1, t_implication)) {
+    setverdict(fail, match(v1, t_implication));
+  }
+  if (match(v2, t_implication)) {
+    setverdict(fail, match(v2, t_implication));
+  }
+  if (not match(v3, t_implication)) {
+    setverdict(fail, match(v3, t_implication));
+  }
+  setverdict(pass);
+}
+
+testcase templateAnytypeDynamic() runs on templateAnytype_mycomp {
+  var anytype v1 := { integer := 26 }, v2 := { float := -2.1 };
+  var template integer vt_int := (0..100);
+  var template float vt_float := (-1.0..1.0);
+  if (not match(v1, t_dynamic(vt_int, vt_float))) {
+    setverdict(fail, match(v1, t_dynamic(vt_int, vt_float)));
+  }
+  if (match(v2, t_dynamic(vt_int, vt_float))) {
+    setverdict(fail, match(v2, t_dynamic(vt_int, vt_float)));
+  }
+  setverdict(pass);
+}
+
 control {
  execute(templateAnytypeSpec());
  execute(templateAnytypeList());
@@ -177,7 +240,9 @@ control {
  execute(templateAnytypeAny());
  execute(templateAnytypeAnyorNone());
  execute(templateAnytypeIfpresent());
-
+ execute(templateAnytypeConjunction());
+ execute(templateAnytypeImplication());
+ execute(templateAnytypeDynamic());
 }
 }
 with {

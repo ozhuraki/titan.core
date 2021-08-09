@@ -2720,7 +2720,12 @@ void defUnionTemplate(const struct_def *sdef, output_struct *output)
     "unsigned int n_values;\n"
     "%s_template *list_value;\n"
     "} value_list;\n"
-    "};\n", name);
+    "struct {\n"
+    "%s_template* precondition;\n"
+    "%s_template* implied_template;\n"
+    "} implication_;\n"
+    "dynmatch_struct<%s>* dyn_match;\n"
+    "};\n", name, name, name, name);
   if (use_runtime_2) {
     def = mputstr(def,
       "Erroneous_descriptor_t* err_descr;\n");
@@ -2776,6 +2781,7 @@ void defUnionTemplate(const struct_def *sdef, output_struct *output)
     "break;\n"
     "case VALUE_LIST:\n"
     "case COMPLEMENTED_LIST:\n"
+    "case CONJUNCTION_MATCH:\n"
     "value_list.n_values = other_value.value_list.n_values;\n"
     "value_list.list_value = new %s_template[value_list.n_values];\n"
     "for (unsigned int list_count = 0; list_count < value_list.n_values; "
@@ -2783,12 +2789,20 @@ void defUnionTemplate(const struct_def *sdef, output_struct *output)
     "value_list.list_value[list_count].copy_template("
     "other_value.value_list.list_value[list_count]);\n"
     "break;\n"
+    "case IMPLICATION_MATCH:\n"
+    "implication_.precondition = new %s_template(*other_value.implication_.precondition);\n"
+    "implication_.implied_template = new %s_template(*other_value.implication_.implied_template);\n"
+    "break;\n"
+    "case DYNAMIC_MATCH:\n"
+    "dyn_match = other_value.dyn_match;\n"
+    "dyn_match->ref_count++;\n"
+    "break;\n"
     "default:\n"
     "TTCN_error(\"Copying an uninitialized template of union type %s.\");\n"
     "}\n"
     "set_selection(other_value);\n"
     "%s"
-    "}\n\n", dispname, name, dispname,
+    "}\n\n", dispname, name, name, name, dispname,
     use_runtime_2 ? "err_descr = other_value.err_descr;\n" : "");
 
   /* default constructor */
@@ -2837,6 +2851,27 @@ void defUnionTemplate(const struct_def *sdef, output_struct *output)
     use_runtime_2 ? "err_descr = NULL;\n" : "",
     dispname);
 
+  /* constructor (implication match) */
+  def = mputprintf(def, "%s_template(%s_template* p_precondition, "
+    "%s_template* p_implied_template);\n", name, name, name);
+  src = mputprintf(src, "%s_template::%s_template(%s_template* p_precondition, "
+    "%s_template* p_implied_template)\n"
+    " : Base_Template(IMPLICATION_MATCH)\n"
+    "{\n"
+    "implication_.precondition = p_precondition;\n"
+    "implication_.implied_template = p_implied_template;\n"
+    "}\n\n", name, name, name, name);
+
+  /* constructor (dynamic match) */
+  def = mputprintf(def, "%s_template(Dynamic_Match_Interface<%s>* p_dyn_match);\n", name, name);
+  src = mputprintf(src, "%s_template::%s_template(Dynamic_Match_Interface<%s>* p_dyn_match)\n"
+    " : Base_Template(DYNAMIC_MATCH)\n"
+    "{\n"
+    "dyn_match = new dynmatch_struct<%s>;\n"
+    "dyn_match->ptr = p_dyn_match;\n"
+    "dyn_match->ref_count = 1;\n"
+    "}\n\n", name, name, name, name);
+
   /* copy constructor */
   def = mputprintf(def, "%s_template(const %s_template& other_value);\n", name,
     name);
@@ -2873,7 +2908,20 @@ void defUnionTemplate(const struct_def *sdef, output_struct *output)
     "break;\n"
     "case VALUE_LIST:\n"
     "case COMPLEMENTED_LIST:\n"
+    "case CONJUNCTION_MATCH:\n"
     "delete [] value_list.list_value;\n"
+    "break;\n"
+    "case IMPLICATION_MATCH:\n"
+    "delete implication_.precondition;\n"
+    "delete implication_.implied_template;\n"
+    "break;\n"
+    "case DYNAMIC_MATCH:\n"
+    "dyn_match->ref_count--;\n"
+    "if (dyn_match->ref_count == 0) {\n"
+    "delete dyn_match->ptr;\n"
+    "delete dyn_match;\n"
+    "}\n"
+    "break;\n"
     "default:\n"
     "break;\n"
     "}\n"
@@ -2978,6 +3026,17 @@ void defUnionTemplate(const struct_def *sdef, output_struct *output)
     "if (value_list.list_value[list_count].match(other_value, legacy)) "
     "return template_selection == VALUE_LIST;\n"
     "return template_selection == COMPLEMENTED_LIST;\n"
+    "case CONJUNCTION_MATCH:\n"
+    "for (unsigned int i = 0; i < value_list.n_values; i++) {\n"
+    "if (!value_list.list_value[i].match(other_value)) {\n"
+    "return FALSE;\n"
+    "}\n"
+    "}\n"
+    "return TRUE;\n"
+    "case IMPLICATION_MATCH:\n"
+    "return !implication_.precondition->match(other_value) || implication_.implied_template->match(other_value);\n"
+    "case DYNAMIC_MATCH:\n"
+    "return dyn_match->ptr->match(other_value);\n"
     "default:\n"
     "TTCN_error (\"Matching an uninitialized template of union type %s.\");\n"
     "}\n"
@@ -3033,7 +3092,8 @@ void defUnionTemplate(const struct_def *sdef, output_struct *output)
     "%s_template& %s_template::list_item(unsigned int list_index) const\n"
     "{\n"
     "if (template_selection != VALUE_LIST && "
-      "template_selection != COMPLEMENTED_LIST) TTCN_error(\"Internal error: "
+      "template_selection != COMPLEMENTED_LIST && "
+      "template_selection != CONJUNCTION_MATCH) TTCN_error(\"Internal error: "
       "Accessing a list element of a non-list template of union type %s.\");\n"
     "if (list_index >= value_list.n_values) "
       "TTCN_error(\"Internal error: Index overflow in a value list template "
@@ -3048,7 +3108,8 @@ void defUnionTemplate(const struct_def *sdef, output_struct *output)
     "void %s_template::set_type(template_sel template_type, "
       "unsigned int list_length)\n"
     "{\n"
-    "if (template_type != VALUE_LIST && template_type != COMPLEMENTED_LIST) "
+    "if (template_type != VALUE_LIST && template_type != COMPLEMENTED_LIST && "
+        "template_type != CONJUNCTION_MATCH) "
       "TTCN_error (\"Internal error: Setting an invalid list for a template "
       "of union type %s.\");\n"
     "clean_up();\n"
@@ -3188,6 +3249,10 @@ void defUnionTemplate(const struct_def *sdef, output_struct *output)
     "break;\n"
     "case COMPLEMENTED_LIST:\n"
     "TTCN_Logger::log_event_str(\"complement\");\n"
+    "case CONJUNCTION_MATCH:\n"
+    "if (template_selection == CONJUNCTION_MATCH) {\n"
+    "TTCN_Logger::log_event_str(\"conjunct\");\n"
+    "}\n"
     "case VALUE_LIST:\n"
     "TTCN_Logger::log_char('(');\n"
     "for (unsigned int list_count = 0; list_count < value_list.n_values; "
@@ -3196,6 +3261,14 @@ void defUnionTemplate(const struct_def *sdef, output_struct *output)
     "value_list.list_value[list_count].log();\n"
     "}\n"
     "TTCN_Logger::log_char(')');\n"
+    "break;\n"
+    "case IMPLICATION_MATCH:\n"
+    "implication_.precondition->log();\n"
+    "TTCN_Logger::log_event_str(\" implies \");\n"
+    "implication_.implied_template->log();\n"
+    "break;\n"
+    "case DYNAMIC_MATCH:\n"
+    "TTCN_Logger::log_event_str(\"@dynamic template\");\n"
     "break;\n"
     "default:\n"
     "log_generic();\n"
@@ -3354,6 +3427,8 @@ void defUnionTemplate(const struct_def *sdef, output_struct *output)
     "case OMIT_VALUE:\n"
     "case ANY_OR_OMIT:\n"
     "return TRUE;\n"
+    "case IMPLICATION_MATCH:\n"
+    "return !implication_.precondition->match_omit() || implication_.implied_template->match_omit();\n"
     "case VALUE_LIST:\n"
     "case COMPLEMENTED_LIST:\n"
     "if (legacy) {\n"

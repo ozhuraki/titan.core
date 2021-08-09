@@ -1249,6 +1249,11 @@ struct dynmatch_struct {
   unsigned int ref_count;
   Dynamic_Match_Interface<T>* ptr;
 };
+
+struct dynmatch_dummy_struct {
+  unsigned int ref_count;
+  void* ptr;
+};
     
 
 /** Interface/base class for value redirects in RT2

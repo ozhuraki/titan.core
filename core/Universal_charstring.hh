@@ -582,6 +582,17 @@ private:
       boolean nocase;
     } pattern_value;
     unichar_decmatch_struct* dec_match;
+    struct {
+      UNIVERSAL_CHARSTRING_template* precondition;
+      UNIVERSAL_CHARSTRING_template* implied_template;
+    } implication_;
+    struct {
+      bool is_universal;
+      union {
+        dynmatch_struct<CHARSTRING>* cs;
+        dynmatch_struct<UNIVERSAL_CHARSTRING>* ucs;
+      };
+    } dyn_match;
   };
 
   void copy_template(const CHARSTRING_template& other_value);
@@ -604,6 +615,10 @@ public:
     (const UNIVERSAL_CHARSTRING_template& other_value);
   UNIVERSAL_CHARSTRING_template(template_sel p_sel, const CHARSTRING& p_str,
     boolean p_nocase = FALSE);
+  UNIVERSAL_CHARSTRING_template(UNIVERSAL_CHARSTRING_template* p_precondition,
+    UNIVERSAL_CHARSTRING_template* p_implied_template);
+  UNIVERSAL_CHARSTRING_template(Dynamic_Match_Interface<CHARSTRING>* p_dyn_match);
+  UNIVERSAL_CHARSTRING_template(Dynamic_Match_Interface<UNIVERSAL_CHARSTRING>* p_dyn_match);
 
   ~UNIVERSAL_CHARSTRING_template();
   void clean_up();

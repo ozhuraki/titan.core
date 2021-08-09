@@ -852,11 +852,20 @@ namespace Ttcn {
 
   Common::Assignment* Reference::get_refd_assignment(bool check_parlist)
   {
-    Common::Assignment *ass = Ref_base::get_refd_assignment(check_parlist);
-    // In fact calls        Ref_simple::get_refd_assignment
-    
-    // access member my_scope before calling ass->get_FormalParList()
-    StatementBlock* sb = ass != NULL ? my_scope->get_statementblock_scope() : NULL;
+    StatementBlock* sb = my_scope != NULL ? my_scope->get_statementblock_scope() : NULL;
+    Common::Assignment *ass = NULL;
+    if (reftype == REF_VALUE) {
+      if (sb != NULL && sb->is_in_dynamic_template()) {
+        ass = sb->get_dynamic_template()->get_dynamic_formalpar();
+      }
+      else {
+        // error
+      }
+    }
+    else {
+      ass = Ref_base::get_refd_assignment(check_parlist);
+      // In fact calls        Ref_simple::get_refd_assignment
+    }
     
     if (ass && check_parlist && !params_checked) {
       params_checked = true;
@@ -1221,30 +1230,35 @@ namespace Ttcn {
         base_type->get_class_type_body()->is_built_in() ? "OBJECT" :
         base_type->get_genname_own(my_scope).c_str());
     }
-    string const_prefix; // empty by default
-    string exception_postfix; // also empty by default
-    if (gen_const_prefix) {
-      if (ass->get_asstype() == Common::Assignment::A_CONST) {
-        const_prefix = "const_";
-      }
-      else if (ass->get_asstype() == Common::Assignment::A_TEMPLATE) {
-        const_prefix = "template_";
-      }
+    if (reftype == REF_VALUE) {
+      expr->expr = mputstr(expr->expr, "value");
     }
-    if (ass->get_asstype() == Common::Assignment::A_EXCEPTION) {
-      exception_postfix = "()";
-    }
-    if (parlist != NULL) {
-      expr->expr = mputprintf(expr->expr, "%s(",
-        ass->get_genname_from_scope(my_scope).c_str());
-      parlist->generate_code_alias(expr, ass->get_FormalParList(),
-          ass->get_RunsOnType(), false);
-      expr->expr = mputc(expr->expr, ')');
-    } else {
-      expr->expr = mputstr(expr->expr,
-        LazyFuzzyParamData::in_lazy_or_fuzzy() ?
-        LazyFuzzyParamData::add_ref_genname(ass, my_scope).c_str() :
-        (const_prefix + ass->get_genname_from_scope(my_scope) + exception_postfix).c_str());
+    else {
+      if (parlist != NULL) {
+	expr->expr = mputprintf(expr->expr, "%s(",
+	  ass->get_genname_from_scope(my_scope).c_str());
+	parlist->generate_code_alias(expr, ass->get_FormalParList(),
+	    ass->get_RunsOnType(), false);
+	expr->expr = mputc(expr->expr, ')');
+      } else {
+	string const_prefix; // empty by default
+	string exception_postfix; // also empty by default
+	if (gen_const_prefix) {
+	  if (ass->get_asstype() == Common::Assignment::A_CONST) {
+	    const_prefix = "const_";
+	  }
+	  else if (ass->get_asstype() == Common::Assignment::A_TEMPLATE) {
+	    const_prefix = "template_";
+	  }
+	}
+	if (ass->get_asstype() == Common::Assignment::A_EXCEPTION) {
+	  exception_postfix = "()";
+	}
+	expr->expr = mputstr(expr->expr,
+	  LazyFuzzyParamData::in_lazy_or_fuzzy() ?
+	  LazyFuzzyParamData::add_ref_genname(ass, my_scope).c_str() :
+	  (const_prefix + ass->get_genname_from_scope(my_scope) + exception_postfix).c_str());
+      }
     }
     if (subrefs.get_nof_refs() > 0) subrefs.generate_code(expr, ass, my_scope);
   }
@@ -1468,7 +1482,7 @@ namespace Ttcn {
   void Reference::detect_modid()
   {
     // do nothing if detection is already performed
-    if (id || reftype == REF_THIS) return;
+    if (id || reftype == REF_THIS || reftype == REF_VALUE) return;
     // the first element of subrefs must be an <id>
     const Identifier *first_id = subrefs.get_ref(0)->get_id(), *second_id = 0;
     const ParsedActualParameters* second_params = 0;
@@ -4812,6 +4826,7 @@ namespace Ttcn {
       fp_list->chk(asstype);
       if (local_scope) error("Parameterized local template `%s' not supported",
         id->get_dispname().c_str());
+      body->set_formalparlist(fp_list);
     }
 
     // Merge the elements of "all from" into the list
@@ -9589,7 +9604,8 @@ namespace Ttcn {
     case Template::PERMUTATION_MATCH:
     case Template::TEMPLATE_LIST:
     case Template::COMPLEMENTED_LIST:
-    case Template::VALUE_LIST: {
+    case Template::VALUE_LIST:
+    case Template::CONJUNCTION_MATCH: {
       // in template charstring par := charstring : ("foo", "bar", "baz")
       size_t num = body->get_nof_comps();
       for (size_t i = 0; i < num; ++i) {
@@ -9667,6 +9683,12 @@ namespace Ttcn {
       chk_defpar_template(body->get_concat_operand(true), exp_val);
       chk_defpar_template(body->get_concat_operand(false), exp_val);
       break;
+    case Template::IMPLICATION_MATCH:
+      chk_defpar_template(body->get_precondition()->get_Template(), exp_val);
+      chk_defpar_template(body->get_implied_template()->get_Template(), exp_val);
+      break;
+    case Template::DYNAMIC_MATCH:
+      break; // todo: can a default value be a dynamic template?
     } // switch templatetype
 
   }
