@@ -447,12 +447,11 @@ template integer t_implication := (0..infinity) implies @dynamic f_is_prime;
 
 // matches if the number of digits matches the template parameter
 template integer t_dynamic(template integer pt_digit_template) := @dynamic {
-  var integer x := value;
-  if (x < 0) { x := -x; }
+  if (value < 0) { value := -value; }
   var integer v_num_digits := 0;
-  while (x > 0) {
+  while (value > 0) {
     v_num_digits := v_num_digits + 1;
-    x := x / 10;
+    value := value / 10;
   }
   return match(v_num_digits, pt_digit_template);
 }

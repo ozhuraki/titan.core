@@ -5493,6 +5493,8 @@ compile_time:
       str = create_location_object(str, "TEMPLATE", "@dynamic template");
     }
 
+    str = u.dynamic.fp_list->generate_shadow_objects(str);
+
     // todo: what do we do with @update statements in the dynamic template's block?
     char* dummy_def_glob_vars = NULL;
     char* dummy_src_glob_vars = NULL;

@@ -1231,7 +1231,7 @@ namespace Ttcn {
         base_type->get_genname_own(my_scope).c_str());
     }
     if (reftype == REF_VALUE) {
-      expr->expr = mputstr(expr->expr, "value");
+      expr->expr = mputstr(expr->expr, ass->get_genname_from_scope(my_scope).c_str());
     }
     else {
       if (parlist != NULL) {
@@ -10042,8 +10042,7 @@ namespace Ttcn {
     }
     if (!used_as_lvalue) {
       Definition *my_def = my_parlist->get_my_def();
-      if (!my_def) FATAL_ERROR("FormalPar::use_as_lvalue()");
-      if (my_def->get_asstype() == A_TEMPLATE)
+      if (my_def != NULL && my_def->get_asstype() == A_TEMPLATE)
         p_loc.error("Parameter `%s' of the template cannot be passed further "
           "as `out' or `inout' parameter", id->get_dispname().c_str());
       else {
