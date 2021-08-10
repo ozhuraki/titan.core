@@ -128,8 +128,8 @@ public:
 // objid template class
 
 class OBJID_template : public Base_Template {
+  OBJID single_value;
   union {
-    OBJID single_value;
     struct {
       unsigned int n_values;
       OBJID_template *list_value;
