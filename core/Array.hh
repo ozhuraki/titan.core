@@ -1470,7 +1470,7 @@ private:
       TEMPLATE_ARRAY* precondition;
       TEMPLATE_ARRAY* implied_template;
     } implication_;
-    dynmatch_struct<T_value_type>* dyn_match;
+    dynmatch_struct<TEMPLATE_ARRAY>* dyn_match;
   };
 
   struct Pair_of_elements;
@@ -1517,10 +1517,10 @@ public:
     permutation_intervals = NULL;
   }
 
-  TEMPLATE_ARRAY(Dynamic_Match_Interface<T_value_type>* p_dyn_match)
+  TEMPLATE_ARRAY(Dynamic_Match_Interface<TEMPLATE_ARRAY>* p_dyn_match)
   : Restricted_Length_Template(DYNAMIC_MATCH)
   {
-    dyn_match = new dynmatch_struct<T_value_type>;
+    dyn_match = new dynmatch_struct<TEMPLATE_ARRAY>;
     dyn_match->ptr = p_dyn_match;
     dyn_match->ref_count = 1;number_of_permutations = 0;
     permutation_intervals = NULL;
