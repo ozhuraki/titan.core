@@ -7238,6 +7238,7 @@ static void defEmptyRecordTemplate(const char *name, const char *dispname,
 	"case COMPLEMENTED_LIST:\n"
 	"case CONJUNCTION_MATCH:\n"
 	"delete [] value_list.list_value;\n"
+	"break;\n"
 	"case IMPLICATION_MATCH:\n"
   "delete implication_.precondition;\n"
   "delete implication_.implied_template;\n"
