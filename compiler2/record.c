@@ -8162,6 +8162,15 @@ void defRecordTemplate2(const struct_def *sdef, output_struct *output)
     def = mputprintf(def, "%s_template(const %s_template& other_value): %s() "
       "{ copy_template(other_value); }\n", name, name, base_class);
 
+    /* destructor */
+    def = mputprintf(def, "~%s_template();\n", name);
+    src = mputprintf(src, "%s_template::~%s_template()\n"
+      "{\n"
+      "if (template_selection == DYNAMIC_MATCH && dyn_match->ref_count == 1) {\n"
+      "delete (static_cast<Dynamic_Match_Interface<%s>*>(dyn_match->ptr));\n"
+      "}\n"
+      "}\n\n", name, name, name);
+
     /* matching function for dynamic templates */
     def = mputstr(def, "boolean match_dynamic(const Base_Type* match_value) const;\n");
     src = mputprintf(src,
@@ -8169,7 +8178,7 @@ void defRecordTemplate2(const struct_def *sdef, output_struct *output)
       "{\n"
       "const %s* actual_value = dynamic_cast<const %s*>(match_value);\n"
       "return (static_cast<Dynamic_Match_Interface<%s>*>(dyn_match->ptr))->match(*actual_value);\n"
-      "}\n", name, name, name, name);
+      "}\n\n", name, name, name, name);
 
     /* assignment operator <- template_sel */
     def = mputprintf(def, "%s_template& operator=(template_sel other_value);\n",

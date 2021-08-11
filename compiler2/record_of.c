@@ -4854,6 +4854,15 @@ void defRecordOfTemplate2(const struct_of_def *sdef, output_struct *output)
   def = mputprintf(def, "%s_template(const %s_template& other_value): %s() { copy_template(other_value); }\n",
                    name, name, base_class);
 
+  /* destructor */
+  def = mputprintf(def, "~%s_template();\n", name);
+  src = mputprintf(src, "%s_template::~%s_template()\n"
+    "{\n"
+    "if (template_selection == DYNAMIC_MATCH && dyn_match->ref_count == 1) {\n"
+    "delete (static_cast<Dynamic_Match_Interface<%s>*>(dyn_match->ptr));\n"
+    "}\n"
+    "}\n\n", name, name, name);
+
   /* matching function for dynamic templates */
   def = mputstr(def, "boolean match_dynamic(const Base_Type* match_value) const;\n");
   src = mputprintf(src,

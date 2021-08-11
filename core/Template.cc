@@ -623,7 +623,6 @@ void Record_Of_Template::clean_up()
   case DYNAMIC_MATCH:
     dyn_match->ref_count--;
     if (dyn_match->ref_count == 0) {
-      delete dyn_match->ptr;
       delete dyn_match;
     }
     break;
@@ -1741,7 +1740,6 @@ void Set_Of_Template::clean_up()
   case DYNAMIC_MATCH:
     dyn_match->ref_count--;
     if (dyn_match->ref_count == 0) {
-      delete dyn_match->ptr;
       delete dyn_match;
     }
     break;
@@ -2763,7 +2761,6 @@ void Record_Template::clean_up()
   case DYNAMIC_MATCH:
     dyn_match->ref_count--;
     if (dyn_match->ref_count == 0) {
-      delete dyn_match->ptr;
       delete dyn_match;
     }
     break;
@@ -3469,7 +3466,6 @@ void Empty_Record_Template::clean_up()
   case DYNAMIC_MATCH:
     dyn_match->ref_count--;
     if (dyn_match->ref_count == 0) {
-      delete dyn_match->ptr;
       delete dyn_match;
     }
     break;
