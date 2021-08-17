@@ -1,19 +1,9 @@
-# Contributor workflows:
+# Contribute to Titan
 
-## Simplified Titan contributor workflow ( to be applied when agreed previously)
-Committing directly to github.com/eclipse/titan.* using Gerrithub:
+## The prerequisite of contributing to Titan is that the contributor has valid Eclipse Contributor Agreement:
 
-* https://docs.google.com/presentation/d/1j5RxJC13gFCCGcLB7ZwyDVCzBWroapUR9AVdqB5fdig/edit#slide=id.p
+* https://www.eclipse.org/legal/ECA.php
 
-## Titan contributor workflow to github.com/eclipse/titan.*
-covering Gerrit code review
+## To contribute to Titan the GitLab MergeRequest workflow should be followed:
 
-* https://docs.google.com/presentation/d/1AVi3Be3qYmkYm6VEf4BnYHYa3hwpjjIM5EQc7W6LtNE/edit#slide=id.p
-
-## Titan contributor workflow to Eclipse git
-Committing to git.eclipse.org/titan.* through gerrit code review
-
-* https://docs.google.com/presentation/d/15zA7HjTlvEOshSb5W9qFQ7e4zIAU6Blk3_EV8ewYy_Y/edit#slide=id.p
-
-
-
+* https://docs.gitlab.com/ee/user/project/merge_requests/
