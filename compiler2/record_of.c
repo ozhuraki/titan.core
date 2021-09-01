@@ -4646,10 +4646,12 @@ void defRecordOfTemplate1(const struct_of_def *sdef, output_struct *output)
     "    *this = ANY_OR_OMIT;\n"
     "    break;\n"
     "  case Module_Param::MP_List_Template:\n"
-    "  case Module_Param::MP_ComplementList_Template: {\n"
+    "  case Module_Param::MP_ComplementList_Template:\n"
+    "  case Module_Param::MP_ConjunctList_Template: {\n"
     "    %s_template temp;\n"
     "    temp.set_type(param.get_type()==Module_Param::MP_List_Template ? "
-    "VALUE_LIST : COMPLEMENTED_LIST, param.get_size());\n"
+    "VALUE_LIST : (param.get_type() == Module_Param::MP_ConjunctList_Template ? "
+    "CONJUNCTION_MATCH : COMPLEMENTED_LIST), param.get_size());\n"
     "    for (size_t p_i=0; p_i<param.get_size(); p_i++) {\n"
     "      temp.list_item(p_i).set_param(*param.get_elem(p_i));\n"
     "    }\n"
@@ -4707,12 +4709,20 @@ void defRecordOfTemplate1(const struct_of_def *sdef, output_struct *output)
     "    break;\n");
   }
   src = mputprintf(src,
+    "  case Module_Param::MP_Implication_Template: {\n"
+    "    %s_template* precondition = new %s_template;\n"
+    "    precondition->set_param(*param.get_elem(0));\n"
+    "    %s_template* implied_template = new %s_template;\n"
+    "    implied_template->set_param(*param.get_elem(1));\n"
+    "    *this = %s_template(precondition, implied_template);\n"
+    "  } break;\n"
     "  default:\n"
     "    param.type_error(\"%s of template\", \"%s\");\n"
     "  }\n"
     "  is_ifpresent = param.get_ifpresent();\n"
     "  set_length_range(param);\n"
-    "}\n\n", sdef->kind==RECORD_OF?"record":"set", dispname);
+    "}\n\n", name, name, name, name, name,
+    sdef->kind==RECORD_OF?"record":"set", dispname);
 
   /* check template restriction */
   def = mputstr(def, "void check_restriction(template_res t_res, "

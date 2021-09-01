@@ -2123,7 +2123,7 @@ The first 'implies' keyword in this case can be considered as part of the precon
 of the resulting template (whose precondition is 't1 implies t2' and whose implied
 template is 't3'). This is the shift case.
 It can also be considered as the resulting template's 'implies' keyword (in which case
-the precondition would be 't1' and the implied tempalte would be 't2 implies t3').
+the precondition would be 't1' and the implied template would be 't2 implies t3').
 This is the reduce case.
 Semantically both cases mean the same thing.
  - Similarly, if a template instance in the middle of an implication match chain has a

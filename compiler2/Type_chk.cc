@@ -6642,8 +6642,20 @@ bool Type::chk_this_template_generic(Template *t, namedbool incomplete_allowed,
     matching_fp_list->set_fullname(t->get_fullname() + ".<@dynamic_formalpar>");
     matching_fp_list->set_my_scope(t->get_my_scope());
     t->set_dynamic_fplist(matching_fp_list);
-    t->get_dynamic_sb()->chk();
-    // todo
+    matching_fp->chk();
+    Ttcn::StatementBlock* block = t->get_dynamic_sb();
+    block->chk();
+    switch (block->has_return()) {
+    case Ttcn::StatementBlock::RS_NO:
+      t->error("The dynamic template's statement block does not have a return statement");
+      break;
+    case Ttcn::StatementBlock::RS_MAYBE:
+      t->error("Control might leave the dynamic template's statement block without reaching "
+        "a return statement");
+      break;
+    default:
+      break;
+    }
     break; }
   default:
     self_ref = chk_this_template(t, incomplete_allowed, allow_omit, allow_any_or_omit,

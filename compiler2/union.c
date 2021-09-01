@@ -3489,10 +3489,12 @@ void defUnionTemplate(const struct_def *sdef, output_struct *output)
     "    *this = ANY_OR_OMIT;\n"
     "    break;\n"
     "  case Module_Param::MP_List_Template:\n"
-    "  case Module_Param::MP_ComplementList_Template: {\n"
+    "  case Module_Param::MP_ComplementList_Template:\n"
+    "  case Module_Param::MP_ConjunctList_Template: {\n"
     "    %s_template new_temp;\n"
     "    new_temp.set_type(m_p->get_type()==Module_Param::MP_List_Template ? "
-    "VALUE_LIST : COMPLEMENTED_LIST, m_p->get_size());\n"
+    "VALUE_LIST : (m_p->get_type() == Module_Param::MP_ConjunctList_Template ? "
+    "CONJUNCTION_MATCH : COMPLEMENTED_LIST), m_p->get_size());\n"
     "    for (size_t p_i=0; p_i<m_p->get_size(); p_i++) {\n"
     "      new_temp.list_item(p_i).set_param(*m_p->get_elem(p_i));\n"
     "    }\n"
@@ -3516,11 +3518,19 @@ void defUnionTemplate(const struct_def *sdef, output_struct *output)
   src = mputprintf(src,
     "    mp_last->error(\"Field %%s does not exist in type %s.\", last_name);\n"
     "  } break;\n"
+    "  case Module_Param::MP_Implication_Template: {\n"
+    "    %s_template* precondition = new %s_template;\n"
+    "    precondition->set_param(*m_p->get_elem(0));\n"
+    "    %s_template* implied_template = new %s_template;\n"
+    "    implied_template->set_param(*m_p->get_elem(1));\n"
+    "    *this = %s_template(precondition, implied_template);\n"
+    "  } break;\n"
     "  default:\n"
     "    param.type_error(\"union template\", \"%s\");\n"
     "  }\n"
     "  is_ifpresent = param.get_ifpresent()%s;\n"
-    "}\n\n", dispname, dispname, use_runtime_2 ? " || m_p->get_ifpresent()" : "");
+    "}\n\n", dispname, name, name, name, name, name,
+    dispname, use_runtime_2 ? " || m_p->get_ifpresent()" : "");
   
   /* get_param(), RT2 only */
   if (use_runtime_2) {

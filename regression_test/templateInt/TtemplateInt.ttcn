@@ -494,6 +494,140 @@ testcase templateIntDynamic() runs on templateInt_mycomp {
 }
 
 
+function f_defpar_conjunction(in template integer pt_def := conjunct((100..infinity), @dynamic f_is_prime)) {
+  var integer v1 := 179, v2 := 122;
+  if (not match(v1, pt_def)) {
+    setverdict(fail, match(v1, pt_def));
+  }
+  if (match(v2, pt_def)) {
+    setverdict(fail, match(v2, pt_def));
+  }
+  setverdict(pass);
+}
+
+function f_defpar_implication(in template integer pt_def := (0..infinity) implies @dynamic f_is_prime) {
+  var integer v1 := -20, v2 := 4, v3 := 11;
+  if (not match(v1, pt_def)) {
+    setverdict(fail, match(v1, pt_def));
+  }
+  if (match(v2, pt_def)) {
+    setverdict(fail, match(v2, pt_def));
+  }
+  if (not match(v3, pt_def)) {
+    setverdict(fail, match(v3, pt_def));
+  }
+  setverdict(pass);
+}
+
+function f_defpar_dynamic(in template integer pt_def := @dynamic {
+  if (value < 0) { value := -value; }
+  var integer v_num_digits := 0;
+  while (value > 0) {
+    v_num_digits := v_num_digits + 1;
+    value := value / 10;
+  }
+  return v_num_digits == 3;
+}) {
+  var integer v1 := 123, v2 := 67;
+  if (not match(v1, pt_def)) {
+    setverdict(fail, match(v1, pt_def));
+  }
+  if (match(v2, pt_def)) {
+    setverdict(fail, match(v2, pt_def));
+  }
+  setverdict(pass);
+}
+
+testcase templateIntConjunctionDefPar() runs on templateInt_mycomp {
+  f_defpar_conjunction();
+}
+
+testcase templateIntImplicationDefPar() runs on templateInt_mycomp {
+  f_defpar_implication();
+}
+
+testcase templateIntDynamicDefPar() runs on templateInt_mycomp {
+  f_defpar_dynamic();
+}
+
+
+modulepar template integer mpt_conjunction;
+modulepar template integer mpt_implication;
+
+testcase templateIntConjunctionModulepar() runs on templateInt_mycomp {
+  var integer v1 := 179, v2 := 322;
+  if (not match(v1, mpt_conjunction)) {
+    setverdict(fail, match(v1, mpt_conjunction));
+  }
+  if (match(v2, mpt_conjunction)) {
+    setverdict(fail, match(v2, mpt_conjunction));
+  }
+  setverdict(pass);
+}
+
+testcase templateIntImplicationModulepar() runs on templateInt_mycomp {
+  var integer v1 := -20, v2 := 4, v3 := 7;
+  if (not match(v1, mpt_implication)) {
+    setverdict(fail, match(v1, mpt_implication));
+  }
+  if (match(v2, mpt_implication)) {
+    setverdict(fail, match(v2, mpt_implication));
+  }
+  if (not match(v3, mpt_implication)) {
+    setverdict(fail, match(v3, mpt_implication));
+  }
+  setverdict(pass);
+}
+
+type record of integer IntList;
+
+testcase templateIntConjunctionAllFrom() runs on templateInt_mycomp {
+  var IntList v_list := { 1, 2, 3 };
+  // vt_conjunction does not match any value as no value can be 1, 2 and 3 at the same time.
+  var template integer vt_conjunction := conjunct(all from v_list);
+  var integer v1 := 1, v2 := 2, v3 := 3, v4 := 4;
+  if (match(v1, vt_conjunction)) {
+    setverdict(fail, match(v1, vt_conjunction));
+  }
+  if (match(v2, vt_conjunction)) {
+    setverdict(fail, match(v2, vt_conjunction));
+  }
+  if (match(v3, vt_conjunction)) {
+    setverdict(fail, match(v3, vt_conjunction));
+  }
+  if (match(v4, vt_conjunction)) {
+    setverdict(fail, match(v4, vt_conjunction));
+  }
+  
+  // vt_conjunction matches the single value 2
+  var template IntList vt_list := { 2, 2, 2 };
+  vt_conjunction := conjunct(all from vt_list);
+  if (match(v1, vt_conjunction)) {
+    setverdict(fail, match(v1, vt_conjunction));
+  }
+  if (not match(v2, vt_conjunction)) {
+    setverdict(fail, match(v2, vt_conjunction));
+  }
+  setverdict(pass);
+}
+
+testcase templateIntImplicationAllFrom() runs on templateInt_mycomp {
+  var IntList v_list1 := { 1, 2, 3 }, v_list2 := { 2, 3 };
+  var template integer vt_implication := (0, all from v_list1) implies (all from v_list2);
+  var integer v1 := 4, v2 := 1, v3 := 3;
+  if (not match(v1, vt_implication)) {
+    setverdict(fail, match(v1, vt_implication));
+  }
+  if (match(v2, vt_implication)) {
+    setverdict(fail, match(v2, vt_implication));
+  }
+  if (not match(v3, vt_implication)) {
+    setverdict(fail, match(v3, vt_implication));
+  }
+  setverdict(pass);
+}
+
+
 control {
  execute(templateIntSpec());
  execute(templateIntList());
@@ -517,5 +651,12 @@ control {
  execute(templateIntConjunction());
  execute(templateIntImplication());
  execute(templateIntDynamic());
+ execute(templateIntConjunctionDefPar());
+ execute(templateIntImplicationDefPar());
+ execute(templateIntDynamicDefPar());
+ execute(templateIntConjunctionModulepar());
+ execute(templateIntImplicationModulepar());
+ execute(templateIntConjunctionAllFrom());
+ execute(templateIntImplicationAllFrom());
 }
 }

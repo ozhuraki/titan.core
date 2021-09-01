@@ -190,6 +190,8 @@ string_map_t *config_defines;
 %token IfpresentKeyword "ifpresent"
 %token InfinityKeyword "infinity"
 %token NocaseKeyword "@nocase"
+%token ConjunctKeyword "conjunct"
+%token ImpliesKeyword "implies"
 %token AssignmentChar ":= or ="
 %token ConcatChar "&="
 %token LogFile "LogFile or FileName"
@@ -393,7 +395,7 @@ ParameterNameSegment
 %left '*' '/'
 %left UnarySign
 
-%expect 2
+%expect 3
 
 /*
 1 conflict:
@@ -403,6 +405,15 @@ all modules in the next module parameter (reduce).
 1 conflict:
 infinity can be a float value in LengthMatch's upper bound (SimpleParameterValue)
 or an infinityKeyword.
+1 conflict:
+Implication matching templates can be chained (e.g. 't1 implies t2 implies t3').
+The first 'implies' keyword in this case can be considered as part of the precondition
+of the resulting template (whose precondition is 't1 implies t2' and whose implied
+template is 't3'). This is the shift case.
+It can also be considered as the resulting template's 'implies' keyword (in which case
+the precondition would be 't1' and the implied template would be 't2 implies t3').
+This is the reduce case.
+Semantically both cases mean the same thing.
 */
 %%
 
@@ -502,6 +513,12 @@ ParameterValue:
     $$ = $1;
     $$->set_length_restriction($2);
     $$->set_ifpresent();
+  }
+| ParameterValue ImpliesKeyword ParameterValue
+  {
+    $$ = new Module_Param_Implication_Template();
+    $$->add_elem($1);
+    $$->add_elem($3);
   }
 ;
 
@@ -1260,6 +1277,12 @@ CompoundValue:
 | SubsetKeyword '(' TemplateItemList ')'
   {
     $$ = new Module_Param_Subset_Template();
+    $$->add_list_with_implicit_ids($3);
+    delete $3;
+  }
+| ConjunctKeyword '(' TemplateItemList ')'
+  {
+    $$ = new Module_Param_ConjunctList_Template();
     $$->add_list_with_implicit_ids($3);
     delete $3;
   }

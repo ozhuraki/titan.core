@@ -197,6 +197,8 @@ public:
   MP_Superset_Template,
   MP_Subset_Template,
   MP_Permutation_Template,
+  MP_ConjunctList_Template,
+  MP_Implication_Template,
   MP_Reference,
   MP_Unbound,
   MP_Expression
@@ -629,6 +631,7 @@ public:
 };
 
 class Module_Param_Compound : public Module_Param {
+protected:
   Vector<Module_Param*> values; // Module_Param instances are owned
 public:
   Module_Param_Compound() {}
@@ -696,6 +699,20 @@ public:
   type_t get_type() const { return MP_Permutation_Template; }
   const char* get_type_str() const { return "permutation template"; }
   void log_value() const { log_value_vec("permutation(",")"); }
+};
+
+class Module_Param_ConjunctList_Template : public Module_Param_Compound {
+public:
+  type_t get_type() const { return MP_ConjunctList_Template; }
+  const char* get_type_str() const { return "conjunction list template"; }
+  void log_value() const { log_value_vec("conjunct(",")"); }
+};
+
+class Module_Param_Implication_Template : public Module_Param_Compound {
+public:
+  type_t get_type() const { return MP_Implication_Template; }
+  const char* get_type_str() const { return "implication match template"; }
+  void log_value() const;
 };
 
 class Ttcn_String_Parsing {

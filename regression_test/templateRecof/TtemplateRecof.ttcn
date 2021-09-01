@@ -709,6 +709,34 @@ testcase templateRecofDynamic() runs on mycomp {
   setverdict(pass);
 }
 
+modulepar template IntList mpt_conjunction;
+modulepar template IntList mpt_implication;
+
+testcase templateRecofConjunctionModulepar() runs on mycomp {
+  var IntList v1 := { 1, 2, 3 }, v2 := { 1, 0, 2, 2, 1 };
+  if (not match(v1, mpt_conjunction)) {
+    setverdict(fail, match(v1, mpt_conjunction));
+  }
+  if (match(v2, mpt_conjunction)) {
+    setverdict(fail, match(v2, mpt_conjunction));
+  }
+  setverdict(pass);
+}
+
+testcase templateRecofImplicationModulepar() runs on mycomp {
+  var IntList v1 := { -1, -2 }, v2 := { 0, 2, 0, 1 }, v3 := { 1, 0 };
+  if (not match(v1, mpt_implication)) {
+    setverdict(fail, match(v1, mpt_implication));
+  }
+  if (match(v2, mpt_implication)) {
+    setverdict(fail, match(v2, mpt_implication));
+  }
+  if (not match(v3, mpt_implication)) {
+    setverdict(fail, match(v3, mpt_implication));
+  }
+  setverdict(pass);
+}
+
 
 control {
  execute(templateRecofSpec());
@@ -743,5 +771,7 @@ control {
  execute(templateRecofConjunction());
  execute(templateRecofImplication());
  execute(templateRecofDynamic());
+ execute(templateRecofConjunctionModulepar());
+ execute(templateRecofImplicationModulepar());
 }
 }

@@ -1,0 +1,39 @@
+/******************************************************************************
+ * Copyright (c) 2000-2021 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+module TempImplication_SE { //^In TTCN-3 module//
+
+// OK (the length restriction and ifpresent refer to the 2nd operand, not the resulting template)
+template charstring t1 := ? length (1..4) ifpresent implies ? length (2..3) ifpresent;
+
+// these are not allowed according to the BNF in the standard, but the compiler accepts them
+// (the first length restriction/ifpresent pair refer to the 2nd operand, the second pair refer to the resulting template)
+template charstring t2 := ? length (1..4) ifpresent implies ? length (2..3) ifpresent ifpresent;
+template charstring t3 := ? length (1..4) ifpresent implies ? length (2..3) ifpresent length (3);
+template charstring t4 := ? length (1..4) ifpresent implies ? length (2..3) ifpresent length (3) ifpresent;
+
+// this is the standard's way of adding length restrictions and ifpresent to both the 2nd operand and the resulting template,
+// but the compiler interprets the 2nd operand as a value list match with 1 element, which cannot have ifpresent
+template charstring t5 := ? length (1..4) ifpresent implies (? length (2..3) ifpresent) length (3) ifpresent; //^In template definition// //^In list item// //`ifpresent' is not allowed here//
+
+// same as t4, but more readable (also not allowed according to the BNF in the standard)
+template charstring t6 := (? length (1..4) ifpresent implies ? length (2..3) ifpresent) length (3) ifpresent;
+
+function f() {
+  // OK (the type identifier refers to the first operand, not the resulting template)
+  log(match(3, integer: (1..3) implies integer: 3));
+  
+  // according to the BNF in the standard this should be allowed, 
+  // but the parser cannot handle two type identifiers one after the other
+  //log(match(3, integer: integer: (1..3) implies integer: 3)); parser error
+}
+
+}

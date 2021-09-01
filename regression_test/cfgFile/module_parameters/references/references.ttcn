@@ -99,6 +99,8 @@ modulepar TwoStrings mparray2 := { "xy", "yx" };
 
 modulepar template integer mptint1 := 7;
 modulepar template integer mptint2 := (3..6) ifpresent;
+modulepar template integer mptint3 := conjunct((0..infinity), (10..20) implies (11, 13, 17));
+modulepar template integer mptint4 := -1;
 
 modulepar template float mptf1 := 33.33;
 modulepar template float mptf2 := (33.0..66.0);
@@ -428,6 +430,9 @@ testcase tc_ref_integer_template() runs on CT
   }
   if (log2str(mptint2) != log2str(mptint2_exp)) {
     setverdict(fail, "Expected(mptint2): ", mptint2_exp, ", got: ", mptint2);
+  }
+  if (log2str(mptint4) != log2str(mptint3)) {
+    setverdict(fail, "Expected(mptint4): ", mptint3, ", got: ", mptint4);
   }
   setverdict(pass);
 }

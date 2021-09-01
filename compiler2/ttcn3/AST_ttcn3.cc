@@ -859,7 +859,8 @@ namespace Ttcn {
         ass = sb->get_dynamic_template()->get_dynamic_formalpar();
       }
       else {
-        // error
+        error("Reference to value being matched is only allowed inside a "
+          "dynamic template's statement block");
       }
     }
     else {
@@ -9578,10 +9579,13 @@ namespace Ttcn {
     case Template::VALUE_RANGE: {
       ValueRange *range = body->get_value_range();
       Value *low  = range->get_min_v();
-      Type::typetype_t tt_low = low->get_expr_returntype(exp_val);
+      if (low != NULL) {
+        low->get_expr_returntype(exp_val);
+      }
       Value *high = range->get_max_v();
-      Type::typetype_t tt_high = high->get_expr_returntype(exp_val);
-      if (tt_low == tt_high) break;
+      if (high != NULL) {
+        high->get_expr_returntype(exp_val);
+      }
       break; }
 
     case Template::BSTR_PATTERN:
@@ -9688,7 +9692,7 @@ namespace Ttcn {
       chk_defpar_template(body->get_implied_template()->get_Template(), exp_val);
       break;
     case Template::DYNAMIC_MATCH:
-      break; // todo: can a default value be a dynamic template?
+      break;
     } // switch templatetype
 
   }

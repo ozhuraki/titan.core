@@ -1184,10 +1184,12 @@ void BOOLEAN_template::set_param(Module_Param& param) {
     *this = ANY_OR_OMIT;
     break;
   case Module_Param::MP_List_Template:
-  case Module_Param::MP_ComplementList_Template: {
+  case Module_Param::MP_ComplementList_Template:
+  case Module_Param::MP_ConjunctList_Template: {
     BOOLEAN_template temp;
     temp.set_type(mp->get_type() == Module_Param::MP_List_Template ?
-      VALUE_LIST : COMPLEMENTED_LIST, mp->get_size());
+      VALUE_LIST : (mp->get_type() == Module_Param::MP_ConjunctList_Template ?
+      CONJUNCTION_MATCH : COMPLEMENTED_LIST), mp->get_size());
     for (size_t i=0; i<mp->get_size(); i++) {
       temp.list_item(i).set_param(*mp->get_elem(i));
     }
@@ -1196,6 +1198,13 @@ void BOOLEAN_template::set_param(Module_Param& param) {
   case Module_Param::MP_Boolean:
     *this = mp->get_boolean();
     break;
+  case Module_Param::MP_Implication_Template: {
+    BOOLEAN_template* precondition = new BOOLEAN_template;
+    precondition->set_param(*mp->get_elem(0));
+    BOOLEAN_template* implied_template = new BOOLEAN_template;
+    implied_template->set_param(*mp->get_elem(1));
+    *this = BOOLEAN_template(precondition, implied_template);
+  } break;
   default:
     param.type_error("boolean template");
   }
@@ -1223,9 +1232,13 @@ Module_Param* BOOLEAN_template::get_param(Module_Param_Name& param_name) const
     mp = new Module_Param_Boolean(single_value);
     break;
   case VALUE_LIST:
-  case COMPLEMENTED_LIST: {
+  case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH: {
     if (template_selection == VALUE_LIST) {
       mp = new Module_Param_List_Template();
+    }
+    else if (template_selection == CONJUNCTION_MATCH) {
+      mp = new Module_Param_ConjunctList_Template();
     }
     else {
       mp = new Module_Param_ComplementList_Template();
@@ -1234,6 +1247,11 @@ Module_Param* BOOLEAN_template::get_param(Module_Param_Name& param_name) const
       mp->add_elem(value_list.list_value[i].get_param(param_name));
     }
     break; }
+  case IMPLICATION_MATCH:
+    mp = new Module_Param_Implication_Template();
+    mp->add_elem(implication_.precondition->get_param(param_name));
+    mp->add_elem(implication_.implied_template->get_param(param_name));
+    break;
   default:
     TTCN_error("Referencing an uninitialized/unsupported boolean template.");
     break;

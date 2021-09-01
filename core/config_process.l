@@ -580,6 +580,8 @@ length      return LengthKeyword;
 ifpresent   return IfpresentKeyword;
 infinity    return InfinityKeyword;
 "@nocase"   return NocaseKeyword;
+conjunct    return ConjunctKeyword;
+implies     return ImpliesKeyword;
 }
 
 <SC_MODULE_PARAMETERS,SC_LOGGING,SC_PROFILER>

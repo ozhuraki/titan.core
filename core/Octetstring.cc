@@ -2422,10 +2422,12 @@ void OCTETSTRING_template::set_param(Module_Param& param) {
     *this = ANY_OR_OMIT;
     break;
   case Module_Param::MP_List_Template:
-  case Module_Param::MP_ComplementList_Template: {
+  case Module_Param::MP_ComplementList_Template:
+  case Module_Param::MP_ConjunctList_Template: {
     OCTETSTRING_template temp;
     temp.set_type(mp->get_type() == Module_Param::MP_List_Template ?
-      VALUE_LIST : COMPLEMENTED_LIST, mp->get_size());
+      VALUE_LIST : (mp->get_type() == Module_Param::MP_ConjunctList_Template ?
+      CONJUNCTION_MATCH : COMPLEMENTED_LIST), mp->get_size());
     for (size_t i=0; i<mp->get_size(); i++) {
       temp.list_item(i).set_param(*mp->get_elem(i));
     }
@@ -2437,6 +2439,13 @@ void OCTETSTRING_template::set_param(Module_Param& param) {
   case Module_Param::MP_Octetstring_Template:
     *this = OCTETSTRING_template(mp->get_string_size(), (unsigned short*)mp->get_string_data());
     break;
+  case Module_Param::MP_Implication_Template: {
+    OCTETSTRING_template* precondition = new OCTETSTRING_template;
+    precondition->set_param(*mp->get_elem(0));
+    OCTETSTRING_template* implied_template = new OCTETSTRING_template;
+    implied_template->set_param(*mp->get_elem(1));
+    *this = OCTETSTRING_template(precondition, implied_template);
+  } break;
   case Module_Param::MP_Expression:
     if (mp->get_expr_type() == Module_Param::EXPR_CONCATENATE) {
       OCTETSTRING operand1, operand2;
@@ -2481,9 +2490,13 @@ Module_Param* OCTETSTRING_template::get_param(Module_Param_Name& param_name) con
     mp = single_value.get_param(param_name);
     break;
   case VALUE_LIST:
-  case COMPLEMENTED_LIST: {
+  case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH: {
     if (template_selection == VALUE_LIST) {
       mp = new Module_Param_List_Template();
+    }
+    else if (template_selection == CONJUNCTION_MATCH) {
+      mp = new Module_Param_ConjunctList_Template();
     }
     else {
       mp = new Module_Param_ComplementList_Template();
@@ -2499,6 +2512,11 @@ Module_Param* OCTETSTRING_template::get_param(Module_Param_Name& param_name) con
       sizeof(unsigned short));
     mp = new Module_Param_Octetstring_Template(pattern_value->n_elements, val_cpy);
     break; }
+  case IMPLICATION_MATCH:
+    mp = new Module_Param_Implication_Template();
+    mp->add_elem(implication_.precondition->get_param(param_name));
+    mp->add_elem(implication_.implied_template->get_param(param_name));
+    break;
   case DECODE_MATCH:
     TTCN_error("Referencing a decoded content matching template is not supported.");
     break;

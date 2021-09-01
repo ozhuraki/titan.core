@@ -6468,6 +6468,10 @@ error:
         "runtime");
       return;
     }
+    if (my_sb->is_in_dynamic_template()) {
+      error("The @update statement is not allowed in the statement block of a dynamic template");
+      return;
+    }
     Common::Assignment* refd_ass = update_op.ref->get_refd_assignment(false);
     if (refd_ass != NULL) {
       switch (refd_ass->get_asstype()) {

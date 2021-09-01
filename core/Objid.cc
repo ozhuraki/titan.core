@@ -1100,10 +1100,12 @@ void OBJID_template::set_param(Module_Param& param) {
     *this = ANY_OR_OMIT;
     break;
   case Module_Param::MP_List_Template:
-  case Module_Param::MP_ComplementList_Template: {
+  case Module_Param::MP_ComplementList_Template:
+  case Module_Param::MP_ConjunctList_Template: {
     OBJID_template temp;
     temp.set_type(mp->get_type() == Module_Param::MP_List_Template ?
-      VALUE_LIST : COMPLEMENTED_LIST, mp->get_size());
+      VALUE_LIST : (mp->get_type() == Module_Param::MP_ConjunctList_Template ?
+      CONJUNCTION_MATCH : COMPLEMENTED_LIST), mp->get_size());
     for (size_t i=0; i<mp->get_size(); i++) {
       temp.list_item(i).set_param(*mp->get_elem(i));
     }
@@ -1113,6 +1115,13 @@ void OBJID_template::set_param(Module_Param& param) {
     if (sizeof(OBJID::objid_element)!=sizeof(int)) TTCN_error("Internal error: OBJID_template::set_param()"); 
     *this = OBJID(mp->get_string_size(), (OBJID::objid_element*)mp->get_string_data());
     break;
+  case Module_Param::MP_Implication_Template: {
+    OBJID_template* precondition = new OBJID_template;
+    precondition->set_param(*mp->get_elem(0));
+    OBJID_template* implied_template = new OBJID_template;
+    implied_template->set_param(*mp->get_elem(1));
+    *this = OBJID_template(precondition, implied_template);
+  } break;
   //case Module_Param::MP_Objid_Template:
   // TODO
   //break;
@@ -1143,9 +1152,13 @@ Module_Param* OBJID_template::get_param(Module_Param_Name& param_name) const
     mp = single_value.get_param(param_name);
     break;
   case VALUE_LIST:
-  case COMPLEMENTED_LIST: {
+  case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH: {
     if (template_selection == VALUE_LIST) {
       mp = new Module_Param_List_Template();
+    }
+    else if (template_selection == CONJUNCTION_MATCH) {
+      mp = new Module_Param_ConjunctList_Template();
     }
     else {
       mp = new Module_Param_ComplementList_Template();
@@ -1154,6 +1167,11 @@ Module_Param* OBJID_template::get_param(Module_Param_Name& param_name) const
       mp->add_elem(value_list.list_value[i].get_param(param_name));
     }
     break; }
+  case IMPLICATION_MATCH:
+    mp = new Module_Param_Implication_Template();
+    mp->add_elem(implication_.precondition->get_param(param_name));
+    mp->add_elem(implication_.implied_template->get_param(param_name));
+    break;
   default:
     TTCN_error("Referencing an uninitialized/unsupported objid template.");
     break;

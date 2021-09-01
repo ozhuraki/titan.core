@@ -2782,7 +2782,9 @@ end:
         u.implication.precondition->chk_immutability();
         u.implication.implied_template->chk_immutability();
         break;
-        // todo: dynamic matching?
+      case DYNAMIC_MATCH:
+        warning("Dynamic template may change the actual snapshot.");
+        break;
       default:
         FATAL_ERROR("Template::chk_immutability()");
     }
@@ -3361,6 +3363,8 @@ end:
     case BSTR_PATTERN: case HSTR_PATTERN: case OSTR_PATTERN:
     case CSTR_PATTERN: case USTR_PATTERN: case DECODE_MATCH:
     case TEMPLATE_CONCAT:
+    case IMPLICATION_MATCH:
+    case DYNAMIC_MATCH:
       break; // NOP
     }
 
@@ -3666,7 +3670,6 @@ end:
         erroneous = true;
         break;
       }
-      // todo: conjunction? implication? dynamic?
       break;
     case TR_PRESENT:
       if (is_ifpresent) {
@@ -3681,6 +3684,7 @@ end:
         needs_runtime_check = needs_runtime_check || nrc;
       } break;
       case VALUE_LIST:
+      case CONJUNCTION_MATCH:
         for (size_t i = 0; i < u.templates->get_nof_ts(); i++) {
           bool nrc = u.templates->get_t_byIndex(i)->
             chk_restriction(definition_name, template_restriction, usage_loc);
@@ -3722,6 +3726,10 @@ end:
           usage_loc);
         u.concat.op2->chk_restriction(definition_name, template_restriction,
           usage_loc);
+        break;
+      case IMPLICATION_MATCH:
+        u.implication.precondition->chk_restriction(definition_name, template_restriction, usage_loc);
+        u.implication.implied_template->chk_restriction(definition_name, template_restriction, usage_loc);
         break;
       default:
         break; // all others are ok
@@ -4240,6 +4248,8 @@ end:
     case USTR_PATTERN:  /**< universal charstring pattern */
     case TEMPLATE_INVOKE:
     case DECODE_MATCH:
+    case IMPLICATION_MATCH:
+    case DYNAMIC_MATCH:
       // Simple templates can be computed at compile time
       return true;
 
@@ -4250,6 +4260,7 @@ end:
     case SUPERSET_MATCH:
     case SUBSET_MATCH:
     case PERMUTATION_MATCH:
+    case CONJUNCTION_MATCH:
       for (size_t i = 0; i < u.templates->get_nof_ts(); i++)
         if (u.templates->get_t_byIndex(i)->compile_time()) continue;
         else return false;
@@ -5495,7 +5506,8 @@ compile_time:
 
     str = u.dynamic.fp_list->generate_shadow_objects(str);
 
-    // todo: what do we do with @update statements in the dynamic template's block?
+    // just use dummies for the global variable string pointers
+    // only @update statements use these, and they are not allowed in the dynamic template's block
     char* dummy_def_glob_vars = NULL;
     char* dummy_src_glob_vars = NULL;
     str = u.dynamic.sb->generate_code(str, dummy_def_glob_vars, dummy_src_glob_vars);

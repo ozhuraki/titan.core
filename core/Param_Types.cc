@@ -632,6 +632,12 @@ void Module_Param_Compound::add_list_with_implicit_ids(Vector<Module_Param*>* mp
   }
 }
 
+void Module_Param_Implication_Template::log_value() const {
+  values[0]->log();
+  TTCN_Logger::log_event_str(" implies ");
+  values[1]->log();
+}
+
 char* Module_Param::get_param_context() const {
   char* result = NULL;
   if (parent != NULL) {

@@ -1489,7 +1489,8 @@ void Record_Of_Template::set_param(Module_Param& param)
     set_value(ANY_OR_OMIT);
     break;
   case Module_Param::MP_List_Template:
-  case Module_Param::MP_ComplementList_Template: {
+  case Module_Param::MP_ComplementList_Template:
+  case Module_Param::MP_ConjunctList_Template: {
     Record_Of_Template** list_items = (Record_Of_Template**)
       allocate_pointers(mp->get_size());
     for (size_t i = 0; i < mp->get_size(); i++) {
@@ -1498,7 +1499,8 @@ void Record_Of_Template::set_param(Module_Param& param)
     }
     clean_up();
     template_selection = mp->get_type() == Module_Param::MP_List_Template ?
-      VALUE_LIST : COMPLEMENTED_LIST;
+      VALUE_LIST : (mp->get_type() == Module_Param::MP_ConjunctList_Template ?
+      CONJUNCTION_MATCH : COMPLEMENTED_LIST);
     value_list.n_values = mp->get_size();
     value_list.list_value = list_items;
     break; }
@@ -1535,6 +1537,16 @@ void Record_Of_Template::set_param(Module_Param& param)
       get_at((int)current->get_id()->get_index())->set_param(*current);
     }
     break;
+  case Module_Param::MP_Implication_Template: {
+    Record_Of_Template* precondition = create();
+    precondition->set_param(*mp->get_elem(0));
+    Record_Of_Template* implied_template = create();
+    implied_template->set_param(*mp->get_elem(1));
+    clean_up();
+    template_selection = IMPLICATION_MATCH;
+    implication_.precondition = precondition;
+    implication_.implied_template = implied_template;
+  } break;
   default:
     param.type_error("record of template", get_descriptor()->name);
   }
@@ -1586,9 +1598,13 @@ Module_Param* Record_Of_Template::get_param(Module_Param_Name& param_name) const
     values.clear();
     break; }
   case VALUE_LIST:
-  case COMPLEMENTED_LIST: {
+  case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH: {
     if (template_selection == VALUE_LIST) {
       mp = new Module_Param_List_Template();
+    }
+    else if (template_selection == CONJUNCTION_MATCH) {
+      mp = new Module_Param_ConjunctList_Template();
     }
     else {
       mp = new Module_Param_ComplementList_Template();
@@ -1597,6 +1613,11 @@ Module_Param* Record_Of_Template::get_param(Module_Param_Name& param_name) const
       mp->add_elem(value_list.list_value[i]->get_param(param_name));
     }
     break; }
+  case IMPLICATION_MATCH:
+    mp = new Module_Param_Implication_Template();
+    mp->add_elem(implication_.precondition->get_param(param_name));
+    mp->add_elem(implication_.implied_template->get_param(param_name));
+    break;
   default:
     TTCN_error("Referencing an uninitialized/unsupported template of type %s.", get_descriptor()->name);
     break;
@@ -2560,7 +2581,8 @@ void Set_Of_Template::set_param(Module_Param& param)
     set_value(ANY_OR_OMIT);
     break;
   case Module_Param::MP_List_Template:
-  case Module_Param::MP_ComplementList_Template: {
+  case Module_Param::MP_ComplementList_Template:
+  case Module_Param::MP_ConjunctList_Template: {
     Set_Of_Template** list_items = (Set_Of_Template**)
       allocate_pointers(mp->get_size());
     for (size_t i = 0; i < mp->get_size(); i++) {
@@ -2569,7 +2591,8 @@ void Set_Of_Template::set_param(Module_Param& param)
     }
     clean_up();
     template_selection = mp->get_type() == Module_Param::MP_List_Template ?
-      VALUE_LIST : COMPLEMENTED_LIST;
+      VALUE_LIST : (mp->get_type() == Module_Param::MP_ConjunctList_Template ?
+      CONJUNCTION_MATCH : COMPLEMENTED_LIST);
     value_list.n_values = mp->get_size();
     value_list.list_value = list_items;
     break; }
@@ -2596,6 +2619,16 @@ void Set_Of_Template::set_param(Module_Param& param)
       get_set_item((int)i)->set_param(*mp->get_elem(i));
     }
     break;
+  case Module_Param::MP_Implication_Template: {
+    Set_Of_Template* precondition = create();
+    precondition->set_param(*mp->get_elem(0));
+    Set_Of_Template* implied_template = create();
+    implied_template->set_param(*mp->get_elem(1));
+    clean_up();
+    template_selection = IMPLICATION_MATCH;
+    implication_.precondition = precondition;
+    implication_.implied_template = implied_template;
+  } break;
   default:
     param.type_error("set of template", get_descriptor()->name);
   }
@@ -2647,9 +2680,13 @@ Module_Param* Set_Of_Template::get_param(Module_Param_Name& param_name) const
     values.clear();
     break; }
   case VALUE_LIST:
-  case COMPLEMENTED_LIST: {
+  case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH: {
     if (template_selection == VALUE_LIST) {
       mp = new Module_Param_List_Template();
+    }
+    else if (template_selection == CONJUNCTION_MATCH) {
+      mp = new Module_Param_ConjunctList_Template();
     }
     else {
       mp = new Module_Param_ComplementList_Template();
@@ -2658,6 +2695,11 @@ Module_Param* Set_Of_Template::get_param(Module_Param_Name& param_name) const
       mp->add_elem(value_list.list_value[i]->get_param(param_name));
     }
     break; }
+  case IMPLICATION_MATCH:
+    mp = new Module_Param_Implication_Template();
+    mp->add_elem(implication_.precondition->get_param(param_name));
+    mp->add_elem(implication_.implied_template->get_param(param_name));
+    break;
   default:
     TTCN_error("Referencing an uninitialized/unsupported template of type %s.", get_descriptor()->name);
     break;
@@ -3296,7 +3338,8 @@ void Record_Template::set_param(Module_Param& param)
     set_value(ANY_OR_OMIT);
     break;
   case Module_Param::MP_List_Template:
-  case Module_Param::MP_ComplementList_Template: {
+  case Module_Param::MP_ComplementList_Template:
+  case Module_Param::MP_ConjunctList_Template: {
     Record_Template** list_items = (Record_Template**)
       allocate_pointers(mp->get_size());
     for (size_t i = 0; i < mp->get_size(); i++) {
@@ -3305,7 +3348,8 @@ void Record_Template::set_param(Module_Param& param)
     }
     clean_up();
     template_selection = mp->get_type() == Module_Param::MP_List_Template ?
-      VALUE_LIST : COMPLEMENTED_LIST;
+      VALUE_LIST : (mp->get_type() == Module_Param::MP_ConjunctList_Template ?
+      CONJUNCTION_MATCH : COMPLEMENTED_LIST);
     value_list.n_values = mp->get_size();
     value_list.list_value = list_items;
     break; }
@@ -3340,6 +3384,16 @@ void Record_Template::set_param(Module_Param& param)
       }
     }
     break;
+  case Module_Param::MP_Implication_Template: {
+    Record_Template* precondition = create();
+    precondition->set_param(*mp->get_elem(0));
+    Record_Template* implied_template = create();
+    implied_template->set_param(*mp->get_elem(1));
+    clean_up();
+    template_selection = IMPLICATION_MATCH;
+    implication_.precondition = precondition;
+    implication_.implied_template = implied_template;
+  } break;
   default:
     param.type_error("record/set template", get_descriptor()->name);
   }
@@ -3388,9 +3442,13 @@ Module_Param* Record_Template::get_param(Module_Param_Name& param_name) const
     }
     break; }
   case VALUE_LIST:
-  case COMPLEMENTED_LIST: {
+  case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH: {
     if (template_selection == VALUE_LIST) {
       mp = new Module_Param_List_Template();
+    }
+    else if (template_selection == CONJUNCTION_MATCH) {
+      mp = new Module_Param_ConjunctList_Template();
     }
     else {
       mp = new Module_Param_ComplementList_Template();
@@ -3399,6 +3457,11 @@ Module_Param* Record_Template::get_param(Module_Param_Name& param_name) const
       mp->add_elem(value_list.list_value[i]->get_param(param_name));
     }
     break; }
+  case IMPLICATION_MATCH:
+    mp = new Module_Param_Implication_Template();
+    mp->add_elem(implication_.precondition->get_param(param_name));
+    mp->add_elem(implication_.implied_template->get_param(param_name));
+    break;
   default:
     TTCN_error("Referencing an uninitialized/unsupported template of type %s.", get_descriptor()->name);
     break;
@@ -3787,7 +3850,8 @@ void Empty_Record_Template::set_param(Module_Param& param)
     set_value(ANY_OR_OMIT);
     break;
   case Module_Param::MP_List_Template:
-  case Module_Param::MP_ComplementList_Template: {
+  case Module_Param::MP_ComplementList_Template:
+  case Module_Param::MP_ConjunctList_Template: {
     Empty_Record_Template** list_items = (Empty_Record_Template**)
       allocate_pointers(mp->get_size());
     for (size_t i = 0; i < mp->get_size(); i++) {
@@ -3796,7 +3860,8 @@ void Empty_Record_Template::set_param(Module_Param& param)
     }
     clean_up();
     template_selection = mp->get_type() == Module_Param::MP_List_Template ?
-      VALUE_LIST : COMPLEMENTED_LIST;
+      VALUE_LIST : (mp->get_type() == Module_Param::MP_ConjunctList_Template ?
+      CONJUNCTION_MATCH : COMPLEMENTED_LIST);
     value_list.n_values = mp->get_size();
     value_list.list_value = list_items;
     break; }
@@ -3806,6 +3871,16 @@ void Empty_Record_Template::set_param(Module_Param& param)
     }
     else param.type_error("empty record/set template", get_descriptor()->name);
     break;
+  case Module_Param::MP_Implication_Template: {
+    Empty_Record_Template* precondition = create();
+    precondition->set_param(*mp->get_elem(0));
+    Empty_Record_Template* implied_template = create();
+    implied_template->set_param(*mp->get_elem(1));
+    clean_up();
+    template_selection = IMPLICATION_MATCH;
+    implication_.precondition = precondition;
+    implication_.implied_template = implied_template;
+  } break;
   default:
     param.type_error("empty record/set template", get_descriptor()->name);
   }
@@ -3832,9 +3907,13 @@ Module_Param* Empty_Record_Template::get_param(Module_Param_Name& param_name) co
     mp = new Module_Param_Value_List();
     break;
   case VALUE_LIST:
-  case COMPLEMENTED_LIST: {
+  case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH: {
     if (template_selection == VALUE_LIST) {
       mp = new Module_Param_List_Template();
+    }
+    else if (template_selection == CONJUNCTION_MATCH) {
+      mp = new Module_Param_ConjunctList_Template();
     }
     else {
       mp = new Module_Param_ComplementList_Template();
@@ -3843,6 +3922,11 @@ Module_Param* Empty_Record_Template::get_param(Module_Param_Name& param_name) co
       mp->add_elem(value_list.list_value[i]->get_param(param_name));
     }
     break; }
+  case IMPLICATION_MATCH:
+    mp = new Module_Param_Implication_Template();
+    mp->add_elem(implication_.precondition->get_param(param_name));
+    mp->add_elem(implication_.implied_template->get_param(param_name));
+    break;
   default:
     TTCN_error("Referencing an uninitialized/unsupported template of type %s.", get_descriptor()->name);
     break;

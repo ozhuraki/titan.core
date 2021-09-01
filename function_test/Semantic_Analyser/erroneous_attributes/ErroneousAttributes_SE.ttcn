@@ -104,6 +104,11 @@ function f_bad_updates() { //^In function definition//
   @update(PT); //^In @update statement// //Reference to constant or template definition was expected instead of type//
 }
 
+template integer t_dyn := @dynamic { //^In template definition// 
+  @update(c_rec) with { erroneous(str) "after(raw) := \"abc\"" } //^In @update statement// //The @update statement is not allowed in the statement block of a dynamic template//
+  return true;
+}
+
 signature Sig(inout integer p);
 
 type port PT procedure {

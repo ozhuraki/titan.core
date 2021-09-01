@@ -2673,10 +2673,12 @@ void INTEGER_template::set_param(Module_Param& param) {
     *this = ANY_OR_OMIT;
     break;
   case Module_Param::MP_List_Template:
-  case Module_Param::MP_ComplementList_Template: {
+  case Module_Param::MP_ComplementList_Template:
+  case Module_Param::MP_ConjunctList_Template: {
     INTEGER_template temp;
     temp.set_type(mp->get_type() == Module_Param::MP_List_Template ?
-      VALUE_LIST : COMPLEMENTED_LIST, mp->get_size());
+      VALUE_LIST : (mp->get_type() == Module_Param::MP_ConjunctList_Template ?
+      CONJUNCTION_MATCH : COMPLEMENTED_LIST), mp->get_size());
     for (size_t i=0; i<mp->get_size(); i++) {
       temp.list_item(i).set_param(*mp->get_elem(i));
     }
@@ -2701,6 +2703,13 @@ void INTEGER_template::set_param(Module_Param& param) {
       set_max(tmp);
     }
     set_max_exclusive(mp->get_is_max_exclusive());
+  } break;
+  case Module_Param::MP_Implication_Template: {
+    INTEGER_template* precondition = new INTEGER_template;
+    precondition->set_param(*mp->get_elem(0));
+    INTEGER_template* implied_template = new INTEGER_template;
+    implied_template->set_param(*mp->get_elem(1));
+    *this = INTEGER_template(precondition, implied_template);
   } break;
   case Module_Param::MP_Expression:
     switch (mp->get_expr_type()) {
@@ -2773,9 +2782,13 @@ Module_Param* INTEGER_template::get_param(Module_Param_Name& param_name) const
     }
     break;
   case VALUE_LIST:
-  case COMPLEMENTED_LIST: {
+  case COMPLEMENTED_LIST:
+  case CONJUNCTION_MATCH: {
     if (template_selection == VALUE_LIST) {
       mp = new Module_Param_List_Template();
+    }
+    else if (template_selection == CONJUNCTION_MATCH) {
+      mp = new Module_Param_ConjunctList_Template();
     }
     else {
       mp = new Module_Param_ComplementList_Template();
@@ -2805,6 +2818,11 @@ Module_Param* INTEGER_template::get_param(Module_Param_Name& param_name) const
     }
     mp = new Module_Param_IntRange(lower_bound, upper_bound, value_range.min_is_exclusive, value_range.max_is_exclusive);
     break; }
+  case IMPLICATION_MATCH:
+    mp = new Module_Param_Implication_Template();
+    mp->add_elem(implication_.precondition->get_param(param_name));
+    mp->add_elem(implication_.implied_template->get_param(param_name));
+    break;
   default:
     TTCN_error("Referencing an uninitialized/unsupported integer template.");
     break;
