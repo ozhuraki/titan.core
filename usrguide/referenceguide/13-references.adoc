@@ -80,3 +80,6 @@
 
 [[_27]]
 * [27] link:https://www.etsi.org/deliver/etsi_es/203700_203799/203790/01.01.01_60/es_203790v010101p.pdf[ETSI ES 203 790 V1.1.1. (2015-06 Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extensions: Object-Oriented Features)]
+
+[[_28]]
+* [28] link:https://www.etsi.org/deliver/etsi_es/203000_203099/203022/01.04.01_60/es_203022v010401p.pdf[ETSI ES 203 790 V1.1.1. (2015-06 Methods for Testing and Specification (MTS); The Testing and Test Control Notation version 3; TTCN-3 Language Extension: Advanced Matching)]

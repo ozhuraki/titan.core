@@ -9335,3 +9335,43 @@ var octetstring res2 := f_enc_rec(val);
 ----
 
 * Sending and receiving operations on union values also ignore the `@default` modifier, even if the default alternative is in the port's incoming/outgoing list and the union type is not.
+
+== Advanced matching
+
+TITAN supports the conjunction, implication and dynamic matching mechanisms described in the TTCN-3 standard extension `Advanced matching` (ETSI ES 203 022 V1.4.1, <<13-references.adoc#_28, [28]>>) with the clarifications and limitations described in this section.
+
+* Dynamic matching templates cannot be assigned to module parameters in the configuration file. They can be assigned as module parameter initial values in TTCN-3 modules.
+* A dynamic template's statement block cannot contain the `@update` operation.
+* The special keyword `value` within a dynamic template's statement block represents the value being matched. It behaves as a reference to an imaginary `in` formal parameter, whose name is `value` and whose type is the same as the type of the dynamic template. The value of `value` can be changed inside the statement block, which will not change the original value being matched.
+* A `length` and/or `ifpresent` attribute at the end of an implication match template belongs to the second operand of the implication (i.e. the implied template) and not to the resulting template. If there are two sets of `length`/`ifpresent` attributes at the end of an implication match template, then the first set belongs to the second operand, and the second set belongs to the resulting template.
+
+For example:
+[source]
+----
+template charstring t1 := ? length (1..4) ifpresent implies ? length (2..3) ifpresent;
+// the 2nd operand of t1 is '? length (2..3) ifpresent'
+// and the resulting template has no 'length' or 'ifpresent' attributes
+
+template charstring t2 := ? length (1..4) ifpresent implies ? length (2..3) ifpresent length (3) ifpresent;
+// the 2nd operand of t2 is '? length (2..3) ifpresent'
+// and the resulting template has the attributes 'length (3) ifpresent'
+
+template charstring t3 := (? length (1..4) ifpresent implies ? length (2..3) ifpresent) length (3) ifpresent;
+// t3 is the same as t2, but easier to read
+
+template charstring t4 := ? length (1..4) ifpresent implies (? length (2..3) ifpresent) length (3) ifpresent;
+// the 2nd operand of t4 is interpreted as a value list match with 1 element, 
+// which cannot have the 'ifpresent' modifier, so this causes a semantic error
+----
+
+* If a type indicator precedes an implication match template, then the type indicator belonds to the type of the first operand (i.e. the precondition), not to the resulting template. Two type indicators cannot precede an implication match template.
+
+For example:
+[source]
+----
+log(match(3, integer: (1..3) implies integer: 3));
+// the 1st operand of the matching template is 'integer: (1..3)'
+
+log(match(3, integer: integer: (1..3) implies integer: 3));
+// causes a parsing error
+----
