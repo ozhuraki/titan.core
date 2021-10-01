@@ -3067,11 +3067,11 @@ namespace Ttcn {
   // =================================
   
   ClassTypeBody::ClassTypeBody(Common::Identifier* p_class_id, boolean p_external, boolean p_final,
-                               boolean p_abstract, Common::Type* p_base_type,
+                               boolean p_abstract, boolean p_trait, Types* p_base_types,
                                Reference* p_runs_on_ref, Reference* p_mtc_ref, Reference* p_system_ref,
                                Definitions* p_members, StatementBlock* p_finally_block)
   : Scope(), Location(), class_id(p_class_id), my_def(NULL), external(p_external), final(p_final),
-    abstract(p_abstract), built_in(FALSE), base_type(p_base_type), base_class(NULL),
+    abstract(p_abstract), trait(p_trait), built_in(FALSE), base_type(NULL), base_traits(p_base_types), base_class(NULL),
     runs_on_ref(p_runs_on_ref), runs_on_type(NULL), mtc_ref(p_mtc_ref),
     mtc_type(NULL), system_ref(p_system_ref), system_type(NULL),
     members(p_members), finally_block(p_finally_block), constructor(NULL), checked(false),
@@ -3088,8 +3088,8 @@ namespace Ttcn {
   
   ClassTypeBody::ClassTypeBody()
   : Scope(), Location(), class_id(NULL), my_def(NULL), external(FALSE), final(FALSE),
-    abstract(TRUE), built_in(TRUE), base_type(NULL), base_class(NULL),
-    runs_on_ref(NULL), runs_on_type(NULL), mtc_ref(NULL),
+    abstract(TRUE), trait(FALSE), built_in(TRUE), base_type(NULL), base_class(NULL),
+    base_traits(NULL), runs_on_ref(NULL), runs_on_type(NULL), mtc_ref(NULL),
     mtc_type(NULL), system_ref(NULL), system_type(NULL),
     members(NULL), finally_block(NULL), constructor(NULL), checked(false),
     default_constructor(false)
@@ -3105,11 +3105,16 @@ namespace Ttcn {
     external = p.external;
     final = p.final;
     abstract = p.abstract;
+    trait = p.trait;
     base_type = p.base_type != NULL ? p.base_type->clone() : NULL;
     base_class = p.base_class;
+    base_traits = p.base_traits != NULL ? p.base_traits->clone() : NULL;
     runs_on_ref = p.runs_on_ref != NULL ? p.runs_on_ref->clone() : NULL;
+    runs_on_type = p.runs_on_type;
     mtc_ref = p.mtc_ref != NULL ? p.mtc_ref->clone() : NULL;
+    mtc_type = p.mtc_type;
     system_ref = p.system_ref != NULL ? p.system_ref->clone() : NULL;
+    system_type = p.system_type;
     members = p.members != NULL ? p.members->clone() : NULL;
     finally_block = p.finally_block != NULL ? p.finally_block->clone() : NULL;
     default_constructor = p.default_constructor;
@@ -3128,6 +3133,7 @@ namespace Ttcn {
       return;
     }
     delete base_type;
+    delete base_traits;
     delete finally_block;
     delete members;
     delete mtc_ref;
@@ -3156,6 +3162,9 @@ namespace Ttcn {
     if (base_type != NULL) {
       base_type->set_fullname(p_fullname + ".<superclass>");
     }
+    if (base_traits != NULL) {
+      base_traits->set_fullname(p_fullname + ".<supertraits>");
+    }
     if (runs_on_ref != NULL) {
       runs_on_ref->set_fullname(p_fullname + ".<runs_on_type>");
     }
@@ -3180,6 +3189,9 @@ namespace Ttcn {
     if (base_type != NULL) {
       base_type->set_my_scope(p_scope);
     }
+    if (base_traits != NULL) {
+      base_traits->set_my_scope(p_scope);
+    }
     if (runs_on_ref != NULL) {
       runs_on_ref->set_my_scope(p_scope);
     }
@@ -3203,8 +3215,18 @@ namespace Ttcn {
     }
     DEBUG(level, "Modifiers:%s%s%s", external ? "external " : "",
       final ? " @final " : "", abstract ? " @abstract" : "");
-    DEBUG(level, "Base class: %s", base_type != NULL ?
-      base_type->get_typename().c_str() : "");
+    DEBUG(level, "Base classes:");
+    if (base_type != NULL) {
+      DEBUG(level + 1, base_type->get_typename().c_str());
+    }
+    if (base_traits != NULL) {
+      for (size_t i = 0; i < base_traits->get_nof_types(); ++i) {
+        Type* base_trait = base_traits->get_type_byIndex(i);
+        if (base_trait != NULL) {
+          DEBUG(level + 1, base_trait->get_typename().c_str());
+        }
+      }
+    }
     if (runs_on_ref != NULL) {
       DEBUG(level, "Runs on clause:");
       runs_on_ref->dump(level + 1);
@@ -3268,13 +3290,22 @@ namespace Ttcn {
     if (!checked) {
       chk();
     }
-    if (this == p_class || p_class->built_in) {
+    if (this == p_class || (!trait && p_class->built_in)) {
       return true;
     }
-    if (base_class == NULL) {
-      return false;
+    if (base_class != NULL && base_class->is_parent_class(p_class)) {
+      return true;
     }
-    return base_class->is_parent_class(p_class);
+    if (base_traits != NULL) {
+      for (size_t i = 0; i < base_traits->get_nof_types(); ++i) {
+        Type* base_trait = base_traits->get_type_byIndex(i);
+        if (base_trait != NULL &&
+            base_trait->get_type_refd_last()->get_class_type_body()->is_parent_class(p_class)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
   
   bool ClassTypeBody::has_local_ass_withId(const Identifier& p_id)
@@ -3288,12 +3319,19 @@ namespace Ttcn {
     if (members->has_local_ass_withId(p_id)) {
       return true;
     }
-    if (base_class != NULL) {
-      return base_class->has_local_ass_withId(p_id);
+    if (base_class != NULL && base_class->has_local_ass_withId(p_id)) {
+      return true;
     }
-    else {
-      return false;
+    if (base_traits) {
+      for (size_t i = 0; i < base_traits->get_nof_types(); ++i) {
+        Type* base_trait = base_traits->get_type_byIndex(i);
+        if (base_trait != NULL &&
+            base_trait->get_type_refd_last()->get_class_type_body()->has_local_ass_withId(p_id)) {
+          return true;
+        }
+      }
     }
+    return false;
   }
   
   Common::Assignment* ClassTypeBody::get_local_ass_byId(const Identifier& p_id)
@@ -3310,6 +3348,17 @@ namespace Ttcn {
     }
     if (ass == NULL && base_class != NULL) {
       ass = base_class->get_local_ass_byId(p_id);
+    }
+    if (ass == NULL && base_traits != NULL) {
+      for (size_t i = 0; i < base_traits->get_nof_types(); ++i) {
+        Type* base_trait = base_traits->get_type_byIndex(i);
+        if (base_trait != NULL) {
+          ass = base_trait->get_type_refd_last()->get_class_type_body()->get_local_ass_byId(p_id);
+          if (ass != NULL) {
+            break;
+          }
+        }
+      }
     }
     return ass;
   }
@@ -3347,7 +3396,7 @@ namespace Ttcn {
       ass->get_id().get_dispname().c_str(), class_id->get_dispname().c_str());
     return false;
   }
-  
+
   Common::Assignment* ClassTypeBody::get_ass_bySRef(Common::Ref_simple* p_ref)
   {
     if (built_in) {
@@ -3379,13 +3428,13 @@ namespace Ttcn {
         // nothing special is needed for 'this.field' or 'this.method'
         // (it's already been handled at the lower scopes)
       }
-      
+
       if (id != NULL && has_local_ass_withId(*id)) {
         Common::Assignment* ass = get_local_ass_byId(*id);
         if (ass == NULL) {
           FATAL_ERROR("ClassTypeBody::get_ass_bySRef()");
         }
-        
+
         if (chk_visibility(ass, p_ref, p_ref->get_my_scope())) {
           return ass;
         }
@@ -3397,38 +3446,177 @@ namespace Ttcn {
     return parent_scope->get_ass_bySRef(p_ref);
   }
   
+  bool ClassTypeBody::compare_members(ClassTypeBody* c1, ClassTypeBody* c2, Location* subclass_loc)
+  {
+    // if subclass_loc is NULL, then c1 is the subclass and c2 is the base class or a base trait
+    // otherwise both c1 and c2 are inherited by the subclass
+    if (subclass_loc != NULL && (c1->is_parent_class(c2) || c2->is_parent_class(c1))) {
+      return false;
+    }
+    bool name_clash = false;
+    for (size_t i = 0; i < c1->members->get_nof_asss(); ++i) {
+      Common::Assignment* def1 = c1->members->get_ass_byIndex(i, false);
+      if (def1->get_asstype() == Common::Assignment::A_CONSTRUCTOR) {
+        continue;
+      }
+      const Common::Identifier& id1 = def1->get_id();
+      if (c2->has_local_ass_withId(id1)) {
+        Common::Assignment* def2 = c2->get_local_ass_byId(id1);
+        ClassTypeBody* def2_class = def2->get_my_scope()->get_scope_class();
+        if (subclass_loc != NULL &&
+            def2_class != c2 && def2_class != c1 && c1->is_parent_class(def2_class)) {
+          // def2 is defined in a trait class that is inherited by both c1 and c2,
+          // ignore this comparison
+          continue;
+        }
+        switch (def1->get_asstype()) {
+        case Common::Assignment::A_FUNCTION:
+        case Common::Assignment::A_FUNCTION_RVAL:
+        case Common::Assignment::A_FUNCTION_RTEMP:
+        case Common::Assignment::A_EXT_FUNCTION:
+        case Common::Assignment::A_EXT_FUNCTION_RVAL:
+        case Common::Assignment::A_EXT_FUNCTION_RTEMP:
+          switch (def2->get_asstype()) {
+          case Common::Assignment::A_FUNCTION:
+          case Common::Assignment::A_FUNCTION_RVAL:
+          case Common::Assignment::A_FUNCTION_RTEMP:
+          case Common::Assignment::A_EXT_FUNCTION:
+          case Common::Assignment::A_EXT_FUNCTION_RVAL:
+          case Common::Assignment::A_EXT_FUNCTION_RTEMP: {
+            Def_Function_Base* func1 = dynamic_cast<Def_Function_Base*>(def1);
+            Def_Function_Base* func2 = dynamic_cast<Def_Function_Base*>(def2);
+            bool func1_is_abstract = dynamic_cast<Def_AbsFunction*>(func1) != NULL;
+            bool func2_is_abstract = dynamic_cast<Def_AbsFunction*>(func2) != NULL;
+            bool functions_are_identical = func1->is_identical(func2);
+            if (func2->get_visibility() != PRIVATE &&
+                (!functions_are_identical || func1_is_abstract != func2_is_abstract)) {
+              if (subclass_loc == NULL && !functions_are_identical) {
+                def1->error("The prototype of method `%s' is not identical "
+                  "to that of inherited method `%s'",
+                  id1.get_dispname().c_str(), def2->get_fullname().c_str());
+              }
+              else if (subclass_loc != NULL && func1->get_visibility() != PRIVATE) {
+                subclass_loc->error("The prototypes of methods `%s' inherited from "
+                  "classes `%s' and `%s' are not identical",
+                  id1.get_dispname().c_str(), c1->get_id()->get_dispname().c_str(),
+                  c2->get_id()->get_dispname().c_str());
+              }
+            }
+            else if (subclass_loc == NULL && func2->is_final()) {
+              def1->error("Cannot override final method `%s'",
+                def2->get_fullname().c_str());
+            }
+            else if (subclass_loc == NULL && func1->is_identical(func2)) {
+              if (func2->get_visibility() == PUBLIC && func1->get_visibility() != PUBLIC) {
+                def1->error("Public methods can be only overridden by public methods `%s'",
+                  id1.get_dispname().c_str());
+              }
+              else if (func2->get_visibility() == NOCHANGE &&
+                       func1->get_visibility() != PUBLIC && func1->get_visibility() != NOCHANGE) {
+                def1->error("Protected methods can be only overridden by "
+                  "public or protected methods `%s'", id1.get_dispname().c_str());
+              }
+            }
+            break; }
+          default:
+            def1->error("%s shadows inherited member `%s'",
+              def1->get_description().c_str(), def2->get_fullname().c_str());
+            name_clash = true;
+            break;
+          }
+          break;
+        default:
+          def1->error("%s shadows inherited %s `%s'",
+            def1->get_description().c_str(),
+            dynamic_cast<Def_Function_Base*>(def2) != NULL ? "method" : "member",
+            def2->get_fullname().c_str());
+          name_clash = true;
+          break;
+        }
+      }
+    }
+    if (subclass_loc != NULL) {
+      // the code above only goes through the local members of c1,
+      // comparing them to local or inherited members of c2;
+      // the members in the superclass and supertraits of c1 must also be compared to c2
+      if (c1->base_class != NULL) {
+        name_clash |= compare_members(c1->base_class, c2, subclass_loc);
+      }
+      if (c1->base_traits != NULL) {
+        for (size_t i = 0; i < c1->base_traits->get_nof_types(); ++i) {
+          Type* base_trait = c1->base_traits->get_type_byIndex(i);
+          if (base_trait != NULL) {
+            ClassTypeBody* base_trait_class = base_trait->get_type_refd_last()->get_class_type_body();
+            name_clash |= compare_members(base_trait_class, c2, subclass_loc);
+          }
+        }
+      }
+    }
+    return name_clash;
+  }
+  
   void ClassTypeBody::chk()
   {
     if (checked || built_in) {
       return;
     }
     checked = true;
-    if (final && abstract) {
-      error("Final classes cannot be abstract");
+    if ((final && abstract) || (final && trait) || (abstract && trait)) {
+      error("A classes cannot have more than one of the @final, @abstract and @trait modifiers");
     }
-    if (external && abstract) {
+    if (external && abstract) { // todo
       error("External classes cannot be abstract");
     }
-    if (base_type != NULL) {
-      Error_Context cntxt(base_type, "In superclass definition");
-      base_type->chk();
-      if (base_type->get_type_refd_last()->get_typetype() != Common::Type::T_CLASS) {
-        if (base_type->get_typetype() != Common::Type::T_ERROR) {
-          base_type->error("Class type expected instead of `%s'",
-            base_type->get_typename().c_str());
+    if (base_traits != NULL) {
+      for (size_t i = 0; i < base_traits->get_nof_types(); ++i) {
+        Type* t = base_traits->get_type_byIndex(i);
+        Error_Context cntxt(t, "In superclass or supertrait definition");
+        t->chk();
+        if (t->get_type_refd_last()->get_typetype() != Common::Type::T_CLASS) {
+          if (t->get_typetype() != Common::Type::T_ERROR) {
+            t->error("Class type expected instead of `%s'", t->get_typename().c_str());
+          }
+          base_traits->extract_type_byIndex(i);
+          delete t;
         }
-        delete base_type;
-        base_type = NULL;
+        else {
+          ClassTypeBody* t_class = t->get_type_refd_last()->get_class_type_body();
+          if (!t_class->trait) {
+            if (trait) {
+              t->error("A trait class cannot extend a non-trait class");
+            }
+            else if (base_type != NULL) {
+              t->error("A class cannot extend more than one non-trait class");
+              base_type->note("Previous extended non-trait class is here");
+            }
+            else {
+              base_traits->extract_type_byIndex(i);
+              base_type = t;
+              base_class = t_class;
+              if (base_class->final) {
+                base_type->error("The superclass cannot be final");
+              }
+              if (external && !base_class->external) {
+                base_type->error("An external class cannot extend an internal class");
+              }
+            }
+          }
+          for (size_t j = 0; j < i; ++j) {
+            Type* t2 = base_traits->get_type_byIndex(j);
+            if (t2 != NULL && t2->get_typename() == t->get_typename()) {
+              t->error("Duplicate class type in list of classes being extended");
+              t2->note("Class type `%s' is already given here", t->get_typename().c_str());
+            }
+          }
+        }
       }
-      else {
-        base_class = base_type->get_type_refd_last()->get_class_type_body();
-        if (base_class->final) {
-          base_type->error("The superclass cannot be final");
-        }
-        if (external && !base_class->external) {
-          base_type->error("An external class cannot extend an internal class");
-        }
-      }
+    }
+    if (base_class != NULL && base_class->built_in) {
+      // if the base class is 'object', then just delete it and set it to NULL,
+      // so it functions the same way as not specifying a base class
+      delete base_type;
+      base_type = NULL;
+      base_class = NULL;
     }
     
     if (runs_on_ref != NULL) {
@@ -3489,6 +3677,64 @@ namespace Ttcn {
       system_type = base_class->get_SystemType();
     }
     
+    if (base_traits != NULL) {
+      for (size_t i = 0; i < base_traits->get_nof_types(); ++i) {
+        Type* base_trait = base_traits->get_type_byIndex(i);
+        if (base_trait != NULL) {
+          ClassTypeBody* base_trait_class = base_trait->get_type_refd_last()->
+            get_class_type_body();
+          Type* base_runs_on_type = base_trait_class->get_RunsOnType();
+          if (base_runs_on_type != NULL) {
+            if (runs_on_type == NULL) {
+              error("Supertrait `%s' has a `runs on` component type, "
+                "but the subclass and its superclass does not",
+                base_trait_class->class_id->get_dispname().c_str());
+            }
+            else if(!base_runs_on_type->is_compatible(runs_on_type, NULL, NULL)) {
+              runs_on_ref->error("The `runs on' component type of the subclass "
+                "(`%s') is not compatible with the `runs on' component type of "
+                "supertrait `%s' (`%s')",
+                runs_on_type->get_typename().c_str(),
+                base_trait_class->class_id->get_dispname().c_str(),
+                base_runs_on_type->get_typename().c_str());
+            }
+          }
+          Type* base_mtc_type = base_trait_class->get_MtcType();
+          if (base_mtc_type != NULL) {
+            if (mtc_type == NULL) {
+              error("Supertrait `%s' has an `mtc` component type, "
+                "but the subclass and its superclass does not",
+                base_trait_class->class_id->get_dispname().c_str());
+            }
+            else if(!base_mtc_type->is_compatible(mtc_type, NULL, NULL)) {
+              mtc_ref->error("The `mtc' component type of the subclass "
+                "(`%s') is not compatible with the `mtc' component type of "
+                "supertrait `%s' (`%s')",
+                mtc_type->get_typename().c_str(),
+                base_trait_class->class_id->get_dispname().c_str(),
+                base_mtc_type->get_typename().c_str());
+            }
+          }
+          Type* base_system_type = base_trait_class->get_SystemType();
+          if (base_system_type != NULL) {
+            if (system_type == NULL) {
+              error("Supertrait `%s' has an `system` component type, "
+                "but the subclass and its superclass does not",
+                base_trait_class->class_id->get_dispname().c_str());
+            }
+            else if(!base_system_type->is_compatible(system_type, NULL, NULL)) {
+              system_ref->error("The `system' component type of the subclass "
+                "(`%s') is not compatible with the `system' component type of "
+                "supertrait `%s' (`%s')",
+                system_type->get_typename().c_str(),
+                base_trait_class->class_id->get_dispname().c_str(),
+                base_system_type->get_typename().c_str());
+            }
+          }
+        }
+      }
+    }
+
     for (size_t i = 0; i < members->get_nof_asss(); ++i) {
       Common::Assignment* ass = members->get_ass_byIndex(i, false);
       if (ass->get_asstype() == Common::Assignment::A_CONSTRUCTOR) {
@@ -3519,68 +3765,10 @@ namespace Ttcn {
       }
     }
 
-    bool name_clash = false;
-    if (base_class != NULL || runs_on_type != NULL || mtc_type != NULL || system_type != NULL) {
+    if (runs_on_type != NULL || mtc_type != NULL || system_type != NULL) {
       for (size_t i = 0; i < members->get_nof_asss(); ++i) {
         Common::Assignment* local_def = members->get_ass_byIndex(i, false);
         const Common::Identifier& local_id = local_def->get_id();
-        if (base_class != NULL &&
-            local_def->get_asstype() != Common::Assignment::A_CONSTRUCTOR &&
-            base_class->has_local_ass_withId(local_id)) {
-          Common::Assignment* base_def = base_class->get_local_ass_byId(local_id);
-          switch (local_def->get_asstype()) {
-          case Common::Assignment::A_FUNCTION:
-          case Common::Assignment::A_FUNCTION_RVAL:
-          case Common::Assignment::A_FUNCTION_RTEMP:
-          case Common::Assignment::A_EXT_FUNCTION:
-          case Common::Assignment::A_EXT_FUNCTION_RVAL:
-          case Common::Assignment::A_EXT_FUNCTION_RTEMP:
-            switch (base_def->get_asstype()) {
-            case Common::Assignment::A_FUNCTION:
-            case Common::Assignment::A_FUNCTION_RVAL:
-            case Common::Assignment::A_FUNCTION_RTEMP:
-            case Common::Assignment::A_EXT_FUNCTION:
-            case Common::Assignment::A_EXT_FUNCTION_RVAL:
-            case Common::Assignment::A_EXT_FUNCTION_RTEMP: {
-              Def_Function_Base* local_func = dynamic_cast<Def_Function_Base*>(local_def);
-              Def_Function_Base* base_func = dynamic_cast<Def_Function_Base*>(base_def);
-              if (base_func->get_visibility() != PRIVATE && !local_func->is_identical(base_func)) {
-                local_def->error("The prototype of method `%s' is not identical "
-                  "to that of inherited method `%s'",
-                  local_id.get_dispname().c_str(), base_def->get_fullname().c_str());
-              }
-              else if (base_func->is_final()) {
-                local_def->error("Cannot override final method `%s'",
-                  base_def->get_fullname().c_str());
-              }
-              else if (local_func->is_identical(base_func)) {
-            	  if (base_func->get_visibility() == PUBLIC && local_func->get_visibility() != PUBLIC) {
-            		  local_def->error("Public methods can be only overridden by public methods `%s'",
-            		    local_id.get_dispname().c_str());
-            	  }
-            	  else if (base_func->get_visibility() == NOCHANGE &&
-            			   local_func->get_visibility() != PUBLIC && local_func->get_visibility() != NOCHANGE) {
-            		  local_def->error("Protected methods can be only overridden by "
-            		    "public or protected methods `%s'", local_id.get_dispname().c_str());
-            	  }
-              }
-              break; }
-            default:
-              local_def->error("%s shadows inherited member `%s'",
-                local_def->get_description().c_str(), base_def->get_fullname().c_str());
-              name_clash = true;
-              break;
-            }
-            break;
-          default:
-            local_def->error("%s shadows inherited %s `%s'",
-              local_def->get_description().c_str(),
-              dynamic_cast<Def_Function_Base*>(base_def) != NULL ? "method" : "member",
-              base_def->get_fullname().c_str());
-            name_clash = true;
-            break;
-          }
-        }
         if (runs_on_type != NULL && runs_on_type->get_CompBody()->has_local_ass_withId(local_id)) {
           local_def->error("%s shadows a definition in runs-on component type `%s'",
             local_def->get_description().c_str(), runs_on_type->get_typename().c_str());
@@ -3596,7 +3784,37 @@ namespace Ttcn {
       }
     }
     
-    if (constructor == NULL && !name_clash) {
+    bool name_clash = false;
+    if (base_class != NULL) {
+      name_clash = compare_members(this, base_class);
+    }
+    if (base_traits != NULL) {
+      for (size_t i = 0; i < base_traits->get_nof_types(); ++i) {
+        Type* base_trait = base_traits->get_type_byIndex(i);
+        if (base_trait != NULL) {
+          ClassTypeBody* base_trait_class = base_trait->get_type_refd_last()->
+            get_class_type_body();
+          name_clash |= compare_members(this, base_trait_class);
+          if (base_class != NULL) {
+            name_clash |= compare_members(base_class, base_trait_class, this);
+          }
+          for (size_t j = 0; j < i; ++j) {
+            Type* base_trait2 = base_traits->get_type_byIndex(j);
+            if (base_trait2 != NULL) {
+              ClassTypeBody* base_trait_class2 = base_trait2->get_type_refd_last()->
+                get_class_type_body();
+              name_clash |= compare_members(base_trait_class, base_trait_class2, this);
+            }
+          }
+        }
+      }
+    }
+
+    if (constructor != NULL && trait) {
+      constructor->error("Trait class type `%s' cannot have a constructor",
+        my_def->get_Type()->get_typename().c_str());
+    }
+    if (constructor == NULL && !name_clash && !trait) {
       // create a default constructor
       Reference* base_call = NULL;
       FormalParList* fp_list = NULL;
@@ -3668,6 +3886,10 @@ namespace Ttcn {
     if (finally_block != NULL) {
       Error_Context cntxt(finally_block, "In class destructor");
       finally_block->chk();
+      if (trait) {
+        finally_block->error("Trait class type `%s' cannot have a destructor",
+          my_def->get_Type()->get_typename().c_str());
+      }
     }
     
     if (external) {
@@ -3690,12 +3912,27 @@ namespace Ttcn {
       }
     }
     
-    if (abstract) {
+    if (abstract || trait) {
       // create a map of all abstract functions (including inherited ones)
       if (base_class != NULL && base_class->abstract) {
         for (size_t i = 0; i < base_class->abstract_functions.size(); ++i) {
           abstract_functions.add(base_class->abstract_functions.get_nth_key(i),
             base_class->abstract_functions.get_nth_elem(i));
+        }
+      }
+      if (base_traits != NULL) {
+        for (size_t i = 0; i < base_traits->get_nof_types(); ++i) {
+          Type* base_trait = base_traits->get_type_byIndex(i);
+          if (base_trait != NULL) {
+            ClassTypeBody* base_trait_class = base_trait->get_type_refd_last()->
+              get_class_type_body();
+            for (size_t j = 0; j < base_trait_class->abstract_functions.size(); ++j) {
+              const string& key = base_trait_class->abstract_functions.get_nth_key(j);
+              if (!abstract_functions.has_key(key)) {
+                abstract_functions.add(key, base_trait_class->abstract_functions.get_nth_elem(j));
+              }
+            }
+          }
         }
       }
       for (size_t i = 0; i < members->get_nof_asss(); ++i) {
@@ -3718,26 +3955,57 @@ namespace Ttcn {
       }
     }
     
-    if (!abstract && base_class != NULL && base_class->abstract) {
-      // all abstract methods from the base class have to be implemented in this class
-      for (size_t i = 0; i < base_class->abstract_functions.size(); ++i) {
-        Def_AbsFunction* def_abs_func = base_class->abstract_functions.get_nth_elem(i);
-        Common::Assignment* ass = get_local_ass_byId(def_abs_func->get_id());
-        switch (ass->get_asstype()) {
-        case Common::Assignment::A_FUNCTION:
-        case Common::Assignment::A_FUNCTION_RVAL:
-        case Common::Assignment::A_FUNCTION_RTEMP: {
-          if (dynamic_cast<Def_AbsFunction*>(ass) != NULL) {
-            error("Missing implementation of abstract method `%s'",
-              def_abs_func->get_fullname().c_str());
+    if (!abstract && !trait) {
+      // all abstract methods from the base class and base traits have to be implemented in this class
+      if (base_class != NULL && base_class->abstract) {
+        for (size_t i = 0; i < base_class->abstract_functions.size(); ++i) {
+          Def_AbsFunction* def_abs_func = base_class->abstract_functions.get_nth_elem(i);
+          Common::Assignment* ass = get_local_ass_byId(def_abs_func->get_id());
+          switch (ass->get_asstype()) {
+          case Common::Assignment::A_FUNCTION:
+          case Common::Assignment::A_FUNCTION_RVAL:
+          case Common::Assignment::A_FUNCTION_RTEMP: {
+            if (dynamic_cast<Def_AbsFunction*>(ass) != NULL) {
+              error("Missing implementation of abstract method `%s'",
+                def_abs_func->get_fullname().c_str());
+            }
+            // whether the new function is identical to the abstract one has
+            // already been checked
+            break; }
+          default:
+            // it's either an external function (which is OK), or
+            // it's shadowed by a member (error has already been reported)
+            break;
           }
-          // whether the new function is identical to the abstract one has
-          // already been checked
-          break; }
-        default:
-          // it's either an external function (which is OK), or
-          // it's shadowed by a member (error has already been reported)
-          break;
+        }
+      }
+      if (base_traits != NULL) {
+        for (size_t k = 0; k < base_traits->get_nof_types(); ++k) {
+          Type* base_trait = base_traits->get_type_byIndex(k);
+          if (base_trait != NULL) {
+            ClassTypeBody* base_trait_class = base_trait->get_type_refd_last()->
+              get_class_type_body();
+            for (size_t i = 0; i < base_trait_class->abstract_functions.size(); ++i) {
+              Def_AbsFunction* def_abs_func = base_trait_class->abstract_functions.get_nth_elem(i);
+              Common::Assignment* ass = get_local_ass_byId(def_abs_func->get_id());
+              switch (ass->get_asstype()) {
+              case Common::Assignment::A_FUNCTION:
+              case Common::Assignment::A_FUNCTION_RVAL:
+              case Common::Assignment::A_FUNCTION_RTEMP: {
+                if (dynamic_cast<Def_AbsFunction*>(ass) != NULL) {
+                  error("Missing implementation of abstract method `%s'",
+                    def_abs_func->get_fullname().c_str());
+                }
+                // whether the new function is identical to the abstract one has
+                // already been checked
+                break; }
+              default:
+                // it's either an external function (which is OK), or
+                // it's shadowed by a member (error has already been reported)
+                break;
+              }
+            }
+          }
         }
       }
     }
@@ -3749,7 +4017,19 @@ namespace Ttcn {
       return;
     }
     if (base_type != NULL) {
+      refch.mark_state();
       base_type->chk_recursions(refch);
+      refch.prev_state();
+    }
+    if (base_traits != NULL) {
+      for (size_t i = 0; i < base_traits->get_nof_types(); ++i) {
+        Type* base_trait = base_traits->get_type_byIndex(i);
+        if (base_trait != NULL) {
+          refch.mark_state();
+          base_trait->chk_recursions(refch);
+          refch.prev_state();
+        }
+      }
     }
     
     for (size_t i = 0; i < members->get_nof_asss(); ++i) {
@@ -3763,7 +4043,9 @@ namespace Ttcn {
       case Common::Assignment::A_CONST:
       case Common::Assignment::A_TEMPLATE:
       case Common::Assignment::A_VAR_TEMPLATE:
+        refch.mark_state();
         def->get_Type()->chk_recursions(refch);
+        refch.prev_state();
         break;
       default:
         break;
@@ -3780,7 +4062,8 @@ namespace Ttcn {
       "class %s;\n", class_id->get_name().c_str());
     if (!external || generate_skeleton) {
       string base_type_name = base_type != NULL ?
-        base_type->get_type_refd_last()->get_genname_own(this) : string("OBJECT");
+        base_type->get_type_refd_last()->get_genname_own(this) :
+        trait ? string("CLASS_BASE") : string("OBJECT");
       output_struct* local_struct;
       if (external) {
         local_struct = new output_struct;
@@ -3791,8 +4074,27 @@ namespace Ttcn {
       }
       
       local_struct->header.class_defs = mputprintf(local_struct->header.class_defs,
-        "class %s : public %s {\n",
-        class_id->get_name().c_str(), base_type_name.c_str());
+        "class %s : ",
+        class_id->get_name().c_str());
+      bool has_base = false;
+      if (base_traits != NULL) {
+        for (size_t i = 0; i < base_traits->get_nof_types(); ++i) {
+          Type* base_trait = base_traits->get_type_byIndex(i);
+          if (base_trait != NULL) {
+            local_struct->header.class_defs = mputprintf(local_struct->header.class_defs,
+              "%spublic %s", has_base ? ", " : "",
+              base_trait->get_type_refd_last()->get_genname_own(this).c_str());
+            has_base = true;
+          }
+        }
+      }
+      if (!trait || !has_base) {
+        local_struct->header.class_defs = mputprintf(local_struct->header.class_defs,
+          "%s public %s", has_base ? ", " : "", base_type_name.c_str());
+        has_base |= base_type != NULL;
+      }
+      local_struct->header.class_defs = mputstr(local_struct->header.class_defs,
+        " {\n");
       
       // class name
       local_struct->header.class_defs = mputprintf(local_struct->header.class_defs,
@@ -3809,58 +4111,60 @@ namespace Ttcn {
       }
       
       // constructor
-      char* formal_par_list_str = NULL;
-      expression_struct_t base_call_expr;
-      Code::init_expr(&base_call_expr);
-      Reference* base_call = constructor->get_base_call();
-      if (base_call != NULL) {
-        base_call->generate_code(&base_call_expr);
+      if (constructor != NULL) {
+        char* formal_par_list_str = NULL;
+        expression_struct_t base_call_expr;
+        Code::init_expr(&base_call_expr);
+        Reference* base_call = constructor->get_base_call();
+        if (base_call != NULL) {
+          base_call->generate_code(&base_call_expr);
+        }
+        // generate code for the base call first, so the formal parameter list
+        // knows which parameters are used and which aren't
+        formal_par_list_str = constructor->get_FormalParList()->generate_code(
+          memptystr(), external ? constructor->get_FormalParList()->get_nof_fps() : 0);
+        if (base_call_expr.expr == NULL) {
+          base_call_expr.expr = mprintf("%s()", base_type_name.c_str());
+        }
+        local_struct->header.class_defs = mputprintf(local_struct->header.class_defs,
+          "\npublic:\n%s"
+          "%s(%s);\n\n",
+          default_constructor ? "/* default constructor */\n" : "",
+          class_id->get_name().c_str(),
+          formal_par_list_str != NULL ? formal_par_list_str : "");
+        local_struct->source.methods = mputprintf(local_struct->source.methods,
+          "%s::%s(%s)\n"
+          ": %s",
+          class_id->get_name().c_str(), class_id->get_name().c_str(),
+          formal_par_list_str != NULL ? formal_par_list_str : "",
+          base_call_expr.expr);
+        Free(formal_par_list_str);
+        Code::free_expr(&base_call_expr);
+        if (local_struct->temp.constructor_init != NULL) {
+          local_struct->source.methods = mputstr(local_struct->source.methods,
+            local_struct->temp.constructor_init);
+          Free(local_struct->temp.constructor_init);
+          local_struct->temp.constructor_init = NULL;
+        }
+        local_struct->source.methods = mputstr(local_struct->source.methods, "\n{\n");
+        if (local_struct->temp.constructor_preamble != NULL ||
+            local_struct->temp.constructor_block != NULL) {
+          local_struct->source.methods = create_location_object(
+            local_struct->source.methods, "FUNCTION", class_id->get_name().c_str());
+          local_struct->source.methods = mputstr(local_struct->source.methods,
+            local_struct->temp.constructor_preamble);
+          local_struct->source.methods = mputstr(local_struct->source.methods,
+            local_struct->temp.constructor_block);
+          Free(local_struct->temp.constructor_preamble);
+          Free(local_struct->temp.constructor_block);
+          local_struct->temp.constructor_preamble = NULL;
+          local_struct->temp.constructor_block = NULL;
+        }
+        else if (external) {
+          local_struct->source.methods = mputc(local_struct->source.methods, '\n');
+        }
+        local_struct->source.methods = mputstr(local_struct->source.methods, "}\n\n");
       }
-      // generate code for the base call first, so the formal parameter list
-      // knows which parameters are used and which aren't
-      formal_par_list_str = constructor->get_FormalParList()->generate_code(
-        memptystr(), external ? constructor->get_FormalParList()->get_nof_fps() : 0);
-      if (base_call_expr.expr == NULL) {
-        base_call_expr.expr = mprintf("%s()", base_type_name.c_str());
-      }
-      local_struct->header.class_defs = mputprintf(local_struct->header.class_defs,
-        "\npublic:\n%s"
-        "%s(%s);\n\n",
-        default_constructor ? "/* default constructor */\n" : "",
-        class_id->get_name().c_str(),
-        formal_par_list_str != NULL ? formal_par_list_str : "");
-      local_struct->source.methods = mputprintf(local_struct->source.methods,
-        "%s::%s(%s)\n"
-        ": %s",
-        class_id->get_name().c_str(), class_id->get_name().c_str(),
-        formal_par_list_str != NULL ? formal_par_list_str : "",
-        base_call_expr.expr);
-      Free(formal_par_list_str);
-      Code::free_expr(&base_call_expr);
-      if (local_struct->temp.constructor_init != NULL) {
-        local_struct->source.methods = mputstr(local_struct->source.methods,
-          local_struct->temp.constructor_init);
-        Free(local_struct->temp.constructor_init);
-        local_struct->temp.constructor_init = NULL;
-      }
-      local_struct->source.methods = mputstr(local_struct->source.methods, "\n{\n");
-      if (local_struct->temp.constructor_preamble != NULL ||
-          local_struct->temp.constructor_block != NULL) {
-        local_struct->source.methods = create_location_object(
-          local_struct->source.methods, "FUNCTION", class_id->get_name().c_str());
-        local_struct->source.methods = mputstr(local_struct->source.methods,
-          local_struct->temp.constructor_preamble);
-        local_struct->source.methods = mputstr(local_struct->source.methods,
-          local_struct->temp.constructor_block);
-        Free(local_struct->temp.constructor_preamble);
-        Free(local_struct->temp.constructor_block);
-        local_struct->temp.constructor_preamble = NULL;
-        local_struct->temp.constructor_block = NULL;
-      }
-      else if (external) {
-        local_struct->source.methods = mputc(local_struct->source.methods, '\n');
-      }
-      local_struct->source.methods = mputstr(local_struct->source.methods, "}\n\n");
 
       // destructor
       bool desctructor_body = finally_block != NULL || external;
@@ -3906,12 +4210,27 @@ namespace Ttcn {
         "void %s::log() const\n"
         "{\n"
         "TTCN_Logger::log_event_str(\"%s%s\");\n",
-        class_id->get_name().c_str(), class_id->get_dispname().c_str(), base_type != NULL ? " ( " : "");
+        class_id->get_name().c_str(), class_id->get_dispname().c_str(), has_base ? " ( " : "");
       if (base_type != NULL) {
         local_struct->source.methods = mputprintf(local_struct->source.methods,
-          "%s::log();\n"
-          "TTCN_Logger::log_event_str(\" )\");\n",
-          base_type_name.c_str());
+          "%s::log();\n", base_type_name.c_str());
+      }
+      if (base_traits != NULL) {
+        for (size_t i = 0; i < base_traits->get_nof_types(); ++i) {
+          Type* base_trait = base_traits->get_type_byIndex(i);
+          if (base_trait != NULL) {
+            if (i > 0 || base_type != NULL) {
+              local_struct->source.methods = mputstr(local_struct->source.methods,
+                "TTCN_Logger::log_event_str(\", \");\n");
+            }
+            local_struct->source.methods = mputprintf(local_struct->source.methods,
+              "%s::log();\n", base_trait->get_type_refd_last()->get_genname_own(this).c_str());
+          }
+        }
+      }
+      if (has_base) {
+        local_struct->source.methods = mputstr(local_struct->source.methods,
+          "TTCN_Logger::log_event_str(\" )\");\n");
       }
       local_struct->source.methods = mputstr(local_struct->source.methods,
         "}\n\n");

@@ -7032,6 +7032,8 @@ namespace Ttcn {
         " in clause 16.1.4 of the TTCN-3 core language standard (ES 201 873-1)",
         id->get_dispname().c_str());
     }
+    ClassTypeBody* my_class = my_scope->get_scope_class();
+
     // `runs on' clause and `port' clause are mutually exclusive
     if (runs_on_ref && port_ref) {
       runs_on_ref->error("A `runs on' and a `port' clause cannot be present at the same time.");
@@ -7039,6 +7041,10 @@ namespace Ttcn {
     if (my_scope->is_class_scope()) {
       // class methods inherit `runs on', `mtc' and `system' clauses from the class
       ClassTypeBody* class_ = my_scope->get_scope_class();
+      if (class_->is_trait()) {
+        error("Trait class type `%s' cannot have non-abstract methods",
+          class_->get_my_def()->get_Type()->get_typename().c_str());
+      }
       runs_on_type = class_->get_RunsOnType();
       mtc_type = class_->get_MtcType();
       system_type = class_->get_SystemType();
@@ -7783,8 +7789,13 @@ namespace Ttcn {
     checked = true;
     Error_Context cntxt(this, "In external function definition `%s'",
       id->get_dispname().c_str());
-    if (!ext_keyword && !my_scope->get_scope_class()->is_external()) {
+    ClassTypeBody* my_class = my_scope->get_scope_class();
+    if (!ext_keyword && !my_class->is_external()) {
       error("Missing function body or `external' keyword");
+    }
+    if (my_class != NULL && my_class->is_trait()) {
+      error("Trait class type `%s' cannot have non-abstract methods",
+        my_class->get_my_def()->get_Type()->get_typename().c_str());
     }
     fp_list->chk(asstype);
     if (return_type) {
@@ -8401,7 +8412,7 @@ namespace Ttcn {
     if (my_class == NULL) {
       FATAL_ERROR("Def_AbsFunction::chk");
     }
-    if (!my_class->is_abstract()) {
+    if (!my_class->is_abstract() && !my_class->is_trait()) {
       error("Concrete class type `%s' cannot have abstract methods",
         my_class->get_my_def()->get_Type()->get_typename().c_str());
     }

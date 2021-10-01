@@ -202,7 +202,11 @@ type class @abstract AbstractClass {
   }
 }
 
-type class ConcreteClass extends AbstractClass {
+type class @trait TraitClass {
+  public function @abstract f_trait(in integer x) return integer;
+}
+
+type class ConcreteClass extends AbstractClass, TraitClass {
   create(octetstring p_const := 'AB'O) {
     // for compilation only, to make sure there are no name clashes between parameter default values
     log(p_const);
@@ -210,6 +214,9 @@ type class ConcreteClass extends AbstractClass {
   public function f_abs(inout integer x) return boolean {
     x := x + 1;
     return x > 0;
+  }
+  public function f_trait(in integer x) return integer {
+    return x + 1;
   }
 }
 
@@ -237,14 +244,17 @@ testcase tc_logging() runs on CT {
   var template float tf := (0.0 .. 10.0);
   var BaseClass v_sub := SubClass.create(4, il, "a", 'FF'O, tf);
   var BaseClass v_final := FinalClass.create(4, il, "a", 'FF'O, tf, 8, "x", -1.5, *);
+  var TraitClass v_conc := ConcreteClass.create;
 
   log(v_base);
   log(v_sub);
   log(v_final);
+  log(v_conc);
   
   var charstring v_base_str := "BaseClass";
   var charstring v_sub_str := "SubClass ( BaseClass )";
   var charstring v_final_str := "FinalClass ( SubClass ( BaseClass ) )";
+  var charstring v_conc_str := "ConcreteClass ( AbstractClass, TraitClass )";
   
   if (log2str(v_base) != v_base_str) {
     setverdict(fail, "v_base: ", v_base);
@@ -254,6 +264,9 @@ testcase tc_logging() runs on CT {
   }
   if (log2str(v_final) != v_final_str) {
     setverdict(fail, "v_final: ", v_final);
+  }
+  if (log2str(v_conc) != v_conc_str) {
+    setverdict(fail, "v_conc: ", v_conc);
   }
   setverdict(pass);
 }
@@ -538,6 +551,16 @@ testcase tc_abstract() runs on CT {
   }
 }
 
+testcase tc_trait() runs on CT {
+  var TraitClass v := ConcreteClass.create;
+  if (v.f_trait(2) == 3) {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail);
+  }
+}
+
 type class Destructor { }
 finally {
   setverdict(pass);
@@ -722,6 +745,7 @@ control {
   execute(tc_function_pars_in());
   execute(tc_object());
   execute(tc_abstract());
+  execute(tc_trait());
   execute(tc_destructor());
   execute(tc_of_operator());
   execute(tc_select_class());

@@ -49,11 +49,11 @@ template integer t := 4;
 
 type class C0 { }
 
-type class C1 extends Nonexistent { } //^In type definition// //^In superclass definition// //There is no local or imported definition with name `Nonexistent'//
+type class C1 extends Nonexistent { } //^In type definition// //^In superclass or supertrait definition// //There is no local or imported definition with name `Nonexistent'//
 
-type class C2 extends c { } //^In type definition// //^In superclass definition// //`c' is not a reference to a type//
+type class C2 extends c { } //^In type definition// //^In superclass or supertrait definition// //`c' is not a reference to a type//
 
-type class C3 extends Rec { } //^In type definition// //^In superclass definition// //Class type expected instead of `@oop_SE.Rec'//
+type class C3 extends Rec { } //^In type definition// //^In superclass or supertrait definition// //Class type expected instead of `@oop_SE.Rec'//
 
 
 type class C4 { //^In type definition//
@@ -130,11 +130,11 @@ type class C6 { //^In type definition//
 }
 
 
-type class C7 extends C9 { } //^In type definition// //^In superclass definition//
+type class C7 extends C9 { } //^In type definition// //^In superclass or supertrait definition//
 
-type class C8 extends C7 { } //^In type definition// //While checking embedded recursions\: Circular reference\: `@oop_SE.C8' -> `@oop_SE.C8.<superclass>' -> `@oop_SE.C7' -> `@oop_SE.C7.<superclass>' -> `@oop_SE.C9' -> `@oop_SE.C9.<superclass>' -> `@oop_SE.C8'//
+type class C8 extends C7 { } //^In type definition// //While checking embedded recursions\: Circular reference\: `@oop_SE.C8' -> `@oop_SE.C8.<supertraits>.<type1\>' -> `@oop_SE.C7' -> `@oop_SE.C7.<supertraits>.<type1\>' -> `@oop_SE.C9' -> `@oop_SE.C9.<supertraits>.<type1\>' -> `@oop_SE.C8'//
 
-type class C9 extends C8 { } //^In type definition// //^In superclass definition//
+type class C9 extends C8 { } //^In type definition// //^In superclass or supertrait definition//
 
 external const C0 ec_c0; //^In external constant definition// //External constant cannot be defined for class type `@oop_SE.C0'//
 external const object ec_obj; //^In external constant definition// //External constant cannot be defined for class type `object'//
@@ -346,11 +346,11 @@ function f_create() { //^In function definition//
 }
 
 
-type class @final @abstract C21 { } //^In type definition// //Final classes cannot be abstract//
+type class @final @abstract C21 { } //^In type definition// //A classes cannot have more than one of the \@final, \@abstract and \@trait modifiers//
 
 type class @final C22 { }
 
-type class C23 extends C22 { } //^In type definition// //^In superclass definition// //The superclass cannot be final//
+type class C23 extends C22 { } //^In type definition// //^In superclass or supertrait definition// //The superclass cannot be final//
 
 type class @abstract C24 { //^In type definition//
   public function @abstract f1(in Nonexistent a); //^In abstract function definition// //^In formal parameter list// //^In parameter// //There is no local or imported definition with name `Nonexistent'//
@@ -476,7 +476,7 @@ type external class @abstract C42 { //^In type definition// //External classes c
   function @abstract f(); //An external class cannot contain a function//
 }
 
-type external class C43 extends C39 { } //^In type definition// //^In superclass definition// //An external class cannot extend an internal class//
+type external class C43 extends C39 { } //^In type definition// //^In superclass or supertrait definition// //An external class cannot extend an internal class//
 
 type class C44 extends C40 { //^In type definition//
   external function f();
@@ -660,6 +660,92 @@ finally { //^In class destructor//
 type class C51 { } //^In type definition//
 finally { //^In class destructor//
   raise 1.0; //^In raise statement// //Raise statement cannot be used inside a finally block or the destructor of a class.//
+}
+
+
+type class @trait T1 { //^In type definition//
+  function @abstract f();
+  create() {} //Trait class type `@oop_SE.T1' cannot have a constructor//
+  function f2() { } //^In function definition// //Trait class type `@oop_SE.T1' cannot have non-abstract methods//
+}
+
+type class @trait T2 { //^In type definition//
+  function @abstract f(); 
+  external function f3(); //^In external function definition// //Trait class type `@oop_SE.T2' cannot have non-abstract method//
+}
+finally { //^In class destructor// //Trait class type `@oop_SE.T2' cannot have a destructor//
+}
+
+type class C52 extends T1, T2 { } //^In type definition// //Missing implementation of abstract method `@oop_SE.T1.f'// //Missing implementation of abstract method `@oop_SE.T2.f'//
+
+type class C53 extends T1, T2 {
+  function f() { }
+}
+
+type class @trait T3 extends T1 {
+  function @abstract f2();
+}
+
+type class C54 extends C53, T3 {
+  function f2() { }
+}
+
+type class C55 extends T1, //^In type definition//
+  T2, //Class type `@oop_SE.T2' is already given here//
+  C54,
+  T2 { } //^In superclass or supertrait definition// //Duplicate class type in list of classes being extended//
+
+type class @trait T4 {
+  public function @abstract f1() return integer;
+}
+
+type class @trait T5 extends T4 { }
+
+type class @trait T6 {
+  public function @abstract f1(inout integer p);
+  public function @abstract f2(inout integer p);
+}
+
+type class C56 {
+  private function f1() { }
+  public function f2(inout integer p) { p := p + 1; }
+}
+
+type class C57 extends C56, T6, T5 { //^In type definition// //The prototypes of methods `f2' inherited from classes `C56' and `T6' are not identical// //The prototypes of methods `f1' inherited from classes `T4' and `T6' are not identical//
+  public function f1() return integer { return 2; } //The prototype of method `f1' is not identical to that of inherited method `@oop_SE.T6.f1'//
+}
+
+type class @trait T7 runs on CT_RunsOn {
+  public function @abstract f(in integer p) return integer;
+}
+type class @trait T8 mtc CT_Mtc { }
+type class @trait T9 system CT_System { }
+
+type class C58 extends T7, T8, T9 //^In type definition//
+  runs on Comp //The `runs on' component type of the subclass \(`@oop_SE.Comp'\) is not compatible with the `runs on' component type of supertrait `T7' \(`@oop_SE.CT_RunsOn'\)//
+  mtc Comp //The `mtc' component type of the subclass \(`@oop_SE.Comp'\) is not compatible with the `mtc' component type of supertrait `T8' \(`@oop_SE.CT_Mtc'\)//
+  system Comp //The `system' component type of the subclass \(`@oop_SE.Comp'\) is not compatible with the `system' component type of supertrait `T9' \(`@oop_SE.CT_System'\)//
+{
+  public function f(in integer p) return integer { return p + 1; }
+}
+
+type class C59 extends T7, T8, T9
+  runs on CT_RunsOn2
+  mtc CT_Mtc2
+  system CT_System2
+{
+  public function f(in integer p) return integer { return p + 1; }
+}
+
+function f_traits_bad() { //^In function definition//
+  var T7 v_t7 := C59.create; //^In variable definition// //A definition without `runs on' clause cannot create a value of class type `@oop_SE.C59', which runs on component type `@oop_SE.CT_RunsOn2'//
+  var T4 v_t4 := C54.create; //^In variable definition// //Incompatible class types: operation `create' should refer to `@oop_SE.T4' instead of `@oop_SE.C54'//
+  var object v_obj := v_t7; //^In variable definition// //Type mismatch\: a value of type `object' was expected instead of `@oop_SE.T7'//
+}
+
+function f_traits_good() runs on CT_RunsOn2 {
+  var T7 v_t7 := C59.create;
+  log(v_t7.f(3));
 }
 
 

@@ -20,18 +20,17 @@
 // OBJECT
 // ------
 
-class OBJECT {
-private:
+class CLASS_BASE {
   size_t ref_count;
   boolean destructor; // true, if the destructor is currently running;
   // also makes sure the object is not deleted again when inside the destructor
-  
-  OBJECT(const OBJECT&); // copy disabled
-  OBJECT operator=(const OBJECT&); // assignment disabled
-  boolean operator==(const OBJECT&); // equality operator disabled
+
+  CLASS_BASE(const CLASS_BASE&); // copy disabled
+  CLASS_BASE operator=(const CLASS_BASE&); // assignment disabled
+  boolean operator==(const CLASS_BASE&); // equality operator disabled
 public:
-  OBJECT(): ref_count(0), destructor(FALSE) {}
-  virtual ~OBJECT() {
+  CLASS_BASE(): ref_count(0), destructor(FALSE) {}
+  virtual ~CLASS_BASE() {
     if (ref_count != 0) {
       TTCN_error("Internal error: deleting an object with %lu reference(s) left.", ref_count);
     }
@@ -45,6 +44,16 @@ public:
     destructor = ref_count == 0;
     return destructor;
   }
+};
+
+class OBJECT : public CLASS_BASE {
+private:
+  OBJECT(const OBJECT&); // copy disabled
+  OBJECT operator=(const OBJECT&); // assignment disabled
+  boolean operator==(const OBJECT&); // equality operator disabled
+public:
+  OBJECT(): CLASS_BASE() { }
+  virtual ~OBJECT() { }
   virtual void log() const {
     TTCN_Logger::log_event_str("object: { }");
   }

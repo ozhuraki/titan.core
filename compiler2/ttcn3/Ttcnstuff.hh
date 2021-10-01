@@ -285,7 +285,7 @@ public:
 };
 
 /**
- * Type list, used in port types
+ * Type list, used in port and class types
  */
 class Types : public Common::Node, public Common::Location {
 private:
@@ -763,9 +763,11 @@ class ClassTypeBody : public Common::Scope, public Common::Location {
   boolean external;
   boolean final;
   boolean abstract;
+  boolean trait;
   boolean built_in;
   Common::Type* base_type;
   ClassTypeBody* base_class; // not owned
+  Types* base_traits;
   Reference* runs_on_ref;
   Type* runs_on_type;
   Reference* mtc_ref;
@@ -783,7 +785,7 @@ class ClassTypeBody : public Common::Scope, public Common::Location {
   
 public:
   ClassTypeBody(Common::Identifier* p_class_id, boolean p_external, boolean p_final,
-    boolean p_abstract, Common::Type* p_base_type,
+    boolean p_abstract, boolean p_trait, Types* p_base_types,
     Ttcn::Reference* p_runs_on_ref, Reference* p_mtc_ref, Reference* p_system_ref,
     Definitions* p_members, StatementBlock* p_finally_block);
   ClassTypeBody();
@@ -794,6 +796,7 @@ public:
   void set_my_def(Def_Type* p_def);
   Def_Type* get_my_def() { return my_def; }
   boolean is_abstract() const { return abstract; }
+  boolean is_trait() const { return trait; }
   boolean is_external() const { return external; }
   
   void set_fullname(const string& p_fullname);
@@ -817,6 +820,7 @@ public:
   Common::Assignment* get_local_ass_byId(const Identifier& p_id);
   Common::Assignment* get_ass_bySRef(Common::Ref_simple* p_ref);
   
+  static bool compare_members(ClassTypeBody* c1, ClassTypeBody* c2, Location* subclass_loc = NULL);
   bool chk_visibility(Common::Assignment* ass, Common::Location* usage_loc,
     Common::Scope* usage_scope);
   void chk();

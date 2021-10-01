@@ -847,6 +847,7 @@ static const string anyname("anytype");
 %token AbstractKeyword
 %token DefaultModifier
 %token DynamicModifier
+%token TraitKeyword
 
 /* TITAN specific keywords */
 %token TitanSpecificTryKeyword
@@ -984,6 +985,7 @@ static const string anyname("anytype");
 %type <bool_val> optAliveKeyword optOptionalKeyword
   optErrValueRaw optAllKeyword optDeterministicModifier optRealtimeClause
   optExtKeyword optFinalModifier optAbstractModifier optDefaultModifier
+  optTraitModifier
 %type <str> FreeText optLanguageSpec PatternChunk PatternChunkList
 %type <uchar_val> Group Plane Row Cell
 %type <id> FieldReference GlobalModuleId
@@ -1105,7 +1107,8 @@ static const string anyname("anytype");
 %type <type> NestedEnumDef NestedRecordDef NestedRecordOfDef NestedSetDef
   NestedSetOfDef NestedTypeDef NestedUnionDef PortDefAttribs ReferencedType
   Type TypeOrNestedTypeDef NestedFunctionTypeDef NestedAltstepTypeDef
-  NestedTestcaseTypeDef optExtendsClassDef
+  NestedTestcaseTypeDef
+%type <types> optExtendsClassDef BaseClassList
 %type <types_with_mapping> TypeList AllOrTypeList AllOrTypeListWithFrom
 AllOrTypeListWithTo TypeListWithFrom TypeListWithTo
 %type <value> AddressValue AliveOp AllPortsSpec AltGuardChar ArrayBounds
@@ -3680,16 +3683,16 @@ PortElement: // 86
 ;
 
 ClassDef:
-  optExtKeyword ClassKeyword optFinalModifier optAbstractModifier IDentifier
-  optExtendsClassDef optRunsOnSpec optMtcSpec optSystemSpec '{'
+  optExtKeyword ClassKeyword optFinalModifier optAbstractModifier optTraitModifier
+  IDentifier optExtendsClassDef optRunsOnSpec optMtcSpec optSystemSpec '{'
   optClassMemberList '}' optFinallyDef
   {
-    ClassTypeBody* class_ = new ClassTypeBody($5, $1, $3, $4, $6, $7, $8, $9,
-      $11, $13);
+    ClassTypeBody* class_ = new ClassTypeBody($6, $1, $3, $4, $5, $7, $8, $9, $10,
+      $12, $14);
     class_->set_location(infile, @$);
     Type* type = new Type(Type::T_CLASS, class_);
     type->set_location(infile, @$);
-    $$ = new Def_Type($5, type);
+    $$ = new Def_Type($6, type);
     $$->set_location(infile, @$);
     class_->set_my_def($$);
   }
@@ -3710,10 +3713,41 @@ optAbstractModifier:
 | AbstractKeyword { $$ = true; }
 ;
 
+optTraitModifier:
+  /* empty */  { $$ = false; }
+| TraitKeyword { $$ = true; }
+;
+
 optExtendsClassDef:
-  /* empty */                   { $$ = NULL; }
-| ExtendsKeyword ReferencedType { $$ = $2; }
-| ExtendsKeyword ObjectKeyword  { $$ = NULL; }
+  /* empty */                  { $$ = NULL; }
+| ExtendsKeyword BaseClassList { $$ = $2; }
+;
+
+BaseClassList:
+  ReferencedType
+  {
+    $$ = new Types;
+    $$->add_type($1);
+  }
+| ObjectKeyword
+  {
+    $$ = new Types;
+    Type* type = new Type(Type::T_CLASS);
+    type->set_location(infile, @$);
+    $$->add_type(type);
+  }
+| BaseClassList ',' ReferencedType
+  {
+    $$ = $1;
+    $$->add_type($3);
+  }
+| BaseClassList ',' ObjectKeyword
+  {
+    $$ = $1;
+    Type* type = new Type(Type::T_CLASS);
+    type->set_location(infile, @3);
+    $$->add_type(type);
+  }
 ;
 
 optFinallyDef:

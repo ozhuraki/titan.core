@@ -9208,24 +9208,27 @@ type class MyClass {
 ----
 
 * The constructor of a subclass must call the superclass' constructor, if the super-constructor has at least one formal parameter without a default value. (This is in accordance with V1.2.1 of the standard extension, not V1.1.1.)
-* The result of logging an instance of a class contains the class name and the logging result of the superclass in round brackets, if there is a superclass.
+* The result of logging an instance of a class contains the class name and the logging result of the superclass (if there is one) and supertraits (if there are any) in round brackets, separated by commas.
 
 Logging example:
 [source]
 ----
 type class MyClass2 {
-  private var integer num;
-  private var charstring str;
+  ...
 }
 
-type class MyClass3 extends MyClass2 {
-  private var template octetstring temp;
+type class @trait MyTraitClass {
+  ...
+}
+
+type class MyClass3 extends MyClass2, MyTraitClass {
+  ...
 }
 
 ...
 
-var MyClass3 my_object := MyClass3.create(3, "abc", ?);
-log(my_object); // result: MyClass3 ( MyClass2 )
+var MyClass3 my_object := MyClass3.create(...);
+log(my_object); // result: MyClass3 ( MyClass2, MyTraitClass )
 ----
 
 NOTE: Even though every class automatically extends the built-in class `object`, if it has no superclass specified, this class does not appear in the log.
@@ -9235,9 +9238,9 @@ NOTE: Even though every class automatically extends the built-in class `object`,
 Equality example:
 [source]
 ----
-var MyClass3 my_object1 := MyClass3.create(3, "abc", ?);
+var MyClass3 my_object1 := MyClass3.create(...);
 var MyClass3 my_object2 := my_object1;
-var MyClass3 my_object3 := MyClass3.create(3, "abc", ?);
+var MyClass3 my_object3 := MyClass3.create(...);
 log(my_object1 == my_object2); // true
 log(my_object1 == my_object3); // false
 ----
@@ -9296,6 +9299,8 @@ catch(RoI[-] x) {} // catches only the element type of RoI and no other types
 ----
 module <name> "TTCN-3:2018 Object-Oriented" { ... }
 ----
+
+* Trait classes do not extend the built-in class `object`, only normal classes do.
 
 == Default alternatives of union types
 

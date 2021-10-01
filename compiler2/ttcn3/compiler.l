@@ -640,6 +640,7 @@ object {
 "@abstract"      RETURN(AbstractKeyword);
 "@default"       RETURN(DefaultModifier);
 "@dynamic"       RETURN(DynamicModifier);
+"@trait"         RETURN(TraitKeyword);
 
   /* special TITAN specific keywords */
 
