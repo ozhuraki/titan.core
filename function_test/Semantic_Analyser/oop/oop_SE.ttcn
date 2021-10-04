@@ -346,7 +346,7 @@ function f_create() { //^In function definition//
 }
 
 
-type class @final @abstract C21 { } //^In type definition// //A classes cannot have more than one of the \@final, \@abstract and \@trait modifiers//
+type class @final @abstract C21 { } //^In type definition// //A class cannot have more than one of the \@final, \@abstract and \@trait modifiers//
 
 type class @final C22 { }
 

@@ -3562,7 +3562,7 @@ namespace Ttcn {
     }
     checked = true;
     if ((final && abstract) || (final && trait) || (abstract && trait)) {
-      error("A classes cannot have more than one of the @final, @abstract and @trait modifiers");
+      error("A class cannot have more than one of the @final, @abstract and @trait modifiers");
     }
     if (external && abstract) { // todo
       error("External classes cannot be abstract");

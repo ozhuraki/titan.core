@@ -360,7 +360,7 @@ module NegSem_5010104_finalClasses_001 "TTCN-3:2018 Object-Oriented" {
 <END_MODULE>
 
 <RESULT COUNT>
-error: Final classes cannot be abstract
+error: A class cannot have more than one of the \@final, \@abstract and \@trait modifiers
 <END_RESULT>
 
 <END_TC>
