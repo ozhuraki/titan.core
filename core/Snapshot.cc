@@ -1089,17 +1089,6 @@ void TTCN_Snapshot::take_new(boolean block_execution)
             pollTimeout = static_cast<int>(floor(block_time*1000));
             handleTimer = TRUE;
           } else {
-            // issue a warning: the user probably does not want such
-            // long waiting
-            TTCN_warning("The time needed for the first timer "
-              "expiry is %g seconds. The operating system does "
-              "not support such long waiting at once. The "
-              "maximum time of blocking was set to %d seconds "
-              "(ca. %d days).", block_time, MAX_BLOCK_TIME,
-              MAX_BLOCK_TIME / 86400);
-            // also modify the the timeout value to get out
-            // immediately from the while() loop below
-            timeout = current_time + (double)MAX_BLOCK_TIME;
             pollTimeout = MAX_BLOCK_TIME * 1000;
             handleTimer = TRUE;
           }
