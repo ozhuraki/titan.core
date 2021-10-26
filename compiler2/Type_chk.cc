@@ -3846,8 +3846,14 @@ void Type::chk_recursions(ReferenceChain& refch)
     break;
   case T_CHOICE_A:
   case T_CHOICE_T: {
-    refch.set_error_reporting(false);
-    refch.mark_error_state();
+    // we could be inside a different union that has already turned error reporting off;
+    // don't report anything in that case, let the first union handle it
+    bool error_reporting_not_handled = refch.is_error_reporting_on();
+    if (error_reporting_not_handled) {
+      refch.set_error_reporting(false);
+      refch.mark_error_state();
+    }
+
     for (size_t i = 0; i < t->get_nof_comps(); ++i) {
       refch.mark_state();
       CompField* cf = t->get_comp_byIndex(i);
@@ -3855,12 +3861,14 @@ void Type::chk_recursions(ReferenceChain& refch)
       refch.prev_state();
     }
 
-    if (refch.nof_errors() == t->get_nof_comps()) {
-      refch.report_errors();
-    }
+    if (error_reporting_not_handled) {
+      if (refch.nof_errors() == t->get_nof_comps()) {
+        refch.report_errors();
+      }
 
-    refch.prev_error_state();
-    refch.set_error_reporting(true);
+      refch.prev_error_state();
+      refch.set_error_reporting(true);
+    }
     break;
   }
   case T_ANYTYPE:

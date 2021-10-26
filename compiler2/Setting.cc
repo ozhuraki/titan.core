@@ -963,6 +963,10 @@ namespace Common {
     return false;
   }
 
+  bool ReferenceChain::is_error_reporting_on() const {
+    return report_error;
+  }
+
   void ReferenceChain::set_error_reporting(bool enable) {
     report_error = enable;
   }

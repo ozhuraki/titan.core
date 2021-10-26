@@ -190,6 +190,8 @@ SubtypeConstraint::SubtypeConstraint(subtype_t st)
   case ST_SETOF:
     recof_st = NULL;
     break;
+  case ST_ERROR:
+    break;
   default:
     FATAL_ERROR("SubtypeConstraint::SubtypeConstraint()");
   }

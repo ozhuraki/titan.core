@@ -4037,7 +4037,7 @@ namespace Ttcn {
   Def_Const::Def_Const(Identifier *p_id, Type *p_type, Value *p_value)
     : Definition(A_CONST, p_id)
   {
-    if (!p_type || !p_value) FATAL_ERROR("Ttcn::Def_Const::Def_Const()");
+    if (!p_type) FATAL_ERROR("Ttcn::Def_Const::Def_Const()");
     type=p_type;
     type->set_ownertype(Type::OT_CONST_DEF, this);
     value=p_value;
@@ -4059,14 +4059,18 @@ namespace Ttcn {
   {
     Definition::set_fullname(p_fullname);
     type->set_fullname(p_fullname + ".<type>");
-    value->set_fullname(p_fullname);
+    if (value != NULL) {
+      value->set_fullname(p_fullname);
+    }
   }
 
   void Def_Const::set_my_scope(Scope *p_scope)
   {
     Definition::set_my_scope(p_scope);
     type->set_my_scope(p_scope);
-    value->set_my_scope(p_scope);
+    if (value != NULL) {
+      value->set_my_scope(p_scope);
+    }
   }
 
   Setting *Def_Const::get_Setting()
@@ -4101,8 +4105,14 @@ namespace Ttcn {
       id->get_dispname().c_str());
     type->set_genname(_T_, get_genname());
     type->chk();
-    value->set_my_governor(type);
-    type->chk_this_value_ref(value);
+
+    if (value != NULL) {
+      value->set_my_governor(type);
+      type->chk_this_value_ref(value);
+    }
+    else if (!my_scope->is_class_scope()) {
+      error("Missing initial value");
+    }
     checked=true;
     if (w_attrib_path) {
       w_attrib_path->chk_global_attrib(true);
@@ -4134,20 +4144,20 @@ namespace Ttcn {
         t->get_typename().c_str());
       break;
     default:
-      value_under_check = true;
-        type->chk_this_value(value, 0, Type::EXPECTED_STATIC_VALUE, WARNING_FOR_INCOMPLETE,
-        OMIT_NOT_ALLOWED, SUB_CHK, has_implicit_omit_attr());
-      value_under_check = false;
-      erroneous_attrs = chk_erroneous_attr(w_attrib_path, type, get_my_scope(),
-        get_fullname(), false);
-      if (erroneous_attrs) value->add_err_descr(NULL, erroneous_attrs->get_err_descr());
-    {
-      ReferenceChain refch(type, "While checking embedded recursions");
-      value->chk_recursions(refch);
-    }
+      if (value != NULL) {
+        value_under_check = true;
+          type->chk_this_value(value, 0, Type::EXPECTED_STATIC_VALUE, WARNING_FOR_INCOMPLETE,
+          OMIT_NOT_ALLOWED, SUB_CHK, has_implicit_omit_attr());
+        value_under_check = false;
+        erroneous_attrs = chk_erroneous_attr(w_attrib_path, type, get_my_scope(),
+          get_fullname(), false);
+        if (erroneous_attrs) value->add_err_descr(NULL, erroneous_attrs->get_err_descr());
+        ReferenceChain refch(type, "While checking embedded recursions");
+        value->chk_recursions(refch);
+      }
       break;
     }
-    if (!semantic_check_only) {
+    if (!semantic_check_only && value != NULL) {
       value->set_genname_prefix("const_");
       value->set_genname_recursive(get_genname());
       value->set_code_section(GovernedSimple::CS_PRE_INIT);
@@ -4167,7 +4177,9 @@ namespace Ttcn {
       return false;
     }
     Def_Const *p_def_const = dynamic_cast<Def_Const*>(p_def);
-    if (!p_def_const) FATAL_ERROR("Def_Const::chk_identical()");
+    if (p_def_const == NULL || value == NULL || p_def_const->value == NULL) {
+      FATAL_ERROR("Def_Const::chk_identical()");
+    }
     if (!type->is_identical(p_def_const->type)) {
       const char *dispname_str = id->get_dispname().c_str();
       type->error("Local constant `%s' has type `%s', but the constant "
@@ -4193,15 +4205,20 @@ namespace Ttcn {
     const_def cdef;
     Code::init_cdef(&cdef);
     bool in_class = my_scope->is_class_scope();
-    type->generate_code_object(&cdef, value, in_class);
-    if (value->is_unfoldable()) {
-    cdef.post = update_location_object(cdef.post);
-    cdef.post = value->generate_code_init(cdef.post,
-      value->get_lhs_name().c_str());
-    } else {
-    cdef.init = update_location_object(cdef.init);
-    cdef.init = value->generate_code_init(cdef.init,
-      value->get_lhs_name().c_str());
+    if (value != NULL) {
+      type->generate_code_object(&cdef, value, in_class);
+      if (value->is_unfoldable()) {
+      cdef.post = update_location_object(cdef.post);
+      cdef.post = value->generate_code_init(cdef.post,
+        value->get_lhs_name().c_str());
+      } else {
+      cdef.init = update_location_object(cdef.init);
+      cdef.init = value->generate_code_init(cdef.init,
+        value->get_lhs_name().c_str());
+      }
+    }
+    else {
+      type->generate_code_object(&cdef, my_scope, get_genname(), "const_", false, false, true);
     }
     Code::merge_cdef(target, &cdef, in_class);
     Code::free_cdef(&cdef);
@@ -4214,6 +4231,9 @@ namespace Ttcn {
 
   char *Def_Const::generate_code_str(char *str)
   {
+    if (value == NULL) {
+      FATAL_ERROR("Def_Const::generate_code_str");
+    }
     const string& t_genname = get_genname();
     const char *genname_str = t_genname.c_str();
     if (value->has_single_expr()) {
@@ -4237,6 +4257,9 @@ namespace Ttcn {
 
   void Def_Const::ilt_generate_code(ILT *ilt)
   {
+    if (value == NULL) {
+      FATAL_ERROR("Def_Const::ilt_generate_code");
+    }
     const string& t_genname = get_genname();
     const char *genname_str = t_genname.c_str();
     char*& def=ilt->get_out_def();
@@ -4257,7 +4280,9 @@ namespace Ttcn {
   {
     DEBUG(level, "Constant: %s @%p", id->get_dispname().c_str(), static_cast<const void*>(this));
     type->dump(level + 1);
-    value->dump(level + 1);
+    if (value != NULL) {
+      value->dump(level + 1);
+    }
   }
 
   // =================================
@@ -4733,7 +4758,7 @@ namespace Ttcn {
     body(p_body), template_restriction(p_template_restriction),
     gen_restriction_check(false)
   {
-    if (!p_type || !p_body) FATAL_ERROR("Ttcn::Def_Template::Def_Template()");
+    if (!p_type) FATAL_ERROR("Ttcn::Def_Template::Def_Template()");
     type->set_ownertype(Type::OT_TEMPLATE_DEF, this);
     if (fp_list) fp_list->set_my_def(this);
   }
@@ -4758,7 +4783,9 @@ namespace Ttcn {
     if (fp_list) fp_list->set_fullname(p_fullname + ".<formal_par_list>");
     if (derived_ref)
       derived_ref->set_fullname(p_fullname + ".<derived_reference>");
-    body->set_fullname(p_fullname);
+    if (body != NULL) {
+      body->set_fullname(p_fullname);
+    }
   }
 
   void Def_Template::set_my_scope(Scope *p_scope)
@@ -4771,8 +4798,12 @@ namespace Ttcn {
     if (derived_ref) derived_ref->set_my_scope(&bridgeScope);
     if (fp_list) {
       fp_list->set_my_scope(&bridgeScope);
-      body->set_my_scope(fp_list);
-    } else body->set_my_scope(&bridgeScope);
+      if (body != NULL) {
+        body->set_my_scope(fp_list);
+      }
+    } else if (body != NULL) {
+      body->set_my_scope(&bridgeScope);
+    }
   }
 
   Setting *Def_Template::get_Setting()
@@ -4827,21 +4858,29 @@ namespace Ttcn {
       fp_list->chk(asstype);
       if (local_scope) error("Parameterized local template `%s' not supported",
         id->get_dispname().c_str());
-      body->set_formalparlist(fp_list);
+      if (body != NULL) {
+        body->set_formalparlist(fp_list);
+      }
     }
 
     // Merge the elements of "all from" into the list
-    body->flatten(false);
+    if (body != NULL) {
+      body->flatten(false);
 
-    body->set_my_governor(type);
+      body->set_my_governor(type);
 
-    if (body->get_templatetype() == Template::CSTR_PATTERN &&
-      type->get_type_refd_last()->get_typetype() == Type::T_USTR) {
-      body->set_templatetype(Template::USTR_PATTERN);
-      body->get_ustr_pattern()->set_pattern_type(PatternString::USTR_PATTERN);
+      if (body->get_templatetype() == Template::CSTR_PATTERN &&
+        type->get_type_refd_last()->get_typetype() == Type::T_USTR) {
+        body->set_templatetype(Template::USTR_PATTERN);
+        body->get_ustr_pattern()->set_pattern_type(PatternString::USTR_PATTERN);
+      }
+
+      type->chk_this_template_ref(body);
+    }
+    else if (!my_scope->is_class_scope()) {
+      error("Missing template body");
     }
 
-    type->chk_this_template_ref(body);
     Type *t = type->get_type_refd_last();
     if (t->get_typetype() == Type::T_PORT) {
       error("Template cannot be defined for port type `%s'",
@@ -4851,66 +4890,70 @@ namespace Ttcn {
       error("Template cannot be defined for class type `%s'",
         t->get_typename().c_str());
     }
+    type->chk_this_template_incorrect_field();
     chk_modified();
     chk_recursive_derivation();
-    type->chk_this_template_generic(body,
-      derived_ref != NULL ? INCOMPLETE_ALLOWED : WARNING_FOR_INCOMPLETE,
-      OMIT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK,
-      IMPLICIT_OMIT == has_implicit_omit_attr() ? IMPLICIT_OMIT : NOT_IMPLICIT_OMIT, 0);
-    type->chk_this_template_incorrect_field();
-    erroneous_attrs = chk_erroneous_attr(w_attrib_path, type, get_my_scope(),
-      get_fullname(), false);
-    if (erroneous_attrs) body->add_err_descr(NULL, erroneous_attrs->get_err_descr());
 
-    {
-      ReferenceChain refch(type, "While checking embedded recursions");
-      body->chk_recursions(refch);
-    }
-    if (template_restriction!=TR_NONE) {
-      Error_Context ec(this, "While checking template restriction `%s'",
-                       Template::get_restriction_name(template_restriction));
-      gen_restriction_check =
-        body->chk_restriction("template definition", template_restriction, body);
-      if (fp_list && template_restriction!=TR_PRESENT) {
-        size_t nof_fps = fp_list->get_nof_fps();
-        for (size_t i=0; i<nof_fps; i++) {
-          FormalPar* fp = fp_list->get_fp_byIndex(i);
-          // if formal par is not template then skip restriction checking,
-          // templates can have only `in' parameters
-          if (fp->get_asstype()!=A_PAR_TEMPL_IN) continue;
-          template_restriction_t fp_tr = fp->get_template_restriction();
-          switch (template_restriction) {
-          case TR_VALUE:
-          case TR_OMIT:
-            switch (fp_tr) {
+    if (body != NULL) {
+      type->chk_this_template_generic(body,
+        derived_ref != NULL ? INCOMPLETE_ALLOWED : WARNING_FOR_INCOMPLETE,
+        OMIT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK,
+        IMPLICIT_OMIT == has_implicit_omit_attr() ? IMPLICIT_OMIT : NOT_IMPLICIT_OMIT, 0);
+      erroneous_attrs = chk_erroneous_attr(w_attrib_path, type, get_my_scope(),
+        get_fullname(), false);
+      if (erroneous_attrs) body->add_err_descr(NULL, erroneous_attrs->get_err_descr());
+      {
+        ReferenceChain refch(type, "While checking embedded recursions");
+        body->chk_recursions(refch);
+      }
+
+      if (template_restriction!=TR_NONE) {
+        Error_Context ec(this, "While checking template restriction `%s'",
+                         Template::get_restriction_name(template_restriction));
+        gen_restriction_check =
+          body->chk_restriction("template definition", template_restriction, body);
+        if (fp_list && template_restriction!=TR_PRESENT) {
+          size_t nof_fps = fp_list->get_nof_fps();
+          for (size_t i=0; i<nof_fps; i++) {
+            FormalPar* fp = fp_list->get_fp_byIndex(i);
+            // if formal par is not template then skip restriction checking,
+            // templates can have only `in' parameters
+            if (fp->get_asstype()!=A_PAR_TEMPL_IN) continue;
+            template_restriction_t fp_tr = fp->get_template_restriction();
+            switch (template_restriction) {
             case TR_VALUE:
             case TR_OMIT:
-              // allowed
-              break;
-            case TR_PRESENT:
-              fp->error("Formal parameter with template restriction `%s' "
-                "not allowed here", Template::get_restriction_name(fp_tr));
-              break;
-            case TR_NONE:
-              fp->error("Formal parameter without template restriction "
-                "not allowed here");
+              switch (fp_tr) {
+              case TR_VALUE:
+              case TR_OMIT:
+                // allowed
+                break;
+              case TR_PRESENT:
+                fp->error("Formal parameter with template restriction `%s' "
+                  "not allowed here", Template::get_restriction_name(fp_tr));
+                break;
+              case TR_NONE:
+                fp->error("Formal parameter without template restriction "
+                  "not allowed here");
+                break;
+              default:
+                FATAL_ERROR("Ttcn::Def_Template::chk()");
+              }
               break;
             default:
               FATAL_ERROR("Ttcn::Def_Template::chk()");
             }
-            break;
-          default:
-            FATAL_ERROR("Ttcn::Def_Template::chk()");
           }
         }
       }
-    }
-    if (!semantic_check_only) {
-      if (fp_list) fp_list->set_genname(t_genname);
-      body->set_genname_prefix("template_");
-      body->set_genname_recursive(t_genname);
-      body->set_code_section(fp_list ? GovernedSimple::CS_INLINE :
-        GovernedSimple::CS_POST_INIT);
+
+      if (!semantic_check_only) {
+        if (fp_list) fp_list->set_genname(t_genname);
+        body->set_genname_prefix("template_");
+        body->set_genname_recursive(t_genname);
+        body->set_code_section(fp_list ? GovernedSimple::CS_INLINE :
+          GovernedSimple::CS_POST_INIT);
+      }
     }
 
   }
@@ -4974,7 +5017,9 @@ namespace Ttcn {
       return;
     }
     base_template = dynamic_cast<Def_Template*>(ass);
-    if (!base_template) FATAL_ERROR("Def_Template::chk_modified()");
+    if (base_template == NULL || body == NULL) {
+      FATAL_ERROR("Def_Template::chk_modified()");
+    }
     Type *base_type = base_template->get_Type();
     TypeCompatInfo info_base(my_scope->get_scope_mod(), type, base_type, true,
                              false, true);
@@ -5091,7 +5136,7 @@ namespace Ttcn {
   void Def_Template::generate_code(output_struct *target, bool)
   {
     type->generate_code(target);
-    if (body->get_err_descr() != NULL && body->get_err_descr()->has_descr(NULL)) {
+    if (body != NULL && body->get_err_descr() != NULL && body->get_err_descr()->has_descr(NULL)) {
         target->functions.post_init = body->get_err_descr()->generate_code_init_str(
           NULL, target->functions.post_init, body->get_lhs_name());
     }
@@ -5188,56 +5233,61 @@ namespace Ttcn {
       const_def cdef;
       Code::init_cdef(&cdef);
       bool in_class = my_scope->is_class_scope();
-      type->generate_code_object(&cdef, body, in_class);
-      cdef.init = update_location_object(cdef.init);
-      if (base_template) {
-        // modified template
-        if (base_template->my_scope->get_scope_mod_gen() ==
-            my_scope->get_scope_mod_gen()) {
-          // if the base template is in the same module its body has to be
-          // initialized first
-          cdef.init = base_template->body->generate_code_init(cdef.init,
-            base_template->body->get_lhs_name().c_str());
+      if (body != NULL) {
+        type->generate_code_object(&cdef, body, in_class);
+        cdef.init = update_location_object(cdef.init);
+        if (base_template) {
+          // modified template
+          if (base_template->my_scope->get_scope_mod_gen() ==
+              my_scope->get_scope_mod_gen()) {
+            // if the base template is in the same module its body has to be
+            // initialized first
+            cdef.init = base_template->body->generate_code_init(cdef.init,
+              base_template->body->get_lhs_name().c_str());
+          }
+          if (use_runtime_2 && body->get_needs_conversion()) {
+            Type *body_type = body->get_my_governor()->get_type_refd_last();
+            Type *base_type = base_template->body->get_my_governor()
+              ->get_type_refd_last();
+            if (!body_type || !base_type)
+              FATAL_ERROR("Def_Template::generate_code()");
+            const string& tmp_id = body->get_temporary_id();
+            const char *tmp_id_str = tmp_id.c_str();
+            // base template initialization
+            cdef.init = mputprintf(cdef.init,
+              "%s %s;\n"
+              "if (!%s(%s, %s)) TTCN_error(\"Values or templates of types `%s' "
+              "and `%s' are not compatible at run-time\");\n"
+              "%s = %s;\n",
+              body_type->get_genname_template(my_scope).c_str(), tmp_id_str,
+              TypeConv::get_conv_func(base_type, body_type, my_scope
+              ->get_scope_mod()).c_str(), tmp_id_str, base_template
+              ->get_genname_from_scope(my_scope).c_str(), base_type
+              ->get_typename().c_str(), body_type->get_typename().c_str(),
+              body->get_lhs_name().c_str(), tmp_id_str);
+          } else {
+            cdef.init = mputprintf(cdef.init, "%s = %s;\n",
+              body->get_lhs_name().c_str(),
+              base_template->get_genname_from_scope(my_scope).c_str());
+          }
         }
-        if (use_runtime_2 && body->get_needs_conversion()) {
-          Type *body_type = body->get_my_governor()->get_type_refd_last();
-          Type *base_type = base_template->body->get_my_governor()
-            ->get_type_refd_last();
-          if (!body_type || !base_type)
-            FATAL_ERROR("Def_Template::generate_code()");
-          const string& tmp_id = body->get_temporary_id();
-          const char *tmp_id_str = tmp_id.c_str();
-          // base template initialization
-          cdef.init = mputprintf(cdef.init,
-            "%s %s;\n"
-            "if (!%s(%s, %s)) TTCN_error(\"Values or templates of types `%s' "
-            "and `%s' are not compatible at run-time\");\n"
-            "%s = %s;\n",
-            body_type->get_genname_template(my_scope).c_str(), tmp_id_str,
-            TypeConv::get_conv_func(base_type, body_type, my_scope
-            ->get_scope_mod()).c_str(), tmp_id_str, base_template
-            ->get_genname_from_scope(my_scope).c_str(), base_type
-            ->get_typename().c_str(), body_type->get_typename().c_str(),
-            body->get_lhs_name().c_str(), tmp_id_str);
-        } else {
-          cdef.init = mputprintf(cdef.init, "%s = %s;\n",
-            body->get_lhs_name().c_str(),
-            base_template->get_genname_from_scope(my_scope).c_str());
+        if (use_runtime_2 && TypeConv::needs_conv_refd(body))
+          cdef.init = TypeConv::gen_conv_code_refd(cdef.init,
+            body->get_lhs_name().c_str(), body);
+        else
+          cdef.init = body->generate_code_init(cdef.init,
+            body->get_lhs_name().c_str());
+        if (template_restriction != TR_NONE && gen_restriction_check)
+          cdef.init = Template::generate_restriction_check_code(cdef.init,
+            body->get_lhs_name().c_str(), template_restriction);
+        if (body->get_err_descr() != NULL && body->get_err_descr()->has_descr(NULL)) {
+          cdef.init = mputprintf(cdef.init, "%s.set_err_descr(&%s_%lu_err_descr);\n",
+            body->get_lhs_name().c_str(), body->get_lhs_name().c_str(),
+            static_cast<unsigned long>( body->get_err_descr()->get_descr_index(NULL) ));
         }
       }
-      if (use_runtime_2 && TypeConv::needs_conv_refd(body))
-        cdef.init = TypeConv::gen_conv_code_refd(cdef.init,
-          body->get_lhs_name().c_str(), body);
-      else
-        cdef.init = body->generate_code_init(cdef.init,
-          body->get_lhs_name().c_str());
-      if (template_restriction != TR_NONE && gen_restriction_check)
-        cdef.init = Template::generate_restriction_check_code(cdef.init,
-          body->get_lhs_name().c_str(), template_restriction);
-      if (body->get_err_descr() != NULL && body->get_err_descr()->has_descr(NULL)) {
-        cdef.init = mputprintf(cdef.init, "%s.set_err_descr(&%s_%lu_err_descr);\n",
-          body->get_lhs_name().c_str(), body->get_lhs_name().c_str(),
-          static_cast<unsigned long>( body->get_err_descr()->get_descr_index(NULL) ));
+      else { // no template body
+        type->generate_code_object(&cdef, my_scope, get_genname(), "template_", true, false, true);
       }
       char*& header = in_class ? target->header.class_defs : target->header.global_vars;
       header = mputstr(header, cdef.decl);
@@ -5255,6 +5305,9 @@ namespace Ttcn {
 
   char *Def_Template::generate_code_str(char *str)
   {
+    if (body == NULL) {
+      FATAL_ERROR("Def_Template::generate_code_str");
+    }
     if (fp_list) {
       const char *dispname_str = id->get_dispname().c_str();
       NOTSUPP("Code generation for parameterized local template `%s'",
@@ -5322,6 +5375,9 @@ namespace Ttcn {
 
   void Def_Template::ilt_generate_code(ILT *ilt)
   {
+    if (body == NULL) {
+      FATAL_ERROR("Def_Template::ilt_generate_code");
+    }
     char*& def=ilt->get_out_def();
     char*& init=ilt->get_out_branches();
     if (fp_list) {
@@ -5361,7 +5417,9 @@ namespace Ttcn {
       DEBUG(level + 1, "restriction: %s",
         Template::get_restriction_name(template_restriction));
     type->dump(level + 1);
-    body->dump(level + 1);
+    if (body != NULL) {
+      body->dump(level + 1);
+    }
   }
 
   // =================================
@@ -7032,7 +7090,6 @@ namespace Ttcn {
         " in clause 16.1.4 of the TTCN-3 core language standard (ES 201 873-1)",
         id->get_dispname().c_str());
     }
-    ClassTypeBody* my_class = my_scope->get_scope_class();
 
     // `runs on' clause and `port' clause are mutually exclusive
     if (runs_on_ref && port_ref) {
