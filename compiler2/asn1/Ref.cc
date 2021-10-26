@@ -105,6 +105,7 @@ namespace Asn {
       block=0;
       return 0;
     }
+
     Ass_pard *ass_pard=parass->get_ass_pard();
     if(!ass_pard) {
       /* error: this is not a parameterized assignment */
@@ -190,6 +191,11 @@ namespace Asn {
     const Identifier& new_ass_id = new_ass->get_id();
     const string& new_ass_dispname = new_ass_id.get_dispname();
 
+    ref_ds=new Ref_defd_simple(new Identifier(my_mod->get_modid()),
+                               new Identifier(new_ass_id));
+    ref_ds->set_fullname(get_fullname());
+    ref_ds->set_my_scope(my_mod);
+
     asss->set_right_scope(my_scope);
     asss->set_parent_scope(parass->get_my_scope());
     asss->set_parent_scope_gen(my_scope);
@@ -203,15 +209,11 @@ namespace Asn {
     new_ass->set_location(*this);
     new_ass->set_dontgen();
     new_ass->chk();
-    
+
     if (Common::Assignment::A_TYPE == new_ass->get_asstype()) {
       new_ass->get_Type()->set_pard_type_instance();
     }
-    
-    ref_ds=new Ref_defd_simple(new Identifier(my_mod->get_modid()),
-                               new Identifier(new_ass_id));
-    ref_ds->set_fullname(get_fullname());
-    ref_ds->set_my_scope(my_mod);
+
     return ref_ds;
   }
 

@@ -823,6 +823,8 @@ public:
     /** Adds a new string. Returns true on success or false if \a s already
      * exists on chain. */
     bool add(const string& s);
+    /** Returns the state of the automatic error reporting. */
+    bool is_error_reporting_on() const;
     /** Turns on or off the automatic error reporting. */
     void set_error_reporting(bool enable);
     /** Returns the number of errors found after the last

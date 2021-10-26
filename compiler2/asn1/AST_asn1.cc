@@ -1472,12 +1472,17 @@ namespace Asn {
             && (t_ref->refers_to_st(Setting::S_T, refch)
                 || t_ref->refers_to_st(Setting::S_VS, refch))
             ) {
-      Type *t_type=new Type(Type::T_REFD, t_ref);
-      t_type->set_location(*t_ref);
-      ass=new Ass_T(id->clone(), ass_pard, t_type);
-      ass_pard=0;
-      right=0;
-      asstype=A_TYPE;
+      // 't_ref->refers_to_st()' could have already completed the classification
+      // of this assignment (in case of recursive types);
+      // only create a new type and type assignment, if they're not already set
+      if (ass == NULL) {
+        Type *t_type=new Type(Type::T_REFD, t_ref);
+        t_type->set_location(*t_ref);
+        ass=new Ass_T(id->clone(), ass_pard, t_type);
+        ass_pard=0;
+        right=0;
+        asstype=A_TYPE;
+      }
     }
     else if(id->isvalid_asn_objsetref()
             && (t_ref=dynamic_cast<Ref_simple*>(left))
