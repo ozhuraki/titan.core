@@ -1,0 +1,66 @@
+/******************************************************************************
+ * Copyright (c) 2000-2021 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Gabor, Szalai – initial implementation
+ *
+ ******************************************************************************/
+
+module Issue575 {
+
+
+type component CT {};
+
+type record my_rec{
+  bitstring f1 length(6)
+} with {
+  variant "FIELDORDER(msb)"
+  variant "PADDING(dword32)"
+}
+
+template my_rec t_expected:={f1:='111111'B}
+
+
+
+testcase tc_issue575() runs on CT {
+  var bitstring vl_encoded
+  var my_rec vl_pdu:={f1:='111111'B}
+  var integer vl_res
+  
+  vl_encoded:=encvalue(vl_pdu)
+  
+  log(vl_encoded)
+
+  if(vl_encoded == '11111100000000000000000000000000'B){
+    setverdict(pass)
+  } else {
+    setverdict(fail)
+  }
+
+  vl_res:=decvalue(vl_encoded,vl_pdu)
+   
+  log(vl_pdu)
+  if(vl_res == 0 and match(vl_pdu,t_expected)){
+    setverdict(pass)
+  } else {
+    setverdict(fail)
+  }
+  
+  
+}
+  
+  
+  
+
+
+control {
+  execute(tc_issue575());
+}
+
+} with {
+  encode "RAW"
+}

@@ -1246,7 +1246,7 @@ void TTCN_Buffer::put_zero(size_t len, raw_order_t fieldorder)
       unsigned char mask1=BitMaskTable[bit_pos];
       unsigned char *prt=data_ptr+(buf_len==0?0:buf_len-1);
       if(fieldorder==ORDER_LSB) prt[0]&=mask1;
-      else prt[0]&=~mask1;
+      else prt[0]&=REVERSE_BITS(mask1);
       memset(prt+1, 0, (len-1+bit_pos)/8);
     }
     else {
