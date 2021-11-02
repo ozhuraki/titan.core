@@ -459,7 +459,7 @@ int RAW_decode_enum_type(const TTCN_Typedescriptor_t& p_td, TTCN_Buffer& buff,
   /*  if(p_td.raw->endianness==ORDER_MSB)
    buff.increase_pos_bit(fl-min_bits_enum);*/
   fl = i.RAW_decode(my_descr, buff, limit, top_bit_ord, no_err);
-  if (fl < 0) return fl;
+  if (fl < 0 || !i.is_native()) return -1;
   value = (int) i;
   /*  if(p_td.raw->endianness==ORDER_LSB)
    buff.increase_pos_bit(fl-min_bits_enum);*/

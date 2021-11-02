@@ -1,0 +1,8 @@
+Issue574
+Issue574.exe
+Issue574*.cc
+Issue574*.hh
+*.d
+compile
+Issue574*.log
+result.txt
