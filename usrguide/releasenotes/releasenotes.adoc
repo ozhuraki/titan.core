@@ -27,6 +27,28 @@ The document is organized as follows: <<what-s-new-in-this-version,What's new in
 [[what-s-new-in-this-version]]
 = What’s new in this version?
 
+[[version-8-1-0]]
+== Version 8.1.0
+
+This release contains some new features and bugfixes:
+
+* C++ compiler 
+  ** Bugfixes (495, 506, 544, 555, 556, 557, 558, 559, 560, 563, 572, 573, 574, 575) 
+  ** Object Oriented features improvements (533, 571) 
+  ** Support Dynamic Matching (548, 549, 550) 
+  ** Commit ID appears in version printout (561) 
+  ** INTEGER(BIGNUM *other_value) Titan API call made public (551) 
+
+* Eclipse Plug-ins 
+  ** Bugfixes (402, 406, 412, 420, 421, 426, 428, 430, 431, 440, 445, 446)​ 
+  ** ANTLR version updated to 4.7.1 (409, 410) 
+  ** Object Oriented feature enhancements (423, 424) 
+  ** Eclipse IDE UI enhancements (397, 418, 441) 
+
+* Test Ports 
+  ** Java implementation of IPL4 Test Port 
+
+
 [[version-8-0-0]]
 == Version 8.0.0
 
