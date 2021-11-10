@@ -24,9 +24,9 @@ ENV PATH=$TTCN3_DIR/bin:$PATH \
 ## CLONE TITAN
 WORKDIR /home/titan/
 RUN git clone https://gitlab.eclipse.org/eclipse/titan/titan.EclipsePlug-ins.git
-# Checkout release 8.0.0
+# Checkout release 8.1.0
 WORKDIR /home/titan/titan.core
-RUN git checkout tags/8.0.0
+RUN git checkout tags/8.1.0
 
 ## SET Makefile.personal
 # TTCN3_DIR := /home/titan/titan.core/Install

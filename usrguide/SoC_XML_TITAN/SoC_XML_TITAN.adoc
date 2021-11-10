@@ -1,13 +1,13 @@
 ---
 Author: Adrien Kirjak
-Version: 8.0.0
-Date: 2021-05-27
+Version: 8.1.0
+Date: 2021-11-10
 
 ---
 = Statement of Compliance for use of XML Schema in Eclipse Titan
 :author: Adrien Kirjak
-:revnumber: 8.0.0
-:revdate: 2021-05-27
+:revnumber: 8.1.0
+:revdate: 2021-11-10
 :title-logo-image: images/titan_logo.png
 :sectnums:
 :doctype: book
