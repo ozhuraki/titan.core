@@ -38,16 +38,18 @@ else \
   mv git_version.c.tmp git_version.c; \
 fi)
 
+TOBECLEANED := git_version.c
+
 TARGETS :=
 
 # The origin of GENERATED_SOURCES
 ORIGINATORS := pattern_la.l  pattern_p.y  pattern_uni.y  config_preproc_la.l config_preproc_p.y
 
-GENERATED_SOURCES := pattern_la.cc pattern_p.cc pattern_uni.cc config_preproc_la.cc config_preproc_p.tab.cc
+GENERATED_SOURCES := pattern_la.cc pattern_p.cc pattern_uni.cc config_preproc_la.cc config_preproc_p.tab.cc git_version.c
 
 # Sources in the CVS
 
-STATIC_SOURCES := git_version.c memory.c new.cc userinfo.c path.c config_preproc.cc Quadruple.cc \
+STATIC_SOURCES := memory.c new.cc userinfo.c path.c config_preproc.cc Quadruple.cc \
 		  Path2.cc ModuleVersion.cc JSON_Tokenizer.cc UnicharPattern.cc openssl_version.c
 
 ifndef MINGW
