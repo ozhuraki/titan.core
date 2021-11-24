@@ -3217,13 +3217,13 @@ namespace Ttcn {
       final ? " @final " : "", abstract ? " @abstract" : "");
     DEBUG(level, "Base classes:");
     if (base_type != NULL) {
-      DEBUG(level + 1, base_type->get_typename().c_str());
+      DEBUG(level + 1, "%s", base_type->get_typename().c_str());
     }
     if (base_traits != NULL) {
       for (size_t i = 0; i < base_traits->get_nof_types(); ++i) {
         Type* base_trait = base_traits->get_type_byIndex(i);
         if (base_trait != NULL) {
-          DEBUG(level + 1, base_trait->get_typename().c_str());
+          DEBUG(level + 1, "%s", base_trait->get_typename().c_str());
         }
       }
     }
