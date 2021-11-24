@@ -1,0 +1,223 @@
+/******************************************************************************
+ * Copyright (c) 2000-2021 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+module oop2 {
+
+type component CT {}
+
+type class C1 {
+  private const integer m_const1;
+  private const integer m_const2 := 4;
+  private template integer m_temp1;
+  private template integer m_temp2 := (0..10);
+  private var integer m_var1;
+  private var integer m_var2 := 10;
+  private var template integer m_var_temp1;
+  private var template integer m_var_temp2 := (1, 2, 4, 8);
+  
+  public function test_members() {
+    if (m_const1 != 3) {
+      setverdict(fail, "m_const1 = ", m_const1);
+    }
+    if (m_const2 != 4) {
+      setverdict(fail, "m_const2 = ", m_const2);
+    }
+    if (log2str(m_temp1) != "?") {
+      setverdict(fail, "m_temp1 = ", m_temp1);
+    }
+    if (log2str(m_temp2) != "(0 .. 10)") {
+      setverdict(fail, "m_temp2 = ", m_temp2);
+    }
+    if (m_var1 != -1) {
+      setverdict(fail, "m_var1 = ", m_var1);
+    }
+    if (m_var2 != -2) {
+      setverdict(fail, "m_var2 = ", m_var2);
+    }
+    if (log2str(m_var_temp1) != "(0 .. infinity)") {
+      setverdict(fail, "m_var_temp1 = ", m_var_temp1);
+    }
+    if (log2str(m_var_temp2) != "(1, 2, 4, 8)") {
+      setverdict(fail, "m_var_temp2 = ", m_var_temp2);
+    }
+  }
+}
+
+testcase tc_constructor_default() runs on CT {
+  var C1 x := C1.create(3, ?, -1, -2, (0..infinity), -);
+  x.test_members();
+  setverdict(pass);
+}
+
+
+type class C2 {
+  private const integer m_const1;
+  private const integer m_const2 := 4;
+  private template integer m_temp1;
+  private template integer m_temp2 := (0..10);
+  private var integer m_var1;
+  private var integer m_var2 := 10;
+  private var template integer m_var_temp1;
+  private var template integer m_var_temp2 := (1, 2, 4, 8);
+  
+  create() {
+    m_const1 := 1;
+    m_temp1 := ?;
+  }
+  
+  public function test_members() {
+    if (m_const1 != 1) {
+      setverdict(fail, "m_const1 = ", m_const1);
+    }
+    if (m_const2 != 4) {
+      setverdict(fail, "m_const2 = ", m_const2);
+    }
+    if (log2str(m_temp1) != "?") {
+      setverdict(fail, "m_temp1 = ", m_temp1);
+    }
+    if (log2str(m_temp2) != "(0 .. 10)") {
+      setverdict(fail, "m_temp2 = ", m_temp2);
+    }
+    if (isbound(m_var1)) {
+      setverdict(fail, "m_var1 = ", m_var1);
+    }
+    if (m_var2 != 10) {
+      setverdict(fail, "m_var2 = ", m_var2);
+    }
+    if (isbound(m_var_temp1)) {
+      setverdict(fail, "m_var_temp1 = ", m_var_temp1);
+    }
+    if (log2str(m_var_temp2) != "(1, 2, 4, 8)") {
+      setverdict(fail, "m_var_temp2 = ", m_var_temp2);
+    }
+  }
+}
+
+testcase tc_constructor_init() runs on CT {
+  var C2 x := C2.create;
+  x.test_members();
+  setverdict(pass);
+}
+
+
+type class C3 {
+  private const integer m_const1;
+  private const integer m_const2 := 4;
+  private template integer m_temp1;
+  private template integer m_temp2 := (0..10);
+  private var integer m_var1;
+  private var integer m_var2 := 10;
+  private var template integer m_var_temp1;
+  private var template integer m_var_temp2 := (1, 2, 4, 8);
+  
+  create() {
+    m_temp1 := ?;
+  }
+}
+
+testcase tc_constructor_uninit_const() runs on CT {
+  @try {
+    var C3 x := C3.create;
+    setverdict(fail, "Error expected.");
+  }
+  @catch (msg) {
+    var template charstring exp := pattern "*Constant member `m_const1' is not initialized by the end of the constructor's execution.";
+    if (match(msg, exp)) {
+      setverdict(pass);
+    }
+    else {
+      setverdict(fail, "Invalid error: ", msg);
+    }
+  }
+}
+
+
+type class C4 {
+  private const integer m_const1;
+  private const integer m_const2 := 4;
+  private template integer m_temp1;
+  private template integer m_temp2 := (0..10);
+  private var integer m_var1;
+  private var integer m_var2 := 10;
+  private var template integer m_var_temp1;
+  private var template integer m_var_temp2 := (1, 2, 4, 8);
+  
+  create() {
+    m_const1 := 1;
+  }
+}
+
+testcase tc_constructor_uninit_temp() runs on CT {
+  @try {
+    var C4 x := C4.create;
+    setverdict(fail, "Error expected.");
+  }
+  @catch (msg) {
+    var template charstring exp := pattern "*Template member `m_temp1' is not initialized by the end of the constructor's execution.";
+    if (match(msg, exp)) {
+      setverdict(pass);
+    }
+    else {
+      setverdict(fail, "Invalid error: ", msg);
+    }
+  }
+}
+
+
+type record Rec {
+  integer num,
+  charstring str
+}
+
+type class C5 {
+  private const integer c1 := c2;
+  private const integer c2 := 3;
+  private template integer t1 := (t2, c3);
+  private template integer t2 := (1..4);
+  private const integer c3 := 9;
+  private var Rec v1 := { c4, "x" };
+  private const integer c4 := 10;
+  private var template Rec vt1 := { num := vt2, str := v3 };
+  private var template integer vt2 := (0..100);
+  private var charstring v3 := "y";
+  
+  create() {
+    if (c1 != 3) {
+      setverdict(fail, "c1 = ", c1);
+    }
+    template integer t1_exp := ((1..4), 9);
+    if (log2str(t1) != log2str(t1_exp)) {
+      setverdict(fail, "t1 = ", t1);
+    }
+    if (v1 != { 10, "x" }) {
+      setverdict(fail, "v1 = ", v1);
+    }
+    template Rec vt1_exp := { num := (0..100), str := "y" };
+    if (log2str(vt1) != log2str(vt1_exp)) {
+      setverdict(fail, "vt1 = ", vt1);
+    }
+  }
+}
+
+testcase tc_member_init_rearrange() runs on CT {
+  var C5 x := C5.create; // the actual tests are in the constructor
+  setverdict(pass);
+}
+
+control {
+  execute(tc_constructor_default());
+  execute(tc_constructor_init());
+  execute(tc_constructor_uninit_const());
+  execute(tc_constructor_uninit_temp());
+  execute(tc_member_init_rearrange());
+}
+
+}

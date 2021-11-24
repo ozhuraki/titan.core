@@ -78,7 +78,8 @@ namespace Ttcn {
     /** Returns whether the pattern contains embedded references */
     bool has_refs() const;
     /** Checks the embedded referenced values */
-    void chk_refs(Type::expected_value_t expected_value=Type::EXPECTED_DYNAMIC_VALUE);
+    void chk_refs(Type::expected_value_t expected_value=Type::EXPECTED_DYNAMIC_VALUE,
+      namedbool class_member_init = NOT_CLASS_MEMBER_INIT);
     void chk_recursions(ReferenceChain& refch);
     /** Checks the pattern by translating it to POSIX regexp */
     void chk_pattern();

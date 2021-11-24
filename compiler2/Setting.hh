@@ -448,9 +448,11 @@ public:
       CS_INIT_COMP, /**< Initialized with the component entities (i.e. when
                      * the component type is known). Example: initial value
 		     * for component variables, default duration for timers. */
-      CS_INLINE /**< Initialized immediately at the place of definition.
-                 * Applicable to local definitions only. Example: initial
-		 * value for a local variable. */
+      CS_INLINE, /**< Initialized immediately at the place of definition.
+                  * Applicable to local definitions only. Example: initial
+                  * value for a local variable. */
+      CS_INIT_CLASS /**< Initialized at the beginning of a class's constructor.
+                     * Example: class members */
     };
   private:
     /** A prefix that shall be inserted before the genname when initializing

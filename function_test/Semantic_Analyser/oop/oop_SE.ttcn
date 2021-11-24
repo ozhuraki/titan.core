@@ -492,7 +492,7 @@ type class C46 extends object { }
 
 
 type class C47 {
-  const integer m1 := 3;
+  const integer m1;
   public function m2() return boolean { return true; }
   function m3(in integer p) return charstring { return int2str(p); }
   function @final m4() { }
@@ -746,6 +746,24 @@ function f_traits_bad() { //^In function definition//
 function f_traits_good() runs on CT_RunsOn2 {
   var T7 v_t7 := C59.create;
   log(v_t7.f(3));
+}
+
+type class C60 {//^In type definition//
+  private const integer a := b;
+  private const integer b := 3;
+  private var integer c := f(); //^In variable definition// //Reference to a static value was expected instead of the return value of function `@oop_SE.C60.f'//
+  private const integer d := (1 - d); //^In constant definition// //^In the operands of operation// //Circular reference in constant definition//
+  private const integer e;
+  private const integer g := e + 1; //^In constant definition// //Reference to uninitialized constant `e' in class member initialization//
+  private var Rec h := { num := e, str := "q" }; //^In variable definition// //^In value for record field// //Reference to uninitialized constant `e' in class member initialization//
+  private template integer i;
+  private template integer j := i; //^In template definition// //Reference to uninitialized template `i' in class member initialization//
+  private var template Rec k := { e, h.str }; //^In template variable definition// //^In template for record field// //Reference to uninitialized constant `e' in class member initialization//
+  private var template integer l;
+  private template integer m := (1, l); //^In template definition// //^In list item// //Reference to uninitialized template variable `l' in class member initialization//
+  private var charstring n;
+  private var template charstring o := pattern "ab?{n}"; //^In template variable definition// //^In character string pattern// //Reference to uninitialized variable `n' in class member initialization//
+  public function f() return integer { return 10; }
 }
 
 

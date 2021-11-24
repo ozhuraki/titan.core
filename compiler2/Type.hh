@@ -48,7 +48,8 @@ enum namedbool { INCOMPLETE_NOT_ALLOWED = 0, INCOMPLETE_ALLOWED = 1, WARNING_FOR
   ANY_OR_OMIT_NOT_ALLOWED = 0, ANY_OR_OMIT_ALLOWED = 5,
   NOT_IMPLICIT_OMIT = 0, IMPLICIT_OMIT = 6,
   NOT_STR_ELEM = 0, IS_STR_ELEM = 7,
-  ISBOUND = 8, ISPRESENT = 9, ISCHOSEN = 10, ISVALUE = 11
+  ISBOUND = 8, ISPRESENT = 9, ISCHOSEN = 10, ISVALUE = 11,
+  NOT_CLASS_MEMBER_INIT = 0, CLASS_MEMBER_INIT = 12
 };
 
 namespace Asn {
@@ -952,11 +953,13 @@ namespace Common {
       expected_value_t expected_value, namedbool incomplete_allowed,
       namedbool omit_allowed, namedbool sub_chk,
       namedbool implicit_omit = NOT_IMPLICIT_OMIT,
-      namedbool str_elem = NOT_STR_ELEM);
+      namedbool str_elem = NOT_STR_ELEM,
+      namedbool class_member_init = NOT_CLASS_MEMBER_INIT);
     /** Checks the given referenced value */
     bool chk_this_refd_value(Value *value, Common::Assignment *lhs,
       expected_value_t expected_value, ReferenceChain *refch=0,
-      namedbool str_elem = NOT_STR_ELEM);
+      namedbool str_elem = NOT_STR_ELEM,
+      namedbool class_member_init = NOT_CLASS_MEMBER_INIT);
     /** Checks the given invocation */
     void chk_this_invoked_value(Value *value, Common::Assignment *lhs,
       expected_value_t expected_value);
@@ -980,19 +983,24 @@ namespace Common {
       expected_value_t expected_value, namedbool incomplete_allowed,
       namedbool omit_allowed, namedbool sub_chk,
       namedbool implicit_omit = NOT_IMPLICIT_OMIT,
-      namedbool str_elem = NOT_STR_ELEM);
+      namedbool str_elem = NOT_STR_ELEM,
+      namedbool class_member_init = NOT_CLASS_MEMBER_INIT);
     bool chk_this_value_Se(Value *value, Common::Assignment *lhs,
       expected_value_t expected_value, namedbool incomplete_allowed,
-      namedbool implicit_omit = NOT_IMPLICIT_OMIT);
+      namedbool implicit_omit = NOT_IMPLICIT_OMIT,
+      namedbool class_member_init = NOT_CLASS_MEMBER_INIT);
     bool chk_this_value_Se_T(Value *value, Common::Assignment *lhs,
       expected_value_t expected_value, namedbool incomplete_allowed,
-      namedbool implicit_omit = NOT_IMPLICIT_OMIT);
+      namedbool implicit_omit = NOT_IMPLICIT_OMIT,
+      namedbool class_member_init = NOT_CLASS_MEMBER_INIT);
     bool chk_this_value_Seq_T(Value *value, Common::Assignment *lhs,
       expected_value_t expected_value, namedbool incomplete_allowed,
-      namedbool implicit_omit = NOT_IMPLICIT_OMIT);
+      namedbool implicit_omit = NOT_IMPLICIT_OMIT,
+      namedbool class_member_init = NOT_CLASS_MEMBER_INIT);
     bool chk_this_value_Set_T(Value *value, Common::Assignment *lhs,
       expected_value_t expected_value, namedbool incomplete_allowed,
-      namedbool implicit_omit = NOT_IMPLICIT_OMIT);
+      namedbool implicit_omit = NOT_IMPLICIT_OMIT,
+      namedbool class_member_init = NOT_CLASS_MEMBER_INIT);
     bool chk_this_value_Se_A(Value *value, Common::Assignment *lhs,
       expected_value_t expected_value, namedbool implicit_omit);
     bool chk_this_value_Seq_A(Value *value, Common::Assignment *lhs,
@@ -1001,14 +1009,16 @@ namespace Common {
       expected_value_t expected_value, namedbool implicit_omit);
     bool chk_this_value_SeOf(Value *value, Common::Assignment *lhs,
       expected_value_t expected_value, namedbool incomplete_allowed,
-      namedbool implicit_omit = NOT_IMPLICIT_OMIT);
+      namedbool implicit_omit = NOT_IMPLICIT_OMIT,
+      namedbool class_member_init = NOT_CLASS_MEMBER_INIT);
     void chk_this_value_Verdict(Value *value);
     void chk_this_value_Default(Value *value);
     bool chk_this_value_Array(Value *value, Common::Assignment *lhs,
       expected_value_t expected_value, namedbool incomplete_allowed,
-      namedbool implicit_omit);
+      namedbool implicit_omit, namedbool class_member_init = NOT_CLASS_MEMBER_INIT);
     bool chk_this_value_Signature(Value *value, Common::Assignment *lhs,
-      expected_value_t expected_value, namedbool incomplete_allowed);
+      expected_value_t expected_value, namedbool incomplete_allowed,
+      namedbool class_member_init = NOT_CLASS_MEMBER_INIT);
     void chk_this_value_Component(Value *value);
     void chk_this_value_FAT(Value *value);
     void chk_this_value_class(Value* value);
@@ -1025,19 +1035,19 @@ namespace Common {
     bool chk_this_template_ref_pard(Ttcn::Reference* ref_pard, Common::Assignment* lhs);
     bool chk_this_template_generic(Template *t, namedbool incomplete_allowed,
      namedbool allow_omit, namedbool allow_any_or_omit, namedbool sub_chk,
-     namedbool implicit_omit, Common::Assignment *lhs);
+     namedbool implicit_omit, namedbool class_member_init, Common::Assignment *lhs);
     /** Checks if a template's type contains default or port field somehow.*/
     void chk_this_template_incorrect_field();
   private:
-    bool chk_this_refd_template(Template *t, Common::Assignment *lhs);
+    bool chk_this_refd_template(Template *t, namedbool class_member_init, Common::Assignment *lhs);
     void chk_this_template_length_restriction(Template *t);
     bool chk_this_template_concat_operand(Template* t, namedbool implicit_omit,
-      Common::Assignment *lhs);
+      namedbool class_member_init, Common::Assignment *lhs);
     bool chk_this_template(Template *t, namedbool incomplete_allowed,
       namedbool allow_omit, namedbool allow_any_or_omit, namedbool sub_chk,
-      namedbool implicit_omit, Common::Assignment *lhs);
+      namedbool implicit_omit, namedbool class_member_init, Common::Assignment *lhs);
     bool chk_this_template_Str(Template *t, namedbool implicit_omit,
-      Common::Assignment *lhs);
+      namedbool class_member_init, Common::Assignment *lhs);
     /** Checks whether \a v is a correct range boundary for this type.
      * Applicable to the following types: integer, float, charstring,
      * universal charstring.
@@ -1054,19 +1064,19 @@ namespace Common {
     void chk_this_template_Enum(Template *t);
     bool chk_this_template_Choice(Template *t, namedbool incomplete_allowed,
       namedbool allow_omit, namedbool allow_any_or_omit, namedbool sub_chk,
-      namedbool implicit_omit, Common::Assignment *lhs);
+      namedbool implicit_omit, namedbool class_member_init, Common::Assignment *lhs);
     bool chk_this_template_Seq(Template *t, namedbool incomplete_allowed,
-      namedbool implicit_omit, Common::Assignment *lhs);
+      namedbool implicit_omit, namedbool class_member_init, Common::Assignment *lhs);
     bool chk_this_template_Set(Template *t, namedbool incomplete_allowed,
-      namedbool implicit_omit, Common::Assignment *lhs);
+      namedbool implicit_omit, namedbool class_member_init, Common::Assignment *lhs);
     bool chk_this_template_SeqOf(Template *t, namedbool incomplete_allowed,
-      namedbool implicit_omit, Common::Assignment *lhs);
+      namedbool implicit_omit, namedbool class_member_init, Common::Assignment *lhs);
     bool chk_this_template_SetOf(Template *t, namedbool incomplete_allowed,
-      namedbool implicit_omit, Common::Assignment *lhs);
+      namedbool implicit_omit, namedbool class_member_init, Common::Assignment *lhs);
     bool chk_this_template_array(Template *t, namedbool incomplete_allowed,
-      namedbool implicit_omit, Common::Assignment *lhs);
+      namedbool implicit_omit, namedbool class_member_init, Common::Assignment *lhs);
     void chk_this_template_Fat(Template *t);
-    void chk_this_template_Signature(Template *t, namedbool incomplete_allowed);
+    void chk_this_template_Signature(Template *t, namedbool incomplete_allowed, namedbool class_member_init);
   public:
     /** Check whether there is an enum item with the given name.
      *

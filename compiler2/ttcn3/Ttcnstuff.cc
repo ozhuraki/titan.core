@@ -3845,35 +3845,62 @@ namespace Ttcn {
       if (!external) {
         block = new StatementBlock();
         for (size_t i = 0; i < members->get_nof_asss(); ++i) {
-          // note: the Definitions class rearranges its element alphabetically;
+          // note: the Definitions class rearranges its elements alphabetically;
           // here the members must be accessed in their original order
           Common::Assignment* member = members->get_ass_byIndex(i, false);
           bool is_template = false;
+          TemplateInstance* def_val = NULL;
           switch (member->get_asstype()) {
+          case Common::Assignment::A_CONST:
+            if (member->get_Value() != NULL) {
+              continue; // the constant has already been initialized at its definition
+            }
+            break;
           case Common::Assignment::A_TEMPLATE:
+            if (member->get_Template() != NULL) {
+              continue; // the template has already been initialized at its definition
+            }
+            is_template = true;
+            break;
+          case Common::Assignment::A_VAR:
+            if (member->get_Value() != NULL) {
+              // set the variable's initial value as the constructor parameter's default value
+              Def_Var* var_member = dynamic_cast<Def_Var*>(member);
+              if (var_member == NULL) {
+                FATAL_ERROR("ClassTypeBody::chk - Def_Var cast");
+              }
+              def_val = new TemplateInstance(NULL, NULL, new Template(var_member->steal_Value()));
+            }
+            break;
           case Common::Assignment::A_VAR_TEMPLATE:
             is_template = true;
-            // no break
-          case Common::Assignment::A_CONST:
-          case Common::Assignment::A_VAR: {
-            // add a formal parameter for this member
-            Common::Identifier* id = member->get_id().clone();
-            FormalPar* fp = new FormalPar(is_template ?
-              Common::Assignment::A_PAR_TEMPL_IN : Common::Assignment::A_PAR_VAL_IN,
-              member->get_Type()->clone(), id, NULL);
-            fp_list->add_fp(fp);
-            // add a statement, that assigns the parameter's value to the member
-            Reference* ref_lhs = new Reference(NULL, id->clone(), Ref_simple::REF_THIS);
-            Reference* ref_rhs = new Reference(NULL, id->clone());
-            Common::Value* val_rhs = new Value(Common::Value::V_REFD, ref_rhs);
-            Template* temp_rhs = new Template(val_rhs);
-            Assignment* par_ass = new Assignment(ref_lhs, temp_rhs);
-            Statement* stmt = new Statement(Statement::S_ASSIGNMENT, par_ass);
-            block->add_stmt(stmt);
-            break; }
+            if (member->get_Template() != NULL) {
+              // set the template variable's initial value as the constructor parameter's default value
+              Def_Var_Template* var_temp_member = dynamic_cast<Def_Var_Template*>(member);
+              if (var_temp_member == NULL) {
+                FATAL_ERROR("ClassTypeBody::chk - Def_Var_Template cast");
+              }
+              def_val = new TemplateInstance(NULL, NULL, var_temp_member->steal_Template());
+            }
+            break;
           default:
+            continue;
             break;
           }
+          // add a formal parameter for this member if we've gotten this far
+          Common::Identifier* id = member->get_id().clone();
+          FormalPar* fp = new FormalPar(is_template ?
+            Common::Assignment::A_PAR_TEMPL_IN : Common::Assignment::A_PAR_VAL_IN,
+            member->get_Type()->clone(), id, def_val);
+          fp_list->add_fp(fp);
+          // add a statement, that assigns the parameter's value to the member
+          Reference* ref_lhs = new Reference(NULL, id->clone(), Ref_simple::REF_THIS);
+          Reference* ref_rhs = new Reference(NULL, id->clone());
+          Common::Value* val_rhs = new Value(Common::Value::V_REFD, ref_rhs);
+          Template* temp_rhs = new Template(val_rhs);
+          Assignment* par_ass = new Assignment(ref_lhs, temp_rhs);
+          Statement* stmt = new Statement(Statement::S_ASSIGNMENT, par_ass);
+          block->add_stmt(stmt);
         }
       }
       constructor = new Def_Constructor(fp_list, base_call, block);
@@ -3881,6 +3908,29 @@ namespace Ttcn {
       constructor->set_fullname(get_fullname() + ".<default_constructor>");
       constructor->chk();
       default_constructor = true;
+    }
+
+    if (constructor != NULL && !default_constructor && !name_clash && !trait) {
+      // make sure constants and templates are initialized
+      for (size_t i = 0; i < members->get_nof_asss(); ++i) {
+        Common::Assignment* member = members->get_ass_byIndex(i, false);
+        bool needs_init_check = false;
+        bool is_template = false;
+        switch (member->get_asstype()) {
+        case Common::Assignment::A_CONST:
+          needs_init_check = member->get_Value() == NULL;
+          break;
+        case Common::Assignment::A_TEMPLATE:
+          needs_init_check = member->get_Template() == NULL;
+          is_template = true;
+          break;
+        default:
+          break;
+        }
+        if (needs_init_check) {
+          constructor->add_uninit_member(&member->get_id(), is_template);
+        }
+      }
     }
 
     if (finally_block != NULL) {

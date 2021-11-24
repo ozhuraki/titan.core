@@ -50,7 +50,8 @@ namespace Ttcn {
     ps_elem_t* clone() const;
     void set_fullname(const string& p_fullname);
     void set_my_scope(Scope *p_scope);
-    void chk_ref(PatternString::pstr_type_t pstr_type, Type::expected_value_t expected_value);
+    void chk_ref(PatternString::pstr_type_t pstr_type, Type::expected_value_t expected_value,
+      namedbool class_member_init);
     void set_code_section(GovernedSimple::code_section_t p_code_section);
   };
 
@@ -128,7 +129,8 @@ namespace Ttcn {
     } // switch kind
   }
 
-  void PatternString::ps_elem_t::chk_ref(PatternString::pstr_type_t pstr_type, Type::expected_value_t expected_value)
+  void PatternString::ps_elem_t::chk_ref(PatternString::pstr_type_t pstr_type, Type::expected_value_t expected_value,
+                                         namedbool class_member_init)
   {
     if (kind != PSE_REF) FATAL_ERROR("PatternString::ps_elem_t::chk_ref()");
     Value* v = 0;
@@ -181,7 +183,7 @@ namespace Ttcn {
       Template* templ = ass->get_Template();
       refcheckertype->chk_this_template_ref(templ);
       refcheckertype->chk_this_template_generic(templ, INCOMPLETE_ALLOWED,
-        OMIT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK, NOT_IMPLICIT_OMIT, 0);
+        OMIT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK, NOT_IMPLICIT_OMIT, class_member_init, 0);
       switch (templ->get_templatetype()) {
       case Template::SPECIFIC_VALUE:
         v_last = templ->get_specific_value();
@@ -234,7 +236,8 @@ namespace Ttcn {
       v->set_my_scope(ref->get_my_scope());
       v->set_location(*ref);
       refcheckertype->chk_this_value(v, 0, expected_value,
-        INCOMPLETE_NOT_ALLOWED, OMIT_NOT_ALLOWED, SUB_CHK);
+        INCOMPLETE_NOT_ALLOWED, OMIT_NOT_ALLOWED, SUB_CHK,
+        NOT_IMPLICIT_OMIT, NOT_STR_ELEM, class_member_init);
       v_last = v->get_value_refd_last();
     }
     }
@@ -403,7 +406,7 @@ namespace Ttcn {
     return false;
   }
 
-  void PatternString::chk_refs(Type::expected_value_t expected_value)
+  void PatternString::chk_refs(Type::expected_value_t expected_value, namedbool class_member_init)
   {
     for(size_t i=0; i<elems.size(); i++) {
       ps_elem_t *pse=elems[i];
@@ -414,7 +417,7 @@ namespace Ttcn {
         /* actually, not supported */
         break;
       case ps_elem_t::PSE_REF:
-        pse->chk_ref(pattern_type, expected_value);
+        pse->chk_ref(pattern_type, expected_value, class_member_init);
         break;
       } // switch kind
     } // for

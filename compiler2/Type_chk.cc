@@ -3998,7 +3998,8 @@ void Type::chk_this_value_ref(Value *value)
 
 bool Type::chk_this_value(Value *value, Common::Assignment *lhs, expected_value_t expected_value,
                           namedbool incomplete_allowed, namedbool omit_allowed,
-                          namedbool sub_chk, namedbool implicit_omit, namedbool is_str_elem)
+                          namedbool sub_chk, namedbool implicit_omit, namedbool is_str_elem,
+                          namedbool class_member_init)
 {
   bool self_ref = false;
   chk();
@@ -4015,12 +4016,12 @@ bool Type::chk_this_value(Value *value, Common::Assignment *lhs, expected_value_
   case Value::V_ERROR:
     return false;
   case Value::V_REFD:
-    return chk_this_refd_value(value, lhs, expected_value, 0, is_str_elem);
+    return chk_this_refd_value(value, lhs, expected_value, 0, is_str_elem, class_member_init);
   case Value::V_INVOKE:
     chk_this_invoked_value(value, lhs, expected_value);
     return false; // assumes no self-reference in invoke
   case Value::V_EXPR:
-    if (lhs) self_ref = value->chk_expr_self_ref(lhs);
+    self_ref = value->chk_expr_self_ref(lhs, class_member_init);
     // no break
   case Value::V_MACRO:
     if (value->is_unfoldable(0, expected_value)) {
@@ -4031,7 +4032,7 @@ bool Type::chk_this_value(Value *value, Common::Assignment *lhs, expected_value_
           Error_Context cntxt(value, "Using default alternative `%s' in value of union type `%s'",
             def_alt->get_name().get_dispname().c_str(), get_typename().c_str());
           self_ref = def_alt->get_type()->chk_this_value(value, lhs, expected_value,
-            incomplete_allowed, omit_allowed, sub_chk, implicit_omit, is_str_elem);
+            incomplete_allowed, omit_allowed, sub_chk, implicit_omit, is_str_elem, class_member_init);
           value->use_default_alternative(this);
           return self_ref;
         }
@@ -4118,23 +4119,23 @@ bool Type::chk_this_value(Value *value, Common::Assignment *lhs, expected_value_
   case T_OPENTYPE:
   case T_ANYTYPE:
     self_ref = chk_this_value_Choice(value, lhs, expected_value, omit_allowed,
-      sub_chk, incomplete_allowed, implicit_omit, is_str_elem);
+      sub_chk, incomplete_allowed, implicit_omit, is_str_elem, class_member_init);
     break;
   case T_SEQ_T:
   case T_SET_T:
   case T_SEQ_A:
   case T_SET_A:
     self_ref = chk_this_value_Se(value, lhs, expected_value, incomplete_allowed,
-      implicit_omit);
+      implicit_omit, class_member_init);
     break;
   case T_SEQOF:
   case T_SETOF:
     self_ref = chk_this_value_SeOf(value, lhs, expected_value, incomplete_allowed,
-      implicit_omit);
+      implicit_omit, class_member_init);
     break;
   case T_REFD:
     self_ref = get_type_refd()->chk_this_value(value, lhs, expected_value,
-      incomplete_allowed, omit_allowed, NO_SUB_CHK, implicit_omit, is_str_elem);
+      incomplete_allowed, omit_allowed, NO_SUB_CHK, implicit_omit, is_str_elem, class_member_init);
     break;
   case T_UNRESTRICTEDSTRING:
   case T_OCFT:
@@ -4144,7 +4145,7 @@ bool Type::chk_this_value(Value *value, Common::Assignment *lhs, expected_value_
   case T_SELTYPE:
   case T_ADDRESS:
     self_ref = get_type_refd()->chk_this_value(value, lhs, expected_value,
-      incomplete_allowed, omit_allowed, NO_SUB_CHK, NOT_IMPLICIT_OMIT, is_str_elem);
+      incomplete_allowed, omit_allowed, NO_SUB_CHK, NOT_IMPLICIT_OMIT, is_str_elem, class_member_init);
     break;
   case T_VERDICT:
     chk_this_value_Verdict(value);
@@ -4153,14 +4154,14 @@ bool Type::chk_this_value(Value *value, Common::Assignment *lhs, expected_value_
     chk_this_value_Default(value);
     break;
   case T_ARRAY:
-    self_ref = chk_this_value_Array(value, lhs, expected_value, incomplete_allowed, implicit_omit);
+    self_ref = chk_this_value_Array(value, lhs, expected_value, incomplete_allowed, implicit_omit, class_member_init);
     break;
   case T_PORT:
     // Remain silent. The error has already been reported in the definition
     // that the value belongs to.
     break;
   case T_SIGNATURE:
-    self_ref = chk_this_value_Signature(value, lhs, expected_value, incomplete_allowed);
+    self_ref = chk_this_value_Signature(value, lhs, expected_value, incomplete_allowed, class_member_init);
     break;
   case T_COMPONENT:
     chk_this_value_Component(value);
@@ -4184,7 +4185,7 @@ bool Type::chk_this_value(Value *value, Common::Assignment *lhs, expected_value_
 }
 
 bool Type::chk_this_refd_value(Value *value, Common::Assignment *lhs, expected_value_t expected_value,
-                               ReferenceChain* refch, namedbool str_elem)
+                               ReferenceChain* refch, namedbool str_elem, namedbool class_member_init)
 {
   Reference *ref = value->get_reference();
   Assignment *ass = ref->get_refd_assignment();
@@ -4206,8 +4207,13 @@ bool Type::chk_this_refd_value(Value *value, Common::Assignment *lhs, expected_v
     return self_ref;
   case Assignment::A_CONST:
     if (expected_value == EXPECTED_CONSTANT &&
-        ass->get_Value()->is_unfoldable(NULL, expected_value)) {
+        (ass->get_Value() == NULL || ass->get_Value()->is_unfoldable(NULL, expected_value))) {
       value->error("Referenced constant value cannot be evaluated at compile-time");
+      error_flag = true;
+    }
+    else if (class_member_init && ass->get_Value() == NULL) {
+      value->error("Reference to uninitialized constant `%s' in class member initialization",
+        ass->get_id().get_dispname().c_str());
       error_flag = true;
     }
     else {
@@ -4253,6 +4259,13 @@ bool Type::chk_this_refd_value(Value *value, Common::Assignment *lhs, expected_v
     }
     // else fall through
   case Assignment::A_VAR:
+    if (ass->get_asstype() == Assignment::A_VAR &&
+        class_member_init && ass->get_Value() == NULL) {
+      value->error("Reference to uninitialized variable `%s' in class member initialization",
+        ass->get_id().get_dispname().c_str());
+      error_flag = true;
+    }
+    // else fall through
   case Assignment::A_EXCEPTION:
   case Assignment::A_PAR_VAL:
   case Assignment::A_PAR_VAL_IN:
@@ -4388,7 +4401,7 @@ bool Type::chk_this_refd_value(Value *value, Common::Assignment *lhs, expected_v
             "value of union type `%s'", def_alt_ref->get_name().get_dispname().c_str(),
             governor->get_typename().c_str());
           ttcn_ref->use_default_alternative(def_alt_ref->get_name());
-          return chk_this_refd_value(value, lhs, expected_value, refch, str_elem);
+          return chk_this_refd_value(value, lhs, expected_value, refch, str_elem, class_member_init);
         }
         CompField* def_alt = get_default_alternative();
         if (def_alt != NULL) {
@@ -4396,7 +4409,7 @@ bool Type::chk_this_refd_value(Value *value, Common::Assignment *lhs, expected_v
           Error_Context cntxt(value, "Using default alternative `%s' in value of union type `%s'",
             def_alt->get_name().get_dispname().c_str(), get_typename().c_str());
           self_ref = def_alt->get_type()->chk_this_refd_value(value, lhs,
-            expected_value, refch, str_elem);
+            expected_value, refch, str_elem, class_member_init);
           value->use_default_alternative(this);
           return self_ref;
         }
@@ -4995,7 +5008,8 @@ static string actual_fields(Type& t) // alas, not even get_nof_comps() is const
 
 bool Type::chk_this_value_Choice(Value *value, Common::Assignment *lhs,
   expected_value_t expected_value, namedbool omit_allowed, namedbool sub_chk,
-  namedbool incomplete_allowed, namedbool implicit_omit, namedbool str_elem)
+  namedbool incomplete_allowed, namedbool implicit_omit, namedbool str_elem,
+  namedbool class_member_init)
 {
   bool self_ref = false;
   CompField* def_alt = get_default_alternative();
@@ -5006,7 +5020,7 @@ bool Type::chk_this_value_Choice(Value *value, Common::Assignment *lhs,
         Error_Context cntxt(value, "Using default alternative `%s' in value of union type `%s'",
           def_alt->get_name().get_dispname().c_str(), get_typename().c_str());
         self_ref = def_alt->get_type()->chk_this_value(value, lhs, expected_value,
-          incomplete_allowed, omit_allowed, sub_chk, implicit_omit, str_elem);
+          incomplete_allowed, omit_allowed, sub_chk, implicit_omit, str_elem, class_member_init);
         value->use_default_alternative(this);
         return self_ref;
       }
@@ -5022,7 +5036,7 @@ bool Type::chk_this_value_Choice(Value *value, Common::Assignment *lhs,
         Error_Context cntxt(value, "Using default alternative `%s' in value of union type `%s'",
           def_alt->get_name().get_dispname().c_str(), get_typename().c_str());
         self_ref = def_alt->get_type()->chk_this_value(value, lhs, expected_value,
-          incomplete_allowed, omit_allowed, sub_chk, implicit_omit, str_elem);
+          incomplete_allowed, omit_allowed, sub_chk, implicit_omit, str_elem, class_member_init);
         value->use_default_alternative(this);
         return self_ref;
       }
@@ -5042,7 +5056,7 @@ bool Type::chk_this_value_Choice(Value *value, Common::Assignment *lhs,
         Error_Context cntxt(value, "Using default alternative `%s' in value of union type `%s'",
           def_alt->get_name().get_dispname().c_str(), get_typename().c_str());
         self_ref = def_alt->get_type()->chk_this_value(value, lhs, expected_value,
-          incomplete_allowed, omit_allowed, sub_chk, implicit_omit, str_elem);
+          incomplete_allowed, omit_allowed, sub_chk, implicit_omit, str_elem, class_member_init);
         value->use_default_alternative(this);
         return self_ref;
       }
@@ -5071,7 +5085,7 @@ bool Type::chk_this_value_Choice(Value *value, Common::Assignment *lhs,
     alt_value->set_my_governor(alt_type);
     alt_type->chk_this_value_ref(alt_value);
     self_ref |= alt_type->chk_this_value(alt_value, lhs, expected_value,
-      incomplete_allowed, OMIT_NOT_ALLOWED, SUB_CHK, implicit_omit);
+      incomplete_allowed, OMIT_NOT_ALLOWED, SUB_CHK, implicit_omit, class_member_init);
     if (alt_value->get_valuetype() == Value::V_NOTUSED) {
       value->set_valuetype(Value::V_NOTUSED);
     }
@@ -5081,7 +5095,7 @@ bool Type::chk_this_value_Choice(Value *value, Common::Assignment *lhs,
       Error_Context cntxt(value, "Using default alternative `%s' in value of union type `%s'",
         def_alt->get_name().get_dispname().c_str(), get_typename().c_str());
       self_ref = def_alt->get_type()->chk_this_value(value, lhs, expected_value,
-        incomplete_allowed, omit_allowed, sub_chk, implicit_omit, str_elem);
+        incomplete_allowed, omit_allowed, sub_chk, implicit_omit, str_elem, class_member_init);
       value->use_default_alternative(this);
       return self_ref;
     }
@@ -5096,27 +5110,27 @@ bool Type::chk_this_value_Choice(Value *value, Common::Assignment *lhs,
 }
 
 bool Type::chk_this_value_Se(Value *value, Common::Assignment *lhs, expected_value_t expected_value,
-  namedbool incomplete_allowed, namedbool implicit_omit)
+  namedbool incomplete_allowed, namedbool implicit_omit, namedbool class_member_init)
 {
   if (value->is_asn1())
     return chk_this_value_Se_A(value, lhs, expected_value, implicit_omit);
   else
     return chk_this_value_Se_T(value, lhs, expected_value, incomplete_allowed,
-                                                               implicit_omit);
+      implicit_omit, class_member_init);
 }
 
 bool Type::chk_this_value_Se_T(Value *value, Common::Assignment *lhs, expected_value_t expected_value,
-                               namedbool incomplete_allowed, namedbool implicit_omit)
+                               namedbool incomplete_allowed, namedbool implicit_omit, namedbool class_member_init)
 {
   switch (value->get_valuetype()) {
   case Value::V_SEQ:
     if (typetype == T_SET_A || typetype == T_SET_T) {
       value->set_valuetype(Value::V_SET);
       return chk_this_value_Set_T(value, lhs, expected_value, incomplete_allowed,
-                           implicit_omit);
+                           implicit_omit, class_member_init);
     } else {
       return chk_this_value_Seq_T(value, lhs, expected_value, incomplete_allowed,
-                           implicit_omit);
+                           implicit_omit, class_member_init);
     }
     break;
   case Value::V_SEQOF:
@@ -5146,7 +5160,7 @@ bool Type::chk_this_value_Se_T(Value *value, Common::Assignment *lhs, expected_v
       } else {
         value->set_valuetype(Value::V_SEQ);
         return chk_this_value_Seq_T(value, lhs, expected_value, incomplete_allowed,
-                             implicit_omit);
+                             implicit_omit, class_member_init);
       }
     }
     break;
@@ -5161,7 +5175,7 @@ bool Type::chk_this_value_Se_T(Value *value, Common::Assignment *lhs, expected_v
 }
 
 bool Type::chk_this_value_Seq_T(Value *value, Common::Assignment *lhs, expected_value_t expected_value,
-  namedbool incomplete_allowed, namedbool implicit_omit)
+  namedbool incomplete_allowed, namedbool implicit_omit, namedbool class_member_init)
 {
   bool self_ref = false;
   map<string, NamedValue> comp_map;
@@ -5240,7 +5254,8 @@ bool Type::chk_this_value_Seq_T(Value *value, Common::Assignment *lhs, expected_
       value_dispname_str);
     type->chk_this_value_ref(comp_value);
     self_ref |= type->chk_this_value(comp_value, lhs, expected_value, incomplete_allowed,
-      cf->get_is_optional() ? OMIT_ALLOWED : OMIT_NOT_ALLOWED, SUB_CHK, implicit_omit);
+      cf->get_is_optional() ? OMIT_ALLOWED : OMIT_NOT_ALLOWED, SUB_CHK, implicit_omit,
+      NOT_STR_ELEM, class_member_init);
     if (comp_value->get_valuetype() != Value::V_NOTUSED) {
       is_empty = false;
     }
@@ -5274,7 +5289,7 @@ bool Type::chk_this_value_Seq_T(Value *value, Common::Assignment *lhs, expected_
 }
 
 bool Type::chk_this_value_Set_T(Value *value, Common::Assignment *lhs, expected_value_t expected_value,
-  namedbool incomplete_allowed, namedbool implicit_omit)
+  namedbool incomplete_allowed, namedbool implicit_omit, namedbool class_member_init)
 {
   bool self_ref = false;
   map<string, NamedValue> comp_map;
@@ -5311,7 +5326,8 @@ bool Type::chk_this_value_Set_T(Value *value, Common::Assignment *lhs, expected_
       value_dispname_str);
     type->chk_this_value_ref(comp_value);
     self_ref |= type->chk_this_value(comp_value, lhs, expected_value, incomplete_allowed,
-      cf->get_is_optional() ? OMIT_ALLOWED : OMIT_NOT_ALLOWED, SUB_CHK, implicit_omit);
+      cf->get_is_optional() ? OMIT_ALLOWED : OMIT_NOT_ALLOWED, SUB_CHK, implicit_omit,
+      NOT_STR_ELEM, class_member_init);
     if (comp_value->get_valuetype() != Value::V_NOTUSED) {
       is_empty = false;
     }
@@ -5487,7 +5503,7 @@ bool Type::chk_this_value_Set_A(Value *value, Common::Assignment *lhs, expected_
 }
 
 bool Type::chk_this_value_SeOf(Value *value, Common::Assignment *lhs, expected_value_t expected_value,
-  namedbool incomplete_allowed, namedbool implicit_omit)
+  namedbool incomplete_allowed, namedbool implicit_omit, namedbool class_member_init)
 {
   bool self_ref = false;
   const char *valuetypename;
@@ -5523,7 +5539,8 @@ bool Type::chk_this_value_SeOf(Value *value, Common::Assignment *lhs, expected_v
         } else {
           u.seof.ofType->chk_this_value_ref(v_comp);
           self_ref |= u.seof.ofType->chk_this_value(v_comp, lhs, expected_value,
-            incomplete_allowed, OMIT_NOT_ALLOWED, SUB_CHK, implicit_omit);
+            incomplete_allowed, OMIT_NOT_ALLOWED, SUB_CHK, implicit_omit,
+            NOT_STR_ELEM, class_member_init);
         }
       }
     } else {
@@ -5579,7 +5596,7 @@ bool Type::chk_this_value_SeOf(Value *value, Common::Assignment *lhs, expected_v
         val->set_my_governor(u.seof.ofType);
         u.seof.ofType->chk_this_value_ref(val);
         self_ref |= u.seof.ofType->chk_this_value(val, lhs, expected_value,
-          incomplete_allowed, OMIT_NOT_ALLOWED, SUB_CHK);
+          incomplete_allowed, OMIT_NOT_ALLOWED, SUB_CHK, NOT_STR_ELEM, class_member_init);
       }
       if (check_holes) {
         if ((size_t)max_index != index_map.size() - 1) {
@@ -5631,7 +5648,7 @@ void Type::chk_this_value_Default(Value *value)
 }
 
 bool Type::chk_this_value_Array(Value *value, Common::Assignment *lhs, expected_value_t expected_value,
-  namedbool incomplete_allowed, namedbool implicit_omit)
+  namedbool incomplete_allowed, namedbool implicit_omit, namedbool class_member_init)
 {
   bool self_ref = false;
   switch (value->get_valuetype()) {
@@ -5668,7 +5685,7 @@ bool Type::chk_this_value_Array(Value *value, Common::Assignment *lhs, expected_
           u.array.element_type->chk_this_value_ref(v_comp);
           self_ref |= u.array.element_type->chk_this_value(v_comp, lhs,
             expected_value, incomplete_allowed, OMIT_NOT_ALLOWED, SUB_CHK,
-            implicit_omit);
+            implicit_omit, NOT_STR_ELEM, class_member_init);
         }
       }
     } else {
@@ -5718,7 +5735,8 @@ bool Type::chk_this_value_Array(Value *value, Common::Assignment *lhs, expected_
         val->set_my_governor(u.array.element_type);
         u.array.element_type->chk_this_value_ref(val);
         self_ref |= u.array.element_type->chk_this_value(val, lhs, expected_value,
-          incomplete_allowed, OMIT_NOT_ALLOWED, SUB_CHK, implicit_omit);
+          incomplete_allowed, OMIT_NOT_ALLOWED, SUB_CHK, implicit_omit, NOT_STR_ELEM,
+          class_member_init);
       }
       if (check_holes) {
         if (index_map.size() < array_size) {
@@ -5745,7 +5763,7 @@ bool Type::chk_this_value_Array(Value *value, Common::Assignment *lhs, expected_
 
 bool Type::chk_this_value_Signature(Value *value, Common::Assignment *lhs,
                                     expected_value_t expected_value,
-                                    namedbool incomplete_allowed)
+                                    namedbool incomplete_allowed, namedbool class_member_init)
 {
   bool self_ref = false;
   switch(value->get_valuetype()) {
@@ -5816,7 +5834,8 @@ bool Type::chk_this_value_Signature(Value *value, Common::Assignment *lhs,
       type->chk_this_value_ref(comp_value);
       self_ref |= type->chk_this_value(comp_value, lhs, expected_value,
         INCOMPLETE_NOT_ALLOWED,
-        cf->get_is_optional() ? OMIT_ALLOWED : OMIT_NOT_ALLOWED, SUB_CHK);
+        cf->get_is_optional() ? OMIT_ALLOWED : OMIT_NOT_ALLOWED, SUB_CHK,
+        NOT_IMPLICIT_OMIT, NOT_STR_ELEM, class_member_init);
     }
     if (INCOMPLETE_NOT_ALLOWED == incomplete_allowed) {
       for (size_t i = 0; i < u.signature.parameters->get_nof_in_params(); i++) {
@@ -6496,7 +6515,7 @@ void Type::chk_this_template_incorrect_field() {
 
 bool Type::chk_this_template_generic(Template *t, namedbool incomplete_allowed,
   namedbool allow_omit, namedbool allow_any_or_omit, namedbool sub_chk,
-  namedbool implicit_omit, Common::Assignment *lhs)
+  namedbool implicit_omit, namedbool class_member_init, Common::Assignment *lhs)
 {
   bool self_ref = false;
   t->chk_concat_double_length_res();
@@ -6534,7 +6553,7 @@ bool Type::chk_this_template_generic(Template *t, namedbool incomplete_allowed,
       if (!ass) break; // probably erroneous
       //warning("asstype %d", ass->get_asstype());
 
-      switch (ass->get_asstype()) {
+      switch (ass->get_asstype()) { // todo class_member_init
       case Assignment::A_VAR:
       case Assignment::A_EXCEPTION:
       case Assignment::A_PAR_VAL_IN:
@@ -6587,7 +6606,8 @@ bool Type::chk_this_template_generic(Template *t, namedbool incomplete_allowed,
       chk_this_template_ref(t_comp);
       self_ref |= chk_this_template_generic(t_comp, INCOMPLETE_NOT_ALLOWED,
         (omit_in_value_list && temptype != Ttcn::Template::CONJUNCTION_MATCH) ?
-        allow_omit : OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED, sub_chk, implicit_omit, lhs);
+        allow_omit : OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED, sub_chk, implicit_omit,
+        class_member_init, lhs);
       if(temptype==Ttcn::Template::COMPLEMENTED_LIST &&
          t_comp->get_template_refd_last()->get_templatetype() ==
          Ttcn::Template::ANY_OR_OMIT)
@@ -6599,7 +6619,7 @@ bool Type::chk_this_template_generic(Template *t, namedbool incomplete_allowed,
     Value *v = t->get_specific_value();
     v->set_my_governor(this);
     self_ref |= chk_this_value(v, lhs, EXPECTED_TEMPLATE, incomplete_allowed,
-      allow_omit, SUB_CHK);
+      allow_omit, SUB_CHK, NOT_IMPLICIT_OMIT, NOT_STR_ELEM, class_member_init);
     break; }
   case Ttcn::Template::TEMPLATE_INVOKE: {
     t->chk_invoke();
@@ -6614,7 +6634,7 @@ bool Type::chk_this_template_generic(Template *t, namedbool incomplete_allowed,
     }
     break; }
   case Ttcn::Template::TEMPLATE_REFD:
-    self_ref = chk_this_refd_template(t, lhs);
+    self_ref = chk_this_refd_template(t, class_member_init, lhs);
     break;
   case Ttcn::Template::TEMPLATE_CONCAT:
     {
@@ -6626,11 +6646,11 @@ bool Type::chk_this_template_generic(Template *t, namedbool incomplete_allowed,
       Template* t_right = t->get_concat_operand(false);
       {
         Error_Context cntxt2(t, "In first operand");
-        self_ref |= chk_this_template_concat_operand(t_left, implicit_omit, lhs);
+        self_ref |= chk_this_template_concat_operand(t_left, implicit_omit, class_member_init, lhs);
       }
       {
         Error_Context cntxt2(t, "In second operand");
-        self_ref |= chk_this_template_concat_operand(t_right, implicit_omit, lhs);
+        self_ref |= chk_this_template_concat_operand(t_right, implicit_omit, class_member_init, lhs);
       }
       if (t_left->get_templatetype() == Ttcn::Template::TEMPLATE_ERROR ||
           t_right->get_templatetype() == Ttcn::Template::TEMPLATE_ERROR) {
@@ -6639,8 +6659,8 @@ bool Type::chk_this_template_generic(Template *t, namedbool incomplete_allowed,
     }
     break;
   case Ttcn::Template::IMPLICATION_MATCH:
-    t->get_precondition()->chk(this);
-    t->get_implied_template()->chk(this);
+    t->get_precondition()->chk(this, class_member_init);
+    t->get_implied_template()->chk(this, class_member_init);
     break;
   case Ttcn::Template::DYNAMIC_MATCH: {
     Ttcn::FormalPar* matching_fp = new Ttcn::FormalPar(Assignment::A_PAR_VAL_IN, clone(),
@@ -6667,7 +6687,7 @@ bool Type::chk_this_template_generic(Template *t, namedbool incomplete_allowed,
     break; }
   default:
     self_ref = chk_this_template(t, incomplete_allowed, allow_omit, allow_any_or_omit,
-      sub_chk, implicit_omit, lhs);
+      sub_chk, implicit_omit, class_member_init, lhs);
     break;
   }
   if (t->get_length_restriction()) chk_this_template_length_restriction(t);
@@ -6681,7 +6701,7 @@ bool Type::chk_this_template_generic(Template *t, namedbool incomplete_allowed,
   return self_ref;
 }
 
-bool Type::chk_this_refd_template(Template *t, Common::Assignment *lhs)
+bool Type::chk_this_refd_template(Template *t, namedbool class_member_init, Common::Assignment *lhs)
 {
   if (t->get_templatetype() != Template::TEMPLATE_REFD) return false;
   Reference *ref = t->get_reference();
@@ -6730,11 +6750,26 @@ bool Type::chk_this_refd_template(Template *t, Common::Assignment *lhs)
       if (info.needs_conversion()) t->set_needs_conversion();
     }
   }
+  if (class_member_init) {
+    switch (ass->get_asstype()) {
+    case Assignment::A_TEMPLATE:
+    case Assignment::A_VAR_TEMPLATE:
+      if (ass->get_Template() == NULL) {
+        t->error("Reference to uninitialized template%s `%s' in class member initialization",
+          ass->get_asstype() == Assignment::A_VAR_TEMPLATE ? " variable" : "",
+          ass->get_id().get_dispname().c_str());
+        t->set_templatetype(Ttcn::Template::TEMPLATE_ERROR);
+      }
+      break;
+    default:
+      break;
+    }
+  }
   return (lhs == ass);
 }
 
 bool Type::chk_this_template_concat_operand(Template* t, namedbool implicit_omit,
-                                            Common::Assignment *lhs)
+                                            namedbool class_member_init, Common::Assignment *lhs)
 {
   Type* governor = t->get_expr_governor(EXPECTED_TEMPLATE);
   if (governor == NULL) {
@@ -6748,7 +6783,7 @@ bool Type::chk_this_template_concat_operand(Template* t, namedbool implicit_omit
   }
   t->set_my_governor(governor);
   bool self_ref = governor->chk_this_template_generic(t, INCOMPLETE_NOT_ALLOWED,
-    OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED, NO_SUB_CHK, implicit_omit, lhs);
+    OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED, NO_SUB_CHK, implicit_omit, class_member_init, lhs);
   Template* t_last = t->get_template_refd_last();
   if (t->get_templatetype() == Ttcn::Template::TEMPLATE_ERROR ||
       t_last->get_templatetype() == Ttcn::Template::TEMPLATE_ERROR) {
@@ -6819,7 +6854,7 @@ bool Type::chk_this_template_concat_operand(Template* t, namedbool implicit_omit
 
 bool Type::chk_this_template(Template *t, namedbool incomplete_allowed,
                              namedbool allow_omit, namedbool allow_any_or_omit, namedbool sub_chk,
-                             namedbool implicit_omit, Common::Assignment *lhs)
+                             namedbool implicit_omit, namedbool class_member_init, Common::Assignment *lhs)
 {
   bool self_ref = false;
   Type *t_last = get_type_refd_last();
@@ -6858,7 +6893,7 @@ bool Type::chk_this_template(Template *t, namedbool incomplete_allowed,
   case T_UTCTIME:
   case T_GENERALIZEDTIME:
   case T_OBJECTDESCRIPTOR:
-    self_ref = t_last->chk_this_template_Str(t, implicit_omit, lhs);
+    self_ref = t_last->chk_this_template_Str(t, implicit_omit, class_member_init, lhs);
     break;
   case T_INT:
   case T_INT_A:
@@ -6874,31 +6909,36 @@ bool Type::chk_this_template(Template *t, namedbool incomplete_allowed,
   case T_OPENTYPE:
   case T_ANYTYPE:
     self_ref = t_last->chk_this_template_Choice(t, incomplete_allowed, allow_omit,
-      allow_any_or_omit, sub_chk, implicit_omit, lhs);
+      allow_any_or_omit, sub_chk, implicit_omit, class_member_init, lhs);
     break;
   case T_SEQ_A:
   case T_SEQ_T:
-    self_ref = t_last->chk_this_template_Seq(t, incomplete_allowed, implicit_omit, lhs);
+    self_ref = t_last->chk_this_template_Seq(t, incomplete_allowed, implicit_omit,
+      class_member_init, lhs);
     break;
   case T_SET_A:
   case T_SET_T:
-    self_ref = t_last->chk_this_template_Set(t, incomplete_allowed, implicit_omit, lhs);
+    self_ref = t_last->chk_this_template_Set(t, incomplete_allowed, implicit_omit,
+      class_member_init, lhs);
     break;
   case T_SEQOF:
-    self_ref = t_last->chk_this_template_SeqOf(t, incomplete_allowed, implicit_omit, lhs);
+    self_ref = t_last->chk_this_template_SeqOf(t, incomplete_allowed, implicit_omit,
+      class_member_init, lhs);
     break;
   case T_SETOF:
-    self_ref = t_last->chk_this_template_SetOf(t, incomplete_allowed, implicit_omit, lhs);
+    self_ref = t_last->chk_this_template_SetOf(t, incomplete_allowed, implicit_omit,
+      class_member_init, lhs);
     break;
   case T_ARRAY:
-    self_ref = t_last->chk_this_template_array(t, incomplete_allowed, implicit_omit, lhs);
+    self_ref = t_last->chk_this_template_array(t, incomplete_allowed, implicit_omit,
+      class_member_init, lhs);
     break;
   case T_PORT:
     t->error("Template cannot be defined for port type `%s'",
       get_fullname().c_str());
     break;
   case T_SIGNATURE:
-    t_last->chk_this_template_Signature(t, incomplete_allowed);
+    t_last->chk_this_template_Signature(t, incomplete_allowed, class_member_init);
     break;
   case T_FUNCTION:
   case T_ALTSTEP:
@@ -6912,7 +6952,7 @@ bool Type::chk_this_template(Template *t, namedbool incomplete_allowed,
 }
 
 bool Type::chk_this_template_Str(Template *t, namedbool implicit_omit,
-                                 Common::Assignment *lhs)
+                                 namedbool class_member_init, Common::Assignment *lhs)
 {
   bool self_ref = false;
   typetype_t tt = get_typetype_ttcn3(typetype);
@@ -6952,7 +6992,7 @@ bool Type::chk_this_template_Str(Template *t, namedbool implicit_omit,
     if (tt == T_CSTR) {
       Ttcn::PatternString *pstr = t->get_cstr_pattern();
       Error_Context cntxt(t, "In character string pattern");
-      pstr->chk_refs();
+      pstr->chk_refs(EXPECTED_DYNAMIC_VALUE, class_member_init);
       pstr->join_strings();
       if (!pstr->has_refs()) pstr->chk_pattern();
       break;
@@ -6970,7 +7010,7 @@ bool Type::chk_this_template_Str(Template *t, namedbool implicit_omit,
     if (tt == T_USTR) {
       Ttcn::PatternString *pstr = t->get_ustr_pattern();
       Error_Context cntxt(t, "In universal string pattern");
-      pstr->chk_refs();
+      pstr->chk_refs(EXPECTED_DYNAMIC_VALUE, class_member_init);
       pstr->join_strings();
       if (!pstr->has_refs()) pstr->chk_pattern();
     } else report_error = true;
@@ -6991,7 +7031,7 @@ bool Type::chk_this_template_Str(Template *t, namedbool implicit_omit,
       self_ref = target_type->chk_this_template_generic(
         target->get_Template(), (target->get_DerivedRef() != NULL) ?
         INCOMPLETE_ALLOWED : INCOMPLETE_NOT_ALLOWED,
-        OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK, implicit_omit, lhs);
+        OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK, implicit_omit, class_member_init, lhs);
       Type* coding_type = legacy_codec_handling ?
         target_type->get_type_refd_last() : target_type;
       coding_type->chk_coding(false, t->get_my_scope()->get_scope_mod());
@@ -7163,7 +7203,7 @@ void Type::chk_this_template_Enum(Template *t)
 
 bool Type::chk_this_template_Choice(Template *t, namedbool incomplete_allowed,
   namedbool allow_omit, namedbool allow_any_or_omit, namedbool sub_chk,
-  namedbool implicit_omit, Common::Assignment *lhs)
+  namedbool implicit_omit, namedbool class_member_init, Common::Assignment *lhs)
 {
   bool self_ref = false;
   CompField* def_alt = get_default_alternative();
@@ -7175,7 +7215,7 @@ bool Type::chk_this_template_Choice(Template *t, namedbool incomplete_allowed,
       Error_Context cntxt(t, "Using default alternative `%s' in template of union type `%s'",
         def_alt->get_name().get_dispname().c_str(), get_typename().c_str());
       self_ref = def_alt->get_type()->chk_this_template_generic(t, incomplete_allowed, allow_omit,
-        allow_any_or_omit, sub_chk, implicit_omit, lhs);
+        allow_any_or_omit, sub_chk, implicit_omit, class_member_init, lhs);
       t->use_default_alternative(this);
       return self_ref;
     }
@@ -7211,7 +7251,7 @@ bool Type::chk_this_template_Choice(Template *t, namedbool incomplete_allowed,
         Ttcn::Template::C_MAY_INCOMPLETE;
       self_ref |= field_type->chk_this_template_generic(nt_templ,
         (incompl_ok ? incomplete_allowed : INCOMPLETE_NOT_ALLOWED),
-        OMIT_NOT_ALLOWED, ANY_OR_OMIT_NOT_ALLOWED, SUB_CHK, implicit_omit, lhs);
+        OMIT_NOT_ALLOWED, ANY_OR_OMIT_NOT_ALLOWED, SUB_CHK, implicit_omit, class_member_init, lhs);
     }
     break;}
   default:
@@ -7219,7 +7259,7 @@ bool Type::chk_this_template_Choice(Template *t, namedbool incomplete_allowed,
       Error_Context cntxt(t, "Using default alternative `%s' in value of union type `%s'",
         def_alt->get_name().get_dispname().c_str(), get_typename().c_str());
       self_ref = def_alt->get_type()->chk_this_template_generic(t, incomplete_allowed, allow_omit,
-        allow_any_or_omit, sub_chk, implicit_omit, lhs);
+        allow_any_or_omit, sub_chk, implicit_omit, class_member_init, lhs);
       t->use_default_alternative(this);
       return self_ref;
     }
@@ -7234,7 +7274,7 @@ bool Type::chk_this_template_Choice(Template *t, namedbool incomplete_allowed,
 }
 
 bool Type::chk_this_template_Seq(Template *t, namedbool incomplete_allowed,
-  namedbool implicit_omit, Common::Assignment *lhs)
+  namedbool implicit_omit, namedbool class_member_init, Common::Assignment *lhs)
 {
   bool self_ref = false;
   size_t n_type_comps = get_nof_comps();
@@ -7315,7 +7355,7 @@ bool Type::chk_this_template_Seq(Template *t, namedbool incomplete_allowed,
       self_ref |= type->chk_this_template_generic(comp_t, incomplete_allowed,
         (is_optional ? OMIT_ALLOWED : OMIT_NOT_ALLOWED),
         (is_optional ? ANY_OR_OMIT_ALLOWED : ANY_OR_OMIT_NOT_ALLOWED),
-        SUB_CHK, implicit_omit, lhs);
+        SUB_CHK, implicit_omit, class_member_init, lhs);
     }
     if (INCOMPLETE_ALLOWED != incomplete_allowed  || IMPLICIT_OMIT == implicit_omit) {
       // check missing fields
@@ -7351,7 +7391,8 @@ bool Type::chk_this_template_Seq(Template *t, namedbool incomplete_allowed,
 }
 
 bool Type::chk_this_template_Set(Template *t,
-  namedbool incomplete_allowed, namedbool implicit_omit, Common::Assignment *lhs)
+  namedbool incomplete_allowed, namedbool implicit_omit,
+  namedbool class_member_init, Common::Assignment *lhs)
 {
   bool self_ref = false;
   size_t n_type_comps = get_nof_comps();
@@ -7399,7 +7440,7 @@ bool Type::chk_this_template_Set(Template *t,
       self_ref |= type->chk_this_template_generic(comp_t, incomplete_allowed,
         (is_optional ? OMIT_ALLOWED : OMIT_NOT_ALLOWED),
         (is_optional ? ANY_OR_OMIT_ALLOWED : ANY_OR_OMIT_NOT_ALLOWED),
-        SUB_CHK, implicit_omit, lhs);
+        SUB_CHK, implicit_omit, class_member_init, lhs);
     }
     if (INCOMPLETE_ALLOWED != incomplete_allowed || IMPLICIT_OMIT == implicit_omit) {
       // check missing fields
@@ -7435,7 +7476,7 @@ bool Type::chk_this_template_Set(Template *t,
 }
 
 bool Type::chk_this_template_SeqOf(Template *t, namedbool incomplete_allowed,
-  namedbool implicit_omit, Common::Assignment *lhs)
+  namedbool implicit_omit, namedbool class_member_init, Common::Assignment *lhs)
 {
   bool self_ref = false;
   switch(t->get_templatetype()) {
@@ -7454,7 +7495,7 @@ bool Type::chk_this_template_SeqOf(Template *t, namedbool incomplete_allowed,
       // the elements of permutation must be always complete
       self_ref |= u.seof.ofType->chk_this_template_generic(t_comp,
         INCOMPLETE_NOT_ALLOWED, OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK,
-        NOT_IMPLICIT_OMIT, lhs);
+        NOT_IMPLICIT_OMIT, class_member_init, lhs);
     }
     break; }
   case Ttcn::Template::TEMPLATE_LIST: {
@@ -7484,7 +7525,7 @@ bool Type::chk_this_template_SeqOf(Template *t, namedbool incomplete_allowed,
         // the templates within the permutation always have to be complete
         self_ref |= chk_this_template_generic(t_comp, INCOMPLETE_NOT_ALLOWED,
           OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK,
-          implicit_omit, lhs);
+          implicit_omit, class_member_init, lhs);
         break;
       case Ttcn::Template::TEMPLATE_NOTUSED:
         if (c == Ttcn::Template::C_MUST_COMPLETE) {
@@ -7502,7 +7543,7 @@ bool Type::chk_this_template_SeqOf(Template *t, namedbool incomplete_allowed,
           (c == Ttcn::Template::C_PARTIAL && i < nof_base_comps);
         self_ref |= u.seof.ofType->chk_this_template_generic(t_comp,
           (embedded_modified ? incomplete_allowed : INCOMPLETE_NOT_ALLOWED),
-          OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK, implicit_omit, lhs);
+          OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK, implicit_omit, class_member_init, lhs);
         break;
       }
     }
@@ -7548,7 +7589,7 @@ bool Type::chk_this_template_SeqOf(Template *t, namedbool incomplete_allowed,
       u.seof.ofType->chk_this_template_ref(it_comp);
       self_ref |= u.seof.ofType->chk_this_template_generic(it_comp,
         INCOMPLETE_ALLOWED, OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED,
-        SUB_CHK, implicit_omit, lhs);
+        SUB_CHK, implicit_omit, class_member_init, lhs);
     }
     for (size_t i = 0; i < index_map.size(); i++)
       delete index_map.get_nth_elem(i);
@@ -7563,7 +7604,7 @@ bool Type::chk_this_template_SeqOf(Template *t, namedbool incomplete_allowed,
 }
 
 bool Type::chk_this_template_SetOf(Template *t, namedbool incomplete_allowed,
-  namedbool implicit_omit, Common::Assignment *lhs)
+  namedbool implicit_omit, namedbool class_member_init, Common::Assignment *lhs)
 {
   bool self_ref = false;
   Ttcn::Template::templatetype_t temptype = t->get_templatetype();
@@ -7586,7 +7627,7 @@ bool Type::chk_this_template_SetOf(Template *t, namedbool incomplete_allowed,
       // the elements of sets must be always complete
       self_ref |= u.seof.ofType->chk_this_template_generic(t_comp,
         INCOMPLETE_NOT_ALLOWED, OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED,
-        SUB_CHK, implicit_omit, lhs);
+        SUB_CHK, implicit_omit, class_member_init, lhs);
       if (t_comp->get_template_refd_last()->get_templatetype() ==
           Ttcn::Template::ANY_OR_OMIT) {
         if (temptype == Ttcn::Template::SUPERSET_MATCH)
@@ -7638,7 +7679,7 @@ bool Type::chk_this_template_SetOf(Template *t, namedbool incomplete_allowed,
           (c == Ttcn::Template::C_PARTIAL && i < nof_base_comps);
         self_ref |= u.seof.ofType->chk_this_template_generic(t_comp,
           (embedded_modified ? incomplete_allowed : INCOMPLETE_NOT_ALLOWED),
-          OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK, implicit_omit, lhs);
+          OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK, implicit_omit, class_member_init, lhs);
         break;
       }
     }
@@ -7682,7 +7723,7 @@ bool Type::chk_this_template_SetOf(Template *t, namedbool incomplete_allowed,
       u.seof.ofType->chk_this_template_ref(it_comp);
       self_ref |= u.seof.ofType->chk_this_template_generic(it_comp,
         INCOMPLETE_ALLOWED, OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED,
-        SUB_CHK, implicit_omit, lhs);
+        SUB_CHK, implicit_omit, class_member_init, lhs);
     }
     for (size_t i = 0; i < index_map.size(); i++)
       delete index_map.get_nth_elem(i);
@@ -7697,7 +7738,8 @@ bool Type::chk_this_template_SetOf(Template *t, namedbool incomplete_allowed,
 }
 
 bool Type::chk_this_template_array(Template *t, namedbool incomplete_allowed,
-                                   namedbool implicit_omit, Common::Assignment *lhs)
+                                   namedbool implicit_omit, namedbool class_member_init,
+                                   Common::Assignment *lhs)
 {
   bool self_ref = false;
   switch (t->get_templatetype()) {
@@ -7716,7 +7758,7 @@ bool Type::chk_this_template_array(Template *t, namedbool incomplete_allowed,
       // the elements of permutation must be always complete
       self_ref |= u.array.element_type->chk_this_template_generic(t_comp,
         INCOMPLETE_NOT_ALLOWED, OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK,
-        NOT_IMPLICIT_OMIT, lhs);
+        NOT_IMPLICIT_OMIT, class_member_init, lhs);
     }
     break; }
   case Ttcn::Template::TEMPLATE_LIST: {
@@ -7759,7 +7801,7 @@ bool Type::chk_this_template_array(Template *t, namedbool incomplete_allowed,
           // the templates within the permutation always have to be complete
           self_ref |= chk_this_template_generic(t_comp, INCOMPLETE_NOT_ALLOWED,
             OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK,
-            implicit_omit, lhs);
+            implicit_omit, class_member_init, lhs);
           break;
         case Ttcn::Template::TEMPLATE_NOTUSED:
           if (INCOMPLETE_NOT_ALLOWED == incomplete_allowed)
@@ -7771,7 +7813,8 @@ bool Type::chk_this_template_array(Template *t, namedbool incomplete_allowed,
           break;
         default:
             self_ref |= u.array.element_type->chk_this_template_generic(t_comp,
-            incomplete_allowed, OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK, implicit_omit, lhs);
+              incomplete_allowed, OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK,
+              implicit_omit, class_member_init, lhs);
           break;
       }
     }
@@ -7812,7 +7855,8 @@ bool Type::chk_this_template_array(Template *t, namedbool incomplete_allowed,
       it_comp->set_my_governor(u.array.element_type);
       u.array.element_type->chk_this_template_ref(it_comp);
       self_ref |= u.array.element_type->chk_this_template_generic(it_comp,
-        incomplete_allowed, OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK, implicit_omit, lhs);
+        incomplete_allowed, OMIT_NOT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK,
+        implicit_omit, class_member_init, lhs);
     }
     for (size_t i = 0; i < index_map.size(); i++)
       delete index_map.get_nth_elem(i);
@@ -7834,7 +7878,8 @@ void Type::chk_this_template_Fat(Template *t)
     "allowed for type `%s'", get_typename().c_str());
 }
 
-void Type::chk_this_template_Signature(Template *t, namedbool incomplete_allowed)
+void Type::chk_this_template_Signature(Template *t, namedbool incomplete_allowed,
+                                       namedbool class_member_init)
 {
   bool self_ref = false;
   size_t n_type_params = get_nof_comps();
@@ -7888,7 +7933,7 @@ void Type::chk_this_template_Signature(Template *t, namedbool incomplete_allowed
       type->chk_this_template_ref(comp_t);
       self_ref |= type->chk_this_template_generic(comp_t, incomplete_allowed,
         OMIT_NOT_ALLOWED, ANY_OR_OMIT_NOT_ALLOWED,
-        SUB_CHK, NOT_IMPLICIT_OMIT, NULL);
+        SUB_CHK, NOT_IMPLICIT_OMIT, class_member_init, NULL);
     }
     if(incomplete_allowed != INCOMPLETE_ALLOWED) {
       SignatureParam *first_undef_in = NULL,

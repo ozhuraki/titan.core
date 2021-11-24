@@ -10307,6 +10307,8 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
             }
             if (refch->add(get_fullname())) {
               if (ass->get_my_scope()->get_parent_scope()->is_class_scope()) {
+                // class members are considered unfoldable, because their initial
+                // values can be changed in the constructor
                 u.ref.refd_last = this;
               }
               else {
@@ -12059,7 +12061,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     } // switch
   }
 
-  bool Value::chk_expr_self_ref_templ(Ttcn::Template *t, Common::Assignment *lhs)
+  bool Value::chk_expr_self_ref_templ(Ttcn::Template *t, Common::Assignment *lhs, namedbool class_member_init)
   {
     bool self_ref = false;
     switch (t->get_templatetype()) {
@@ -12067,15 +12069,17 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       Value *v = t->get_specific_value();
       self_ref |= v->get_expr_governor(Type::EXPECTED_DYNAMIC_VALUE)
         ->chk_this_value(v, lhs, Type::EXPECTED_DYNAMIC_VALUE,
-          INCOMPLETE_NOT_ALLOWED, OMIT_ALLOWED, NO_SUB_CHK, NOT_IMPLICIT_OMIT, NOT_STR_ELEM);
+          INCOMPLETE_NOT_ALLOWED, OMIT_ALLOWED, NO_SUB_CHK, NOT_IMPLICIT_OMIT, NOT_STR_ELEM, class_member_init);
       break; }
     case Ttcn::Template::TEMPLATE_REFD: {
-      Ttcn::Reference *refb = t->get_reference();
-      Common::Assignment *ass = refb->get_refd_assignment();
-      self_ref |= (ass == lhs);
+      if (lhs != NULL) {
+        Ttcn::Reference *refb = t->get_reference();
+        Common::Assignment *ass = refb->get_refd_assignment();
+        self_ref |= (ass == lhs);
+      }
       break; }
     case Ttcn::Template::ALL_FROM:
-      self_ref |= chk_expr_self_ref_templ(t->get_all_from(), lhs);
+      self_ref |= chk_expr_self_ref_templ(t->get_all_from(), lhs, class_member_init);
       break;
     case Ttcn::Template::TEMPLATE_LIST:
     case Ttcn::Template::SUPERSET_MATCH:
@@ -12085,7 +12089,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case Ttcn::Template::VALUE_LIST: {
       size_t num = t->get_nof_comps();
       for (size_t i = 0; i < num; ++i) {
-        self_ref |= chk_expr_self_ref_templ(t->get_temp_byIndex(i), lhs);
+        self_ref |= chk_expr_self_ref_templ(t->get_temp_byIndex(i), lhs, class_member_init);
       }
       break; }
 // not yet clear whether we should use this or the above for TEMPLATE_LIST
@@ -12099,22 +12103,22 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       size_t nnt = t->get_nof_comps();
       for (size_t i=0; i < nnt; ++i) {
         Ttcn::NamedTemplate *nt = t->get_namedtemp_byIndex(i);
-        self_ref |= chk_expr_self_ref_templ(nt->get_template(), lhs);
+        self_ref |= chk_expr_self_ref_templ(nt->get_template(), lhs, class_member_init);
       }
       break; }
     case Ttcn::Template::INDEXED_TEMPLATE_LIST: {
       size_t nnt = t->get_nof_comps();
       for (size_t i=0; i < nnt; ++i) {
         Ttcn::IndexedTemplate *it = t->get_indexedtemp_byIndex(i);
-        self_ref |= chk_expr_self_ref_templ(it->get_template(), lhs);
+        self_ref |= chk_expr_self_ref_templ(it->get_template(), lhs, class_member_init);
       }
       break; }
     case Ttcn::Template::VALUE_RANGE: {
       Ttcn::ValueRange *vr = t->get_value_range();
       Common::Value *v = vr->get_min_v();
-      if (v) self_ref |= chk_expr_self_ref_val(v, lhs);
+      if (v) self_ref |= chk_expr_self_ref_val(v, lhs, class_member_init);
       v = vr->get_max_v();
-      if (v) self_ref |= chk_expr_self_ref_val(v, lhs);
+      if (v) self_ref |= chk_expr_self_ref_val(v, lhs, class_member_init);
       break; }
     case Ttcn::Template::CSTR_PATTERN:
     case Ttcn::Template::USTR_PATTERN: {
@@ -12134,14 +12138,14 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case Ttcn::Template::TEMPLATE_INVOKE:
       break; // assume self-ref can't happen
     case Ttcn::Template::DECODE_MATCH:
-      self_ref |= chk_expr_self_ref_templ(t->get_decode_target()->get_Template(), lhs);
+      self_ref |= chk_expr_self_ref_templ(t->get_decode_target()->get_Template(), lhs, class_member_init);
       break;
     case Ttcn::Template::TEMPLATE_ERROR:
       //FATAL_ERROR("Value::chk_expr_self_ref_templ()");
       break;
     case Ttcn::Template::TEMPLATE_CONCAT:
-      self_ref |= chk_expr_self_ref_templ(t->get_concat_operand(true), lhs);
-      self_ref |= chk_expr_self_ref_templ(t->get_concat_operand(false), lhs);
+      self_ref |= chk_expr_self_ref_templ(t->get_concat_operand(true), lhs, class_member_init);
+      self_ref |= chk_expr_self_ref_templ(t->get_concat_operand(false), lhs, class_member_init);
       break;
 //    default:
 //      FATAL_ERROR("todo ttype %d", t->get_templatetype());
@@ -12150,7 +12154,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     return self_ref;
   }
 
-  bool Value::chk_expr_self_ref_val(Common::Value *v, Common::Assignment *lhs)
+  bool Value::chk_expr_self_ref_val(Common::Value *v, Common::Assignment *lhs, namedbool class_member_init)
   {
     Common::Type *gov = v->get_expr_governor(Type::EXPECTED_DYNAMIC_VALUE);
     namedbool is_str_elem = NOT_STR_ELEM;
@@ -12163,13 +12167,12 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     }
     return gov->chk_this_value(v, lhs, Type::EXPECTED_DYNAMIC_VALUE,
       INCOMPLETE_NOT_ALLOWED, OMIT_ALLOWED, NO_SUB_CHK, NOT_IMPLICIT_OMIT,
-      is_str_elem);
+      is_str_elem, class_member_init);
   }
 
-  bool Value::chk_expr_self_ref(Common::Assignment *lhs)
+  bool Value::chk_expr_self_ref(Common::Assignment *lhs, namedbool class_member_init)
   {
     if (valuetype != V_EXPR) FATAL_ERROR("Value::chk_expr_self_ref");
-    if (!lhs) FATAL_ERROR("no lhs!");
     bool self_ref = false;
     switch (u.expr.v_optype) {
     case OPTYPE_RND: // -
@@ -12192,7 +12195,7 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       break; // nothing to do
 
     case OPTYPE_MATCH: // v1 t2
-      self_ref |= chk_expr_self_ref_templ(u.expr.t2->get_Template(), lhs);
+      self_ref |= chk_expr_self_ref_templ(u.expr.t2->get_Template(), lhs, class_member_init);
       // no break
     case OPTYPE_UNARYPLUS: // v1
     case OPTYPE_UNARYMINUS: // v1
@@ -12236,18 +12239,18 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case OPTYPE_GET_STRINGENCODING:
     case OPTYPE_DECODE_BASE64:
     case OPTYPE_REMOVE_BOM:
-      self_ref |= chk_expr_self_ref_val(u.expr.v1, lhs);
+      self_ref |= chk_expr_self_ref_val(u.expr.v1, lhs, class_member_init);
       break;
     case OPTYPE_COMP_RUNNING: // v1 [r2] b4
     case OPTYPE_COMP_ALIVE: // v1 [r2] b4
-      self_ref |= chk_expr_self_ref_val(u.expr.v1, lhs);
-      if (u.expr.r2 != NULL) {
+      self_ref |= chk_expr_self_ref_val(u.expr.v1, lhs, class_member_init);
+      if (u.expr.r2 != NULL && lhs != NULL) {
         Common::Assignment *ass = u.expr.r2->get_refd_assignment();
         self_ref |= (ass == lhs);
       }
       break;
     case OPTYPE_HOSTID: // [v1]
-      if (u.expr.v1) self_ref |= chk_expr_self_ref_val(u.expr.v1, lhs);
+      if (u.expr.v1) self_ref |= chk_expr_self_ref_val(u.expr.v1, lhs, class_member_init);
       break;
     case OPTYPE_ADD: // v1 v2
     case OPTYPE_SUBTRACT: // v1 v2
@@ -12275,45 +12278,45 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case OPTYPE_INT2BIT: // v1 v2
     case OPTYPE_INT2HEX: // v1 v2
     case OPTYPE_INT2OCT: // v1 v2
-      self_ref |= chk_expr_self_ref_val(u.expr.v1, lhs);
-      self_ref |= chk_expr_self_ref_val(u.expr.v2, lhs);
+      self_ref |= chk_expr_self_ref_val(u.expr.v1, lhs, class_member_init);
+      self_ref |= chk_expr_self_ref_val(u.expr.v2, lhs, class_member_init);
       break;
     case OPTYPE_UNICHAR2OCT: // v1 [v2]
     case OPTYPE_OCT2UNICHAR:
     case OPTYPE_ENCODE_BASE64:
-      self_ref |= chk_expr_self_ref_val(u.expr.v1, lhs);
-      if (u.expr.v2) self_ref |= chk_expr_self_ref_val(u.expr.v2, lhs);
+      self_ref |= chk_expr_self_ref_val(u.expr.v1, lhs, class_member_init);
+      if (u.expr.v2) self_ref |= chk_expr_self_ref_val(u.expr.v2, lhs, class_member_init);
       break;
     case OPTYPE_DECOMP: // v1 v2 v3
-      self_ref |= chk_expr_self_ref_val(u.expr.v1, lhs);
-      self_ref |= chk_expr_self_ref_val(u.expr.v2, lhs);
-      self_ref |= chk_expr_self_ref_val(u.expr.v3, lhs);
+      self_ref |= chk_expr_self_ref_val(u.expr.v1, lhs, class_member_init);
+      self_ref |= chk_expr_self_ref_val(u.expr.v2, lhs, class_member_init);
+      self_ref |= chk_expr_self_ref_val(u.expr.v3, lhs, class_member_init);
       break;
 
     case OPTYPE_REPLACE: // ti1 v2 v3 ti4
-      self_ref |= chk_expr_self_ref_templ(u.expr.ti4->get_Template(), lhs);
+      self_ref |= chk_expr_self_ref_templ(u.expr.ti4->get_Template(), lhs, class_member_init);
       // no break
     case OPTYPE_SUBSTR: // ti1 v2 v3
     case OPTYPE_ENCODE: // ti1 [v2] [v3]
-      self_ref |= chk_expr_self_ref_templ(u.expr.ti1->get_Template(), lhs);
+      self_ref |= chk_expr_self_ref_templ(u.expr.ti1->get_Template(), lhs, class_member_init);
       if (u.expr.v2 != NULL) {
-        self_ref |= chk_expr_self_ref_val  (u.expr.v2, lhs);
+        self_ref |= chk_expr_self_ref_val  (u.expr.v2, lhs, class_member_init);
       }
       if (u.expr.v3 != NULL) {
-        self_ref |= chk_expr_self_ref_val  (u.expr.v3, lhs);
+        self_ref |= chk_expr_self_ref_val  (u.expr.v3, lhs, class_member_init);
       }
       break;
 
     case OPTYPE_REGEXP: // ti1 t2 v3
-      self_ref |= chk_expr_self_ref_templ(u.expr.ti1->get_Template(), lhs);
-      self_ref |= chk_expr_self_ref_templ(u.expr.t2 ->get_Template(), lhs);
+      self_ref |= chk_expr_self_ref_templ(u.expr.ti1->get_Template(), lhs, class_member_init);
+      self_ref |= chk_expr_self_ref_templ(u.expr.t2 ->get_Template(), lhs, class_member_init);
       break;
     case OPTYPE_VALUEOF: // ti1 [subrefs2]
       if (u.expr.subrefs2 != NULL) {
         for (size_t i = 0; i < u.expr.subrefs2->get_nof_refs(); ++i) {
           Ttcn::FieldOrArrayRef* subref = u.expr.subrefs2->get_ref(i);
           if (subref->get_type() == Ttcn::FieldOrArrayRef::ARRAY_REF) {
-            self_ref |= chk_expr_self_ref_val(subref->get_val(), lhs);
+            self_ref |= chk_expr_self_ref_val(subref->get_val(), lhs, class_member_init);
           }
         }
       }
@@ -12321,31 +12324,33 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case OPTYPE_LENGTHOF: // ti1
     case OPTYPE_SIZEOF: // ti1
     case OPTYPE_TTCN2STRING:
-      self_ref |= chk_expr_self_ref_templ(u.expr.ti1->get_Template(), lhs);
+      self_ref |= chk_expr_self_ref_templ(u.expr.ti1->get_Template(), lhs, class_member_init);
       break;
     case OPTYPE_ENCVALUE_UNICHAR: // ti1 [v2] [v3] [v4]
-      self_ref |= chk_expr_self_ref_templ(u.expr.ti1->get_Template(), lhs);
+      self_ref |= chk_expr_self_ref_templ(u.expr.ti1->get_Template(), lhs, class_member_init);
       if (u.expr.v2 != NULL) {
-        self_ref |= chk_expr_self_ref_val(u.expr.v2, lhs);
+        self_ref |= chk_expr_self_ref_val(u.expr.v2, lhs, class_member_init);
       }
       if (u.expr.v3 != NULL) {
-        self_ref |= chk_expr_self_ref_val(u.expr.v3, lhs);
+        self_ref |= chk_expr_self_ref_val(u.expr.v3, lhs, class_member_init);
       }
       if (u.expr.v4 != NULL) {
-        self_ref |= chk_expr_self_ref_val(u.expr.v4, lhs);
+        self_ref |= chk_expr_self_ref_val(u.expr.v4, lhs, class_member_init);
       }
       break;
     case OPTYPE_DECVALUE_UNICHAR: { // r1 r2 [v3] [v4] [v5]
-      Common::Assignment *ass = u.expr.r2->get_refd_assignment();
-      self_ref |= (ass == lhs);
+      if (lhs != NULL) {
+        Common::Assignment *ass = u.expr.r2->get_refd_assignment();
+        self_ref |= (ass == lhs);
+      }
       if (u.expr.v3 != NULL) {
-        self_ref |= chk_expr_self_ref_val(u.expr.v3, lhs);
+        self_ref |= chk_expr_self_ref_val(u.expr.v3, lhs, class_member_init);
       }
       if (u.expr.v4 != NULL) {
-        self_ref |= chk_expr_self_ref_val(u.expr.v4, lhs);
+        self_ref |= chk_expr_self_ref_val(u.expr.v4, lhs, class_member_init);
       }
       if (u.expr.v5 != NULL) {
-        self_ref |= chk_expr_self_ref_val(u.expr.v5, lhs);
+        self_ref |= chk_expr_self_ref_val(u.expr.v5, lhs, class_member_init);
       }
       goto label_r1;
       break; }
@@ -12373,19 +12378,21 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
 
         case Ttcn::LogArgument::L_VAL:
         case Ttcn::LogArgument::L_MATCH:
-          self_ref |= chk_expr_self_ref_val(la->get_val(), lhs);
+          self_ref |= chk_expr_self_ref_val(la->get_val(), lhs, class_member_init);
           break;
 
         case Ttcn::LogArgument::L_REF: {
-          Ttcn::Reference *ref = la->get_ref();
-          Common::Assignment *ass = ref->get_refd_assignment();
-          self_ref |= (ass == lhs);
+          if (lhs != NULL) {
+            Ttcn::Reference *ref = la->get_ref();
+            Common::Assignment *ass = ref->get_refd_assignment();
+            self_ref |= (ass == lhs);
+          }
           break; }
 
         case Ttcn::LogArgument::L_TI: {
           Ttcn::TemplateInstance *ti = la->get_ti();
           Ttcn::Template *t = ti->get_Template();
-          self_ref |= chk_expr_self_ref_templ(t, lhs);
+          self_ref |= chk_expr_self_ref_templ(t, lhs, class_member_init);
           break; }
 
           // no default please
@@ -12394,32 +12401,38 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       break; }
 
     case OPTYPE_DECODE: { // r1 r2
-      Common::Assignment *ass = u.expr.r2->get_refd_assignment();
-      self_ref |= (ass == lhs);
+      if (lhs != NULL) {
+        Common::Assignment *ass = u.expr.r2->get_refd_assignment();
+        self_ref |= (ass == lhs);
+      }
       if (u.expr.v3 != NULL) {
-        self_ref |= chk_expr_self_ref_val(u.expr.v3, lhs);
+        self_ref |= chk_expr_self_ref_val(u.expr.v3, lhs, class_member_init);
       }
       if (u.expr.v4 != NULL) {
-        self_ref |= chk_expr_self_ref_val(u.expr.v4, lhs);
+        self_ref |= chk_expr_self_ref_val(u.expr.v4, lhs, class_member_init);
       }
       goto label_r1; }
     case OPTYPE_EXECUTE:       // r1 [v2]
       if (u.expr.v2) {
-        self_ref |= chk_expr_self_ref_val(u.expr.v2, lhs);
+        self_ref |= chk_expr_self_ref_val(u.expr.v2, lhs, class_member_init);
       }
       label_r1:
       // no break
     case OPTYPE_TMR_READ: {     // r1
-      Common::Assignment *ass = u.expr.r1->get_refd_assignment();
-      self_ref |= (ass == lhs);
+      if (lhs != NULL) {
+        Common::Assignment *ass = u.expr.r1->get_refd_assignment();
+        self_ref |= (ass == lhs);
+      }
       break; }
     case OPTYPE_UNDEF_RUNNING: { // r1 [r2] b4
-      if (u.expr.r2 != NULL) {
-        Common::Assignment *ass2 = u.expr.r2->get_refd_assignment();
-        self_ref |= (ass2 == lhs);
+      if (lhs != NULL) {
+        if (u.expr.r2 != NULL) {
+          Common::Assignment *ass2 = u.expr.r2->get_refd_assignment();
+          self_ref |= (ass2 == lhs);
+        }
+        Common::Assignment *ass = u.expr.r1->get_refd_assignment();
+        self_ref |= (ass == lhs);
       }
-      Common::Assignment *ass = u.expr.r1->get_refd_assignment();
-      self_ref |= (ass == lhs);
       break; }
     
     case OPTYPE_ISCHOSEN_T: // t1 i2
@@ -12429,25 +12442,27 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       Ttcn::Template *t;
       if (u.expr.v_optype == OPTYPE_ISCHOSEN_T) t = u.expr.t1;
       else t = u.expr.ti1->get_Template();
-      self_ref |= chk_expr_self_ref_templ(t, lhs);
+      self_ref |= chk_expr_self_ref_templ(t, lhs, class_member_init);
       break; }
     case OPTYPE_ISTEMPLATEKIND: // ti1 v2
-      self_ref |= chk_expr_self_ref_templ(u.expr.ti1->get_Template(), lhs);
-      self_ref |= chk_expr_self_ref_val(u.expr.v2, lhs);
+      self_ref |= chk_expr_self_ref_templ(u.expr.ti1->get_Template(), lhs, class_member_init);
+      self_ref |= chk_expr_self_ref_val(u.expr.v2, lhs, class_member_init);
       break;
     case OPTYPE_EXECUTE_REFD: // v1 t_list2 [v3]
       if (u.expr.v3) {
-        self_ref |= chk_expr_self_ref_val(u.expr.v3, lhs);
+        self_ref |= chk_expr_self_ref_val(u.expr.v3, lhs, class_member_init);
       }
       // no break
     case OPTYPE_ACTIVATE_REFD: // v1 t_list2
-      self_ref |= chk_expr_self_ref_val(u.expr.v1, lhs);
+      self_ref |= chk_expr_self_ref_val(u.expr.v1, lhs, class_member_init);
       // TODO t_list2
       break;
     case OPTYPE_OF_CLASS:
     case OPTYPE_CLASS_CASTING: {
-      Common::Assignment *ass = u.expr.r2->get_refd_assignment();
-      self_ref |= (ass == lhs);
+      if (lhs != NULL) {
+        Common::Assignment *ass = u.expr.r2->get_refd_assignment();
+        self_ref |= (ass == lhs);
+      }
       break; }
 
     case NUMBER_OF_OPTYPES: // can never happen
@@ -15969,6 +15984,15 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
   {
     Value *v = get_value_refd_last();
     if (v == this) {
+      Assignment* refd_ass = u.ref.ref->get_refd_assignment();
+      if ((refd_ass->get_asstype() == Assignment::A_CONST ||
+           refd_ass->get_asstype() == Assignment::A_VAR) &&
+          refd_ass->get_my_scope()->get_parent_scope()->is_class_scope()) {
+        Value* v2 = refd_ass->get_Value();
+        if (v2 != NULL && needs_init_precede(v2)) {
+          str = v2->generate_code_init(str, v2->get_lhs_name().c_str());
+        }
+      }
       // the referred value is not available at compile time
       // the code generation is based on the reference
       if (use_runtime_2 && TypeConv::needs_conv_refd(v)) {

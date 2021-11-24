@@ -4088,7 +4088,7 @@ error:
 	returnexpr.t->set_my_governor(return_type);
 	return_type->chk_this_template_ref(returnexpr.t);
 	return_type->chk_this_template_generic(returnexpr.t, INCOMPLETE_NOT_ALLOWED,
-	  OMIT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK, NOT_IMPLICIT_OMIT, 0);
+	  OMIT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK, NOT_IMPLICIT_OMIT, NOT_CLASS_MEMBER_INIT, 0);
         Def_Function_Base* dfb = dynamic_cast<Def_Function_Base*>(my_def);
         if (!dfb) FATAL_ERROR("Statement::chk_return()");
         returnexpr.gen_restriction_check =
@@ -9784,7 +9784,7 @@ error:
     self_ref |= type->chk_this_template_generic(templ, INCOMPLETE_ALLOWED,
       (type->get_parent_type() != NULL && !type->is_optional_field()) ?
       OMIT_NOT_ALLOWED : OMIT_ALLOWED,
-      ANY_OR_OMIT_ALLOWED, SUB_CHK, NOT_IMPLICIT_OMIT, lhs);
+      ANY_OR_OMIT_ALLOWED, SUB_CHK, NOT_IMPLICIT_OMIT, NOT_CLASS_MEMBER_INIT, lhs);
     chk_template_restriction();
     return;
   error:

@@ -176,8 +176,8 @@ type class SubClass extends BaseClass {
 }
 
 type class @final FinalClass extends SubClass {
-  private const integer m_final_const := 1;
-  private template charstring m_final_temp := ? length (1..4);
+  private const integer m_final_const;
+  private template charstring m_final_temp;
   private var float m_final_var := 1.0;
   private var template octetstring m_final_var_temp := ''O;
   

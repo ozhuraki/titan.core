@@ -1184,6 +1184,8 @@ namespace Ttcn {
     virtual void set_fullname(const string& p_fullname);
     virtual void set_my_scope(Scope *p_scope);
     virtual Type *get_Type();
+    virtual Value* get_Value();
+    virtual Value* steal_Value();
     virtual void chk();
     virtual bool chk_identical(Definition *p_def);
     virtual void generate_code(output_struct *target, bool clean_up = false);
@@ -1237,6 +1239,8 @@ namespace Ttcn {
     virtual void set_fullname(const string& p_fullname);
     virtual void set_my_scope(Scope *p_scope);
     virtual Type *get_Type();
+    virtual Template* get_Template();
+    virtual Template* steal_Template();
     virtual void chk();
     virtual bool chk_identical(Definition *p_def);
     virtual void generate_code(output_struct *target, bool clean_up = false);
@@ -1791,6 +1795,9 @@ namespace Ttcn {
     
     NameBridgingScope bridgeScope;
     
+    /** IDs of members that need to be initialized by the end of the constructor's execution */
+    map<const Identifier*, bool> uninit_members;
+
     /// Copy constructor disabled
     Def_Constructor(const Def_Constructor& p);
     /// %Assignment disabled
@@ -1804,6 +1811,7 @@ namespace Ttcn {
     virtual void set_my_scope(Scope* p_scope);
     virtual FormalParList* get_FormalParList();
     virtual Reference* get_base_call() const { return base_call; }
+    virtual void add_uninit_member(const Identifier* p_member_id, bool p_is_template);
     virtual void chk();
     virtual void generate_code(output_struct *target, bool clean_up = false);
     virtual void set_parent_path(WithAttribPath* p_path);

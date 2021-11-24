@@ -1613,8 +1613,11 @@ namespace Ttcn {
         // escape from invalid recursion loops
         if (templatetype != TEMPLATE_REFD) return this;
         if (!t_ass) FATAL_ERROR("Template::get_template_refd_last()");
-        if (t_ass->get_asstype() != Common::Assignment::A_TEMPLATE) {
+        if (t_ass->get_asstype() != Common::Assignment::A_TEMPLATE ||
+            t_ass->get_my_scope()->get_parent_scope()->is_class_scope()) {
           // return this if the reference does not point to a template
+          // (also, class members are considered unfoldable, because their initial
+          // values can be changed in the constructor)
           u.ref.refd_last = this;
           return u.ref.refd_last;
         }
@@ -1961,7 +1964,8 @@ namespace Ttcn {
     if (u.ref.refd) return u.ref.refd;
     Common::Assignment *ass = u.ref.ref->get_refd_assignment();
     if (!ass) FATAL_ERROR("Template::get_template_refd()");
-    if(ass->get_asstype() == Common::Assignment::A_TEMPLATE) {
+    if (ass->get_asstype() == Common::Assignment::A_TEMPLATE &&
+        ass->get_Template() != NULL) {
       FieldOrArrayRefs *subrefs = u.ref.ref->get_subrefs();
       Template *asst = ass->get_Template();
       Template *t   = asst->get_refd_sub_template(
@@ -3896,7 +3900,7 @@ end:
       str = mputprintf(str, "%s%s = %s;\n", preamble.c_str(), name, expr.c_str());
       break; }
     case SPECIFIC_VALUE:
-      if (get_code_section() == CS_POST_INIT)
+      if (get_code_section() == CS_POST_INIT || get_code_section() == CS_INIT_CLASS)
         str = u.specific_value->rearrange_init_code(str, my_scope->get_scope_mod_gen());
       str = u.specific_value->generate_code_init(str, name);
       break;
@@ -4063,10 +4067,12 @@ end:
       expression_struct expr;
       Code::init_expr(&expr);
       bool use_ref_for_codegen = true;
-      if (get_code_section() == CS_POST_INIT) {
+      if (get_code_section() == CS_POST_INIT || get_code_section() == CS_INIT_CLASS) {
         // the referencing template is a part of a non-parameterized template
         Common::Assignment *ass = u.ref.ref->get_refd_assignment();
-        if (ass->get_asstype() == Common::Assignment::A_TEMPLATE) {
+        if (ass->get_asstype() == Common::Assignment::A_TEMPLATE ||
+            (get_code_section() == CS_INIT_CLASS &&
+             ass->get_asstype() == Common::Assignment::A_VAR_TEMPLATE)) {
           // the reference points to (a field of) a template
           if (ass->get_FormalParList()) {
             // the referred template is parameterized
@@ -4166,7 +4172,9 @@ end:
          *  - the referenced definition is not a template
          *  - the referenced template is parameterized or
          *  - the referenced template is in different module */
-        if (ass->get_asstype() == Common::Assignment::A_TEMPLATE &&
+        if ((ass->get_asstype() == Common::Assignment::A_TEMPLATE ||
+             (ass->get_asstype() == Common::Assignment::A_VAR_TEMPLATE &&
+              ass->get_my_scope()->is_class_scope())) &&
           ass->get_FormalParList() == 0 &&
           ass->get_my_scope()->get_scope_mod_gen() ==
             my_scope->get_scope_mod_gen()) {
@@ -6019,7 +6027,7 @@ compile_time:
     return template_body->get_expr_governor(exp_val);
   }
 
-  void TemplateInstance::chk(Type *governor)
+  void TemplateInstance::chk(Type *governor, namedbool class_member_init)
   {
     if (!governor) FATAL_ERROR("TemplateInstance::chk()");
     if (template_body->get_templatetype() == Template::IMPLICATION_MATCH) {
@@ -6044,7 +6052,7 @@ compile_time:
     governor->chk_this_template_ref(template_body);
     governor->chk_this_template_generic(template_body,
       (derived_reference != 0 ? INCOMPLETE_ALLOWED : INCOMPLETE_NOT_ALLOWED),
-      OMIT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK, NOT_IMPLICIT_OMIT, 0);
+      OMIT_ALLOWED, ANY_OR_OMIT_ALLOWED, SUB_CHK, NOT_IMPLICIT_OMIT, class_member_init, 0);
   }
 
   Type *TemplateInstance::chk_Type(Type *governor)

@@ -626,7 +626,7 @@ namespace Ttcn {
     Type *get_expr_governor(Type::expected_value_t exp_val);
 
     /** Checks the entire template instance against \a governor. */
-    void chk(Type *governor);
+    void chk(Type *governor, namedbool class_member_init = NOT_CLASS_MEMBER_INIT);
     /** Checks the member \a type (if present) against \a governor.
      *  Returns the type that shall be considered in further checks. */
     Type *chk_Type(Type *governor);

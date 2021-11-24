@@ -2015,12 +2015,12 @@ DynamicMatch
 %left '*' '/' ModKeyword RemKeyword
 %left UnarySign
 
-%expect 92
+%expect 93
 
 %start GrammarRoot
 
 /*
-XXX Source of conflicts (92 S/R):
+XXX Source of conflicts (93 S/R):
 
 1.) 13 conflicts in one state
 The Expression after 'return' keyword is optional in ReturnStatement.
@@ -2028,7 +2028,7 @@ For 13 tokens the parser cannot decide whether the token is a part of
 the return expression (shift) or it is the beginning of the next statement
 (reduce).
 
-2.) 14 distinct states, each with one conflict caused by token '['
+2.) 15 distinct states, each with one conflict caused by token '['
 The local definitions in altsteps can be followed immediately by the guard
 expression. When the parser sees the '[' token it cannot decide whether it
 belongs to the local definition as array dimension or array subreference
@@ -2048,6 +2048,7 @@ The situations are the following:
 - var t v := this.function(...) <here> [
 - var t v := super.function(...) <here> [
 - var t v := value<subrefs> <here> [
+- const t c <here> [
 
 3.) 1 conflict
 The sequence identifier.objid can be either the beginning of a module name
@@ -3926,6 +3927,13 @@ SingleConstDef: // 90
     $$.initial_value = $4;
     $$.yyloc = @$;
   }
+| IDentifier optArrayDef
+  {
+    $$.id = $1;
+    $$.arrays = $2;
+    $$.initial_value = NULL;
+    $$.yyloc = @$;
+  }
 ;
 
 FunctionTypeDef:
@@ -3975,6 +3983,11 @@ TemplateDef: // 93
     $$ = new Def_Template($2, $4.name, $4.type, $4.fp_list, $5, $7);
     $$->set_location(infile, @$);
   }
+| TemplateKeyword optTemplateRestriction optLazyOrFuzzyModifier BaseTemplate
+  {
+    $$ = new Def_Template($2, $4.name, $4.type, $4.fp_list, NULL, NULL);
+    $$->set_location(infile, @$);
+  }
 ;
 
 BaseTemplate: // 94
@@ -4003,7 +4016,7 @@ DerivedDef: // 97
 ;
 
 optTemplateFormalParList:
-  /* empty */ optError { $$ = 0; }
+  /* empty */ { $$ = 0; }
 | '(' TemplateFormalParList optError ')'
   {
     $$ = $2;

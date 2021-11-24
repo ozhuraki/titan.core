@@ -849,12 +849,12 @@ namespace Common {
     /** Check that the value (a V_EXPR) - being used as the RHS - refers to
      *  the LHS of the assignment.
      *  @return true if self-assignment*/
-    bool chk_expr_self_ref(Common::Assignment *lhs);
+    bool chk_expr_self_ref(Common::Assignment *lhs, namedbool class_member_init);
 
     virtual string create_stringRepr();
   private:
-    static bool chk_expr_self_ref_templ(Ttcn::Template *t, Common::Assignment *lhs);
-    static bool chk_expr_self_ref_val  (Common::Value  *v, Common::Assignment *lhs);
+    static bool chk_expr_self_ref_templ(Ttcn::Template *t, Common::Assignment *lhs, namedbool class_member_init);
+    static bool chk_expr_self_ref_val  (Common::Value  *v, Common::Assignment *lhs, namedbool class_member_init);
     string create_stringRepr_unary(const char *operator_str);
     string create_stringRepr_infix(const char *operator_str);
     string create_stringRepr_predef1(const char *function_name);
