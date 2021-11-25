@@ -15056,7 +15056,8 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     if (t_ass == NULL || t_ass->get_asstype() != Assignment::A_TYPE) {
       FATAL_ERROR("Value::generate_code_expr_class_create()");
     }
-    ap_list->generate_code_noalias(expr, t_ass->get_FormalParList());
+    ap_list->generate_code_noalias(expr,
+      t_ass->get_Type()->get_class_type_body()->get_constructor()->get_FormalParList());
     expr->expr = mputc(expr->expr, ')');
   }
 

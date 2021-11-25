@@ -4021,7 +4021,9 @@ bool Type::chk_this_value(Value *value, Common::Assignment *lhs, expected_value_
     chk_this_invoked_value(value, lhs, expected_value);
     return false; // assumes no self-reference in invoke
   case Value::V_EXPR:
-    self_ref = value->chk_expr_self_ref(lhs, class_member_init);
+    if (lhs != NULL || class_member_init) {
+      self_ref = value->chk_expr_self_ref(lhs, class_member_init);
+    }
     // no break
   case Value::V_MACRO:
     if (value->is_unfoldable(0, expected_value)) {
