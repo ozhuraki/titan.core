@@ -296,7 +296,7 @@ module NegSyn_1503_GlobalAndLocalTemplates_001
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `;': syntax error, unexpected ';', expecting ModifiesKeyword or := or '\('
+error: Missing template body
 <END_RESULT>
 
 <END_TC>
@@ -335,7 +335,7 @@ module NegSyn_1503_GlobalAndLocalTemplates_002
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `;': syntax error, unexpected ';', expecting ModifiesKeyword or := or '\('
+error: Missing template body
 <END_RESULT>
 
 <END_TC>
@@ -370,7 +370,7 @@ module NegSyn_1503_GlobalAndLocalTemplates_003
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `;': syntax error, unexpected ';', expecting := 
+error: Missing template body
 <END_RESULT>
 
 <END_TC>
@@ -409,7 +409,10 @@ module NegSyn_1503_GlobalAndLocalTemplates_004
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `;': syntax error, unexpected ';', expecting := 
+error: Parameterized local template `t' not supported
+<END_RESULT>
+<RESULT COUNT 1>
+error: Missing template body
 <END_RESULT>
 
 <END_TC>

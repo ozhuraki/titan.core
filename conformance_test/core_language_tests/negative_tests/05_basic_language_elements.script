@@ -1784,7 +1784,7 @@ module NegSyn_05040101_parameters_of_kind_value_001 {
 <END_MODULE>
 
 <RESULT COUNT 1>
-error: at or before token `\(': syntax error, unexpected '\(', expecting := or '\['
+error: at or before token `\(': syntax error, unexpected '\('
 <END_RESULT>
 
 <END_TC>
