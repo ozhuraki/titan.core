@@ -37,8 +37,7 @@ public type class t_class_subclass extends t_class_superclass {
 }
 
 testcase TC_Sem_50101_top_level_007() runs on GeneralComp {
-    //var t_class_subclass v_a := t_class_subclass.create();  FIXME!!!
-    var t_class_subclass v_a := t_class_subclass.create(15)
+    var t_class_subclass v_a := t_class_subclass.create();
     if (v_a.get_ci() == 15) {
         setverdict(pass);
     } else {

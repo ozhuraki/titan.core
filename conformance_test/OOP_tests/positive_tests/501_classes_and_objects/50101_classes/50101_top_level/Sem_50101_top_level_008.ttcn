@@ -51,8 +51,7 @@ module Sem_50101_top_level_008 "TTCN-3:2018 Object-Oriented" {
     }
 
     testcase TC_Sem_50101_top_level_008_01() runs on GeneralComp {
-        //var t_class_with_runs_on v_a := t_class_with_runs_on.create();  FIXME!!!
-        var t_class_with_runs_on v_a := t_class_with_runs_on.create('11AD0000'O);
+        var t_class_with_runs_on v_a := t_class_with_runs_on.create();
         if (v_a.get_vo() == '11AD0000'O) {
             setverdict(pass)
         } else {
@@ -63,8 +62,7 @@ module Sem_50101_top_level_008 "TTCN-3:2018 Object-Oriented" {
     testcase TC_Sem_50101_top_level_008_02() runs on TestComp system TestComp {
         map(self:p1,system:p1);
         timer T1 := 5.0;
-        //var t_class_with_runs_on_with_system v_a := t_class_with_runs_on_with_system.create(); FIXME!!!
-        var t_class_with_runs_on_with_system v_a := t_class_with_runs_on_with_system.create("Finally");
+        var t_class_with_runs_on_with_system v_a := t_class_with_runs_on_with_system.create();
         p1.send(v_a.get_ccstr());
         alt {
             [] p1.receive("Finally") { T1.stop; setverdict(pass); }

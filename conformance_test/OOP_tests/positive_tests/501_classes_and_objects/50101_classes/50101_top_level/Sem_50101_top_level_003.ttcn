@@ -34,8 +34,7 @@ module Sem_50101_top_level_003 "TTCN-3:2018 Object-Oriented" {
     }
 
     testcase TC_Sem_50101_top_level_003() runs on GeneralComp {
-        //var t_class_const_field v_a := t_class_const_field.create();  FIXME!!!!
-        var t_class_const_field v_a := t_class_const_field.create("1.0v12");
+        var t_class_const_field v_a := t_class_const_field.create();
 
         
         if (v_a.get_cons_verid() == "1.0v12") {

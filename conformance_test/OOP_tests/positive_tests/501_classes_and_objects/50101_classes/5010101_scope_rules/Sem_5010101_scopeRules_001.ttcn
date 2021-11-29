@@ -37,8 +37,7 @@ module Sem_5010101_scopeRules_001 "TTCN-3:2018 Object-Oriented" {
     }
 
     testcase TC_Sem_5010101_scopeRules_001() runs on GeneralComp {
-      //  var t_class_scope v_a := t_class_scope.create(); FIXME!!!
-        var t_class_scope v_a := t_class_scope.create(2.5); 
+        var t_class_scope v_a := t_class_scope.create();
         if (v_a.get_cf() == 2.5 and Sem_5010101_scopeRules_001.c_f == 5.551) {
             setverdict(pass);
         } else {
