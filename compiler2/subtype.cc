@@ -2321,6 +2321,10 @@ bool SubType::add_ttcn_single(Value *val, size_t restriction_index)
                    val->get_reference()->get_dispname().c_str());
         return false;
       }
+      if (this->get_subtypetype() == ST_ENUM) {
+        val->error("Type references are not allowed in the template list of enumerated types");
+        return false;
+      }
 
       // check circular subtype reference
       if (!add_parent_subtype(t_st)) return false;
@@ -2338,7 +2342,8 @@ bool SubType::add_ttcn_single(Value *val, size_t restriction_index)
   }
 
   my_owner->chk_this_value(val, 0, Type::EXPECTED_CONSTANT,
-    INCOMPLETE_NOT_ALLOWED, OMIT_NOT_ALLOWED, NO_SUB_CHK);
+    (subtype==ST_RECORD || subtype==ST_SET) ? INCOMPLETE_ALLOWED : INCOMPLETE_NOT_ALLOWED,
+    OMIT_NOT_ALLOWED, NO_SUB_CHK);
 
   Value *v=val->get_value_refd_last();
 
