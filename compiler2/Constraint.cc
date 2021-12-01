@@ -1146,6 +1146,7 @@ namespace Common {
       delete node;
       return; // parsing error was already reported
     }
+    constraint->set_fullname(get_fullname());
     constraint->set_my_type(my_type);
     constraint->set_my_scope(get_my_scope());
     constraint->set_my_parent(this);
