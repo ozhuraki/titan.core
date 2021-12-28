@@ -13094,7 +13094,11 @@ error:
       str = mputstr(str, "TTCN3_Debug_Scope debug_scope;\n");
     }
     str=block->generate_code(str, def_glob_vars, src_glob_vars);
-    str=mputprintf(str, "goto %s_end;\n}\n", tmp_prefix);
+    if(block->has_return() != StatementBlock::RS_YES) {
+      str=mputprintf(str, "goto %s_end;\n}\n", tmp_prefix);
+    } else {
+      str = mputstr(str, "}\n");
+    }
     return str;
   }
 
@@ -13266,7 +13270,9 @@ error:
       str=scs[i]->generate_code_stmt(str, def_glob_vars, src_glob_vars, tmp_prefix, i, unreach);
       if(unreach) break;
     }
-    str=mputprintf(str, "%s_end: /* empty */;\n", tmp_prefix);
+    if(!unreach || has_return() != StatementBlock::RS_YES) {
+      str=mputprintf(str, "%s_end: /* empty */;\n", tmp_prefix);
+    }
     return str;
   }
   
@@ -13677,7 +13683,11 @@ error:
       str = mputstr(str, "TTCN3_Debug_Scope debug_scope;\n");
     }
     str = block->generate_code(str, def_glob_vars, src_glob_vars);
-    str = mputprintf(str, "goto %s_end;\n}\n", tmp_prefix);
+    if(block->has_return() != StatementBlock::RS_YES) {
+      str = mputprintf(str, "goto %s_end;\n}\n", tmp_prefix);
+    }else {
+      str = mputstr(str, "}\n");
+    }
     return str;
   }
 
@@ -13872,7 +13882,9 @@ error:
         break;
       }
     }
-    str = mputprintf(str, "%s_end: /* empty */;\n", tmp_prefix);
+    if(!unreach || has_return() != StatementBlock::RS_YES) {
+      str = mputprintf(str, "%s_end: /* empty */;\n", tmp_prefix);
+    }
     return str;
   }
 
