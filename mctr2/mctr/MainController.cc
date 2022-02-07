@@ -67,6 +67,8 @@
 #include <sys/un.h>
 #include <signal.h>
 
+#define MAX_BACKLOG 4096
+
 reffer::reffer(const char*) {}
 
 //----------------------------------------------------------------------------
@@ -6346,7 +6348,7 @@ unsigned short MainController::start_session(const char *local_address,
     return 0;
   }
 
-  if (listen(server_fd, 10)) {
+  if (listen(server_fd, MAX_BACKLOG)) {
     if (local_address != NULL) {
       if (tcp_port != 0) error("Listening on IP address %s and TCP port "
         "%d failed: %s", localaddr->get_addr_str(), tcp_port,
@@ -6413,7 +6415,7 @@ unsigned short MainController::start_session(const char *local_address,
       }
     }
 
-    if (listen(server_fd_unix, 10)) {
+    if (listen(server_fd_unix, MAX_BACKLOG)) {
       notify("Could not listen on the given socket. Unix domain socket "
         "communication will not be used.");
       close(server_fd_unix);
