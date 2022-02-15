@@ -353,5 +353,29 @@ public:
 };
 #endif // C++11
 
+template<typename T>
+class DEFPAR_IN_WRAPPER {
+protected:
+  boolean def_;
+  T def_val;
+  const T& act_val;
+public:
+  DEFPAR_IN_WRAPPER(): def_(TRUE), def_val(), act_val(def_val) { }
+  DEFPAR_IN_WRAPPER(const T& par): def_(FALSE), def_val(), act_val(par) { }
+  DEFPAR_IN_WRAPPER(const DEFPAR_IN_WRAPPER& par): def_(par.def_), def_val(), act_val(def_ ? def_val : par.act_val) { }
+};
+
+template<typename T>
+class DEFPAR_OUT_WRAPPER {
+protected:
+  boolean def_;
+  T dummy;
+  T& act_val;
+public:
+  DEFPAR_OUT_WRAPPER(): def_(TRUE), dummy(), act_val(dummy) { }
+  DEFPAR_OUT_WRAPPER(T& par): def_(FALSE), dummy(), act_val(par) { }
+  DEFPAR_OUT_WRAPPER(const DEFPAR_OUT_WRAPPER& par): def_(par.def_), dummy(), act_val(par.act_val) { }
+};
+
 #endif /* OOP_HH */
 

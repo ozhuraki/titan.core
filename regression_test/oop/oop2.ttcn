@@ -212,12 +212,72 @@ testcase tc_member_init_rearrange() runs on CT {
   setverdict(pass);
 }
 
+type class C6 {
+  private const integer c1 := 2;
+  private const charstring c2 := "x";
+  /* protected */ var template Rec vt1 := { num := t1, str := int2str(c1) & c2 };
+  private template integer t1 := (0..100);
+  
+  // default constructor:
+  // create(template Rec vt1 := { num := t1, str := int2str(c1) & c2 }) {
+  //   this.vt1 = vt1;
+  // }
+  
+  public function f_test(template Rec pt_exp) {
+    if (log2str(vt1) != log2str(pt_exp)) {
+      setverdict(fail, "vt1: ", vt1, ", expected: ", pt_exp);
+    }
+  }
+  
+  public function f1(in integer p := c1) {
+    p := p + 1; // test using 'in' paramter as lvalue
+    if (p != c1 + 1) {
+      setverdict(fail, "parameter default value of 'f1': ", p);
+    }
+  }
+  
+  public function f2(in template Rec pt := vt1) {
+    if (log2str(pt) != log2str(vt1)) {
+      setverdict(fail, "parameter default value of 'f2': ", pt);
+    }
+  }
+}
+
+testcase tc_references_in_default_values() runs on CT {
+  var C6 x := C6.create;
+  x.f_test( { num := (0..100), str := "2x" } );
+  x.f1();
+  x.f2();
+  setverdict(pass);
+}
+
+
+template Rec t_def := { num := 1, str := "abc" };
+
+type class C7 extends C6 {
+  create(template Rec pt := t_def): C6(pt) {
+    if (log2str(pt) != log2str(t_def)) {
+      setverdict(fail, "pt: ", pt);
+    }
+    if (log2str(vt1) != log2str(t_def)) {
+      setverdict(fail, "vt1: ", vt1);
+    }
+  }
+}
+
+testcase tc_base_call_with_default_value_parameter() runs on CT {
+  var C7 x := C7.create; // the actual tests are in the constructor
+  setverdict(pass);
+}
+
 control {
   execute(tc_constructor_default());
   execute(tc_constructor_init());
   execute(tc_constructor_uninit_const());
   execute(tc_constructor_uninit_temp());
   execute(tc_member_init_rearrange());
+  execute(tc_references_in_default_values());
+  execute(tc_base_call_with_default_value_parameter());
 }
 
 }

@@ -463,6 +463,11 @@ namespace Ttcn {
                          template_restriction_t template_restriction,
                          const Location* usage_loc);
 
+    void chk_ctor_defpar();
+
+    void set_gen_class_defpar_prefix();
+    void set_gen_class_base_call_postfix();
+
     /** Sets the flag \a code_generated to false in this template and all of its
      * parts. */
     virtual void reset_code_generated();
@@ -644,6 +649,11 @@ namespace Ttcn {
       template_restriction_t template_restriction, const Location* usage_loc);
 
     void chk_immutability() const ;
+
+    void chk_ctor_defpar();
+
+    void set_gen_class_defpar_prefix();
+    void set_gen_class_base_call_postfix();
 
     /** Returns whether the template instance can be represented by an in-line
      *  C++ expression. */

@@ -737,14 +737,16 @@ namespace Ttcn {
 
   Reference::Reference(Identifier *p_id)
     : Ref_base(), reftype(REF_BASIC), parlist(NULL), params(NULL),
-    gen_const_prefix(false), expr_cache(NULL)
+    gen_const_prefix(false), expr_cache(NULL),
+    gen_class_defpar_prefix(false), gen_class_base_call_postfix(false)
   {
     subrefs.add(new FieldOrArrayRef(p_id));
   }
   
   Reference::Reference(reftype_t p_reftype)
   : Ref_base(), reftype(p_reftype), parlist(NULL), params(NULL),
-    gen_const_prefix(false), expr_cache(NULL)
+    gen_const_prefix(false), expr_cache(NULL),
+    gen_class_defpar_prefix(false), gen_class_base_call_postfix(false)
   {
     if (reftype != REF_THIS && reftype != REF_VALUE) {
       FATAL_ERROR("Ttcn::Reference(): basic or 'super' reference with no ID");
@@ -754,7 +756,8 @@ namespace Ttcn {
   Reference::Reference(Identifier *p_modid, Identifier *p_id,
                        ParsedActualParameters *p_params, reftype_t p_reftype)
     : Ref_base(p_modid, p_id), reftype(p_reftype), parlist(NULL), params(p_params),
-    gen_const_prefix(false), expr_cache(NULL)
+    gen_const_prefix(false), expr_cache(NULL),
+    gen_class_defpar_prefix(false), gen_class_base_call_postfix(false)
   {
     if (p_params == NULL) {
       FATAL_ERROR("Ttcn::Reference::Reference(): NULL parameter");
@@ -1097,6 +1100,38 @@ namespace Ttcn {
       t_ass->get_description().c_str());
   }
   
+  void Reference::chk_ctor_defpar()
+  {
+    Common::Assignment* ass = get_refd_assignment_last();
+    if (ass->get_my_scope()->is_class_scope()) {
+      switch (ass->get_asstype()) {
+      case Common::Assignment::A_VAR:
+      case Common::Assignment::A_VAR_TEMPLATE:
+        error("Constructor default parameter cannot contain reference to "
+          "%svariable class member `%s'",
+          ass->get_asstype() == Common::Assignment::A_VAR_TEMPLATE ? "template " : "",
+          ass->get_id().get_dispname().c_str());
+        break;
+      case Common::Assignment::A_CONST:
+        if (ass->get_Value() == NULL) {
+          error("Constructor default parameter cannot contain reference to "
+            "constant class member `%s', which has no initial value",
+            ass->get_id().get_dispname().c_str());
+        }
+        break;
+      case Common::Assignment::A_TEMPLATE:
+        if (ass->get_Template() == NULL) {
+          error("Constructor default parameter cannot contain reference to "
+            "template class member `%s', which has no initial value",
+            ass->get_id().get_dispname().c_str());
+        }
+        break;
+      default:
+        break;
+      }
+    }
+  }
+
   bool Reference::has_single_expr()
   {
     if (!Ref_base::has_single_expr()) {
@@ -1242,23 +1277,51 @@ namespace Ttcn {
 	    ass->get_RunsOnType(), false);
 	expr->expr = mputc(expr->expr, ')');
       } else {
-	string const_prefix; // empty by default
-	string exception_postfix; // also empty by default
-	if (gen_const_prefix) {
-	  if (ass->get_asstype() == Common::Assignment::A_CONST) {
-	    const_prefix = "const_";
-	  }
-	  else if (ass->get_asstype() == Common::Assignment::A_TEMPLATE) {
-	    const_prefix = "template_";
-	  }
-	}
-	if (ass->get_asstype() == Common::Assignment::A_EXCEPTION) {
-	  exception_postfix = "()";
-	}
-	expr->expr = mputstr(expr->expr,
-	  LazyFuzzyParamData::in_lazy_or_fuzzy() ?
-	  LazyFuzzyParamData::add_ref_genname(ass, my_scope).c_str() :
-	  (const_prefix + ass->get_genname_from_scope(my_scope) + exception_postfix).c_str());
+        string const_prefix; // empty by default
+        string exception_postfix; // also empty by default
+        string defpar_init_prefix;
+        string defpar_base_call_postfix;
+        if (gen_const_prefix) {
+          if (ass->get_asstype() == Common::Assignment::A_CONST) {
+            const_prefix = "const_";
+          }
+          else if (ass->get_asstype() == Common::Assignment::A_TEMPLATE) {
+            const_prefix = "template_";
+          }
+        }
+        if (gen_class_defpar_prefix && ass->get_my_scope()->is_class_scope()) {
+          defpar_init_prefix = "p_class->";
+        }
+        if (gen_class_base_call_postfix) {
+          switch (ass->get_asstype()) {
+          case Common::Assignment::A_PAR_VAL_IN:
+          case Common::Assignment::A_PAR_VAL_INOUT:
+          case Common::Assignment::A_PAR_VAL_OUT:
+          case Common::Assignment::A_PAR_TEMPL_IN:
+          case Common::Assignment::A_PAR_TEMPL_INOUT:
+          case Common::Assignment::A_PAR_TEMPL_OUT:
+          case Common::Assignment::A_PAR_TIMER: {
+            FormalPar* formal_par = dynamic_cast<FormalPar*>(ass);
+            if (formal_par == NULL) {
+              FATAL_ERROR("Reference::generate_code");
+            }
+            Definition* fp_def = formal_par->get_my_parlist()->get_my_def();
+            if (fp_def->get_asstype() == Common::Assignment::A_CONSTRUCTOR && formal_par->has_defval()) {
+              defpar_base_call_postfix = string("_defpar(this)");
+            }
+            break; }
+          default:
+            break;
+          }
+        }
+        if (ass->get_asstype() == Common::Assignment::A_EXCEPTION) {
+          exception_postfix = "()";
+        }
+        expr->expr = mputstr(expr->expr,
+          LazyFuzzyParamData::in_lazy_or_fuzzy() ?
+          LazyFuzzyParamData::add_ref_genname(ass, my_scope).c_str() :
+          (defpar_init_prefix + const_prefix + ass->get_genname_from_scope(my_scope) +
+            defpar_base_call_postfix + exception_postfix).c_str());
       }
     }
     if (subrefs.get_nof_refs() > 0) subrefs.generate_code(expr, ass, my_scope);
@@ -1329,6 +1392,10 @@ namespace Ttcn {
     if (ass->get_asstype() == Common::Assignment::A_EXCEPTION) {
       exception_postfix = "()";
     }
+    string defpar_prefix;
+    if (gen_class_defpar_prefix && ass->get_my_scope()->is_class_scope()) {
+      defpar_prefix = "p_class->";
+    }
     if (parlist != NULL) {
       // reference without parameters to a template that has only default formal parameters.
       // if @lazy: nothing to do, it's a C++ function call just like in case of Ref_pard::generate_code()
@@ -1341,7 +1408,7 @@ namespace Ttcn {
       this_expr.expr = mputstr(this_expr.expr,
         LazyFuzzyParamData::in_lazy_or_fuzzy() ?
         LazyFuzzyParamData::add_ref_genname(ass, my_scope).c_str() :
-        (ass->get_genname_from_scope(my_scope) + exception_postfix).c_str());
+        (defpar_prefix + ass->get_genname_from_scope(my_scope) + exception_postfix).c_str());
     }
     if (refd_gov->get_type_refd_last()->get_typetype() != Common::Type::T_CLASS) {
       this_expr.expr = mputstr(this_expr.expr, ")");
@@ -7354,6 +7421,14 @@ namespace Ttcn {
     }
     const char *return_type_str = return_type_name.c_str();
     
+    // smart formal parameter list (names of unused parameters are omitted)
+    char *formal_par_list = fp_list->generate_code(memptystr());
+    fp_list->generate_code_defval(target);
+    bool in_class = my_scope->is_class_scope();
+    // in case of classes call fp_list->generate_code_defval, as that may make shadow objects unnecessary
+    char* defpar_init_code = in_class ? fp_list->generate_code_defpar_init(memptystr()) : memptystr();
+    char* shadow_objects = fp_list->generate_shadow_objects(memptystr());
+
     // assemble the function body first (this also determines which parameters
     // are never used)
     char* body = create_location_object(memptystr(), "FUNCTION", dispname_str);
@@ -7364,12 +7439,7 @@ namespace Ttcn {
     }
     body = block->generate_code(body, target->header.global_vars,
       target->source.global_vars);
-    // smart formal parameter list (names of unused parameters are omitted)
-    char *formal_par_list = fp_list->generate_code(memptystr());
-    fp_list->generate_code_defval(target);
-    char* shadow_objects = fp_list->generate_shadow_objects(memptystr());
     
-    bool in_class = my_scope->is_class_scope();
     char*& header = in_class ? target->header.class_defs :
       target->header.function_prototypes;
     char*& source = in_class ? target->source.methods :
@@ -7384,16 +7454,17 @@ namespace Ttcn {
     source = mputprintf(source,
       "%s %s%s%s%s(%s)\n"
       "{\n"
-      "%s%s"
+      "%s%s%s"
       "}\n\n",
       return_type_str,
       port_type && clean_up ? port_type->get_genname_own().c_str() :
       (in_class ? my_scope->get_scope_class()->get_id()->get_name().c_str() : ""),
       port_type && clean_up && port_type->get_PortBody()->get_testport_type() != PortTypeBody::TP_INTERNAL ? "_BASE" : "",
       in_class || (port_type && clean_up) ? "::" : "",
-      genname_str, formal_par_list, shadow_objects, body);
+      genname_str, formal_par_list, defpar_init_code, shadow_objects, body);
     Free(formal_par_list);
     Free(body);
+    Free(defpar_init_code);
     Free(shadow_objects);
 
     if (is_startable && !in_class) {
@@ -9281,6 +9352,12 @@ namespace Ttcn {
     Error_Context cntxt(this, "In constructor definition");
     
     fp_list->chk(asstype);
+    for (size_t i = 0; i < fp_list->get_nof_fps(); ++i) {
+      FormalPar* fp = fp_list->get_fp_byIndex(i);
+      if (fp->has_defval()) {
+        fp->get_defval()->chk_ctor_defpar();
+      }
+    }
     
     ClassTypeBody* my_class = my_scope->get_scope_class();
     ClassTypeBody* base_class = my_class->get_base_class();
@@ -9317,6 +9394,15 @@ namespace Ttcn {
       }
     }
     
+    // reset 'usage found' flag for the constructor's formal parameters with default values
+    // (usage in the base constructor call doesn't count for these)
+    for (size_t i = 0; i < fp_list->get_nof_fps(); ++i) {
+      FormalPar* fp = fp_list->get_fp_byIndex(i);
+      if (fp->has_defval()) {
+        fp->reset_usage_found();
+      }
+    }
+
     if (block != NULL) {
       if (my_class->is_external()) {
         error("The constructor of an external class cannot have a body");
@@ -9345,9 +9431,11 @@ namespace Ttcn {
         target->temp.constructor_block);
     }
     
+    fp_list->generate_code_defval(target);
+    target->temp.constructor_block =
+      fp_list->generate_code_defpar_init(memptystr());
     char* block_gen_str = block != NULL ? block->generate_code(memptystr(),
       target->header.global_vars, target->source.global_vars) : NULL;
-    fp_list->generate_code_defval(target);
     if (block != NULL) {
       target->temp.constructor_block = fp_list->generate_shadow_objects(
         target->temp.constructor_block);
@@ -9547,6 +9635,18 @@ namespace Ttcn {
     
     if (default_value) {
       Error_Context cntxt(default_value, "In default value");
+      Scope* scope = my_parlist->get_my_def()->get_my_scope();
+      if (scope->is_class_scope()) {
+        switch (asstype) {
+        case A_PAR_VAL_IN:
+        case A_PAR_TEMPL_IN:
+          scope->get_scope_class()->add_defpar(this);
+          break;
+        default:
+          default_value->error("`out' and `inout' parameters of class functions cannot have default values");
+          break;
+        }
+      }
       defval.ap = chk_actual_par(default_value, Type::EXPECTED_STATIC_VALUE);
       delete default_value;
       if (!semantic_check_only)
@@ -10187,7 +10287,7 @@ namespace Ttcn {
       else {
         // update the genname so that all references in the generated code
         // will point to the shadow object
-        if (eval == NORMAL_EVAL) {
+        if (eval == NORMAL_EVAL && get_defpar_wrapper() == Common::Type::NO_DEFPAR_WRAPPER) {
           set_genname(id->get_name() + "_shadow");
         }
         used_as_lvalue = true;
@@ -10222,25 +10322,73 @@ namespace Ttcn {
     return str;
   }
   
+  Common::Type::defpar_wapper_t FormalPar::get_defpar_wrapper() const
+  {
+    if (defval.ap != NULL &&
+        my_parlist->get_my_def()->get_my_scope()->is_class_scope()) {
+      switch (asstype) {
+      case A_PAR_VAL_IN:
+      case A_PAR_TEMPL_IN:
+        return Common::Type::DEFPAR_IN_WRAPPER;
+      case A_PAR_VAL_OUT:
+      case A_PAR_VAL_INOUT:
+      case A_PAR_TEMPL_OUT:
+      case A_PAR_TEMPL_INOUT:
+      case A_PAR_TIMER:
+      case A_PAR_PORT:
+        return Common::Type::DEFPAR_OUT_WRAPPER;
+      default:
+        FATAL_ERROR("FormalPar::get_defpar_wrapper");
+      }
+    }
+    return Common::Type::NO_DEFPAR_WRAPPER;
+  }
+
   char* FormalPar::generate_code_defval(char* str)
   {
-    if (!defval.ap || defval_generated) return str;
+    if (!defval.ap || defval_generated || !usage_found) return str;
     defval_generated = true;
+    Common::Type::defpar_wapper_t defpar_wrapper = get_defpar_wrapper();
     switch (defval.ap->get_selection()) {
     case ActualPar::AP_VALUE: {
       Value *val = defval.ap->get_Value();
+      string tmp_id;
+      if (defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER) {
+        tmp_id = my_scope->get_scope_mod_gen()->get_temporary_id();
+        str = mputprintf(str,
+          "%s %s;\n",
+          type->get_genname_value(my_scope).c_str(), tmp_id.c_str());
+        val->set_gen_class_defpar_prefix();
+      }
       if (use_runtime_2 && TypeConv::needs_conv_refd(val)) {
-        str = TypeConv::gen_conv_code_refd(str, val->get_lhs_name().c_str(), val);
+        str = TypeConv::gen_conv_code_refd(str, defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER ?
+          tmp_id.c_str() : val->get_lhs_name().c_str(), val);
       } else {
-        str = val->generate_code_init(str, val->get_lhs_name().c_str());
+        str = val->generate_code_init(str, defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER ?
+          tmp_id.c_str() : val->get_lhs_name().c_str());
+      }
+      if (defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER) {
+        str = mputprintf(str, "def_val = %s;\n", tmp_id.c_str());
       }
       break; }
     case ActualPar::AP_TEMPLATE: {
       if (!use_runtime_2) {
         TemplateInstance *ti = defval.ap->get_TemplateInstance();
-        str = generate_code_defval_template(str,
-          ti, ti->get_Template()->get_lhs_name(),
+        string tmp_id;
+        if (defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER) {
+          tmp_id = my_scope->get_scope_mod_gen()->get_temporary_id();
+          str = mputprintf(str,
+            "%s %s;\n",
+            type->get_genname_template(my_scope).c_str(), tmp_id.c_str());
+          ti->set_gen_class_defpar_prefix();
+        }
+        str = generate_code_defval_template(str, ti,
+          defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER ?
+            tmp_id : ti->get_Template()->get_lhs_name(),
           defval.ap->get_gen_restriction_check());
+        if (defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER) {
+          str = mputprintf(str, "def_val = %s;\n", tmp_id.c_str());
+        }
       }
       break; }
     case ActualPar::AP_REF:
@@ -10251,15 +10399,49 @@ namespace Ttcn {
     return str;
   }
 
+  char* FormalPar::generate_code_defpar_init(char* str)
+  {
+    if (defval.ap == NULL || !usage_found) return str;
+    Common::Type::defpar_wapper_t defpar_wrapper = get_defpar_wrapper();
+    switch (defval.ap->get_selection()) {
+    case ActualPar::AP_VALUE:
+      str = mputprintf(str,
+        "%s%s%s %s = %s_defpar(this);\n",
+        (defpar_wrapper == Common::Type::DEFPAR_IN_WRAPPER && !used_as_lvalue) ? "const " : "",
+        type->get_genname_value(my_scope).c_str(), !used_as_lvalue ? "&" : "",
+        id->get_name().c_str(), id->get_name().c_str());
+        // this code also works if the parameter is used as lvalue, no need for shadow objects
+        used_as_lvalue = false;
+      break;
+    case ActualPar::AP_TEMPLATE:
+      str = mputprintf(str,
+        "%s%s%s %s = %s_defpar(this);\n",
+        (defpar_wrapper == Common::Type::DEFPAR_IN_WRAPPER && !used_as_lvalue) ? "const " : "",
+        type->get_genname_template(my_scope).c_str(), !used_as_lvalue ? "&" : "",
+        id->get_name().c_str(), id->get_name().c_str());
+        // this code also works if the parameter is used as lvalue, no need for shadow objects
+        used_as_lvalue = false;
+      break;
+    case ActualPar::AP_REF:
+      break;
+    default:
+      FATAL_ERROR("FormalPar::generate_code_defpar_init()");
+    }
+    return str;
+  }
+
   void FormalPar::generate_code_defval(output_struct *target, bool)
   {
     if (!defval.ap) return;
+    Scope* scope = my_parlist->get_my_def()->get_my_scope();
+    bool defpar_wrapper = defval.ap != NULL && scope->is_class_scope();
     switch (defval.ap->get_selection()) {
     case ActualPar::AP_VALUE: {
       Value *val = defval.ap->get_Value();
       const_def cdef;
       Code::init_cdef(&cdef);
-      type->generate_code_object(&cdef, val, false);
+      type->generate_code_object(&cdef, val, false,
+        defpar_wrapper ? scope->get_scope_class()->get_defpar_type_name(this) : NULL);
       Code::merge_cdef(target, &cdef);
       Code::free_cdef(&cdef);
       break; }
@@ -10271,7 +10453,8 @@ namespace Ttcn {
       Template *temp = ti->get_Template();
       const_def cdef;
       Code::init_cdef(&cdef);
-      type->generate_code_object(&cdef, temp, false);
+      type->generate_code_object(&cdef, temp, false,
+        defpar_wrapper ? scope->get_scope_class()->get_defpar_type_name(this) : NULL);
       Code::merge_cdef(target, &cdef);
       Code::free_cdef(&cdef);
       break; }
@@ -10280,11 +10463,15 @@ namespace Ttcn {
     default:
       FATAL_ERROR("FormalPar::generate_code()");
     }
-    target->functions.post_init = generate_code_defval(target->functions.post_init);
+    if (!defpar_wrapper) {
+      target->functions.post_init = generate_code_defval(target->functions.post_init);
+    } // otherwise the default value generation is handled by the calling function
   }
 
   char *FormalPar::generate_code_fpar(char *str, bool display_unused /* = false */)
   {
+    Scope* scope = my_parlist->get_my_def()->get_my_scope();
+    bool defpar_wrapper = defval.ap != NULL && scope->is_class_scope();
     // the name of the parameter should not be displayed if the parameter is not
     // used (to avoid a compiler warning)
     bool display_name = (usage_found || display_unused || debugger_active ||
@@ -10294,6 +10481,9 @@ namespace Ttcn {
     case A_PAR_VAL_IN:
       if (eval != NORMAL_EVAL) {
         str = mputprintf(str, "Lazy_Fuzzy_Expr<%s>& %s", type->get_genname_value(my_scope).c_str(), name_str);
+      } else if (defpar_wrapper) {
+        str = mputprintf(str, "%s %s%s", scope->get_scope_class()->get_defpar_type_name(this), name_str,
+          display_name ? "_defpar" : "");
       } else {
         str = mputprintf(str, "const %s& %s", type->get_genname_value(my_scope).c_str(), name_str);
       }
@@ -10301,23 +10491,42 @@ namespace Ttcn {
     case A_PAR_VAL_OUT:
     case A_PAR_VAL_INOUT:
     case A_PAR_PORT:
-      str = mputprintf(str, "%s& %s", type->get_genname_value(my_scope).c_str(),
-        name_str);
+      if (defpar_wrapper) {
+        str = mputprintf(str, "%s %s%s", scope->get_scope_class()->get_defpar_type_name(this), name_str,
+          display_name ? "_defpar" : "");
+      }
+      else {
+        str = mputprintf(str, "%s& %s", type->get_genname_value(my_scope).c_str(),
+          name_str);
+      }
       break;
     case A_PAR_TEMPL_IN:
       if (eval != NORMAL_EVAL) {
         str = mputprintf(str, "Lazy_Fuzzy_Expr<%s>& %s", type->get_genname_template(my_scope).c_str(), name_str);
+      } else if (defpar_wrapper) {
+        str = mputprintf(str, "%s %s%s", scope->get_scope_class()->get_defpar_type_name(this), name_str,
+          display_name ? "_defpar" : "");
       } else {
         str = mputprintf(str, "const %s& %s", type->get_genname_template(my_scope).c_str(), name_str);
       }
       break;
     case A_PAR_TEMPL_OUT:
     case A_PAR_TEMPL_INOUT:
-      str = mputprintf(str, "%s& %s",
-        type->get_genname_template(my_scope).c_str(), name_str);
+      if (defpar_wrapper) {
+        str = mputprintf(str, "%s %s%s", scope->get_scope_class()->get_defpar_type_name(this), name_str,
+          display_name ? "_defpar" : "");
+      } else {
+        str = mputprintf(str, "%s& %s",
+          type->get_genname_template(my_scope).c_str(), name_str);
+      }
       break;
     case A_PAR_TIMER:
-      str = mputprintf(str, "TIMER& %s", name_str);
+      if (defpar_wrapper) {
+        str = mputprintf(str, "%s %s%s", scope->get_scope_class()->get_defpar_type_name(this), name_str,
+          display_name ? "_defpar" : "");
+      } else {
+        str = mputprintf(str, "TIMER& %s", name_str);
+      }
       break;
     default:
       FATAL_ERROR("FormalPar::generate_code()");
@@ -11106,6 +11315,14 @@ namespace Ttcn {
     return str;
   }
 
+  char* FormalParList::generate_code_defpar_init(char* str)
+  {
+    for (size_t i = 0; i < pars_v.size(); i++) {
+      str = pars_v[i]->generate_code_defpar_init(str);
+    }
+    return str;
+  }
+
   void FormalParList::generate_code_defval(output_struct *target)
   {
     for (size_t i = 0; i < pars_v.size(); i++) {
@@ -11355,6 +11572,23 @@ namespace Ttcn {
     }
   }
 
+  void ActualPar::chk_ctor_defpar()
+  {
+    switch (selection) {
+    case AP_VALUE:
+      val->chk_ctor_defpar();
+      break;
+    case AP_TEMPLATE:
+      temp->chk_ctor_defpar();
+      break;
+    case AP_REF:
+      ref->chk_ctor_defpar();
+      break;
+    default:
+      break;
+    }
+  }
+
   bool ActualPar::has_single_expr(FormalPar* formal_par)
   {
     switch (selection) {
@@ -11420,6 +11654,40 @@ namespace Ttcn {
     }
   }
 
+  void ActualPar::set_gen_class_defpar_prefix()
+  {
+    switch (selection) {
+    case AP_VALUE:
+      val->set_gen_class_defpar_prefix();
+      break;
+    case AP_TEMPLATE:
+      temp->set_gen_class_defpar_prefix();
+      break;
+    case AP_REF:
+      ref->set_gen_class_defpar_prefix();
+      break;
+    default:
+      break;
+    }
+  }
+
+  void ActualPar::set_gen_class_base_call_postfix()
+  {
+    switch (selection) {
+    case AP_VALUE:
+      val->set_gen_class_base_call_postfix();
+      break;
+    case AP_TEMPLATE:
+      temp->set_gen_class_base_call_postfix();
+      break;
+    case AP_REF:
+      ref->set_gen_class_base_call_postfix();
+      break;
+    default:
+      break;
+    }
+  }
+
   void ActualPar::generate_code(expression_struct *expr, bool copy_needed,
                                 FormalPar* formal_par) const
   {
@@ -11452,7 +11720,14 @@ namespace Ttcn {
             expr->preamble = mputstr(expr->preamble, val_expr.preamble);
           }
           if (val_expr.postamble == NULL) {
-            expr_expr = mputstr(expr_expr, val_expr.expr);
+            if (formal_par != NULL &&
+                formal_par->get_defpar_wrapper() != Common::Type::NO_DEFPAR_WRAPPER) {
+              expr_expr = mputprintf(expr_expr, "%s(%s)",
+                val->get_my_governor()->get_genname_value(my_scope).c_str(), val_expr.expr);
+            }
+            else {
+              expr_expr = mputstr(expr_expr, val_expr.expr);
+            }
           }
           else {
             // make sure the postambles of the parameters are executed before the
@@ -11859,6 +12134,30 @@ namespace Ttcn {
           } // switch actual par selection
         }   // next
     }
+
+  void ActualParList::chk_ctor_defpar()
+  {
+    size_t nof_pars = params.size();
+    for (size_t i = 0; i < nof_pars; i++) {
+      params[i]->chk_ctor_defpar();
+    }
+  }
+
+  void ActualParList::set_gen_class_defpar_prefix()
+  {
+    size_t nof_pars = params.size();
+    for (size_t i = 0; i < nof_pars; i++) {
+      params[i]->set_gen_class_defpar_prefix();
+    }
+  }
+
+  void ActualParList::set_gen_class_base_call_postfix()
+  {
+    size_t nof_pars = params.size();
+    for (size_t i = 0; i < nof_pars; i++) {
+      params[i]->set_gen_class_base_call_postfix();
+    }
+  }
 
   void ActualParList::generate_code_noalias(expression_struct *expr, FormalParList *p_fpl)
   {

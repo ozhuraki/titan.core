@@ -121,10 +121,17 @@ namespace Ttcn {
     ActualPar *get_ActualPar() const;
     /** Checks the embedded recursions within the value or template instance. */
     void chk_recursions(ReferenceChain& refch);
+
+    void chk_ctor_defpar();
+
     /** Returns whether the actual parameter can be represented by an in-line
      * C++ expression. */
     bool has_single_expr(FormalPar* formal_par);
     void set_code_section(GovernedSimple::code_section_t p_code_section);
+
+    void set_gen_class_defpar_prefix();
+    void set_gen_class_base_call_postfix();
+
     /** Generates the C++ equivalent of \a this into \a expr.
      * Flag \a copy_needed indicates whether to add an extra copy constructor
      * call if \a this contains a referenced value or template to avoid
@@ -167,6 +174,11 @@ namespace Ttcn {
     void chk_recursions(ReferenceChain& refch);
 
     void chk_immutability();
+
+    void chk_ctor_defpar();
+
+    void set_gen_class_defpar_prefix();
+    void set_gen_class_base_call_postfix();
     /** Generates the C++ equivalent of the actual parameter list without
      * considering any aliasing between variables and 'in' parameters. */
     void generate_code_noalias(expression_struct *expr, FormalParList *p_fpl);
@@ -362,6 +374,8 @@ namespace Ttcn {
     /** Used by generate_code_cached(). Stores the generated expression string, 
       * so it doesn't get regenerated every time. */
     char* expr_cache;
+    bool gen_class_defpar_prefix;
+    bool gen_class_base_call_postfix;
     
     /** Copy constructor. Private, used by Reference::clone() only */
     Reference(const Reference& p);
@@ -369,7 +383,9 @@ namespace Ttcn {
     Reference(Identifier *p_id);
     Reference(reftype_t p_reftype);
     Reference(Identifier *p_modid, Identifier *p_id, reftype_t p_reftype = REF_BASIC)
-      : Ref_base(p_modid, p_id), reftype(p_reftype), parlist(NULL), params(NULL), gen_const_prefix(false), expr_cache(NULL) { }
+      : Ref_base(p_modid, p_id), reftype(p_reftype), parlist(NULL), params(NULL),
+        gen_const_prefix(false), expr_cache(NULL),
+        gen_class_defpar_prefix(false), gen_class_base_call_postfix(false) { }
     Reference(Identifier *p_modid, Identifier *p_id,
               ParsedActualParameters *p_params, reftype_t p_reftype = REF_BASIC);
     ~Reference();
@@ -386,6 +402,7 @@ namespace Ttcn {
     virtual const Identifier* get_id();
     virtual ActualParList *get_parlist();
     void set_gen_const_prefix() { gen_const_prefix = true; }
+    void set_gen_class_base_call_postfix() { gen_class_base_call_postfix = true; }
     /** Checks whether \a this points to a variable or value parameter.
      * Returns the type of the respective variable or variable field or NULL
      * in case of error. */
@@ -394,6 +411,7 @@ namespace Ttcn {
      *  Returns the type of the component if so or NULL in case of error. */
     Type *chk_comptype_ref();
     bool chk_activate_argument();
+    void chk_ctor_defpar();
     virtual bool has_single_expr();
     virtual void set_code_section(GovernedSimple::code_section_t p_code_section);
     virtual void generate_code(expression_struct_t *expr);
@@ -422,6 +440,8 @@ namespace Ttcn {
       * Used when the reference points to a union value or template in a context where a union is not allowed.
       * This attempts to use the union's default alternative instead. */
     void use_default_alternative(const Identifier& p_alt_name);
+    void set_gen_class_defpar_prefix() { gen_class_defpar_prefix = true; }
+    bool is_gen_class_defpar_prefix() { return gen_class_defpar_prefix; }
   private:
     /** Detects whether the first identifier in subrefs is a module id */
     void detect_modid();
@@ -1908,6 +1928,7 @@ namespace Ttcn {
       * the parameter (if present). The object's declaration is not generated,
       * only its value assignment. */
     char* generate_code_defval(char* str);
+    char* generate_code_defpar_init(char* str);
     /** Generates the C++ object that represents the default value for the
      * parameter (if present). */
     virtual void generate_code_defval(output_struct *target, bool clean_up = false);
@@ -1945,6 +1966,11 @@ namespace Ttcn {
     string get_reference_name(Scope* scope) const;
     /** Indicates that the parameter is used at least once. */
     void set_usage_found() { usage_found = true; }
+    void reset_usage_found() { usage_found = false; }
+    /** Returns whether a wrapper class is used for the formal parameter in the
+      * generated code.
+      * (Wrappers are used for class function parameters with default values.) */
+    Common::Type::defpar_wapper_t get_defpar_wrapper() const;
   };
 
   /** Class to represent a list of formal parameters. Owned by a
@@ -2033,6 +2059,7 @@ namespace Ttcn {
       * the parameters (if present). The objects' declarations are not generated,
       * only their value assignments. */
     char* generate_code_defval(char* str);
+    char* generate_code_defpar_init(char* str);
     /** Generates the C++ objects that represent the default values for the
      * parameters (if present). */
     void generate_code_defval(output_struct *target);

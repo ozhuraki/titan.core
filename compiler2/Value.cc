@@ -15989,8 +15989,13 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       if ((refd_ass->get_asstype() == Assignment::A_CONST ||
            refd_ass->get_asstype() == Assignment::A_VAR) &&
           refd_ass->get_my_scope()->get_parent_scope()->is_class_scope()) {
+        Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(u.ref.ref);
+        if (ttcn_ref == NULL) {
+          FATAL_ERROR("Value::generate_code_init_refd");
+        }
         Value* v2 = refd_ass->get_Value();
-        if (v2 != NULL && needs_init_precede(v2)) {
+        if (!ttcn_ref->is_gen_class_defpar_prefix() &&
+            v2 != NULL && needs_init_precede(v2)) { // todo: defpar?
           str = v2->generate_code_init(str, v2->get_lhs_name().c_str());
         }
       }
@@ -16921,6 +16926,651 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
   bool Value::get_is_in_brackets() const
   {
     return in_brackets;
+  }
+
+  void Value::chk_ctor_defpar()
+  {
+    switch (valuetype) {
+    case V_REFD: {
+      Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(u.ref.ref);
+      if (ttcn_ref != NULL) {
+        ttcn_ref->chk_ctor_defpar();
+        if (ttcn_ref->has_parameters()) {
+          ttcn_ref->get_parlist()->chk_ctor_defpar();
+        }
+      }
+      break; }
+    case V_EXPR:
+      switch (u.expr.v_optype) {
+      case OPTYPE_UNARYPLUS:
+      case OPTYPE_UNARYMINUS:
+      case OPTYPE_NOT:
+      case OPTYPE_NOT4B:
+      case OPTYPE_BIT2HEX:
+      case OPTYPE_BIT2INT:
+      case OPTYPE_BIT2OCT:
+      case OPTYPE_BIT2STR:
+      case OPTYPE_BSON2JSON:
+      case OPTYPE_CBOR2JSON:
+      case OPTYPE_CHAR2INT:
+      case OPTYPE_CHAR2OCT:
+      case OPTYPE_FLOAT2INT:
+      case OPTYPE_FLOAT2STR:
+      case OPTYPE_HEX2BIT:
+      case OPTYPE_HEX2INT:
+      case OPTYPE_HEX2OCT:
+      case OPTYPE_HEX2STR:
+      case OPTYPE_INT2CHAR:
+      case OPTYPE_INT2FLOAT:
+      case OPTYPE_INT2STR:
+      case OPTYPE_INT2UNICHAR:
+      case OPTYPE_JSON2BSON:
+      case OPTYPE_JSON2CBOR:
+      case OPTYPE_OCT2BIT:
+      case OPTYPE_OCT2CHAR:
+      case OPTYPE_OCT2HEX:
+      case OPTYPE_OCT2INT:
+      case OPTYPE_OCT2STR:
+      case OPTYPE_STR2BIT:
+      case OPTYPE_STR2FLOAT:
+      case OPTYPE_STR2HEX:
+      case OPTYPE_STR2INT:
+      case OPTYPE_STR2OCT:
+      case OPTYPE_UNICHAR2INT:
+      case OPTYPE_UNICHAR2CHAR:
+      case OPTYPE_ENUM2INT:
+      case OPTYPE_ISCHOSEN_V:
+      case OPTYPE_GET_STRINGENCODING:
+      case OPTYPE_REMOVE_BOM:
+      case OPTYPE_DECODE_BASE64:
+        u.expr.v1->chk_ctor_defpar();
+        break;
+      case OPTYPE_DECODE: {
+        if (u.expr.r1->has_parameters()) {
+          u.expr.r1->get_parlist()->chk_ctor_defpar();
+        }
+        else {
+          u.expr.r1->chk_ctor_defpar();
+        }
+        if (u.expr.r2->has_parameters()) {
+          u.expr.r2->get_parlist()->chk_ctor_defpar();
+        }
+        else {
+          u.expr.r2->chk_ctor_defpar();
+        }
+        if (u.expr.v3 != NULL) {
+          u.expr.v3->chk_ctor_defpar();
+        }
+        if (u.expr.v4 != NULL) {
+          u.expr.v4->chk_ctor_defpar();
+        }
+        break; }
+      case OPTYPE_HOSTID:
+        if (u.expr.v1 != NULL) {
+          u.expr.v1->chk_ctor_defpar();
+        }
+        break;
+      case OPTYPE_ADD:
+      case OPTYPE_SUBTRACT:
+      case OPTYPE_MULTIPLY:
+      case OPTYPE_DIVIDE:
+      case OPTYPE_MOD:
+      case OPTYPE_REM:
+      case OPTYPE_CONCAT:
+      case OPTYPE_EQ:
+      case OPTYPE_LT:
+      case OPTYPE_GT:
+      case OPTYPE_NE:
+      case OPTYPE_GE:
+      case OPTYPE_LE:
+      case OPTYPE_AND:
+      case OPTYPE_OR:
+      case OPTYPE_XOR:
+      case OPTYPE_AND4B:
+      case OPTYPE_OR4B:
+      case OPTYPE_XOR4B:
+      case OPTYPE_SHL:
+      case OPTYPE_SHR:
+      case OPTYPE_ROTL:
+      case OPTYPE_ROTR:
+      case OPTYPE_INT2BIT:
+      case OPTYPE_INT2HEX:
+      case OPTYPE_INT2OCT:
+        u.expr.v1->chk_ctor_defpar();
+        u.expr.v2->chk_ctor_defpar();
+        break;
+      case OPTYPE_UNICHAR2OCT: // v1 [v2]
+      case OPTYPE_OCT2UNICHAR:
+      case OPTYPE_ENCODE_BASE64:
+        u.expr.v1->chk_ctor_defpar();
+        if (u.expr.v2 != NULL) {
+          u.expr.v2->chk_ctor_defpar();
+        }
+        break;
+      case OPTYPE_SUBSTR:
+      case OPTYPE_ENCODE:
+        u.expr.ti1->chk_ctor_defpar();
+        if (u.expr.v2 != NULL) {
+          u.expr.v2->chk_ctor_defpar();
+        }
+        if (u.expr.v3 != NULL) {
+          u.expr.v3->chk_ctor_defpar();
+        }
+        break;
+      case OPTYPE_REGEXP:
+        u.expr.ti1->chk_ctor_defpar();
+        u.expr.t2->chk_ctor_defpar();
+        u.expr.v3->chk_ctor_defpar();
+        break;
+      case OPTYPE_DECOMP:
+        u.expr.v1->chk_ctor_defpar();
+        u.expr.v2->chk_ctor_defpar();
+        u.expr.v3->chk_ctor_defpar();
+        break;
+      case OPTYPE_REPLACE:
+        u.expr.ti1->chk_ctor_defpar();
+        u.expr.v2->chk_ctor_defpar();
+        u.expr.v3->chk_ctor_defpar();
+        u.expr.ti4->chk_ctor_defpar();
+        break;
+      case OPTYPE_ISTEMPLATEKIND:
+        u.expr.ti1->chk_ctor_defpar();
+        u.expr.v2->chk_ctor_defpar();
+        break;
+      case OPTYPE_VALUEOF:
+        if (u.expr.subrefs2 != NULL) {
+          for (size_t i = 0; i < u.expr.subrefs2->get_nof_refs(); ++i) {
+            Ttcn::FieldOrArrayRef* subref = u.expr.subrefs2->get_ref(i);
+            if (subref->get_type() == Ttcn::FieldOrArrayRef::ARRAY_REF) {
+              subref->get_val()->chk_ctor_defpar();
+            }
+          }
+        }
+        // fall through
+      case OPTYPE_LENGTHOF:
+      case OPTYPE_SIZEOF:
+      case OPTYPE_ISPRESENT:
+      case OPTYPE_TTCN2STRING:
+        u.expr.ti1->chk_ctor_defpar();
+        break;
+      case OPTYPE_ENCVALUE_UNICHAR:
+        u.expr.ti1->chk_ctor_defpar();
+        if (u.expr.v2 != NULL) {
+          u.expr.v2->chk_ctor_defpar();
+        }
+        if (u.expr.v3 != NULL) {
+          u.expr.v3->chk_ctor_defpar();
+        }
+        if (u.expr.v4 != NULL) {
+          u.expr.v4->chk_ctor_defpar();
+        }
+        break;
+      case OPTYPE_DECVALUE_UNICHAR: {
+        if (u.expr.r1->has_parameters()) {
+          u.expr.r1->get_parlist()->chk_ctor_defpar();
+        }
+        else {
+          u.expr.r1->chk_ctor_defpar();
+        }
+        if (u.expr.r2->has_parameters()) {
+          u.expr.r2->get_parlist()->chk_ctor_defpar();
+        }
+        else {
+          u.expr.r2->chk_ctor_defpar();
+        }
+        if (u.expr.v3 != NULL) {
+          u.expr.v3->chk_ctor_defpar();
+        }
+        if (u.expr.v4 != NULL) {
+          u.expr.v4->chk_ctor_defpar();
+        }
+        if (u.expr.v5 != NULL) {
+          u.expr.v5->chk_ctor_defpar();
+        }
+        break; }
+      case OPTYPE_ISCHOSEN_T:
+      case OPTYPE_ISVALUE:
+        u.expr.t1->chk_ctor_defpar();
+        break;
+      case OPTYPE_MATCH:
+        u.expr.v1->chk_ctor_defpar();
+        u.expr.t2->chk_ctor_defpar();
+        break;
+      default:
+        break;
+      }
+      break;
+    default:
+      break;
+    }
+  }
+
+  void Value::set_gen_class_defpar_prefix()
+  {
+    switch (valuetype) {
+    case V_REFD: {
+      Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(u.ref.ref);
+      if (ttcn_ref != NULL) {
+        ttcn_ref->set_gen_class_defpar_prefix();
+        if (ttcn_ref->has_parameters()) {
+          ttcn_ref->get_parlist()->set_gen_class_defpar_prefix();
+        }
+      }
+      break; }
+    case V_EXPR:
+      switch (u.expr.v_optype) {
+      case OPTYPE_UNARYPLUS:
+      case OPTYPE_UNARYMINUS:
+      case OPTYPE_NOT:
+      case OPTYPE_NOT4B:
+      case OPTYPE_BIT2HEX:
+      case OPTYPE_BIT2INT:
+      case OPTYPE_BIT2OCT:
+      case OPTYPE_BIT2STR:
+      case OPTYPE_BSON2JSON:
+      case OPTYPE_CBOR2JSON:
+      case OPTYPE_CHAR2INT:
+      case OPTYPE_CHAR2OCT:
+      case OPTYPE_FLOAT2INT:
+      case OPTYPE_FLOAT2STR:
+      case OPTYPE_HEX2BIT:
+      case OPTYPE_HEX2INT:
+      case OPTYPE_HEX2OCT:
+      case OPTYPE_HEX2STR:
+      case OPTYPE_INT2CHAR:
+      case OPTYPE_INT2FLOAT:
+      case OPTYPE_INT2STR:
+      case OPTYPE_INT2UNICHAR:
+      case OPTYPE_JSON2BSON:
+      case OPTYPE_JSON2CBOR:
+      case OPTYPE_OCT2BIT:
+      case OPTYPE_OCT2CHAR:
+      case OPTYPE_OCT2HEX:
+      case OPTYPE_OCT2INT:
+      case OPTYPE_OCT2STR:
+      case OPTYPE_STR2BIT:
+      case OPTYPE_STR2FLOAT:
+      case OPTYPE_STR2HEX:
+      case OPTYPE_STR2INT:
+      case OPTYPE_STR2OCT:
+      case OPTYPE_UNICHAR2INT:
+      case OPTYPE_UNICHAR2CHAR:
+      case OPTYPE_ENUM2INT:
+      case OPTYPE_ISCHOSEN_V:
+      case OPTYPE_GET_STRINGENCODING:
+      case OPTYPE_REMOVE_BOM:
+      case OPTYPE_DECODE_BASE64:
+        u.expr.v1->set_gen_class_defpar_prefix();
+        break;
+      case OPTYPE_DECODE: {
+        u.expr.r1->set_gen_class_defpar_prefix();
+        if (u.expr.r1->has_parameters()) {
+          u.expr.r1->get_parlist()->set_gen_class_defpar_prefix();
+        }
+        u.expr.r2->set_gen_class_defpar_prefix();
+        if (u.expr.r2->has_parameters()) {
+          u.expr.r2->get_parlist()->set_gen_class_defpar_prefix();
+        }
+        if (u.expr.v3 != NULL) {
+          u.expr.v3->set_gen_class_defpar_prefix();
+        }
+        if (u.expr.v4 != NULL) {
+          u.expr.v4->set_gen_class_defpar_prefix();
+        }
+        break; }
+      case OPTYPE_HOSTID:
+        if (u.expr.v1 != NULL) {
+          u.expr.v1->set_gen_class_defpar_prefix();
+        }
+        break;
+      case OPTYPE_ADD:
+      case OPTYPE_SUBTRACT:
+      case OPTYPE_MULTIPLY:
+      case OPTYPE_DIVIDE:
+      case OPTYPE_MOD:
+      case OPTYPE_REM:
+      case OPTYPE_CONCAT:
+      case OPTYPE_EQ:
+      case OPTYPE_LT:
+      case OPTYPE_GT:
+      case OPTYPE_NE:
+      case OPTYPE_GE:
+      case OPTYPE_LE:
+      case OPTYPE_AND:
+      case OPTYPE_OR:
+      case OPTYPE_XOR:
+      case OPTYPE_AND4B:
+      case OPTYPE_OR4B:
+      case OPTYPE_XOR4B:
+      case OPTYPE_SHL:
+      case OPTYPE_SHR:
+      case OPTYPE_ROTL:
+      case OPTYPE_ROTR:
+      case OPTYPE_INT2BIT:
+      case OPTYPE_INT2HEX:
+      case OPTYPE_INT2OCT:
+        u.expr.v1->set_gen_class_defpar_prefix();
+        u.expr.v2->set_gen_class_defpar_prefix();
+        break;
+      case OPTYPE_UNICHAR2OCT: // v1 [v2]
+      case OPTYPE_OCT2UNICHAR:
+      case OPTYPE_ENCODE_BASE64:
+        u.expr.v1->set_gen_class_defpar_prefix();
+        if (u.expr.v2 != NULL) {
+          u.expr.v2->set_gen_class_defpar_prefix();
+        }
+        break;
+      case OPTYPE_SUBSTR:
+      case OPTYPE_ENCODE:
+        u.expr.ti1->set_gen_class_defpar_prefix();
+        if (u.expr.v2 != NULL) {
+          u.expr.v2->set_gen_class_defpar_prefix();
+        }
+        if (u.expr.v3 != NULL) {
+          u.expr.v3->set_gen_class_defpar_prefix();
+        }
+        break;
+      case OPTYPE_REGEXP:
+        u.expr.ti1->set_gen_class_defpar_prefix();
+        u.expr.t2->set_gen_class_defpar_prefix();
+        u.expr.v3->set_gen_class_defpar_prefix();
+        break;
+      case OPTYPE_DECOMP:
+        u.expr.v1->set_gen_class_defpar_prefix();
+        u.expr.v2->set_gen_class_defpar_prefix();
+        u.expr.v3->set_gen_class_defpar_prefix();
+        break;
+      case OPTYPE_REPLACE:
+        u.expr.ti1->set_gen_class_defpar_prefix();
+        u.expr.v2->set_gen_class_defpar_prefix();
+        u.expr.v3->set_gen_class_defpar_prefix();
+        u.expr.ti4->set_gen_class_defpar_prefix();
+        break;
+      case OPTYPE_ISTEMPLATEKIND:
+        u.expr.ti1->set_gen_class_defpar_prefix();
+        u.expr.v2->set_gen_class_defpar_prefix();
+        break;
+      case OPTYPE_VALUEOF:
+        if (u.expr.subrefs2 != NULL) {
+          for (size_t i = 0; i < u.expr.subrefs2->get_nof_refs(); ++i) {
+            Ttcn::FieldOrArrayRef* subref = u.expr.subrefs2->get_ref(i);
+            if (subref->get_type() == Ttcn::FieldOrArrayRef::ARRAY_REF) {
+              subref->get_val()->set_gen_class_defpar_prefix();
+            }
+          }
+        }
+        // fall through
+      case OPTYPE_LENGTHOF:
+      case OPTYPE_SIZEOF:
+      case OPTYPE_ISPRESENT:
+      case OPTYPE_TTCN2STRING:
+        u.expr.ti1->set_gen_class_defpar_prefix();
+        break;
+      case OPTYPE_ENCVALUE_UNICHAR:
+        u.expr.ti1->set_gen_class_defpar_prefix();
+        if (u.expr.v2 != NULL) {
+          u.expr.v2->set_gen_class_defpar_prefix();
+        }
+        if (u.expr.v3 != NULL) {
+          u.expr.v3->set_gen_class_defpar_prefix();
+        }
+        if (u.expr.v4 != NULL) {
+          u.expr.v4->set_gen_class_defpar_prefix();
+        }
+        break;
+      case OPTYPE_DECVALUE_UNICHAR: {
+        u.expr.r1->set_gen_class_defpar_prefix();
+        if (u.expr.r1->has_parameters()) {
+          u.expr.r1->get_parlist()->set_gen_class_defpar_prefix();
+        }
+        u.expr.r2->set_gen_class_defpar_prefix();
+        if (u.expr.r2->has_parameters()) {
+          u.expr.r2->get_parlist()->set_gen_class_defpar_prefix();
+        }
+        if (u.expr.v3 != NULL) {
+          u.expr.v3->set_gen_class_defpar_prefix();
+        }
+        if (u.expr.v4 != NULL) {
+          u.expr.v4->set_gen_class_defpar_prefix();
+        }
+        if (u.expr.v5 != NULL) {
+          u.expr.v5->set_gen_class_defpar_prefix();
+        }
+        break; }
+      case OPTYPE_ISCHOSEN_T:
+      case OPTYPE_ISVALUE:
+        u.expr.t1->set_gen_class_defpar_prefix();
+        break;
+      case OPTYPE_MATCH:
+        u.expr.v1->set_gen_class_defpar_prefix();
+        u.expr.t2->set_gen_class_defpar_prefix();
+        break;
+      default:
+        break;
+      }
+      break;
+    default:
+      break;
+    }
+  }
+
+  void Value::set_gen_class_base_call_postfix()
+  {
+    switch (valuetype) {
+    case V_REFD: {
+      Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(u.ref.ref);
+      if (ttcn_ref != NULL) {
+        if (ttcn_ref->has_parameters()) {
+          ttcn_ref->get_parlist()->set_gen_class_base_call_postfix();
+        }
+        else {
+          ttcn_ref->set_gen_class_base_call_postfix();
+        }
+      }
+      break; }
+    case V_EXPR:
+      switch (u.expr.v_optype) {
+      case OPTYPE_UNARYPLUS:
+      case OPTYPE_UNARYMINUS:
+      case OPTYPE_NOT:
+      case OPTYPE_NOT4B:
+      case OPTYPE_BIT2HEX:
+      case OPTYPE_BIT2INT:
+      case OPTYPE_BIT2OCT:
+      case OPTYPE_BIT2STR:
+      case OPTYPE_BSON2JSON:
+      case OPTYPE_CBOR2JSON:
+      case OPTYPE_CHAR2INT:
+      case OPTYPE_CHAR2OCT:
+      case OPTYPE_FLOAT2INT:
+      case OPTYPE_FLOAT2STR:
+      case OPTYPE_HEX2BIT:
+      case OPTYPE_HEX2INT:
+      case OPTYPE_HEX2OCT:
+      case OPTYPE_HEX2STR:
+      case OPTYPE_INT2CHAR:
+      case OPTYPE_INT2FLOAT:
+      case OPTYPE_INT2STR:
+      case OPTYPE_INT2UNICHAR:
+      case OPTYPE_JSON2BSON:
+      case OPTYPE_JSON2CBOR:
+      case OPTYPE_OCT2BIT:
+      case OPTYPE_OCT2CHAR:
+      case OPTYPE_OCT2HEX:
+      case OPTYPE_OCT2INT:
+      case OPTYPE_OCT2STR:
+      case OPTYPE_STR2BIT:
+      case OPTYPE_STR2FLOAT:
+      case OPTYPE_STR2HEX:
+      case OPTYPE_STR2INT:
+      case OPTYPE_STR2OCT:
+      case OPTYPE_UNICHAR2INT:
+      case OPTYPE_UNICHAR2CHAR:
+      case OPTYPE_ENUM2INT:
+      case OPTYPE_ISCHOSEN_V:
+      case OPTYPE_GET_STRINGENCODING:
+      case OPTYPE_REMOVE_BOM:
+      case OPTYPE_DECODE_BASE64:
+        u.expr.v1->set_gen_class_base_call_postfix();
+        break;
+      case OPTYPE_DECODE: {
+        if (u.expr.r1->has_parameters()) {
+          u.expr.r1->get_parlist()->set_gen_class_base_call_postfix();
+        }
+        else {
+          u.expr.r1->set_gen_class_base_call_postfix();
+        }
+        if (u.expr.r2->has_parameters()) {
+          u.expr.r2->get_parlist()->set_gen_class_base_call_postfix();
+        }
+        else {
+          u.expr.r2->set_gen_class_base_call_postfix();
+        }
+        if (u.expr.v3 != NULL) {
+          u.expr.v3->set_gen_class_base_call_postfix();
+        }
+        if (u.expr.v4 != NULL) {
+          u.expr.v4->set_gen_class_base_call_postfix();
+        }
+        break; }
+      case OPTYPE_HOSTID:
+        if (u.expr.v1 != NULL) {
+          u.expr.v1->set_gen_class_base_call_postfix();
+        }
+        break;
+      case OPTYPE_ADD:
+      case OPTYPE_SUBTRACT:
+      case OPTYPE_MULTIPLY:
+      case OPTYPE_DIVIDE:
+      case OPTYPE_MOD:
+      case OPTYPE_REM:
+      case OPTYPE_CONCAT:
+      case OPTYPE_EQ:
+      case OPTYPE_LT:
+      case OPTYPE_GT:
+      case OPTYPE_NE:
+      case OPTYPE_GE:
+      case OPTYPE_LE:
+      case OPTYPE_AND:
+      case OPTYPE_OR:
+      case OPTYPE_XOR:
+      case OPTYPE_AND4B:
+      case OPTYPE_OR4B:
+      case OPTYPE_XOR4B:
+      case OPTYPE_SHL:
+      case OPTYPE_SHR:
+      case OPTYPE_ROTL:
+      case OPTYPE_ROTR:
+      case OPTYPE_INT2BIT:
+      case OPTYPE_INT2HEX:
+      case OPTYPE_INT2OCT:
+        u.expr.v1->set_gen_class_base_call_postfix();
+        u.expr.v2->set_gen_class_base_call_postfix();
+        break;
+      case OPTYPE_UNICHAR2OCT: // v1 [v2]
+      case OPTYPE_OCT2UNICHAR:
+      case OPTYPE_ENCODE_BASE64:
+        u.expr.v1->set_gen_class_base_call_postfix();
+        if (u.expr.v2 != NULL) {
+          u.expr.v2->set_gen_class_base_call_postfix();
+        }
+        break;
+      case OPTYPE_SUBSTR:
+      case OPTYPE_ENCODE:
+        u.expr.ti1->set_gen_class_base_call_postfix();
+        if (u.expr.v2 != NULL) {
+          u.expr.v2->set_gen_class_base_call_postfix();
+        }
+        if (u.expr.v3 != NULL) {
+          u.expr.v3->set_gen_class_base_call_postfix();
+        }
+        break;
+      case OPTYPE_REGEXP:
+        u.expr.ti1->set_gen_class_base_call_postfix();
+        u.expr.t2->set_gen_class_base_call_postfix();
+        u.expr.v3->set_gen_class_base_call_postfix();
+        break;
+      case OPTYPE_DECOMP:
+        u.expr.v1->set_gen_class_base_call_postfix();
+        u.expr.v2->set_gen_class_base_call_postfix();
+        u.expr.v3->set_gen_class_base_call_postfix();
+        break;
+      case OPTYPE_REPLACE:
+        u.expr.ti1->set_gen_class_base_call_postfix();
+        u.expr.v2->set_gen_class_base_call_postfix();
+        u.expr.v3->set_gen_class_base_call_postfix();
+        u.expr.ti4->set_gen_class_base_call_postfix();
+        break;
+      case OPTYPE_ISTEMPLATEKIND:
+        u.expr.ti1->set_gen_class_base_call_postfix();
+        u.expr.v2->set_gen_class_base_call_postfix();
+        break;
+      case OPTYPE_VALUEOF:
+        if (u.expr.subrefs2 != NULL) {
+          for (size_t i = 0; i < u.expr.subrefs2->get_nof_refs(); ++i) {
+            Ttcn::FieldOrArrayRef* subref = u.expr.subrefs2->get_ref(i);
+            if (subref->get_type() == Ttcn::FieldOrArrayRef::ARRAY_REF) {
+              subref->get_val()->set_gen_class_base_call_postfix();
+            }
+          }
+        }
+        // fall through
+      case OPTYPE_LENGTHOF:
+      case OPTYPE_SIZEOF:
+      case OPTYPE_ISPRESENT:
+      case OPTYPE_TTCN2STRING:
+        u.expr.ti1->set_gen_class_base_call_postfix();
+        break;
+      case OPTYPE_ENCVALUE_UNICHAR:
+        u.expr.ti1->set_gen_class_base_call_postfix();
+        if (u.expr.v2 != NULL) {
+          u.expr.v2->set_gen_class_base_call_postfix();
+        }
+        if (u.expr.v3 != NULL) {
+          u.expr.v3->set_gen_class_base_call_postfix();
+        }
+        if (u.expr.v4 != NULL) {
+          u.expr.v4->set_gen_class_base_call_postfix();
+        }
+        break;
+      case OPTYPE_DECVALUE_UNICHAR: {
+        if (u.expr.r1->has_parameters()) {
+          u.expr.r1->get_parlist()->set_gen_class_base_call_postfix();
+        }
+        else {
+          u.expr.r1->set_gen_class_base_call_postfix();
+        }
+        if (u.expr.r2->has_parameters()) {
+          u.expr.r2->get_parlist()->set_gen_class_base_call_postfix();
+        }
+        else {
+          u.expr.r2->set_gen_class_base_call_postfix();
+        }
+        if (u.expr.v3 != NULL) {
+          u.expr.v3->set_gen_class_base_call_postfix();
+        }
+        if (u.expr.v4 != NULL) {
+          u.expr.v4->set_gen_class_base_call_postfix();
+        }
+        if (u.expr.v5 != NULL) {
+          u.expr.v5->set_gen_class_base_call_postfix();
+        }
+        break; }
+      case OPTYPE_ISCHOSEN_T:
+      case OPTYPE_ISVALUE:
+        u.expr.t1->set_gen_class_base_call_postfix();
+        break;
+      case OPTYPE_MATCH:
+        u.expr.v1->set_gen_class_base_call_postfix();
+        u.expr.t2->set_gen_class_base_call_postfix();
+        break;
+      default:
+        break;
+      }
+      break;
+    default:
+      break;
+    }
   }
 
   void Value::add_string_element(size_t index, Value *v_element,

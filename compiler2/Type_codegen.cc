@@ -3521,14 +3521,21 @@ bool Type::has_done_attribute()
 
 void Type::generate_code_object(const_def *cdef, Scope *p_scope,
   const string& name, const char *prefix, bool is_template, bool has_err_descr,
-  bool in_class)
+  bool in_class, const char* defpar_type_name)
 {
   string type_name;
-  if (is_template) type_name = get_genname_template(p_scope);
-  else type_name = get_genname_value(p_scope);
+  if (defpar_type_name != NULL) {
+    type_name = defpar_type_name;
+  }
+  else if (is_template) {
+    type_name = get_genname_template(p_scope);
+  }
+  else {
+    type_name = get_genname_value(p_scope);
+  }
   const char *name_str = name.c_str();
   const char *type_name_str = type_name.c_str();
-  if (prefix) {
+  if (prefix != NULL && defpar_type_name == NULL) {
     cdef->decl = mputprintf(cdef->decl, "%sconst %s& %s;\n",
       in_class ? "" : "extern ", type_name_str, name_str);
     if (split_to_slices || has_err_descr || in_class) {
@@ -3554,7 +3561,7 @@ void Type::generate_code_object(const_def *cdef, Scope *p_scope,
 }
 
 void Type::generate_code_object(const_def *cdef, GovernedSimple *p_setting,
-                                bool in_class)
+                                bool in_class, const char* defpar_type_name)
 {
   bool is_template = FALSE;
   switch (p_setting->get_st()) {
@@ -3577,7 +3584,7 @@ void Type::generate_code_object(const_def *cdef, GovernedSimple *p_setting,
   // regenerated
   generate_code_object(cdef, p_setting->get_my_scope(),
     p_setting->get_genname_own(), p_setting->get_genname_prefix(),
-    is_template, use_runtime_2, in_class);
+    is_template, use_runtime_2, in_class, defpar_type_name);
 }
 
 void Type::generate_json_schema(JSON_Tokenizer& json, bool embedded, bool as_value)

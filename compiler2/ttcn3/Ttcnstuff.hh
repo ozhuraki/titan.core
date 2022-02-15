@@ -782,6 +782,7 @@ class ClassTypeBody : public Common::Scope, public Common::Location {
   map<string, Def_AbsFunction> abstract_functions;
   bool checked;
   bool default_constructor; /// true if the class uses a default constructor
+  map<FormalPar*, char> defpar_list;
   
 public:
   ClassTypeBody(Common::Identifier* p_class_id, boolean p_external, boolean p_final,
@@ -810,6 +811,8 @@ public:
   Common::Type* get_base_type() const { return base_type; }
   ClassTypeBody* get_base_class();
   boolean is_built_in() const { return built_in; }
+  void add_defpar(FormalPar* p_defpar);
+  char* get_defpar_type_name(FormalPar* p_defpar);
   
   Type* get_RunsOnType();
   Type* get_MtcType();

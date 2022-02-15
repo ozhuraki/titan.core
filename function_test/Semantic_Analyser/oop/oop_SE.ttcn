@@ -748,7 +748,7 @@ function f_traits_good() runs on CT_RunsOn2 {
   log(v_t7.f(3));
 }
 
-type class C60 {//^In type definition//
+type class C60 { //^In type definition//
   private const integer a := b;
   private const integer b := 3;
   private var integer c := f(); //^In variable definition// //Reference to a static value was expected instead of the return value of function `@oop_SE.C60.f'//
@@ -764,6 +764,21 @@ type class C60 {//^In type definition//
   private var charstring n;
   private var template charstring o := pattern "ab?{n}"; //^In template variable definition// //^In character string pattern// //Reference to uninitialized variable `n' in class member initialization//
   public function f() return integer { return 10; }
+  create() { }
+}
+
+type class C61 { //^In type definition//
+  private var integer v := 1;
+  private const integer c;
+  create(template integer p1 := v, //^In constructor definition// //Constructor default parameter cannot contain reference to variable class member `v'//
+         integer p2 := c) { } //Constructor default parameter cannot contain reference to constant class member `c', which has no initial value//
+  public function f(inout integer p := v) { p := p + 1; } //^In function definition// //^In formal parameter list// //^In parameter// //In default value// //`out' and `inout' parameters of class functions cannot have default values//
+}
+
+type class C62 { //^In type definition// //^In constructor definition//
+  private var template integer vt1 := 1;
+  private var template Rec vt2 := { vt1, ? }; //Constructor default parameter cannot contain reference to template variable class member `vt1'//
+  /* default constructor */
 }
 
 

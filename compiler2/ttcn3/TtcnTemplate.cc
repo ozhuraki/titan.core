@@ -3749,6 +3749,270 @@ end:
     return needs_runtime_check;
   }
   
+  void Template::chk_ctor_defpar()
+  {
+    switch (templatetype) {
+    case SPECIFIC_VALUE:
+      u.specific_value->chk_ctor_defpar();
+      break;
+    case TEMPLATE_REFD:
+      u.ref.ref->chk_ctor_defpar();
+      if (u.ref.ref->has_parameters()) {
+        for (size_t i = 0; i < u.ref.ref->get_parlist()->get_nof_pars(); i++)
+          u.ref.ref->get_parlist()->get_par(i)->chk_ctor_defpar();
+      }
+      break;
+    case TEMPLATE_INVOKE:
+      u.invoke.v->chk_ctor_defpar();
+      if (u.invoke.ap_list != NULL) {
+        for (size_t i = 0; i < u.invoke.ap_list->get_nof_pars(); i++)
+          u.invoke.ap_list->get_par(i)->chk_ctor_defpar();
+      }
+      break;
+    case TEMPLATE_LIST:
+    case VALUE_LIST:
+    case COMPLEMENTED_LIST:
+    case SUPERSET_MATCH:
+    case SUBSET_MATCH:
+    case PERMUTATION_MATCH:
+    case CONJUNCTION_MATCH:
+      for (size_t i = 0; i < u.templates->get_nof_ts(); i++) {
+        u.templates->get_t_byIndex(i)->chk_ctor_defpar();
+      }
+      break;
+    case NAMED_TEMPLATE_LIST:
+      for (size_t i = 0; i < u.named_templates->get_nof_nts(); i++) {
+        u.named_templates->get_nt_byIndex(i)->get_template()->chk_ctor_defpar();
+      }
+      break;
+    case INDEXED_TEMPLATE_LIST:
+      for (size_t i = 0; i <u.indexed_templates->get_nof_its(); i++) {
+        u.indexed_templates->get_it_byIndex(i)->get_template()->chk_ctor_defpar();
+      }
+      break;
+    case VALUE_RANGE:
+      if (u.value_range->get_min_v() != NULL) {
+        u.value_range->get_min_v()->chk_ctor_defpar();
+      }
+      if (u.value_range->get_max_v() != NULL) {
+        u.value_range->get_max_v()->chk_ctor_defpar();
+      }
+      break;
+    case CSTR_PATTERN:
+    case USTR_PATTERN:
+      //u.pstring->chk_ctor_defpar(); todo
+      break;
+    case DECODE_MATCH:
+      if (u.dec_match.str_enc != NULL) {
+        u.dec_match.str_enc->chk_ctor_defpar();
+      }
+      u.dec_match.target->chk_ctor_defpar();
+      break;
+    case TEMPLATE_CONCAT:
+      if (!use_runtime_2) {
+        FATAL_ERROR("Template::chk_ctor_defpar()");
+      }
+      u.concat.op1->chk_ctor_defpar();
+      u.concat.op2->chk_ctor_defpar();
+      break;
+    case IMPLICATION_MATCH:
+      u.implication.precondition->chk_ctor_defpar();
+      u.implication.implied_template->chk_ctor_defpar();
+      break;
+    case DYNAMIC_MATCH:
+      break;
+    default:
+      break;
+    }
+    if (length_restriction != NULL) {
+      if (length_restriction->get_is_range()) {
+        length_restriction->get_lower_value()->chk_ctor_defpar();
+        if (length_restriction->get_upper_value() != NULL) {
+          length_restriction->get_upper_value()->chk_ctor_defpar();
+        }
+      }
+      else {
+        length_restriction->get_single_value()->chk_ctor_defpar();
+      }
+    }
+  }
+
+  void Template::set_gen_class_defpar_prefix()
+  {
+    switch (templatetype) {
+    case SPECIFIC_VALUE:
+      u.specific_value->set_gen_class_defpar_prefix();
+      break;
+    case TEMPLATE_REFD:
+      u.ref.ref->set_gen_class_defpar_prefix();
+      if (u.ref.ref->has_parameters()) {
+        for (size_t i = 0; i < u.ref.ref->get_parlist()->get_nof_pars(); i++)
+          u.ref.ref->get_parlist()->get_par(i)->set_gen_class_defpar_prefix();
+      }
+      break;
+    case TEMPLATE_INVOKE:
+      u.invoke.v->set_gen_class_defpar_prefix();
+      if (u.invoke.ap_list != NULL) {
+        for (size_t i = 0; i < u.invoke.ap_list->get_nof_pars(); i++)
+          u.invoke.ap_list->get_par(i)->set_gen_class_defpar_prefix();
+      }
+      break;
+    case TEMPLATE_LIST:
+    case VALUE_LIST:
+    case COMPLEMENTED_LIST:
+    case SUPERSET_MATCH:
+    case SUBSET_MATCH:
+    case PERMUTATION_MATCH:
+    case CONJUNCTION_MATCH:
+      for (size_t i = 0; i < u.templates->get_nof_ts(); i++) {
+        u.templates->get_t_byIndex(i)->set_gen_class_defpar_prefix();
+      }
+      break;
+    case NAMED_TEMPLATE_LIST:
+      for (size_t i = 0; i < u.named_templates->get_nof_nts(); i++) {
+        u.named_templates->get_nt_byIndex(i)->get_template()->set_gen_class_defpar_prefix();
+      }
+      break;
+    case INDEXED_TEMPLATE_LIST:
+      for (size_t i = 0; i <u.indexed_templates->get_nof_its(); i++) {
+        u.indexed_templates->get_it_byIndex(i)->get_template()->set_gen_class_defpar_prefix();
+      }
+      break;
+    case VALUE_RANGE:
+      if (u.value_range->get_min_v() != NULL) {
+        u.value_range->get_min_v()->set_gen_class_defpar_prefix();
+      }
+      if (u.value_range->get_max_v() != NULL) {
+        u.value_range->get_max_v()->set_gen_class_defpar_prefix();
+      }
+      break;
+    case CSTR_PATTERN:
+    case USTR_PATTERN:
+      //u.pstring->set_gen_class_defpar_prefix(); todo
+      break;
+    case DECODE_MATCH:
+      if (u.dec_match.str_enc != NULL) {
+        u.dec_match.str_enc->set_gen_class_defpar_prefix();
+      }
+      u.dec_match.target->set_gen_class_defpar_prefix();
+      break;
+    case TEMPLATE_CONCAT:
+      if (!use_runtime_2) {
+        FATAL_ERROR("Template::set_gen_class_defpar_prefix()");
+      }
+      u.concat.op1->set_gen_class_defpar_prefix();
+      u.concat.op2->set_gen_class_defpar_prefix();
+      break;
+    case IMPLICATION_MATCH:
+      u.implication.precondition->set_gen_class_defpar_prefix();
+      u.implication.implied_template->set_gen_class_defpar_prefix();
+      break;
+    case DYNAMIC_MATCH:
+      break;
+    default:
+      break;
+    }
+    if (length_restriction != NULL) {
+      if (length_restriction->get_is_range()) {
+        length_restriction->get_lower_value()->set_gen_class_defpar_prefix();
+        if (length_restriction->get_upper_value() != NULL) {
+          length_restriction->get_upper_value()->set_gen_class_defpar_prefix();
+        }
+      }
+      else {
+        length_restriction->get_single_value()->set_gen_class_defpar_prefix();
+      }
+    }
+  }
+
+  void Template::set_gen_class_base_call_postfix()
+  {
+    switch (templatetype) {
+    case SPECIFIC_VALUE:
+      u.specific_value->set_gen_class_base_call_postfix();
+      break;
+    case TEMPLATE_REFD:
+      u.ref.ref->set_gen_class_base_call_postfix();
+      if (u.ref.ref->has_parameters()) {
+        for (size_t i = 0; i < u.ref.ref->get_parlist()->get_nof_pars(); i++)
+          u.ref.ref->get_parlist()->get_par(i)->set_gen_class_base_call_postfix();
+      }
+      break;
+    case TEMPLATE_INVOKE:
+      u.invoke.v->set_gen_class_base_call_postfix();
+      if (u.invoke.ap_list != NULL) {
+        for (size_t i = 0; i < u.invoke.ap_list->get_nof_pars(); i++)
+          u.invoke.ap_list->get_par(i)->set_gen_class_base_call_postfix();
+      }
+      break;
+    case TEMPLATE_LIST:
+    case VALUE_LIST:
+    case COMPLEMENTED_LIST:
+    case SUPERSET_MATCH:
+    case SUBSET_MATCH:
+    case PERMUTATION_MATCH:
+    case CONJUNCTION_MATCH:
+      for (size_t i = 0; i < u.templates->get_nof_ts(); i++) {
+        u.templates->get_t_byIndex(i)->set_gen_class_base_call_postfix();
+      }
+      break;
+    case NAMED_TEMPLATE_LIST:
+      for (size_t i = 0; i < u.named_templates->get_nof_nts(); i++) {
+        u.named_templates->get_nt_byIndex(i)->get_template()->set_gen_class_base_call_postfix();
+      }
+      break;
+    case INDEXED_TEMPLATE_LIST:
+      for (size_t i = 0; i <u.indexed_templates->get_nof_its(); i++) {
+        u.indexed_templates->get_it_byIndex(i)->get_template()->set_gen_class_base_call_postfix();
+      }
+      break;
+    case VALUE_RANGE:
+      if (u.value_range->get_min_v() != NULL) {
+        u.value_range->get_min_v()->set_gen_class_base_call_postfix();
+      }
+      if (u.value_range->get_max_v() != NULL) {
+        u.value_range->get_max_v()->set_gen_class_base_call_postfix();
+      }
+      break;
+    case CSTR_PATTERN:
+    case USTR_PATTERN:
+      //u.pstring->set_gen_class_base_call_postfix(); todo
+      break;
+    case DECODE_MATCH:
+      if (u.dec_match.str_enc != NULL) {
+        u.dec_match.str_enc->set_gen_class_base_call_postfix();
+      }
+      u.dec_match.target->set_gen_class_base_call_postfix();
+      break;
+    case TEMPLATE_CONCAT:
+      if (!use_runtime_2) {
+        FATAL_ERROR("Template::set_gen_class_base_call_postfix()");
+      }
+      u.concat.op1->set_gen_class_base_call_postfix();
+      u.concat.op2->set_gen_class_base_call_postfix();
+      break;
+    case IMPLICATION_MATCH:
+      u.implication.precondition->set_gen_class_base_call_postfix();
+      u.implication.implied_template->set_gen_class_base_call_postfix();
+      break;
+    case DYNAMIC_MATCH:
+      break;
+    default:
+      break;
+    }
+    if (length_restriction != NULL) {
+      if (length_restriction->get_is_range()) {
+        length_restriction->get_lower_value()->set_gen_class_base_call_postfix();
+        if (length_restriction->get_upper_value() != NULL) {
+          length_restriction->get_upper_value()->set_gen_class_base_call_postfix();
+        }
+      }
+      else {
+        length_restriction->get_single_value()->set_gen_class_base_call_postfix();
+      }
+    }
+  }
+
   void Template::reset_code_generated()
   {
     if (!get_code_generated()) {
@@ -4067,7 +4331,8 @@ end:
       expression_struct expr;
       Code::init_expr(&expr);
       bool use_ref_for_codegen = true;
-      if (get_code_section() == CS_POST_INIT || get_code_section() == CS_INIT_CLASS) {
+      if ((get_code_section() == CS_POST_INIT || get_code_section() == CS_INIT_CLASS) &&
+          !u.ref.ref->is_gen_class_defpar_prefix()) {
         // the referencing template is a part of a non-parameterized template
         Common::Assignment *ass = u.ref.ref->get_refd_assignment();
         if (ass->get_asstype() == Common::Assignment::A_TEMPLATE ||
@@ -6264,6 +6529,30 @@ compile_time:
       }
       template_body->chk_immutability();
     }
+
+  void TemplateInstance::chk_ctor_defpar()
+  {
+    if (derived_reference != NULL) {
+      derived_reference->chk_ctor_defpar();
+    }
+    template_body->chk_ctor_defpar();
+  }
+
+  void TemplateInstance::set_gen_class_defpar_prefix()
+  {
+    if (derived_reference != NULL) {
+      derived_reference->set_gen_class_defpar_prefix();
+    }
+    template_body->set_gen_class_defpar_prefix();
+  }
+
+  void TemplateInstance::set_gen_class_base_call_postfix()
+  {
+    if (derived_reference != NULL) {
+      derived_reference->set_gen_class_base_call_postfix();
+    }
+    template_body->set_gen_class_base_call_postfix();
+  }
 
   bool TemplateInstance::has_single_expr()
   {

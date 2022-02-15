@@ -288,6 +288,12 @@ namespace Common {
       CODING_MULTIPLE ///< Multiple encoding/decoding methods have been set for the type.
     };
     
+    enum defpar_wapper_t {
+      NO_DEFPAR_WRAPPER = 0,
+      DEFPAR_IN_WRAPPER,
+      DEFPAR_OUT_WRAPPER
+    };
+
     /**
      * Structure containing the default encoding or decoding settings for a type
      * when using legacy codec handling.
@@ -1348,11 +1354,12 @@ namespace Common {
      * Value or Template object in the AST (e.g. in case of variables). */
     void generate_code_object(const_def *cdef, Scope* p_scope,
       const string& name, const char *prefix, bool is_template,
-      bool has_err_descr, bool in_class);
+      bool has_err_descr, bool in_class, const char* defpar_type_name = NULL);
     /** Generates the declaration and definition of a C++ value or template
      * object governed by \a this into \a cdef based on the attributes of
      * \a p_setting. */
-    void generate_code_object(const_def *cdef, GovernedSimple *p_setting, bool in_class);
+    void generate_code_object(const_def *cdef, GovernedSimple *p_setting, bool in_class,
+      const char* defpar_type_name = NULL);
   private:
     virtual string create_stringRepr();
   public:

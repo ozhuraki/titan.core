@@ -1090,6 +1090,12 @@ namespace Common {
     virtual void dump(unsigned level) const;
     void set_is_in_brackets();
     bool get_is_in_brackets() const;
+
+    void chk_ctor_defpar();
+
+    void set_gen_class_defpar_prefix();
+    void set_gen_class_base_call_postfix();
+
   private:
     inline void set_val_str(string *p_val_str)
       { u.str.val_str = p_val_str; u.str.str_elements = 0; }

@@ -3143,6 +3143,10 @@ namespace Ttcn {
       delete constructor;
     }
     abstract_functions.clear();
+    for (size_t i = 0; i < defpar_list.size(); ++i) {
+      Free(defpar_list.get_nth_elem(i));
+    }
+    defpar_list.clear();
   }
   
   void ClassTypeBody::set_my_def(Def_Type* p_def)
@@ -3261,6 +3265,21 @@ namespace Ttcn {
     return base_class;
   }
   
+  void ClassTypeBody::add_defpar(FormalPar* p_defpar)
+  {
+    char* name = mprintf("%s_defpar_type_%lu",
+      class_id->get_name().c_str(), (unsigned long) defpar_list.size());
+    defpar_list.add(p_defpar, name);
+  }
+
+  char* ClassTypeBody::get_defpar_type_name(FormalPar* p_defpar)
+  {
+    if (!defpar_list.has_key(p_defpar)) {
+      FATAL_ERROR("ClassTypeBody::get_defpar_type_name");
+    }
+    return defpar_list[p_defpar];
+  }
+
   Type* ClassTypeBody::get_RunsOnType()
   {
     if (!checked) {
@@ -3833,6 +3852,14 @@ namespace Ttcn {
             Template* temp = new Template(val);
             TemplateInstance* ti = new TemplateInstance(NULL, NULL, temp);
             parsed_ap_list->add_ti(ti);
+
+            // since the base constructor's formal parameters have already been checked
+            // (and their clones are also considered checked),
+            // the ones with default values need to be registered manually
+            FormalPar* fp = fp_list->get_fp_byIndex(i);
+            if (fp->has_defval()) {
+              add_defpar(fp);
+            }
           }
           base_call = new Reference(base_class->get_scope_mod()->get_modid().clone(),
             base_class->get_id()->clone(), parsed_ap_list);
@@ -4108,8 +4135,15 @@ namespace Ttcn {
     if (built_in) {
       return;
     }
+
     target->header.class_decls = mputprintf(target->header.class_decls,
       "class %s;\n", class_id->get_name().c_str());
+
+    for (size_t i = 0; i < defpar_list.size(); ++i) {
+      target->header.class_decls = mputprintf(target->header.class_decls,
+        "class %s;\n", defpar_list.get_nth_elem(i));
+    }
+
     if (!external || generate_skeleton) {
       string base_type_name = base_type != NULL ?
         base_type->get_type_refd_last()->get_genname_own(this) :
@@ -4121,6 +4155,56 @@ namespace Ttcn {
       }
       else {
         local_struct = target;
+      }
+
+      for (size_t i = 0; i < defpar_list.size(); ++i) {
+        FormalPar* formal_par = defpar_list.get_nth_key(i);
+        bool in_par = false;
+        bool templ_par = false;
+        switch (formal_par->get_asstype()) {
+        case Common::Assignment::A_PAR_TEMPL_IN:
+          templ_par = true;
+          // no break
+        case Common::Assignment::A_PAR_VAL_IN:
+          in_par = true;
+          break;
+        case Common::Assignment::A_PAR_TEMPL_INOUT:
+        case Common::Assignment::A_PAR_TEMPL_OUT:
+          templ_par = true;
+          break;
+        default:
+          break;
+        }
+        Common::Type* par_type = formal_par->get_Type();
+        string par_type_str = templ_par ? par_type->get_genname_template(this) :
+          par_type->get_genname_value(this);
+
+        local_struct->header.class_defs = mputprintf(local_struct->header.class_defs,
+          "class %s : public DEFPAR_%s_WRAPPER<%s> {\n" // 1
+          "public:\n"
+          "%s(): DEFPAR_%s_WRAPPER<%s>() { }\n" // 2
+          "%s(%s%s& par): DEFPAR_%s_WRAPPER<%s>(par) { }\n" // 3
+          "%s(const %s& par): DEFPAR_%s_WRAPPER<%s>(par) { }\n" // 4
+          "%s%s& operator()(%s* p_class);\n" // 5
+          "};\n\n", defpar_list.get_nth_elem(i), in_par ? "IN" : "OUT", par_type_str.c_str(), // 1
+          defpar_list.get_nth_elem(i), in_par ? "IN" : "OUT", par_type_str.c_str(), // 2
+          defpar_list.get_nth_elem(i), in_par ? "const " : "", par_type_str.c_str(), // 3
+          in_par ? "IN" : "OUT", par_type_str.c_str(), // 3
+          defpar_list.get_nth_elem(i), defpar_list.get_nth_elem(i), // 4
+          in_par ? "IN" : "OUT", par_type_str.c_str(), // 4
+          in_par ? "const " : "", par_type_str.c_str(), class_id->get_name().c_str()); // 5
+
+        local_struct->source.methods = mputprintf(local_struct->source.methods,
+          "%s%s& %s::operator()(%s* p_class)\n"
+          "{\n"
+          "if (def_) {\n",
+          in_par ? "const " : "", par_type_str.c_str(), defpar_list.get_nth_elem(i), class_id->get_name().c_str());
+        local_struct->source.methods = formal_par->generate_code_defval(local_struct->source.methods);
+        local_struct->source.methods = mputstr(local_struct->source.methods,
+          "def_ = FALSE;\n"
+          "}\n"
+          "return act_val;\n"
+          "}\n\n");
       }
       
       local_struct->header.class_defs = mputprintf(local_struct->header.class_defs,
@@ -4146,6 +4230,12 @@ namespace Ttcn {
       local_struct->header.class_defs = mputstr(local_struct->header.class_defs,
         " {\n");
       
+      // friend classes
+      for (size_t i = 0; i < defpar_list.size(); ++i) {
+        local_struct->header.class_defs = mputprintf(local_struct->header.class_defs,
+          "friend class %s;\n", defpar_list.get_nth_elem(i));
+      }
+
       // class name
       local_struct->header.class_defs = mputprintf(local_struct->header.class_defs,
         "public:\n"
@@ -4167,6 +4257,10 @@ namespace Ttcn {
         Code::init_expr(&base_call_expr);
         Reference* base_call = constructor->get_base_call();
         if (base_call != NULL) {
+          ActualParList* ap_list = base_call->get_parlist();
+          if (ap_list != NULL) {
+            ap_list->set_gen_class_base_call_postfix();
+          }
           base_call->generate_code(&base_call_expr);
         }
         // generate code for the base call first, so the formal parameter list
