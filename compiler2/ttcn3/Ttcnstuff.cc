@@ -3933,8 +3933,8 @@ namespace Ttcn {
       constructor = new Def_Constructor(fp_list, base_call, block);
       constructor->set_my_scope(this);
       constructor->set_fullname(get_fullname() + ".<default_constructor>");
-      constructor->chk();
       default_constructor = true;
+      constructor->chk();
     }
 
     if (constructor != NULL && !default_constructor && !name_clash && !trait) {

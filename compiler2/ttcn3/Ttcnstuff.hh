@@ -799,6 +799,7 @@ public:
   boolean is_abstract() const { return abstract; }
   boolean is_trait() const { return trait; }
   boolean is_external() const { return external; }
+  bool has_default_constructor() const { return default_constructor; }
   
   void set_fullname(const string& p_fullname);
   void set_my_scope(Scope* p_scope);

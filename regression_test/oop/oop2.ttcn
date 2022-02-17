@@ -255,12 +255,16 @@ testcase tc_references_in_default_values() runs on CT {
 template Rec t_def := { num := 1, str := "abc" };
 
 type class C7 extends C6 {
-  create(template Rec pt := t_def): C6(pt) {
-    if (log2str(pt) != log2str(t_def)) {
-      setverdict(fail, "pt: ", pt);
+  private var integer v1 := 6;
+  create(template Rec pt1 := t_def, template integer pt2 := v1): C6(pt1) {
+    if (log2str(pt1) != log2str(t_def)) {
+      setverdict(fail, "pt1: ", pt1);
     }
     if (log2str(vt1) != log2str(t_def)) {
       setverdict(fail, "vt1: ", vt1);
+    }
+    if (not isvalue(pt2) or valueof(pt2) != 6) {
+      setverdict(fail, "pt2: ", pt2);
     }
   }
 }

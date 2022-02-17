@@ -3749,24 +3749,24 @@ end:
     return needs_runtime_check;
   }
   
-  void Template::chk_ctor_defpar()
+  void Template::chk_ctor_defpar(bool default_ctor, bool in_base_call)
   {
     switch (templatetype) {
     case SPECIFIC_VALUE:
-      u.specific_value->chk_ctor_defpar();
+      u.specific_value->chk_ctor_defpar(default_ctor, in_base_call);
       break;
     case TEMPLATE_REFD:
-      u.ref.ref->chk_ctor_defpar();
+      u.ref.ref->chk_ctor_defpar(default_ctor, in_base_call);
       if (u.ref.ref->has_parameters()) {
         for (size_t i = 0; i < u.ref.ref->get_parlist()->get_nof_pars(); i++)
-          u.ref.ref->get_parlist()->get_par(i)->chk_ctor_defpar();
+          u.ref.ref->get_parlist()->get_par(i)->chk_ctor_defpar(default_ctor, in_base_call);
       }
       break;
     case TEMPLATE_INVOKE:
-      u.invoke.v->chk_ctor_defpar();
+      u.invoke.v->chk_ctor_defpar(default_ctor, in_base_call);
       if (u.invoke.ap_list != NULL) {
         for (size_t i = 0; i < u.invoke.ap_list->get_nof_pars(); i++)
-          u.invoke.ap_list->get_par(i)->chk_ctor_defpar();
+          u.invoke.ap_list->get_par(i)->chk_ctor_defpar(default_ctor, in_base_call);
       }
       break;
     case TEMPLATE_LIST:
@@ -3777,47 +3777,47 @@ end:
     case PERMUTATION_MATCH:
     case CONJUNCTION_MATCH:
       for (size_t i = 0; i < u.templates->get_nof_ts(); i++) {
-        u.templates->get_t_byIndex(i)->chk_ctor_defpar();
+        u.templates->get_t_byIndex(i)->chk_ctor_defpar(default_ctor, in_base_call);
       }
       break;
     case NAMED_TEMPLATE_LIST:
       for (size_t i = 0; i < u.named_templates->get_nof_nts(); i++) {
-        u.named_templates->get_nt_byIndex(i)->get_template()->chk_ctor_defpar();
+        u.named_templates->get_nt_byIndex(i)->get_template()->chk_ctor_defpar(default_ctor, in_base_call);
       }
       break;
     case INDEXED_TEMPLATE_LIST:
       for (size_t i = 0; i <u.indexed_templates->get_nof_its(); i++) {
-        u.indexed_templates->get_it_byIndex(i)->get_template()->chk_ctor_defpar();
+        u.indexed_templates->get_it_byIndex(i)->get_template()->chk_ctor_defpar(default_ctor, in_base_call);
       }
       break;
     case VALUE_RANGE:
       if (u.value_range->get_min_v() != NULL) {
-        u.value_range->get_min_v()->chk_ctor_defpar();
+        u.value_range->get_min_v()->chk_ctor_defpar(default_ctor, in_base_call);
       }
       if (u.value_range->get_max_v() != NULL) {
-        u.value_range->get_max_v()->chk_ctor_defpar();
+        u.value_range->get_max_v()->chk_ctor_defpar(default_ctor, in_base_call);
       }
       break;
     case CSTR_PATTERN:
     case USTR_PATTERN:
-      //u.pstring->chk_ctor_defpar(); todo
+      //u.pstring->chk_ctor_defpar(default_ctor, in_base_call); todo
       break;
     case DECODE_MATCH:
       if (u.dec_match.str_enc != NULL) {
-        u.dec_match.str_enc->chk_ctor_defpar();
+        u.dec_match.str_enc->chk_ctor_defpar(default_ctor, in_base_call);
       }
-      u.dec_match.target->chk_ctor_defpar();
+      u.dec_match.target->chk_ctor_defpar(default_ctor, in_base_call);
       break;
     case TEMPLATE_CONCAT:
       if (!use_runtime_2) {
-        FATAL_ERROR("Template::chk_ctor_defpar()");
+        FATAL_ERROR("Template::chk_ctor_defpar(bool default_ctor, bool in_base_call)");
       }
-      u.concat.op1->chk_ctor_defpar();
-      u.concat.op2->chk_ctor_defpar();
+      u.concat.op1->chk_ctor_defpar(default_ctor, in_base_call);
+      u.concat.op2->chk_ctor_defpar(default_ctor, in_base_call);
       break;
     case IMPLICATION_MATCH:
-      u.implication.precondition->chk_ctor_defpar();
-      u.implication.implied_template->chk_ctor_defpar();
+      u.implication.precondition->chk_ctor_defpar(default_ctor, in_base_call);
+      u.implication.implied_template->chk_ctor_defpar(default_ctor, in_base_call);
       break;
     case DYNAMIC_MATCH:
       break;
@@ -3826,13 +3826,13 @@ end:
     }
     if (length_restriction != NULL) {
       if (length_restriction->get_is_range()) {
-        length_restriction->get_lower_value()->chk_ctor_defpar();
+        length_restriction->get_lower_value()->chk_ctor_defpar(default_ctor, in_base_call);
         if (length_restriction->get_upper_value() != NULL) {
-          length_restriction->get_upper_value()->chk_ctor_defpar();
+          length_restriction->get_upper_value()->chk_ctor_defpar(default_ctor, in_base_call);
         }
       }
       else {
-        length_restriction->get_single_value()->chk_ctor_defpar();
+        length_restriction->get_single_value()->chk_ctor_defpar(default_ctor, in_base_call);
       }
     }
   }
@@ -6530,12 +6530,12 @@ compile_time:
       template_body->chk_immutability();
     }
 
-  void TemplateInstance::chk_ctor_defpar()
+  void TemplateInstance::chk_ctor_defpar(bool default_ctor, bool in_base_call)
   {
     if (derived_reference != NULL) {
-      derived_reference->chk_ctor_defpar();
+      derived_reference->chk_ctor_defpar(default_ctor, in_base_call);
     }
-    template_body->chk_ctor_defpar();
+    template_body->chk_ctor_defpar(default_ctor, in_base_call);
   }
 
   void TemplateInstance::set_gen_class_defpar_prefix()

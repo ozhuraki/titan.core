@@ -1091,7 +1091,7 @@ namespace Common {
     void set_is_in_brackets();
     bool get_is_in_brackets() const;
 
-    void chk_ctor_defpar();
+    void chk_ctor_defpar(bool default_ctor, bool in_base_call);
 
     void set_gen_class_defpar_prefix();
     void set_gen_class_base_call_postfix();

@@ -1100,30 +1100,69 @@ namespace Ttcn {
       t_ass->get_description().c_str());
   }
   
-  void Reference::chk_ctor_defpar()
+  void Reference::chk_ctor_defpar(bool default_ctor, bool in_base_call)
   {
     Common::Assignment* ass = get_refd_assignment_last();
+    bool is_var = false;
     if (ass->get_my_scope()->is_class_scope()) {
       switch (ass->get_asstype()) {
       case Common::Assignment::A_VAR:
-      case Common::Assignment::A_VAR_TEMPLATE:
-        error("Constructor default parameter cannot contain reference to "
-          "%svariable class member `%s'",
-          ass->get_asstype() == Common::Assignment::A_VAR_TEMPLATE ? "template " : "",
-          ass->get_id().get_dispname().c_str());
-        break;
-      case Common::Assignment::A_CONST:
-        if (ass->get_Value() == NULL) {
-          error("Constructor default parameter cannot contain reference to "
-            "constant class member `%s', which has no initial value",
+        is_var = true;
+        if (default_ctor) {
+          error("Implicit constructor default parameter cannot contain reference to "
+            "variable class member `%s'",
             ass->get_id().get_dispname().c_str());
+          break;
+        }
+        // no break
+      case Common::Assignment::A_CONST:
+        if (in_base_call) {
+          error("Super-constructor call cannot contain reference to %s class member `%s'",
+            is_var ? "variable" : "constant", ass->get_id().get_dispname().c_str());
+        }
+        else if (ass->get_Value() == NULL) {
+          error("Constructor default parameter cannot contain reference to "
+            "%s class member `%s', which has no initial value",
+            is_var ? "variable" : "constant", ass->get_id().get_dispname().c_str());
         }
         break;
-      case Common::Assignment::A_TEMPLATE:
-        if (ass->get_Template() == NULL) {
-          error("Constructor default parameter cannot contain reference to "
-            "template class member `%s', which has no initial value",
+      case Common::Assignment::A_VAR_TEMPLATE:
+        is_var = true;
+        if (default_ctor) {
+          error("Implicit constructor default parameter cannot contain reference to "
+            "template variable class member `%s'",
             ass->get_id().get_dispname().c_str());
+          break;
+        }
+        // no break
+      case Common::Assignment::A_TEMPLATE:
+        if (in_base_call) {
+          error("Super-constructor call cannot contain reference to template%s class member `%s'",
+            is_var ? " variable" : "", ass->get_id().get_dispname().c_str());
+        }
+        else if (ass->get_Template() == NULL) {
+          error("Constructor default parameter cannot contain reference to "
+            "template%s class member `%s', which has no initial value",
+            is_var ? " variable" : "", ass->get_id().get_dispname().c_str());
+        }
+        break;
+      case Common::Assignment::A_PAR_VAL:
+      case Common::Assignment::A_PAR_VAL_IN:
+      case Common::Assignment::A_PAR_VAL_INOUT:
+      case Common::Assignment::A_PAR_VAL_OUT:
+      case Common::Assignment::A_PAR_TEMPL_IN:
+      case Common::Assignment::A_PAR_TEMPL_INOUT:
+      case Common::Assignment::A_PAR_TEMPL_OUT:
+      case Common::Assignment::A_PAR_TIMER:
+      case Common::Assignment::A_PAR_PORT:
+        if (in_base_call) {
+          FormalPar* fp = dynamic_cast<FormalPar*>(ass);
+          if (fp == NULL) {
+            FATAL_ERROR("Reference::chk_ctor_defpar");
+          }
+          if (fp->has_defval()) {
+            fp->get_defval()->chk_ctor_defpar(default_ctor, in_base_call);
+          }
         }
         break;
       default:
@@ -9351,15 +9390,16 @@ namespace Ttcn {
     
     Error_Context cntxt(this, "In constructor definition");
     
+    ClassTypeBody* my_class = my_scope->get_scope_class();
+
     fp_list->chk(asstype);
     for (size_t i = 0; i < fp_list->get_nof_fps(); ++i) {
       FormalPar* fp = fp_list->get_fp_byIndex(i);
       if (fp->has_defval()) {
-        fp->get_defval()->chk_ctor_defpar();
+        fp->get_defval()->chk_ctor_defpar(my_class->has_default_constructor(), false);
       }
     }
     
-    ClassTypeBody* my_class = my_scope->get_scope_class();
     ClassTypeBody* base_class = my_class->get_base_class();
     if (base_call != NULL) {
       Error_Context cntxt2(this, "In super-constructor call");
@@ -9381,6 +9421,9 @@ namespace Ttcn {
                 "instead of class type `%s'",
               my_class->get_base_type()->get_typename().c_str(),
               base_call_class->get_my_def()->get_Type()->get_typename().c_str());
+            }
+            else if (base_call->has_parameters()) {
+              base_call->get_parlist()->chk_ctor_defpar(my_class->has_default_constructor(), true);
             }
           }
         }
@@ -9635,8 +9678,9 @@ namespace Ttcn {
     
     if (default_value) {
       Error_Context cntxt(default_value, "In default value");
-      Scope* scope = my_parlist->get_my_def()->get_my_scope();
-      if (scope->is_class_scope()) {
+      Definition* def = my_parlist->get_my_def();
+      Scope* scope = def != NULL ? def->get_my_scope() : NULL;
+      if (scope != NULL && scope->is_class_scope()) {
         switch (asstype) {
         case A_PAR_VAL_IN:
         case A_PAR_TEMPL_IN:
@@ -10324,8 +10368,9 @@ namespace Ttcn {
   
   Common::Type::defpar_wapper_t FormalPar::get_defpar_wrapper() const
   {
-    if (defval.ap != NULL &&
-        my_parlist->get_my_def()->get_my_scope()->is_class_scope()) {
+    Definition* def = my_parlist->get_my_def();
+    if (defval.ap != NULL && def != NULL &&
+        def->get_my_scope()->is_class_scope()) {
       switch (asstype) {
       case A_PAR_VAL_IN:
       case A_PAR_TEMPL_IN:
@@ -10346,9 +10391,12 @@ namespace Ttcn {
 
   char* FormalPar::generate_code_defval(char* str)
   {
-    if (!defval.ap || defval_generated || !usage_found) return str;
+    if (!defval.ap || defval_generated) return str;
     defval_generated = true;
     Common::Type::defpar_wapper_t defpar_wrapper = get_defpar_wrapper();
+    if (!usage_found && defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER) {
+      return str;
+    }
     switch (defval.ap->get_selection()) {
     case ActualPar::AP_VALUE: {
       Value *val = defval.ap->get_Value();
@@ -10433,8 +10481,9 @@ namespace Ttcn {
   void FormalPar::generate_code_defval(output_struct *target, bool)
   {
     if (!defval.ap) return;
-    Scope* scope = my_parlist->get_my_def()->get_my_scope();
-    bool defpar_wrapper = defval.ap != NULL && scope->is_class_scope();
+    Definition* def = my_parlist->get_my_def();
+    Scope* scope = def != NULL ? def->get_my_scope() : NULL;
+    bool defpar_wrapper = defval.ap != NULL && scope != NULL && scope->is_class_scope();
     switch (defval.ap->get_selection()) {
     case ActualPar::AP_VALUE: {
       Value *val = defval.ap->get_Value();
@@ -10470,8 +10519,9 @@ namespace Ttcn {
 
   char *FormalPar::generate_code_fpar(char *str, bool display_unused /* = false */)
   {
-    Scope* scope = my_parlist->get_my_def()->get_my_scope();
-    bool defpar_wrapper = defval.ap != NULL && scope->is_class_scope();
+    Definition* def = my_parlist->get_my_def();
+    Scope* scope = def != NULL ? def->get_my_scope() : NULL;
+    bool defpar_wrapper = defval.ap != NULL && scope != NULL && scope->is_class_scope();
     // the name of the parameter should not be displayed if the parameter is not
     // used (to avoid a compiler warning)
     bool display_name = (usage_found || display_unused || debugger_active ||
@@ -11572,17 +11622,17 @@ namespace Ttcn {
     }
   }
 
-  void ActualPar::chk_ctor_defpar()
+  void ActualPar::chk_ctor_defpar(bool default_ctor, bool in_base_call)
   {
     switch (selection) {
     case AP_VALUE:
-      val->chk_ctor_defpar();
+      val->chk_ctor_defpar(default_ctor, in_base_call);
       break;
     case AP_TEMPLATE:
-      temp->chk_ctor_defpar();
+      temp->chk_ctor_defpar(default_ctor, in_base_call);
       break;
     case AP_REF:
-      ref->chk_ctor_defpar();
+      ref->chk_ctor_defpar(default_ctor, in_base_call);
       break;
     default:
       break;
@@ -12135,11 +12185,11 @@ namespace Ttcn {
         }   // next
     }
 
-  void ActualParList::chk_ctor_defpar()
+  void ActualParList::chk_ctor_defpar(bool default_ctor, bool in_base_call)
   {
     size_t nof_pars = params.size();
     for (size_t i = 0; i < nof_pars; i++) {
-      params[i]->chk_ctor_defpar();
+      params[i]->chk_ctor_defpar(default_ctor, in_base_call);
     }
   }
 
