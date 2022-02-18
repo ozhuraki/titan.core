@@ -9226,7 +9226,7 @@ namespace Ttcn {
               LazyFuzzyParamData::clean();
             }
             else {
-              if (use_runtime_2) {
+              if (use_runtime_2 && fp->get_defpar_wrapper() == Common::Type::NO_DEFPAR_WRAPPER) {
                 string tmp_id = my_scope->get_scope_mod_gen()->get_temporary_id();
                 expr.preamble = mputprintf(expr.preamble, "%s %s;\n",
                   fp->get_Type()->get_genname_template(my_scope).c_str(), tmp_id.c_str());
@@ -10420,7 +10420,7 @@ namespace Ttcn {
       }
       break; }
     case ActualPar::AP_TEMPLATE: {
-      if (!use_runtime_2) {
+      if (!use_runtime_2 || defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER) {
         TemplateInstance *ti = defval.ap->get_TemplateInstance();
         string tmp_id;
         if (defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER) {
@@ -10495,7 +10495,7 @@ namespace Ttcn {
       Code::free_cdef(&cdef);
       break; }
     case ActualPar::AP_TEMPLATE: {
-      if (use_runtime_2) {
+      if (use_runtime_2 && defpar_wrapper == Common::Type::NO_DEFPAR_WRAPPER) {
         break;
       }
       TemplateInstance *ti = defval.ap->get_TemplateInstance();
@@ -11955,7 +11955,8 @@ namespace Ttcn {
           LazyFuzzyParamData::generate_code_ap_default_ti(expr, act->temp, my_scope,
             param_eval == LAZY_EVAL);
         }
-        else if (use_runtime_2) {
+        else if (use_runtime_2 && (formal_par == NULL ||
+                 formal_par->get_defpar_wrapper() == Common::Type::NO_DEFPAR_WRAPPER)) {
           // use the actual parameter's scope, not the formal parameter's
           act->temp->set_my_scope(my_scope);
           Template* temp_ = act->temp->get_Template();
