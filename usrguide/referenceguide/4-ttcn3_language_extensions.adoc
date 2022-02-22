@@ -9184,23 +9184,24 @@ var integer v_int2 := v_node.get_data(); // OK
 
 * Unhandled exceptions and unhandled dynamic test case errors inside the destructor of a class or inside a `finally` block cause the program to terminate (due to C++ limitations).
 * The `with` attributes of class members and methods are currently ignored.
-* Members of `timer` and `timer array` types cannot be initialized in the constructor, and the default constructor doesn't add a formal parameter for the initialization of these members.
-* Class member `constants` and `templates` must have initial values in their declaration, just like global `constants` and `templates`. These can be overwritten in the constructor. The default constructor always adds a formal parameter for these members and overwrites their initial values from their declarations with the parameter values.
+* Members of `timer` and `timer array` types cannot be initialized in the constructor, and the implicit constructor doesn't add a formal parameter for the initialization of these members.
 
-Default constructor example:
+Implicit constructor example:
 [source]
 ----
 type class MyClass {
-  private const integer c := 0;
-  private template MyRecordType t := *;
+  private const integer c1 := 0;
+  private template MyRecordType t1 := *;
+  private const boolean c2;
+  private template MySetOfType t2;
   private var MyOtherClass v;
   private var template charstring vt;
   private timer tmr;
   private timer tmr_arr[3];
   // default constructor:
-  // create(in integer c, in template MyRecordType t, in MyOtherClass v, in template charstring vt) {
-  //   this.c := c;
-  //   this.t := t;
+  // create(in integer c2, in template MyRecordType t2, in MyOtherClass v, in template charstring vt) {
+  //   this.c2 := c2;
+  //   this.t2 := t2;
   //   this.v := v;
   //   this.vt := vt;
   // }
@@ -9300,7 +9301,61 @@ catch(RoI[-] x) {} // catches only the element type of RoI and no other types
 module <name> "TTCN-3:2018 Object-Oriented" { ... }
 ----
 
-* Trait classes do not extend the built-in class `object`, only normal classes do.
+Titan also supports trait classes and multiple inheritance as described in version 1.3.1 of the standard extension, with the clarification, that trait classes do not extend the built-in class `object`, only normal classes do.
+
+The constructor and class member initializers also work according to version 1.3.1 of the standard extension, with the following clarifications and limitations:
+
+* The restrictions related to the constructor body from section 5.1.1.5 of the standard extension are ignored. There is only a runtime check that ensures all `const` and `template` members are initialized by the end of the constructor's execution.
+* The default values of the constructor's formal parameters cannot contain references to class members with no initial value.
+* The implicit constructor takes the initial values of `var` and `var template` class members and uses them as the default values of the formal parameters corresponding to these members (as described in the standard extension). In TITAN, these members are left without an initial value. Because of this, the initializers of `var` and `var template` class members cannot contain references to other `var` or `var template` members, even if these have initial values.
+
+Implicit constructor default parameter example:
+[source]
+----
+type record MyRecord {
+  integer num,
+  charstring str
+}
+
+type class MyClassImplicit {
+  /* implicit constructor */
+  private var template integer vt1 := 1;
+  private var template MyRecord vt2 := { vt1, ? };
+  // error: Implicit constructor default parameter cannot contain
+  // reference to template variable class member `vt1'
+}
+
+type class MyClassExplicit {
+  private var template integer vt1;
+  private var template Rec vt2;
+  create(template integer vt1 := 1, template MyRecord vt2 := { this.vt1, ? })
+  // error: Constructor default parameter cannot contain reference to
+  // template variable class member `vt1', which has no initial value
+  {
+    this.vt1 := vt1;
+    this.vt2 := vt2;
+  }
+}
+----
+
+* The super-constructor call cannot contain references to any of the class' members. In TITAN the super-constructor call occurs before class members are initialized.
+
+Example:
+[source]
+----
+type class MySuperClass {
+  create(integer p) { ... }
+}
+
+type class MySubClass extends MySuperClass {
+  private const integer c := 1;
+  create(integer p := c): MySuperClass(p) { }
+  // error: Super-constructor call cannot contain reference to
+  // constant class member `c'
+}
+----
+
+* Default values are not allowed for `out` and `inout` parameters of class methods, only for `in` parameters.
 
 == Default alternatives of union types
 
