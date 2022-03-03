@@ -3810,7 +3810,7 @@ end:
       break;
     case TEMPLATE_CONCAT:
       if (!use_runtime_2) {
-        FATAL_ERROR("Template::chk_ctor_defpar(bool default_ctor, bool in_base_call)");
+        FATAL_ERROR("Template::chk_ctor_defpar()");
       }
       u.concat.op1->chk_ctor_defpar(default_ctor, in_base_call);
       u.concat.op2->chk_ctor_defpar(default_ctor, in_base_call);
@@ -3833,6 +3833,94 @@ end:
       }
       else {
         length_restriction->get_single_value()->chk_ctor_defpar(default_ctor, in_base_call);
+      }
+    }
+  }
+
+  void Template::chk_class_member(ClassTypeBody* p_class)
+  {
+    switch (templatetype) {
+    case SPECIFIC_VALUE:
+      u.specific_value->chk_class_member(p_class);
+      break;
+    case TEMPLATE_REFD:
+      u.ref.ref->chk_class_member(p_class);
+      if (u.ref.ref->has_parameters()) {
+        for (size_t i = 0; i < u.ref.ref->get_parlist()->get_nof_pars(); i++)
+          u.ref.ref->get_parlist()->get_par(i)->chk_class_member(p_class);
+      }
+      break;
+    case TEMPLATE_INVOKE:
+      u.invoke.v->chk_class_member(p_class);
+      if (u.invoke.ap_list != NULL) {
+        for (size_t i = 0; i < u.invoke.ap_list->get_nof_pars(); i++)
+          u.invoke.ap_list->get_par(i)->chk_class_member(p_class);
+      }
+      break;
+    case TEMPLATE_LIST:
+    case VALUE_LIST:
+    case COMPLEMENTED_LIST:
+    case SUPERSET_MATCH:
+    case SUBSET_MATCH:
+    case PERMUTATION_MATCH:
+    case CONJUNCTION_MATCH:
+      for (size_t i = 0; i < u.templates->get_nof_ts(); i++) {
+        u.templates->get_t_byIndex(i)->chk_class_member(p_class);
+      }
+      break;
+    case NAMED_TEMPLATE_LIST:
+      for (size_t i = 0; i < u.named_templates->get_nof_nts(); i++) {
+        u.named_templates->get_nt_byIndex(i)->get_template()->chk_class_member(p_class);
+      }
+      break;
+    case INDEXED_TEMPLATE_LIST:
+      for (size_t i = 0; i <u.indexed_templates->get_nof_its(); i++) {
+        u.indexed_templates->get_it_byIndex(i)->get_template()->chk_class_member(p_class);
+      }
+      break;
+    case VALUE_RANGE:
+      if (u.value_range->get_min_v() != NULL) {
+        u.value_range->get_min_v()->chk_class_member(p_class);
+      }
+      if (u.value_range->get_max_v() != NULL) {
+        u.value_range->get_max_v()->chk_class_member(p_class);
+      }
+      break;
+    case CSTR_PATTERN:
+    case USTR_PATTERN:
+      //u.pstring->chk_class_member(p_class); todo
+      break;
+    case DECODE_MATCH:
+      if (u.dec_match.str_enc != NULL) {
+        u.dec_match.str_enc->chk_class_member(p_class);
+      }
+      u.dec_match.target->chk_class_member(p_class);
+      break;
+    case TEMPLATE_CONCAT:
+      if (!use_runtime_2) {
+        FATAL_ERROR("Template::chk_class_member()");
+      }
+      u.concat.op1->chk_class_member(p_class);
+      u.concat.op2->chk_class_member(p_class);
+      break;
+    case IMPLICATION_MATCH:
+      u.implication.precondition->chk_class_member(p_class);
+      u.implication.implied_template->chk_class_member(p_class);
+      break;
+    case DYNAMIC_MATCH:
+      break;
+    default:
+      break;
+    }
+    if (length_restriction != NULL) {
+      if (length_restriction->get_is_range()) {
+        length_restriction->get_lower_value()->chk_class_member(p_class);
+        if (length_restriction->get_upper_value() != NULL) {
+          length_restriction->get_upper_value()->chk_class_member(p_class);
+        }
+      }
+      else {
+        length_restriction->get_single_value()->chk_class_member(p_class);
       }
     }
   }
@@ -6536,6 +6624,14 @@ compile_time:
       derived_reference->chk_ctor_defpar(default_ctor, in_base_call);
     }
     template_body->chk_ctor_defpar(default_ctor, in_base_call);
+  }
+
+  void TemplateInstance::chk_class_member(ClassTypeBody* p_class)
+  {
+    if (derived_reference != NULL) {
+      derived_reference->chk_class_member(p_class);
+    }
+    template_body->chk_class_member(p_class);
   }
 
   void TemplateInstance::set_gen_class_defpar_prefix()

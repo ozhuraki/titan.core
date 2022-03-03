@@ -3071,7 +3071,7 @@ namespace Ttcn {
                                Reference* p_runs_on_ref, Reference* p_mtc_ref, Reference* p_system_ref,
                                Definitions* p_members, StatementBlock* p_finally_block)
   : Scope(), Location(), class_id(p_class_id), my_def(NULL), external(p_external), final(p_final),
-    abstract(p_abstract), trait(p_trait), built_in(FALSE), base_type(NULL), base_traits(p_base_types), base_class(NULL),
+    abstract(p_abstract), trait(p_trait), built_in(FALSE), base_type(NULL), base_class(NULL), base_traits(p_base_types),
     runs_on_ref(p_runs_on_ref), runs_on_type(NULL), mtc_ref(p_mtc_ref),
     mtc_type(NULL), system_ref(p_system_ref), system_type(NULL),
     members(p_members), finally_block(p_finally_block), constructor(NULL), checked(false),

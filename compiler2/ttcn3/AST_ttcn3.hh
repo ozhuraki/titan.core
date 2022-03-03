@@ -123,6 +123,7 @@ namespace Ttcn {
     void chk_recursions(ReferenceChain& refch);
 
     void chk_ctor_defpar(bool default_ctor, bool in_base_call);
+    void chk_class_member(ClassTypeBody* p_class);
 
     /** Returns whether the actual parameter can be represented by an in-line
      * C++ expression. */
@@ -176,6 +177,7 @@ namespace Ttcn {
     void chk_immutability();
 
     void chk_ctor_defpar(bool default_ctor, bool in_base_call);
+    void chk_class_member(ClassTypeBody* p_class);
 
     void set_gen_class_defpar_prefix();
     void set_gen_class_base_call_postfix();
@@ -412,6 +414,7 @@ namespace Ttcn {
     Type *chk_comptype_ref();
     bool chk_activate_argument();
     void chk_ctor_defpar(bool default_ctor, bool in_base_call);
+    void chk_class_member(ClassTypeBody* p_class);
     virtual bool has_single_expr();
     virtual void set_code_section(GovernedSimple::code_section_t p_code_section);
     virtual void generate_code(expression_struct_t *expr);
@@ -445,6 +448,9 @@ namespace Ttcn {
   private:
     /** Detects whether the first identifier in subrefs is a module id */
     void detect_modid();
+    void generate_class_specific_expr(expression_struct_t *expr);
+    string get_class_defpar_prefix();
+    string get_class_base_call_postfix();
   };
 
   /**

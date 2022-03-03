@@ -13881,6 +13881,9 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       if (parlist) {
 	str = parlist->rearrange_init_code(str, usage_mod);
       }
+      if (get_code_section() == CS_INIT_CLASS && get_value_refd_last() == this) {
+        str = rearrange_init_code_refd(str);
+      }
       break; }
     case V_INVOKE: {
       str = u.invoke.v->rearrange_init_code(str, usage_mod);
@@ -14074,6 +14077,29 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       break;
     default:
       break;
+    }
+    return str;
+  }
+
+  char* Value::rearrange_init_code_refd(char* str)
+  {
+    Assignment* refd_ass = u.ref.ref->get_refd_assignment();
+    if ((refd_ass->get_asstype() == Assignment::A_CONST ||
+         refd_ass->get_asstype() == Assignment::A_VAR) &&
+        refd_ass->get_my_scope()->get_parent_scope()->is_class_scope()) {
+      Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(u.ref.ref);
+      if (ttcn_ref == NULL) {
+        FATAL_ERROR("Value::generate_code_init_refd");
+      }
+      Value* v2 = refd_ass->get_Value();
+      if (!ttcn_ref->is_gen_class_defpar_prefix() &&
+          v2 != NULL && needs_init_precede(v2)) {
+        string lhs = v2->get_lhs_name();
+        if (refd_ass->get_asstype() == Assignment::A_VAR) {
+          lhs = string("this->") + lhs;
+        }
+        str = v2->generate_code_init(str, lhs.c_str());
+      }
     }
     return str;
   }
@@ -15985,19 +16011,8 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
   {
     Value *v = get_value_refd_last();
     if (v == this) {
-      Assignment* refd_ass = u.ref.ref->get_refd_assignment();
-      if ((refd_ass->get_asstype() == Assignment::A_CONST ||
-           refd_ass->get_asstype() == Assignment::A_VAR) &&
-          refd_ass->get_my_scope()->get_parent_scope()->is_class_scope()) {
-        Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(u.ref.ref);
-        if (ttcn_ref == NULL) {
-          FATAL_ERROR("Value::generate_code_init_refd");
-        }
-        Value* v2 = refd_ass->get_Value();
-        if (!ttcn_ref->is_gen_class_defpar_prefix() &&
-            v2 != NULL && needs_init_precede(v2)) { // todo: defpar?
-          str = v2->generate_code_init(str, v2->get_lhs_name().c_str());
-        }
+      if (get_code_section() == CS_INIT_CLASS) {
+        str = rearrange_init_code_refd(str);
       }
       // the referred value is not available at compile time
       // the code generation is based on the reference
@@ -16940,6 +16955,29 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         }
       }
       break; }
+    case V_SEQ:
+    case V_SET:
+      for (size_t i = 0; i < u.val_nvs->get_nof_nvs(); ++i) {
+        u.val_nvs->get_nv_byIndex(i)->get_value()->chk_ctor_defpar(default_ctor, in_base_call);
+      }
+      break;
+    case V_SEQOF:
+    case V_SETOF:
+    case V_ARRAY:
+      if (u.val_vs->is_indexed()) {
+        for (size_t i = 0; i < u.val_vs->get_nof_ivs(); ++i) {
+          u.val_vs->get_iv_byIndex(i)->get_value()->chk_ctor_defpar(default_ctor, in_base_call);
+        }
+      }
+      else {
+        for (size_t i = 0; i < u.val_vs->get_nof_vs(); ++i) {
+          u.val_vs->get_v_byIndex(i)->chk_ctor_defpar(default_ctor, in_base_call);
+        }
+      }
+      break;
+    case V_CHOICE:
+      u.choice.alt_value->chk_ctor_defpar(default_ctor, in_base_call);
+      break;
     case V_EXPR:
       switch (u.expr.v_optype) {
       case OPTYPE_UNARYPLUS:
@@ -17145,6 +17183,246 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     }
   }
 
+  void Value::chk_class_member(Ttcn::ClassTypeBody* p_class)
+  {
+    switch (valuetype) {
+    case V_REFD: {
+      Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(u.ref.ref);
+      if (ttcn_ref != NULL) {
+        ttcn_ref->chk_class_member(p_class);
+        if (ttcn_ref->has_parameters()) {
+          ttcn_ref->get_parlist()->chk_class_member(p_class);
+        }
+      }
+      break; }
+    case V_SEQ:
+    case V_SET:
+      for (size_t i = 0; i < u.val_nvs->get_nof_nvs(); ++i) {
+        u.val_nvs->get_nv_byIndex(i)->get_value()->chk_class_member(p_class);
+      }
+      break;
+    case V_SEQOF:
+    case V_SETOF:
+    case V_ARRAY:
+      if (u.val_vs->is_indexed()) {
+        for (size_t i = 0; i < u.val_vs->get_nof_ivs(); ++i) {
+          u.val_vs->get_iv_byIndex(i)->get_value()->chk_class_member(p_class);
+        }
+      }
+      else {
+        for (size_t i = 0; i < u.val_vs->get_nof_vs(); ++i) {
+          u.val_vs->get_v_byIndex(i)->chk_class_member(p_class);
+        }
+      }
+      break;
+    case V_CHOICE:
+      u.choice.alt_value->chk_class_member(p_class);
+      break;
+    case V_EXPR:
+      switch (u.expr.v_optype) {
+      case OPTYPE_UNARYPLUS:
+      case OPTYPE_UNARYMINUS:
+      case OPTYPE_NOT:
+      case OPTYPE_NOT4B:
+      case OPTYPE_BIT2HEX:
+      case OPTYPE_BIT2INT:
+      case OPTYPE_BIT2OCT:
+      case OPTYPE_BIT2STR:
+      case OPTYPE_BSON2JSON:
+      case OPTYPE_CBOR2JSON:
+      case OPTYPE_CHAR2INT:
+      case OPTYPE_CHAR2OCT:
+      case OPTYPE_FLOAT2INT:
+      case OPTYPE_FLOAT2STR:
+      case OPTYPE_HEX2BIT:
+      case OPTYPE_HEX2INT:
+      case OPTYPE_HEX2OCT:
+      case OPTYPE_HEX2STR:
+      case OPTYPE_INT2CHAR:
+      case OPTYPE_INT2FLOAT:
+      case OPTYPE_INT2STR:
+      case OPTYPE_INT2UNICHAR:
+      case OPTYPE_JSON2BSON:
+      case OPTYPE_JSON2CBOR:
+      case OPTYPE_OCT2BIT:
+      case OPTYPE_OCT2CHAR:
+      case OPTYPE_OCT2HEX:
+      case OPTYPE_OCT2INT:
+      case OPTYPE_OCT2STR:
+      case OPTYPE_STR2BIT:
+      case OPTYPE_STR2FLOAT:
+      case OPTYPE_STR2HEX:
+      case OPTYPE_STR2INT:
+      case OPTYPE_STR2OCT:
+      case OPTYPE_UNICHAR2INT:
+      case OPTYPE_UNICHAR2CHAR:
+      case OPTYPE_ENUM2INT:
+      case OPTYPE_ISCHOSEN_V:
+      case OPTYPE_GET_STRINGENCODING:
+      case OPTYPE_REMOVE_BOM:
+      case OPTYPE_DECODE_BASE64:
+        u.expr.v1->chk_class_member(p_class);
+        break;
+      case OPTYPE_DECODE: {
+        if (u.expr.r1->has_parameters()) {
+          u.expr.r1->get_parlist()->chk_class_member(p_class);
+        }
+        else {
+          u.expr.r1->chk_class_member(p_class);
+        }
+        if (u.expr.r2->has_parameters()) {
+          u.expr.r2->get_parlist()->chk_class_member(p_class);
+        }
+        else {
+          u.expr.r2->chk_class_member(p_class);
+        }
+        if (u.expr.v3 != NULL) {
+          u.expr.v3->chk_class_member(p_class);
+        }
+        if (u.expr.v4 != NULL) {
+          u.expr.v4->chk_class_member(p_class);
+        }
+        break; }
+      case OPTYPE_HOSTID:
+        if (u.expr.v1 != NULL) {
+          u.expr.v1->chk_class_member(p_class);
+        }
+        break;
+      case OPTYPE_ADD:
+      case OPTYPE_SUBTRACT:
+      case OPTYPE_MULTIPLY:
+      case OPTYPE_DIVIDE:
+      case OPTYPE_MOD:
+      case OPTYPE_REM:
+      case OPTYPE_CONCAT:
+      case OPTYPE_EQ:
+      case OPTYPE_LT:
+      case OPTYPE_GT:
+      case OPTYPE_NE:
+      case OPTYPE_GE:
+      case OPTYPE_LE:
+      case OPTYPE_AND:
+      case OPTYPE_OR:
+      case OPTYPE_XOR:
+      case OPTYPE_AND4B:
+      case OPTYPE_OR4B:
+      case OPTYPE_XOR4B:
+      case OPTYPE_SHL:
+      case OPTYPE_SHR:
+      case OPTYPE_ROTL:
+      case OPTYPE_ROTR:
+      case OPTYPE_INT2BIT:
+      case OPTYPE_INT2HEX:
+      case OPTYPE_INT2OCT:
+        u.expr.v1->chk_class_member(p_class);
+        u.expr.v2->chk_class_member(p_class);
+        break;
+      case OPTYPE_UNICHAR2OCT: // v1 [v2]
+      case OPTYPE_OCT2UNICHAR:
+      case OPTYPE_ENCODE_BASE64:
+        u.expr.v1->chk_class_member(p_class);
+        if (u.expr.v2 != NULL) {
+          u.expr.v2->chk_class_member(p_class);
+        }
+        break;
+      case OPTYPE_SUBSTR:
+      case OPTYPE_ENCODE:
+        u.expr.ti1->chk_class_member(p_class);
+        if (u.expr.v2 != NULL) {
+          u.expr.v2->chk_class_member(p_class);
+        }
+        if (u.expr.v3 != NULL) {
+          u.expr.v3->chk_class_member(p_class);
+        }
+        break;
+      case OPTYPE_REGEXP:
+        u.expr.ti1->chk_class_member(p_class);
+        u.expr.t2->chk_class_member(p_class);
+        u.expr.v3->chk_class_member(p_class);
+        break;
+      case OPTYPE_DECOMP:
+        u.expr.v1->chk_class_member(p_class);
+        u.expr.v2->chk_class_member(p_class);
+        u.expr.v3->chk_class_member(p_class);
+        break;
+      case OPTYPE_REPLACE:
+        u.expr.ti1->chk_class_member(p_class);
+        u.expr.v2->chk_class_member(p_class);
+        u.expr.v3->chk_class_member(p_class);
+        u.expr.ti4->chk_class_member(p_class);
+        break;
+      case OPTYPE_ISTEMPLATEKIND:
+        u.expr.ti1->chk_class_member(p_class);
+        u.expr.v2->chk_class_member(p_class);
+        break;
+      case OPTYPE_VALUEOF:
+        if (u.expr.subrefs2 != NULL) {
+          for (size_t i = 0; i < u.expr.subrefs2->get_nof_refs(); ++i) {
+            Ttcn::FieldOrArrayRef* subref = u.expr.subrefs2->get_ref(i);
+            if (subref->get_type() == Ttcn::FieldOrArrayRef::ARRAY_REF) {
+              subref->get_val()->chk_class_member(p_class);
+            }
+          }
+        }
+        // fall through
+      case OPTYPE_LENGTHOF:
+      case OPTYPE_SIZEOF:
+      case OPTYPE_ISPRESENT:
+      case OPTYPE_TTCN2STRING:
+        u.expr.ti1->chk_class_member(p_class);
+        break;
+      case OPTYPE_ENCVALUE_UNICHAR:
+        u.expr.ti1->chk_class_member(p_class);
+        if (u.expr.v2 != NULL) {
+          u.expr.v2->chk_class_member(p_class);
+        }
+        if (u.expr.v3 != NULL) {
+          u.expr.v3->chk_class_member(p_class);
+        }
+        if (u.expr.v4 != NULL) {
+          u.expr.v4->chk_class_member(p_class);
+        }
+        break;
+      case OPTYPE_DECVALUE_UNICHAR: {
+        if (u.expr.r1->has_parameters()) {
+          u.expr.r1->get_parlist()->chk_class_member(p_class);
+        }
+        else {
+          u.expr.r1->chk_class_member(p_class);
+        }
+        if (u.expr.r2->has_parameters()) {
+          u.expr.r2->get_parlist()->chk_class_member(p_class);
+        }
+        else {
+          u.expr.r2->chk_class_member(p_class);
+        }
+        if (u.expr.v3 != NULL) {
+          u.expr.v3->chk_class_member(p_class);
+        }
+        if (u.expr.v4 != NULL) {
+          u.expr.v4->chk_class_member(p_class);
+        }
+        if (u.expr.v5 != NULL) {
+          u.expr.v5->chk_class_member(p_class);
+        }
+        break; }
+      case OPTYPE_ISCHOSEN_T:
+      case OPTYPE_ISVALUE:
+        u.expr.t1->chk_class_member(p_class);
+        break;
+      case OPTYPE_MATCH:
+        u.expr.v1->chk_class_member(p_class);
+        u.expr.t2->chk_class_member(p_class);
+        break;
+      default:
+        break;
+      }
+      break;
+    default:
+      break;
+    }
+  }
+
   void Value::set_gen_class_defpar_prefix()
   {
     switch (valuetype) {
@@ -17157,6 +17435,29 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         }
       }
       break; }
+    case V_SEQ:
+    case V_SET:
+      for (size_t i = 0; i < u.val_nvs->get_nof_nvs(); ++i) {
+        u.val_nvs->get_nv_byIndex(i)->get_value()->set_gen_class_defpar_prefix();
+      }
+      break;
+    case V_SEQOF:
+    case V_SETOF:
+    case V_ARRAY:
+      if (u.val_vs->is_indexed()) {
+        for (size_t i = 0; i < u.val_vs->get_nof_ivs(); ++i) {
+          u.val_vs->get_iv_byIndex(i)->get_value()->set_gen_class_defpar_prefix();
+        }
+      }
+      else {
+        for (size_t i = 0; i < u.val_vs->get_nof_vs(); ++i) {
+          u.val_vs->get_v_byIndex(i)->set_gen_class_defpar_prefix();
+        }
+      }
+      break;
+    case V_CHOICE:
+      u.choice.alt_value->set_gen_class_defpar_prefix();
+      break;
     case V_EXPR:
       switch (u.expr.v_optype) {
       case OPTYPE_UNARYPLUS:
@@ -17368,6 +17669,29 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
         }
       }
       break; }
+    case V_SEQ:
+    case V_SET:
+      for (size_t i = 0; i < u.val_nvs->get_nof_nvs(); ++i) {
+        u.val_nvs->get_nv_byIndex(i)->get_value()->set_gen_class_base_call_postfix();
+      }
+      break;
+    case V_SEQOF:
+    case V_SETOF:
+    case V_ARRAY:
+      if (u.val_vs->is_indexed()) {
+        for (size_t i = 0; i < u.val_vs->get_nof_ivs(); ++i) {
+          u.val_vs->get_iv_byIndex(i)->get_value()->set_gen_class_base_call_postfix();
+        }
+      }
+      else {
+        for (size_t i = 0; i < u.val_vs->get_nof_vs(); ++i) {
+          u.val_vs->get_v_byIndex(i)->set_gen_class_base_call_postfix();
+        }
+      }
+      break;
+    case V_CHOICE:
+      u.choice.alt_value->set_gen_class_base_call_postfix();
+      break;
     case V_EXPR:
       switch (u.expr.v_optype) {
       case OPTYPE_UNARYPLUS:

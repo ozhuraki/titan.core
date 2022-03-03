@@ -214,12 +214,12 @@ testcase tc_member_init_rearrange() runs on CT {
 
 type class C6 {
   private const integer c1 := 2;
-  private const charstring c2 := "x";
-  /* protected */ var template Rec vt1 := { num := t1, str := int2str(c1) & c2 };
+  private const Rec c2 := { 4, "x" };
+  /* protected */ var template Rec vt1 := { num := t1, str := int2str(c1) & c2.str };
   private template integer t1 := (0..100);
   
   // default constructor:
-  // create(template Rec vt1 := { num := t1, str := int2str(c1) & c2 }) {
+  // create(template Rec vt1 := { num := t1, str := int2str(c1) & c2.str }) {
   //   this.vt1 = vt1;
   // }
   
@@ -274,6 +274,30 @@ testcase tc_base_call_with_default_value_parameter() runs on CT {
   setverdict(pass);
 }
 
+const charstring c_c8_exp := "abc";
+
+type class C8 {
+  private var Rec v1 := { 10, "x" };
+  private var template integer vt1 := (0 .. v1.num);
+  create(charstring v1) {
+    if (v1 != c_c8_exp) {
+      setverdict(fail, "v1 (parameter): ", v1);
+    }
+    if (this.v1 != { 10, "x" }) {
+      setverdict(fail, "this.v1: ", this.v1);
+    }
+    var template integer vt1_exp := (0 .. 10);
+    if (log2str(vt1) != log2str(vt1_exp)) {
+      setverdict(fail, "vt1: ", vt1);
+    }
+  }
+}
+
+testcase tc_constructor_param_name_clash() runs on CT {
+  var C8 x := C8.create(c_c8_exp); // the actual tests are in the constructor
+  setverdict(pass);
+}
+
 control {
   execute(tc_constructor_default());
   execute(tc_constructor_init());
@@ -282,6 +306,7 @@ control {
   execute(tc_member_init_rearrange());
   execute(tc_references_in_default_values());
   execute(tc_base_call_with_default_value_parameter());
+  execute(tc_constructor_param_name_clash());
 }
 
 }
