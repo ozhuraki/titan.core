@@ -1355,7 +1355,7 @@ module a {
 
 == `[INCLUDE]`
 
-It is possible to use configuration settings (module parameters, test port parameters, etc.) given in other configuration files, the configuration files just need to be listed in this section, with their full or relative pathnames. To the host controllers it will look like as if the configuration files would have been merged together into one configuration file.
+It is possible to use configuration settings (module parameters, test port parameters, etc.) given in other configuration files. The configuration files just need to be listed in this section, with their full or relative pathnames. To the host controllers it will look like as if the configuration files would have been merged together into one configuration file.
 
 Each included file shall form a valid configuration file with complete section(s). The `[INCLUDE]` directives of included files are processed recursively. Each referenced configuration file is processed exactly once even if it is included from several places. Relative pathnames are resolved based on the directory of the referring configuration file.
 
@@ -1379,11 +1379,12 @@ The file’s name is a character string, given between quotation marks.
 ----
 
 [[ordered-include]]
-== [`ORDERED_INCLUDE]`
+== `[ORDERED_INCLUDE]`
 
 It is possible to include configuration files to a specific location using the `[ORDERED_INCLUDE]` section. The included file can be given with the same syntax as in the `[INCLUDE]` section. The file can be specified with an absolute path, or a path relative to the configuration file in which the `[ORDERED_INCLUDE]` section takes place. Relative pathnames are resolved based on the directory of the referring configuration file.
 
-Each included file shall form a valid configuration file with complete section(s). Circular imports are not accepted.
+Each included file shall form a valid configuration file with complete section(s). Circular imports are not accepted. Compared to the "normal" `[INCLUDE]`, the `[ORDERED_INCLUDE]` processes an included configuration file as many times as it is specified (even if it is included transitively). This behavior has (intentional) side-effects, i.e. during the merging of the configuration files, the described configuration will be repeated as many times as the file is included. For example, the content of an `[EXECUTE]` will be executed more times, or if `&=` assignment is used, the final value will be calculated based on the repeated expression.
+This behavior gives a higher freedom to the users to precisely configure the test environment and execution, but it can also increase the complexity of managing the configuration.
 
 [[bnf-productions-for-this-section-3]]
 === BNF Productions for this Section
