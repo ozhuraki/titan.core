@@ -1,0 +1,63 @@
+/******************************************************************************
+ * Copyright (c) 2000-2021 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+module Issue585 {
+
+type record Rec {
+  integer num,
+  Uni1 u1 optional,
+  Uni2 u2
+}
+
+type union Uni1 {
+  charstring x1,
+  octetstring x2
+}
+with {
+  variant "untagged";
+}
+
+type union Uni2 {
+  charstring y1,
+  octetstring y2
+}
+with {
+  variant "untagged";
+}
+
+type component CT {}
+
+testcase tc_issue585() runs on CT {
+  var Rec val := { 4, omit, { y2 := 'ABCD'O } };
+  var universal charstring enc := encvalue_unichar(val);
+  var universal charstring enc_exp := "<ns:Rec xmlns:ns='www.somewhere.com/xml2'>\n\t<ns:num>4</ns:num>\n\t<ns:y2>ABCD</ns:y2>\n</ns:Rec>\n\n";
+  if (enc != enc_exp) {
+    setverdict(fail, "Encoding failed. Expected: ", enc_exp, ", got: ", enc);
+  }
+  var Rec dec;
+  var integer res := decvalue_unichar(enc, dec);
+  if (res != 0 or dec != val) {
+    setverdict(fail, "Decoding failed. Expected: ", val, ", got: ", dec, " (result: ", res, ")");
+  }
+  setverdict(pass);
+}
+
+control {
+  execute(tc_issue585());
+}
+
+}
+with {
+  encode "XML";
+  variant "elementFormQualified";
+  variant "namespace as 'www.somewhere.com/xml2' prefix 'ns'";
+  variant "controlNamespace 'http://www.w3.org/2001/XMLSchema-instance' prefix 'xsi'";
+}
