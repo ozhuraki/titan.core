@@ -893,6 +893,7 @@ namespace Common {
      *  (e.g. function calls) and in operands of valueof or match
      *  operations. */
     char *rearrange_init_code(char *str, Common::Module* usage_mod);
+    char* rearrange_init_code_refd(char* str);
     /**
      *  Generates a value for temporary use. Example:
      *
@@ -1092,6 +1093,7 @@ namespace Common {
     bool get_is_in_brackets() const;
 
     void chk_ctor_defpar(bool default_ctor, bool in_base_call);
+    void chk_class_member(Ttcn::ClassTypeBody* p_class);
 
     void set_gen_class_defpar_prefix();
     void set_gen_class_base_call_postfix();

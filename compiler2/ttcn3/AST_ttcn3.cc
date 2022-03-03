@@ -1171,6 +1171,25 @@ namespace Ttcn {
     }
   }
 
+  void Reference::chk_class_member(ClassTypeBody* p_class)
+  {
+    Common::Assignment* ass = get_refd_assignment_last();
+    Scope* ass_parent_scope = refd_ass->get_my_scope()->get_parent_scope();
+    switch (ass->get_asstype()) {
+    case Common::Assignment::A_CONST:
+    case Common::Assignment::A_TEMPLATE:
+    case Common::Assignment::A_VAR:
+    case Common::Assignment::A_VAR_TEMPLATE:
+    case Common::Assignment::A_TIMER:
+      if (ass_parent_scope->is_class_scope() && ass_parent_scope->get_scope_class() == p_class) {
+        set_reftype(Ref_simple::REF_THIS);
+      }
+      break;
+    default:
+      break;
+    }
+  }
+
   bool Reference::has_single_expr()
   {
     if (!Ref_base::has_single_expr()) {
@@ -1286,24 +1305,10 @@ namespace Ttcn {
   {
     Common::Assignment *ass = get_refd_assignment();
     if (!ass) FATAL_ERROR("Reference::generate_code()");
-    if (reftype == REF_THIS) {
-      if (id != NULL) {
-        expr->expr = mputstr(expr->expr, "this->");
-      }
-      else { // no 'id' means it's just a 'this' reference
-        string tmp_id = my_scope->get_scope_mod_gen()->get_temporary_id();
-        expr->preamble = mputprintf(expr->preamble, "%s %s(this);\n",
-          ass->get_Type()->get_genname_value(my_scope).c_str(), tmp_id.c_str());
-        expr->expr = mputprintf(expr->expr, "%s", tmp_id.c_str());
-        return;
-      }
-    }
-    else if (reftype == REF_SUPER) {
-      Common::Type* base_type = my_scope->get_scope_class()->get_base_type()->
-        get_type_refd_last();
-      expr->expr = mputprintf(expr->expr, "%s::",
-        base_type->get_class_type_body()->is_built_in() ? "OBJECT" :
-        base_type->get_genname_own(my_scope).c_str());
+    generate_class_specific_expr(expr);
+    if (reftype == REF_THIS && id == NULL) {
+      // 'this' with no field reference has already been handled by 'generate_class_specific_expr'
+      return;
     }
     if (reftype == REF_VALUE) {
       expr->expr = mputstr(expr->expr, ass->get_genname_from_scope(my_scope).c_str());
@@ -1318,8 +1323,6 @@ namespace Ttcn {
       } else {
         string const_prefix; // empty by default
         string exception_postfix; // also empty by default
-        string defpar_init_prefix;
-        string defpar_base_call_postfix;
         if (gen_const_prefix) {
           if (ass->get_asstype() == Common::Assignment::A_CONST) {
             const_prefix = "const_";
@@ -1328,39 +1331,14 @@ namespace Ttcn {
             const_prefix = "template_";
           }
         }
-        if (gen_class_defpar_prefix && ass->get_my_scope()->is_class_scope()) {
-          defpar_init_prefix = "p_class->";
-        }
-        if (gen_class_base_call_postfix) {
-          switch (ass->get_asstype()) {
-          case Common::Assignment::A_PAR_VAL_IN:
-          case Common::Assignment::A_PAR_VAL_INOUT:
-          case Common::Assignment::A_PAR_VAL_OUT:
-          case Common::Assignment::A_PAR_TEMPL_IN:
-          case Common::Assignment::A_PAR_TEMPL_INOUT:
-          case Common::Assignment::A_PAR_TEMPL_OUT:
-          case Common::Assignment::A_PAR_TIMER: {
-            FormalPar* formal_par = dynamic_cast<FormalPar*>(ass);
-            if (formal_par == NULL) {
-              FATAL_ERROR("Reference::generate_code");
-            }
-            Definition* fp_def = formal_par->get_my_parlist()->get_my_def();
-            if (fp_def->get_asstype() == Common::Assignment::A_CONSTRUCTOR && formal_par->has_defval()) {
-              defpar_base_call_postfix = string("_defpar(this)");
-            }
-            break; }
-          default:
-            break;
-          }
-        }
         if (ass->get_asstype() == Common::Assignment::A_EXCEPTION) {
           exception_postfix = "()";
         }
         expr->expr = mputstr(expr->expr,
           LazyFuzzyParamData::in_lazy_or_fuzzy() ?
           LazyFuzzyParamData::add_ref_genname(ass, my_scope).c_str() :
-          (defpar_init_prefix + const_prefix + ass->get_genname_from_scope(my_scope) +
-            defpar_base_call_postfix + exception_postfix).c_str());
+          (get_class_defpar_prefix() + const_prefix + ass->get_genname_from_scope(my_scope) +
+            get_class_base_call_postfix() + exception_postfix).c_str());
       }
     }
     if (subrefs.get_nof_refs() > 0) subrefs.generate_code(expr, ass, my_scope);
@@ -1427,13 +1405,10 @@ namespace Ttcn {
           refd_gov->get_genname_value(get_my_scope()).c_str());
       }
     }
+    generate_class_specific_expr(&this_expr);
     string exception_postfix;
     if (ass->get_asstype() == Common::Assignment::A_EXCEPTION) {
       exception_postfix = "()";
-    }
-    string defpar_prefix;
-    if (gen_class_defpar_prefix && ass->get_my_scope()->is_class_scope()) {
-      defpar_prefix = "p_class->";
     }
     if (parlist != NULL) {
       // reference without parameters to a template that has only default formal parameters.
@@ -1447,7 +1422,8 @@ namespace Ttcn {
       this_expr.expr = mputstr(this_expr.expr,
         LazyFuzzyParamData::in_lazy_or_fuzzy() ?
         LazyFuzzyParamData::add_ref_genname(ass, my_scope).c_str() :
-        (defpar_prefix + ass->get_genname_from_scope(my_scope) + exception_postfix).c_str());
+        (get_class_defpar_prefix() + ass->get_genname_from_scope(my_scope) +
+         get_class_base_call_postfix() + exception_postfix).c_str());
     }
     if (refd_gov->get_type_refd_last()->get_typetype() != Common::Type::T_CLASS) {
       this_expr.expr = mputstr(this_expr.expr, ")");
@@ -1633,6 +1609,80 @@ namespace Ttcn {
       id = first_id->clone();
       subrefs.remove_refs(1);
     }
+  }
+
+  void Reference::generate_class_specific_expr(expression_struct_t *expr)
+  {
+    if (reftype != REF_THIS && reftype != REF_SUPER) {
+      return;
+    }
+    Common::Assignment *ass = get_refd_assignment();
+    if (ass == NULL) {
+      FATAL_ERROR("Reference::generate_class_specific_expr()");
+    }
+    if (reftype == REF_THIS) {
+      if (id != NULL && !gen_class_defpar_prefix) {
+        expr->expr = mputstr(expr->expr, "this->");
+      }
+      else if (id == NULL) { // no 'id' means it's just a 'this' reference
+        string tmp_id = my_scope->get_scope_mod_gen()->get_temporary_id();
+        expr->preamble = mputprintf(expr->preamble, "%s %s(this);\n",
+          ass->get_Type()->get_genname_value(my_scope).c_str(), tmp_id.c_str());
+        expr->expr = mputprintf(expr->expr, "%s", tmp_id.c_str());
+      }
+    }
+    else if (reftype == REF_SUPER) {
+      Common::Type* base_type = my_scope->get_scope_class()->get_base_type()->
+        get_type_refd_last();
+      expr->expr = mputprintf(expr->expr, "%s::",
+        base_type->get_class_type_body()->is_built_in() ? "OBJECT" :
+        base_type->get_genname_own(my_scope).c_str());
+    }
+  }
+
+  string Reference::get_class_defpar_prefix()
+  {
+    if (gen_class_defpar_prefix) {
+      Common::Assignment *ass = get_refd_assignment();
+      if (ass == NULL) {
+        FATAL_ERROR("Reference::get_class_defpar_prefix()");
+      }
+      if (ass->get_my_scope()->is_class_scope()) {
+        return string("p_class->");
+      }
+    }
+    return string();
+  }
+
+  string Reference::get_class_base_call_postfix()
+  {
+    if (gen_class_base_call_postfix) {
+      Common::Assignment *ass = get_refd_assignment();
+      if (ass == NULL) {
+        FATAL_ERROR("Reference::get_class_base_call_postfix()");
+      }
+      switch (ass->get_asstype()) {
+      case Common::Assignment::A_PAR_VAL_IN:
+      case Common::Assignment::A_PAR_VAL_INOUT:
+      case Common::Assignment::A_PAR_VAL_OUT:
+      case Common::Assignment::A_PAR_TEMPL_IN:
+      case Common::Assignment::A_PAR_TEMPL_INOUT:
+      case Common::Assignment::A_PAR_TEMPL_OUT:
+      case Common::Assignment::A_PAR_TIMER: {
+        FormalPar* formal_par = dynamic_cast<FormalPar*>(ass);
+        if (formal_par == NULL) {
+          FATAL_ERROR("Reference::get_class_base_call_postfix");
+        }
+        Definition* fp_def = formal_par->get_my_parlist()->get_my_def();
+        if (fp_def->get_asstype() == Common::Assignment::A_CONSTRUCTOR && formal_par->has_defval()) {
+          return string("_defpar(this)");
+        }
+        break; }
+      default:
+        break;
+      }
+    }
+    return string();
   }
 
 
@@ -4270,6 +4320,9 @@ namespace Ttcn {
       value->set_genname_recursive(get_genname());
       value->set_code_section(my_scope->is_class_scope() ?
         GovernedSimple::CS_INIT_CLASS : GovernedSimple::CS_PRE_INIT);
+      if (my_scope->is_class_scope()) {
+        value->chk_class_member(my_scope->get_scope_class());
+      }
     }
   }
 
@@ -5068,6 +5121,9 @@ namespace Ttcn {
         body->set_code_section(fp_list ? GovernedSimple::CS_INLINE :
           (my_scope->is_class_scope() ?
           GovernedSimple::CS_INIT_CLASS : GovernedSimple::CS_POST_INIT));
+        if (my_scope->is_class_scope()) {
+          body->chk_class_member(my_scope->get_scope_class());
+        }
       }
     }
 
@@ -5634,6 +5690,9 @@ namespace Ttcn {
         initial_value->set_genname_recursive(get_genname());
         initial_value->set_code_section(my_scope->is_class_scope() ?
           GovernedSimple::CS_INIT_CLASS : GovernedSimple::CS_INLINE);
+        if (my_scope->is_class_scope()) {
+          initial_value->chk_class_member(my_scope->get_scope_class());
+        }
       }
     }
       break;
@@ -5907,6 +5966,9 @@ namespace Ttcn {
         initial_value->set_genname_recursive(get_genname());
         initial_value->set_code_section(my_scope->is_class_scope() ?
           GovernedSimple::CS_INIT_CLASS : GovernedSimple::CS_INLINE);
+        if (my_scope->is_class_scope()) {
+          initial_value->chk_class_member(my_scope->get_scope_class());
+        }
       }
     }
     if (w_attrib_path) {
@@ -6120,6 +6182,9 @@ namespace Ttcn {
       else chk_single_duration(default_duration);
       if (!semantic_check_only) {
         default_duration->set_code_section(GovernedSimple::CS_POST_INIT);
+      }
+      if (my_scope->is_class_scope()) {
+        default_duration->chk_class_member(my_scope->get_scope_class());
       }
     }
     checked = true;
@@ -10886,13 +10951,16 @@ namespace Ttcn {
       // check whether the parameter type is allowed
       switch (deftype) {
       case Definition::A_TEMPLATE:
+      case Definition::A_CONSTRUCTOR:
         switch (par->get_asstype()) {
         case Definition::A_PAR_VAL_IN:
         case Definition::A_PAR_TEMPL_IN:
           // these are allowed
           break;
         default:
-          par->error("A template cannot have %s", par->get_assname());
+          par->error("A %s cannot have %s",
+            deftype == Definition::A_TEMPLATE ? "template" : "constructor",
+            par->get_assname());
         }
         break;
       case Definition::A_TESTCASE:
@@ -10901,6 +10969,7 @@ namespace Ttcn {
         case Definition::A_PAR_PORT:
           // these are forbidden
           par->error("A testcase cannot have %s", par->get_assname());
+          break;
         default:
           break;
         }
@@ -11639,6 +11708,23 @@ namespace Ttcn {
     }
   }
 
+  void ActualPar::chk_class_member(ClassTypeBody* p_class)
+  {
+    switch (selection) {
+    case AP_VALUE:
+      val->chk_class_member(p_class);
+      break;
+    case AP_TEMPLATE:
+      temp->chk_class_member(p_class);
+      break;
+    case AP_REF:
+      ref->chk_class_member(p_class);
+      break;
+    default:
+      break;
+    }
+  }
+
   bool ActualPar::has_single_expr(FormalPar* formal_par)
   {
     switch (selection) {
@@ -12191,6 +12277,14 @@ namespace Ttcn {
     size_t nof_pars = params.size();
     for (size_t i = 0; i < nof_pars; i++) {
       params[i]->chk_ctor_defpar(default_ctor, in_base_call);
+    }
+  }
+
+  void ActualParList::chk_class_member(ClassTypeBody* p_class)
+  {
+    size_t nof_pars = params.size();
+    for (size_t i = 0; i < nof_pars; i++) {
+      params[i]->chk_class_member(p_class);
     }
   }
 
