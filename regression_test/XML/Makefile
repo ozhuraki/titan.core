@@ -30,7 +30,8 @@ endif
 XDIRS := $(wildcard $(SHADOWED)) xsdConverter \
 HM60295 HN15589 HQ30408 HR49727 HU13380 $(RT2_ONLY) \
 XmlWorkflow tpdValidTest AbstractBlock UseNilLong AttributeFormDefault \
-RecordOmit XSDBaseType LegacyUntaggedUnion Printing Bug570707
+RecordOmit XSDBaseType LegacyUntaggedUnion Printing Bug570707 \
+Issue545 Issue585
 
 # List of fake targets:
 .PHONY: all dep clean run $(XDIRS) $(addsuffix /, $(XDIRS)) profile
