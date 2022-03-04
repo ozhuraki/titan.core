@@ -2012,7 +2012,7 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
       }
       if (!sdef->isOptional) {
         src = mputstr(src,
-          "    else {\n"
+          "    else if (!(p_flavor & XER_OPTIONAL)) {\n"
           "      ec_1.set_msg(\" \");\n"
           "      TTCN_EncDec_ErrorContext::error(TTCN_EncDec::ET_INVAL_MSG, "
           "\"'%s' does not match any alternative\", elem_name);\n"
