@@ -10464,6 +10464,7 @@ namespace Ttcn {
     }
     switch (defval.ap->get_selection()) {
     case ActualPar::AP_VALUE: {
+      str = update_location_object(str);
       Value *val = defval.ap->get_Value();
       string tmp_id;
       if (defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER) {
@@ -10486,6 +10487,7 @@ namespace Ttcn {
       break; }
     case ActualPar::AP_TEMPLATE: {
       if (!use_runtime_2 || defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER) {
+        str = update_location_object(str);
         TemplateInstance *ti = defval.ap->get_TemplateInstance();
         string tmp_id;
         if (defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER) {
