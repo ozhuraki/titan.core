@@ -4199,6 +4199,12 @@ namespace Ttcn {
           "{\n"
           "if (def_) {\n",
           in_par ? "const " : "", par_type_str.c_str(), defpar_list.get_nth_elem(i), class_id->get_name().c_str());
+        if (formal_par->get_filename() != NULL && formal_par->get_first_line() > 0) {
+          char* loc_obj_name = mprintf("class %s default parameter", class_id->get_dispname().c_str());
+          local_struct->source.methods = formal_par->create_location_object(
+            local_struct->source.methods, "UNKNOWN", loc_obj_name);
+          Free(loc_obj_name);
+        }
         local_struct->source.methods = formal_par->generate_code_defval(local_struct->source.methods);
         local_struct->source.methods = mputstr(local_struct->source.methods,
           "def_ = FALSE;\n"
