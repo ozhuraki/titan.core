@@ -723,7 +723,7 @@ private:
       unsigned int patch_;  ///< patch
       unsigned int build_;  ///< build number
       char* extra_; ///< extra junk at the end, for titansim
-      enum version_t version_type_; ///< possible values: UNKNOWN, LEGACY_CRL, LEGACY_CAX and DOT_SEPARATED for the current version
+      enum version_t version_type_; ///< possible values: UNKNOWN_VERSION_TYPE, LEGACY_CRL, LEGACY_CAX and DOT_SEPARATED for the current version
     } version_;
     PrintingType *pt_;
   } value_;

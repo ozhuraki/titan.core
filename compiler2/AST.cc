@@ -1320,7 +1320,7 @@ namespace Common {
     control_ns_prefix(p_mt == MOD_ASN ? mcopystr("asn1") : NULL),
     // only ASN.1 modules have default control namespace (X.693 amd1, 16.9)
     used_namespaces(), type_conv_v(), product_number(NULL),
-    suffix(0), release(UINT_MAX), patch(UINT_MAX), build(UINT_MAX), extra(NULL), version_type(UNKNOWN)
+    suffix(0), release(UINT_MAX), patch(UINT_MAX), build(UINT_MAX), extra(NULL), version_type(UNKNOWN_VERSION_TYPE)
   {
     if(!p_modid)
       FATAL_ERROR("NULL parameter: Common::Module::Module()");
