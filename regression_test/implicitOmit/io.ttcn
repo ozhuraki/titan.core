@@ -584,7 +584,7 @@ testcase tc_io_embedded_optional() runs on O {
     setverdict(fail, "t_emb_opt: ", t_emb_opt);
   }
   if (not isbound(mp_emb_opt) or mp_emb_opt.m.b != omit) {
-    setverdict(fail, "c_emb_opt: ", mp_emb_opt);
+    setverdict(fail, "mp_emb_opt: ", mp_emb_opt);
   }
   setverdict(pass);
 }
