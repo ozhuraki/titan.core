@@ -37,6 +37,10 @@ type record MyRecord2 {
   MyRecord1 m
 }
 
+type record MyRecord3 {
+  MyRecord1 m optional
+}
+
 type set MySet2 {
   MySet1 m
 }
@@ -562,6 +566,29 @@ testcase tc_io_asn_record_empty() runs on O
   else { setverdict(fail, t_asn_rec_empty); }
 }
 
+// Implicit omit for fields of records embedded in an optional field of another record
+const MyRecord3 c_emb_opt := { m := { a := 2 } }
+with { optional "implicit omit" }
+
+template MyRecord3 t_emb_opt := { m := { a := ? } }
+with { optional "implicit omit" }
+
+modulepar MyRecord3 mp_emb_opt
+with { optional "implicit omit" }
+
+testcase tc_io_embedded_optional() runs on O {
+  if (not isbound(c_emb_opt) or c_emb_opt.m.b != omit) {
+    setverdict(fail, "c_emb_opt: ", c_emb_opt);
+  }
+  if (not isbound(t_emb_opt) or log2str(t_emb_opt.m.b) != "omit") {
+    setverdict(fail, "t_emb_opt: ", t_emb_opt);
+  }
+  if (not isbound(mp_emb_opt) or mp_emb_opt.m.b != omit) {
+    setverdict(fail, "c_emb_opt: ", mp_emb_opt);
+  }
+  setverdict(pass);
+}
+
 control {
 execute(tc12());
 execute(tc1ab());
@@ -605,6 +632,7 @@ execute(tc_HQ30261())
 execute(tc_io_embedded());
 execute(tc_io_notused());
 execute(tc_io_asn_record_empty());
+execute(tc_io_embedded_optional());
 }
 with {
   optional "implicit omit"
