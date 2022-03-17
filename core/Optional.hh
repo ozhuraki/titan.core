@@ -364,6 +364,8 @@ public:
     * Redirects the call to the optional value. */
   virtual void remove_refd_index(int index);
 #endif
+
+  void set_implicit_omit();
 };
 
 #if HAVE_GCC(4,6)
@@ -1310,6 +1312,14 @@ int OPTIONAL<T_type>::TEXT_decode(const TTCN_Typedescriptor_t& p_td,
 }
 
 #endif
+
+template<typename T_type>
+void OPTIONAL<T_type>::set_implicit_omit()
+{
+  if (is_present()) {
+    optional_value->set_implicit_omit();
+  }
+}
 
 #if defined(__GNUC__) && __GNUC__ >= 3
 /** Note: These functions allow most efficient operation by passing the left
