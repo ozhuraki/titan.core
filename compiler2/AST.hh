@@ -371,7 +371,7 @@ namespace Common {
     void write_checksum();
     static char* get_product_identifier(const char* product_number,
         const unsigned int suffix, unsigned int release, unsigned int patch,
-        unsigned int build, const char* extra=NULL, enum version_t version_type = UNKNOWN);
+        unsigned int build, const char* extra=NULL, enum version_t version_type = UNKNOWN_VERSION_TYPE);
     ModuleVersion getVersion() const;
   protected: // *::Module need access
     /** Collects the set of visible modules into \a visible_mods. */

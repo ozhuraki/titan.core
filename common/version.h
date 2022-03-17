@@ -165,6 +165,6 @@ public:
 #undef FN
 
 /* Enum to identify version types */
-enum version_t { UNKNOWN, LEGACY_CRL, LEGACY_CAX, DOT_SEPARATED /*current*/ };
+enum version_t { UNKNOWN_VERSION_TYPE, LEGACY_CRL, LEGACY_CAX, DOT_SEPARATED /*current*/ };
 
 #endif

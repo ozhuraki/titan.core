@@ -2749,7 +2749,7 @@ namespace Ttcn {
 	  value_.version_.extra_ = NULL;
 	  break;
 
-	case UNKNOWN:
+	case UNKNOWN_VERSION_TYPE:
 	case LEGACY_CRL:
 	case LEGACY_CAX:
 	  check_product_number(ABCClass, type_number, sequence);
@@ -2794,7 +2794,7 @@ namespace Ttcn {
 	  value_.version_.extra_ = NULL;
 	  break;
 
-	case UNKNOWN:
+	case UNKNOWN_VERSION_TYPE:
 	case LEGACY_CRL:
 	case LEGACY_CAX:
 	  check_product_number(ABCClass, type_number, sequence);
@@ -2841,7 +2841,7 @@ namespace Ttcn {
     	value_.version_.extra_ = NULL;
     	break;
 
-      case UNKNOWN:
+      case UNKNOWN_VERSION_TYPE:
       case LEGACY_CRL:
       case LEGACY_CAX:
     	check_product_number(ABCClass, type_number, sequence);
