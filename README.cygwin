@@ -14,7 +14,7 @@ Please be aware that due to the incompatibility of EPL and GPL licenses, one may
 and distribute the result. ( see https://mmilinkov.wordpress.com/2010/04/06/epl-gpl-commentary/). However 
 from pure technical standpoint Titan can be compiled on GPL-licensed Cygwin as detailed below.
 
-Last tested cygwin version: 3.2.0
+Last tested cygwin version: 3.3.4
 
 Cygwin setup
     - If Cygwin is installed already, refresh your Cygwin installation
@@ -118,6 +118,7 @@ Cygwin setup
         using cygwin commands, insert the Windows equivalent path of cygwin folders "/bin" or/and "/usr/bin" 
         into the Windows environment variable "Path". For example if the cygwin root is "C:\cygwin64" then 
         Path should contain  "C:\cygwin64\bin;C:\cygwin64\usr\bin".
+    (I2)If you are working with Titan plugins for Eclipse and you should insert Titan related paths into the Windows  environment variables: LD_LIBRARY_PATH, TTCN3_DIR, and PATH. For example: "LD_LIBRARY_PATH" = "C:\titan.core\Install\lib", "TTCN3_DIR" = "C:\titan.core\Install" and "PATH" sould contain "C:\titan.core\Install\bin".
 
    (J)Using the binary Titan package: 
       Download the Titan package from
