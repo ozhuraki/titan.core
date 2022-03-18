@@ -4199,9 +4199,11 @@ namespace Ttcn {
           "{\n"
           "if (def_) {\n",
           in_par ? "const " : "", par_type_str.c_str(), defpar_list.get_nth_elem(i), class_id->get_name().c_str());
-        if (formal_par->get_filename() != NULL && formal_par->get_first_line() > 0) {
+        ActualPar* ap = formal_par->get_defval();
+        Location* ap_loc = templ_par ? (Location*)ap->get_TemplateInstance()->get_Template() : (Location*)ap->get_Value();
+        if (ap_loc->get_filename() != NULL && ap_loc->get_first_line() > 0) {
           char* loc_obj_name = mprintf("class %s default parameter", class_id->get_dispname().c_str());
-          local_struct->source.methods = formal_par->create_location_object(
+          local_struct->source.methods = ap_loc->create_location_object(
             local_struct->source.methods, "UNKNOWN", loc_obj_name);
           Free(loc_obj_name);
         }
