@@ -11961,7 +11961,7 @@ namespace Ttcn {
               "return ret_val;\n"
               "}\n\n");
           }
-          expr_expr = mputstr(expr_expr, tmp_id_str);
+          expr_expr = mputprintf(expr_expr, "%s%s", tmp_id_str, is_base_ctor_param ? "()" : "");
         } else {
           expression_struct temp_expr;
           Code::init_expr(&temp_expr);
