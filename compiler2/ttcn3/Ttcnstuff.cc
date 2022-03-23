@@ -4267,9 +4267,15 @@ namespace Ttcn {
         if (base_call != NULL) {
           ActualParList* ap_list = base_call->get_parlist();
           if (ap_list != NULL) {
-            ap_list->set_gen_class_base_call_postfix();
+            Def_Constructor* base_ctor = base_class->get_constructor();
+            ap_list->set_gen_class_base_call_postfix(
+              base_ctor != NULL ? base_ctor->get_FormalParList() : NULL);
           }
           base_call->generate_code(&base_call_expr);
+	  if (base_call_expr.preamble != NULL) {
+	    local_struct->source.methods = mputstr(local_struct->source.methods,
+	      base_call_expr.preamble);
+	  }
         }
         // generate code for the base call first, so the formal parameter list
         // knows which parameters are used and which aren't
