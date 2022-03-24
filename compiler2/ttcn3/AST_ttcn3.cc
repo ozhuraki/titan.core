@@ -11498,7 +11498,7 @@ namespace Ttcn {
 
   ActualPar::ActualPar(Value *v)
     : Node(), selection(AP_VALUE), my_scope(0), gen_restriction_check(TR_NONE),
-      gen_post_restriction_check(TR_NONE)
+      gen_post_restriction_check(TR_NONE), is_base_ctor_param(false)
   {
     if (!v) FATAL_ERROR("ActualPar::ActualPar()");
     val = v;
@@ -11506,7 +11506,8 @@ namespace Ttcn {
 
   ActualPar::ActualPar(TemplateInstance *t)
     : Node(), selection(AP_TEMPLATE), my_scope(0),
-      gen_restriction_check(TR_NONE), gen_post_restriction_check(TR_NONE)
+      gen_restriction_check(TR_NONE), gen_post_restriction_check(TR_NONE),
+      is_base_ctor_param(false)
   {
     if (!t) FATAL_ERROR("ActualPar::ActualPar()");
     temp = t;
@@ -11514,7 +11515,7 @@ namespace Ttcn {
 
   ActualPar::ActualPar(Reference *r)
     : Node(), selection(AP_REF), my_scope(0), gen_restriction_check(TR_NONE),
-      gen_post_restriction_check(TR_NONE)
+      gen_post_restriction_check(TR_NONE), is_base_ctor_param(false)
   {
     if (!r) FATAL_ERROR("ActualPar::ActualPar()");
     ref = r;
@@ -11522,7 +11523,8 @@ namespace Ttcn {
 
   ActualPar::ActualPar(ActualPar *a)
     : Node(), selection(AP_DEFAULT), my_scope(0),
-      gen_restriction_check(TR_NONE), gen_post_restriction_check(TR_NONE)
+      gen_restriction_check(TR_NONE), gen_post_restriction_check(TR_NONE),
+      is_base_ctor_param(false)
   {
     if (!a) FATAL_ERROR("ActualPar::ActualPar()");
     act = a;
@@ -11531,7 +11533,8 @@ namespace Ttcn {
   ActualPar::ActualPar(const ActualPar& p)
   : Node(), selection(p.selection), my_scope(p.my_scope),
     gen_restriction_check(p.gen_restriction_check),
-    gen_post_restriction_check(p.gen_post_restriction_check)
+    gen_post_restriction_check(p.gen_post_restriction_check),
+    is_base_ctor_param(false)
   {
     switch(selection) {
     case AP_ERROR:
@@ -11809,7 +11812,7 @@ namespace Ttcn {
     }
   }
 
-  void ActualPar::set_gen_class_base_call_postfix()
+  void ActualPar::set_gen_class_base_call_postfix(FormalPar* formal_par)
   {
     switch (selection) {
     case AP_VALUE:
@@ -11824,6 +11827,9 @@ namespace Ttcn {
     default:
       break;
     }
+    is_base_ctor_param = formal_par != NULL &&
+      formal_par->get_my_parlist()->get_my_def() != NULL &&
+      formal_par->get_my_parlist()->get_my_def()->get_asstype() == Definition::A_CONSTRUCTOR;
   }
 
   void ActualPar::generate_code(expression_struct *expr, bool copy_needed,
@@ -11844,18 +11850,49 @@ namespace Ttcn {
           // constructor call.  TODO: Reduce the number of temporaries created.
           const string& tmp_id = val->get_temporary_id();
           const char *tmp_id_str = tmp_id.c_str();
-          expr->preamble = mputprintf(expr->preamble, "%s %s;\n",
-            val->get_my_governor()->get_genname_value(my_scope).c_str(),
-            tmp_id_str);
+          if (is_base_ctor_param) {
+	    expr->preamble = mputprintf(expr->preamble,
+              "%s %s()\n"
+              "{\n"
+              "%s ret_val;\n",
+	      val->get_my_governor()->get_genname_value(my_scope).c_str(),
+	      tmp_id_str, val->get_my_governor()->get_genname_value(my_scope).c_str());
+          }
+          else {
+	    expr->preamble = mputprintf(expr->preamble, "%s %s;\n",
+	      val->get_my_governor()->get_genname_value(my_scope).c_str(),
+	      tmp_id_str);
+          }
           expr->preamble = TypeConv::gen_conv_code_refd(expr->preamble,
-            tmp_id_str, val);
-          expr_expr = mputstr(expr_expr, tmp_id_str);
+            is_base_ctor_param ? "ret_val" : tmp_id_str, val);
+          if (is_base_ctor_param) {
+            expr->preamble = mputstr(expr->preamble,
+              "return ret_val;\n"
+              "}\n\n");
+          }
+          expr_expr = mputprintf(expr_expr, "%s%s", tmp_id_str, is_base_ctor_param ? "()" : "");
         } else {
           expression_struct val_expr;
           Code::init_expr(&val_expr);
           val->generate_code_expr(&val_expr);
           if (val_expr.preamble != NULL) {
-            expr->preamble = mputstr(expr->preamble, val_expr.preamble);
+            if (is_base_ctor_param) {
+	      const string& tmp_id = val->get_temporary_id();
+	      const char *tmp_id_str = tmp_id.c_str();
+	      expr->preamble = mputprintf(expr->preamble,
+		"%s %s()\n"
+		"{\n"
+		"%s"
+		"return %s;\n"
+		"}\n\n",
+		val->get_my_governor()->get_genname_value(my_scope).c_str(),
+		tmp_id_str, val_expr.preamble, val_expr.expr);
+	      Free(val_expr.expr);
+	      val_expr.expr = mprintf("%s()", tmp_id_str);
+            }
+            else {
+              expr->preamble = mputstr(expr->preamble, val_expr.preamble);
+            }
           }
           if (val_expr.postamble == NULL) {
             if (formal_par != NULL &&
@@ -11899,22 +11936,54 @@ namespace Ttcn {
         if (use_runtime_2 && TypeConv::needs_conv_refd(temp->get_Template())) {
           const string& tmp_id = temp->get_Template()->get_temporary_id();
           const char *tmp_id_str = tmp_id.c_str();
-          expr->preamble = mputprintf(expr->preamble, "%s %s;\n",
-            temp->get_Template()->get_my_governor()
-              ->get_genname_template(my_scope).c_str(), tmp_id_str);
+          if (is_base_ctor_param) {
+	    expr->preamble = mputprintf(expr->preamble,
+              "%s %s()\n"
+              "{\n"
+              "%s ret_val;\n",
+	      temp->get_Template()->get_my_governor()->get_genname_template(my_scope).c_str(),
+	      tmp_id_str, temp->get_Template()->get_my_governor()
+	        ->get_genname_template(my_scope).c_str());
+          }
+          else {
+	    expr->preamble = mputprintf(expr->preamble, "%s %s;\n",
+	      temp->get_Template()->get_my_governor()
+		->get_genname_template(my_scope).c_str(), tmp_id_str);
+          }
           expr->preamble = TypeConv::gen_conv_code_refd(expr->preamble,
             tmp_id_str, temp->get_Template());
           // Not incorporated into gen_conv_code() yet.
           if (gen_restriction_check != TR_NONE)
             expr->preamble = Template::generate_restriction_check_code(
               expr->preamble, tmp_id_str, gen_restriction_check);
-          expr_expr = mputstr(expr_expr, tmp_id_str);
+          if (is_base_ctor_param) {
+            expr->preamble = mputstr(expr->preamble,
+              "return ret_val;\n"
+              "}\n\n");
+          }
+          expr_expr = mputprintf(expr_expr, "%s%s", tmp_id_str, is_base_ctor_param ? "()" : "");
         } else {
           expression_struct temp_expr;
           Code::init_expr(&temp_expr);
           temp->generate_code(&temp_expr, gen_restriction_check);
           if (temp_expr.preamble != NULL) {
-            expr->preamble = mputstr(expr->preamble, temp_expr.preamble);
+            if (is_base_ctor_param) {
+	      const string& tmp_id = temp->get_Template()->get_temporary_id();
+	      const char *tmp_id_str = tmp_id.c_str();
+	      expr->preamble = mputprintf(expr->preamble,
+		"%s %s()\n"
+		"{\n"
+		"%s"
+		"return %s;\n"
+		"}\n\n",
+		temp->get_Template()->get_my_governor()->get_genname_template(my_scope).c_str(),
+		tmp_id_str, temp_expr.preamble, temp_expr.expr);
+	      Free(temp_expr.expr);
+	      temp_expr.expr = mprintf("%s()", tmp_id_str);
+            }
+            else {
+              expr->preamble = mputstr(expr->preamble, temp_expr.preamble);
+            }
           }
           if (temp_expr.postamble == NULL) {
             expr_expr = mputstr(expr_expr, temp_expr.expr);
@@ -12298,11 +12367,11 @@ namespace Ttcn {
     }
   }
 
-  void ActualParList::set_gen_class_base_call_postfix()
+  void ActualParList::set_gen_class_base_call_postfix(FormalParList* fp_list)
   {
     size_t nof_pars = params.size();
     for (size_t i = 0; i < nof_pars; i++) {
-      params[i]->set_gen_class_base_call_postfix();
+      params[i]->set_gen_class_base_call_postfix(fp_list != NULL ? fp_list->get_fp_byIndex(i) : NULL);
     }
   }
 

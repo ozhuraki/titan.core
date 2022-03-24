@@ -90,6 +90,8 @@ namespace Ttcn {
     /** if this is an actual template parameter of an external function add
      *  runtime checks for out and inout parameters after the call */
     template_restriction_t gen_post_restriction_check;
+    /** True if this is one of the base-constructor call's actual parameters. */
+    bool is_base_ctor_param;
   private:
     /** Copy constructor */
     ActualPar(const ActualPar& p);
@@ -99,7 +101,7 @@ namespace Ttcn {
     /// Constructor for an erroneous object (fallback)
     ActualPar()
     : Node(), selection(AP_ERROR), my_scope(0),
-      gen_restriction_check(TR_NONE), gen_post_restriction_check(TR_NONE) {}
+      gen_restriction_check(TR_NONE), gen_post_restriction_check(TR_NONE), is_base_ctor_param(false) {}
     /// Actual par for an in value parameter
     ActualPar(Value *v);
     /// Actual par for an in template parameter
@@ -131,7 +133,7 @@ namespace Ttcn {
     void set_code_section(GovernedSimple::code_section_t p_code_section);
 
     void set_gen_class_defpar_prefix();
-    void set_gen_class_base_call_postfix();
+    void set_gen_class_base_call_postfix(FormalPar* formal_par = NULL);
 
     /** Generates the C++ equivalent of \a this into \a expr.
      * Flag \a copy_needed indicates whether to add an extra copy constructor
@@ -180,7 +182,7 @@ namespace Ttcn {
     void chk_class_member(ClassTypeBody* p_class);
 
     void set_gen_class_defpar_prefix();
-    void set_gen_class_base_call_postfix();
+    void set_gen_class_base_call_postfix(FormalParList* fp_list = NULL);
     /** Generates the C++ equivalent of the actual parameter list without
      * considering any aliasing between variables and 'in' parameters. */
     void generate_code_noalias(expression_struct *expr, FormalParList *p_fpl);

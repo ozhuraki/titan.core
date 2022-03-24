@@ -298,6 +298,37 @@ testcase tc_constructor_param_name_clash() runs on CT {
   setverdict(pass);
 }
 
+
+type record of integer IntList;
+
+type class C9 {
+  create(Rec p1, template IntList p2) {
+    if (p1 != { num := 3, str := "abc" }) {
+      setverdict(fail, "p1: ", p1);
+    }
+    template IntList p2_exp := { 1, (1 .. 10), ? };
+    if (log2str(p2) != log2str(p2_exp)) {
+      setverdict(fail, "p2: ", p2);
+    }
+  }
+}
+
+template integer t_global := (1..10);
+
+function f_int(IntList p) return integer {
+  return sizeof(p);
+}
+
+type class C10 extends C9 {
+  create(): C9( { f_int({ 1, 2, 3 }), "abc" }, { 1, t_global, ? } ) { }
+}
+
+testcase tc_base_call_with_structure_parameter() runs on CT {
+  var C10 x := C10.create(); // the actual tests are in the constructor
+  setverdict(pass);
+}
+
+
 control {
   execute(tc_constructor_default());
   execute(tc_constructor_init());
@@ -307,6 +338,7 @@ control {
   execute(tc_references_in_default_values());
   execute(tc_base_call_with_default_value_parameter());
   execute(tc_constructor_param_name_clash());
+  execute(tc_base_call_with_structure_parameter());
 }
 
 }
