@@ -351,11 +351,21 @@ testcase tc_this() runs on CT {
   setverdict(pass);
 }
 
+
+type class Node {
+  var integer data;
+  var Node next;
+  public function get_next() return Node { return next; }
+  public function f() return integer { return 1; }
+}
+
 testcase tc_references() runs on CT {
   var BaseClass v_base := BaseClass.create(4, { 1, 2, 4 }, "a", 'FF'O, 1.0);
   var SubClass v_sub := SubClass.create(4, { 1, 2, 4 }, "a", 'FF'O, 1.0);
   var FinalClass v_final := FinalClass.create(4, { 1, 2, 4 }, "a", 'FF'O, 1.0, 8, "x", -1.5, *);
   var BaseClass v_null := null;
+  var Node v_node := Node.create(2, null);
+  var FinalClass v_null2 := null;
   
   var BaseClass v_ref1;
   if (v_ref1 != null) {
@@ -397,13 +407,13 @@ testcase tc_references() runs on CT {
   if (not isbound(v_sub)) {
     setverdict(fail, "#12");
   }
-  if (isbound(v_null)) {
+  if (not isbound(v_null)) {
     setverdict(fail, "#13");
   }
   if (not isvalue(v_final)) {
     setverdict(fail, "#14");
   }
-  if (isvalue(v_null)) {
+  if (not isvalue(v_null)) {
     setverdict(fail, "#15");
   }
   if (not ispresent(v_base)) {
@@ -416,16 +426,39 @@ testcase tc_references() runs on CT {
   if (v_base2 != null) {
     setverdict(fail, "#18");
   }
+  if (ispresent(v_null.get_var_temp())) {
+    setverdict(fail, "#19");
+  }
+  if (ispresent(v_node.get_next())) {
+    setverdict(fail, "#20");
+  }
+  if (ispresent(v_node.get_next().f())) {
+    setverdict(fail, "#21");
+  }
+  if (isbound(v_null.get_var_temp())) {
+    setverdict(fail, "#22");
+  }
+  if (not isbound(v_node.get_next())) {
+    setverdict(fail, "#23");
+  }
+  if (isbound(v_node.get_next().f())) {
+    setverdict(fail, "#24");
+  }
+  if (isvalue(v_null.get_var_temp())) {
+    setverdict(fail, "#25");
+  }
+  if (not isvalue(v_node.get_next())) {
+    setverdict(fail, "#26");
+  }
+  if (isvalue(v_node.get_next().f())) {
+    setverdict(fail, "#27");
+  }
+  if (ischosen(v_null2.get_uni().cs)) {
+    setverdict(fail, "#28");
+  }
   setverdict(pass);
 }
 
-
-type class Node {
-  var integer data;
-  var Node next;
-  public function get_next() return Node { return next; }
-  public function f() return integer { return 1; }
-}
 
 function f_test(in Node p1, inout Node p2, out Node p3,
                 in charstring p1_str, in charstring p2_str) return Node {
@@ -508,6 +541,9 @@ type class Something {
   public function toString() return universal charstring {
     return "Something";
   }
+  public function equals(object obj) return boolean { 
+    return true; 
+  }
 }
 
 testcase tc_object() runs on CT {
@@ -536,6 +572,16 @@ testcase tc_object() runs on CT {
   var Node2 v_node2 := Node2.create(Something.create, Node2.create(Node.create(1, null), null));
   if (log2str(v_node2.get_data()) != "Something" or log2str(v_node2.get_next().get_data()) != "Node") {
     setverdict(fail, "v_node2: ", v_node2);
+  }
+  var object v_obj3 := v_obj;
+  if (not v_obj3.equals(v_obj)) {
+    setverdict(fail, "v_obj3 is not equal to v_obj");
+  }
+  if (v_obj.equals(v_node)) {
+    setverdict(fail, "v_obj is equal to v_node");
+  }
+  if (not v_smthn.equals(v_node)) {
+    setverdict(fail, "overriden 'equals' failed");
   }
   setverdict(pass);
 }

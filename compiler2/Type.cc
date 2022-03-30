@@ -1804,17 +1804,18 @@ namespace Common {
           return 0;
         }
         Ttcn::ClassTypeBody* class_ = t->get_class_type_body();
-        bool base_toString = false;
+        bool is_object_method = false;
         if (!class_->has_local_ass_withId(id)) {
-          if (id.get_name() == string("toString")) {
-            // the 'toString' method is not in the AST, but it is inherited by
-            // every class from the 'object' class
-            base_toString = true;
+          Ttcn::FormalParList* object_method_fplist =
+            Ttcn::ClassTypeBody::get_object_method_fplist(id.get_name());
+          if (object_method_fplist != NULL) {
+            // the methods of the 'object' class are not in the AST,
+            // but they are inherited by every class
+            is_object_method = true;
             if (!ref->parameters_checked()) {
-              Ttcn::FormalParList fp_list; // empty formal parameter list
               Ttcn::ParsedActualParameters* parsed_pars = ref->get_parsed_pars();
               Ttcn::ActualParList* ap_list = new Ttcn::ActualParList;
-              bool is_erroneous = fp_list.fold_named_and_chk(parsed_pars, ap_list);
+              bool is_erroneous = object_method_fplist->fold_named_and_chk(parsed_pars, ap_list);
               if (is_erroneous) {
                 delete ap_list;
                 return 0;
@@ -1823,7 +1824,7 @@ namespace Common {
               ap_list->set_my_scope(parsed_pars->get_my_scope());
               ref->set_parameter_list(ap_list, NULL);
             }
-            t = get_pooltype(T_USTR);
+            t = Ttcn::ClassTypeBody::get_object_method_return_type(id.get_name());
             // todo: set *last_method
           }
           else {
@@ -1834,7 +1835,7 @@ namespace Common {
             return 0;
           }
         }
-        if (!base_toString) {
+        if (!is_object_method) {
           Assignment* ass = class_->get_local_ass_byId(id);
           if (!class_->chk_visibility(ass, ref, subrefs->get_my_scope())) {
             // the method is not visible (the error has already been reported)

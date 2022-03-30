@@ -496,16 +496,13 @@ namespace Ttcn {
           Free(prev_expr);
         }
         const Identifier& id = *ref->get_id();
-        // 'ass' is null if the 'toString' method from the 'object' class is called
+        // 'ass' is null if one of the methods from the 'object' class is called
         Common::Assignment* ass = class_->has_local_ass_withId(id) ?
           class_->get_local_ass_byId(id) : NULL;
         expr->expr = mputprintf(expr->expr, "->%s(", id.get_name().c_str());
         FormalParList* fp_list = ass != NULL ? ass->get_FormalParList() :
-          new FormalParList; // the formal parameter list of 'toString' is empty
+          ClassTypeBody::get_object_method_fplist(id.get_name());
         ref->get_actual_par_list()->generate_code_noalias(expr, fp_list);
-        if (ass == NULL) {
-          delete fp_list;
-        }
         expr->expr = mputc(expr->expr, ')');
         type = ass != NULL ? ass->get_Type() :
           Common::Type::get_pooltype(Common::Type::T_USTR);
@@ -1505,9 +1502,10 @@ namespace Ttcn {
       
       expression_struct isbound_expr;
       Code::init_expr(&isbound_expr);
+      Common::Type* ass_type = ass->get_Type();
       isbound_expr.preamble = mputprintf(isbound_expr.preamble,
-        "boolean %s = %s.is_bound();\n", tmp_generalid_str,
-        ass_id_str);
+        "boolean %s = %s.is_%s();\n", tmp_generalid_str, ass_id_str,
+	ass_type->get_type_refd_last()->get_typetype() == Common::Type::T_CLASS ? "present" : "bound");
       namedbool p_optype;
       if (optype == Value::OPTYPE_ISBOUND) {
         p_optype = ISBOUND;
@@ -1520,7 +1518,7 @@ namespace Ttcn {
       } else {
         FATAL_ERROR("AST_ttcn3.cc::generate_code_ispresentboundchosen()");
       }
-      ass->get_Type()->generate_code_ispresentboundchosen(&isbound_expr, &subrefs, my_scope->get_scope_mod_gen(),
+      ass_type->generate_code_ispresentboundchosen(&isbound_expr, &subrefs, my_scope->get_scope_mod_gen(),
           tmp_generalid, ass_id2, is_template, p_optype, field);
 
       expr->preamble = mputstr(expr->preamble, isbound_expr.preamble);

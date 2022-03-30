@@ -3172,9 +3172,11 @@ void Type::generate_code_ispresentboundchosen(expression_struct *expr,
         const string& tmp_id2 = module->get_temporary_id();
         const char *tmp_id_str = tmp_id.c_str();
         const char *tmp_id2_str = tmp_id2.c_str();
+        bool next_is_class = next_t->get_type_refd_last()->typetype == T_CLASS;
         
         if (t->typetype == T_CLASS) {
-          expr->expr = mputprintf(expr->expr, "const %s%s %s = %s->%s;\n",
+          expr->expr = mputprintf(expr->expr, "%s%s%s %s = %s->%s;\n",
+	    next_is_class ? "" : "const ",
             next_t->get_genname_value(module).c_str(),
             is_template ? "_template" : "", tmp_id2_str,
             tmp_generalid_str, id.get_name().c_str());
@@ -3198,8 +3200,8 @@ void Type::generate_code_ispresentboundchosen(expression_struct *expr,
         }
 
         if (i != nof_refs - 1 || optype == ISCHOSEN) {
-          expr->expr = mputprintf(expr->expr, "%s = %s.is_bound();\n",
-            global_id.c_str(), tmp_id2_str);
+          expr->expr = mputprintf(expr->expr, "%s = %s.is_%s();\n",
+            global_id.c_str(), tmp_id2_str, next_is_class ? "present" : "bound");
         }
         if (i == nof_refs - 1) {
           switch (optype) {
@@ -3253,7 +3255,9 @@ void Type::generate_code_ispresentboundchosen(expression_struct *expr,
       const string& tmp_id = module->get_temporary_id();
       const char *tmp_id_str = tmp_id.c_str();
       
-      expr->expr = mputprintf(expr->expr, "const %s%s %s = %s->%s(",
+      bool next_is_class = next_t->get_type_refd_last()->typetype == T_CLASS;
+      expr->expr = mputprintf(expr->expr, "%s%s%s %s = %s->%s(",
+        next_is_class ? "" : "const ",
         next_t->get_genname_value(module).c_str(),
         is_template ? "_template" : "", tmp_id_str,
         tmp_generalid_str, id.get_name().c_str());
@@ -3261,8 +3265,8 @@ void Type::generate_code_ispresentboundchosen(expression_struct *expr,
       expr->expr = mputstr(expr->expr, ");\n");
 
       if (i != nof_refs - 1 || optype == ISCHOSEN) {
-        expr->expr = mputprintf(expr->expr, "%s = %s.is_bound();\n",
-          global_id.c_str(), tmp_id_str);
+        expr->expr = mputprintf(expr->expr, "%s = %s.is_%s();\n",
+          global_id.c_str(), tmp_id_str, next_is_class ? "present" : "bound");
       }
       if (i == nof_refs - 1) {
         switch (optype) {
