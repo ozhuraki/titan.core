@@ -7168,17 +7168,8 @@ namespace Ttcn {
       return false;
     }
     FormalParList* other_fp_list = p_other->get_FormalParList();
-    if (other_fp_list->get_nof_fps() != fp_list->get_nof_fps()) {
+    if (!fp_list->is_identical(other_fp_list)) {
       return false;
-    }
-    for (size_t i = 0; i < fp_list->get_nof_fps(); ++i) {
-      FormalPar* fp1 = fp_list->get_fp_byIndex(i);
-      FormalPar* fp2 = other_fp_list->get_fp_byIndex(i);
-      if (fp1->get_asstype() != fp2->get_asstype() ||
-          !fp1->get_Type()->is_identical(fp2->get_Type()) ||
-          fp1->get_id().get_name() != fp2->get_id().get_name()) {
-        return false;
-      }
     }
     if (exceptions != NULL || p_other->exceptions != NULL) {
       if (exceptions == NULL || p_other->exceptions == NULL) {
@@ -10879,6 +10870,26 @@ namespace Ttcn {
     if (!checked) FATAL_ERROR("Ttcn::FormalParList::has_ass_withId()");
     return pars_m.has_key(p_id.get_name())
       || parent_scope->has_ass_withId(p_id);
+  }
+
+  bool FormalParList::is_identical(const FormalParList* p_other)
+  {
+    if (p_other == NULL) {
+      FATAL_ERROR("FormalParList::is_identical");
+    }
+    if (p_other->pars_v.size() != pars_v.size()) {
+      return false;
+    }
+    for (size_t i = 0; i < pars_v.size(); ++i) {
+      FormalPar* fp1 = pars_v[i];
+      FormalPar* fp2 = p_other->pars_v[i];
+      if (fp1->get_asstype() != fp2->get_asstype() ||
+          !fp1->get_Type()->is_identical(fp2->get_Type()) ||
+          fp1->get_id().get_name() != fp2->get_id().get_name()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   void FormalParList::set_genname(const string& p_prefix)
