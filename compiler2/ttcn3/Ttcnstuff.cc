@@ -3066,6 +3066,9 @@ namespace Ttcn {
   // ===== ClassTypeBody
   // =================================
   
+  FormalParList* ClassTypeBody::object_toString_fplist = NULL;
+  FormalParList* ClassTypeBody::object_equals_fplist = NULL;
+
   ClassTypeBody::ClassTypeBody(Common::Identifier* p_class_id, boolean p_external, boolean p_final,
                                boolean p_abstract, boolean p_trait, Types* p_base_types,
                                Reference* p_runs_on_ref, Reference* p_mtc_ref, Reference* p_system_ref,
@@ -4509,6 +4512,47 @@ namespace Ttcn {
     }
 
     Free(user_info);
+  }
+
+  FormalParList* ClassTypeBody::get_object_method_fplist(const string& p_id)
+  {
+    if (p_id == string("toString")) {
+      if (object_toString_fplist == NULL) {
+	object_toString_fplist = new FormalParList;
+      }
+      return object_toString_fplist;
+    }
+    else if (p_id == string("equals")) {
+      if (object_equals_fplist == NULL) {
+	object_equals_fplist = new FormalParList;
+	FormalPar* fp = new FormalPar(FormalPar::A_PAR_VAL_IN, new Common::Type(Common::Type::T_CLASS),
+	  new Common::Identifier(Common::Identifier::ID_TTCN, string("obj")), NULL);
+	object_equals_fplist->add_fp(fp);
+      }
+      return object_equals_fplist;
+    }
+    else {
+      return NULL;
+    }
+  }
+
+  Common::Type* ClassTypeBody::get_object_method_return_type(const string& p_id)
+  {
+    if (p_id == string("toString")) {
+      return Common::Type::get_pooltype(Common::Type::T_USTR);
+    }
+    else if (p_id == string("equals")) {
+      return Common::Type::get_pooltype(Common::Type::T_BOOL);
+    }
+    else {
+      return NULL;
+    }
+  }
+
+  void ClassTypeBody::object_method_cleanup()
+  {
+    delete object_toString_fplist;
+    delete object_equals_fplist;
   }
 
 } // namespace Ttcn

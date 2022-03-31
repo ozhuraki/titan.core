@@ -17,51 +17,6 @@
 #include "Logger.hh"
 #include <functional>
 
-// OBJECT
-// ------
-
-class CLASS_BASE {
-  size_t ref_count;
-  boolean destructor; // true, if the destructor is currently running;
-  // also makes sure the object is not deleted again when inside the destructor
-
-  CLASS_BASE(const CLASS_BASE&); // copy disabled
-  CLASS_BASE operator=(const CLASS_BASE&); // assignment disabled
-  boolean operator==(const CLASS_BASE&); // equality operator disabled
-public:
-  CLASS_BASE(): ref_count(0), destructor(FALSE) {}
-  virtual ~CLASS_BASE() {
-    if (ref_count != 0) {
-      TTCN_error("Internal error: deleting an object with %lu reference(s) left.", ref_count);
-    }
-  }
-  void add_ref() { ++ref_count; }
-  boolean remove_ref() {
-    --ref_count;
-    if (destructor) {
-      return FALSE;
-    }
-    destructor = ref_count == 0;
-    return destructor;
-  }
-};
-
-class OBJECT : public CLASS_BASE {
-private:
-  OBJECT(const OBJECT&); // copy disabled
-  OBJECT operator=(const OBJECT&); // assignment disabled
-  boolean operator==(const OBJECT&); // equality operator disabled
-public:
-  OBJECT(): CLASS_BASE() { }
-  virtual ~OBJECT() { }
-  virtual void log() const {
-    TTCN_Logger::log_event_str("object: { }");
-  }
-  virtual UNIVERSAL_CHARSTRING toString() {
-    return UNIVERSAL_CHARSTRING("Object");
-  }
-  static const char* class_name() { return "object"; }
-};
 
 // OBJECT_REF
 // ----------
@@ -171,6 +126,10 @@ public:
     TTCN_error("Accessing a null reference.");
   }
   
+  const T* operator*() const { // de-referencing operator (for OBJECT::equals
+    return ptr;
+  }
+
   T* operator->() { // de-referencing operator (for methods)
     if (ptr != NULL) {
       return ptr;
@@ -195,11 +154,11 @@ public:
   }
   
   boolean is_bound() const {
-    return ptr != NULL;
+    return TRUE;
   }
   
   boolean is_value() const {
-    return ptr != NULL;
+    return TRUE;
   }
   
   boolean is_present() const {
@@ -240,6 +199,55 @@ template<typename T>
 boolean operator!=(null_type, const OBJECT_REF<T>& right_val) { // inequality operator (with null reference, inverted)
   return right_val.ptr != NULL;
 }
+
+// OBJECT
+// ------
+
+class CLASS_BASE {
+  size_t ref_count;
+  boolean destructor; // true, if the destructor is currently running;
+  // also makes sure the object is not deleted again when inside the destructor
+
+  CLASS_BASE(const CLASS_BASE&); // copy disabled
+  CLASS_BASE operator=(const CLASS_BASE&); // assignment disabled
+  boolean operator==(const CLASS_BASE&); // equality operator disabled
+public:
+  CLASS_BASE(): ref_count(0), destructor(FALSE) {}
+  virtual ~CLASS_BASE() {
+    if (ref_count != 0) {
+      TTCN_error("Internal error: deleting an object with %lu reference(s) left.", ref_count);
+    }
+  }
+  void add_ref() { ++ref_count; }
+  boolean remove_ref() {
+    --ref_count;
+    if (destructor) {
+      return FALSE;
+    }
+    destructor = ref_count == 0;
+    return destructor;
+  }
+};
+
+class OBJECT : public CLASS_BASE {
+private:
+  OBJECT(const OBJECT&); // copy disabled
+  OBJECT operator=(const OBJECT&); // assignment disabled
+  boolean operator==(const OBJECT&); // equality operator disabled
+public:
+  OBJECT(): CLASS_BASE() { }
+  virtual ~OBJECT() { }
+  virtual void log() const {
+    TTCN_Logger::log_event_str("object: { }");
+  }
+  virtual UNIVERSAL_CHARSTRING toString() {
+    return UNIVERSAL_CHARSTRING("Object");
+  }
+  virtual BOOLEAN equals(const OBJECT_REF<OBJECT>& obj) {
+    return *obj == this;
+  }
+  static const char* class_name() { return "object"; }
+};
 
 // EXCEPTION
 // ---------

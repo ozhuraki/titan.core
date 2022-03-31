@@ -783,6 +783,8 @@ class ClassTypeBody : public Common::Scope, public Common::Location {
   bool checked;
   bool default_constructor; /// true if the class uses a default constructor
   map<FormalPar*, char> defpar_list;
+  static FormalParList* object_toString_fplist;
+  static FormalParList* object_equals_fplist;
   
 public:
   ClassTypeBody(Common::Identifier* p_class_id, boolean p_external, boolean p_final,
@@ -832,6 +834,10 @@ public:
   
   void generate_code(output_struct* target);
   void generate_class_skeleton(output_struct* target);
+
+  static FormalParList* get_object_method_fplist(const string& p_id);
+  static Common::Type* get_object_method_return_type(const string& p_id);
+  static void object_method_cleanup();
 };
 
 }

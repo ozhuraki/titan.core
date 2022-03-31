@@ -61,6 +61,7 @@
 #include "AST.hh"
 #include "asn1/AST_asn1.hh"
 #include "ttcn3/AST_ttcn3.hh"
+#include "ttcn3/Ttcnstuff.hh"
 
 #include "CodeGenHelper.hh"
 #include "Stopwatch.hh"
@@ -1271,6 +1272,8 @@ int main(int argc, char *argv[])
       }
     }
   }
+
+  Ttcn::ClassTypeBody::object_method_cleanup();
 
   if (Kflag) {
     while (tcov_files != NULL) {
