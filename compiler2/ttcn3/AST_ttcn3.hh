@@ -2022,6 +2022,7 @@ namespace Ttcn {
     bool get_startability();
     virtual Common::Assignment *get_ass_bySRef(Common::Ref_simple *p_ref);
     virtual bool has_ass_withId(const Identifier& p_id);
+    bool is_identical(const FormalParList* p_other);
     /** Checks the parameter list, which belongs to definition of type
      * \a deftype. */
     void chk(Definition::asstype_t deftype);

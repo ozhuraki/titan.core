@@ -126,7 +126,7 @@ public:
     TTCN_error("Accessing a null reference.");
   }
   
-  const T* operator*() const { // de-referencing operator (for OBJECT::equals
+  const T* operator*() const { // de-referencing operator (for OBJECT::equals)
     return ptr;
   }
 

@@ -3832,6 +3832,43 @@ namespace Ttcn {
       }
     }
 
+    // check overriding/shadowing of 'object' methods
+    for (size_t i = 0; i < members->get_nof_asss(); ++i) {
+      Common::Assignment* def = members->get_ass_byIndex(i, false);
+      const Common::Identifier& id = def->get_id();
+      FormalParList* fp_list = get_object_method_fplist(id.get_name());
+      if (fp_list != NULL) {
+	switch (def->get_asstype()) {
+        case Common::Assignment::A_FUNCTION_RVAL:
+        case Common::Assignment::A_EXT_FUNCTION_RVAL:
+          if (def->get_visibility() == PUBLIC &&
+              fp_list->is_identical(def->get_FormalParList())) {
+            Def_Function_Base* def_func = dynamic_cast<Def_Function_Base*>(def);
+	    Def_AbsFunction* def_func_abs = dynamic_cast<Def_AbsFunction*>(def_func);
+            if (def_func_abs == NULL &&
+        	def_func->get_return_type()->is_identical(get_object_method_return_type(id.get_name()))) {
+              break; // everything is in order
+            }
+          }
+          // otherwise fall through and display the prototype error
+        case Common::Assignment::A_FUNCTION:
+        case Common::Assignment::A_FUNCTION_RTEMP:
+        case Common::Assignment::A_EXT_FUNCTION:
+        case Common::Assignment::A_EXT_FUNCTION_RTEMP:
+          // currently all 'object' methods return a value, so these are erroneous by default
+          def->error("The prototype of method `%s' is not identical "
+	    "to that of the method inherited from the 'object' class",
+	    id.get_dispname().c_str());
+          break;
+        default:
+          def->error("%s shadows a method inherited from the 'object' class",
+            def->get_description().c_str());
+	  name_clash = true;
+	  break;
+	}
+      }
+    }
+
     if (constructor != NULL && trait) {
       constructor->error("Trait class type `%s' cannot have a constructor",
         my_def->get_Type()->get_typename().c_str());

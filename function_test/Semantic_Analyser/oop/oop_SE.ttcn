@@ -811,6 +811,20 @@ type class C65 { //^In type definition//
          out charstring p2) { } //^In parameter// //A constructor cannot have `out' value parameter//
 }
 
+type class C66 { //^In type definition//
+  public function toString(in universal charstring prefix) return universal charstring { //The prototype of method `toString' is not identical to that of the method inherited from the 'object' class//
+    return prefix & "C66";
+  }
+  public function equals(object obj) return integer { //The prototype of method `equals' is not identical to that of the method inherited from the 'object' class//
+    return -1;
+  }
+}
+
+type class @abstract C67 { //^In type definition//
+  private var boolean equals; //variable `@oop_SE.C67.equals' shadows a method inherited from the 'object' class//
+  public function @abstract toString() return universal charstring; //The prototype of method `toString' is not identical to that of the method inherited from the 'object' class//
+}
+
 
 control { //^In control part//
   var C11 x := C11.create; //^In variable definition// //A definition without `runs on' clause cannot create a value of class type `@oop_SE.C11', which runs on component type `@oop_SE.CT_RunsOn'// //Cannot create value of class type `@oop_SE.C11', which has an `mtc' clause, in the control part.// //Cannot create value of class type `@oop_SE.C11', which has a `system' clause, in the control part.//
