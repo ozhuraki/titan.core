@@ -1402,6 +1402,11 @@ namespace Ttcn {
       PROTOTYPE_BACKTRACK, /**< attribute prototype(backtrack) */
       PROTOTYPE_SLIDING /**< attribute prototype(sliding) */
     };
+    enum is_identical_result {
+      RES_IDENTICAL,        // completely identical
+      RES_NAME_DIFFERS,     // identical, but there are formal parameter name differences
+      RES_DIFFERS           // differs
+    };
   protected: // Def_Function and Def_ExtFunction need access
     /** The formal parameter list of the function. It is never NULL even if
      * the function has empty parameter list. Owned. */
@@ -1456,7 +1461,7 @@ namespace Ttcn {
     Type *get_output_type();
     Type* get_return_type() const { return return_type; }
     //virtual Type *get_RunsOnType();
-    bool is_identical(Def_Function_Base* p_other);
+    is_identical_result is_identical(Def_Function_Base* p_other);
     template_restriction_t get_template_restriction()
       { return template_restriction; }
     virtual bool is_final() const { return final; }
@@ -2022,7 +2027,7 @@ namespace Ttcn {
     bool get_startability();
     virtual Common::Assignment *get_ass_bySRef(Common::Ref_simple *p_ref);
     virtual bool has_ass_withId(const Identifier& p_id);
-    bool is_identical(const FormalParList* p_other);
+    Def_Function_Base::is_identical_result is_identical(const FormalParList* p_other);
     /** Checks the parameter list, which belongs to definition of type
      * \a deftype. */
     void chk(Definition::asstype_t deftype);
