@@ -3841,15 +3841,23 @@ namespace Ttcn {
       const Common::Identifier& id = def->get_id();
       FormalParList* fp_list = get_object_method_fplist(id.get_name());
       if (fp_list != NULL) {
+        Def_Function_Base::is_identical_result inres = Def_Function_Base::RES_DIFFERS;
+        if (def->get_FormalParList() != NULL) {
+          inres = fp_list->is_identical(def->get_FormalParList());
+        } else if (fp_list->get_nof_fps() == 0) {
+          inres = Def_Function_Base::RES_IDENTICAL;
+        }
 	switch (def->get_asstype()) {
         case Common::Assignment::A_FUNCTION_RVAL:
         case Common::Assignment::A_EXT_FUNCTION_RVAL:
-          if (def->get_visibility() == PUBLIC &&
-              fp_list->is_identical(def->get_FormalParList())) {
+          if (def->get_visibility() == PUBLIC && inres != Def_Function_Base::RES_DIFFERS) {
             Def_Function_Base* def_func = dynamic_cast<Def_Function_Base*>(def);
 	    Def_AbsFunction* def_func_abs = dynamic_cast<Def_AbsFunction*>(def_func);
             if (def_func_abs == NULL &&
         	def_func->get_return_type()->is_identical(get_object_method_return_type(id.get_name()))) {
+              if (inres == Def_Function_Base::RES_NAME_DIFFERS) {
+                def->warning("One or more parameter names differ from previous definition");
+              }
               break; // everything is in order
             }
           }
