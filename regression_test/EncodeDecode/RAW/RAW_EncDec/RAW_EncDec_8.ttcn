@@ -23,8 +23,29 @@ module RAW_EncDec_8 {
     extension "prototype(convert)"
     extension "decode(RAW)"
   }
-    
-  type octetstring OCT2 length(2);
+  
+  external function enc_U_Octet(in U_Octet pl_pdu) return octetstring 
+  with {
+    extension "prototype(convert)"
+    extension "encode(RAW)"
+  };
+  external function dec_U_Octet(in octetstring pl_octetstring) return U_Octet
+  with {
+    extension "prototype(convert)"
+    extension "decode(RAW)"
+  }
+  
+  external function enc_U_Bit(in U_Bit pl_pdu) return octetstring 
+  with {
+    extension "prototype(convert)"
+    extension "encode(RAW)"
+  };
+  external function dec_U_Bit(in octetstring pl_octetstring) return U_Bit
+  with {
+    extension "prototype(convert)"
+    extension "decode(RAW)"
+  }
+  
 
   type record R1 {
     integer f1,
@@ -44,6 +65,43 @@ module RAW_EncDec_8 {
     variant ""
   }
   
+ type record R1_Octet {
+    octetstring f1,
+    octetstring f2,
+    integer f3
+  } with {
+    encode "RAW"
+    variant (f1) "FIELDLENGTH(8)"
+    variant (f1) "LENGTHTO(f2)"
+  }
+
+  type union U_Octet {
+    R1_Octet u1,
+    octetstring u2 length(8)
+  } with {
+    encode "RAW"
+    variant ""
+  }
+  
+ type record R1_Bit {
+    bitstring f1,
+    octetstring f2,
+    integer f3
+  } with {
+    encode "RAW"
+    variant (f1) "FIELDLENGTH(64)"
+    variant (f1) "LENGTHTO(f2)"
+  }
+
+  type union U_Bit {
+    R1_Bit u1,
+    octetstring u2 length(8)
+  } with {
+    encode "RAW"
+    variant ""
+  }
+
+  
 testcase TC_01() runs on Test_CT{
   var U pl_u, pl_u_result;
   pl_u.u2 := 'FFFFFFFFFFFFFFFF'O;
@@ -55,8 +113,32 @@ testcase TC_01() runs on Test_CT{
   setverdict(pass);
 }
 
+testcase TC_01_Octet() runs on Test_CT{
+  var U_Octet pl_u, pl_u_result;
+  pl_u.u2 := 'FFFFFFFFFFFFFFFF'O;
+  var octetstring os := enc_U_Octet(pl_u);
+  pl_u_result := dec_U_Octet(os);
+  if (pl_u != pl_u_result) {
+    setverdict(fail);
+  }
+  setverdict(pass);
+}
+
+testcase TC_01_Bit() runs on Test_CT{
+  var U_Bit pl_u, pl_u_result;
+  pl_u.u2 := 'FFFFFFFFFFFFFFFF'O;
+  var octetstring os := enc_U_Bit(pl_u);
+  pl_u_result := dec_U_Bit(os);
+  if (pl_u != pl_u_result) {
+    setverdict(fail);
+  }
+  setverdict(pass);
+}
+
 control{
   execute(TC_01());
+  execute(TC_01_Octet());
+  execute(TC_01_Bit());
 }
 
 }

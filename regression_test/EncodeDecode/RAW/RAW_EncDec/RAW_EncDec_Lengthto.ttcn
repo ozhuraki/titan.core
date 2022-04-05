@@ -1,0 +1,812 @@
+module RAW_EncDec_Lengthto {
+
+type component TempComp {}
+
+type bitstring BIT1_
+with { variant "FIELDLENGTH(1)" } ;
+
+type bitstring BIT7_
+with { variant "FIELDLENGTH(7)" } ;
+
+type octetstring OCT3_
+with { variant "FIELDLENGTH(3)" } ;
+
+
+type record Rec1
+{ BIT7_          data ,
+  BIT1_          extensionbit   }
+ with { variant "EXTENSION_BIT (yes)"};
+
+
+type record Rec2
+{ BIT7_          data ,
+  BIT1_          extensionbit   }
+ with { variant "EXTENSION_BIT (yes)"};
+
+
+type record Rec3
+{ BIT7_          data ,
+  BIT1_          extensionbit   }
+ with { variant "EXTENSION_BIT (yes)"};
+ 
+
+type record Octet1
+{ BIT7_          data ,
+  BIT1_          extensionbit ,
+  Rec1          rec1 ,
+  octetstring   more_extension  optional  }
+ with { variant "EXTENSION_BIT (yes)";
+        variant (more_extension) "EXTENSION_BIT (yes)"};
+
+
+type record Octet2
+{ BIT7_          data ,
+  BIT1_          extensionbit ,
+  Rec2          rec2 ,
+  octetstring   more_extension  optional  }
+ with { variant "EXTENSION_BIT (yes)";
+        variant (more_extension) "EXTENSION_BIT (yes)"};
+
+
+type record Octet3
+{ BIT7_          data ,
+  BIT1_          extensionbit ,
+  Rec3          rec3 ,
+  octetstring   more_extension  optional  }
+ with { variant "EXTENSION_BIT (yes)";
+        variant (more_extension) "EXTENSION_BIT (yes)"};
+
+
+type record RAW_PDU_127_Octet
+{ OCT3_               octstr ,
+  octetstring         length1 ,
+  Octet1              oct1 ,
+  Octet2              oct2 optional ,
+  Octet3              oct3 optional }
+with { variant (length1) "LENGTHTO(oct1, oct2, oct3)";
+  variant (length1) "FIELDLENGTH(1)" }
+
+external function enc_RAW_PDU_127_Octet(in RAW_PDU_127_Octet pdu) return octetstring with { extension "prototype(convert) encode(RAW)" }
+external function dec_RAW_PDU_127_Octet(in octetstring stream) return RAW_PDU_127_Octet with { extension "prototype(convert) decode(RAW)" }
+
+type record RAW_PDU_127_Bit
+{ OCT3_               octstr ,
+  bitstring           length1 ,
+  Octet1              oct1 ,
+  Octet2              oct2 optional ,
+  Octet3              oct3 optional }
+with { variant (length1) "LENGTHTO(oct1, oct2, oct3)";
+  variant (length1) "FIELDLENGTH(8)" }
+
+external function enc_RAW_PDU_127_Bit(in RAW_PDU_127_Bit pdu) return octetstring with { extension "prototype(convert) encode(RAW)" }
+external function dec_RAW_PDU_127_Bit(in octetstring stream) return RAW_PDU_127_Bit with { extension "prototype(convert) decode(RAW)" }
+
+testcase TC_record_with_EXTENSION_BIT_1_Octet() runs on TempComp {
+
+  const RAW_PDU_127_Octet    
+  i := { octstr :=  '123456'O ,
+    length1 :=      '0F'O ,
+    oct1 :=
+    { data :=           '0000001'B ,
+      extensionbit :=   '0'B ,
+      rec1 :=
+      { data :=           '0000001'B ,
+        extensionbit :=   '0'B   } ,
+      more_extension :=  '000080'O      } ,
+    oct2 :=
+    { data :=           '0000010'B ,
+      extensionbit :=   '0'B ,
+      rec2 :=
+      { data :=           '0000010'B ,
+        extensionbit :=   '0'B   } ,
+      more_extension :=  '000080'O      } ,
+    oct3 :=
+    { data :=           '0000011'B ,
+      extensionbit :=   '0'B ,
+      rec3 :=
+      { data :=           '0000011'B ,
+        extensionbit :=   '0'B   } ,
+      more_extension :=  '000080'O      } 	 }
+
+  const octetstring   o :='1234560F010100008002020000800303000080'O
+
+  if ((enc_RAW_PDU_127_Octet(i) == o)and(dec_RAW_PDU_127_Octet(o) == i )) {setverdict(pass);}
+  else {setverdict(fail,"enc_RAW_PDU_127_Octet(i)= ", enc_RAW_PDU_127_Octet(i), "; dec_RAW_PDU_127_Octet(o)= ", dec_RAW_PDU_127_Octet(o));}
+}
+
+testcase TC_record_with_EXTENSION_BIT_1_Bit() runs on TempComp {
+
+  const RAW_PDU_127_Bit    
+  i := { octstr :=  '123456'O ,
+    length1 :=      '00001111'B ,
+    oct1 :=
+    { data :=           '0000001'B ,
+      extensionbit :=   '0'B ,
+      rec1 :=
+      { data :=           '0000001'B ,
+        extensionbit :=   '0'B   } ,
+      more_extension :=  '000080'O      } ,
+    oct2 :=
+    { data :=           '0000010'B ,
+      extensionbit :=   '0'B ,
+      rec2 :=
+      { data :=           '0000010'B ,
+        extensionbit :=   '0'B   } ,
+      more_extension :=  '000080'O      } ,
+    oct3 :=
+    { data :=           '0000011'B ,
+      extensionbit :=   '0'B ,
+      rec3 :=
+      { data :=           '0000011'B ,
+        extensionbit :=   '0'B   } ,
+      more_extension :=  '000080'O      } 	 }
+
+  const octetstring   o :='1234560F010100008002020000800303000080'O
+
+  if ((enc_RAW_PDU_127_Bit(i) == o)and(dec_RAW_PDU_127_Bit(o) == i )) {setverdict(pass);}
+  else {setverdict(fail,"enc_RAW_PDU_127_Bit(i)= ", enc_RAW_PDU_127_Bit(i), "; dec_RAW_PDU_127_Bit(o)= ", dec_RAW_PDU_127_Bit(o));}
+}
+
+// Test of  record with EXTENSION_BIT 2
+testcase TC_record_with_EXTENSION_BIT_2_Octet() runs on TempComp {
+  const RAW_PDU_127_Octet    
+    i := { octstr :=  '123456'O ,
+           length1 :=      '0C'O ,
+	   oct1 :=
+	       { data :=           '0000001'B ,
+	         extensionbit :=   '0'B ,
+		 rec1 :=
+	           { data :=           '0000001'B ,
+	             extensionbit :=   '0'B   } ,
+		 more_extension :=  '000080'O      } ,
+	   oct2 :=
+	       { data :=           '0000010'B ,
+	         extensionbit :=   '0'B ,
+		 rec2 :=
+	           { data :=           '0000010'B ,
+	             extensionbit :=   '1'B   } ,
+		 more_extension :=  omit      } ,
+	   oct3 :=
+	       { data :=           '0000011'B ,
+	         extensionbit :=   '0'B ,
+		 rec3 :=
+	           { data :=           '0000011'B ,
+	             extensionbit :=   '0'B   } ,
+		 more_extension :=  '000080'O      } 	 }
+
+
+  const octetstring o :='1234560C010100008002820303000080'O
+
+  if ((enc_RAW_PDU_127_Octet(i) == o)and(dec_RAW_PDU_127_Octet(o) == i )) {setverdict(pass);}
+  else {setverdict(fail,"enc_RAW_PDU_127_Octet(i)= ", enc_RAW_PDU_127_Octet(i), "; dec_RAW_PDU_127_Octet(o)= ", dec_RAW_PDU_127_Octet(o));}
+}
+
+testcase TC_record_with_EXTENSION_BIT_2_Bit() runs on TempComp {
+  const RAW_PDU_127_Bit    
+    i := { octstr :=  '123456'O ,
+           length1 :=      '00001100'B ,
+	   oct1 :=
+	       { data :=           '0000001'B ,
+	         extensionbit :=   '0'B ,
+		 rec1 :=
+	           { data :=           '0000001'B ,
+	             extensionbit :=   '0'B   } ,
+		 more_extension :=  '000080'O      } ,
+	   oct2 :=
+	       { data :=           '0000010'B ,
+	         extensionbit :=   '0'B ,
+		 rec2 :=
+	           { data :=           '0000010'B ,
+	             extensionbit :=   '1'B   } ,
+		 more_extension :=  omit      } ,
+	   oct3 :=
+	       { data :=           '0000011'B ,
+	         extensionbit :=   '0'B ,
+		 rec3 :=
+	           { data :=           '0000011'B ,
+	             extensionbit :=   '0'B   } ,
+		 more_extension :=  '000080'O      } 	 }
+
+
+  const octetstring o :='1234560C010100008002820303000080'O
+
+  if ((enc_RAW_PDU_127_Bit(i) == o)and(dec_RAW_PDU_127_Bit(o) == i )) {setverdict(pass);}
+  else {setverdict(fail,"enc_RAW_PDU_127_Bit(i)= ", enc_RAW_PDU_127_Bit(i), "; dec_RAW_PDU_127_Bit(o)= ", dec_RAW_PDU_127_Bit(o));}
+}
+
+// Test of  record with EXTENSION_BIT 3
+testcase TC_record_with_EXTENSION_BIT_3_Octet() runs on TempComp {
+  const RAW_PDU_127_Octet    
+     i := { octstr :=  '123456'O ,
+           length1 :=      '09'O ,
+	   oct1 :=
+	       { data :=           '0000001'B ,
+	         extensionbit :=   '0'B ,
+		 rec1 :=
+	           { data :=           '0000001'B ,
+	             extensionbit :=   '0'B   } ,
+		 more_extension :=  '000080'O      } ,
+	   oct2 :=
+	       { data :=           '0000010'B ,
+	         extensionbit :=   '0'B ,
+		 rec2 :=
+	           { data :=           '0000010'B ,
+	             extensionbit :=   '1'B   } ,
+		 more_extension :=  omit      } ,
+	   oct3 :=
+	       { data :=           '0000011'B ,
+	         extensionbit :=   '0'B ,
+		 rec3 :=
+	           { data :=           '0000011'B ,
+	             extensionbit :=   '1'B   } ,
+		 more_extension :=  omit      } 	 }
+
+  const octetstring   o :='12345609010100008002820383'O
+
+  if ((enc_RAW_PDU_127_Octet(i) == o)and(dec_RAW_PDU_127_Octet(o) == i )) {setverdict(pass);}
+  else {setverdict(fail,"enc_RAW_PDU_127_Octet(i)= ", enc_RAW_PDU_127_Octet(i), "; dec_RAW_PDU_127_Octet(o)= ", dec_RAW_PDU_127_Octet(o));}
+}
+
+testcase TC_record_with_EXTENSION_BIT_3_Bit() runs on TempComp {
+  const RAW_PDU_127_Bit    
+     i := { octstr :=  '123456'O ,
+           length1 :=      '00001001'B ,
+	   oct1 :=
+	       { data :=           '0000001'B ,
+	         extensionbit :=   '0'B ,
+		 rec1 :=
+	           { data :=           '0000001'B ,
+	             extensionbit :=   '0'B   } ,
+		 more_extension :=  '000080'O      } ,
+	   oct2 :=
+	       { data :=           '0000010'B ,
+	         extensionbit :=   '0'B ,
+		 rec2 :=
+	           { data :=           '0000010'B ,
+	             extensionbit :=   '1'B   } ,
+		 more_extension :=  omit      } ,
+	   oct3 :=
+	       { data :=           '0000011'B ,
+	         extensionbit :=   '0'B ,
+		 rec3 :=
+	           { data :=           '0000011'B ,
+	             extensionbit :=   '1'B   } ,
+		 more_extension :=  omit      } 	 }
+
+  const octetstring   o :='12345609010100008002820383'O
+
+  if ((enc_RAW_PDU_127_Bit(i) == o)and(dec_RAW_PDU_127_Bit(o) == i )) {setverdict(pass);}
+  else {setverdict(fail,"enc_RAW_PDU_127_Bit(i)= ", enc_RAW_PDU_127_Bit(i), "; dec_RAW_PDU_127_Bit(o)= ", dec_RAW_PDU_127_Bit(o));}
+}
+
+//  Test of  record with EXTENSION_BIT 4
+testcase TC_record_with_EXTENSION_BIT_4_Octet() runs on TempComp {
+  const RAW_PDU_127_Octet    
+     i := { octstr :=  '123456'O ,
+           length1 :=      '06'O ,
+	   oct1 :=
+	       { data :=           '0000001'B ,
+	         extensionbit :=   '0'B ,
+		 rec1 :=
+	           { data :=           '0000001'B ,
+	             extensionbit :=   '1'B   } ,
+		 more_extension :=  omit     } ,
+	   oct2 :=
+	       { data :=           '0000010'B ,
+	         extensionbit :=   '0'B ,
+		 rec2 :=
+	           { data :=           '0000010'B ,
+	             extensionbit :=   '1'B   } ,
+		 more_extension :=  omit      } ,
+	   oct3 :=
+	       { data :=           '0000011'B ,
+	         extensionbit :=   '0'B ,
+		 rec3 :=
+	           { data :=           '0000011'B ,
+	             extensionbit :=   '1'B   } ,
+		 more_extension :=  omit      } 	 }
+
+  const octetstring   o :='12345606018102820383'O
+
+  if ((enc_RAW_PDU_127_Octet(i) == o)and(dec_RAW_PDU_127_Octet(o) == i )) {setverdict(pass);}
+  else {setverdict(fail,"enc_RAW_PDU_127_Octet(i)= ", enc_RAW_PDU_127_Octet(i), "; dec_RAW_PDU_127_Octet(o)= ", dec_RAW_PDU_127_Octet(o));}
+}
+
+testcase TC_record_with_EXTENSION_BIT_4_Bit() runs on TempComp {
+  const RAW_PDU_127_Bit    
+     i := { octstr :=  '123456'O ,
+           length1 :=      '00000110'B ,
+	   oct1 :=
+	       { data :=           '0000001'B ,
+	         extensionbit :=   '0'B ,
+		 rec1 :=
+	           { data :=           '0000001'B ,
+	             extensionbit :=   '1'B   } ,
+		 more_extension :=  omit     } ,
+	   oct2 :=
+	       { data :=           '0000010'B ,
+	         extensionbit :=   '0'B ,
+		 rec2 :=
+	           { data :=           '0000010'B ,
+	             extensionbit :=   '1'B   } ,
+		 more_extension :=  omit      } ,
+	   oct3 :=
+	       { data :=           '0000011'B ,
+	         extensionbit :=   '0'B ,
+		 rec3 :=
+	           { data :=           '0000011'B ,
+	             extensionbit :=   '1'B   } ,
+		 more_extension :=  omit      } 	 }
+
+  const octetstring   o :='12345606018102820383'O
+
+  if ((enc_RAW_PDU_127_Bit(i) == o)and(dec_RAW_PDU_127_Bit(o) == i )) {setverdict(pass);}
+  else {setverdict(fail,"enc_RAW_PDU_127_Bit(i)= ", enc_RAW_PDU_127_Bit(i), "; dec_RAW_PDU_127_Bit(o)= ", dec_RAW_PDU_127_Bit(o));}
+}
+
+// Test of  record with EXTENSION_BIT 5
+testcase TC_record_with_EXTENSION_BIT_5_Octet() runs on TempComp {
+  const RAW_PDU_127_Octet
+     i := { octstr :=  '123456'O ,
+           length1 :=      '04'O ,
+	   oct1 :=
+	       { data :=           '0000001'B ,
+	         extensionbit :=   '0'B ,
+		 rec1 :=
+	           { data :=           '0000001'B ,
+	             extensionbit :=   '1'B   } ,
+		 more_extension :=  omit     } ,
+	   oct2 :=
+	       { data :=           '0000010'B ,
+	         extensionbit :=   '0'B ,
+		 rec2 :=
+	           { data :=           '0000010'B ,
+	             extensionbit :=   '1'B   } ,
+		 more_extension :=  omit      } ,
+	   oct3 :=  omit     	 }
+
+  const octetstring   o :='1234560401810282'O
+
+
+  if ((enc_RAW_PDU_127_Octet(i) == o)and(dec_RAW_PDU_127_Octet(o) == i )) {setverdict(pass);}
+  else {setverdict(fail,"enc_RAW_PDU_127_Octet(i)= ", enc_RAW_PDU_127_Octet(i), "; dec_RAW_PDU_127_Octet(o)= ", dec_RAW_PDU_127_Octet(o));}
+}
+
+testcase TC_record_with_EXTENSION_BIT_5_Bit() runs on TempComp {
+  const RAW_PDU_127_Bit
+     i := { octstr :=  '123456'O ,
+           length1 :=      '00000100'B ,
+	   oct1 :=
+	       { data :=           '0000001'B ,
+	         extensionbit :=   '0'B ,
+		 rec1 :=
+	           { data :=           '0000001'B ,
+	             extensionbit :=   '1'B   } ,
+		 more_extension :=  omit     } ,
+	   oct2 :=
+	       { data :=           '0000010'B ,
+	         extensionbit :=   '0'B ,
+		 rec2 :=
+	           { data :=           '0000010'B ,
+	             extensionbit :=   '1'B   } ,
+		 more_extension :=  omit      } ,
+	   oct3 :=  omit     	 }
+
+  const octetstring   o :='1234560401810282'O
+
+
+  if ((enc_RAW_PDU_127_Bit(i) == o)and(dec_RAW_PDU_127_Bit(o) == i )) {setverdict(pass);}
+  else {setverdict(fail,"enc_RAW_PDU_127_Bit(i)= ", enc_RAW_PDU_127_Bit(i), "; dec_RAW_PDU_127_Bit(o)= ", dec_RAW_PDU_127_Bit(o));}
+}
+
+// Test of  record with EXTENSION_BIT 6
+testcase TC_record_with_EXTENSION_BIT_6_Octet() runs on TempComp {
+  const RAW_PDU_127_Octet
+    i := { octstr :=  '123456'O ,
+           length1 :=      '02'O ,
+	   oct1 :=
+	       { data :=           '0000001'B ,
+	         extensionbit :=   '0'B ,
+		 rec1 :=
+	           { data :=           '0000001'B ,
+	             extensionbit :=   '1'B   } ,
+		 more_extension :=  omit     } ,
+	   oct2 :=  omit ,
+	   oct3 :=  omit     	 }
+
+  const octetstring   o :='123456020181'O
+
+  if ((enc_RAW_PDU_127_Octet(i) == o)and(dec_RAW_PDU_127_Octet(o) == i )) {setverdict(pass);}
+  else {setverdict(fail,"enc_RAW_PDU_127_Octet(i)= ", enc_RAW_PDU_127_Octet(i), "; dec_RAW_PDU_127_Octet(o)= ", dec_RAW_PDU_127_Octet(o));}
+}
+
+testcase TC_record_with_EXTENSION_BIT_6_Bit() runs on TempComp {
+  const RAW_PDU_127_Bit
+    i := { octstr :=  '123456'O ,
+           length1 :=      '00000010'B ,
+	   oct1 :=
+	       { data :=           '0000001'B ,
+	         extensionbit :=   '0'B ,
+		 rec1 :=
+	           { data :=           '0000001'B ,
+	             extensionbit :=   '1'B   } ,
+		 more_extension :=  omit     } ,
+	   oct2 :=  omit ,
+	   oct3 :=  omit     	 }
+
+  const octetstring   o :='123456020181'O
+
+  if ((enc_RAW_PDU_127_Bit(i) == o)and(dec_RAW_PDU_127_Bit(o) == i )) {setverdict(pass);}
+  else {setverdict(fail,"enc_RAW_PDU_127_Bit(i)= ", enc_RAW_PDU_127_Bit(i), "; dec_RAW_PDU_127_Bit(o)= ", dec_RAW_PDU_127_Bit(o));}
+}
+
+// Test of  record with EXTENSION_BIT 7
+testcase TC_record_with_EXTENSION_BIT_7_Octet() runs on TempComp {
+  const RAW_PDU_127_Octet
+    i := { octstr :=  '123456'O ,
+           length1 :=      '0F'O ,
+	   oct1 :=
+	       { data :=           '0000001'B ,
+	         extensionbit :=   '0'B ,
+		 rec1 :=
+	           { data :=           '0000001'B ,
+	             extensionbit :=   '0'B   } ,
+		 more_extension :=  '000080'O      } ,
+	   oct2 :=
+	       { data :=           '0000010'B ,
+	         extensionbit :=   '0'B ,
+		 rec2 :=
+	           { data :=           '0000010'B ,
+	             extensionbit :=   '0'B   } ,
+		 more_extension :=  '000080'O      } ,
+	   oct3 :=
+	       { data :=           '0000011'B ,
+	         extensionbit :=   '0'B ,
+		 rec3 :=
+	           { data :=           '0000011'B ,
+	             extensionbit :=   '0'B   } ,
+		 more_extension :=  '000080'O      } 	 }
+
+  const octetstring   o :='1234560F010100008002020000800303000080'O
+
+  if ((enc_RAW_PDU_127_Octet(i) == o)and(dec_RAW_PDU_127_Octet(o) == i )) {setverdict(pass);}
+  else {setverdict(fail,"enc_RAW_PDU_127_Octet(i)= ", enc_RAW_PDU_127_Octet(i), "; dec_RAW_PDU_127_Octet(o)= ", dec_RAW_PDU_127_Octet(o));}
+}
+
+testcase TC_record_with_EXTENSION_BIT_7_Bit() runs on TempComp {
+  const RAW_PDU_127_Bit
+    i := { octstr :=  '123456'O ,
+           length1 :=      '00001111'B ,
+	   oct1 :=
+	       { data :=           '0000001'B ,
+	         extensionbit :=   '0'B ,
+		 rec1 :=
+	           { data :=           '0000001'B ,
+	             extensionbit :=   '0'B   } ,
+		 more_extension :=  '000080'O      } ,
+	   oct2 :=
+	       { data :=           '0000010'B ,
+	         extensionbit :=   '0'B ,
+		 rec2 :=
+	           { data :=           '0000010'B ,
+	             extensionbit :=   '0'B   } ,
+		 more_extension :=  '000080'O      } ,
+	   oct3 :=
+	       { data :=           '0000011'B ,
+	         extensionbit :=   '0'B ,
+		 rec3 :=
+	           { data :=           '0000011'B ,
+	             extensionbit :=   '0'B   } ,
+		 more_extension :=  '000080'O      } 	 }
+
+  const octetstring   o :='1234560F010100008002020000800303000080'O
+
+  if ((enc_RAW_PDU_127_Bit(i) == o)and(dec_RAW_PDU_127_Bit(o) == i )) {setverdict(pass);}
+  else {setverdict(fail,"enc_RAW_PDU_127_Bit(i)= ", enc_RAW_PDU_127_Bit(i), "; dec_RAW_PDU_127_Bit(o)= ", dec_RAW_PDU_127_Bit(o));}
+}
+
+// Test of  record with EXTENSION_BIT 8
+testcase TC_record_with_EXTENSION_BIT_8_Octet() runs on TempComp {
+  const RAW_PDU_127_Octet    
+     i := { octstr :=  '123456'O ,
+           length1 :=      '05'O ,
+	   oct1 :=
+	       { data :=           '0000001'B ,
+	         extensionbit :=   '0'B ,
+		 rec1 :=
+	           { data :=           '0000001'B ,
+	             extensionbit :=   '0'B   } ,
+		 more_extension :=  '000080'O      } ,
+	   oct2 :=  omit ,
+	   oct3 :=  omit      }
+
+  const octetstring   o :='123456050101000080'O
+
+  if ((enc_RAW_PDU_127_Octet(i) == o)and(dec_RAW_PDU_127_Octet(o) == i )) {setverdict(pass);}
+  else {setverdict(fail,"enc_RAW_PDU_127_Octet(i)= ", enc_RAW_PDU_127_Octet(i), "; dec_RAW_PDU_127_Octet(o)= ", dec_RAW_PDU_127_Octet(o));}
+}
+
+testcase TC_record_with_EXTENSION_BIT_8_Bit() runs on TempComp {
+  const RAW_PDU_127_Bit    
+     i := { octstr :=  '123456'O ,
+           length1 :=      '00000101'B ,
+	   oct1 :=
+	       { data :=           '0000001'B ,
+	         extensionbit :=   '0'B ,
+		 rec1 :=
+	           { data :=           '0000001'B ,
+	             extensionbit :=   '0'B   } ,
+		 more_extension :=  '000080'O      } ,
+	   oct2 :=  omit ,
+	   oct3 :=  omit      }
+
+  const octetstring   o :='123456050101000080'O
+
+  if ((enc_RAW_PDU_127_Bit(i) == o)and(dec_RAW_PDU_127_Bit(o) == i )) {setverdict(pass);}
+  else {setverdict(fail,"enc_RAW_PDU_127_Bit(i)= ", enc_RAW_PDU_127_Bit(i), "; dec_RAW_PDU_127_Bit(o)= ", dec_RAW_PDU_127_Bit(o));}
+}
+
+// Test of  record with EXTENSION_BIT 9
+testcase TC_record_with_EXTENSION_BIT_9_Octet() runs on TempComp {
+  const RAW_PDU_127_Octet
+     i := { octstr :=  '123456'O ,
+           length1 :=      '0A'O ,
+	   oct1 :=
+	       { data :=           '0000001'B ,
+	         extensionbit :=   '0'B ,
+		 rec1 :=
+	           { data :=           '0000001'B ,
+	             extensionbit :=   '0'B   } ,
+		 more_extension :=  '000080'O      } ,
+	   oct2 :=
+	       { data :=           '0000010'B ,
+	         extensionbit :=   '0'B ,
+		 rec2 :=
+	           { data :=           '0000010'B ,
+	             extensionbit :=   '0'B   } ,
+		 more_extension :=  '000080'O      } ,
+	   oct3 :=  omit      }
+
+  const octetstring   o :='1234560A01010000800202000080'O
+  
+  if ((enc_RAW_PDU_127_Octet(i) == o)and(dec_RAW_PDU_127_Octet(o) == i )) {setverdict(pass);}
+  else {setverdict(fail,"enc_RAW_PDU_127_Octet(i)= ", enc_RAW_PDU_127_Octet(i), "; dec_RAW_PDU_127_Octet(o)= ", dec_RAW_PDU_127_Octet(o));}
+}
+
+testcase TC_record_with_EXTENSION_BIT_9_Bit() runs on TempComp {
+  const RAW_PDU_127_Bit
+     i := { octstr :=  '123456'O ,
+           length1 :=      '00001010'B ,
+	   oct1 :=
+	       { data :=           '0000001'B ,
+	         extensionbit :=   '0'B ,
+		 rec1 :=
+	           { data :=           '0000001'B ,
+	             extensionbit :=   '0'B   } ,
+		 more_extension :=  '000080'O      } ,
+	   oct2 :=
+	       { data :=           '0000010'B ,
+	         extensionbit :=   '0'B ,
+		 rec2 :=
+	           { data :=           '0000010'B ,
+	             extensionbit :=   '0'B   } ,
+		 more_extension :=  '000080'O      } ,
+	   oct3 :=  omit      }
+
+  const octetstring   o :='1234560A01010000800202000080'O
+  
+  if ((enc_RAW_PDU_127_Bit(i) == o)and(dec_RAW_PDU_127_Bit(o) == i )) {setverdict(pass);}
+  else {setverdict(fail,"enc_RAW_PDU_127_Bit(i)= ", enc_RAW_PDU_127_Bit(i), "; dec_RAW_PDU_127_Bit(o)= ", dec_RAW_PDU_127_Bit(o));}
+}
+
+
+// Tests with units
+type record Rec1_Bit {
+  bitstring len length(64),
+  octetstring data
+}
+with {
+  variant (len) "LENGTHTO(data)";
+  variant (len) "UNIT(bits)"
+}
+
+type record Rec1_Octet {
+  octetstring len length(8),
+  octetstring data
+}
+with {
+  variant (len) "LENGTHTO(data)";
+  variant (len) "UNIT(bits)"
+}
+
+testcase TC_with_units_1() runs on TempComp {
+  var Rec1_Bit val := { int2bit(0, 64), '01FF'O };
+  var bitstring enc_exp := oct2bit('100000000000000001FF'O);
+  var bitstring enc := encvalue(val);
+  if (enc_exp != enc) {
+    setverdict(fail, "Encoding failed. Expected: ", bit2oct(enc_exp), ", got: ", bit2oct(enc));
+  }
+  var Rec1_Bit dec_exp := { int2bit(lengthof(val.data) * 8, 64), val.data };
+  var Rec1_Bit dec;
+  var integer res := decvalue(enc_exp, dec);
+  if (res != 0) {
+    setverdict(fail, "Invalid decoding result: ", res);
+  } else if (dec_exp != dec) {
+    setverdict(fail, "Decoding failed. Expected: ", dec_exp, ", got: ", dec);
+  }
+  setverdict(pass);
+}
+
+testcase TC_with_units_2() runs on TempComp {
+  var Rec1_Octet val := { int2oct(0, 8), '01FF'O };
+  var bitstring enc_exp := oct2bit('100000000000000001FF'O);
+  var bitstring enc := encvalue(val);
+  if (enc_exp != enc) {
+    setverdict(fail, "Encoding failed. Expected: ", bit2oct(enc_exp), ", got: ", bit2oct(enc));
+  }
+  var Rec1_Octet dec_exp := { int2oct(lengthof(val.data) * 8, 8), val.data };
+  var Rec1_Octet dec;
+  var integer res := decvalue(enc_exp, dec);
+  if (res != 0) {
+    setverdict(fail, "Invalid decoding result: ", res);
+  } else if (dec_exp != dec) {
+    setverdict(fail, "Decoding failed. Expected: ", dec_exp, ", got: ", dec);
+  }
+  setverdict(pass);
+}
+
+
+// Tests with LENGTHINDEX
+type integer INT1
+with {
+  variant "FIELDLENGTH(8)"
+}
+
+type record InnerRec {
+  INT1 len
+}
+with { variant "" }
+
+type record OuterRec {
+  InnerRec lengthRec,
+  octetstring field
+}
+with {
+  variant (lengthRec) "LENGTHTO(field)";
+  variant (lengthRec) "LENGTHINDEX(len)"
+}
+
+testcase TC_with_lengthindex_1() runs on TempComp {
+  var OuterRec val := { { 0 }, '01FF'O };
+  var bitstring enc_exp := oct2bit('0201FF'O);
+  var bitstring enc := encvalue(val);
+  log(bit2oct(enc_exp));
+  log(bit2oct(enc));
+   if (enc_exp != enc) {
+    setverdict(fail, "Encoding failed. Expected: ", bit2oct(enc_exp), ", got: ", bit2oct(enc));
+  }
+  
+  var OuterRec dec_exp := { { 2 }, val.field };
+  var OuterRec dec;
+  var integer res := decvalue(enc_exp, dec);
+  if (res != 0) {
+    setverdict(fail, "Invalid decoding result: ", res);
+  }
+  else if (dec_exp != dec) {
+    setverdict(fail, "Decoding failed. Expected: ", dec_exp, ", got: ", dec);
+  }
+  setverdict(pass);
+}
+
+type octetstring OCT1
+with {
+  variant "FIELDLENGTH(1)"
+}
+
+type record InnerRecOct {
+  OCT1 len
+}
+with { variant "" }
+
+type record OuterRecOct {
+  InnerRecOct lengthRec,
+  octetstring field
+}
+with {
+  variant (lengthRec) "LENGTHTO(field)";
+  variant (lengthRec) "LENGTHINDEX(len)"
+}
+
+testcase TC_with_lengthindex_2() runs on TempComp {
+  var OuterRecOct val := { { '00'O }, '01FF'O };
+  var bitstring enc_exp := oct2bit('0201FF'O);
+  var bitstring enc := encvalue(val);
+  log(bit2oct(enc_exp));
+  log(bit2oct(enc));
+   if (enc_exp != enc) {
+    setverdict(fail, "Encoding failed. Expected: ", bit2oct(enc_exp), ", got: ", bit2oct(enc));
+  }
+  
+  var OuterRecOct dec_exp := { { '02'O }, val.field };
+  var OuterRecOct dec;
+  var integer res := decvalue(enc_exp, dec);
+  if (res != 0) {
+    setverdict(fail, "Invalid decoding result: ", res);
+  }
+  else if (dec_exp != dec) {
+    setverdict(fail, "Decoding failed. Expected: ", dec_exp, ", got: ", dec);
+  }
+  setverdict(pass);
+}
+
+type bitstring BIT8
+with {
+  variant "FIELDLENGTH(8)"
+}
+
+type record InnerRecBit {
+  BIT8 len
+}
+with { variant "" }
+
+type record OuterRecBit {
+  InnerRecBit lengthRec,
+  octetstring field
+}
+with {
+  variant (lengthRec) "LENGTHTO(field)";
+  variant (lengthRec) "LENGTHINDEX(len)"
+}
+
+testcase TC_with_lengthindex_3() runs on TempComp {
+  var OuterRecBit val := { { '00000000'B }, '01FF'O };
+  var bitstring enc_exp := oct2bit('0201FF'O);
+  var bitstring enc := encvalue(val);
+  log(bit2oct(enc_exp));
+  log(bit2oct(enc));
+   if (enc_exp != enc) {
+    setverdict(fail, "Encoding failed. Expected: ", bit2oct(enc_exp), ", got: ", bit2oct(enc));
+  }
+  
+  var OuterRecBit dec_exp := { { '00000010'B }, val.field };
+  var OuterRecBit dec;
+  var integer res := decvalue(enc_exp, dec);
+  if (res != 0) {
+    setverdict(fail, "Invalid decoding result: ", res);
+  }
+  else if (dec_exp != dec) {
+    setverdict(fail, "Decoding failed. Expected: ", dec_exp, ", got: ", dec);
+  }
+  setverdict(pass);
+}
+
+//===========================================
+//  CONTROL PART
+//===========================================
+control {
+  execute(TC_record_with_EXTENSION_BIT_1_Octet());
+  execute(TC_record_with_EXTENSION_BIT_2_Octet());
+  execute(TC_record_with_EXTENSION_BIT_3_Octet());
+  execute(TC_record_with_EXTENSION_BIT_4_Octet());
+  execute(TC_record_with_EXTENSION_BIT_5_Octet());
+  execute(TC_record_with_EXTENSION_BIT_6_Octet());
+  execute(TC_record_with_EXTENSION_BIT_7_Octet());
+  execute(TC_record_with_EXTENSION_BIT_8_Octet());
+  execute(TC_record_with_EXTENSION_BIT_9_Octet());
+  execute(TC_record_with_EXTENSION_BIT_1_Bit());
+  execute(TC_record_with_EXTENSION_BIT_2_Bit());
+  execute(TC_record_with_EXTENSION_BIT_3_Bit());
+  execute(TC_record_with_EXTENSION_BIT_4_Bit());
+  execute(TC_record_with_EXTENSION_BIT_5_Bit());
+  execute(TC_record_with_EXTENSION_BIT_6_Bit());
+  execute(TC_record_with_EXTENSION_BIT_7_Bit());
+  execute(TC_record_with_EXTENSION_BIT_8_Bit());
+  execute(TC_record_with_EXTENSION_BIT_9_Bit());
+  execute(TC_with_units_1());
+  execute(TC_with_units_2());
+  execute(TC_with_lengthindex_1());
+  execute(TC_with_lengthindex_2());
+  execute(TC_with_lengthindex_3());
+}
+
+} with { encode "RAW" }
