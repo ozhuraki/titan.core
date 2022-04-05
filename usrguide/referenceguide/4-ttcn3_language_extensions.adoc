@@ -1381,8 +1381,9 @@ Differences from the legacy method:
 * `encode` and `variant` attributes can be defined for types as described in the TTCN-3 standard (although the type restrictions for built-in codecs still apply);
 * a type can have multiple `encode` attributes (this provides the option to choose from multiple codecs, even user-defined ones, when encoding values of that type);
 * ASN.1 types automatically have `BER`, `JSON`, `PER` (see section <<PER-encoding, PER encoding and decoding through user defined functions>>), and XML (if the compiler option `-a` is set) encoding (they are treated as if they had the corresponding `encode` attributes);
-* encoding-specific `variant` attributes are supported(e.g.: `variant "XML"."untagged"`);
-* the parameters `encoding_info/decoding_info` and `dynamic_encoding` of predefined functions `encvalue`, `decvalue`, `encvalue_unichar` and `decvalue_unichar` are supported (the `dynamic_encoding` parameter can be used for choosing the codec to use for values of types with multiple encodings; the `encoding_info`/`decoding_info` parameters are currently ignored);
+* encoding-specific `variant` attributes are supported (e.g.: `variant "XML"."untagged"`);
+* the parameters `encoding_info/decoding_info` and `dynamic_encoding` of predefined functions `encvalue`, `decvalue`, `encvalue_unichar` and `decvalue_unichar` are supported (the `encoding_info`/`decoding_info` parameters are currently ignored, see also the next point)
+* the `dynamic_encoding` parameter can be used for choosing the codec to use for values of types with multiple encodings, the following values are available: `BER:2002`, `CER:2002`, `DER:2002`, `JSON`, `OER`, `RAW`, `TEXT`, `XER`, `XML`; 
 * the `self.setencode` version of the `setencode` operation is supported (it can be used for choosing the codec to use for types with multiple encodings within the scope of the current component);
 * the `@local` modifier is supported for `encode` attributes;
 * a type's the default codec (used by `decmatch` templates, the @decoded modifier, and the predefined functions `encvalue`, `decvalue`, `encvalue_unichar` and `decvalue_unichar` when no dynamic encoding parameter is given) is:
@@ -1794,7 +1795,7 @@ The TTCN-3 standard defines a mechanism using `attributes` to define, among othe
 
 ==== General Rules
 
-If an `attribute` can be assigned to a given type, it can also almost always be assigned to the same type of fields in a `record`, set or `union`. Attributes belonging to a `record` or `set` field overwrites the effect of the same attributes specified for the type of the field.
+If an `attribute` can be assigned to a given type, it can also almost always be assigned to the same type of fields in a `record`, `set` or `union`. Attributes belonging to a `record` or `set` field overwrites the effect of the same attributes specified for the type of the field.
 
 The location of an attribute is evaluated before the attribute itself. This means that if an attribute is overwritten thanks to its qualification or the overwriting rules, or both, its validity at the given location will not be checked.
 
@@ -2982,7 +2983,7 @@ Description: The encoder is able to calculate the encoded length of one or sever
 
 If the offset is present, it is added to or subtracted from (the operation specified in the attribute is performed) the calculated length during encoding. During decoding, the offset is subtracted from or added to (the opposite operation to the one specified in the attribute is performed) the decoded value of the length field.
 
-NOTE: The length is expressed in units defined by the attribute UNIT The default unit is octet. The length field should be a TTCN-3 `integer` or `union` type. Special union containing only integer fields can be used for variable length field. It must not be used with `LENGTHINDEX`. The length field can be included in to the sum of the lengths of multiple fields (e.g. `lengthField` + `field2` + `field3`). The `union` field is NOT selected by the encoder. So the suitable field must be selected before encoding! The fields included in the length computing need not be continuous.
+NOTE: The length is expressed in units defined by the attribute UNIT The default unit is octet. The length field should be a TTCN-3 `integer`, `bitstring`, `octetstring` or `union` type. Special union containing only `integer`, `bitstring` or `octetstring` fields can be used for variable length field. It must not be used with `LENGTHINDEX`. The length field can be included in to the sum of the lengths of multiple fields (e.g. `lengthField` + `field2` + `field3`). The `union` field is NOT selected by the encoder. So the suitable field must be selected before encoding! The fields included in the length computing need not be continuous. If `bitstring` or `octetstring` type is used, the length of the field must be specified either with `length()` subtyping or with the `FIELDLENGTH` variant.
 
 Examples:
 [source]
@@ -2995,7 +2996,7 @@ octetstring field2
 }
 
 with {
-variant (len) "LENGTHTO(field1);
+variant (len) "LENGTHTO(field1)";
 variant (len) "UNIT(bits)"
 }
 
@@ -3008,7 +3009,7 @@ octetstring field2
 }
 
 with {
-variant (len) "LENGTHTO(len, field1, field2)
+variant (len) "LENGTHTO(len, field1, field2)"
 }
 
 //Example number 3)
@@ -3016,12 +3017,12 @@ variant (len) "LENGTHTO(len, field1, field2)
 type record Rec3 {
 INT1 len,
 OCT3 field1,
-OCT1 field2
+OCT1 field2,
 octetstring field3
 }
 
 with {
-variant (len) "LENGTHTO(field1, field3)
+variant (len) "LENGTHTO(field1, field3)"
 // field2 is excluded!
 }
 
@@ -3040,7 +3041,7 @@ length_union length_field,
 octetstring data
 } with {
 variant (length_field)
-"CROSSTAG(short_length_field, flag = '0'B
+"CROSSTAG(short_length_field, flag = '0'B;
 long_length_field, flag = '1'B)";
 variant (length_field) "LENGTHTO(data)"
 }
@@ -3091,6 +3092,31 @@ variant (len) "LENGTHTO(field) - 2"
 // (1 is added to the length of `field')
 // and '0212345678'O would be decoded into { len := 4, field := '12345678'O }
 // (1 is subtracted from the decoded value of `len')
+
+//Example number 7): octetstring
+type record Rec7 {
+octetstring len length(1), // length of this field in octet
+OCT3 field1,
+octetstring field2
+}
+
+with {
+variant (len) "LENGTHTO(field1)";
+variant (len) "UNIT(bits)"
+}
+
+//Example number 8): bitstring
+type record Rec8 {
+btstring len,
+OCT3 field1,
+octetstring field2
+}
+
+with {
+variant (len) "FIELDLENGTH(8)"; // length of this field in bits
+variant (len) "LENGTHTO(field1)";
+variant (len) "UNIT(bits)"
+}
 ----
 
 *LENGTHINDEX*
@@ -3108,7 +3134,8 @@ Can be used with: fields of a `record`.
 Description: This attribute extends the `LENGTHTO` attribute with the identification of the nested field containing the length value within the field of the corresponding `LENGTHTO` attribute.
 
 Comment: See also the description of the `LENGTHTO` attribute.
-NOTE: The field named by `LENGTHINDEX` attribute should be a TTCN-3 integer type.
+
+NOTE: The field named by `LENGTHINDEX` attribute should be a TTCN-3 `integer`, `bitstring` or `octetstring` type.
 
 Example (see also example of `LENGTHTO` attribute).
 [source]
@@ -3147,6 +3174,7 @@ Can be used with: fields of a `record`.
 Description: Some record fields contain the distance to another encoded field. Records can be encoded in the form of: `ptr1`, `ptr2`, `ptr3`, `field1`, `field2`, `field3`, where the position of fieldN within the encoded stream can be determined from the value and position of field ptrN. The distance of the pointed field from the base field will be `ptrN` * `UNIT` + `PTROFFSET`. The default base field is the pointer itself. The base field can be set by the PTROFFSET attribute. When the pointed field is optional, the pointer value 0 indicates the absence of the pointed field.
 
 Comment: See also the description of `UNIT` (0) and `PTROFFSET` (0) attributes.
+
 NOTE: Pointer fields should be TTCN-3 `integer` type.
 
 Examples:
