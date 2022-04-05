@@ -101,6 +101,7 @@ public:
 
   BITSTRING& operator=(const BITSTRING& other_value);
   BITSTRING& operator=(const BITSTRING_ELEMENT& other_value);
+  BITSTRING& operator=(const INTEGER& other_value);
 
   boolean operator==(const BITSTRING& other_value) const;
   boolean operator==(const BITSTRING_ELEMENT& other_value) const;
@@ -145,6 +146,8 @@ public:
   operator const unsigned char*() const;
 
   void log() const;
+
+  INTEGER convert_to_Integer(const TTCN_Typedescriptor_t&);
 
 #ifdef TITAN_RUNTIME_2
   boolean is_equal(const Base_Type* other_value) const { return *this == *(static_cast<const BITSTRING*>(other_value)); }

@@ -137,6 +137,8 @@ public:
 
   void log() const;
 
+  inline INTEGER convert_to_Integer(const TTCN_Typedescriptor_t&) { return *this; }
+
 #ifdef TITAN_RUNTIME_2
   boolean is_equal(const Base_Type* other_value) const { return *this == *(static_cast<const INTEGER*>(other_value)); }
   void set_value(const Base_Type* other_value) { *this = *(static_cast<const INTEGER*>(other_value)); }

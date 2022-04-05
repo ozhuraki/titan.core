@@ -80,6 +80,7 @@ public:
 
   OCTETSTRING& operator=(const OCTETSTRING& other_value);
   OCTETSTRING& operator=(const OCTETSTRING_ELEMENT& other_value);
+  OCTETSTRING& operator=(const INTEGER& other_value);
 
   boolean operator==(const OCTETSTRING& other_value) const;
   boolean operator==(const OCTETSTRING_ELEMENT& other_value) const;
@@ -126,6 +127,8 @@ public:
   int lengthof() const;
   operator const unsigned char*() const;
   void dump () const;
+
+  INTEGER convert_to_Integer(const TTCN_Typedescriptor_t&);
 
 #ifdef TITAN_RUNTIME_2
   boolean is_equal(const Base_Type* other_value) const { return *this == *(static_cast<const OCTETSTRING*>(other_value)); }

@@ -142,6 +142,11 @@ OCTETSTRING& OCTETSTRING::operator=(const OCTETSTRING_ELEMENT& other_value)
   return *this;
 }
 
+OCTETSTRING& OCTETSTRING::operator=(const INTEGER& other_value)
+{
+  return this->operator=(int2oct(other_value, val_ptr->n_octets));
+}
+
 boolean OCTETSTRING::operator==(const OCTETSTRING& other_value) const
 {
   must_bound("Unbound left operand of octetstring comparison.");
@@ -515,6 +520,16 @@ void OCTETSTRING::log() const
       TTCN_Logger::log_event_str("\")");
     }
   } else TTCN_Logger::log_event_unbound();
+}
+
+INTEGER OCTETSTRING::convert_to_Integer(const TTCN_Typedescriptor_t& p_td)
+{
+  TTCN_EncDec_ErrorContext ec("While converting to integer type '%s': ", p_td.name);
+  TTCN_Buffer ttcn_buf(*this);
+  raw_order_t order = p_td.raw->top_bit_order == TOP_BIT_LEFT ? ORDER_LSB : ORDER_MSB;
+  INTEGER integer;
+  integer.RAW_decode(p_td, ttcn_buf, ttcn_buf.get_len() * 8, order);
+  return integer;
 }
 
 void OCTETSTRING::set_param(Module_Param& param) {
