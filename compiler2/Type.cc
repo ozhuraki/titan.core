@@ -2611,14 +2611,42 @@ namespace Common {
             case T_INT:
             case T_INT_A:
               break;
+            case T_BSTR:
+            case T_BSTR_A:
+            case T_OSTR:
+              if ((rawpar->fieldlength < 1 && ft->get_sub_type() == NULL) ||
+                  (rawpar->fieldlength < 1 && ft->get_sub_type()->get_length_restriction() < 1)) {
+                    error("The length of `%s' field must be specified either with `length()` "
+                      "subtyping or with the `FIELDLENGTH` attribute",
+                      field_id.get_dispname().c_str());
+                  }
+              break;
             case T_CHOICE_T:
             case T_CHOICE_A:
               for (size_t fi = 0; fi < ft->get_nof_comps(); fi++) {
-                typetype_t uftt = ft->get_comp_byIndex(fi)->get_type()
-                  ->get_typetype();
-                if (uftt != T_INT && uftt != T_INT_A)
-                  error("The union type LENGTHTO field must contain only "
-                    "integer fields");
+                Type *uft = ft->get_comp_byIndex(fi)->get_type();                
+                typetype_t uftt = uft->get_typetype();
+                switch (uftt) {
+                  case T_INT:
+                  case T_INT_A:
+                    break;
+                  case T_BSTR:
+                  case T_BSTR_A:
+                  case T_OSTR:
+                    if ((uft->rawattrib == NULL && ft->get_sub_type() == NULL) ||
+                        (uft->rawattrib == NULL && ft->get_sub_type()->get_length_restriction() < 1) ||
+                        (uft->rawattrib->fieldlength < 1 && ft->get_sub_type() == NULL) ||
+                        (uft->rawattrib->fieldlength < 1 && ft->get_sub_type()->get_length_restriction() < 1)) {
+                          error("The length of `%s' field must be specified either with `length()` "
+                            "subtyping or with the `FIELDLENGTH` attribute",
+                            ft->get_comp_byIndex(fi)->get_name().get_dispname().c_str());
+                    }
+                    break;
+                  default:
+                    error("The union type LENGTHTO field must contain only "
+                      "integer, bitstring or octetstring fields");
+                    break;
+                }
               }
               break;
             case T_ANYTYPE:
@@ -2630,7 +2658,7 @@ namespace Common {
               if (rawpar->lengthindex) break; // Will be checked in the next step.
               // Else continue with default.
             default:
-              error("The LENGTHTO field must be an integer or union type "
+              error("The LENGTHTO field must be an integer, bitstring, octetstring or union type "
                 "instead of `%s'", ft->get_typename().c_str());
               break;
             }

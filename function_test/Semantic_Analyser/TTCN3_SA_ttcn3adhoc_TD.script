@@ -7756,10 +7756,10 @@ type record myr5 {
 (?is)\berror: The union type LENGTHTO field must contain only integer fields
 <END_RESULT>
 <RESULT IF_PASS COUNT 1>
-(?is)\berror: The LENGTHTO field must be an integer or union type instead of `\@Temp.mylist'
+(?is)\berror: The LENGTHTO field must be an integer, bitstring, octetstring or union type instead of `\@Temp.mylist'
 <END_RESULT>
 <RESULT IF_PASS COUNT 1>
-(?is)\berror: The LENGTHTO field must be an integer or union type instead of `charstring'
+(?is)\berror: The LENGTHTO field must be an integer, bitstring, octetstring or union type instead of `charstring'
 <END_RESULT>
 <RESULT IF_PASS COUNT 3>
 (?is)\berror:
