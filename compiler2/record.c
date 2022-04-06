@@ -751,6 +751,7 @@ char* generate_raw_coding(char* src,
       }
       src = mputprintf(src,
         "  if (myleaf.body.node.nodes[%lu]->body.node.nodes[%d]) {\n"
+        "  delete myleaf.body.node.nodes[%lu]->body.node.nodes[%d];\n"
         "  myleaf.body.node.nodes[%lu]->body.node.nodes[%d] = "
         "new RAW_enc_tree(TRUE, myleaf.body.node.nodes[%lu], "
         "&(myleaf.body.node.nodes[%lu]->curr_pos), %d, %s_descr_.raw);\n"
@@ -767,6 +768,7 @@ char* generate_raw_coding(char* src,
         "  myleaf.body.node.nodes[%lu]->body.node.nodes[%d]->"
         "calcof.lengthto.fields = "
         "init_lengthto_fields_list(%d);\n",
+        (unsigned long)i, sdef->elements[i].raw.lengthindex->nthfield,
         (unsigned long)i, sdef->elements[i].raw.lengthindex->nthfield,
         (unsigned long)i, sdef->elements[i].raw.lengthindex->nthfield,
         (unsigned long)i, (unsigned long)i,
@@ -829,8 +831,9 @@ char* generate_raw_coding(char* src,
         "  int sel_field = 0;\n"
         "  while (myleaf.body.node.nodes[%lu]->body.node.nodes[sel_field] == NULL) "
         "{ sel_field++; }\n"
-        " const TTCN_Typedescriptor_t* tmpTypeDesc = myleaf.body.node.nodes[%lu]->"
+        "  const TTCN_Typedescriptor_t* tmpTypeDesc = myleaf.body.node.nodes[%lu]->"
         "body.node.nodes[sel_field]->coding_descr;\n"
+        "  delete myleaf.body.node.nodes[%lu]->body.node.nodes[sel_field];\n"
         "  myleaf.body.node.nodes[%lu]->body.node.nodes[sel_field] = "
         "new RAW_enc_tree(TRUE, myleaf.body.node.nodes[%lu], "
         "&(myleaf.body.node.nodes[%lu]->curr_pos), sel_field, tmpTypeDesc->raw);\n"
@@ -847,7 +850,7 @@ char* generate_raw_coding(char* src,
         "  myleaf.body.node.nodes[%lu]->body.node.nodes[sel_field]->"
         "calcof.lengthto.fields = init_lengthto_fields_list(%d);\n",
         (unsigned long)i,(unsigned long)i,(unsigned long)i,(unsigned long)i,
-        (unsigned long)i,(unsigned long)i,(unsigned long)i,
+        (unsigned long)i,(unsigned long)i,(unsigned long)i,(unsigned long)i,
         (unsigned long)i,sdef->elements[i].raw.lengthto_num,
         (unsigned long)i,sdef->elements[i].raw.unit,
         (unsigned long)i,sdef->elements[i].raw.lengthto_offset,
