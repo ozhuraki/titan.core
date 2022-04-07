@@ -12086,7 +12086,8 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case Ttcn::Template::SUBSET_MATCH:
     case Ttcn::Template::PERMUTATION_MATCH:
     case Ttcn::Template::COMPLEMENTED_LIST:
-    case Ttcn::Template::VALUE_LIST: {
+    case Ttcn::Template::VALUE_LIST:
+    case Ttcn::Template::CONJUNCTION_MATCH: {
       size_t num = t->get_nof_comps();
       for (size_t i = 0; i < num; ++i) {
         self_ref |= chk_expr_self_ref_templ(t->get_temp_byIndex(i), lhs, class_member_init);
@@ -12146,6 +12147,13 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case Ttcn::Template::TEMPLATE_CONCAT:
       self_ref |= chk_expr_self_ref_templ(t->get_concat_operand(true), lhs, class_member_init);
       self_ref |= chk_expr_self_ref_templ(t->get_concat_operand(false), lhs, class_member_init);
+      break;
+    case Ttcn::Template::IMPLICATION_MATCH:
+      self_ref |= chk_expr_self_ref_templ(t->get_precondition()->get_Template(), lhs, class_member_init);
+      self_ref |= chk_expr_self_ref_templ(t->get_implied_template()->get_Template(), lhs, class_member_init);
+      break;
+    case Ttcn::Template::DYNAMIC_MATCH:
+      // TODO: check the statement block
       break;
 //    default:
 //      FATAL_ERROR("todo ttype %d", t->get_templatetype());
