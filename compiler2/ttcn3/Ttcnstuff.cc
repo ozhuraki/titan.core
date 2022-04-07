@@ -3531,7 +3531,7 @@ namespace Ttcn {
               def1->error("Cannot override final method `%s'",
                 def2->get_fullname().c_str());
             }
-            else if (subclass_loc == NULL && func1->is_identical(func2)) {
+            else if (subclass_loc == NULL && func1->is_identical(func2) != Def_Function_Base::RES_DIFFERS) {
               if (func2->get_visibility() == PUBLIC && func1->get_visibility() != PUBLIC) {
                 def1->error("Public methods can be only overridden by public methods `%s'",
                   id1.get_dispname().c_str());
