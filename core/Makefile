@@ -371,7 +371,7 @@ gccversion$(EXESUFFIX): gccversion.c ../Makefile.cfg
 endif
 
 #LegacyLogger.d: cversion.h
-$(DEPFILES): cversion.h
+$(DEPFILES): cversion.h $(PREGENERATED_SOURCES).compiled $(GENERATED_LOGGERAPI_SOURCES).compiled
 
 #TitanLoggerControlImpl.d Single_main.d Runtime.d Port.d LegacyLogger.d \
 #LoggerPlugin.d LoggerPluginManager.d Error.d Default.d Communication.d \
