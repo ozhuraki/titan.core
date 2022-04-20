@@ -47,6 +47,7 @@
 #include "CodeGenHelper.hh"
 #include <limits.h>
 #include "ttcn3/profiler.h"
+#include "ttcn3/Ttcnstuff.hh"
 
 reffer::reffer(const char*) {}
 
@@ -2004,11 +2005,15 @@ namespace Common {
 
     Module *my_mod = my_scope->get_scope_mod_gen();
     if ((my_mod != p_scope->get_scope_mod_gen()) &&
-    !Asn::Assignments::is_spec_asss(my_mod)) {
-    // when the definition is referred from another module
-    // the reference shall be qualified with the namespace of my module
-    ret_val = my_mod->get_modid().get_name();
-    ret_val += "::";
+      !Asn::Assignments::is_spec_asss(my_mod)) {
+      // when the definition is referred from another module
+      // the reference shall be qualified with the namespace of my module
+      ret_val = my_mod->get_modid().get_name();
+      ret_val += "::";
+      if (my_scope->get_scope_class() != NULL) {
+        ret_val += my_scope->get_scope_class()->get_id()->get_name();
+        ret_val += "::";
+      }
     }
     if (p_prefix) ret_val += p_prefix;
     ret_val += get_genname();
