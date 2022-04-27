@@ -49,7 +49,9 @@ enum namedbool { INCOMPLETE_NOT_ALLOWED = 0, INCOMPLETE_ALLOWED = 1, WARNING_FOR
   NOT_IMPLICIT_OMIT = 0, IMPLICIT_OMIT = 6,
   NOT_STR_ELEM = 0, IS_STR_ELEM = 7,
   ISBOUND = 8, ISPRESENT = 9, ISCHOSEN = 10, ISVALUE = 11,
-  NOT_CLASS_MEMBER_INIT = 0, CLASS_MEMBER_INIT = 12
+  NOT_CLASS_MEMBER_INIT = 0, CLASS_MEMBER_INIT = 12,
+  NOT_FROM_SUBTYPE = 0, FROM_SUBTYPE = 13,
+  ASSIGNMENT_NOTATION = 14, VALUE_LIST_NOTATION = 15
 };
 
 namespace Asn {
@@ -960,7 +962,8 @@ namespace Common {
       namedbool omit_allowed, namedbool sub_chk,
       namedbool implicit_omit = NOT_IMPLICIT_OMIT,
       namedbool str_elem = NOT_STR_ELEM,
-      namedbool class_member_init = NOT_CLASS_MEMBER_INIT);
+      namedbool class_member_init = NOT_CLASS_MEMBER_INIT,
+      namedbool from_subtype = NOT_FROM_SUBTYPE);
     /** Checks the given referenced value */
     bool chk_this_refd_value(Value *value, Common::Assignment *lhs,
       expected_value_t expected_value, ReferenceChain *refch=0,
@@ -994,19 +997,25 @@ namespace Common {
     bool chk_this_value_Se(Value *value, Common::Assignment *lhs,
       expected_value_t expected_value, namedbool incomplete_allowed,
       namedbool implicit_omit = NOT_IMPLICIT_OMIT,
-      namedbool class_member_init = NOT_CLASS_MEMBER_INIT);
+      namedbool class_member_init = NOT_CLASS_MEMBER_INIT,
+      namedbool from_subtype = NOT_FROM_SUBTYPE);
     bool chk_this_value_Se_T(Value *value, Common::Assignment *lhs,
       expected_value_t expected_value, namedbool incomplete_allowed,
       namedbool implicit_omit = NOT_IMPLICIT_OMIT,
-      namedbool class_member_init = NOT_CLASS_MEMBER_INIT);
+      namedbool class_member_init = NOT_CLASS_MEMBER_INIT,
+      namedbool from_subtype = NOT_FROM_SUBTYPE);
     bool chk_this_value_Seq_T(Value *value, Common::Assignment *lhs,
       expected_value_t expected_value, namedbool incomplete_allowed,
       namedbool implicit_omit = NOT_IMPLICIT_OMIT,
-      namedbool class_member_init = NOT_CLASS_MEMBER_INIT);
+      namedbool class_member_init = NOT_CLASS_MEMBER_INIT,
+      namedbool from_subtype = NOT_FROM_SUBTYPE,
+      namedbool notation = ASSIGNMENT_NOTATION);
     bool chk_this_value_Set_T(Value *value, Common::Assignment *lhs,
       expected_value_t expected_value, namedbool incomplete_allowed,
       namedbool implicit_omit = NOT_IMPLICIT_OMIT,
-      namedbool class_member_init = NOT_CLASS_MEMBER_INIT);
+      namedbool class_member_init = NOT_CLASS_MEMBER_INIT,
+      namedbool from_subtype = NOT_FROM_SUBTYPE,
+      namedbool notation = ASSIGNMENT_NOTATION);
     bool chk_this_value_Se_A(Value *value, Common::Assignment *lhs,
       expected_value_t expected_value, namedbool implicit_omit);
     bool chk_this_value_Seq_A(Value *value, Common::Assignment *lhs,

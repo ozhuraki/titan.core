@@ -2342,8 +2342,8 @@ bool SubType::add_ttcn_single(Value *val, size_t restriction_index)
   }
 
   my_owner->chk_this_value(val, 0, Type::EXPECTED_CONSTANT,
-    (subtype==ST_RECORD || subtype==ST_SET) ? INCOMPLETE_ALLOWED : INCOMPLETE_NOT_ALLOWED,
-    OMIT_NOT_ALLOWED, NO_SUB_CHK);
+    INCOMPLETE_NOT_ALLOWED, OMIT_NOT_ALLOWED, NO_SUB_CHK, NOT_IMPLICIT_OMIT,
+    NOT_STR_ELEM, NOT_CLASS_MEMBER_INIT, FROM_SUBTYPE);
 
   Value *v=val->get_value_refd_last();
 
