@@ -1,13 +1,13 @@
 ---
 Author: Jenő Balaskó
-Version: 8.1.0
-Date: 2021-11-10
+Version: 8.2.0
+Date: 2022-05-04
 
 ---
 = Programmers' Technical Reference Guide for the TITAN TTCN-3 Toolset
 :author: Jenő Balaskó
-:revnumber:8.1.0
-:revdate: 2021-11-10
+:revnumber:8.2.0
+:revdate: 2022-05-04
 :title-logo-image: images/titan_logo.png
 :sectnums:
 :doctype: book
@@ -23,7 +23,7 @@ This document describes detailed information on writing components of executable
 
 *Copyright*
 
-Copyright (c) 2000-2021 Ericsson Telecom AB. +
+Copyright (c) 2000-2022 Ericsson Telecom AB. +
 All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v2.0 that accompanies this distribution, and is available at +
 https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html.
 

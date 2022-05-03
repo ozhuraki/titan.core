@@ -1,13 +1,13 @@
 ---
 Author: Elemer Lelik, Lenard Nagy
-Version: 8.1.0
-Date: 2021-11-10
+Version: 8.2.0
+Date: 2022-05-04
 
 ---
 = Release Notes for TITAN TTCN-3 Test Executor
 :author: Elemer Lelik, Lenard Nagy
-:revnumber: 8.1.0
-:revdate: 2021-11-10
+:revnumber: 8.2.0
+:revdate: 2022-05-04
 :title-logo-image: images/titan_logo.png
 :sectnums:
 :doctype: book
@@ -26,6 +26,14 @@ The document is organized as follows: <<what-s-new-in-this-version,What's new in
 
 [[what-s-new-in-this-version]]
 = What’s new in this version?
+
+[[version-8-2-0]]
+== Version 8.2.0
+
+To the memory of Elemer Lelik.
+
+This release contains some new features and bugfixes:
+
 
 [[version-8-1-0]]
 == Version 8.1.0
