@@ -34,6 +34,18 @@ To the memory of Elemer Lelik.
 
 This release contains some new features and bugfixes:
 
+* C++ compiler 
+  ** Bugfixes (481, 576, 578, 579, 580, 581, 582, 583, 585, 586, 588, 592, 595, 597, 598, 599) 
+  ** Object Oriented features improvements (533, 577, 596) 
+  ** Use of octetstring in LENGTHTO (554) 
+  
+* Eclipse Plug-ins 
+  ** Bugfixes (404, 429, 432, 447, 448, 450, 461, 462, 465, 469, 475, 476  ) 
+  ** New documented limitation (471) 
+  ** Eclipse IDE UI enhancements (371, 442, 449, 451, 452, 453, 454, 457, 459, 460, 464,  466, 468) 
+  ** JSON default attributes upgraded (416) 
+  ** Use of octetstring in LENGTHTO (419) 
+  ** Uplift minimum Java version from 1.6 to 1.8 (463)
 
 [[version-8-1-0]]
 == Version 8.1.0
