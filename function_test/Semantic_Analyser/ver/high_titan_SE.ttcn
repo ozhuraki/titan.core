@@ -26,7 +26,7 @@ with {
   // So we can't have the above regex check for precisely /R9Z/ and the one below
   // check for the more general /R\d[A-HJ-NS-VX-Z](\d{1,2})?/
   /* Test needs to be adjusted for every release !!!!!!! */
-  extension "requiresTITAN CRL 113 200/8 R1A"; /* This one must just pass, the next one must just fail */
+  extension "requiresTITAN CRL 113 200/8 R2A"; /* This one must just pass, the next one must just fail */
   extension "requiresTITAN CRL 113 200/9 R3B01"; //^error: This module needs to be compiled with TITAN version (C[RN]L \d+ \d+\/\d+ )?R\d{1,2}[A-HJ-NS-VX-Z](\d{1,2})? or higher; version (C[RN]L \d+ \d+\/\d+ )?R\d{1,2}[A-HJ-NS-VX-Z](\d{1,2})? detected//
   /* The old style RnXnn, without the CRL 113 200 and the suffix, implies major version 1
    * Now that Titan is at version 6, the following will always pass:
@@ -43,7 +43,7 @@ with {
   // So we can't have the above regex check for precisely /R9Z/ and the one below
   // check for the more general R\d[A-HJ-NS-VX-Z](\d{1,2})?/
   /* Test needs to be adjusted for every release !!!!!!! */
-  extension "requiresTITAN 8/CAX 105 7730 R1A"; /* This one must just pass, the next one must just fail */
+  extension "requiresTITAN 8/CAX 105 7730 R2A"; /* This one must just pass, the next one must just fail */
   extension "requiresTITAN 9/CAX 105 7730 R3B01"; //^error: This module needs to be compiled with TITAN version (\d+\/CAX \d+ \d+ )?R\d{1,2}[A-HJ-NS-VX-Z](\d{1,2})? or higher; version (\d+\/CAX \d+ \d+ )?R\d{1,2}[A-HJ-NS-VX-Z](\d{1,2})? detected//
   /* The old style RnXnn, without the CRL 113 200 and the suffix, implies major version 1
    * Now that Titan is at version 6, the following will always pass:
