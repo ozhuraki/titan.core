@@ -4819,7 +4819,7 @@ with {variant (paramLength) "LENGTHTO(octstr , bit7 , bit1 , hexstr , int )" }
 
 type record Param2
 { ParamName           paramName ,
-  integer             paramLength ,
+  octetstring             paramLength length(1),
   OCT3_                octstr ,
   BIT7_                bit7 ,
   BIT1_                bit1 ,
@@ -4829,7 +4829,7 @@ with {variant (paramLength) "LENGTHTO(octstr , bit7 , bit1 , hexstr , int )" }
 
 type record Param3
 { ParamName           paramName  ,
-  integer             paramLength ,
+  bitstring             paramLength length(8),
   OCT3_                octstr ,
   BIT7_                bit7 ,
   BIT1_                bit1 ,
@@ -5017,7 +5017,7 @@ testcase TC_structured_types_10() runs on TempComp{
 			     int :=               1 }  ,
 		       param3 :=
 		           { paramName :=         name3 ,
-			     paramLength :=       6 ,
+			     paramLength :=       '00000110'B ,
 	        	     octstr :=            '123456'O ,
 			     bit7 :=              '0000000'B ,
 			     bit1 :=              '1'B ,
@@ -5025,7 +5025,7 @@ testcase TC_structured_types_10() runs on TempComp{
 			     int :=               1 }  ,
 		       param2 :=
 		           { paramName :=         name2 ,
-			     paramLength :=       6 ,
+			     paramLength :=       '06'O ,
 	        	     octstr :=            '123456'O ,
 			     bit7 :=              '0000000'B ,
 			     bit1 :=              '1'B ,
@@ -5105,7 +5105,7 @@ testcase TC_structured_types_12() runs on TempComp{
 			     int :=               1 }  ,
 		       param3 :=
 		           { paramName :=         name3 ,
-			     paramLength :=       6 ,
+			     paramLength :=       '00000110'B ,
 	        	     octstr :=            '123456'O ,
 			     bit7 :=              '0000000'B ,
 			     bit1 :=              '1'B ,
@@ -5151,7 +5151,7 @@ testcase TC_structured_types_13() runs on TempComp{
 		       param4 := omit ,
 		       param3 :=
 		           { paramName :=         name3 ,
-			     paramLength :=       6 ,
+			     paramLength :=       '00000110'B ,
 	        	     octstr :=            '123456'O ,
 			     bit7 :=              '0000000'B ,
 			     bit1 :=              '1'B ,
@@ -5432,7 +5432,7 @@ testcase TC_structured_types_14() runs on TempComp{
 			     int :=               1 }  ,
 		       param3 :=
 		           { paramName :=         name3 ,
-			     paramLength :=       6 ,
+			     paramLength :=       '00000110'B ,
 	        	     octstr :=            '123456'O ,
 			     bit7 :=              '0000000'B ,
 			     bit1 :=              '1'B ,
@@ -5482,7 +5482,7 @@ testcase TC_structured_types_15() runs on TempComp{
 			     int :=               1 }  ,
 		       param3 :=
 		           { paramName :=         name3 ,
-			     paramLength :=       6 ,
+			     paramLength :=       '00000110'B ,
 	        	     octstr :=            '123456'O ,
 			     bit7 :=              '0000000'B ,
 			     bit1 :=              '1'B ,

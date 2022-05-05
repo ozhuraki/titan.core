@@ -751,6 +751,10 @@ char* generate_raw_coding(char* src,
       }
       src = mputprintf(src,
         "  if (myleaf.body.node.nodes[%lu]->body.node.nodes[%d]) {\n"
+        "  delete myleaf.body.node.nodes[%lu]->body.node.nodes[%d];\n"
+        "  myleaf.body.node.nodes[%lu]->body.node.nodes[%d] = "
+        "new RAW_enc_tree(TRUE, myleaf.body.node.nodes[%lu], "
+        "&(myleaf.body.node.nodes[%lu]->curr_pos), %d, %s_descr_.raw);\n"
         "  myleaf.body.node.nodes[%lu]->body.node.nodes[%d]->"
         "calc = CALC_LENGTH;\n"
         "  myleaf.body.node.nodes[%lu]->body.node.nodes[%d]->"
@@ -765,6 +769,10 @@ char* generate_raw_coding(char* src,
         "calcof.lengthto.fields = "
         "init_lengthto_fields_list(%d);\n",
         (unsigned long)i, sdef->elements[i].raw.lengthindex->nthfield,
+        (unsigned long)i, sdef->elements[i].raw.lengthindex->nthfield,
+        (unsigned long)i, sdef->elements[i].raw.lengthindex->nthfield,
+        (unsigned long)i, (unsigned long)i,
+        sdef->elements[i].raw.lengthindex->nthfield, sdef->elements[i].raw.lengthindex->typedescr,
         (unsigned long)i, sdef->elements[i].raw.lengthindex->nthfield,
         (unsigned long)i, sdef->elements[i].raw.lengthindex->nthfield,
         sdef->elements[i].raw.lengthindex->typedescr,
@@ -823,8 +831,16 @@ char* generate_raw_coding(char* src,
         "  int sel_field = 0;\n"
         "  while (myleaf.body.node.nodes[%lu]->body.node.nodes[sel_field] == NULL) "
         "{ sel_field++; }\n"
+        "  const TTCN_Typedescriptor_t* tmpTypeDesc = myleaf.body.node.nodes[%lu]->"
+        "body.node.nodes[sel_field]->coding_descr;\n"
+        "  delete myleaf.body.node.nodes[%lu]->body.node.nodes[sel_field];\n"
+        "  myleaf.body.node.nodes[%lu]->body.node.nodes[sel_field] = "
+        "new RAW_enc_tree(TRUE, myleaf.body.node.nodes[%lu], "
+        "&(myleaf.body.node.nodes[%lu]->curr_pos), sel_field, tmpTypeDesc->raw);\n"
         "  myleaf.body.node.nodes[%lu]->body.node.nodes[sel_field]->"
         "calc = CALC_LENGTH;\n"
+        "  myleaf.body.node.nodes[%lu]->body.node.nodes[sel_field]->"
+        "coding_descr = tmpTypeDesc;\n"
         "  myleaf.body.node.nodes[%lu]->body.node.nodes[sel_field]->"
         "calcof.lengthto.num_of_fields = %d;\n"
         "  myleaf.body.node.nodes[%lu]->body.node.nodes[sel_field]->"
@@ -833,7 +849,8 @@ char* generate_raw_coding(char* src,
         "calcof.lengthto.offset = %d;\n"
         "  myleaf.body.node.nodes[%lu]->body.node.nodes[sel_field]->"
         "calcof.lengthto.fields = init_lengthto_fields_list(%d);\n",
-        (unsigned long)i,(unsigned long)i,
+        (unsigned long)i,(unsigned long)i,(unsigned long)i,(unsigned long)i,
+        (unsigned long)i,(unsigned long)i,(unsigned long)i,(unsigned long)i,
         (unsigned long)i,sdef->elements[i].raw.lengthto_num,
         (unsigned long)i,sdef->elements[i].raw.unit,
         (unsigned long)i,sdef->elements[i].raw.lengthto_offset,
@@ -5636,23 +5653,20 @@ static char *genRawDecodeRecordField(char *src, const struct_def *sdef,
         ,sdef->elements[i].raw.lengthindex->nthfieldname
         );
       }
+      src = mputprintf(src, "  INTEGER tmp = field_%s%s.%s%s().convert_to_Integer(%s_descr_);\n",
+        sdef->elements[i].name, sdef->elements[i].isOptional ? "()" : "",
+        sdef->elements[i].raw.lengthindex->nthfieldname,
+        sdef->elements[i].raw.lengthindex->fieldtype == OPTIONAL_FIELD ? "()" : "",
+        sdef->elements[i].raw.lengthindex->typedescr);
       if (sdef->elements[i].raw.lengthto_offset != 0) {
-        src = mputprintf(src, "  field_%s%s.%s%s() = field_%s%s.%s%s() - %d;\n",
-          sdef->elements[i].name, sdef->elements[i].isOptional ? "()" : "",
-          sdef->elements[i].raw.lengthindex->nthfieldname,
-          sdef->elements[i].raw.lengthindex->fieldtype == OPTIONAL_FIELD ? "()" : "",
-          sdef->elements[i].name, sdef->elements[i].isOptional ? "()" : "",
-          sdef->elements[i].raw.lengthindex->nthfieldname,
-          sdef->elements[i].raw.lengthindex->fieldtype == OPTIONAL_FIELD ? "()" : "",
-          sdef->elements[i].raw.lengthto_offset);
+        src = mputprintf(src, "  tmp = tmp - %d;\n", sdef->elements[i].raw.lengthto_offset);
       }
-      src=mputprintf(src,
-        "  value_of_length_field%d+=field_%s%s.%s%s().get_long_long_val()*%d;\n"
-        ,i,sdef->elements[i].name,sdef->elements[i].isOptional?"()":""
-        ,sdef->elements[i].raw.lengthindex->nthfieldname
-        ,sdef->elements[i].raw.lengthindex->fieldtype == OPTIONAL_FIELD?"()":""
-        ,sdef->elements[i].raw.unit==-1?1:sdef->elements[i].raw.unit
-      );
+      src = mputprintf(src, "  field_%s%s.%s%s() = tmp;\n", 
+        sdef->elements[i].name, sdef->elements[i].isOptional ? "()" : "",
+        sdef->elements[i].raw.lengthindex->nthfieldname,
+        sdef->elements[i].raw.lengthindex->fieldtype == OPTIONAL_FIELD ? "()" : "");
+      src = mputprintf(src, "  value_of_length_field%d += tmp.get_long_long_val() * %d;\n",
+        i, sdef->elements[i].raw.unit == -1 ? 1 : sdef->elements[i].raw.unit);
       if(sdef->elements[i].raw.lengthindex->fieldtype == OPTIONAL_FIELD){
         src=mputstr(src,
         "  }\n"
@@ -5662,41 +5676,43 @@ static char *genRawDecodeRecordField(char *src, const struct_def *sdef,
     else if(sdef->elements[i].raw.union_member_num){
       int m;
       src = mputprintf(src, "  switch (field_%s%s.get_selection()) {\n",
-	sdef->elements[i].name, sdef->elements[i].isOptional ? "()" : "");
+	      sdef->elements[i].name, sdef->elements[i].isOptional ? "()" : "");
       for (m = 1; m < sdef->elements[i].raw.union_member_num + 1; m++) {
-	src = mputprintf(src, "  case %s%s%s:\n", sdef->elements[i].raw.member_name[0],
-	  "::ALT_", sdef->elements[i].raw.member_name[m]);
-  if (sdef->elements[i].raw.lengthto_offset != 0) {
-    src = mputprintf(src, "    field_%s%s.%s() = field_%s%s.%s() - %d;\n",
-      sdef->elements[i].name,
-      sdef->elements[i].isOptional ? "()" : "",
-      sdef->elements[i].raw.member_name[m], sdef->elements[i].name,
-      sdef->elements[i].isOptional ? "()" : "",
-      sdef->elements[i].raw.member_name[m], sdef->elements[i].raw.lengthto_offset);     
-  }
-  src = mputprintf(src, 
-	  "    value_of_length_field%d += field_%s%s.%s().get_long_long_val() * %d;\n"
-	  "    break;\n", i, sdef->elements[i].name,
-    sdef->elements[i].isOptional ? "()" : "",
-	  sdef->elements[i].raw.member_name[m],
-	  sdef->elements[i].raw.unit == -1 ? 1 : sdef->elements[i].raw.unit);
+	      src = mputprintf(src, "  case %s%s%s: {\n", sdef->elements[i].raw.member_name[0],
+	        "::ALT_", sdef->elements[i].raw.member_name[m]);
+        src = mputprintf(src, "    INTEGER tmp%d = field_%s%s.%s().convert_to_Integer(%s_%s_descr_);\n",
+          m, sdef->elements[i].name, sdef->elements[i].isOptional ? "()" : "",
+          sdef->elements[i].raw.member_name[m], sdef->elements[i].type,
+          sdef->elements[i].raw.member_name[m]);
+        if (sdef->elements[i].raw.lengthto_offset != 0) {
+          src = mputprintf(src, "    tmp%d = tmp%d - %d;\n",
+          m, m, sdef->elements[i].raw.lengthto_offset);
+        }
+        src = mputprintf(src, "    field_%s%s.%s() = tmp%d;\n", 
+        sdef->elements[i].name, sdef->elements[i].isOptional ? "()" : "",
+        sdef->elements[i].raw.member_name[m], m);
+        src = mputprintf(src,
+          "    value_of_length_field%d += tmp%d.get_long_long_val() * %d;\n"
+          "    break; }\n",
+          i, m, sdef->elements[i].raw.unit == -1 ? 1 : sdef->elements[i].raw.unit);
       }
       src = mputprintf(src, "  default:\n"
-	"    value_of_length_field%d = 0;\n"
-	"  }\n", i);
+	      "    value_of_length_field%d = 0;\n"
+	      "  }\n", i);
     }
     else{
+      src = mputprintf(src, "  INTEGER tmp%d = field_%s%s.convert_to_Integer(%s_descr_);\n",
+        i, sdef->elements[i].name,
+        sdef->elements[i].isOptional ? "()" : "", sdef->elements[i].typedescrname);
       if (sdef->elements[i].raw.lengthto_offset != 0) {
-        src = mputprintf(src, "  field_%s%s = field_%s%s - %d;\n",
-          sdef->elements[i].name, sdef->elements[i].isOptional ? "()" : "",
-          sdef->elements[i].name, sdef->elements[i].isOptional ? "()" : "",
-          sdef->elements[i].raw.lengthto_offset);
+        src = mputprintf(src, "  tmp%d = tmp%d - %d;\n",
+          i, i, sdef->elements[i].raw.lengthto_offset);
       }
-      src=mputprintf(src,
-        "  value_of_length_field%d+=field_%s%s.get_long_long_val()*%d;\n"
-        ,i,sdef->elements[i].name,sdef->elements[i].isOptional?"()":""
-        ,sdef->elements[i].raw.unit==-1?1:sdef->elements[i].raw.unit
-      );
+      src = mputprintf(src, "  field_%s%s = tmp%d;\n",
+        sdef->elements[i].name, sdef->elements[i].isOptional ? "()" : "", i);
+      src = mputprintf(src,
+        "  value_of_length_field%d += tmp%d.get_long_long_val() * %d;\n",
+        i, i, sdef->elements[i].raw.unit == -1 ? 1 : sdef->elements[i].raw.unit);
     }
   }
   if(raw_options[i].pointerto){   /* store the start of pointed field*/

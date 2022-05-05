@@ -275,8 +275,8 @@ run: all
 
 # xsd -> ttcn
 $(GENERATED_MODULES): $(SCHEMAS) ../xsdconvert/xsd2ttcn$(EXESUFFIX)
-	../xsdconvert/xsd2ttcn$(EXESUFFIX) -p $<
-	sed -e 's/XSD.String/charstring/g;s/XSD.AnySimpleType/charstring/g;s/XSD.Integer/integer/g;s/XSD.Float/float/g;s/XSD.Double/float/g;s/XSD.Boolean/boolean/g;s/import from XSD all;//g' TitanLoggerApi.ttcn >TitanLoggerApi.ttcn_
+	../xsdconvert/xsd2ttcn$(EXESUFFIX) -p $< ;\
+	sed -e 's/XSD.String/charstring/g;s/XSD.AnySimpleType/charstring/g;s/XSD.Integer/integer/g;s/XSD.Float/float/g;s/XSD.Double/float/g;s/XSD.Boolean/boolean/g;s/import from XSD all;//g' TitanLoggerApi.ttcn >TitanLoggerApi.ttcn_ ;\
 	mv TitanLoggerApi.ttcn_ TitanLoggerApi.ttcn
 
 install: $(TARGETS) $(PROGRAMS)
@@ -371,7 +371,7 @@ gccversion$(EXESUFFIX): gccversion.c ../Makefile.cfg
 endif
 
 #LegacyLogger.d: cversion.h
-$(DEPFILES): cversion.h
+$(DEPFILES): cversion.h $(PREGENERATED_SOURCES).compiled $(GENERATED_LOGGERAPI_SOURCES).compiled
 
 #TitanLoggerControlImpl.d Single_main.d Runtime.d Port.d LegacyLogger.d \
 #LoggerPlugin.d LoggerPluginManager.d Error.d Default.d Communication.d \

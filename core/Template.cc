@@ -2181,6 +2181,9 @@ int Set_Of_Template::n_elem() const
   case VALUE_RANGE:
   case STRING_PATTERN:
   case DECODE_MATCH:
+  case CONJUNCTION_MATCH:
+  case IMPLICATION_MATCH:
+  case DYNAMIC_MATCH:
     break;
   }
   TTCN_error("Performing n_elem() operation on an uninitialized/unsupported "

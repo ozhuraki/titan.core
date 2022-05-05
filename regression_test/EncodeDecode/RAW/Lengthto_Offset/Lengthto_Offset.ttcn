@@ -42,6 +42,64 @@ testcase tc1() runs on CT {
   setverdict(pass);
 }
 
+type record Rec1_Octet {
+  octetstring len,
+  octetstring data
+}
+with {
+  variant (len) "LENGTHTO(data) + 1";
+  variant (len) "FIELDLENGTH(1)"
+}
+
+testcase tc1_Octet() runs on CT {
+  var Rec1_Octet val := { '00'O, '12345678'O };
+  var bitstring enc_exp := oct2bit('0512345678'O);
+  var bitstring enc := encvalue(val);
+  if (enc_exp != enc) {
+    setverdict(fail, "Encoding failed. Expected: ", bit2oct(enc_exp), ", got: ", bit2oct(enc));
+  }
+  
+  var Rec1_Octet dec_exp := { int2oct(lengthof(val.data), 1), val.data };
+  var Rec1_Octet dec;
+  var integer res := decvalue(enc_exp, dec);
+  if (res != 0) {
+    setverdict(fail, "Invalid decoding result: ", res);
+  }
+  else if (dec_exp != dec) {
+    setverdict(fail, "Decoding failed. Expected: ", dec_exp, ", got: ", dec);
+  }
+  setverdict(pass);
+}
+
+type record Rec1_Bit {
+  bitstring len,
+  octetstring data
+}
+with {
+  variant (len) "LENGTHTO(data) + 1";
+  variant (len) "FIELDLENGTH(8)"
+}
+
+testcase tc1_Bit() runs on CT {
+  var Rec1_Bit val := { '00000000'B, '12345678'O };
+  var bitstring enc_exp := oct2bit('0512345678'O);
+  var bitstring enc := encvalue(val);
+  if (enc_exp != enc) {
+    setverdict(fail, "Encoding failed. Expected: ", bit2oct(enc_exp), ", got: ", bit2oct(enc));
+  }
+
+  var Rec1_Bit dec_exp := { int2bit(lengthof(val.data), 8), val.data };
+  var Rec1_Bit dec;
+  var integer res := decvalue(enc_exp, dec);
+  if (res != 0) {
+    setverdict(fail, "Invalid decoding result: ", res);
+  }
+  else if (dec_exp != dec) {
+    setverdict(fail, "Decoding failed. Expected: ", dec_exp, ", got: ", dec);
+  }
+  setverdict(pass);
+}
+
 type record Rec2 {
   integer len,
   bitstring data1,
@@ -62,6 +120,69 @@ testcase tc2() runs on CT {
 
   var Rec2 dec_exp := { lengthof(val.data1) / 8 + lengthof(val.data2), val.data1, val.data2 };
   var Rec2 dec;
+  var integer res := decvalue(enc_exp, dec);
+  if (res != 0) {
+    setverdict(fail, "Invalid decoding result: ", res);
+  }
+  else if (dec_exp != dec) {
+    setverdict(fail, "Decoding failed. Expected: ", dec_exp, ", got: ", dec);
+  }
+  setverdict(pass);
+}
+
+type record Rec2_Octet {
+  octetstring len,
+  bitstring data1,
+  octetstring data2
+}
+with {
+  variant (len) "LENGTHTO(data1, data2) - 2";
+  variant (len) "FIELDLENGTH(1)";
+  variant (data1) "FIELDLENGTH(8)";
+}
+
+
+testcase tc2_Octet() runs on CT {
+  var Rec2_Octet val := { '00'O, '10010101'B, '12345678'O };
+  var bitstring enc_exp := oct2bit('039512345678'O);
+  var bitstring enc := encvalue(val);
+  if (enc_exp != enc) {
+    setverdict(fail, "Encoding failed. Expected: ", bit2oct(enc_exp), ", got: ", bit2oct(enc));
+  }
+
+  var Rec2_Octet dec_exp := { int2oct(lengthof(val.data1) / 8 + lengthof(val.data2), 1), val.data1, val.data2 };
+  var Rec2_Octet dec;
+  var integer res := decvalue(enc_exp, dec);
+  if (res != 0) {
+    setverdict(fail, "Invalid decoding result: ", res);
+  }
+  else if (dec_exp != dec) {
+    setverdict(fail, "Decoding failed. Expected: ", dec_exp, ", got: ", dec);
+  }
+  setverdict(pass);
+}
+
+type record Rec2_Bit {
+  bitstring len,
+  bitstring data1,
+  octetstring data2
+}
+with {
+  variant (len) "LENGTHTO(data1, data2) - 2";
+  variant (len) "FIELDLENGTH(8)";
+  variant (data1) "FIELDLENGTH(8)";
+}
+
+testcase tc2_Bit() runs on CT {
+  var Rec2_Bit val := { '00000000'B, '10010101'B, '12345678'O };
+  var bitstring enc_exp := oct2bit('039512345678'O);
+  var bitstring enc := encvalue(val);
+  if (enc_exp != enc) {
+    setverdict(fail, "Encoding failed. Expected: ", bit2oct(enc_exp), ", got: ", bit2oct(enc));
+  }
+
+  var Rec2_Bit dec_exp := { int2bit(lengthof(val.data1) / 8 + lengthof(val.data2), 8), val.data1, val.data2 };
+  var Rec2_Bit dec;
   var integer res := decvalue(enc_exp, dec);
   if (res != 0) {
     setverdict(fail, "Invalid decoding result: ", res);
@@ -102,10 +223,86 @@ testcase tc3() runs on CT {
   setverdict(pass);
 }
 
+type union length_octet { octetstring i1, octetstring i2 } with { 
+  variant (i1) "FIELDLENGTH(1)";
+  variant (i2) "FIELDLENGTH(2)";
+}
+
+type record Rec3_Octet {
+  length_octet len,
+  bitstring data1,
+  octetstring data2
+}
+with {
+  variant (len) "LENGTHTO(data1, data2) + 10";
+  variant (data1) "FIELDLENGTH(8)";
+}
+
+testcase tc3_Octet() runs on CT {
+  var Rec3_Octet val := { { i1 := '00'O }, '10010101'B, '12345678'O };
+  var bitstring enc_exp := oct2bit('0F9512345678'O);
+  var bitstring enc := encvalue(val);
+  if (enc_exp != enc) {
+    setverdict(fail, "Encoding failed. Expected: ", bit2oct(enc_exp), ", got: ", bit2oct(enc));
+  }
+
+  var Rec3_Octet dec_exp := { { i1 := int2oct(lengthof(val.data1) / 8 + lengthof(val.data2), 1) }, val.data1, val.data2 };
+  var Rec3_Octet dec;
+  var integer res := decvalue(enc_exp, dec);
+  if (res != 0) {
+    setverdict(fail, "Invalid decoding result: ", res);
+  }
+  else if (dec_exp != dec) {
+    setverdict(fail, "Decoding failed. Expected: ", dec_exp, ", got: ", dec);
+  }
+  setverdict(pass);
+}
+
+type union length_bit { bitstring i1, bitstring i2 } with {
+  variant (i1) "FIELDLENGTH(8)";
+  variant (i2) "FIELDLENGTH(12)";
+}
+
+type record Rec3_Bit {
+  length_bit len,
+  bitstring data1,
+  octetstring data2
+}
+with {
+  variant (len) "LENGTHTO(data1, data2) + 10";
+  variant (data1) "FIELDLENGTH(8)";
+}
+
+testcase tc3_Bit() runs on CT {
+  var Rec3_Bit val := { { i1 := '00000000'B }, '10010101'B, '12345678'O };
+  var bitstring enc_exp := oct2bit('0F9512345678'O);
+  var bitstring enc := encvalue(val);
+  if (enc_exp != enc) {
+    setverdict(fail, "Encoding failed. Expected: ", bit2oct(enc_exp), ", got: ", bit2oct(enc));
+  }
+
+  var Rec3_Bit dec_exp := { { i1 := int2bit(lengthof(val.data1) / 8 + lengthof(val.data2), 8) }, val.data1, val.data2 };
+  var Rec3_Bit dec;
+  var integer res := decvalue(enc_exp, dec);
+  if (res != 0) {
+    setverdict(fail, "Invalid decoding result: ", res);
+  }
+  else if (dec_exp != dec) {
+    setverdict(fail, "Decoding failed. Expected: ", dec_exp, ", got: ", dec);
+  }
+  setverdict(pass);
+}
+
 control {
   execute(tc1());
   execute(tc2());
   execute(tc3());
+  execute(tc1_Octet());
+  execute(tc2_Octet());
+  execute(tc3_Octet());
+  execute(tc1_Bit());
+  execute(tc2_Bit());
+  execute(tc3_Bit());
 }
 
 }

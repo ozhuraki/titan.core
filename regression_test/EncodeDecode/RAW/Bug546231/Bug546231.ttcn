@@ -16,8 +16,32 @@ module Bug546231 {
 external function dec_R2(in octetstring stream) return R2
 with { extension "prototype(convert)" extension "decode(RAW)" }
 
+external function dec_R2_Octet(in octetstring stream) return R2_Octet
+with { extension "prototype(convert)" extension "decode(RAW)" }
+
+external function dec_R2_Bit(in octetstring stream) return R2_Bit
+with { extension "prototype(convert)" extension "decode(RAW)" }
+
 type record R2 {
   integer   lengthfield,
+  record of integer   listfield,
+  integer   last_field
+} with {
+  variant (lengthfield) "LENGTHTO(listfield)"
+  variant (lengthfield) "UNIT(elements)"
+}
+
+type record R2_Octet {
+  octetstring   lengthfield length(1),
+  record of integer   listfield,
+  integer   last_field
+} with {
+  variant (lengthfield) "LENGTHTO(listfield)"
+  variant (lengthfield) "UNIT(elements)"
+}
+
+type record R2_Bit {
+  bitstring   lengthfield length(8),
   record of integer   listfield,
   integer   last_field
 } with {
@@ -49,9 +73,57 @@ testcase tc2() runs on CT {
   }
 }
 
+testcase tc1_Octet() runs on CT {
+  var R2_Octet res := dec_R2_Octet('0000'O);
+  var R2_Octet exp := { lengthfield := '00'O, listfield := { }, last_field := 0 };
+  if (res == exp) {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, "Got: ", res, ", expected: ", exp);
+  }
+}
+
+testcase tc2_Octet() runs on CT {
+  var R2_Octet res := dec_R2_Octet('010102'O);
+  var R2_Octet exp := { lengthfield := '01'O, listfield := { 1 }, last_field := 2 };
+  if (res == exp) {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, "Got: ", res, ", expected: ", exp);
+  }
+}
+
+testcase tc1_Bit() runs on CT {
+  var R2_Bit res := dec_R2_Bit('0000'O);
+  var R2_Bit exp := { lengthfield := '00000000'B, listfield := { }, last_field := 0 };
+  if (res == exp) {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, "Got: ", res, ", expected: ", exp);
+  }
+}
+
+testcase tc2_Bit() runs on CT {
+  var R2_Bit res := dec_R2_Bit('010102'O);
+  var R2_Bit exp := { lengthfield := '00000001'B, listfield := { 1 }, last_field := 2 };
+  if (res == exp) {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, "Got: ", res, ", expected: ", exp);
+  }
+}
+
 control {
   execute(tc1());
   execute(tc2());
+  execute(tc1_Octet());
+  execute(tc2_Octet());
+  execute(tc1_Bit());
+  execute(tc2_Bit());
 }
 
 } with {

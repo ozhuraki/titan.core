@@ -3999,7 +3999,7 @@ void Type::chk_this_value_ref(Value *value)
 bool Type::chk_this_value(Value *value, Common::Assignment *lhs, expected_value_t expected_value,
                           namedbool incomplete_allowed, namedbool omit_allowed,
                           namedbool sub_chk, namedbool implicit_omit, namedbool is_str_elem,
-                          namedbool class_member_init)
+                          namedbool class_member_init, namedbool from_subtype)
 {
   bool self_ref = false;
   chk();
@@ -4128,7 +4128,7 @@ bool Type::chk_this_value(Value *value, Common::Assignment *lhs, expected_value_
   case T_SEQ_A:
   case T_SET_A:
     self_ref = chk_this_value_Se(value, lhs, expected_value, incomplete_allowed,
-      implicit_omit, class_member_init);
+      implicit_omit, class_member_init, from_subtype);
     break;
   case T_SEQOF:
   case T_SETOF:
@@ -4137,7 +4137,7 @@ bool Type::chk_this_value(Value *value, Common::Assignment *lhs, expected_value_
     break;
   case T_REFD:
     self_ref = get_type_refd()->chk_this_value(value, lhs, expected_value,
-      incomplete_allowed, omit_allowed, NO_SUB_CHK, implicit_omit, is_str_elem, class_member_init);
+      incomplete_allowed, omit_allowed, NO_SUB_CHK, implicit_omit, is_str_elem, class_member_init, from_subtype);
     break;
   case T_UNRESTRICTEDSTRING:
   case T_OCFT:
@@ -5112,27 +5112,28 @@ bool Type::chk_this_value_Choice(Value *value, Common::Assignment *lhs,
 }
 
 bool Type::chk_this_value_Se(Value *value, Common::Assignment *lhs, expected_value_t expected_value,
-  namedbool incomplete_allowed, namedbool implicit_omit, namedbool class_member_init)
+  namedbool incomplete_allowed, namedbool implicit_omit, namedbool class_member_init, namedbool from_subtype)
 {
   if (value->is_asn1())
     return chk_this_value_Se_A(value, lhs, expected_value, implicit_omit);
   else
     return chk_this_value_Se_T(value, lhs, expected_value, incomplete_allowed,
-      implicit_omit, class_member_init);
+      implicit_omit, class_member_init, from_subtype);
 }
 
 bool Type::chk_this_value_Se_T(Value *value, Common::Assignment *lhs, expected_value_t expected_value,
-                               namedbool incomplete_allowed, namedbool implicit_omit, namedbool class_member_init)
+                               namedbool incomplete_allowed, namedbool implicit_omit, namedbool class_member_init,
+                               namedbool from_subtype)
 {
   switch (value->get_valuetype()) {
   case Value::V_SEQ:
     if (typetype == T_SET_A || typetype == T_SET_T) {
       value->set_valuetype(Value::V_SET);
       return chk_this_value_Set_T(value, lhs, expected_value, incomplete_allowed,
-                           implicit_omit, class_member_init);
+                           implicit_omit, class_member_init, from_subtype, ASSIGNMENT_NOTATION);
     } else {
       return chk_this_value_Seq_T(value, lhs, expected_value, incomplete_allowed,
-                           implicit_omit, class_member_init);
+                           implicit_omit, class_member_init, from_subtype, ASSIGNMENT_NOTATION);
     }
     break;
   case Value::V_SEQOF:
@@ -5146,6 +5147,7 @@ bool Type::chk_this_value_Se_T(Value *value, Common::Assignment *lhs, expected_v
           value->set_valuetype(Value::V_ERROR);
         }
       } else {
+        // TODO: allow value list notation for set
         // This will catch the indexed assignment notation as well.
         value->error("Value list notation cannot be used for "
                      "%s type `%s'", typetype == T_SET_A ? "SET" : "set",
@@ -5162,7 +5164,8 @@ bool Type::chk_this_value_Se_T(Value *value, Common::Assignment *lhs, expected_v
       } else {
         value->set_valuetype(Value::V_SEQ);
         return chk_this_value_Seq_T(value, lhs, expected_value, incomplete_allowed,
-                             implicit_omit, class_member_init);
+                             implicit_omit, class_member_init,
+                             from_subtype, VALUE_LIST_NOTATION);
       }
     }
     break;
@@ -5177,9 +5180,14 @@ bool Type::chk_this_value_Se_T(Value *value, Common::Assignment *lhs, expected_v
 }
 
 bool Type::chk_this_value_Seq_T(Value *value, Common::Assignment *lhs, expected_value_t expected_value,
-  namedbool incomplete_allowed, namedbool implicit_omit, namedbool class_member_init)
+  namedbool incomplete_allowed, namedbool implicit_omit, namedbool class_member_init,
+  namedbool from_subtype, namedbool notation)
 {
   bool self_ref = false;
+  namedbool local_incomplete_allowed = incomplete_allowed;
+  if (incomplete_allowed == INCOMPLETE_NOT_ALLOWED &&
+      from_subtype == FROM_SUBTYPE && notation == ASSIGNMENT_NOTATION)
+    local_incomplete_allowed = INCOMPLETE_ALLOWED;
   map<string, NamedValue> comp_map;
   // it is set to false if we have lost the ordering
   bool in_synch = true;
@@ -5210,7 +5218,7 @@ bool Type::chk_this_value_Seq_T(Value *value, Common::Assignment *lhs, expected_
     CompField *cf = get_comp_byName(value_id);
     // check the ordering of fields
     if (in_synch) {
-      if (INCOMPLETE_NOT_ALLOWED != incomplete_allowed) {
+      if (INCOMPLETE_NOT_ALLOWED != local_incomplete_allowed) {
         bool found = false;
         for (size_t i = next_index; i < n_type_comps; i++) {
           CompField *cf2 = get_comp_byIndex(i);
@@ -5257,12 +5265,12 @@ bool Type::chk_this_value_Seq_T(Value *value, Common::Assignment *lhs, expected_
     type->chk_this_value_ref(comp_value);
     self_ref |= type->chk_this_value(comp_value, lhs, expected_value, incomplete_allowed,
       cf->get_is_optional() ? OMIT_ALLOWED : OMIT_NOT_ALLOWED, SUB_CHK, implicit_omit,
-      NOT_STR_ELEM, class_member_init);
+      NOT_STR_ELEM, class_member_init, from_subtype);
     if (comp_value->get_valuetype() != Value::V_NOTUSED) {
       is_empty = false;
     }
   }
-  if (INCOMPLETE_ALLOWED != incomplete_allowed || IMPLICIT_OMIT == implicit_omit) {
+  if (INCOMPLETE_ALLOWED != local_incomplete_allowed || IMPLICIT_OMIT == implicit_omit) {
     for (size_t i = 0; i < n_type_comps; i++) {
       const Identifier& id = get_comp_byIndex(i)->get_name();
       if (!comp_map.has_key(id.get_name())) {
@@ -5271,10 +5279,10 @@ bool Type::chk_this_value_Seq_T(Value *value, Common::Assignment *lhs, expected_
             new Value(Value::V_OMIT)));
           is_empty = false;
         }
-        else if (INCOMPLETE_NOT_ALLOWED == incomplete_allowed)
+        else if (INCOMPLETE_NOT_ALLOWED == local_incomplete_allowed)
           value->error("Field `%s' is missing from record value",
                      id.get_dispname().c_str());
-        else if (WARNING_FOR_INCOMPLETE == incomplete_allowed ) {
+        else if (WARNING_FOR_INCOMPLETE == local_incomplete_allowed) {
           value->warning("Field `%s' is missing from record value",
             id.get_dispname().c_str());
         }
@@ -5291,9 +5299,14 @@ bool Type::chk_this_value_Seq_T(Value *value, Common::Assignment *lhs, expected_
 }
 
 bool Type::chk_this_value_Set_T(Value *value, Common::Assignment *lhs, expected_value_t expected_value,
-  namedbool incomplete_allowed, namedbool implicit_omit, namedbool class_member_init)
+  namedbool incomplete_allowed, namedbool implicit_omit, namedbool class_member_init,
+  namedbool from_subtype, namedbool notation)
 {
   bool self_ref = false;
+  namedbool local_incomplete_allowed = incomplete_allowed;
+  if (incomplete_allowed == INCOMPLETE_NOT_ALLOWED &&
+      from_subtype == FROM_SUBTYPE && notation == ASSIGNMENT_NOTATION)
+    local_incomplete_allowed = INCOMPLETE_ALLOWED;
   map<string, NamedValue> comp_map;
   size_t n_type_comps = get_nof_comps();
   size_t n_value_comps = value->get_nof_comps();
@@ -5329,12 +5342,12 @@ bool Type::chk_this_value_Set_T(Value *value, Common::Assignment *lhs, expected_
     type->chk_this_value_ref(comp_value);
     self_ref |= type->chk_this_value(comp_value, lhs, expected_value, incomplete_allowed,
       cf->get_is_optional() ? OMIT_ALLOWED : OMIT_NOT_ALLOWED, SUB_CHK, implicit_omit,
-      NOT_STR_ELEM, class_member_init);
+      NOT_STR_ELEM, class_member_init, from_subtype);
     if (comp_value->get_valuetype() != Value::V_NOTUSED) {
       is_empty = false;
     }
   }
-  if (INCOMPLETE_ALLOWED != incomplete_allowed || IMPLICIT_OMIT == implicit_omit) {
+  if (INCOMPLETE_ALLOWED != local_incomplete_allowed || IMPLICIT_OMIT == implicit_omit) {
     for (size_t i = 0; i < n_type_comps; i++) {
       const Identifier& id = get_comp_byIndex(i)->get_name();
       if(!comp_map.has_key(id.get_name())) {
@@ -5343,10 +5356,10 @@ bool Type::chk_this_value_Set_T(Value *value, Common::Assignment *lhs, expected_
             new Value(Value::V_OMIT)));
           is_empty = false;
         }
-        else if (INCOMPLETE_NOT_ALLOWED == incomplete_allowed)
+        else if (INCOMPLETE_NOT_ALLOWED == local_incomplete_allowed)
           value->error("Field `%s' is missing from set value",
             id.get_dispname().c_str());
-        else if (WARNING_FOR_INCOMPLETE == incomplete_allowed ) {
+        else if (WARNING_FOR_INCOMPLETE == local_incomplete_allowed) {
           value->warning("Field `%s' is missing from set value",
             id.get_dispname().c_str());
         }

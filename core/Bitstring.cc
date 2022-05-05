@@ -164,6 +164,11 @@ BITSTRING& BITSTRING::operator=(const BITSTRING_ELEMENT& other_value)
   return *this;
 }
 
+BITSTRING& BITSTRING::operator=(const INTEGER& other_value)
+{
+  return this->operator=(int2bit(other_value, val_ptr->n_bits));
+}
+
 boolean BITSTRING::operator==(const BITSTRING& other_value) const
 {
   must_bound("Unbound left operand of bitstring comparison.");
@@ -557,6 +562,17 @@ void BITSTRING::log() const
       TTCN_Logger::log_char(get_bit(bit_count) ? '1' : '0');
     TTCN_Logger::log_event_str("'B");
   } else TTCN_Logger::log_event_unbound();
+}
+
+INTEGER BITSTRING::convert_to_Integer(const TTCN_Typedescriptor_t& p_td)
+{
+  TTCN_EncDec_ErrorContext ec("While converting to integer type '%s': ", p_td.name);
+  TTCN_Buffer ttcn_buf;
+  encode(p_td, ttcn_buf, TTCN_EncDec::CT_RAW, 0);
+  raw_order_t order = p_td.raw->top_bit_order == TOP_BIT_LEFT ? ORDER_LSB : ORDER_MSB;
+  INTEGER integer;
+  integer.RAW_decode(p_td, ttcn_buf, ttcn_buf.get_len() * 8, order);
+  return integer;
 }
 
 void BITSTRING::set_param(Module_Param& param) {

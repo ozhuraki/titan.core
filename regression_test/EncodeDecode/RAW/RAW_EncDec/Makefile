@@ -24,7 +24,7 @@ include $(TOPDIR)/Makefile.regression
 
 TTCN3_LIB = ttcn3$(RT2_SUFFIX)$(DYNAMIC_SUFFIX)
 
-TTCN3_MODULES = RAW_EncDec_1.ttcn RAW_EncDec_2.ttcn RAW_EncDec_3.ttcn RAW_EncDec_4.ttcn RAW_EncDec_5.ttcn RAW_EncDec_6.ttcn RAW_EncDec_7.ttcn RAW_EncDec_8.ttcn
+TTCN3_MODULES = RAW_EncDec_1.ttcn RAW_EncDec_2.ttcn RAW_EncDec_3.ttcn RAW_EncDec_4.ttcn RAW_EncDec_5.ttcn RAW_EncDec_6.ttcn RAW_EncDec_7.ttcn RAW_EncDec_8.ttcn RAW_EncDec_Lengthto.ttcn
 
 ASN1_MODULES = 
 

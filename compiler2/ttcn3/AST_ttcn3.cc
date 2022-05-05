@@ -7150,7 +7150,7 @@ namespace Ttcn {
     return output_type;
   }
   
-  bool Def_Function_Base::is_identical(Def_Function_Base* p_other)
+  Def_Function_Base::is_identical_result Def_Function_Base::is_identical(Def_Function_Base* p_other)
   {
     Common::Assignment::asstype_t asstype2 = p_other->get_asstype();
     if (asstype != asstype2) {
@@ -7160,32 +7160,33 @@ namespace Ttcn {
           (asstype == Common::Assignment::A_EXT_FUNCTION_RVAL && asstype2 != Common::Assignment::A_FUNCTION_RVAL) ||
           (asstype == Common::Assignment::A_FUNCTION_RTEMP && asstype2 != Common::Assignment::A_EXT_FUNCTION_RTEMP) ||
           (asstype == Common::Assignment::A_EXT_FUNCTION_RTEMP && asstype2 != Common::Assignment::A_FUNCTION_RTEMP)) {
-        return false;
+        return Def_Function_Base::RES_DIFFERS;
       }
     }
     if (return_type != NULL &&
         !p_other->return_type->is_identical(return_type)) {
-      return false;
+      return Def_Function_Base::RES_DIFFERS;
     }
     FormalParList* other_fp_list = p_other->get_FormalParList();
-    if (!fp_list->is_identical(other_fp_list)) {
-      return false;
+    Def_Function_Base::is_identical_result idres = fp_list->is_identical(other_fp_list);
+    if (idres == Def_Function_Base::RES_DIFFERS) {
+      return Def_Function_Base::RES_DIFFERS;
     }
     if (exceptions != NULL || p_other->exceptions != NULL) {
       if (exceptions == NULL || p_other->exceptions == NULL) {
         // one of them has exceptions, the other doesn't
-        return false;
+        return Def_Function_Base::RES_DIFFERS;
       }
       if (exceptions->get_nof_types() != p_other->exceptions->get_nof_types()) {
-        return false;
+        return Def_Function_Base::RES_DIFFERS;
       }
       for (size_t i = 0; i < exceptions->get_nof_types(); ++i) {
         if (!p_other->exceptions->has_type(exceptions->get_type_byIndex(i))) {
-          return false;
+          return Def_Function_Base::RES_DIFFERS;
         }
       }
     }
-    return true;
+    return idres;
   }
 
 
@@ -10872,24 +10873,27 @@ namespace Ttcn {
       || parent_scope->has_ass_withId(p_id);
   }
 
-  bool FormalParList::is_identical(const FormalParList* p_other)
+  Def_Function_Base::is_identical_result FormalParList::is_identical(const FormalParList* p_other)
   {
+    bool is_namediff = false;
     if (p_other == NULL) {
       FATAL_ERROR("FormalParList::is_identical");
     }
     if (p_other->pars_v.size() != pars_v.size()) {
-      return false;
+      return Def_Function_Base::RES_DIFFERS;
     }
     for (size_t i = 0; i < pars_v.size(); ++i) {
       FormalPar* fp1 = pars_v[i];
       FormalPar* fp2 = p_other->pars_v[i];
       if (fp1->get_asstype() != fp2->get_asstype() ||
-          !fp1->get_Type()->is_identical(fp2->get_Type()) ||
-          fp1->get_id().get_name() != fp2->get_id().get_name()) {
-        return false;
+          !fp1->get_Type()->is_identical(fp2->get_Type())) {
+        return Def_Function_Base::RES_DIFFERS;
+      }
+      if (fp1->get_id().get_name() != fp2->get_id().get_name()) {
+        is_namediff = true;
       }
     }
-    return true;
+    return is_namediff ? Def_Function_Base::RES_NAME_DIFFERS : Def_Function_Base::RES_IDENTICAL;
   }
 
   void FormalParList::set_genname(const string& p_prefix)

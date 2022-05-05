@@ -1,13 +1,13 @@
 ---
 Author: Jenő Balaskó
-Version: 8.1.0
-Date: 2021-11-10
+Version: 8.2.0
+Date: 2022-05-04
 
 ---
 = Product Revision Information for TITAN
 :author: Jenő Balaskó
-:revnumber: 8.1.0
-:revdate: 2021-11-10
+:revnumber: 8.2.0
+:revdate: 2022-05-04
 :sectnums:
 :doctype: book
 :leveloffset: +1
@@ -20,6 +20,7 @@ Date: 2021-11-10
 [cols=",,,,",options="header",]
 |===
 |Old Product number   | Old Rev  | New Product Number | New Rev | Function designation
+|8.1.0                |  8.1.0   | 8.2.0              |  8.2.0  | TTCN-3 Executor
 |8.0.0                |  8.0.0   | 8.1.0              |  8.1.0  | TTCN-3 Executor
 |7.2.2                |  7.2.2   | 8.0.0              |  8.0.0  | TTCN-3 Executor
 |7.2.1                |  7.2.1   | 7.2.2              |  7.2.2  | TTCN-3 Executor
@@ -53,21 +54,21 @@ Legend: R = Revised, N = New, C = Cancelled, E = Equal
 [width="100%",cols="25%,25%,25%,25%",options="header",]
 |===
 |Name |Old Revision |New Revision |
-|link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/releasenotes/releasenotes.adoc[Release Notes for TITAN TTCN-3 Test Executor] | 8.0.0 | 8.1.0 |R
-|link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/installationguide/installationguide.adoc[Installation guide for TITAN TTCN-3 Test Executor] | 8.0.0 | 8.1.0 |R
-|link:https://gitlab.eclipse.org/eclipse/titan/titan.EclipsePlug-ins/blob/master/org.eclipse.titan.help/docs/Eclipse_installationguide/Eclipse_installationguide.adoc[Installation Guide for TITAN Designer and TITAN Executor for the Eclipse IDE] | 8.0.0 | 8.1.0 |R
-|link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/userguide/UserGuide.adoc[User Guide for TITAN] | 8.0.0 | 8.1.0 |R
-|link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/referenceguide/ReferenceGuide.adoc[Programmers Technical Reference for TITAN TTCN-3 Test Executor] | 8.0.0 | 8.1.0 |R
-|link:https://gitlab.eclipse.org/eclipse/titan/titan.EclipsePlug-ins/tree/master/org.eclipse.titan.designer/docs/Eclipse_Designer_userguide/DesignerUserGuide.adoc[User Guide for the TITAN Designer for the Eclipse IDE] | 8.0.0 | 8.1.0 |R
-|link:https://gitlab.eclipse.org/eclipse/titan/titan.EclipsePlug-ins/tree/master/org.eclipse.titan.executor/docs/Eclipse_Executor_userguide/ExecutorUserGuide.adoc[User Guide for the TITAN Executor for the Eclipse IDE] | 8.0.0 | 8.1.0 |R
-|link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/apiguide/Apiguide.adoc[API Technical Reference for TITAN TTCN-3 Test Executor] | 8.0.0 | 8.1.0 |R
-|link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/titan_executor_api/doc/Titan_Executor_API_User_Guide.adoc[Titan Executor API user guide] | 8.0.0 | 8.1.0 |R
-|link:https://gitlab.eclipse.org/eclipse/titan/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium/docs/Titanium_referenceguide/Titanium_referenceguide.adoc[Programmers Tech. Reference Guide for Titanium] | 8.0.0 | 8.1.0 |R
-|link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/java_referenceguide/JavaReferenceGuide.adoc[Programmers Tech. Reference Guide for the Java Codegenerator] | 8.0.0 | 8.1.0 |R
-|link:https://gitlab.eclipse.org/eclipse/titan/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium.refactoring/docs/Titanium_Refactoring_Description/Titanium_Refactoring_Description.adoc[Titanium Refactoring Description] | 8.0.0 | 8.1.0 |R
-|link:https://gitlab.eclipse.org/eclipse/titan/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium/docs/Titanium_Description/Titanium_Description.adoc[Titanium Description] | 8.0.0 | 8.1.0 |R
-|link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/SoC_TITAN/SoC_TITAN.adoc[Statement of Compliance for Eclipse Titan] | 8.0.0 | 8.1.0 |R
-|link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/SoC_XML_TITAN/SoC_XML_TITAN.adoc[Statement of Compliance for use of XML schema in Eclipse Titan] | 8.0.0 | 8.1.0 |R
+|link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/releasenotes/releasenotes.adoc[Release Notes for TITAN TTCN-3 Test Executor] | 8.1.0 | 8.2.0 |R
+|link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/installationguide/installationguide.adoc[Installation guide for TITAN TTCN-3 Test Executor] | 8.1.0 | 8.2.0 |R
+|link:https://gitlab.eclipse.org/eclipse/titan/titan.EclipsePlug-ins/blob/master/org.eclipse.titan.help/docs/Eclipse_installationguide/Eclipse_installationguide.adoc[Installation Guide for TITAN Designer and TITAN Executor for the Eclipse IDE] | 8.1.0 | 8.2.0 |R
+|link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/userguide/UserGuide.adoc[User Guide for TITAN] | 8.1.0 | 8.2.0 |R
+|link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/referenceguide/ReferenceGuide.adoc[Programmers Technical Reference for TITAN TTCN-3 Test Executor] | 8.1.0 | 8.2.0 |R
+|link:https://gitlab.eclipse.org/eclipse/titan/titan.EclipsePlug-ins/tree/master/org.eclipse.titan.designer/docs/Eclipse_Designer_userguide/DesignerUserGuide.adoc[User Guide for the TITAN Designer for the Eclipse IDE] | 8.1.0 | 8.2.0 |R
+|link:https://gitlab.eclipse.org/eclipse/titan/titan.EclipsePlug-ins/tree/master/org.eclipse.titan.executor/docs/Eclipse_Executor_userguide/ExecutorUserGuide.adoc[User Guide for the TITAN Executor for the Eclipse IDE] | 8.1.0 | 8.2.0 |R
+|link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/apiguide/Apiguide.adoc[API Technical Reference for TITAN TTCN-3 Test Executor] | 8.1.0 | 8.2.0 |R
+|link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/titan_executor_api/doc/Titan_Executor_API_User_Guide.adoc[Titan Executor API user guide] | 8.1.0 | 8.2.0 |R
+|link:https://gitlab.eclipse.org/eclipse/titan/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium/docs/Titanium_referenceguide/Titanium_referenceguide.adoc[Programmers Tech. Reference Guide for Titanium] | 8.1.0 | 8.2.0 |R
+|link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/java_referenceguide/JavaReferenceGuide.adoc[Programmers Tech. Reference Guide for the Java Codegenerator] | 8.1.0 | 8.2.0 |R
+|link:https://gitlab.eclipse.org/eclipse/titan/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium.refactoring/docs/Titanium_Refactoring_Description/Titanium_Refactoring_Description.adoc[Titanium Refactoring Description] | 8.1.0 | 8.2.0 |R
+|link:https://gitlab.eclipse.org/eclipse/titan/titan.EclipsePlug-ins/blob/master/org.eclipse.titanium/docs/Titanium_Description/Titanium_Description.adoc[Titanium Description] | 8.1.0 | 8.2.0 |R
+|link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/SoC_TITAN/SoC_TITAN.adoc[Statement of Compliance for Eclipse Titan] | 8.1.0 | 8.2.0 |R
+|link:https://gitlab.eclipse.org/eclipse/titan/titan.core/blob/master/usrguide/SoC_XML_TITAN/SoC_XML_TITAN.adoc[Statement of Compliance for use of XML schema in Eclipse Titan] | 8.1.0 | 8.2.0 |R
 |===
 
 = Reason for revision

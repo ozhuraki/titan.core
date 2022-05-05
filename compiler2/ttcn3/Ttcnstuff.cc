@@ -3509,10 +3509,13 @@ namespace Ttcn {
             Def_Function_Base* func2 = dynamic_cast<Def_Function_Base*>(def2);
             bool func1_is_abstract = dynamic_cast<Def_AbsFunction*>(func1) != NULL;
             bool func2_is_abstract = dynamic_cast<Def_AbsFunction*>(func2) != NULL;
-            bool functions_are_identical = func1->is_identical(func2);
+            Def_Function_Base::is_identical_result functions_are_identical = func1->is_identical(func2);
+            if (functions_are_identical == Def_Function_Base::RES_NAME_DIFFERS) {
+              func1->warning("One or more parameter names differ from previous definition");
+            }
             if (func2->get_visibility() != PRIVATE &&
-                (!functions_are_identical || func1_is_abstract != func2_is_abstract)) {
-              if (subclass_loc == NULL && !functions_are_identical) {
+                (functions_are_identical == Def_Function_Base::RES_DIFFERS || func1_is_abstract != func2_is_abstract)) {
+              if (subclass_loc == NULL && functions_are_identical== Def_Function_Base::RES_DIFFERS) {
                 def1->error("The prototype of method `%s' is not identical "
                   "to that of inherited method `%s'",
                   id1.get_dispname().c_str(), def2->get_fullname().c_str());
@@ -3528,7 +3531,7 @@ namespace Ttcn {
               def1->error("Cannot override final method `%s'",
                 def2->get_fullname().c_str());
             }
-            else if (subclass_loc == NULL && func1->is_identical(func2)) {
+            else if (subclass_loc == NULL && func1->is_identical(func2) != Def_Function_Base::RES_DIFFERS) {
               if (func2->get_visibility() == PUBLIC && func1->get_visibility() != PUBLIC) {
                 def1->error("Public methods can be only overridden by public methods `%s'",
                   id1.get_dispname().c_str());
@@ -3838,15 +3841,23 @@ namespace Ttcn {
       const Common::Identifier& id = def->get_id();
       FormalParList* fp_list = get_object_method_fplist(id.get_name());
       if (fp_list != NULL) {
+        Def_Function_Base::is_identical_result inres = Def_Function_Base::RES_DIFFERS;
+        if (def->get_FormalParList() != NULL) {
+          inres = fp_list->is_identical(def->get_FormalParList());
+        } else if (fp_list->get_nof_fps() == 0) {
+          inres = Def_Function_Base::RES_IDENTICAL;
+        }
 	switch (def->get_asstype()) {
         case Common::Assignment::A_FUNCTION_RVAL:
         case Common::Assignment::A_EXT_FUNCTION_RVAL:
-          if (def->get_visibility() == PUBLIC &&
-              fp_list->is_identical(def->get_FormalParList())) {
+          if (def->get_visibility() == PUBLIC && inres != Def_Function_Base::RES_DIFFERS) {
             Def_Function_Base* def_func = dynamic_cast<Def_Function_Base*>(def);
 	    Def_AbsFunction* def_func_abs = dynamic_cast<Def_AbsFunction*>(def_func);
             if (def_func_abs == NULL &&
         	def_func->get_return_type()->is_identical(get_object_method_return_type(id.get_name()))) {
+              if (inres == Def_Function_Base::RES_NAME_DIFFERS) {
+                def->warning("One or more parameter names differ from previous definition");
+              }
               break; // everything is in order
             }
           }
