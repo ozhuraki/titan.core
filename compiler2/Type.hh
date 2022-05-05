@@ -864,6 +864,8 @@ namespace Common {
     
     static MessageEncodingType_t get_enc_type(const string& enc);
     
+    bool contains_class();
+
   private:
     void chk_Int_A();
     void chk_Enum_A();

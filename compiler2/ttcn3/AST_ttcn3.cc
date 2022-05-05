@@ -1230,7 +1230,7 @@ namespace Ttcn {
         FormalParList* fp_list = subref->get_formal_par_list();
         for (size_t j = 0; j < ap_list->get_nof_pars(); ++j) {
           if (!ap_list->get_par(j)->has_single_expr(
-              fp_list != NULL ? fp_list->get_fp_byIndex(i) : NULL)) {
+              fp_list != NULL ? fp_list->get_fp_byIndex(j) : NULL)) {
             return false;
           }
         }
@@ -4080,8 +4080,11 @@ namespace Ttcn {
                 continue;
               }
               field_name = tref->get_id()->get_ttcnname();
-              if (oop_features && field_name == string("object")) {
-                ea.error("Class type `object' cannot be added to the anytype");
+              bool is_object = field_name == string("object");
+              if (oop_features && (is_object ||
+        	  t->get_type_refd_last()->get_typetype() == Common::Type::T_CLASS)) {
+                ea.error("Class type `%s' cannot be added to the anytype",
+		  is_object ? "object" : t->get_typename().c_str());
                 delete t;
                 continue;
               }

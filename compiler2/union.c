@@ -77,12 +77,12 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
    * for the anytype, otherwise the generated "INTEGER()" will look like
    * a constructor, upsetting the C++ compiler. AT_INTEGER() is ok. */
   char *def = NULL, *src = NULL;
-  boolean ber_needed = sdef->isASN1 && enable_ber();
-  boolean raw_needed = sdef->hasRaw && enable_raw();
-  boolean text_needed = sdef->hasText && enable_text();
-  boolean xer_needed = sdef->hasXer && enable_xer();
-  boolean json_needed = sdef->hasJson && enable_json();
-  boolean oer_needed = sdef->hasOer && enable_oer();
+  boolean ber_needed = sdef->isASN1&& !sdef->containsClass && enable_ber();
+  boolean raw_needed = sdef->hasRaw&& !sdef->containsClass && enable_raw();
+  boolean text_needed = sdef->hasText&& !sdef->containsClass && enable_text();
+  boolean xer_needed = sdef->hasXer&& !sdef->containsClass && enable_xer();
+  boolean json_needed = sdef->hasJson&& !sdef->containsClass && enable_json();
+  boolean oer_needed = sdef->hasOer&& !sdef->containsClass && enable_oer();
 
   char *selection_type, *unbound_value, *selection_prefix;
   selection_type = mcopystr("union_selection_type");
@@ -312,7 +312,7 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
     "union_selection = %s;\n"
     "}\n\n", unbound_value);
 
-  if (use_runtime_2) {
+  if (use_runtime_2 && !sdef->containsClass) {
     def = mputstr(def,
       "boolean is_equal(const Base_Type* other_value) const;\n"
       "void set_value(const Base_Type* other_value);\n"
@@ -332,7 +332,8 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
       name, name,
       name, name,
       name, name);
-  } else {
+  }
+  if (!use_runtime_2) {
     def = mputstr(def,
       "inline boolean is_present() const { return is_bound(); }\n");
   }
@@ -358,173 +359,187 @@ void defUnionClass(struct_def const *sdef, output_struct *output)
   }
   src = mputstr(src, "}\n\n");
 
-  /* set_param function */
-  def = mputstr(def, "void set_param(Module_Param& param);\n");
-  src = mputprintf(src, "void %s::set_param(Module_Param& param)\n"
-     "{\n", name);
-  if (use_runtime_2) {
-    src = mputprintf(src,
-     "  if (dynamic_cast<Module_Param_Name*>(param.get_id()) != NULL &&\n"
-     "      param.get_id()->next_name()) {\n"
-    // Haven't reached the end of the module parameter name
-    // => the name refers to one of the fields, not to the whole union
-     "    char* param_field = param.get_id()->get_current_name();\n"
-     "    if (param_field[0] >= '0' && param_field[0] <= '9') {\n"
-     "      param.error(\"Unexpected array index in module parameter, expected a valid field\"\n"
-     "        \" name for union type `%s'\");\n"
-     "    }\n"
-     "    ", dispname);
-    for (i = 0; i < sdef->nElements; i++) {
+  if (!sdef->containsClass) {
+    /* set_param function */
+    def = mputstr(def, "void set_param(Module_Param& param);\n");
+    src = mputprintf(src, "void %s::set_param(Module_Param& param)\n"
+       "{\n", name);
+    if (use_runtime_2) {
       src = mputprintf(src,
-       "if (strcmp(\"%s\", param_field) == 0) {\n"
-       "      %s%s().set_param(param);\n"
-       "      return;\n"
-       "    } else ",
-       sdef->elements[i].dispname, at_field, sdef->elements[i].name);
-    }
-    src = mputprintf(src,
-     "param.error(\"Field `%%s' not found in union type `%s'\", param_field);\n"
-     "  }\n", dispname);
-  }
-  src = mputstr(src,
-     "  param.basic_check(Module_Param::BC_VALUE, \"union value\");\n"
-     "  Module_Param_Ptr m_p = &param;\n");
-  if (use_runtime_2) {
-    src = mputstr(src,
-     "  if (param.get_type() == Module_Param::MP_Reference) {\n"
-     "    m_p = param.get_referenced_param();\n"
-     "  }\n");
-  }
-  src = mputstr(src,
-     "  if (m_p->get_type()==Module_Param::MP_Value_List && m_p->get_size()==0) return;\n"
-     "  if (m_p->get_type()!=Module_Param::MP_Assignment_List) {\n"
-     "    param.error(\"union value with field name was expected\");\n"
-     "  }\n"
-     "  Module_Param* mp_last = m_p->get_elem(m_p->get_size()-1);\n"
-     "  char* last_name = mp_last->get_id()->get_name();\n");
-
-  for (i = 0; i < sdef->nElements; i++) {
-    src = mputprintf(src, 
-      "  if (!strcmp(last_name, \"%s\")) {\n"
-      "    %s%s().set_param(*mp_last);\n"
-      "    if (!%s%s().is_bound()) "
-      , sdef->elements[i].dispname, at_field, sdef->elements[i].name
-      , at_field, sdef->elements[i].name);
-    if (legacy_unbound_union_fields) {
-      src = mputprintf(src,
-        "TTCN_warning(\"Alternative '%s' was selected for union of type '%s', "
-        "but its value is unbound\");\n"
-        , sdef->elements[i].dispname, sdef->dispname);
-    }
-    else {
-      // a union's alternative cannot be unbound
-      src = mputstr(src, "clean_up();\n");
-    }
-    src = mputstr(src,
-      "    return;\n"
-      "  }\n");
-  }
-  src = mputprintf(src,
-    "  mp_last->error(\"Field %%s does not exist in type %s.\", last_name);\n"
-    "}\n\n", dispname);
-  
-  /* get param function, RT2 only */
-  if (use_runtime_2) {
-    def = mputstr(def, "Module_Param* get_param(Module_Param_Name& param_name) const;\n");
-    src = mputprintf(src,
-      "Module_Param* %s::get_param(Module_Param_Name& param_name) const\n"
-      "{\n"
-      "  if (!is_bound()) {\n"
-      "    return new Module_Param_Unbound();\n"
-      "  }\n"
-      "  if (param_name.next_name()) {\n"
+       "  if (dynamic_cast<Module_Param_Name*>(param.get_id()) != NULL &&\n"
+       "      param.get_id()->next_name()) {\n"
       // Haven't reached the end of the module parameter name
       // => the name refers to one of the fields, not to the whole union
-      "    char* param_field = param_name.get_current_name();\n"
-      "    if (param_field[0] >= '0' && param_field[0] <= '9') {\n"
-      "      TTCN_error(\"Unexpected array index in module parameter reference, \"\n"
-      "        \"expected a valid field name for union type `%s'\");\n"
-      "    }\n"
-      "    ", name, dispname);
+       "    char* param_field = param.get_id()->get_current_name();\n"
+       "    if (param_field[0] >= '0' && param_field[0] <= '9') {\n"
+       "      param.error(\"Unexpected array index in module parameter, expected a valid field\"\n"
+       "        \" name for union type `%s'\");\n"
+       "    }\n"
+       "    ", dispname);
+      for (i = 0; i < sdef->nElements; i++) {
+	src = mputprintf(src,
+	 "if (strcmp(\"%s\", param_field) == 0) {\n"
+	 "      %s%s().set_param(param);\n"
+	 "      return;\n"
+	 "    } else ",
+	 sdef->elements[i].dispname, at_field, sdef->elements[i].name);
+      }
+      src = mputprintf(src,
+       "param.error(\"Field `%%s' not found in union type `%s'\", param_field);\n"
+       "  }\n", dispname);
+    }
+    src = mputstr(src,
+       "  param.basic_check(Module_Param::BC_VALUE, \"union value\");\n"
+       "  Module_Param_Ptr m_p = &param;\n");
+    if (use_runtime_2) {
+      src = mputstr(src,
+       "  if (param.get_type() == Module_Param::MP_Reference) {\n"
+       "    m_p = param.get_referenced_param();\n"
+       "  }\n");
+    }
+    src = mputstr(src,
+       "  if (m_p->get_type()==Module_Param::MP_Value_List && m_p->get_size()==0) return;\n"
+       "  if (m_p->get_type()!=Module_Param::MP_Assignment_List) {\n"
+       "    param.error(\"union value with field name was expected\");\n"
+       "  }\n"
+       "  Module_Param* mp_last = m_p->get_elem(m_p->get_size()-1);\n"
+       "  char* last_name = mp_last->get_id()->get_name();\n");
+
     for (i = 0; i < sdef->nElements; i++) {
       src = mputprintf(src,
-       "if (strcmp(\"%s\", param_field) == 0) {\n"
-       "      return %s%s().get_param(param_name);\n"
-       "    } else ",
-       sdef->elements[i].dispname, at_field, sdef->elements[i].name);
+	"  if (!strcmp(last_name, \"%s\")) {\n"
+	"    %s%s().set_param(*mp_last);\n"
+	"    if (!%s%s().is_bound()) "
+	, sdef->elements[i].dispname, at_field, sdef->elements[i].name
+	, at_field, sdef->elements[i].name);
+      if (legacy_unbound_union_fields) {
+	src = mputprintf(src,
+	  "TTCN_warning(\"Alternative '%s' was selected for union of type '%s', "
+	  "but its value is unbound\");\n"
+	  , sdef->elements[i].dispname, sdef->dispname);
+      }
+      else {
+	// a union's alternative cannot be unbound
+	src = mputstr(src, "clean_up();\n");
+      }
+      src = mputstr(src,
+	"    return;\n"
+	"  }\n");
     }
     src = mputprintf(src,
-      "TTCN_error(\"Field `%%s' not found in union type `%s'\", param_field);\n"
-      "  }\n"
-      "  Module_Param* mp_field = NULL;\n"
-      "  switch(union_selection) {\n"
-      , name);
-      for (i = 0; i < sdef->nElements; ++i) {
-        src = mputprintf(src, 
-          "  case %s_%s:\n"
-          "    mp_field = field_%s->get_param(param_name);\n"
-          "    mp_field->set_id(new Module_Param_FieldName(mcopystr(\"%s\")));\n"
-          "    break;\n"
-          , selection_prefix, sdef->elements[i].name
-          , sdef->elements[i].name, sdef->elements[i].dispname);
+      "  mp_last->error(\"Field %%s does not exist in type %s.\", last_name);\n"
+      "}\n\n", dispname);
+
+    /* get param function, RT2 only */
+    if (use_runtime_2) {
+      def = mputstr(def, "Module_Param* get_param(Module_Param_Name& param_name) const;\n");
+      src = mputprintf(src,
+	"Module_Param* %s::get_param(Module_Param_Name& param_name) const\n"
+	"{\n"
+	"  if (!is_bound()) {\n"
+	"    return new Module_Param_Unbound();\n"
+	"  }\n"
+	"  if (param_name.next_name()) {\n"
+	// Haven't reached the end of the module parameter name
+	// => the name refers to one of the fields, not to the whole union
+	"    char* param_field = param_name.get_current_name();\n"
+	"    if (param_field[0] >= '0' && param_field[0] <= '9') {\n"
+	"      TTCN_error(\"Unexpected array index in module parameter reference, \"\n"
+	"        \"expected a valid field name for union type `%s'\");\n"
+	"    }\n"
+	"    ", name, dispname);
+      for (i = 0; i < sdef->nElements; i++) {
+	src = mputprintf(src,
+	 "if (strcmp(\"%s\", param_field) == 0) {\n"
+	 "      return %s%s().get_param(param_name);\n"
+	 "    } else ",
+	 sdef->elements[i].dispname, at_field, sdef->elements[i].name);
       }
-    src = mputstr(src,
-      "  default:\n"
-      "    break;\n"
-      "  }\n"
-      "  Module_Param_Assignment_List* m_p = new Module_Param_Assignment_List();\n"
-      "  m_p->add_elem(mp_field);\n"
-      "  return m_p;\n"
-      "}\n\n");
-  }
+      src = mputprintf(src,
+	"TTCN_error(\"Field `%%s' not found in union type `%s'\", param_field);\n"
+	"  }\n"
+	"  Module_Param* mp_field = NULL;\n"
+	"  switch(union_selection) {\n"
+	, name);
+	for (i = 0; i < sdef->nElements; ++i) {
+	  src = mputprintf(src,
+	    "  case %s_%s:\n"
+	    "    mp_field = field_%s->get_param(param_name);\n"
+	    "    mp_field->set_id(new Module_Param_FieldName(mcopystr(\"%s\")));\n"
+	    "    break;\n"
+	    , selection_prefix, sdef->elements[i].name
+	    , sdef->elements[i].name, sdef->elements[i].dispname);
+	}
+      src = mputstr(src,
+	"  default:\n"
+	"    break;\n"
+	"  }\n"
+	"  Module_Param_Assignment_List* m_p = new Module_Param_Assignment_List();\n"
+	"  m_p->add_elem(mp_field);\n"
+	"  return m_p;\n"
+	"}\n\n");
+    }
 
-  /* set implicit omit function, recursive */
-  def = mputstr(def, "  void set_implicit_omit();\n");
-  src = mputprintf(src,
-    "void %s::set_implicit_omit()\n{\n"
-    "switch (union_selection) {\n", name);
-  for (i = 0; i < sdef->nElements; i++) {
+    /* set implicit omit function, recursive */
+    def = mputstr(def, "  void set_implicit_omit();\n");
     src = mputprintf(src,
-      "case %s_%s:\n"
-      "field_%s->set_implicit_omit(); break;\n",
-      selection_prefix, sdef->elements[i].name, sdef->elements[i].name);
-  }
-  src = mputstr(src, "default: break;\n}\n}\n\n");
+      "void %s::set_implicit_omit()\n{\n"
+      "switch (union_selection) {\n", name);
+    for (i = 0; i < sdef->nElements; i++) {
+      src = mputprintf(src,
+	"case %s_%s:\n"
+	"field_%s->set_implicit_omit(); break;\n",
+	selection_prefix, sdef->elements[i].name, sdef->elements[i].name);
+    }
+    src = mputstr(src, "default: break;\n}\n}\n\n");
 
-  /* encode_text function */
-  def = mputstr(def, "void encode_text(Text_Buf& text_buf) const;\n");
-  src = mputprintf(src, "void %s::encode_text(Text_Buf& text_buf) const\n"
-    "{\n"
-    "text_buf.push_int(union_selection);\n"
-    "switch (union_selection) {\n", name);
-  for (i = 0; i < sdef->nElements; i++) {
-    src = mputprintf(src, "case %s_%s:\n"
-      "field_%s->encode_text(text_buf);\n"
-      "break;\n", selection_prefix, sdef->elements[i].name,
-      sdef->elements[i].name);
+    /* encode_text function */
+    def = mputstr(def, "void encode_text(Text_Buf& text_buf) const;\n");
+    src = mputprintf(src, "void %s::encode_text(Text_Buf& text_buf) const\n"
+      "{\n"
+      "text_buf.push_int(union_selection);\n"
+      "switch (union_selection) {\n", name);
+    for (i = 0; i < sdef->nElements; i++) {
+      src = mputprintf(src, "case %s_%s:\n"
+	"field_%s->encode_text(text_buf);\n"
+	"break;\n", selection_prefix, sdef->elements[i].name,
+	sdef->elements[i].name);
+    }
+    src = mputprintf(src, "default:\n"
+      "TTCN_error(\"Text encoder: Encoding an unbound value of union type "
+	"%s.\");\n"
+      "}\n"
+      "}\n\n", dispname);
+  
+    /* decode_text function */
+    def = mputstr(def, "void decode_text(Text_Buf& text_buf);\n");
+    src = mputprintf(src, "void %s::decode_text(Text_Buf& text_buf)\n"
+      "{\n"
+      "switch ((%s)text_buf.pull_int().get_val()) {\n", name, selection_type);
+    for (i = 0; i < sdef->nElements; i++) {
+      src = mputprintf(src, "case %s_%s:\n"
+	"%s%s().decode_text(text_buf);\n"
+	"break;\n", selection_prefix, sdef->elements[i].name,
+	at_field, sdef->elements[i].name);
+    }
+    src = mputprintf(src, "default:\n"
+      "TTCN_error(\"Text decoder: Unrecognized union selector was received "
+	"for type %s.\");\n"
+      "}\n"
+      "}\n\n", dispname);
   }
-  src = mputprintf(src, "default:\n"
-    "TTCN_error(\"Text encoder: Encoding an unbound value of union type "
-      "%s.\");\n"
-    "}\n"
-    "}\n\n", dispname);
-
-  /* decode_text function */
-  def = mputstr(def, "void decode_text(Text_Buf& text_buf);\n");
-  src = mputprintf(src, "void %s::decode_text(Text_Buf& text_buf)\n"
-    "{\n"
-    "switch ((%s)text_buf.pull_int().get_val()) {\n", name, selection_type);
-  for (i = 0; i < sdef->nElements; i++) {
-    src = mputprintf(src, "case %s_%s:\n"
-      "%s%s().decode_text(text_buf);\n"
-      "break;\n", selection_prefix, sdef->elements[i].name,
-      at_field, sdef->elements[i].name);
+  else if (use_runtime_2) {
+    // implement abstract functions inherited by Base_Type (these are never called)
+    def = mputstr(def,
+      "  void set_param(Module_Param&) { }\n"
+      "  Module_Param* get_param(Module_Param_Name&) const { return NULL; }\n"
+      "  void encode_text(Text_Buf&) const { }\n"
+      "  void decode_text(Text_Buf&) { }\n"
+      "  boolean is_equal(const Base_Type*) const { return FALSE; }\n"
+      "  void set_value(const Base_Type*) { }\n"
+      "  Base_Type* clone() const { return NULL; }\n"
+      "  const TTCN_Typedescriptor_t* get_descriptor() const { return NULL; }\n\n");
   }
-  src = mputprintf(src, "default:\n"
-    "TTCN_error(\"Text decoder: Unrecognized union selector was received "
-      "for type %s.\");\n"
-    "}\n"
-    "}\n\n", dispname);
 
   if(ber_needed || raw_needed || text_needed || xer_needed || json_needed
     || oer_needed) {

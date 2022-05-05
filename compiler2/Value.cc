@@ -14523,28 +14523,34 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case OPTYPE_ISBOUND: {
       Template::templatetype_t temp = u.expr.ti1->get_Template()
           ->get_templatetype();
-      // TODO: use get_refd_assignment instead to determine whether it's a template?
+      Ttcn::Reference* reference = NULL;
       if (temp == Template::SPECIFIC_VALUE) {
-        Value* specific_value = u.expr.ti1->get_Template()
-            ->get_specific_value();
+        Value* specific_value = u.expr.ti1->get_Template()->get_specific_value();
         if (specific_value->get_valuetype() == Value::V_REFD) {
-          Ttcn::Reference* reference =
-              dynamic_cast<Ttcn::Reference*>(specific_value->get_reference());
-          if (reference != NULL && !reference->has_parameters()) {
-            reference->generate_code_ispresentboundchosen(expr, false,
-              u.expr.v_optype, NULL);
-            break;
-          }
+          reference = dynamic_cast<Ttcn::Reference*>(specific_value->get_reference());
         }
-      } else if (temp == Template::TEMPLATE_REFD) {
-          Ttcn::Reference* reference =
-            dynamic_cast<Ttcn::Reference*>(u.expr.ti1->get_Template()
-              ->get_reference());
-          if (reference != NULL && !reference->has_parameters()) {
-            reference->generate_code_ispresentboundchosen(expr, true,
-              u.expr.v_optype, NULL);
-            break;
-         }
+      }
+      else if (temp == Template::TEMPLATE_REFD) {
+        reference = dynamic_cast<Ttcn::Reference*>(u.expr.ti1->get_Template()->get_reference());
+      }
+      if (reference != NULL && !reference->has_parameters()) {
+	bool is_template = false;
+	switch (reference->get_refd_assignment()->get_asstype()) {
+	case Assignment::A_TEMPLATE:
+	case Assignment::A_VAR_TEMPLATE:
+	case Assignment::A_MODULEPAR_TEMP:
+	case Assignment::A_FUNCTION_RTEMP:
+	case Assignment::A_EXT_FUNCTION_RTEMP:
+	case Assignment::A_PAR_TEMPL_IN:
+	case Assignment::A_PAR_TEMPL_INOUT:
+	case Assignment::A_PAR_TEMPL_OUT:
+	  is_template = true;
+	  break;
+	default:
+	  break;
+	}
+	reference->generate_code_ispresentboundchosen(expr, is_template, u.expr.v_optype, NULL);
+	break;
       }
     }
     // no break
@@ -16813,7 +16819,6 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case V_NAMEDBITS:
     case V_UNDEF_LOWERID:
     case V_UNDEF_BLOCK:
-    case V_TTCN3_NULL:
       // these values cannot occur during code generation
       FATAL_ERROR("Value::needs_temp_ref()");
     case V_INT:

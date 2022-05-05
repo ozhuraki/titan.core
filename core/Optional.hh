@@ -378,11 +378,7 @@ public:
 template<typename T_type>
 Base_Type* OPTIONAL<T_type>::get_opt_value()
 {
-#ifdef TITAN_RUNTIME_2
   if (!is_present())
-#else
-  if (optional_selection!=OPTIONAL_PRESENT)
-#endif
     TTCN_error("Internal error: get_opt_value() called on a non-present optional field.");
   return optional_value;
 }
@@ -390,11 +386,7 @@ Base_Type* OPTIONAL<T_type>::get_opt_value()
 template<typename T_type>
 const Base_Type* OPTIONAL<T_type>::get_opt_value() const
 {
-#ifdef TITAN_RUNTIME_2
   if (!is_present())
-#else
-  if (optional_selection!=OPTIONAL_PRESENT)
-#endif
     TTCN_error("Internal error: get_opt_value() const called on a non-present optional field.");
   return optional_value;
 }
@@ -402,25 +394,13 @@ const Base_Type* OPTIONAL<T_type>::get_opt_value() const
 template<typename T_type>
 boolean OPTIONAL<T_type>::is_seof() const
 {
-  return
-#ifdef TITAN_RUNTIME_2
-  (is_present())
-#else
-  (optional_selection==OPTIONAL_PRESENT)
-#endif
-  ? optional_value->is_seof() : T_type().is_seof();
+  return (is_present()) ? optional_value->is_seof() : T_type().is_seof();
 }
 
 template<typename T_type>
 const TTCN_Typedescriptor_t* OPTIONAL<T_type>::get_descriptor() const
 {
-  return 
-#ifdef TITAN_RUNTIME_2
-  (is_present())
-#else
-  (optional_selection==OPTIONAL_PRESENT)
-#endif
-  ? optional_value->get_descriptor() : T_type().get_descriptor();
+  return (is_present()) ? optional_value->get_descriptor() : T_type().get_descriptor();
 }
 
 #endif

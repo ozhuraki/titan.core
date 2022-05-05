@@ -253,6 +253,9 @@ void Type::generate_code_embedded_after(output_struct *target)
 
 void Type::generate_code_typedescriptor(output_struct *target)
 {
+  if (contains_class()) {
+    return;
+  }
   bool force_xer = FALSE;
   switch (get_type_refd_last()->typetype) {
   case T_PORT:
@@ -1588,8 +1591,13 @@ void Type::generate_code_Choice(output_struct *target)
     sdef.xerUseUnion = xerattrib->useUnion_;
     sdef.xerUseTypeAttr  = xerattrib->useType_ || xerattrib->useUnion_;
   }
+
+  sdef.containsClass = contains_class();
+
   defUnionClass(&sdef, target);
-  defUnionTemplate(&sdef, target);
+  if (!sdef.containsClass) {
+    defUnionTemplate(&sdef, target);
+  }
 
   free_code_ot(sdef.ot);
   sdef.ot=0;
@@ -2262,8 +2270,12 @@ void Type::generate_code_Se(output_struct *target)
     }
   }
 
+  sdef.containsClass = contains_class();
+
   defRecordClass(&sdef, target);
-  defRecordTemplate(&sdef, target);
+  if (!sdef.containsClass) {
+    defRecordTemplate(&sdef, target);
+  }
 
   for(size_t i = 0; i < sdef.totalElements; i++) {
     // free the array but not the strings
@@ -2434,12 +2446,16 @@ void Type::generate_code_SeOf(output_struct *target)
     }
   }
 
+  sofdef.containsClass = contains_class();
+
   if (optimized_memalloc) {
     defRecordOfClassMemAllocOptimized(&sofdef, target);
   } else {
     defRecordOfClass(&sofdef, target);
   }
-  defRecordOfTemplate(&sofdef, target);
+  if (!sofdef.containsClass) {
+    defRecordOfTemplate(&sofdef, target);
+  }
 
   if (sofdef.nFollowers) {
     Free(sofdef.followers);
@@ -2478,10 +2494,12 @@ void Type::generate_code_Array(output_struct *target)
       u.array.dimension->get_value_type(u.array.element_type, my_scope).c_str(),
       own_name);
   }
-  target->header.typedefs = mputprintf(target->header.typedefs,
-    "typedef %s %s_template;\n",
-    u.array.dimension->get_template_type(u.array.element_type, my_scope).c_str(),
-    own_name);
+  if (!contains_class()) {
+    target->header.typedefs = mputprintf(target->header.typedefs,
+      "typedef %s %s_template;\n",
+      u.array.dimension->get_template_type(u.array.element_type, my_scope).c_str(),
+      own_name);
+  }
 }
 
 void Type::generate_code_Fat(output_struct *target)
@@ -2971,6 +2989,7 @@ void Type::generate_code_ispresentboundchosen(expression_struct *expr,
   Type *t = this;
   Type *next_t;
   bool next_o; // next is optional value
+  bool next_is_class;
   size_t nof_refs = subrefs->get_nof_refs();
   subrefs->clear_string_element_ref();
   char *tmp_generalid_str = mcopystr(external_id.c_str());
@@ -3037,6 +3056,7 @@ void Type::generate_code_ispresentboundchosen(expression_struct *expr,
         next_t = cf->get_type();
         next_o = !is_template && cf->get_is_optional();
       }
+      next_is_class = next_t->get_type_refd_last()->typetype == T_CLASS;
 
       switch (t->typetype) {
       case T_CHOICE_A:
@@ -3172,7 +3192,6 @@ void Type::generate_code_ispresentboundchosen(expression_struct *expr,
         const string& tmp_id2 = module->get_temporary_id();
         const char *tmp_id_str = tmp_id.c_str();
         const char *tmp_id2_str = tmp_id2.c_str();
-        bool next_is_class = next_t->get_type_refd_last()->typetype == T_CLASS;
         
         if (t->typetype == T_CLASS) {
           expr->expr = mputprintf(expr->expr, "%s%s%s %s = %s->%s;\n",
@@ -3192,9 +3211,10 @@ void Type::generate_code_ispresentboundchosen(expression_struct *expr,
           // If we would get the const ref of the field immediately then the
           // value in the const ref would be free-d instantly.
           expr->expr = mputprintf(expr->expr,
-            "const %s%s& %s = %s.%s%s();\n",
+            "%s%s%s%s %s = %s.%s%s();\n",
+            next_is_class ? "" : "const ",
             next_t->get_genname_value(module).c_str(),
-            is_template ? "_template" : "",
+            is_template ? "_template" : "", next_is_class ? "" : "&",
             tmp_id2_str, tmp_id_str,
             t->typetype == T_ANYTYPE ? "AT_" : "", id.get_name().c_str());
         }
@@ -3255,7 +3275,7 @@ void Type::generate_code_ispresentboundchosen(expression_struct *expr,
       const string& tmp_id = module->get_temporary_id();
       const char *tmp_id_str = tmp_id.c_str();
       
-      bool next_is_class = next_t->get_type_refd_last()->typetype == T_CLASS;
+      next_is_class = next_t->get_type_refd_last()->typetype == T_CLASS;
       expr->expr = mputprintf(expr->expr, "%s%s%s %s = %s->%s(",
         next_is_class ? "" : "const ",
         next_t->get_genname_value(module).c_str(),
@@ -3346,6 +3366,7 @@ void Type::generate_code_ispresentboundchosen(expression_struct *expr,
       }
 
       next_t = embedded_type;
+      next_is_class = next_t->get_type_refd_last()->typetype == T_CLASS;
 
       // check the index value
       Value *index_value = ref->get_val();
@@ -3386,21 +3407,21 @@ void Type::generate_code_ispresentboundchosen(expression_struct *expr,
       } else {
         if (is_template) {
             expr->expr = mputprintf(expr->expr,
-            "const %s& %s = %s[%s];\n",
-            next_t->get_genname_template(module).c_str(),
-            tmp_id_str, tmp_generalid_str,
+            "%s%s%s %s = %s[%s];\n",
+            next_is_class ? "" : "const ", next_t->get_genname_template(module).c_str(),
+            next_is_class ? "" : "&", tmp_id_str, tmp_generalid_str,
             tmp_index_id_str);
         } else {
             expr->expr = mputprintf(expr->expr,
-            "const %s%s& %s = %s[%s];\n",
-            next_t->get_genname_value(module).c_str(),
-            is_template?"_template":"", tmp_id_str, tmp_generalid_str,
+            "%s%s%s%s %s = %s[%s];\n",
+            next_is_class ? "" : "const ", next_t->get_genname_value(module).c_str(),
+            is_template?"_template":"", next_is_class ? "" : "&", tmp_id_str, tmp_generalid_str,
             tmp_index_id_str);
         }
         
         if (i != nof_refs - 1 || optype == ISCHOSEN) {
-          expr->expr = mputprintf(expr->expr, "%s = %s.is_bound();\n",
-            global_id.c_str(), tmp_id_str);
+          expr->expr = mputprintf(expr->expr, "%s = %s.is_%s();\n",
+            global_id.c_str(), tmp_id_str, next_is_class ? "present" : "bound");
         }
         if (i == nof_refs - 1) {
           switch (optype) {

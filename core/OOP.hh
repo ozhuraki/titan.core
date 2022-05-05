@@ -22,7 +22,11 @@
 // ----------
 
 template <typename T>
-class OBJECT_REF {
+class OBJECT_REF
+#ifdef TITAN_RUNTIME_2
+  : public Base_Type
+#endif
+{
   template <typename T2>
   friend boolean operator==(null_type, const OBJECT_REF<T2>& right_val);
   template <typename T2>
@@ -188,6 +192,51 @@ public:
     }
     return new OBJECT_REF<T2>(new_ptr);
   }
+
+#ifdef TITAN_RUNTIME_2
+
+  boolean is_equal(const Base_Type*) const {
+    TTCN_error("Internal error: OBJECT_REF::is_equal called");
+    return false;
+  }
+
+  void set_value(const Base_Type*) {
+    TTCN_error("Internal error: OBJECT_REF::set_value called");
+  }
+
+  Base_Type* clone() const {
+    TTCN_error("Internal error: OBJECT_REF::clone called");
+    return NULL;
+  }
+
+  void set_param(Module_Param&) {
+    TTCN_error("Internal error: OBJECT_REF::set_param called");
+  }
+
+  Module_Param* get_param(Module_Param_Name&) const {
+    TTCN_error("Internal error: OBJECT_REF::get_param called");
+    return NULL;
+  }
+
+  boolean is_seof() const {
+    TTCN_error("Internal error: OBJECT_REF::is_seof called");
+    return FALSE;
+  }
+
+  void encode_text(Text_Buf&) const {
+    TTCN_error("Internal error: OBJECT_REF::encode_text called");
+  }
+
+  void decode_text(Text_Buf&) {
+    TTCN_error("Internal error: OBJECT_REF::decode_text called");
+  }
+
+  const TTCN_Typedescriptor_t* get_descriptor() const {
+    TTCN_error("Internal error: OBJECT_REF::get_descriptor called");
+    return NULL;
+  }
+
+#endif
 };
 
 template<typename T>

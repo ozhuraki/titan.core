@@ -54,7 +54,7 @@ static void defRecordTemplate2(const struct_def *sdef, output_struct *output);
 
 void defRecordClass(const struct_def *sdef, output_struct *output)
 {
-  if (use_runtime_2) defRecordClass2(sdef, output);
+  if (use_runtime_2 && !sdef->containsClass) defRecordClass2(sdef, output);
   else defRecordClass1(sdef, output);
 }
 
@@ -3643,12 +3643,12 @@ void defRecordClass1(const struct_def *sdef, output_struct *output)
   const char *name = sdef->name, *dispname = sdef->dispname;
   const char* kind_str = sdef->kind == SET ? "set" : "record";
   char *def = NULL, *src = NULL;
-  boolean ber_needed = sdef->isASN1 && enable_ber();
-  boolean raw_needed = sdef->hasRaw && enable_raw();
-  boolean text_needed = sdef->hasText && enable_text();
-  boolean xer_needed = sdef->hasXer && enable_xer();
-  boolean json_needed = sdef->hasJson && enable_json();
-  boolean oer_needed = sdef->hasOer && enable_oer();
+  boolean ber_needed = sdef->isASN1 && !sdef->containsClass && enable_ber();
+  boolean raw_needed = sdef->hasRaw && !sdef->containsClass && enable_raw();
+  boolean text_needed = sdef->hasText && !sdef->containsClass && enable_text();
+  boolean xer_needed = sdef->hasXer && !sdef->containsClass && enable_xer();
+  boolean json_needed = sdef->hasJson && !sdef->containsClass && enable_json();
+  boolean oer_needed = sdef->hasOer && !sdef->containsClass && enable_oer();
 
   /* class declaration code */
   output->header.class_decls = mputprintf(output->header.class_decls,
@@ -3755,10 +3755,15 @@ void defRecordClass1(const struct_def *sdef, output_struct *output)
   src = mputstr(src,
       "}\n\n");
 
-  def = mputstr(def, "const TTCN_Typedescriptor_t* get_descriptor() const;\n");
-  src = mputprintf(src,
-    "const TTCN_Typedescriptor_t* %s::get_descriptor() const { return &%s_descr_; }\n",
-    name, name);
+  if (!sdef->containsClass) {
+    def = mputstr(def, "const TTCN_Typedescriptor_t* get_descriptor() const;\n");
+    src = mputprintf(src,
+      "const TTCN_Typedescriptor_t* %s::get_descriptor() const { return &%s_descr_; }\n",
+      name, name);
+  }
+  else if (use_runtime_2) { // need to implement this, cause it's abstract in RT2
+    def = mputstr(def, "const TTCN_Typedescriptor_t* get_descriptor() const { return NULL; }\n");
+  }
 
   /* = operator */
   def = mputprintf(def, "  %s& operator=(const %s& other_value);\n", name, name);
@@ -3922,90 +3927,103 @@ void defRecordClass1(const struct_def *sdef, output_struct *output)
   }
   src = mputstr(src, "TTCN_Logger::log_event_str(\" }\");\n}\n\n");
 
-  /* set param function */
-  def = mputstr(def, "  void set_param(Module_Param& param);\n");
-  src = mputprintf
-    (src,
-     "void %s::set_param(Module_Param& param)\n{\n"
-     "  param.basic_check(Module_Param::BC_VALUE, \"%s value\");\n"
-     "  switch (param.get_type()) {\n"
-     "  case Module_Param::MP_Value_List:\n"
-     "    if (%lu<param.get_size()) {\n"
-     "      param.error(\"%s value of type %s has %lu fields but list value has %%d fields\", (int)param.get_size());\n"
-     "    }\n",
-     name, kind_str, (unsigned long)sdef->nElements, kind_str, dispname, (unsigned long)sdef->nElements);
+  if (!sdef->containsClass) {
+    /* set param function */
+    def = mputstr(def, "  void set_param(Module_Param& param);\n");
+    src = mputprintf
+      (src,
+       "void %s::set_param(Module_Param& param)\n{\n"
+       "  param.basic_check(Module_Param::BC_VALUE, \"%s value\");\n"
+       "  switch (param.get_type()) {\n"
+       "  case Module_Param::MP_Value_List:\n"
+       "    if (%lu<param.get_size()) {\n"
+       "      param.error(\"%s value of type %s has %lu fields but list value has %%d fields\", (int)param.get_size());\n"
+       "    }\n",
+       name, kind_str, (unsigned long)sdef->nElements, kind_str, dispname, (unsigned long)sdef->nElements);
 
-  for (i = 0; i < sdef->nElements; ++i) {
-    src = mputprintf(src,
-      "    if (param.get_size()>%lu && param.get_elem(%lu)->get_type()!=Module_Param::MP_NotUsed) %s().set_param(*param.get_elem(%lu));\n",
-      (unsigned long)i, (unsigned long)i, sdef->elements[i].name, (unsigned long)i);
-  } 
-  src = mputstr(src,
-      "    break;\n"
-      "  case Module_Param::MP_Assignment_List: {\n"
-      "    Vector<bool> value_used(param.get_size());\n"
-      "    value_used.resize(param.get_size(), FALSE);\n");
-  for (i = 0; i < sdef->nElements; ++i) {
-    src = mputprintf(src,
-      "    for (size_t val_idx=0; val_idx<param.get_size(); val_idx++) {\n"
-      "      Module_Param* const curr_param = param.get_elem(val_idx);\n"
-      "      if (!strcmp(curr_param->get_id()->get_name(), \"%s\")) {\n"
-      "        if (curr_param->get_type()!=Module_Param::MP_NotUsed) {\n"
-      "          %s().set_param(*curr_param);\n"
-      "        }\n"
-      "        value_used[val_idx]=TRUE;\n"
-      "      }\n"
-      "    }\n"
-      , sdef->elements[i].dispname, sdef->elements[i].name);
-  }
-  src = mputprintf(src,
-      "    for (size_t val_idx=0; val_idx<param.get_size(); val_idx++) if (!value_used[val_idx]) {\n"
-      "      Module_Param* const curr_param = param.get_elem(val_idx);\n"
-      "      curr_param->error(\"Non existent field name in type %s: %%s\", curr_param->get_id()->get_name());\n"
-      "      break;\n"
-      "    }\n"
-      "  } break;\n"
-      "  default:\n"
-      "    param.type_error(\"%s value\", \"%s\");\n"
-      "  }\n"
-      "}\n\n", dispname, kind_str, dispname);
-
-  /* set implicit omit function, recursive */
-  def = mputstr(def, "  void set_implicit_omit();\n");
-  src = mputprintf(src, "void %s::set_implicit_omit()\n{\n", name);
-  for (i = 0; i < sdef->nElements; i++) {
-    if (sdef->elements[i].isOptional) {
+    for (i = 0; i < sdef->nElements; ++i) {
       src = mputprintf(src,
-        "if (!%s().is_bound()) %s() = OMIT_VALUE;\n"
-        "else %s().set_implicit_omit();\n",
-        sdef->elements[i].name, sdef->elements[i].name, sdef->elements[i].name);
-    } else {
-      src = mputprintf(src,
-        "if (%s().is_bound()) %s().set_implicit_omit();\n",
-        sdef->elements[i].name, sdef->elements[i].name);
+	"    if (param.get_size()>%lu && param.get_elem(%lu)->get_type()!=Module_Param::MP_NotUsed) %s().set_param(*param.get_elem(%lu));\n",
+	(unsigned long)i, (unsigned long)i, sdef->elements[i].name, (unsigned long)i);
     }
-  }
-  src = mputstr(src, "}\n\n");
+    src = mputstr(src,
+	"    break;\n"
+	"  case Module_Param::MP_Assignment_List: {\n"
+	"    Vector<bool> value_used(param.get_size());\n"
+	"    value_used.resize(param.get_size(), FALSE);\n");
+    for (i = 0; i < sdef->nElements; ++i) {
+      src = mputprintf(src,
+	"    for (size_t val_idx=0; val_idx<param.get_size(); val_idx++) {\n"
+	"      Module_Param* const curr_param = param.get_elem(val_idx);\n"
+	"      if (!strcmp(curr_param->get_id()->get_name(), \"%s\")) {\n"
+	"        if (curr_param->get_type()!=Module_Param::MP_NotUsed) {\n"
+	"          %s().set_param(*curr_param);\n"
+	"        }\n"
+	"        value_used[val_idx]=TRUE;\n"
+	"      }\n"
+	"    }\n"
+	, sdef->elements[i].dispname, sdef->elements[i].name);
+    }
+    src = mputprintf(src,
+	"    for (size_t val_idx=0; val_idx<param.get_size(); val_idx++) if (!value_used[val_idx]) {\n"
+	"      Module_Param* const curr_param = param.get_elem(val_idx);\n"
+	"      curr_param->error(\"Non existent field name in type %s: %%s\", curr_param->get_id()->get_name());\n"
+	"      break;\n"
+	"    }\n"
+	"  } break;\n"
+	"  default:\n"
+	"    param.type_error(\"%s value\", \"%s\");\n"
+	"  }\n"
+	"}\n\n", dispname, kind_str, dispname);
 
-  /* text encoder function */
-  def = mputstr(def, "  void encode_text(Text_Buf& text_buf) const;\n");
-  src = mputprintf(src,"void %s::encode_text(Text_Buf& text_buf) const\n{\n",
-                   name);
-  for (i = 0; i < sdef->nElements; i++) {
-    src = mputprintf(src, "field_%s.encode_text(text_buf);\n",
-                     sdef->elements[i].name);
-  }
-  src = mputstr(src, "}\n\n");
+    /* set implicit omit function, recursive */
+    def = mputstr(def, "  void set_implicit_omit();\n");
+    src = mputprintf(src, "void %s::set_implicit_omit()\n{\n", name);
+    for (i = 0; i < sdef->nElements; i++) {
+      if (sdef->elements[i].isOptional) {
+	src = mputprintf(src,
+	  "if (!%s().is_bound()) %s() = OMIT_VALUE;\n"
+	  "else %s().set_implicit_omit();\n",
+	  sdef->elements[i].name, sdef->elements[i].name, sdef->elements[i].name);
+      } else {
+	src = mputprintf(src,
+	  "if (%s().is_bound()) %s().set_implicit_omit();\n",
+	  sdef->elements[i].name, sdef->elements[i].name);
+      }
+    }
+    src = mputstr(src, "}\n\n");
 
-  /* text decoder function */
-  def = mputstr(def, "  void decode_text(Text_Buf& text_buf);\n");
-  src = mputprintf(src, "void %s::decode_text(Text_Buf& text_buf)\n{\n",
-                   name);
-  for (i = 0; i < sdef->nElements; i++) {
-    src = mputprintf(src, "field_%s.decode_text(text_buf);\n",
-                     sdef->elements[i].name);
+    /* text encoder function */
+    def = mputstr(def, "  void encode_text(Text_Buf& text_buf) const;\n");
+    src = mputprintf(src,"void %s::encode_text(Text_Buf& text_buf) const\n{\n",
+		     name);
+    for (i = 0; i < sdef->nElements; i++) {
+      src = mputprintf(src, "field_%s.encode_text(text_buf);\n",
+		       sdef->elements[i].name);
+    }
+    src = mputstr(src, "}\n\n");
+
+    /* text decoder function */
+    def = mputstr(def, "  void decode_text(Text_Buf& text_buf);\n");
+    src = mputprintf(src, "void %s::decode_text(Text_Buf& text_buf)\n{\n",
+		     name);
+    for (i = 0; i < sdef->nElements; i++) {
+      src = mputprintf(src, "field_%s.decode_text(text_buf);\n",
+		       sdef->elements[i].name);
+    }
+    src = mputstr(src, "}\n\n");
   }
-  src = mputstr(src, "}\n\n");
+  else if (use_runtime_2) {
+    // implement abstract functions inherited by Base_Type (these are never called)
+    def = mputstr(def,
+      "  void set_param(Module_Param&) { }\n"
+      "  Module_Param* get_param(Module_Param_Name&) const { return NULL; }\n"
+      "  void encode_text(Text_Buf&) const { }\n"
+      "  void decode_text(Text_Buf&) { }\n"
+      "  boolean is_equal(const Base_Type*) const { return FALSE; }\n"
+      "  void set_value(const Base_Type*) { }\n"
+      "  Base_Type* clone() const { return NULL; }\n\n");
+  }
 
   /* The common "classname::encode()" and "classname::decode()" functions */
   if(ber_needed || raw_needed || text_needed || xer_needed || json_needed
@@ -6483,68 +6501,70 @@ void defRecordTemplate1(const struct_def *sdef, output_struct *output)
 	"}\n"
 	"}\n\n");
 
-    /*encode_text function*/
-    def = mputstr(def, "void encode_text(Text_Buf& text_buf) const;\n");
-    src = mputprintf(src,
-	"void %s_template::encode_text(Text_Buf& text_buf) const\n"
-	"{\n"
-	"encode_text_base(text_buf);\n"
-	"switch (template_selection) {\n"
-	"case SPECIFIC_VALUE:\n", name);
-    for (i = 0; i < sdef->nElements; i++) {
-	src = mputprintf(src, "single_value->field_%s.encode_text(text_buf);\n",
-	    sdef->elements[i].name);
-    }
-    src = mputprintf(src,
-	"case OMIT_VALUE:\n"
-	"case ANY_VALUE:\n"
-	"case ANY_OR_OMIT:\n"
-	"break;\n"
-	"case VALUE_LIST:\n"
-	"case COMPLEMENTED_LIST:\n"
-	"text_buf.push_int(value_list.n_values);\n"
-	"for (unsigned int list_count = 0; list_count < value_list.n_values; "
-	    "list_count++)\n"
-	"value_list.list_value[list_count].encode_text(text_buf);\n"
-	"break;\n"
-	"default:\n"
-	"TTCN_error(\"Text encoder: Encoding an uninitialized/unsupported "
-	    "template of type %s.\");\n"
-	"}\n"
-	"}\n\n", dispname);
+    if (!sdef->containsClass) {
+      /*encode_text function*/
+      def = mputstr(def, "void encode_text(Text_Buf& text_buf) const;\n");
+      src = mputprintf(src,
+	  "void %s_template::encode_text(Text_Buf& text_buf) const\n"
+	  "{\n"
+	  "encode_text_base(text_buf);\n"
+	  "switch (template_selection) {\n"
+	  "case SPECIFIC_VALUE:\n", name);
+      for (i = 0; i < sdef->nElements; i++) {
+	  src = mputprintf(src, "single_value->field_%s.encode_text(text_buf);\n",
+	      sdef->elements[i].name);
+      }
+      src = mputprintf(src,
+	  "case OMIT_VALUE:\n"
+	  "case ANY_VALUE:\n"
+	  "case ANY_OR_OMIT:\n"
+	  "break;\n"
+	  "case VALUE_LIST:\n"
+	  "case COMPLEMENTED_LIST:\n"
+	  "text_buf.push_int(value_list.n_values);\n"
+	  "for (unsigned int list_count = 0; list_count < value_list.n_values; "
+	      "list_count++)\n"
+	  "value_list.list_value[list_count].encode_text(text_buf);\n"
+	  "break;\n"
+	  "default:\n"
+	  "TTCN_error(\"Text encoder: Encoding an uninitialized/unsupported "
+	      "template of type %s.\");\n"
+	  "}\n"
+	  "}\n\n", dispname);
 
-    /*decode_text function*/
-    def = mputstr(def, "void decode_text(Text_Buf& text_buf);\n");
-    src = mputprintf(src,
-	"void %s_template::decode_text(Text_Buf& text_buf)\n"
-	"{\n"
-	"clean_up();\n"
-	"decode_text_base(text_buf);\n"
-	"switch (template_selection) {\n"
-	"case SPECIFIC_VALUE:\n"
-	"single_value = new single_value_struct;\n", name);
-    for (i = 0; i < sdef->nElements; i++) {
-	src = mputprintf(src, "single_value->field_%s.decode_text(text_buf);\n",
-	    sdef->elements[i].name);
+      /*decode_text function*/
+      def = mputstr(def, "void decode_text(Text_Buf& text_buf);\n");
+      src = mputprintf(src,
+	  "void %s_template::decode_text(Text_Buf& text_buf)\n"
+	  "{\n"
+	  "clean_up();\n"
+	  "decode_text_base(text_buf);\n"
+	  "switch (template_selection) {\n"
+	  "case SPECIFIC_VALUE:\n"
+	  "single_value = new single_value_struct;\n", name);
+      for (i = 0; i < sdef->nElements; i++) {
+	  src = mputprintf(src, "single_value->field_%s.decode_text(text_buf);\n",
+	      sdef->elements[i].name);
+      }
+      src = mputprintf(src,
+	  "case OMIT_VALUE:\n"
+	  "case ANY_VALUE:\n"
+	  "case ANY_OR_OMIT:\n"
+	  "break;\n"
+	  "case VALUE_LIST:\n"
+	  "case COMPLEMENTED_LIST:\n"
+	  "value_list.n_values = text_buf.pull_int().get_val();\n"
+	  "value_list.list_value = new %s_template[value_list.n_values];\n"
+	  "for (unsigned int list_count = 0; list_count < value_list.n_values; "
+	      "list_count++)\n"
+	  "value_list.list_value[list_count].decode_text(text_buf);\n"
+	  "break;\n"
+	  "default:\n"
+	  "TTCN_error(\"Text decoder: An unknown/unsupported selection was "
+	      "received in a template of type %s.\");\n"
+	  "}\n"
+	  "}\n\n", name, dispname);
     }
-    src = mputprintf(src,
-	"case OMIT_VALUE:\n"
-	"case ANY_VALUE:\n"
-	"case ANY_OR_OMIT:\n"
-	"break;\n"
-	"case VALUE_LIST:\n"
-	"case COMPLEMENTED_LIST:\n"
-	"value_list.n_values = text_buf.pull_int().get_val();\n"
-	"value_list.list_value = new %s_template[value_list.n_values];\n"
-	"for (unsigned int list_count = 0; list_count < value_list.n_values; "
-	    "list_count++)\n"
-	"value_list.list_value[list_count].decode_text(text_buf);\n"
-	"break;\n"
-	"default:\n"
-	"TTCN_error(\"Text decoder: An unknown/unsupported selection was "
-	    "received in a template of type %s.\");\n"
-	"}\n"
-	"}\n\n", name, dispname);
 
   /* set_param() */
   def = mputstr(def, "void set_param(Module_Param& param);\n");

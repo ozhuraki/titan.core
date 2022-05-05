@@ -155,25 +155,25 @@ function f_defs() { //^In function definition//
 }
 
 
-type record RecClass { //^In type definition//
-  C0 x, //^In record field// //Class type `@oop_SE.C0' cannot be embedded into another type//
-  object y //^In record field// //Class type `object' cannot be embedded into another type//
+type record RecClass {
+  C0 x,
+  object y
 }
 
-type set SetClass { //^In type definition//
-  C0 x, //^In set field// //Class type `@oop_SE.C0' cannot be embedded into another type//
-  object y //^In set field// //Class type `object' cannot be embedded into another type//
+type set SetClass {
+  C0 x,
+  object y
 }
 
-type record of C0 RecOfClass; //^In type definition// //^In embedded type of record of// //Class type `@oop_SE.C0' cannot be embedded into another type//
-type record of object RecOfObject; //^In type definition// //^In embedded type of record of// //Class type `object' cannot be embedded into another type//
+type record of C0 RecOfClass;
+type record of object RecOfObject;
 
-type set of C0 SetOfClass; //^In type definition// //^In embedded type of set of// //Class type `@oop_SE.C0' cannot be embedded into another type//
-type set of object SetOfObject; //^In type definition// //^In embedded type of set of// //Class type `object' cannot be embedded into another type//
+type set of C0 SetOfClass;
+type set of object SetOfObject;
 
-type union UniClass { //^In type definition//
-  C0 x, //^In union field// //Class type `@oop_SE.C0' cannot be embedded into another type//
-  object y //^In union field// //Class type `object' cannot be embedded into another type//
+type union UniClass {
+  C0 x,
+  object y
 }
 
 function f_embedded_types() { //^In function definition//
@@ -183,7 +183,6 @@ function f_embedded_types() { //^In function definition//
   var SetOfClass v_setof := { C0.create };
   var UniClass v_uni := { x := C0.create };
   var anytype v_any; //^In variable definition// //^In type definition//
-  v_any.C0 := C0.create;
 }
 
 
@@ -833,5 +832,5 @@ control { //^In control part//
 
 }
 with {
-  extension "anytype C0, object" //^In anytype field// //Class type `@oop_SE.C0' cannot be embedded into another type// //Class type `object' cannot be added to the anytype//
+  extension "anytype C0, object" //Class type `@oop_SE.C0' cannot be added to the anytype// //Class type `object' cannot be added to the anytype//
 }

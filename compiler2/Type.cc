@@ -2129,18 +2129,36 @@ namespace Common {
     size_t nof_subrefs = subrefs->get_nof_refs();
     if (nof_subrefs < 1) return false;
     Ttcn::FieldOrArrayRef *last_ref = subrefs->get_ref(nof_subrefs - 1);
-    if (last_ref->get_type() == Ttcn::FieldOrArrayRef::ARRAY_REF) return false;
+    if (last_ref->get_type() != Ttcn::FieldOrArrayRef::FIELD_REF) return false;
     // following the embedded types
     Type *t=get_type_refd_last();
     for (size_t i = 0; i < nof_subrefs - 1; i++) {
       Ttcn::FieldOrArrayRef *ref = subrefs->get_ref(i);
-      if (ref->get_type() == Ttcn::FieldOrArrayRef::FIELD_REF)
-        t = t->get_comp_byName(*ref->get_id())->get_type();
-      else t = t->get_ofType();
+      switch (ref->get_type()) {
+      case Ttcn::FieldOrArrayRef::FIELD_REF:
+        t = (t->typetype == T_CLASS) ?
+          t->get_class_type_body()->get_local_ass_byId(*ref->get_id())->get_Type() :
+          t->get_comp_byName(*ref->get_id())->get_type();
+        break;
+      case Ttcn::FieldOrArrayRef::ARRAY_REF:
+	t = t->get_ofType();
+	break;
+      case Ttcn::FieldOrArrayRef::FUNCTION_REF:
+        if (t->get_class_type_body()->has_local_ass_withId(*ref->get_id())) {
+          t = t->get_class_type_body()->get_local_ass_byId(*ref->get_id())->get_Type();
+        }
+        else {
+          t = Ttcn::ClassTypeBody::get_object_method_return_type(ref->get_id()->get_name());
+        }
+	break;
+      default:
+	FATAL_ERROR("Type::field_is_optional");
+      }
       t=t->get_type_refd_last();
     }
     // now last_ref refers to a field of t
-    return t->get_comp_byName(*last_ref->get_id())->get_is_optional();
+    return t->typetype != T_CLASS &&
+      t->get_comp_byName(*last_ref->get_id())->get_is_optional();
   }
 
   bool Type::is_root_basic(){
@@ -5962,6 +5980,37 @@ namespace Common {
     else
       return CT_CUSTOM;
   }
+
+  bool Type::contains_class()
+  {
+    // this helps avoid infinite recursions in self-referencing types
+    if (RecursionTracker::is_happening(this)) {
+      return false;
+    }
+    RecursionTracker tracker(this);
+    switch (typetype) {
+    case T_CLASS:
+      return true;
+    case T_REFD:
+      return get_type_refd_last()->contains_class();
+    case T_SEQ_T:
+    case T_SET_T:
+    case T_CHOICE_T:
+      for (size_t i = 0; i < u.secho.cfm->get_nof_comps(); ++i) {
+	if (u.secho.cfm->get_comp_byIndex(i)->get_type()->contains_class()) {
+	  return true;
+	}
+      }
+      return false;
+    case T_SEQOF:
+    case T_SETOF:
+    case T_ARRAY:
+      return get_ofType()->contains_class();
+    default:
+      return false;
+    }
+  }
+
   bool Type::has_ei_withName(const Identifier& p_id) const
   {
     switch (typetype) {

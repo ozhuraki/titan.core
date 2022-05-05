@@ -232,6 +232,32 @@ type class InternalClass extends ExternalClass {
   public external function f_ext2();
 }
 
+type record RecClass {
+  charstring name,
+  object obj
+}
+
+type record of BaseClass BaseClassList;
+
+type BaseClass BaseClassArray[3];
+
+type union UniClass {
+  BaseClass base,
+  AbstractClass abs,
+  integer not_a_class
+}
+
+type union ClassElem {
+  BaseClass base,
+  SubClass sub,
+  FinalClass final
+}
+
+type record of ClassElem ClassUniList;
+
+type ClassElem ClassUniArray[4];
+
+
 testcase tc_members_and_methods() runs on CT {
   var BaseClass v_base := BaseClass.create(4, { 1, 2, 4 }, "a", 'FF'O, (0.0 .. 10.0));
   v_base.members_and_methods_test();
@@ -245,16 +271,27 @@ testcase tc_logging() runs on CT {
   var BaseClass v_sub := SubClass.create(4, il, "a", 'FF'O, tf);
   var BaseClass v_final := FinalClass.create(4, il, "a", 'FF'O, tf, 8, "x", -1.5, *);
   var TraitClass v_conc := ConcreteClass.create;
+  var RecClass v_rec_cls := { name := "sub", obj := ConcreteClass.create };
+  var BaseClassList v_cls_list := { v_base, v_sub, v_final };
+  var BaseClassArray v_cls_arr := { v_base, v_sub, v_final };
+  var UniClass v_uni_cls := { abs := ConcreteClass.create };
 
   log(v_base);
   log(v_sub);
   log(v_final);
   log(v_conc);
+  log(v_rec_cls);
+  log(v_cls_list);
+  log(v_cls_arr);
+  log(v_uni_cls);
   
   var charstring v_base_str := "BaseClass";
   var charstring v_sub_str := "SubClass ( BaseClass )";
   var charstring v_final_str := "FinalClass ( SubClass ( BaseClass ) )";
   var charstring v_conc_str := "ConcreteClass ( AbstractClass, TraitClass )";
+  var charstring v_rec_cls_str := "{ name := \"sub\", obj := " & v_conc_str & " }";
+  var charstring v_cls_list_str := "{ " & v_base_str & ", " & v_sub_str & ", " & v_final_str & " }";
+  var charstring v_uni_cls_str := "{ abs := " & v_conc_str & " }";
   
   if (log2str(v_base) != v_base_str) {
     setverdict(fail, "v_base: ", v_base);
@@ -267,6 +304,18 @@ testcase tc_logging() runs on CT {
   }
   if (log2str(v_conc) != v_conc_str) {
     setverdict(fail, "v_conc: ", v_conc);
+  }
+  if (log2str(v_rec_cls) != v_rec_cls_str) {
+    setverdict(fail, "v_rec_cls: ", v_rec_cls);
+  }
+  if (log2str(v_cls_list) != v_cls_list_str) {
+    setverdict(fail, "v_cls_list: ", v_cls_list);
+  }
+  if (log2str(v_cls_arr) != v_cls_list_str) {
+    setverdict(fail, "v_cls_arr: ", v_cls_arr);
+  }
+  if (log2str(v_uni_cls) != v_uni_cls_str) {
+    setverdict(fail, "v_uni_cls: ", v_uni_cls);
   }
   setverdict(pass);
 }
@@ -454,6 +503,117 @@ testcase tc_references() runs on CT {
     setverdict(fail, "#27");
   }
   if (ischosen(v_null2.get_uni().cs)) {
+    setverdict(fail, "#28");
+  }
+  setverdict(pass);
+}
+
+
+type union UniNode {
+  Node node,
+  octetstring raw
+}
+
+testcase tc_references_in_structures() runs on CT {
+  var BaseClass v_base := BaseClass.create(4, { 1, 2, 4 }, "a", 'FF'O, 1.0);
+  var SubClass v_sub := SubClass.create(4, { 1, 2, 4 }, "a", 'FF'O, 1.0);
+  var FinalClass v_final := FinalClass.create(4, { 1, 2, 4 }, "a", 'FF'O, 1.0, 8, "x", -1.5, *);
+  var BaseClass v_null := null;
+  var Node v_node := Node.create(2, null);
+  var FinalClass v_null2 := null;
+  var RecClass v_rec_cls := { name := "sub", obj := ConcreteClass.create };
+  var ClassUniList v_cls_list := { { base := v_base }, { sub := v_sub }, { final := v_final }, { final := null } };
+  var ClassUniArray v_cls_arr := { { base := v_base }, { sub := v_sub }, { final := v_final }, { final := null } };
+  var UniClass v_uni_cls := { base := null };
+  var UniNode v_uni_node := { node := v_node };
+  
+  var RecClass v_ref1;
+  if (v_ref1.obj != null) {
+    setverdict(fail, "#1");
+  }
+  v_ref1 := v_rec_cls;
+  if (v_ref1.obj != v_rec_cls.obj) {
+    setverdict(fail, "#2");
+  }
+  var integer v_int := v_cls_list[2].final.f(1);
+  if (v_int != 9) {
+    setverdict(fail, "#3, ", v_cls_list[2].final.f(1));
+  }
+  v_int := v_cls_list[2].final.f(2);
+  if (v_int != 10) {
+    setverdict(fail, "#4, ", v_int);
+  }
+  if (not isbound(v_cls_list[2].final.f2(3).list[1])) {
+    setverdict(fail, "#5");
+  }
+  if (not isvalue(v_cls_arr[0].base.get_var_temp())) {
+    setverdict(fail, "#6");
+  }
+  if (not ispresent(v_cls_list[0].base.get_var_temp())) {
+    setverdict(fail, "#7");
+  }
+  if (ischosen(v_cls_list[2].final.get_uni().cs)) {
+    setverdict(fail, "#8");
+  }
+  if (not ischosen(v_cls_arr[2].final.get_uni_temp().cs)) {
+    setverdict(fail, "#9");
+  }
+  if (v_cls_list[2].final.f2(3).list[1] + v_cls_arr[2].final.f(-6) != v_cls_list[0].base.f(3) * float2int(valueof(v_cls_arr[1].sub.get_var_temp()))) {
+    setverdict(fail, "#10, ", v_cls_list[2].final.f2(3).list[1] + v_cls_arr[2].final.f(-6) != v_cls_list[0].base.f(3) * float2int(valueof(v_cls_arr[1].sub.get_var_temp())));
+  }
+  if (match(v_cls_list[2].final.get_uni(), v_cls_arr[2].final.get_uni_temp())) {
+    setverdict(fail, "#11, ", match(v_cls_list[2].final.get_uni(), v_cls_arr[2].final.get_uni_temp()));
+  }
+  if (not isbound(v_cls_list[1].sub)) {
+    setverdict(fail, "#12");
+  }
+  if (not isbound(v_uni_cls.base)) {
+    setverdict(fail, "#13");
+  }
+  if (not isvalue(v_cls_list[2].final)) {
+    setverdict(fail, "#14");
+  }
+  if (not isvalue(v_uni_cls.base)) {
+    setverdict(fail, "#15");
+  }
+  if (not ispresent(v_cls_arr[0].base)) {
+    setverdict(fail, "#16");
+  }
+  if (ispresent(v_uni_cls.base)) {
+    setverdict(fail, "#17");
+  }
+  var UniClass v_uni_cls2 := v_uni_cls;
+  if (v_uni_cls2.base != null) {
+    setverdict(fail, "#18");
+  }
+  if (ispresent(v_uni_cls.base.get_var_temp())) {
+    setverdict(fail, "#19");
+  }
+  if (ispresent(v_uni_node.node.get_next())) {
+    setverdict(fail, "#20");
+  }
+  if (ispresent(v_uni_node.node.get_next().f())) {
+    setverdict(fail, "#21");
+  }
+  if (isbound(v_uni_cls.base.get_var_temp())) {
+    setverdict(fail, "#22");
+  }
+  if (not isbound(v_uni_node.node.get_next())) {
+    setverdict(fail, "#23");
+  }
+  if (isbound(v_uni_node.node.get_next().f())) {
+    setverdict(fail, "#24");
+  }
+  if (isvalue(v_uni_cls.base.get_var_temp())) {
+    setverdict(fail, "#25");
+  }
+  if (not isvalue(v_uni_node.node.get_next())) {
+    setverdict(fail, "#26");
+  }
+  if (isvalue(v_uni_node.node.get_next().f())) {
+    setverdict(fail, "#27");
+  }
+  if (ischosen(v_cls_list[3].final.get_uni().cs)) {
     setverdict(fail, "#28");
   }
   setverdict(pass);
@@ -787,6 +947,7 @@ control {
   execute(tc_null());
   execute(tc_this());
   execute(tc_references());
+  execute(tc_references_in_structures());
   execute(tc_function_pars_and_retval());
   execute(tc_function_pars_in());
   execute(tc_object());

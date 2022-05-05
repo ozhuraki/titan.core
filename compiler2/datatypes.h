@@ -134,6 +134,7 @@ typedef struct {
   boolean opentype_outermost;
   Opentype_t *ot;
   boolean isOptional; /**< this structure is an optional field in a record/set */
+  boolean containsClass;
 } struct_def;
 
 /** record of, set of descriptor for code generation */
@@ -161,6 +162,7 @@ typedef struct {
   const char *oftypedescrname; /**< Type descr. variable of the elements */
   size_t nFollowers; /**< number of optional fields following the record-of */
   struct_field *followers; /**< information about following optional siblings */
+  boolean containsClass;
 } struct_of_def;
 
 /* for processing enumerated type definitions */

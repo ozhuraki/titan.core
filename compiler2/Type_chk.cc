@@ -3807,10 +3807,6 @@ void Type::chk_embedded(bool default_allowed, const char *error_msg)
   case T_DEFAULT:
     if (!default_allowed) error("Default type cannot be %s", error_msg);
     break;
-  case T_CLASS:
-    error("Class type `%s' cannot be %s", t->get_typename().c_str(),
-      error_msg);
-    break;
   default:
     break;
   }

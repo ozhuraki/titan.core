@@ -3615,7 +3615,7 @@ namespace Ttcn {
     case Common::Assignment::A_PAR_VAL_IN:
     case Common::Assignment::A_PAR_VAL_INOUT:
     case Common::Assignment::A_PAR_VAL_OUT:
-      if (t_ass->get_Type()->get_type_refd_last()->get_typetype() != Common::Type::T_CLASS) {
+      if (!t_ass->get_Type()->contains_class()) {
         ref_pard->error("Reference to a function or altstep was expected "
           "instead of %s, which cannot be invoked",
           t_ass->get_description().c_str());

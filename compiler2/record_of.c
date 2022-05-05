@@ -38,7 +38,7 @@ static void defRecordOfTemplate2(const struct_of_def *sdef, output_struct *outpu
 
 void defRecordOfClass(const struct_of_def *sdef, output_struct *output)
 {
-  if (use_runtime_2) defRecordOfClass2(sdef, output);
+  if (use_runtime_2 && !sdef->containsClass) defRecordOfClass2(sdef, output);
   else defRecordOfClass1(sdef, output);
 }
 
@@ -55,12 +55,12 @@ void defRecordOfClass1(const struct_of_def *sdef, output_struct *output)
   char *def = NULL, *src = NULL;
   const char *name = sdef->name, *dispname = sdef->dispname;
   const char *type = sdef->type;
-  boolean ber_needed = force_gen_seof || (sdef->isASN1 && enable_ber());
-  boolean raw_needed = force_gen_seof || (sdef->hasRaw && enable_raw());
-  boolean text_needed = force_gen_seof || (sdef->hasText && enable_text());
-  boolean xer_needed = force_gen_seof || (sdef->hasXer && enable_xer());
-  boolean json_needed = force_gen_seof || (sdef->hasJson && enable_json());
-  boolean oer_needed = force_gen_seof || (sdef->hasOer && enable_oer());
+  boolean ber_needed = force_gen_seof || (sdef->isASN1 && !sdef->containsClass && enable_ber());
+  boolean raw_needed = force_gen_seof || (sdef->hasRaw && !sdef->containsClass && enable_raw());
+  boolean text_needed = force_gen_seof || (sdef->hasText && !sdef->containsClass && enable_text());
+  boolean xer_needed = force_gen_seof || (sdef->hasXer && !sdef->containsClass && enable_xer());
+  boolean json_needed = force_gen_seof || (sdef->hasJson && !sdef->containsClass && enable_json());
+  boolean oer_needed = force_gen_seof || (sdef->hasOer && !sdef->containsClass && enable_oer());
 
   /* Class definition and private data members */
   def = mputprintf(def,
@@ -467,16 +467,18 @@ void defRecordOfClass1(const struct_of_def *sdef, output_struct *output)
     "}\n"
     "return ret_val;\n"
   "}\n\n", name, name, name, dispname, dispname, dispname, name, type, type, type);
-  def = mputprintf(def,
-    "%s replace(int index, int len, const %s_template& repl) const;\n\n",
-    name, name);
-  src = mputprintf(src,
-    "%s %s::replace(int index, int len, const %s_template& repl) const\n"
-    "{\n"
-    "if (!repl.is_value()) TTCN_error(\"The fourth argument of function "
-      "replace() is a template with non-specific value.\");\n"
-    "return replace(index, len, repl.valueof());\n"
-    "}\n\n", name, name, name);
+  if (!sdef->containsClass) {
+    def = mputprintf(def,
+      "%s replace(int index, int len, const %s_template& repl) const;\n\n",
+      name, name);
+    src = mputprintf(src,
+      "%s %s::replace(int index, int len, const %s_template& repl) const\n"
+      "{\n"
+      "if (!repl.is_value()) TTCN_error(\"The fourth argument of function "
+	"replace() is a template with non-specific value.\");\n"
+      "return replace(index, len, repl.valueof());\n"
+      "}\n\n", name, name, name);
+  }
 
   /* set_size function */
   def = mputstr(def, "void set_size(int new_size);\n");
@@ -600,111 +602,125 @@ void defRecordOfClass1(const struct_of_def *sdef, output_struct *output)
      "}\n"
      "}\n\n", name);
 
-  /* set_param function */
-  def = mputstr(def, "void set_param(Module_Param& param);\n");
-  src = mputprintf(src,
-    "void %s::set_param(Module_Param& param)\n"
-    "{\n"
-    "  param.basic_check(Module_Param::BC_VALUE|Module_Param::BC_LIST, \"%s value\");\n"
-    "  switch (param.get_operation_type()) {\n"
-    "  case Module_Param::OT_ASSIGN:\n"
-    "    if (param.get_type()==Module_Param::MP_Value_List && param.get_size()==0) {\n"
-    "      *this = NULL_VALUE;\n"
-    "      return;\n"
-    "    }\n"
-    "    switch (param.get_type()) {\n"
-    "    case Module_Param::MP_Value_List:\n"
-    "      set_size(param.get_size());\n"
-    "      for (size_t i=0; i<param.get_size(); ++i) {\n"
-    "        Module_Param* const curr = param.get_elem(i);\n"
-    "        if (curr->get_type()!=Module_Param::MP_NotUsed) {\n"
-    "          (*this)[i].set_param(*curr);\n"
-    "          if (!(*this)[i].is_bound()) {\n"
-    "            delete val_ptr->value_elements[i];\n"
-    "            val_ptr->value_elements[i] = NULL;\n"
-    "          }\n"
-    "        }\n"
-    "      }\n"
-    "      break;\n"
-    "    case Module_Param::MP_Indexed_List:\n"
-    "      for (size_t i=0; i<param.get_size(); ++i) {\n"
-    "        Module_Param* const curr = param.get_elem(i);\n"
-    "        (*this)[curr->get_id()->get_index()].set_param(*curr);\n"
-    "        if (!(*this)[curr->get_id()->get_index()].is_bound()) {\n"
-    "          delete val_ptr->value_elements[curr->get_id()->get_index()];\n"
-    "          val_ptr->value_elements[curr->get_id()->get_index()] = NULL;\n"
-    "        }\n"
-    "      }\n"
-    "      break;\n"
-    "    default:\n"
-    "      param.type_error(\"%s value\", \"%s\");\n"
-    "    }\n"
-    "    break;\n"
-    "  case Module_Param::OT_CONCAT:\n"
-    "    switch (param.get_type()) {\n"
-    "    case Module_Param::MP_Value_List: {\n"
-    "      if (!is_bound()) *this = NULL_VALUE;\n"
-    "      int start_idx = lengthof();\n"
-    "      for (size_t i=0; i<param.get_size(); ++i) {\n"
-    "        Module_Param* const curr = param.get_elem(i);\n"
-    "        if ((curr->get_type()!=Module_Param::MP_NotUsed)) {\n"
-    "          (*this)[start_idx+(int)i].set_param(*curr);\n"
-    "        }\n"
-    "      }\n"
-    "    } break;\n"
-    "    case Module_Param::MP_Indexed_List:\n"
-    "      param.error(\"Cannot concatenate an indexed value list\");\n"
-    "      break;\n"
-    "    default:\n"
-    "      param.type_error(\"%s value\", \"%s\");\n"
-    "    }\n"
-    "    break;\n"
-    "  default:\n"
-    "    TTCN_error(\"Internal error: Unknown operation type.\");\n"
-    "  }\n"
-    "}\n\n", name, sdef->kind == RECORD_OF ? "record of" : "set of",
-    sdef->kind == RECORD_OF ? "record of" : "set of", dispname,
-    sdef->kind == RECORD_OF ? "record of" : "set of", dispname);
+  if (!sdef->containsClass) {
+    /* set_param function */
+    def = mputstr(def, "void set_param(Module_Param& param);\n");
+    src = mputprintf(src,
+      "void %s::set_param(Module_Param& param)\n"
+      "{\n"
+      "  param.basic_check(Module_Param::BC_VALUE|Module_Param::BC_LIST, \"%s value\");\n"
+      "  switch (param.get_operation_type()) {\n"
+      "  case Module_Param::OT_ASSIGN:\n"
+      "    if (param.get_type()==Module_Param::MP_Value_List && param.get_size()==0) {\n"
+      "      *this = NULL_VALUE;\n"
+      "      return;\n"
+      "    }\n"
+      "    switch (param.get_type()) {\n"
+      "    case Module_Param::MP_Value_List:\n"
+      "      set_size(param.get_size());\n"
+      "      for (size_t i=0; i<param.get_size(); ++i) {\n"
+      "        Module_Param* const curr = param.get_elem(i);\n"
+      "        if (curr->get_type()!=Module_Param::MP_NotUsed) {\n"
+      "          (*this)[i].set_param(*curr);\n"
+      "          if (!(*this)[i].is_bound()) {\n"
+      "            delete val_ptr->value_elements[i];\n"
+      "            val_ptr->value_elements[i] = NULL;\n"
+      "          }\n"
+      "        }\n"
+      "      }\n"
+      "      break;\n"
+      "    case Module_Param::MP_Indexed_List:\n"
+      "      for (size_t i=0; i<param.get_size(); ++i) {\n"
+      "        Module_Param* const curr = param.get_elem(i);\n"
+      "        (*this)[curr->get_id()->get_index()].set_param(*curr);\n"
+      "        if (!(*this)[curr->get_id()->get_index()].is_bound()) {\n"
+      "          delete val_ptr->value_elements[curr->get_id()->get_index()];\n"
+      "          val_ptr->value_elements[curr->get_id()->get_index()] = NULL;\n"
+      "        }\n"
+      "      }\n"
+      "      break;\n"
+      "    default:\n"
+      "      param.type_error(\"%s value\", \"%s\");\n"
+      "    }\n"
+      "    break;\n"
+      "  case Module_Param::OT_CONCAT:\n"
+      "    switch (param.get_type()) {\n"
+      "    case Module_Param::MP_Value_List: {\n"
+      "      if (!is_bound()) *this = NULL_VALUE;\n"
+      "      int start_idx = lengthof();\n"
+      "      for (size_t i=0; i<param.get_size(); ++i) {\n"
+      "        Module_Param* const curr = param.get_elem(i);\n"
+      "        if ((curr->get_type()!=Module_Param::MP_NotUsed)) {\n"
+      "          (*this)[start_idx+(int)i].set_param(*curr);\n"
+      "        }\n"
+      "      }\n"
+      "    } break;\n"
+      "    case Module_Param::MP_Indexed_List:\n"
+      "      param.error(\"Cannot concatenate an indexed value list\");\n"
+      "      break;\n"
+      "    default:\n"
+      "      param.type_error(\"%s value\", \"%s\");\n"
+      "    }\n"
+      "    break;\n"
+      "  default:\n"
+      "    TTCN_error(\"Internal error: Unknown operation type.\");\n"
+      "  }\n"
+      "}\n\n", name, sdef->kind == RECORD_OF ? "record of" : "set of",
+      sdef->kind == RECORD_OF ? "record of" : "set of", dispname,
+      sdef->kind == RECORD_OF ? "record of" : "set of", dispname);
 
-  /* set implicit omit function, recursive */
-  def = mputstr(def, "  void set_implicit_omit();\n");
-  src = mputprintf(src,
-    "void %s::set_implicit_omit()\n{\n"
-    "if (val_ptr == NULL) return;\n"
-    "for (int i = 0; i < val_ptr->n_elements; i++) {\n"
-    "if (val_ptr->value_elements[i] != NULL) val_ptr->value_elements[i]->set_implicit_omit();\n"
-    "}\n}\n\n", name);
+    /* set implicit omit function, recursive */
+    def = mputstr(def, "  void set_implicit_omit();\n");
+    src = mputprintf(src,
+      "void %s::set_implicit_omit()\n{\n"
+      "if (val_ptr == NULL) return;\n"
+      "for (int i = 0; i < val_ptr->n_elements; i++) {\n"
+      "if (val_ptr->value_elements[i] != NULL) val_ptr->value_elements[i]->set_implicit_omit();\n"
+      "}\n}\n\n", name);
 
-  /* encoding / decoding functions */
-  def = mputstr(def, "void encode_text(Text_Buf& text_buf) const;\n");
-  src = mputprintf(src,
-    "void %s::encode_text(Text_Buf& text_buf) const\n"
-    "{\n"
-    "if (val_ptr == NULL) "
-    "TTCN_error(\"Text encoder: Encoding an unbound value of type %s.\");\n"
-    "text_buf.push_int(val_ptr->n_elements);\n"
-    "for (int elem_count = 0; elem_count < val_ptr->n_elements; "
-    "elem_count++)\n"
-    "(*this)[elem_count].encode_text(text_buf);\n"
-    "}\n\n", name, dispname);
+    /* encoding / decoding functions */
+    def = mputstr(def, "void encode_text(Text_Buf& text_buf) const;\n");
+    src = mputprintf(src,
+      "void %s::encode_text(Text_Buf& text_buf) const\n"
+      "{\n"
+      "if (val_ptr == NULL) "
+      "TTCN_error(\"Text encoder: Encoding an unbound value of type %s.\");\n"
+      "text_buf.push_int(val_ptr->n_elements);\n"
+      "for (int elem_count = 0; elem_count < val_ptr->n_elements; "
+      "elem_count++)\n"
+      "(*this)[elem_count].encode_text(text_buf);\n"
+      "}\n\n", name, dispname);
 
-  def = mputstr(def, "void decode_text(Text_Buf& text_buf);\n");
-  src = mputprintf(src,
-    "void %s::decode_text(Text_Buf& text_buf)\n"
-    "{\n"
-    "clean_up();\n"
-    "val_ptr = new recordof_setof_struct;\n"
-    "val_ptr->ref_count = 1;\n"
-    "val_ptr->n_elements = text_buf.pull_int().get_val();\n"
-    "if (val_ptr->n_elements < 0) TTCN_error(\"Text decoder: Negative size "
-    "was received for a value of type %s.\");\n"
-    "val_ptr->value_elements = (%s**)allocate_pointers(val_ptr->n_elements);\n"
-    "for (int elem_count = 0; elem_count < val_ptr->n_elements; "
-    "elem_count++) {\n"
-    "val_ptr->value_elements[elem_count] = new %s;\n"
-    "val_ptr->value_elements[elem_count]->decode_text(text_buf);\n"
-    "}\n"
-    "}\n\n", name, dispname, type, type);
+    def = mputstr(def, "void decode_text(Text_Buf& text_buf);\n");
+    src = mputprintf(src,
+      "void %s::decode_text(Text_Buf& text_buf)\n"
+      "{\n"
+      "clean_up();\n"
+      "val_ptr = new recordof_setof_struct;\n"
+      "val_ptr->ref_count = 1;\n"
+      "val_ptr->n_elements = text_buf.pull_int().get_val();\n"
+      "if (val_ptr->n_elements < 0) TTCN_error(\"Text decoder: Negative size "
+      "was received for a value of type %s.\");\n"
+      "val_ptr->value_elements = (%s**)allocate_pointers(val_ptr->n_elements);\n"
+      "for (int elem_count = 0; elem_count < val_ptr->n_elements; "
+      "elem_count++) {\n"
+      "val_ptr->value_elements[elem_count] = new %s;\n"
+      "val_ptr->value_elements[elem_count]->decode_text(text_buf);\n"
+      "}\n"
+      "}\n\n", name, dispname, type, type);
+  }
+  else if (use_runtime_2) {
+    // implement abstract functions inherited by Base_Type (these are never called)
+    def = mputstr(def,
+      "  void set_param(Module_Param&) { }\n"
+      "  Module_Param* get_param(Module_Param_Name&) const { return NULL; }\n"
+      "  void encode_text(Text_Buf&) const { }\n"
+      "  void decode_text(Text_Buf&) { }\n"
+      "  boolean is_equal(const Base_Type*) const { return FALSE; }\n"
+      "  void set_value(const Base_Type*) { }\n"
+      "  Base_Type* clone() const { return NULL; }\n"
+      "  const TTCN_Typedescriptor_t* get_descriptor() const { return NULL; }\n\n");
+  }
 
   if(ber_needed || raw_needed || text_needed || xer_needed || json_needed 
     || oer_needed) {
