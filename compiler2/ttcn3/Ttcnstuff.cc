@@ -4270,6 +4270,7 @@ namespace Ttcn {
         "class %s : ",
         class_id->get_name().c_str());
       bool has_base = false;
+      int cpp_base_classes = 0; // number of base classes in C++
       if (base_traits != NULL) {
         for (size_t i = 0; i < base_traits->get_nof_types(); ++i) {
           Type* base_trait = base_traits->get_type_byIndex(i);
@@ -4278,13 +4279,15 @@ namespace Ttcn {
               "%spublic %s", has_base ? ", " : "",
               base_trait->get_type_refd_last()->get_genname_own(this).c_str());
             has_base = true;
+            ++cpp_base_classes;
           }
         }
       }
       if (!trait || !has_base) {
         local_struct->header.class_defs = mputprintf(local_struct->header.class_defs,
-          "%s public %s", has_base ? ", " : "", base_type_name.c_str());
+          "%s public %s", cpp_base_classes > 0 ? ", " : "", base_type_name.c_str());
         has_base |= base_type != NULL;
+        ++cpp_base_classes;
       }
       local_struct->header.class_defs = mputstr(local_struct->header.class_defs,
         " {\n");
@@ -4301,6 +4304,43 @@ namespace Ttcn {
         "static const char* class_name() { return \"%s\"; }\n",
         class_id->get_dispname().c_str());
       
+      if (cpp_base_classes > 1) {
+	// if there are at least 2 base classes, then the generated class will inherit
+	// multiple versions of 'add_ref' or 'remove_ref' from 'CLASS_BASE'
+	local_struct->header.class_defs = mputstr(local_struct->header.class_defs,
+          "\nvirtual void add_ref();\n"
+          "virtual boolean remove_ref();\n");
+	char* add_ref_str = mprintf("void %s::add_ref()\n"
+          "{\n", class_id->get_name().c_str());
+	char* remove_ref_str = mprintf("boolean %s::remove_ref()\n"
+          "{\n"
+          "boolean ret_val = ", class_id->get_name().c_str());
+	if (!trait || cpp_base_classes == 1) {
+	  add_ref_str = mputprintf(add_ref_str, "%s::add_ref();\n", base_type_name.c_str());
+	  remove_ref_str = mputprintf(remove_ref_str, "%s::remove_ref();\n", base_type_name.c_str());
+	}
+	else {
+	  remove_ref_str = mputstr(remove_ref_str, "FALSE;\n");
+	}
+	if (base_traits != NULL) {
+	  for (size_t i = 0; i < base_traits->get_nof_types(); ++i) {
+	    Type* base_trait = base_traits->get_type_byIndex(i);
+	    if (base_trait != NULL) {
+              const string& trait_name = base_trait->get_type_refd_last()->get_genname_own(this);
+              add_ref_str = mputprintf(add_ref_str, "%s::add_ref();\n", trait_name.c_str());
+              remove_ref_str = mputprintf(remove_ref_str, "%s::remove_ref();\n", trait_name.c_str());
+	    }
+	  }
+	}
+	add_ref_str = mputstr(add_ref_str, "}\n\n");
+	remove_ref_str = mputstr(remove_ref_str, "return ret_val;\n"
+	  "}\n\n");
+	local_struct->source.methods = mputstr(local_struct->source.methods, add_ref_str);
+	local_struct->source.methods = mputstr(local_struct->source.methods, remove_ref_str);
+	Free(add_ref_str);
+	Free(remove_ref_str);
+      }
+
       // members
       members->generate_code(local_struct);
       if (default_constructor) {

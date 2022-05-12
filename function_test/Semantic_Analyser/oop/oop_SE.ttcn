@@ -769,9 +769,15 @@ type class C60 { //^In type definition//
 type class C61 { //^In type definition//
   private var integer v;
   private const integer c;
+  private template integer t := ?;
+  private var template integer vt;
   create(template integer p1 := v, //^In constructor definition// //Constructor default parameter cannot contain reference to variable class member `v', which has no initial value//
          integer p2 := c) { } //Constructor default parameter cannot contain reference to constant class member `c', which has no initial value//
-  public function f(inout integer p := v) { p := p + 1; } //^In function definition// //^In formal parameter list// //^In parameter// //In default value// //`out' and `inout' parameters of class functions cannot have default values//
+  public function f(in integer p1 := c, //^In function definition// //Class method default parameter cannot contain reference to constant class member `c'//
+                    inout integer p2 := v, //Class method default parameter cannot contain reference to variable class member `v'//
+                    in template integer p3 := t, //Class method default parameter cannot contain reference to template class member `t'//
+                    in template integer p4 := vt) //Class method default parameter cannot contain reference to template variable class member `vt'//
+                      { p2 := p2 + 1; }
 }
 
 type class C62 { //^In type definition// //^In constructor definition//

@@ -124,7 +124,7 @@ namespace Ttcn {
     /** Checks the embedded recursions within the value or template instance. */
     void chk_recursions(ReferenceChain& refch);
 
-    void chk_ctor_defpar(bool default_ctor, bool in_base_call);
+    void chk_defpar_in_class(bool default_ctor, bool in_base_call, bool in_method);
     void chk_class_member(ClassTypeBody* p_class);
 
     /** Returns whether the actual parameter can be represented by an in-line
@@ -178,7 +178,7 @@ namespace Ttcn {
 
     void chk_immutability();
 
-    void chk_ctor_defpar(bool default_ctor, bool in_base_call);
+    void chk_defpar_in_class(bool default_ctor, bool in_base_call, bool in_method);
     void chk_class_member(ClassTypeBody* p_class);
 
     void set_gen_class_defpar_prefix();
@@ -415,7 +415,7 @@ namespace Ttcn {
      *  Returns the type of the component if so or NULL in case of error. */
     Type *chk_comptype_ref();
     bool chk_activate_argument();
-    void chk_ctor_defpar(bool default_ctor, bool in_base_call);
+    void chk_defpar_in_class(bool default_ctor, bool in_base_call, bool in_method);
     void chk_class_member(ClassTypeBody* p_class);
     virtual bool has_single_expr();
     virtual void set_code_section(GovernedSimple::code_section_t p_code_section);

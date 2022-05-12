@@ -1092,7 +1092,7 @@ namespace Common {
     void set_is_in_brackets();
     bool get_is_in_brackets() const;
 
-    void chk_ctor_defpar(bool default_ctor, bool in_base_call);
+    void chk_defpar_in_class(bool default_ctor, bool in_base_call, bool in_method);
     void chk_class_member(Ttcn::ClassTypeBody* p_class);
 
     void set_gen_class_defpar_prefix();

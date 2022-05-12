@@ -228,26 +228,11 @@ type class C6 {
       setverdict(fail, "vt1: ", vt1, ", expected: ", pt_exp);
     }
   }
-  
-  public function f1(in integer p := c1) {
-    p := p + 1; // test using 'in' paramter as lvalue
-    if (p != c1 + 1) {
-      setverdict(fail, "parameter default value of 'f1': ", p);
-    }
-  }
-  
-  public function f2(in template Rec pt := vt1) {
-    if (log2str(pt) != log2str(vt1)) {
-      setverdict(fail, "parameter default value of 'f2': ", pt);
-    }
-  }
 }
 
 testcase tc_references_in_default_values() runs on CT {
   var C6 x := C6.create;
   x.f_test( { num := (0..100), str := "2x" } );
-  x.f1();
-  x.f2();
   setverdict(pass);
 }
 
@@ -329,6 +314,38 @@ testcase tc_base_call_with_structure_parameter() runs on CT {
 }
 
 
+type class @trait C11_Trait {
+  public function @abstract f(charstring p_test) return charstring;
+}
+
+type class @abstract C11_Base extends C11_Trait { // also extends 'object'
+ public function f(charstring p_test := "test") return charstring {
+    return p_test & " from base";
+  } 
+}
+
+type class @final C11_Sub extends C11_Base {
+  public function f(charstring p_test := "test") return charstring {
+    return p_test & " from sub";
+  } 
+}
+
+testcase tc_multiple_inheritance_and_default_values() runs on CT {
+  // the main test here is the C++ compilation of the generated code
+  var C11_Sub x1 := C11_Sub.create;
+  var charstring res1 := x1.f();
+  if (res1 != "test from sub") {
+    setverdict(fail, "x1.f() returned ", res1);
+  }
+  var C11_Trait x2 := C11_Sub.create;
+  var charstring res2 := x2.f("TEST");
+  if (res2 != "TEST from sub") {
+    setverdict(fail, "x2.f() returned ", res2);
+  }
+  setverdict(pass);
+}
+
+
 control {
   execute(tc_constructor_default());
   execute(tc_constructor_init());
@@ -339,6 +356,7 @@ control {
   execute(tc_base_call_with_default_value_parameter());
   execute(tc_constructor_param_name_clash());
   execute(tc_base_call_with_structure_parameter());
+  execute(tc_multiple_inheritance_and_default_values());
 }
 
 }
