@@ -4319,9 +4319,6 @@ namespace Ttcn {
 	  add_ref_str = mputprintf(add_ref_str, "%s::add_ref();\n", base_type_name.c_str());
 	  remove_ref_str = mputprintf(remove_ref_str, "%s::remove_ref();\n", base_type_name.c_str());
 	}
-	else {
-	  remove_ref_str = mputstr(remove_ref_str, "FALSE;\n");
-	}
 	if (base_traits != NULL) {
 	  for (size_t i = 0; i < base_traits->get_nof_types(); ++i) {
 	    Type* base_trait = base_traits->get_type_byIndex(i);
