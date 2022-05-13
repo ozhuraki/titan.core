@@ -267,8 +267,8 @@ public:
       TTCN_error("Internal error: deleting an object with %lu reference(s) left.", ref_count);
     }
   }
-  void add_ref() { ++ref_count; }
-  boolean remove_ref() {
+  virtual void add_ref() { ++ref_count; }
+  virtual boolean remove_ref() {
     --ref_count;
     if (destructor) {
       return FALSE;

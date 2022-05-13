@@ -16956,22 +16956,22 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     return in_brackets;
   }
 
-  void Value::chk_ctor_defpar(bool default_ctor, bool in_base_call)
+  void Value::chk_defpar_in_class(bool default_ctor, bool in_base_call, bool in_method)
   {
     switch (valuetype) {
     case V_REFD: {
       Ttcn::Reference* ttcn_ref = dynamic_cast<Ttcn::Reference*>(u.ref.ref);
       if (ttcn_ref != NULL) {
-        ttcn_ref->chk_ctor_defpar(default_ctor, in_base_call);
+        ttcn_ref->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         if (ttcn_ref->has_parameters()) {
-          ttcn_ref->get_parlist()->chk_ctor_defpar(default_ctor, in_base_call);
+          ttcn_ref->get_parlist()->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
       }
       break; }
     case V_SEQ:
     case V_SET:
       for (size_t i = 0; i < u.val_nvs->get_nof_nvs(); ++i) {
-        u.val_nvs->get_nv_byIndex(i)->get_value()->chk_ctor_defpar(default_ctor, in_base_call);
+        u.val_nvs->get_nv_byIndex(i)->get_value()->chk_defpar_in_class(default_ctor, in_base_call, in_method);
       }
       break;
     case V_SEQOF:
@@ -16979,17 +16979,17 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
     case V_ARRAY:
       if (u.val_vs->is_indexed()) {
         for (size_t i = 0; i < u.val_vs->get_nof_ivs(); ++i) {
-          u.val_vs->get_iv_byIndex(i)->get_value()->chk_ctor_defpar(default_ctor, in_base_call);
+          u.val_vs->get_iv_byIndex(i)->get_value()->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
       }
       else {
         for (size_t i = 0; i < u.val_vs->get_nof_vs(); ++i) {
-          u.val_vs->get_v_byIndex(i)->chk_ctor_defpar(default_ctor, in_base_call);
+          u.val_vs->get_v_byIndex(i)->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
       }
       break;
     case V_CHOICE:
-      u.choice.alt_value->chk_ctor_defpar(default_ctor, in_base_call);
+      u.choice.alt_value->chk_defpar_in_class(default_ctor, in_base_call, in_method);
       break;
     case V_EXPR:
       switch (u.expr.v_optype) {
@@ -17034,31 +17034,31 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       case OPTYPE_GET_STRINGENCODING:
       case OPTYPE_REMOVE_BOM:
       case OPTYPE_DECODE_BASE64:
-        u.expr.v1->chk_ctor_defpar(default_ctor, in_base_call);
+        u.expr.v1->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         break;
       case OPTYPE_DECODE: {
         if (u.expr.r1->has_parameters()) {
-          u.expr.r1->get_parlist()->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.r1->get_parlist()->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         else {
-          u.expr.r1->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.r1->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         if (u.expr.r2->has_parameters()) {
-          u.expr.r2->get_parlist()->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.r2->get_parlist()->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         else {
-          u.expr.r2->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.r2->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         if (u.expr.v3 != NULL) {
-          u.expr.v3->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.v3->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         if (u.expr.v4 != NULL) {
-          u.expr.v4->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.v4->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         break; }
       case OPTYPE_HOSTID:
         if (u.expr.v1 != NULL) {
-          u.expr.v1->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.v1->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         break;
       case OPTYPE_ADD:
@@ -17087,53 +17087,53 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       case OPTYPE_INT2BIT:
       case OPTYPE_INT2HEX:
       case OPTYPE_INT2OCT:
-        u.expr.v1->chk_ctor_defpar(default_ctor, in_base_call);
-        u.expr.v2->chk_ctor_defpar(default_ctor, in_base_call);
+        u.expr.v1->chk_defpar_in_class(default_ctor, in_base_call, in_method);
+        u.expr.v2->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         break;
       case OPTYPE_UNICHAR2OCT: // v1 [v2]
       case OPTYPE_OCT2UNICHAR:
       case OPTYPE_ENCODE_BASE64:
-        u.expr.v1->chk_ctor_defpar(default_ctor, in_base_call);
+        u.expr.v1->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         if (u.expr.v2 != NULL) {
-          u.expr.v2->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.v2->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         break;
       case OPTYPE_SUBSTR:
       case OPTYPE_ENCODE:
-        u.expr.ti1->chk_ctor_defpar(default_ctor, in_base_call);
+        u.expr.ti1->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         if (u.expr.v2 != NULL) {
-          u.expr.v2->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.v2->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         if (u.expr.v3 != NULL) {
-          u.expr.v3->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.v3->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         break;
       case OPTYPE_REGEXP:
-        u.expr.ti1->chk_ctor_defpar(default_ctor, in_base_call);
-        u.expr.t2->chk_ctor_defpar(default_ctor, in_base_call);
-        u.expr.v3->chk_ctor_defpar(default_ctor, in_base_call);
+        u.expr.ti1->chk_defpar_in_class(default_ctor, in_base_call, in_method);
+        u.expr.t2->chk_defpar_in_class(default_ctor, in_base_call, in_method);
+        u.expr.v3->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         break;
       case OPTYPE_DECOMP:
-        u.expr.v1->chk_ctor_defpar(default_ctor, in_base_call);
-        u.expr.v2->chk_ctor_defpar(default_ctor, in_base_call);
-        u.expr.v3->chk_ctor_defpar(default_ctor, in_base_call);
+        u.expr.v1->chk_defpar_in_class(default_ctor, in_base_call, in_method);
+        u.expr.v2->chk_defpar_in_class(default_ctor, in_base_call, in_method);
+        u.expr.v3->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         break;
       case OPTYPE_REPLACE:
-        u.expr.ti1->chk_ctor_defpar(default_ctor, in_base_call);
-        u.expr.v2->chk_ctor_defpar(default_ctor, in_base_call);
-        u.expr.v3->chk_ctor_defpar(default_ctor, in_base_call);
-        u.expr.ti4->chk_ctor_defpar(default_ctor, in_base_call);
+        u.expr.ti1->chk_defpar_in_class(default_ctor, in_base_call, in_method);
+        u.expr.v2->chk_defpar_in_class(default_ctor, in_base_call, in_method);
+        u.expr.v3->chk_defpar_in_class(default_ctor, in_base_call, in_method);
+        u.expr.ti4->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         break;
       case OPTYPE_ISTEMPLATEKIND:
-        u.expr.ti1->chk_ctor_defpar(default_ctor, in_base_call);
-        u.expr.v2->chk_ctor_defpar(default_ctor, in_base_call);
+        u.expr.ti1->chk_defpar_in_class(default_ctor, in_base_call, in_method);
+        u.expr.v2->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         break;
       case OPTYPE_VALUEOF:
         if (u.expr.subrefs2 != NULL) {
           for (size_t i = 0; i < u.expr.subrefs2->get_nof_refs(); ++i) {
             Ttcn::FieldOrArrayRef* subref = u.expr.subrefs2->get_ref(i);
             if (subref->get_type() == Ttcn::FieldOrArrayRef::ARRAY_REF) {
-              subref->get_val()->chk_ctor_defpar(default_ctor, in_base_call);
+              subref->get_val()->chk_defpar_in_class(default_ctor, in_base_call, in_method);
             }
           }
         }
@@ -17142,50 +17142,50 @@ void Value::chk_expr_operand_execute_refd(Value *v1,
       case OPTYPE_SIZEOF:
       case OPTYPE_ISPRESENT:
       case OPTYPE_TTCN2STRING:
-        u.expr.ti1->chk_ctor_defpar(default_ctor, in_base_call);
+        u.expr.ti1->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         break;
       case OPTYPE_ENCVALUE_UNICHAR:
-        u.expr.ti1->chk_ctor_defpar(default_ctor, in_base_call);
+        u.expr.ti1->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         if (u.expr.v2 != NULL) {
-          u.expr.v2->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.v2->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         if (u.expr.v3 != NULL) {
-          u.expr.v3->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.v3->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         if (u.expr.v4 != NULL) {
-          u.expr.v4->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.v4->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         break;
       case OPTYPE_DECVALUE_UNICHAR: {
         if (u.expr.r1->has_parameters()) {
-          u.expr.r1->get_parlist()->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.r1->get_parlist()->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         else {
-          u.expr.r1->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.r1->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         if (u.expr.r2->has_parameters()) {
-          u.expr.r2->get_parlist()->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.r2->get_parlist()->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         else {
-          u.expr.r2->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.r2->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         if (u.expr.v3 != NULL) {
-          u.expr.v3->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.v3->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         if (u.expr.v4 != NULL) {
-          u.expr.v4->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.v4->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         if (u.expr.v5 != NULL) {
-          u.expr.v5->chk_ctor_defpar(default_ctor, in_base_call);
+          u.expr.v5->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         }
         break; }
       case OPTYPE_ISCHOSEN_T:
       case OPTYPE_ISVALUE:
-        u.expr.t1->chk_ctor_defpar(default_ctor, in_base_call);
+        u.expr.t1->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         break;
       case OPTYPE_MATCH:
-        u.expr.v1->chk_ctor_defpar(default_ctor, in_base_call);
-        u.expr.t2->chk_ctor_defpar(default_ctor, in_base_call);
+        u.expr.v1->chk_defpar_in_class(default_ctor, in_base_call, in_method);
+        u.expr.t2->chk_defpar_in_class(default_ctor, in_base_call, in_method);
         break;
       default:
         break;
