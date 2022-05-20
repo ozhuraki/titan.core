@@ -138,10 +138,10 @@ type class C9 extends C8 { } //^In type definition// //^In superclass or supertr
 
 external const C0 ec_c0; //^In external constant definition// //External constant cannot be defined for class type `@oop_SE.C0'//
 external const object ec_obj; //^In external constant definition// //External constant cannot be defined for class type `object'//
-modulepar C0 mp_c0; //^In module parameter definition// //Type of module parameter cannot be or embed class type `@oop_SE.C0'//
-modulepar object mp_obj; //^In module parameter definition// //Type of module parameter cannot be or embed class type `object'//
-modulepar template C0 mpt_c0; //^In template module parameter definition// //Type of template module parameter cannot be class type `@oop_SE.C0'//
-modulepar template object mpt_obj; //^In template module parameter definition// //Type of template module parameter cannot be class type `object'//
+modulepar C0 mp_c0; //^In module parameter definition// //Type of module parameter cannot be or embed a class type//
+modulepar object mp_obj; //^In module parameter definition// //Type of module parameter cannot be or embed a class type//
+modulepar template C0 mpt_c0; //^In template module parameter definition// //Type of template module parameter cannot be or embed a class type//
+modulepar template object mpt_obj; //^In template module parameter definition// //Type of template module parameter cannot be or embed a class type//
 
 function f_defs() { //^In function definition//
   const C0 c_c0 := null; //^In constant definition// //Constant cannot be defined for class type `@oop_SE.C0'//
@@ -160,6 +160,11 @@ type record RecClass {
   object y
 }
 
+type record RecClassOpt {
+  C0 x optional,
+  object y optional
+}
+
 type set SetClass {
   C0 x,
   object y
@@ -175,14 +180,71 @@ type union UniClass {
   C0 x,
   object y
 }
+  
+const RecClassOpt v_rec_opt := { } with { optional "implicit omit" }; //^In constant definition// //Constant cannot be defined for type `@oop_SE.RecClassOpt', which contains a class//
 
-function f_embedded_types() { //^In function definition//
+modulepar RecOfObject mp_recof; //^In module parameter definition// //Type of module parameter cannot be or embed a class type//
+modulepar template SetOfObject mpt_setof; //^In template module parameter definition// //Type of template module parameter cannot be or embed a class type//
+
+type port ClassPort message { //^In type definition//
+  inout C0, //^In `inout' list// //Type `@oop_SE.C0' is not a data type, since it is or contains a class, and cannot be sent or received through a port// 
+  RecOfClass //Type `@oop_SE.RecOfClass' is not a data type, since it is or contains a class, and cannot be sent or received through a port//
+}
+with { extension "internal" };
+
+type component CT_w_port {
+  port ClassPort pt;
+}
+
+function f_behavior(in RecClass p) runs on Comp { }
+
+function f_embedded_types() runs on CT_w_port { //^In function definition//
   var RecClass v_rec := { x := C0.create };
   var SetClass v_set := { x := C0.create };
   var RecOfClass v_recof := { C0.create };
   var SetOfClass v_setof := { C0.create };
   var UniClass v_uni := { x := C0.create };
   var anytype v_any; //^In variable definition// //^In type definition//
+  
+  const UniClass c_uni := { x := C0.create }; //^In constant definition// //Constant cannot be defined for type `@oop_SE.UniClass', which contains a class//
+  template SetOfClass t_setof := ?; //^In template definition// //Template cannot be defined for type `@oop_SE.SetOfClass', which contains a class//
+  var template RecClass vt_rec; //^In template variable definition// //Template variable cannot be defined for type `@oop_SE.RecClass', which contains a class//
+  
+  log(sizeof(v_rec));
+  log(sizeof(v_recof));
+  
+  string2ttcn("a", v_rec); //^In string2ttcn\(\) statement// //The type of the second parameter cannot be or embed a class type//
+  
+  pt.send(v_recof);
+  
+  var Comp v_comp := Comp.create;
+  v_comp.start(f_behavior(v_rec)); //^In start test component statement// //Function `@oop_SE.f_behavior' cannot be started on a parallel test component because the type of parameter `p' is or embeds a class type//
+}
+
+type record RecClassJson { //^In type definition// //Type `@oop_SE.RecClassJson' cannot have JSON encoding. Encode attribute ignored.//
+  C0 x
+}
+with {
+  encode "JSON";
+}
+
+type set SetClassRaw { //^In type definition// //Type `@oop_SE.SetClassRaw' cannot have RAW encoding. Encode attribute ignored.//
+  C0 x
+}
+with {
+  encode "RAW";
+}
+
+type record of C0 RecOfClassText //^In type definition// //Type `@oop_SE.RecOfClassText' cannot have TEXT encoding. Encode attribute ignored.//
+with {
+  encode "TEXT"
+}
+
+type union UniClassXer { //^In type definition// //Type `@oop_SE.UniClassXer' cannot have XER encoding. Encode attribute ignored.//
+  C0 x
+}
+with {
+  encode "XML"
 }
 
 
@@ -558,7 +620,7 @@ function f_start_comp() { //^In function definition//
   var C39 x := C39.create;
   ct.start(x.f_def(1)); //^In start test component statement// //A method of a class cannot be started on a parallel test component//
   ct.done;
-  ct.start(f_class_param(x)); //^In start test component statement// //Function `@oop_SE.f_class_param' cannot be started on a parallel test component because parameter `x' is of a class type//
+  ct.start(f_class_param(x)); //^In start test component statement// //Function `@oop_SE.f_class_param' cannot be started on a parallel test component because the type of parameter `x' is or embeds a class type//
   ct.done;
 }
 
