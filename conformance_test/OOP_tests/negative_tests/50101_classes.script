@@ -1121,7 +1121,7 @@ module NegSem_50101_top_level_004a "TTCN-3:2018 Object-Oriented" {
 <END_MODULE>
 
 <RESULT COUNT>
-error: Function .* cannot be started on a parallel test component because parameter .* is of a class type
+error: Function .* cannot be started on a parallel test component because the type of parameter .* is or embeds a class type
 <END_RESULT>
 
 <END_TC>
@@ -1276,7 +1276,7 @@ module NegSem_50101_top_level_006 "TTCN-3:2018 Object-Oriented" {
 <END_MODULE>
 
 <RESULT COUNT>
-error: Type of module parameter cannot be or embed class type
+error: Type of module parameter cannot be or embed a class type
 <END_RESULT>
 
 <END_TC>
