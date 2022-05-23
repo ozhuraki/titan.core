@@ -3365,9 +3365,12 @@ namespace Ttcn {
     case Definition::A_PAR_VAL_OUT:
     case Definition::A_PAR_VAL_INOUT:
     case Definition::A_PAR_TEMPL_OUT:
-    case Definition::A_PAR_TEMPL_INOUT: 
-      // valid assignment types
-      break;
+    case Definition::A_PAR_TEMPL_INOUT: {
+      Common::Type* ref_type = refd_ass->get_Type()->get_type_refd_last();
+      if (ref_type->contains_class()) {
+	convert_op.ref->error("The type of the second parameter cannot be or embed a class type");
+      }
+      break; }
     default:
       convert_op.ref->error("Reference to '%s' cannot be used as the second parameter", refd_ass->get_assname());
       goto error;

@@ -1983,7 +1983,7 @@ namespace Ttcn {
     /** Returns whether a wrapper class is used for the formal parameter in the
       * generated code.
       * (Wrappers are used for class function parameters with default values.) */
-    Common::Type::defpar_wapper_t get_defpar_wrapper() const;
+    bool has_defpar_wrapper() const;
   };
 
   /** Class to represent a list of formal parameters. Owned by a

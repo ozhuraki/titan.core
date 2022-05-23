@@ -4309,6 +4309,11 @@ namespace Ttcn {
         t->get_typename().c_str());
       break;
     default:
+      if (t->contains_class()) {
+	error("Constant cannot be defined for type `%s', which contains a class",
+	  t->get_typename().c_str());
+	break;
+      }
       if (value != NULL) {
         value_under_check = true;
         namedbool class_member_init = my_scope->is_class_scope() ?
@@ -4641,10 +4646,6 @@ namespace Ttcn {
       error("Type of module parameter cannot be signature `%s'",
         t->get_fullname().c_str());
       break;
-    case Type::T_CLASS:
-      error("Type of module parameter cannot be or embed class type `%s'",
-        t->get_typename().c_str());
-      break;
     case Type::T_FUNCTION:
     case Type::T_ALTSTEP:
     case Type::T_TESTCASE:
@@ -4657,6 +4658,10 @@ namespace Ttcn {
 #if defined(MINGW)
       checked = true;
 #else
+      if (t->contains_class()) {
+	error("Type of module parameter cannot be or embed a class type");
+	break;
+      }
       if (def_value) {
         Error_Context cntxt2(def_value, "In default value");
         def_value->set_my_governor(type);
@@ -4821,11 +4826,11 @@ namespace Ttcn {
             " `%s' which has runs on self clause", t->get_fullname().c_str());
       }
       break;
-    case Type::T_CLASS:
-      error("Type of template module parameter cannot be class type `%s'",
-        t->get_typename().c_str());
-      break;
     default:
+      if (t->contains_class()) {
+	error("Type of template module parameter cannot be or embed a class type");
+	break;
+      }
       if (IMPLICIT_OMIT == has_implicit_omit_attr()) {
         error("Implicit omit not supported for template module parameters");
       }
@@ -5061,6 +5066,10 @@ namespace Ttcn {
     }
     else if (t->get_typetype() == Type::T_CLASS) {
       error("Template cannot be defined for class type `%s'",
+        t->get_typename().c_str());
+    }
+    else if (t->contains_class()) {
+      error("Template cannot be defined for type `%s', which contains a class",
         t->get_typename().c_str());
     }
     type->chk_this_template_incorrect_field();
@@ -5948,6 +5957,10 @@ namespace Ttcn {
     }
     else if (t->get_typetype() == Type::T_CLASS) {
       error("Template variable cannot be defined for class type `%s'",
+        t->get_typename().c_str());
+    }
+    else if (t->contains_class()) {
+      error("Template variable cannot be defined for type `%s', which contains a class",
         t->get_typename().c_str());
     }
 
@@ -9300,7 +9313,7 @@ namespace Ttcn {
               LazyFuzzyParamData::clean();
             }
             else {
-              if (use_runtime_2 && fp->get_defpar_wrapper() == Common::Type::NO_DEFPAR_WRAPPER) {
+              if (use_runtime_2 && !fp->has_defpar_wrapper()) {
                 string tmp_id = my_scope->get_scope_mod_gen()->get_temporary_id();
                 expr.preamble = mputprintf(expr.preamble, "%s %s;\n",
                   fp->get_Type()->get_genname_template(my_scope).c_str(), tmp_id.c_str());
@@ -9775,7 +9788,7 @@ namespace Ttcn {
           my_parlist->get_my_def()->get_asstype() == Definition::A_ALTSTEP) ||
           // always shadow 'in' parameters of class type (to avoid having to deal
           // with constant OBJECT_REFs at runtime)
-          (type != NULL && type->get_type_refd_last()->get_typetype() == Type::T_CLASS))) {
+          (type != NULL && type->contains_class()))) {
         use_as_lvalue(*this);
       }
       break;
@@ -10397,7 +10410,7 @@ namespace Ttcn {
       else {
         // update the genname so that all references in the generated code
         // will point to the shadow object
-        if (eval == NORMAL_EVAL && get_defpar_wrapper() == Common::Type::NO_DEFPAR_WRAPPER) {
+        if (eval == NORMAL_EVAL && !has_defpar_wrapper()) {
           set_genname(id->get_name() + "_shadow");
         }
         used_as_lvalue = true;
@@ -10432,7 +10445,7 @@ namespace Ttcn {
     return str;
   }
   
-  Common::Type::defpar_wapper_t FormalPar::get_defpar_wrapper() const
+  bool FormalPar::has_defpar_wrapper() const
   {
     Definition* def = my_parlist->get_my_def();
     if (defval.ap != NULL && def != NULL &&
@@ -10440,27 +10453,20 @@ namespace Ttcn {
       switch (asstype) {
       case A_PAR_VAL_IN:
       case A_PAR_TEMPL_IN:
-        return Common::Type::DEFPAR_IN_WRAPPER;
-      case A_PAR_VAL_OUT:
-      case A_PAR_VAL_INOUT:
-      case A_PAR_TEMPL_OUT:
-      case A_PAR_TEMPL_INOUT:
-      case A_PAR_TIMER:
-      case A_PAR_PORT:
-        return Common::Type::DEFPAR_OUT_WRAPPER;
+        return true;
       default:
-        FATAL_ERROR("FormalPar::get_defpar_wrapper");
+        break;
       }
     }
-    return Common::Type::NO_DEFPAR_WRAPPER;
+    return false;
   }
 
   char* FormalPar::generate_code_defval(char* str)
   {
     if (!defval.ap || defval_generated) return str;
     defval_generated = true;
-    Common::Type::defpar_wapper_t defpar_wrapper = get_defpar_wrapper();
-    if (!usage_found && defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER) {
+    bool defpar_wrapper = has_defpar_wrapper();
+    if (!usage_found && defpar_wrapper) {
       return str;
     }
     switch (defval.ap->get_selection()) {
@@ -10468,7 +10474,7 @@ namespace Ttcn {
       Value *val = defval.ap->get_Value();
       str = val->update_location_object(str);
       string tmp_id;
-      if (defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER) {
+      if (defpar_wrapper) {
         tmp_id = my_scope->get_scope_mod_gen()->get_temporary_id();
         str = mputprintf(str,
           "%s %s;\n",
@@ -10476,22 +10482,22 @@ namespace Ttcn {
         val->set_gen_class_defpar_prefix();
       }
       if (use_runtime_2 && TypeConv::needs_conv_refd(val)) {
-        str = TypeConv::gen_conv_code_refd(str, defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER ?
+        str = TypeConv::gen_conv_code_refd(str, defpar_wrapper ?
           tmp_id.c_str() : val->get_lhs_name().c_str(), val);
       } else {
-        str = val->generate_code_init(str, defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER ?
+        str = val->generate_code_init(str, defpar_wrapper ?
           tmp_id.c_str() : val->get_lhs_name().c_str());
       }
-      if (defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER) {
+      if (defpar_wrapper) {
         str = mputprintf(str, "def_val = %s;\n", tmp_id.c_str());
       }
       break; }
     case ActualPar::AP_TEMPLATE: {
-      if (!use_runtime_2 || defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER) {
+      if (!use_runtime_2 || defpar_wrapper) {
         TemplateInstance *ti = defval.ap->get_TemplateInstance();
         str = ti->get_Template()->update_location_object(str);
         string tmp_id;
-        if (defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER) {
+        if (defpar_wrapper) {
           tmp_id = my_scope->get_scope_mod_gen()->get_temporary_id();
           str = mputprintf(str,
             "%s %s;\n",
@@ -10499,10 +10505,10 @@ namespace Ttcn {
           ti->set_gen_class_defpar_prefix();
         }
         str = generate_code_defval_template(str, ti,
-          defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER ?
+          defpar_wrapper ?
             tmp_id : ti->get_Template()->get_lhs_name(),
           defval.ap->get_gen_restriction_check());
-        if (defpar_wrapper != Common::Type::NO_DEFPAR_WRAPPER) {
+        if (defpar_wrapper) {
           str = mputprintf(str, "def_val = %s;\n", tmp_id.c_str());
         }
       }
@@ -10518,12 +10524,11 @@ namespace Ttcn {
   char* FormalPar::generate_code_defpar_init(char* str)
   {
     if (defval.ap == NULL || !usage_found) return str;
-    Common::Type::defpar_wapper_t defpar_wrapper = get_defpar_wrapper();
     switch (defval.ap->get_selection()) {
     case ActualPar::AP_VALUE:
       str = mputprintf(str,
         "%s%s%s %s = %s_defpar(this);\n",
-        (defpar_wrapper == Common::Type::DEFPAR_IN_WRAPPER && !used_as_lvalue) ? "const " : "",
+        !used_as_lvalue ? "const " : "",
         type->get_genname_value(my_scope).c_str(), !used_as_lvalue ? "&" : "",
         id->get_name().c_str(), id->get_name().c_str());
         // this code also works if the parameter is used as lvalue, no need for shadow objects
@@ -10532,7 +10537,7 @@ namespace Ttcn {
     case ActualPar::AP_TEMPLATE:
       str = mputprintf(str,
         "%s%s%s %s = %s_defpar(this);\n",
-        (defpar_wrapper == Common::Type::DEFPAR_IN_WRAPPER && !used_as_lvalue) ? "const " : "",
+        !used_as_lvalue ? "const " : "",
         type->get_genname_template(my_scope).c_str(), !used_as_lvalue ? "&" : "",
         id->get_name().c_str(), id->get_name().c_str());
         // this code also works if the parameter is used as lvalue, no need for shadow objects
@@ -10551,7 +10556,7 @@ namespace Ttcn {
     if (!defval.ap) return;
     Definition* def = my_parlist->get_my_def();
     Scope* scope = def != NULL ? def->get_my_scope() : NULL;
-    bool defpar_wrapper = get_defpar_wrapper() != Common::Type::NO_DEFPAR_WRAPPER;
+    bool defpar_wrapper = has_defpar_wrapper();
     switch (defval.ap->get_selection()) {
     case ActualPar::AP_VALUE: {
       Value *val = defval.ap->get_Value();
@@ -10563,7 +10568,7 @@ namespace Ttcn {
       Code::free_cdef(&cdef);
       break; }
     case ActualPar::AP_TEMPLATE: {
-      if (use_runtime_2 && defpar_wrapper == Common::Type::NO_DEFPAR_WRAPPER) {
+      if (use_runtime_2 && !defpar_wrapper) {
         break;
       }
       TemplateInstance *ti = defval.ap->get_TemplateInstance();
@@ -10589,7 +10594,7 @@ namespace Ttcn {
   {
     Definition* def = my_parlist->get_my_def();
     Scope* scope = def != NULL ? def->get_my_scope() : NULL;
-    bool defpar_wrapper = get_defpar_wrapper() != Common::Type::NO_DEFPAR_WRAPPER;
+    bool defpar_wrapper = has_defpar_wrapper();
     // the name of the parameter should not be displayed if the parameter is not
     // used (to avoid a compiler warning)
     bool display_name = (usage_found || display_unused || debugger_active ||
@@ -11029,7 +11034,7 @@ namespace Ttcn {
       case Common::Assignment::A_PAR_TEMPL_OUT:
         if (is_startable && 
             (par->get_Type()->is_component_internal() ||
-            (par->get_Type()->get_type_refd_last()->get_typetype() == Common::Type::T_CLASS))) {
+            (par->get_Type()->contains_class()))) {
           is_startable = false;
         }
         break;
@@ -11081,9 +11086,9 @@ namespace Ttcn {
           Free(err_str);
         }
         if (!is_startable &&
-            par->get_Type()->get_type_refd_last()->get_typetype() == Common::Type::T_CLASS) {
+            par->get_Type()->contains_class()) {
           caller_location->error("%s `%s' cannot be started on a parallel test component "
-            "because parameter `%s' is of a class type",
+            "because the type of parameter `%s' is or embeds a class type",
             p_what, p_name, par->get_id().get_dispname().c_str());
         }
         break;
@@ -11919,8 +11924,7 @@ namespace Ttcn {
             }
           }
           if (val_expr.postamble == NULL) {
-            if (formal_par != NULL &&
-                formal_par->get_defpar_wrapper() != Common::Type::NO_DEFPAR_WRAPPER) {
+            if (formal_par != NULL && formal_par->has_defpar_wrapper()) {
               expr_expr = mputprintf(expr_expr, "%s(%s)",
                 val->get_my_governor()->get_genname_value(my_scope).c_str(), val_expr.expr);
             }
@@ -12136,8 +12140,7 @@ namespace Ttcn {
           LazyFuzzyParamData::generate_code_ap_default_ti(expr, act->temp, my_scope,
             param_eval == LAZY_EVAL);
         }
-        else if (use_runtime_2 && (formal_par == NULL ||
-                 formal_par->get_defpar_wrapper() == Common::Type::NO_DEFPAR_WRAPPER)) {
+        else if (use_runtime_2 && (formal_par == NULL || !formal_par->has_defpar_wrapper())) {
           // use the actual parameter's scope, not the formal parameter's
           act->temp->set_my_scope(my_scope);
           Template* temp_ = act->temp->get_Template();

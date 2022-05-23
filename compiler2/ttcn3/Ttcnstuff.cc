@@ -1353,6 +1353,10 @@ namespace Ttcn {
           t->error("Data type `%s' cannot be %s on a procedure based port",
             t_last->get_typename().c_str(), err_msg);
         }
+        if (t->contains_class()) {
+          t->error("Type `%s' is not a data type, since it is or contains a class, and cannot be "
+            "sent or received through a port", t->get_typename().c_str());
+        }
         if (is_in) {
           if (in_msgs && in_msgs->has_type(t_last)) {
             const string& type_name = t_last->get_typename();
@@ -4231,19 +4235,19 @@ namespace Ttcn {
           par_type->get_genname_value(this);
 
         local_struct->header.class_defs = mputprintf(local_struct->header.class_defs,
-          "class %s : public DEFPAR_%s_WRAPPER<%s> {\n" // 1
+          "class %s : public DEFPAR_WRAPPER<%s> {\n" // 1
           "public:\n"
-          "%s(): DEFPAR_%s_WRAPPER<%s>() { }\n" // 2
-          "%s(%s%s& par): DEFPAR_%s_WRAPPER<%s>(par) { }\n" // 3
-          "%s(const %s& par): DEFPAR_%s_WRAPPER<%s>(par) { }\n" // 4
-          "%s%s& operator()(%s* p_class);\n" // 5
-          "};\n\n", defpar_list.get_nth_elem(i), in_par ? "IN" : "OUT", par_type_str.c_str(), // 1
-          defpar_list.get_nth_elem(i), in_par ? "IN" : "OUT", par_type_str.c_str(), // 2
-          defpar_list.get_nth_elem(i), in_par ? "const " : "", par_type_str.c_str(), // 3
-          in_par ? "IN" : "OUT", par_type_str.c_str(), // 3
+          "%s(): DEFPAR_WRAPPER<%s>() { }\n" // 2
+          "%s(const %s& par): DEFPAR_WRAPPER<%s>(par) { }\n" // 3
+          "%s(const %s& par): DEFPAR_WRAPPER<%s>(par) { }\n" // 4
+          "const %s& operator()(%s* p_class);\n" // 5
+          "};\n\n", defpar_list.get_nth_elem(i), par_type_str.c_str(), // 1
+          defpar_list.get_nth_elem(i), par_type_str.c_str(), // 2
+          defpar_list.get_nth_elem(i), par_type_str.c_str(), // 3
+          par_type_str.c_str(), // 3
           defpar_list.get_nth_elem(i), defpar_list.get_nth_elem(i), // 4
-          in_par ? "IN" : "OUT", par_type_str.c_str(), // 4
-          in_par ? "const " : "", par_type_str.c_str(), class_id->get_name().c_str()); // 5
+          par_type_str.c_str(), // 4
+          par_type_str.c_str(), class_id->get_name().c_str()); // 5
 
         local_struct->source.methods = mputprintf(local_struct->source.methods,
           "%s%s& %s::operator()(%s* p_class)\n"
