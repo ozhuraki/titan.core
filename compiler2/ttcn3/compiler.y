@@ -1027,6 +1027,7 @@ static const string anyname("anytype");
 %type <formalparlist> optTemplateFormalParList TemplateFormalParList
   optFunctionFormalParList FunctionFormalParList optTestcaseFormalParList
   TestcaseFormalParList optAltstepFormalParList FormalValueParList
+  optExternalFormalParList
 %type <group> GroupDef GroupIdentifier
 %type <friend_list> FriendModuleDef
 %type <ifclause> ElseIfClause
@@ -1090,7 +1091,7 @@ static const string anyname("anytype");
   optReceiveParameter
 %type <parsedpar> FunctionActualParList TestcaseActualParList
   optFunctionActualParList optTestcaseActualParList
-  NamedPart UnnamedPart optParamClause
+  NamedPart UnnamedPart optParamClause optExternalActualParList
 %type <templinsts>  optTemplateActualParList
   seqTemplateActualPar seqTemplateInstance
 %type <templs> ValueOrAttribList seqValueOrAttrib ValueList Complement
@@ -1540,6 +1541,8 @@ optElseClause
 optExceptionSpec
 optExtendsClassDef
 optExtendsDef
+optExternalActualParList
+optExternalFormalParList
 optFinallyDef
 optFromClause
 optFunctionActualParList
@@ -2015,12 +2018,12 @@ DynamicMatch
 %left '*' '/' ModKeyword RemKeyword
 %left UnarySign
 
-%expect 93
+%expect 96
 
 %start GrammarRoot
 
 /*
-XXX Source of conflicts (93 S/R):
+XXX Source of conflicts (96 S/R):
 
 1.) 13 conflicts in one state
 The Expression after 'return' keyword is optional in ReturnStatement.
@@ -2051,9 +2054,9 @@ The situations are the following:
 - const t c <here> [
 
 3.) 1 conflict
-The sequence identifier.objid can be either the beginning of a module name
-qualified with a module object identifier (shift) or a reference to an objid
-value within an entity of type anytype (reduce).
+The '{' character after the 'objid' keyword can be the beginning of an
+object identifier value (shift) or the beginning of the next statement,
+in case the 'objid' is treated as a predefined type (reduce).
 
 4.) 1 conflict
 The '{' token after a call statement can be either the part of the response and
@@ -2063,7 +2066,8 @@ non-standard language extension.
 
 5.) 5 conflicts in in three states, related to named parameters
 
-6.) 1 Conflict due to pattern concatenation
+6.) 1 conflict in FriendModuleDef
+FriendModuleDef contains optSemicolon, which causes 1 conflict
 
 7.) 31 conflicts in one state
 In the DecodedContentMatch rule a SingleExpression encased in round brackets is
@@ -2072,10 +2076,11 @@ decide whether the token is the beginning of the in-line template (shift) or
 the brackets are only part of the SingleExpression itself and the conflicting
 token is the next segment in the expression (reduce).
 
-8.) 1 conflict
+8.) 2 conflicts
 In the current version when the compiler finds '(' SingleExpression . ')'
 it can not decide if it should resolve to a SingleValueOrAttrib or to a SingleExpression.
 Shift is fine as single element list can be resolved via SingleValueOrAttrib too.
+This occurs in both the SingleExpression and the DecodedContentMatch rules.
 
 9.) 3 conflicts in 3 states
 In the rules for 'running' and 'alive' operations with the 'any from' clause,
@@ -2085,7 +2090,7 @@ with "->" (reduce).
 TODO: Find out what the index redirect conflicts with. It's probably something
 that would cause a semantic error anyway, but it would be good to know.
 
-10.) 2 conflicts in the rule TypeListWithTo.
+10.) 2 conflicts in the rules TypeListWithFrom and TypeListWithTo.
 
 11.) 4 conflicts in 4 states
 In the Expression and SingleExpression rules when an AnyValue or AnyOrOmit is
@@ -2140,6 +2145,16 @@ the type and/or derived reference would affect the entire implication match temp
 starts before the mentioned 'implies' keyword and ends after the final 'implies' keyword.
 (For example in 't1 implies MyType: t2 implies t3'
 'MyType:' could indicate the type of 't2' (shift) or the type of 't2 implies t3' (reduce).
+
+15.) 1 conflict
+The 'external' keyword after the main formal parameter list of a constructor can be interpreted
+as the beginning of the constructor's external formal parameter list (shift), or as the
+beginning of an external function, in case the constructor has no body (reduce).
+
+16.) 2 conflicts in 2 states
+The 'external' keyword after a 'create' operation's formal parameter list can be interpreted as
+the beginning of the 'create' operation's external parameters (shift), or the beginning of the
+next statement (reduce).
 
 
 Note that the parser implemented by bison always chooses to shift instead of
@@ -3830,7 +3845,7 @@ ClassFunctionDef:
   optReturnType optExceptionSpec
   {
     $$ = new Def_ExtFunction($4, $5, $7, $9.type, $9.returns_template,
-      $9.template_restriction, $3, $10, true);
+      $9.template_restriction, $3, $10);
     $$->set_location(infile, @$);
   }
 | FunctionKeyword optFinalModifier
@@ -3838,23 +3853,28 @@ ClassFunctionDef:
   optReturnType optExceptionSpec
   {
     $$ = new Def_ExtFunction($3, $4, $6, $8.type, $8.returns_template,
-      $8.template_restriction, $2, $9, false);
+      $8.template_restriction, $2, $9);
     $$->set_location(infile, @$);
   }
 ;
 
 ConstructorDef:
-  CreateKeyword '(' optFunctionFormalParList ')' optBaseConstructorCall
+  CreateKeyword '(' optFunctionFormalParList ')' optExternalFormalParList optBaseConstructorCall
   StatementBlock
   {
-    $$ = new Def_Constructor($3, $5, $6);
+    $$ = new Def_Constructor($3, $5, $6, $7);
     $$->set_location(infile, @$);
   }
-| CreateKeyword '(' optFunctionFormalParList ')'
+| CreateKeyword '(' optFunctionFormalParList ')' optExternalFormalParList
   {
-	$$ = new Def_Constructor($3, NULL, NULL);
+	$$ = new Def_Constructor($3, $5, NULL, NULL);
     $$->set_location(infile, @$);
   }
+;
+
+optExternalFormalParList:
+  /* empty */                                      { $$ = new FormalParList; }
+| ExtKeyword '(' optFunctionFormalParList ')' { $$ = $3; }
 ;
 
 optBaseConstructorCall:
@@ -5931,7 +5951,7 @@ ExtFunctionDef: // 276
   {
     $6->set_location(infile, @5, @7);
     $$ = new Def_ExtFunction($3, $4, $6, $8.type, $8.returns_template,
-                             $8.template_restriction, false, $9, true);
+                             $8.template_restriction, false, $9);
     $$->set_location(infile, @$);
   }
 ;
@@ -6400,15 +6420,15 @@ ConfigurationOps: // 314
 ;
 
 CreateOp: // 315
-  VariableRef DotCreateKeyword optAliveKeyword
+  VariableRef DotCreateKeyword optExternalActualParList optAliveKeyword
   {
     $$ = new Value(Value::OPTYPE_UNDEF_CREATE, $1,
-      new ParsedActualParameters, $3);
+      new ParsedActualParameters, $3, $4);
     $$->set_location(infile, @$);
   }
-| VariableRef DotCreateKeyword '(' optFunctionActualParList ')' optAliveKeyword
+| VariableRef DotCreateKeyword '(' optFunctionActualParList ')' optExternalActualParList optAliveKeyword
   {
-    $$ = new Value(Value::OPTYPE_UNDEF_CREATE, $1, $4, $6);
+    $$ = new Value(Value::OPTYPE_UNDEF_CREATE, $1, $4, $6, $7);
     $$->set_location(infile, @$);
   }
 ;
@@ -6416,6 +6436,11 @@ CreateOp: // 315
 optAliveKeyword: // [328]
   /* empty */ { $$ = false; }
 | AliveKeyword { $$ = true; }
+;
+
+optExternalActualParList:
+  /* empty */ { $$ = new ParsedActualParameters; }
+| ExtKeyword '(' optFunctionActualParList ')' { $$ = $3; }
 ;
 
 SystemOp: // 316

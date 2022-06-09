@@ -1,0 +1,95 @@
+/******************************************************************************
+ * Copyright (c) 2000-2021 Ericsson Telecom AB
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
+ *
+ * Contributors:
+ *   Baranyi, Botond
+ *
+ ******************************************************************************/
+module oop_ext {
+
+// examples from the TTCN-3 standard extension:
+
+type class Named { 
+  var charstring name; 
+}
+
+type external class Address extends Named { 
+  create (charstring name) 
+    external (charstring host, integer portNr) 
+    : Named(name)
+  { } 
+}
+
+type external class UnnamedAddress { 
+  create (charstring host, integer portNr); 
+}
+
+type class @abstract Collection {
+  function @abstract size() return integer;
+  // internal default implementation
+  function isEmpty() return boolean {
+    return size() == 0
+  }
+}
+
+type external class Stack extends Collection {
+  function push(integer v);
+  function pop() return integer;
+  function isEmpty() return boolean; // external implementation overrides internal
+  function size() return integer; // external implementation of abstract function
+}
+
+// custom tests:
+
+type external class ExternalClass {
+  private const integer m_const := 1;
+  private template integer m_temp := (1..30);
+  private var integer m_var := 10;
+  private var template integer m_var_temp := ?;
+  create(integer x);
+  public function f_ext1(in integer x, out octetstring y);
+  function f_ext2(inout template charstring p) return boolean;
+  public function f_int(inout integer p) { p := p + 1; }
+}
+finally {
+  log(m_var);
+}
+
+type external class ExternalBase {
+  create(integer par1, charstring par2) external (octetstring extpar) { }
+}
+
+type external class ExternalSub extends ExternalBase {
+  private const integer c1;
+  private const float c2;
+  // default constructor
+  public function test_result() return charstring;
+}
+
+type component CT { }
+
+testcase tc_external_classes() runs on CT {
+  var Address v_addr := Address.create("Connection 1") external ("127.0.0.1", 555);
+  var UnnamedAddress v_addr2 := UnnamedAddress.create("127.0.0.1", 555);
+  var Stack v_stack := Stack.create(); // only implicit external constructor without parameters
+  
+  var ExternalClass v_ext := ExternalClass.create(2);
+  var ExternalSub v_ext_sub := ExternalSub.create(1, "a", 2, 3.0) external ('FEED'O);
+  var charstring v_result := v_ext_sub.test_result();
+  if (v_result == "2_3.000000_FEED") {
+    setverdict(pass);
+  }
+  else {
+    setverdict(fail, v_result);
+  }
+}
+
+control {
+  execute(tc_external_classes());
+}
+
+}

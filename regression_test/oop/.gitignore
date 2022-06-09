@@ -4,4 +4,14 @@ oop*.cc
 oop*.hh
 exceptions*.cc
 exceptions*.hh
+Address.cc
+Address.hh
+ExternalBase.cc
+ExternalBase.hh
+ExternalClass.cc
+ExternalClass.hh
+Stack.cc
+Stack.hh
+UnnamedAddress.cc
+UnnamedAddress.hh
 oop*.log

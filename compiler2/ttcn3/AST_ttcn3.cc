@@ -8091,14 +8091,6 @@ namespace Ttcn {
     checked = true;
     Error_Context cntxt(this, "In external function definition `%s'",
       id->get_dispname().c_str());
-    ClassTypeBody* my_class = my_scope->get_scope_class();
-    if (!ext_keyword && !my_class->is_external()) {
-      error("Missing function body or `external' keyword");
-    }
-    if (my_class != NULL && my_class->is_trait()) {
-      error("Trait class type `%s' cannot have non-abstract methods",
-        my_class->get_my_def()->get_Type()->get_typename().c_str());
-    }
     fp_list->chk(asstype);
     if (return_type) {
       Error_Context cntxt2(return_type, "In return type");
@@ -9399,15 +9391,16 @@ namespace Ttcn {
   // =================================
   
   Def_Constructor::Def_Constructor(FormalParList* p_fp_list,
-    Reference* p_base_call, StatementBlock* p_block)
+    FormalParList* p_ext_fp_list, Reference* p_base_call, StatementBlock* p_block)
   : Definition(A_CONSTRUCTOR, new Common::Identifier(
     Common::Identifier::ID_TTCN, string("create"), true)),
-    fp_list(p_fp_list), base_call(p_base_call), block(p_block)
+    fp_list(p_fp_list), ext_fp_list(p_ext_fp_list), base_call(p_base_call), block(p_block)
   {
-    if (p_fp_list == NULL) {
+    if (p_fp_list == NULL || ext_fp_list == NULL) {
       FATAL_ERROR("Def_Constructor::Def_Constructor");
     }
     fp_list->set_my_def(this);
+    ext_fp_list->set_my_def(this);
     if (block != NULL) {
       block->set_my_def(this);
     }
@@ -9416,6 +9409,7 @@ namespace Ttcn {
   Def_Constructor::~Def_Constructor()
   {
     delete fp_list;
+    delete ext_fp_list;
     delete base_call;
     delete block;
     for (size_t i = 0; i < uninit_members.size(); ++i) {
@@ -9433,6 +9427,7 @@ namespace Ttcn {
   {
     Definition::set_fullname(p_fullname);
     fp_list->set_fullname(p_fullname + ".<formal_par_list>");
+    ext_fp_list->set_fullname(p_fullname + ".<external_formal_par_list>");
     if (base_call != NULL) {
       base_call->set_fullname(p_fullname + ".<base_call>");
     }
@@ -9449,6 +9444,7 @@ namespace Ttcn {
     Definition::set_my_scope(&bridgeScope);
     
     fp_list->set_my_scope(&bridgeScope);
+    ext_fp_list->set_my_scope(fp_list);
     if (base_call != NULL) {
       base_call->set_my_scope(fp_list);
     }
@@ -9463,6 +9459,12 @@ namespace Ttcn {
     return fp_list;
   }
   
+  FormalParList* Def_Constructor::get_external_FormalParList()
+  {
+    if (!checked) chk();
+    return ext_fp_list;
+  }
+
   void Def_Constructor::add_uninit_member(const Identifier* p_member_id, bool p_is_template)
   {
     uninit_members.add(p_member_id, new bool(p_is_template));
@@ -9480,8 +9482,20 @@ namespace Ttcn {
     ClassTypeBody* my_class = my_scope->get_scope_class();
 
     fp_list->chk(asstype);
+    ext_fp_list->chk(asstype);
+
+    if (ext_fp_list->get_nof_fps() > 0 && !my_class->is_external()) {
+      ext_fp_list->error("The constructor of an internal class cannot have external formal parameters");
+    }
+
     for (size_t i = 0; i < fp_list->get_nof_fps(); ++i) {
       FormalPar* fp = fp_list->get_fp_byIndex(i);
+      if (fp->has_defval()) {
+        fp->get_defval()->chk_defpar_in_class(my_class->has_default_constructor(), false, false);
+      }
+    }
+    for (size_t i = 0; i < ext_fp_list->get_nof_fps(); ++i) {
+      FormalPar* fp = ext_fp_list->get_fp_byIndex(i);
       if (fp->has_defval()) {
         fp->get_defval()->chk_defpar_in_class(my_class->has_default_constructor(), false, false);
       }
@@ -9534,9 +9548,6 @@ namespace Ttcn {
     }
 
     if (block != NULL) {
-      if (my_class->is_external()) {
-        error("The constructor of an external class cannot have a body");
-      }
       block->chk();
     }
     else if (!my_class->is_external()) {
@@ -9548,6 +9559,8 @@ namespace Ttcn {
       // to avoid collisions in the generated code
       fp_list->set_genname(my_scope->get_scope_class()->get_id()->get_name() +
         string("_") + get_genname());
+      ext_fp_list->set_genname(my_scope->get_scope_class()->get_id()->get_name() +
+        string("_ext_") + get_genname());
       if (block != NULL) {
         block->set_code_section(GovernedSimple::CS_INLINE);
       }
@@ -9562,8 +9575,11 @@ namespace Ttcn {
     }
     
     fp_list->generate_code_defval(target);
+    ext_fp_list->generate_code_defval(target);
     target->temp.constructor_block =
-      fp_list->generate_code_defpar_init(memptystr());
+      fp_list->generate_code_defpar_init(target->temp.constructor_block);
+    target->temp.constructor_block =
+      ext_fp_list->generate_code_defpar_init(target->temp.constructor_block);
     char* block_gen_str = block != NULL ? block->generate_code(memptystr(),
       target->header.global_vars, target->source.global_vars) : NULL;
     if (block != NULL) {

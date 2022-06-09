@@ -3593,8 +3593,8 @@ namespace Ttcn {
     if ((final && abstract) || (final && trait) || (abstract && trait)) {
       error("A class cannot have more than one of the @final, @abstract and @trait modifiers");
     }
-    if (external && abstract) { // todo
-      error("External classes cannot be abstract");
+    if (trait && external) {
+      error("Trait classes cannot be external");
     }
     if (base_traits != NULL) {
       for (size_t i = 0; i < base_traits->get_nof_types(); ++i) {
@@ -3625,8 +3625,8 @@ namespace Ttcn {
               if (base_class->final) {
                 base_type->error("The superclass cannot be final");
               }
-              if (external && !base_class->external) {
-                base_type->error("An external class cannot extend an internal class");
+              if (!external && base_class->external) {
+                base_type->error("An internal class cannot extend an external class");
               }
             }
           }
@@ -3789,6 +3789,13 @@ namespace Ttcn {
           ass->error("Class members cannot be public");
         }
         break;
+      case Common::Assignment::A_EXT_FUNCTION:
+      case Common::Assignment::A_EXT_FUNCTION_RVAL:
+      case Common::Assignment::A_EXT_FUNCTION_RTEMP:
+	if (!external) {
+          ass->error("Internal classes cannot have external methods or methods with no body");
+	}
+	break;
       default:
         break;
       }
@@ -3892,11 +3899,13 @@ namespace Ttcn {
       // create a default constructor
       Reference* base_call = NULL;
       FormalParList* fp_list = NULL;
-      if (!external && base_class != NULL) {
+      FormalParList* ext_fp_list = NULL;
+      if (base_class != NULL) {
         Def_Constructor* base_constructor = base_class->get_constructor();
         if (base_constructor != NULL) {
           FormalParList* base_fp_list = base_constructor->get_FormalParList();
           fp_list = base_fp_list->clone();
+          ext_fp_list = base_constructor->get_external_FormalParList()->clone();
           ParsedActualParameters* parsed_ap_list = new ParsedActualParameters();
           for (size_t i = 0; i < base_fp_list->get_nof_fps(); ++i) {
             // the actual parameters are references to the formal parameters of
@@ -3916,6 +3925,12 @@ namespace Ttcn {
               add_defpar(fp);
             }
           }
+          for (size_t i = 0; i < ext_fp_list->get_nof_fps(); ++i) {
+            FormalPar* fp = ext_fp_list->get_fp_byIndex(i);
+            if (fp->has_defval()) {
+              add_defpar(fp);
+            }
+          }
           base_call = new Reference(base_class->get_scope_mod()->get_modid().clone(),
             base_class->get_id()->clone(), parsed_ap_list);
         }
@@ -3923,69 +3938,69 @@ namespace Ttcn {
       if (fp_list == NULL) {
         fp_list = new FormalParList;
       }
-      StatementBlock* block = NULL;
-      if (!external) {
-        block = new StatementBlock();
-        for (size_t i = 0; i < members->get_nof_asss(); ++i) {
-          // note: the Definitions class rearranges its elements alphabetically;
-          // here the members must be accessed in their original order
-          Common::Assignment* member = members->get_ass_byIndex(i, false);
-          bool is_template = false;
-          TemplateInstance* def_val = NULL;
-          switch (member->get_asstype()) {
-          case Common::Assignment::A_CONST:
-            if (member->get_Value() != NULL) {
-              continue; // the constant has already been initialized at its definition
-            }
-            break;
-          case Common::Assignment::A_TEMPLATE:
-            if (member->get_Template() != NULL) {
-              continue; // the template has already been initialized at its definition
-            }
-            is_template = true;
-            break;
-          case Common::Assignment::A_VAR:
-            if (member->get_Value() != NULL) {
-              // set the variable's initial value as the constructor parameter's default value
-              Def_Var* var_member = dynamic_cast<Def_Var*>(member);
-              if (var_member == NULL) {
-                FATAL_ERROR("ClassTypeBody::chk - Def_Var cast");
-              }
-              def_val = new TemplateInstance(NULL, NULL, new Template(var_member->steal_Value()));
-            }
-            break;
-          case Common::Assignment::A_VAR_TEMPLATE:
-            is_template = true;
-            if (member->get_Template() != NULL) {
-              // set the template variable's initial value as the constructor parameter's default value
-              Def_Var_Template* var_temp_member = dynamic_cast<Def_Var_Template*>(member);
-              if (var_temp_member == NULL) {
-                FATAL_ERROR("ClassTypeBody::chk - Def_Var_Template cast");
-              }
-              def_val = new TemplateInstance(NULL, NULL, var_temp_member->steal_Template());
-            }
-            break;
-          default:
-            continue;
-            break;
-          }
-          // add a formal parameter for this member if we've gotten this far
-          Common::Identifier* id = member->get_id().clone();
-          FormalPar* fp = new FormalPar(is_template ?
-            Common::Assignment::A_PAR_TEMPL_IN : Common::Assignment::A_PAR_VAL_IN,
-            member->get_Type()->clone(), id, def_val);
-          fp_list->add_fp(fp);
-          // add a statement, that assigns the parameter's value to the member
-          Reference* ref_lhs = new Reference(NULL, id->clone(), Ref_simple::REF_THIS);
-          Reference* ref_rhs = new Reference(NULL, id->clone());
-          Common::Value* val_rhs = new Value(Common::Value::V_REFD, ref_rhs);
-          Template* temp_rhs = new Template(val_rhs);
-          Assignment* par_ass = new Assignment(ref_lhs, temp_rhs);
-          Statement* stmt = new Statement(Statement::S_ASSIGNMENT, par_ass);
-          block->add_stmt(stmt);
-        }
+      if (ext_fp_list == NULL) {
+        ext_fp_list = new FormalParList;
       }
-      constructor = new Def_Constructor(fp_list, base_call, block);
+      StatementBlock* block = new StatementBlock();
+      for (size_t i = 0; i < members->get_nof_asss(); ++i) {
+	// note: the Definitions class rearranges its elements alphabetically;
+	// here the members must be accessed in their original order
+	Common::Assignment* member = members->get_ass_byIndex(i, false);
+	bool is_template = false;
+	TemplateInstance* def_val = NULL;
+	switch (member->get_asstype()) {
+	case Common::Assignment::A_CONST:
+	  if (member->get_Value() != NULL) {
+	    continue; // the constant has already been initialized at its definition
+	  }
+	  break;
+	case Common::Assignment::A_TEMPLATE:
+	  if (member->get_Template() != NULL) {
+	    continue; // the template has already been initialized at its definition
+	  }
+	  is_template = true;
+	  break;
+	case Common::Assignment::A_VAR:
+	  if (member->get_Value() != NULL) {
+	    // set the variable's initial value as the constructor parameter's default value
+	    Def_Var* var_member = dynamic_cast<Def_Var*>(member);
+	    if (var_member == NULL) {
+	      FATAL_ERROR("ClassTypeBody::chk - Def_Var cast");
+	    }
+	    def_val = new TemplateInstance(NULL, NULL, new Template(var_member->steal_Value()));
+	  }
+	  break;
+	case Common::Assignment::A_VAR_TEMPLATE:
+	  is_template = true;
+	  if (member->get_Template() != NULL) {
+	    // set the template variable's initial value as the constructor parameter's default value
+	    Def_Var_Template* var_temp_member = dynamic_cast<Def_Var_Template*>(member);
+	    if (var_temp_member == NULL) {
+	      FATAL_ERROR("ClassTypeBody::chk - Def_Var_Template cast");
+	    }
+	    def_val = new TemplateInstance(NULL, NULL, var_temp_member->steal_Template());
+	  }
+	  break;
+	default:
+	  continue;
+	  break;
+	}
+	// add a formal parameter for this member if we've gotten this far
+	Common::Identifier* id = member->get_id().clone();
+	FormalPar* fp = new FormalPar(is_template ?
+	  Common::Assignment::A_PAR_TEMPL_IN : Common::Assignment::A_PAR_VAL_IN,
+	  member->get_Type()->clone(), id, def_val);
+	fp_list->add_fp(fp);
+	// add a statement, that assigns the parameter's value to the member
+	Reference* ref_lhs = new Reference(NULL, id->clone(), Ref_simple::REF_THIS);
+	Reference* ref_rhs = new Reference(NULL, id->clone());
+	Common::Value* val_rhs = new Value(Common::Value::V_REFD, ref_rhs);
+	Template* temp_rhs = new Template(val_rhs);
+	Assignment* par_ass = new Assignment(ref_lhs, temp_rhs);
+	Statement* stmt = new Statement(Statement::S_ASSIGNMENT, par_ass);
+	block->add_stmt(stmt);
+      }
+      constructor = new Def_Constructor(fp_list, ext_fp_list, base_call, block);
       constructor->set_my_scope(this);
       constructor->set_fullname(get_fullname() + ".<default_constructor>");
       default_constructor = true;
@@ -4021,26 +4036,6 @@ namespace Ttcn {
       if (trait) {
         finally_block->error("Trait class type `%s' cannot have a destructor",
           my_def->get_Type()->get_typename().c_str());
-      }
-    }
-    
-    if (external) {
-      for (size_t i = 0; i < members->get_nof_asss(); ++i) {
-        Common::Assignment* ass = members->get_ass_byIndex(i, false);
-        switch (ass->get_asstype()) {
-        case Common::Assignment::A_EXT_FUNCTION:
-        case Common::Assignment::A_EXT_FUNCTION_RVAL:
-        case Common::Assignment::A_EXT_FUNCTION_RTEMP:
-        case Common::Assignment::A_CONSTRUCTOR:
-          // OK
-          break;
-        default:
-          ass->error("An external class cannot contain a %s", ass->get_assname());
-          break;
-        }
-      }
-      if (finally_block != NULL) {
-        finally_block->error("An external class cannot have a destructor");
       }
     }
     
@@ -4371,8 +4366,17 @@ namespace Ttcn {
         }
         // generate code for the base call first, so the formal parameter list
         // knows which parameters are used and which aren't
-        formal_par_list_str = constructor->get_FormalParList()->generate_code(
-          memptystr(), external ? constructor->get_FormalParList()->get_nof_fps() : 0);
+        FormalParList* ctor_fp_list = constructor->get_FormalParList();
+        FormalParList* ctor_ext_fp_list = constructor->get_external_FormalParList();
+        formal_par_list_str = ctor_fp_list->generate_code(
+          memptystr(), external ? ctor_fp_list->get_nof_fps() : 0);
+        if (ctor_ext_fp_list->get_nof_fps() > 0) {
+          if (ctor_fp_list->get_nof_fps() > 0) {
+            formal_par_list_str = mputstr(formal_par_list_str, ", ");
+          }
+	  formal_par_list_str = ctor_ext_fp_list->generate_code(
+	    formal_par_list_str, ctor_ext_fp_list->get_nof_fps());
+        }
         if (base_call_expr.expr == NULL) {
           base_call_expr.expr = mprintf("%s()", base_type_name.c_str());
         }
@@ -4523,7 +4527,7 @@ namespace Ttcn {
     header_name += file_prefix + string(".hh");
     source_name += file_prefix + string(".cc");
 
-    if (base_class != NULL) {
+    if (base_class != NULL && base_class->external) {
       base_header_include = string("#include \"");
       base_header_include += duplicate_underscores ? base_class->class_id->get_name() :
           base_class->class_id->get_dispname();
@@ -4554,11 +4558,11 @@ namespace Ttcn {
         "// member functions here.\n\n"
         "#ifndef %s_HH\n"
         "#define %s_HH\n\n"
-        "%s%s"
+        "%s"
         "#endif\n",
         disable_user_info == FALSE ? "for " : "", user_info,
         class_id->get_name().c_str(), class_id->get_name().c_str(),
-        base_header_include.c_str(), target->header.class_defs);
+        target->header.class_defs);
       fclose(fp);
       NOTIFY("External class skeleton header file `%s' was generated for class "
         "type `%s'.", header_name.c_str(), class_id->get_dispname().c_str());
@@ -4575,6 +4579,7 @@ namespace Ttcn {
           "writing: %s", source_name.c_str(), strerror(errno));
         exit(EXIT_FAILURE);
       }
+      const Common::Identifier& mod_id = get_scope_mod_gen()->get_modid();
       fprintf(fp,
         "// This external class skeleton source file was generated by the\n"
         "// TTCN-3 Compiler of the TTCN-3 Test Executor version "
@@ -4583,14 +4588,13 @@ namespace Ttcn {
         COPYRIGHT_STRING "\n\n"
         "// You may modify this file. Complete the bodies of empty functions and\n"
         "// add your member functions here.\n\n"
-        "#include <TTCN3.hh>\n\n"
-        "namespace %s {\n\n"
         "#include \"%s.hh\"\n\n"
+        "namespace %s {\n\n"
         "%s\n"
         "} /* end of namespace */\n\n",
         disable_user_info == FALSE ? "for " : "", user_info,
-        get_scope_mod_gen()->get_modid().get_name().c_str(), class_id->get_dispname().c_str(),
-        target->source.methods);
+        duplicate_underscores ? mod_id.get_name().c_str() : mod_id.get_dispname().c_str(),
+        mod_id.get_name().c_str(), target->source.methods);
       fclose(fp);
       NOTIFY("External class skeleton source file `%s' was generated for class "
         "type `%s'.", source_name.c_str(), file_prefix.c_str());

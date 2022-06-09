@@ -220,18 +220,6 @@ type class ConcreteClass extends AbstractClass, TraitClass {
   }
 }
 
-
-type external class ExternalClass {
-  public external function f_ext(in integer x) return charstring;
-}
-
-type class InternalClass extends ExternalClass {
-  public function f_int() return integer {
-    return 0;
-  }
-  public external function f_ext2();
-}
-
 type record RecClass {
   charstring name,
   object obj

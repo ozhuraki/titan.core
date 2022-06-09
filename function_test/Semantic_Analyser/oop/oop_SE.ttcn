@@ -522,30 +522,30 @@ type external class C40 {
 }
 
 type external class C41 extends C40 { //^In type definition//
-  create();
-  const charstring c := "a"; //An external class cannot contain a constant//
-  template charstring t := "b"; //An external class cannot contain a template//
-  var charstring v; //An external class cannot contain a variable//
-  var template charstring vt; //An external class cannot contain a template variable//
-  timer tmr; //An external class cannot contain a timer//
-  function g1() { } //An external class cannot contain a function//
-  function g2(in charstring x) return charstring { return x; } //An external class cannot contain a function//
-  function g3() return template charstring { return ?; } //An external class cannot contain a function//
+  create() external (integer p) { log(p); } //^In constructor definition// //^In log statement// //There is no local or imported definition with name `p'//
+  const charstring c := "a";
+  template charstring t := "b";
+  var charstring v;
+  var template charstring vt;
+  timer tmr;
+  function g1() { }
+  function g2(in charstring x) return charstring { return x; }
+  function g3() return template charstring { return ?; }
 }
 
-type external class @abstract C42 { //^In type definition// //External classes cannot be abstract//
-  function @abstract f(); //An external class cannot contain a function//
+type external class @abstract C42 {
+  function @abstract f();
 }
 
-type external class C43 extends C39 { } //^In type definition// //^In superclass or supertrait definition// //An external class cannot extend an internal class//
+type external class C43 extends C39 { }
 
-type class C44 extends C40 { //^In type definition//
-  external function f();
+type class C44 extends C40 { //^In type definition// //^In superclass or supertrait definition// //An internal class cannot extend an external class//
+  external function f(); //Internal classes cannot have external methods or methods with no body//
   create(); //^In constructor definition// //Missing super-constructor call// //Missing constructor body//
 }
 
 type class C45 { //^In type definition//
-  function f(); //^In external function definition// //Missing function body or `external' keyword//
+  function f(); //Internal classes cannot have external methods or methods with no body//
 }
 
 
@@ -566,9 +566,9 @@ type class C48 extends C47 { //^In type definition//
   function m4() { } //Cannot override final method `@oop_SE.C47.m4'//
 }
 
-type class C49 extends C40 {
-  function f1(in integer p) return octetstring { return int2oct(p, 2); }
-  function f2() { }
+type external class C49 extends C47 {
+  public function m2() return boolean;
+  external function m3(in integer p) return charstring;
 }
 
 
@@ -732,7 +732,7 @@ type class @trait T1 { //^In type definition//
 
 type class @trait T2 { //^In type definition//
   function @abstract f(); 
-  external function f3(); //^In external function definition// //Trait class type `@oop_SE.T2' cannot have non-abstract method//
+  external function f3(); //Internal classes cannot have external methods or methods with no body//
 }
 finally { //^In class destructor// //Trait class type `@oop_SE.T2' cannot have a destructor//
 }
@@ -797,6 +797,8 @@ type class C59 extends T7, T8, T9
 {
   public function f(in integer p) return integer { return p + 1; }
 }
+
+type external class @trait T10 { } //^In type definition// //Trait classes cannot be external//
 
 function f_traits_bad() { //^In function definition//
   var T7 v_t7 := C59.create; //^In variable definition// //A definition without `runs on' clause cannot create a value of class type `@oop_SE.C59', which runs on component type `@oop_SE.CT_RunsOn2'//

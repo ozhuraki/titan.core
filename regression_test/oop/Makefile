@@ -17,9 +17,13 @@ include $(TOPDIR)/Makefile.regression
 
 TTCN3_LIB = ttcn3$(RT2_SUFFIX)$(DYNAMIC_SUFFIX)
 
-TTCN3_MODULES = oop.ttcn exceptions.ttcn oop2.ttcn
+TTCN3_MODULES = oop.ttcn exceptions.ttcn oop2.ttcn oop_ext.ttcn
 
-USER_SOURCES = ext.cc
+CLASS_SKELETON_SOURCES = Address.cc UnnamedAddress.cc Stack.cc ExternalClass.cc ExternalBase.cc
+CLASS_SKELETON_HEADERS = $(CLASS_SKELETON_SOURCES:.cc=.hh)
+
+USER_SOURCES = $(CLASS_SKELETON_SOURCES) ExternalSub.cc
+USER_HEADERS = $(USER_SOURCES:.cc=.hh)
 
 GENERATED_SOURCES = $(ASN1_MODULES:.asn=.cc) $(TTCN3_MODULES:.ttcn=.cc)
 
@@ -42,13 +46,13 @@ all: $(TARGET)
 $(TARGET): $(GENERATED_SOURCES) $(USER_SOURCES)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ -L$(TTCN3_DIR)/lib -l$(TTCN3_LIB) -L$(OPENSSL_DIR)/lib -lcrypto $($(PLATFORM)_LIBS)
 
-$(GENERATED_SOURCES) $(GENERATED_HEADERS): compile
+$(GENERATED_SOURCES) $(GENERATED_HEADERS) $(CLASS_SKELETON_SOURCES) $(CLASS_SKELETON_HEADERS): compile
 
 compile: $(TTCN3_MODULES) $(ASN1_MODULES)
-	$(TTCN3_COMPILER) -k $(COMPILER_FLAGS) $^
+	$(TTCN3_COMPILER) -kt $(COMPILER_FLAGS) $^
 
 clean distclean:
-	$(RM) $(TARGET) $(GENERATED_HEADERS) $(GENERATED_SOURCES) $(OBJECTS) *.log Makefile.bak compile
+	$(RM) $(TARGET) $(GENERATED_HEADERS) $(GENERATED_SOURCES) $(CLASS_SKELETON_SOURCES) $(CLASS_SKELETON_HEADERS) $(OBJECTS) *.log Makefile.bak compile
 
 dep: $(GENERATED_SOURCES)
 	makedepend $(CPPFLAGS) $(GENERATED_SOURCES)

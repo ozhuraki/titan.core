@@ -242,8 +242,8 @@ namespace Common {
 
       /** cannot distinguish during parsing; can be COMP or TMR */
       OPTYPE_UNDEF_RUNNING, // r1 [r2] b4                   86
-      OPTYPE_UNDEF_CREATE, // r1 t_list2 b4
-      OPTYPE_CLASS_CREATE, // r1 t_list2
+      OPTYPE_UNDEF_CREATE, // r1 t_list2 t_list3 b4
+      OPTYPE_CLASS_CREATE, // r1 t_list2 t_list3
       OPTYPE_COMP_NULL, // - (from V_TTCN3_NULL)
       OPTYPE_COMP_MTC, // -                    90
       OPTYPE_COMP_SYSTEM, // -
@@ -362,7 +362,11 @@ namespace Common {
           Ttcn::Reference *r2;
           Ttcn::FieldOrArrayRefs* subrefs2;
         };
-        Value *v3;
+        union {
+          Value *v3;
+          Ttcn::ParsedActualParameters *t_list3;
+          Ttcn::ActualParList *ap_list3;
+        };
         union {
           Value *v4;
           TemplateInstance *ti4;
@@ -446,9 +450,10 @@ namespace Common {
       Ttcn::ParsedActualParameters *p_t_list2, Value *p_v3);
     /** Constructor used by V_EXPR "r1 [v2]": EXECUTE or [r1] v2 */
     Value(operationtype_t p_optype, Ttcn::Reference *p_r1, Value *v2);
-    /** Constructor used by V_EXPR "r1 t_list2 b4": UNDEF_CREATE */
+    /** Constructor used by V_EXPR "r1 t_list2 t_list3 b4": UNDEF_CREATE */
     Value(operationtype_t p_optype, Ttcn::Reference *p_r1,
-      Ttcn::ParsedActualParameters* p_t_list2, bool p_b4);
+      Ttcn::ParsedActualParameters* p_t_list2,
+      Ttcn::ParsedActualParameters* p_t_list3, bool p_b4);
     /** Constructor used by V_EXPR "v1 v2" */
     Value(operationtype_t p_optype, Value *p_v1, Value *p_v2);
     /** Constructor used by V_EXPR "v1 v2 v3" */
@@ -979,7 +984,8 @@ namespace Common {
     /** Helper function for \a generate_code_expr_expr(). It handles
      *  create() for classes. */
     static void generate_code_expr_class_create(expression_struct* expr,
-      Ttcn::Reference* type, Ttcn::ActualParList* ap_list);
+      Ttcn::Reference* type, Ttcn::ActualParList* ap_list,
+      Ttcn::ActualParList* ext_ap_list);
     /** Helper function for \a generate_code_expr_expr(). It handles
      *  create() for components. */
     static void generate_code_expr_comp_create(expression_struct *expr,

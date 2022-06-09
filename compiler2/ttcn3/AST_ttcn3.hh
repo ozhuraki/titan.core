@@ -1622,7 +1622,6 @@ namespace Ttcn {
     // pretty or compact printing for json or xml
     Ttcn::PrintingType *printing;
     bool deterministic;
-    bool ext_keyword;
     /// Copy constructor disabled
     Def_ExtFunction(const Def_ExtFunction& p);
     /// %Assignment disabled
@@ -1642,12 +1641,12 @@ namespace Ttcn {
     Def_ExtFunction(bool p_deterministic, Identifier *p_id, FormalParList *p_fpl,
       Type *p_return_type, bool returns_template,
       template_restriction_t p_template_restriction, bool p_final,
-      Common::SignatureExceptions* p_exceptions, bool p_ext_keyword)
+      Common::SignatureExceptions* p_exceptions)
       : Def_Function_Base(true, p_id, p_fpl, p_return_type, returns_template,
           p_template_restriction, p_final, p_exceptions),
       function_type(EXTFUNC_MANUAL), encoding_type(Type::CT_UNDEF),
       encoding_options(0), eb_list(0), printing(0),
-      deterministic(p_deterministic), ext_keyword(p_ext_keyword) { }
+      deterministic(p_deterministic) { }
     ~Def_ExtFunction();
     virtual Def_ExtFunction *clone() const;
     virtual void set_fullname(const string& p_fullname);
@@ -1822,6 +1821,10 @@ namespace Ttcn {
      * the constructor has no parameters. */
     FormalParList* fp_list;
     
+    /** The external formal parameter list of the constructor (for external classes).
+     * It is empty (but not NULL) if there are no external parameters. */
+    FormalParList* ext_fp_list;
+
     Reference* base_call;
     
     StatementBlock* block;
@@ -1836,13 +1839,14 @@ namespace Ttcn {
     /// %Assignment disabled
     Def_Constructor& operator=(const Def_Constructor& p);
   public:
-    Def_Constructor(FormalParList* p_fp_list, Reference* p_base_call,
+    Def_Constructor(FormalParList* p_fp_list, FormalParList* p_ext_fp_list, Reference* p_base_call,
       StatementBlock* p_block);
     virtual ~Def_Constructor();
     virtual Def_Constructor* clone() const;
     virtual void set_fullname(const string& p_fullname);
     virtual void set_my_scope(Scope* p_scope);
     virtual FormalParList* get_FormalParList();
+    FormalParList* get_external_FormalParList();
     virtual Reference* get_base_call() const { return base_call; }
     virtual void add_uninit_member(const Identifier* p_member_id, bool p_is_template);
     virtual void chk();

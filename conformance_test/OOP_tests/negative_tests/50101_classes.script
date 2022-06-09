@@ -169,152 +169,157 @@ error: Cannot create an instance of abstract class type
 <END_TC>
 :exmp
 
+.
+. The tests related to external classes have been removed, since version 1.3.1
+. of the TTCN-3 standard extension has changed the restrictions on external classes.
+.
+
 .*---------------------------------------------------------------------*
-:h2. 5010103_external_classes folder
+.:h2. 5010103_external_classes folder
 .*---------------------------------------------------------------------*
+
+.*---------------------------------------------------------------------*
+.:h3. NegSem_5010103_externalClasses_001a negative test
+.*---------------------------------------------------------------------*
+.:xmp tab=0.
+
+.<TC - NegSem_5010103_externalClasses_001a >
+
+.<COMPILE>
+
+.<MODULE TTCN NegSem_5010103_externalClasses_001a NegSem_5010103_externalClasses_001a.ttcn >
+./*****************************************************************
+. ** @author  STF 572
+. ** @version 0.0.1
+. ** @purpose 5.1.1.3, Ensure that external classes shall not contain fields or functions with a body.
+. ** @verdict pass reject
+.*****************************************************************/
+.module NegSem_5010103_externalClasses_001a "TTCN-3:2018 Object-Oriented" {
+    
+.    type component GeneralComp {
+.    }
+
+.    type external class Java_Int_List {
+.        function add(integer v) {  //not allowed
+.            log("Add v to integer list"); 
+.        }
+.        function get(integer index) return integer;
+.       // const charstring c_a := "ret"; //not allowed
+.    }
+
+.    testcase TC_NegSem_5010103_externalClasses_001a() runs on GeneralComp {
+.        //empty testcase
+.        setverdict(pass);
+.    }
+
+.    control {
+.        execute(TC_NegSem_5010103_externalClasses_001a());
+.    }
+.}
+.<END_MODULE>
+
+.<RESULT COUNT>
+.error: An external class cannot contain a function
+.<END_RESULT>
+
+.<END_TC>
+.:exmp
 
 *---------------------------------------------------------------------*
-:h3. NegSem_5010103_externalClasses_001a negative test
+.:h3. NegSem_5010103_externalClasses_001b negative test
 .*---------------------------------------------------------------------*
-:xmp tab=0.
+.:xmp tab=0.
 
-<TC - NegSem_5010103_externalClasses_001a >
+.<TC - NegSem_5010103_externalClasses_001b >
 
-<COMPILE>
+.<COMPILE>
 
-<MODULE TTCN NegSem_5010103_externalClasses_001a NegSem_5010103_externalClasses_001a.ttcn >
-/*****************************************************************
- ** @author  STF 572
- ** @version 0.0.1
- ** @purpose 5.1.1.3, Ensure that external classes shall not contain fields or functions with a body.
- ** @verdict pass reject
-*****************************************************************/
-module NegSem_5010103_externalClasses_001a "TTCN-3:2018 Object-Oriented" {
+.<MODULE TTCN NegSem_5010103_externalClasses_001b NegSem_5010103_externalClasses_001b.ttcn >
+./*****************************************************************
+. ** @author  STF 572
+. ** @version 0.0.1
+. ** @purpose 5.1.1.3, Ensure that external classes shall not contain fields or functions with a body.
+. ** @verdict pass reject
+.*****************************************************************/
+.module NegSem_5010103_externalClasses_001b "TTCN-3:2018 Object-Oriented" {
     
-    type component GeneralComp {
-    }
+.    type component GeneralComp {
+.    }
 
-    type external class Java_Int_List {
-        function add(integer v) {  //not allowed
-            log("Add v to integer list"); 
-        }
-        function get(integer index) return integer;
-       // const charstring c_a := "ret"; //not allowed
-    }
+.    type external class Java_Int_List {
+.       // function add(integer v) {  //not allowed
+.       //     log("Add v to integer list"); 
+.       // }
+.        function get(integer index) return integer;
+.       const charstring c_a := "ret"; //not allowed
+.    }
 
-    testcase TC_NegSem_5010103_externalClasses_001a() runs on GeneralComp {
-        //empty testcase
-        setverdict(pass);
-    }
+.    testcase TC_NegSem_5010103_externalClasses_001b() runs on GeneralComp {
+.        //empty testcase
+.        setverdict(pass);
+.    }
 
-    control {
-        execute(TC_NegSem_5010103_externalClasses_001a());
-    }
-}
-<END_MODULE>
+.    control {
+.        execute(TC_NegSem_5010103_externalClasses_001b());
+.    }
+.}
+.<END_MODULE>
 
-<RESULT COUNT>
-error: An external class cannot contain a function
-<END_RESULT>
+.<RESULT COUNT>
+.error: An external class cannot contain a constant
+.<END_RESULT>
 
-<END_TC>
-:exmp
+.<END_TC>
+.:exmp
 
 *---------------------------------------------------------------------*
-:h3. NegSem_5010103_externalClasses_001b negative test
+.:h3. NegSem_5010103_externalClasses_002 negative test
 .*---------------------------------------------------------------------*
-:xmp tab=0.
+.:xmp tab=0.
 
-<TC - NegSem_5010103_externalClasses_001b >
+.<TC - NegSem_5010103_externalClasses_002 >
 
-<COMPILE>
+.<COMPILE>
 
-<MODULE TTCN NegSem_5010103_externalClasses_001b NegSem_5010103_externalClasses_001b.ttcn >
-/*****************************************************************
- ** @author  STF 572
- ** @version 0.0.1
- ** @purpose 5.1.1.3, Ensure that external classes shall not contain fields or functions with a body.
- ** @verdict pass reject
-*****************************************************************/
-module NegSem_5010103_externalClasses_001b "TTCN-3:2018 Object-Oriented" {
+.<MODULE TTCN NegSem_5010103_externalClasses_002 NegSem_5010103_externalClasses_002.ttcn >
+./*****************************************************************
+. ** @author  STF 572
+. ** @version 0.0.1
+. ** @purpose 5.1.1.3, Ensure that external classes shall not be derived from non-external classes.
+. ** @verdict pass reject
+.*****************************************************************/
+.module NegSem_5010103_externalClasses_002 "TTCN-3:2018 Object-Oriented" {
     
-    type component GeneralComp {
-    }
+.    type component GeneralComp {
+.    }
 
-    type external class Java_Int_List {
-       // function add(integer v) {  //not allowed
-       //     log("Add v to integer list"); 
-       // }
-        function get(integer index) return integer;
-       const charstring c_a := "ret"; //not allowed
-    }
+.    type class @abstract Collection_Interface {
+.        //function add(integer v) ; //FIXME!!!
+.        function add(integer v) {};
+.    }
 
-    testcase TC_NegSem_5010103_externalClasses_001b() runs on GeneralComp {
-        //empty testcase
-        setverdict(pass);
-    }
+.    type external class Java_Int_List extends Collection_Interface { //not allowed
+.        function add(integer v);
+.        function get(integer index) return integer;
+.    }
 
-    control {
-        execute(TC_NegSem_5010103_externalClasses_001b());
-    }
-}
-<END_MODULE>
+.    testcase TC_NegSem_5010103_externalClasses_002() runs on GeneralComp {
+.        //empty testcase
+.        setverdict(pass);
+.    }
 
-<RESULT COUNT>
-error: An external class cannot contain a constant
-<END_RESULT>
+.    control {
+.        execute(TC_NegSem_5010103_externalClasses_002());
+.    }
+.}
+.<END_MODULE>
 
-<END_TC>
-:exmp
+.<RESULT COUNT>
+.error: An external class cannot extend an internal class
+.<END_RESULT>
 
-*---------------------------------------------------------------------*
-:h3. NegSem_5010103_externalClasses_002 negative test
-.*---------------------------------------------------------------------*
-:xmp tab=0.
-
-<TC - NegSem_5010103_externalClasses_002 >
-
-<COMPILE>
-
-<MODULE TTCN NegSem_5010103_externalClasses_002 NegSem_5010103_externalClasses_002.ttcn >
-/*****************************************************************
- ** @author  STF 572
- ** @version 0.0.1
- ** @purpose 5.1.1.3, Ensure that external classes shall not be derived from non-external classes.
- ** @verdict pass reject
-*****************************************************************/
-module NegSem_5010103_externalClasses_002 "TTCN-3:2018 Object-Oriented" {
-    
-    type component GeneralComp {
-    }
-
-    type class @abstract Collection_Interface {
-        //function add(integer v) ; //FIXME!!!
-        function add(integer v) {};
-    }
-
-    type external class Java_Int_List extends Collection_Interface { //not allowed
-        function add(integer v);
-        function get(integer index) return integer;
-    }
-
-    testcase TC_NegSem_5010103_externalClasses_002() runs on GeneralComp {
-        //empty testcase
-        setverdict(pass);
-    }
-
-    control {
-        execute(TC_NegSem_5010103_externalClasses_002());
-    }
-}
-<END_MODULE>
-
-<RESULT COUNT>
-error: An external class cannot extend an internal class
-<END_RESULT>
-
-<END_TC>
-:exmp
+.<END_TC>
+.:exmp
 
 *---------------------------------------------------------------------*
 :h3. NegSem_5010104_finalClasses_001 negative test
