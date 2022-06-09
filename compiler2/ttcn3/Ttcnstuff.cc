@@ -4519,20 +4519,12 @@ namespace Ttcn {
 
     string header_name;
     string source_name;
-    string base_header_include;
     if (output_dir != NULL) {
       header_name = string(output_dir) + string("/");
       source_name = string(output_dir) + string("/");
     }
     header_name += file_prefix + string(".hh");
     source_name += file_prefix + string(".cc");
-
-    if (base_class != NULL && base_class->external) {
-      base_header_include = string("#include \"");
-      base_header_include += duplicate_underscores ? base_class->class_id->get_name() :
-          base_class->class_id->get_dispname();
-      base_header_include += string(".hh\"\n\n");
-    }
 
     char* user_info = NULL;
     if (disable_user_info == FALSE) {
